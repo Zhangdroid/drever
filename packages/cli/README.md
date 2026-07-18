@@ -18,10 +18,17 @@ Run it with:
 ```sh
 drever dev slides.mdx
 drever build slides.mdx
+drever export pdf slides.mdx --steps --output slides-export.pdf
 ```
 
-Both commands default to `slides.mdx`. The CLI owns its Vite application entry;
+All commands default to `slides.mdx`. PDF export writes
+`<entry-basename>-export.pdf` in the project root unless `--output` is provided;
+`--steps` includes every incremental reveal. The CLI owns its Vite application entry;
 deck authors configure only Drever's stable surface:
+
+PDF export uses Playwright's Chromium runtime without loading it for `dev` or
+`build`. Install the browser once with `npx playwright install chromium` (or
+`npx playwright install --with-deps chromium` in CI).
 
 ```ts
 import { defineConfig } from "drever";

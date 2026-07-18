@@ -101,6 +101,12 @@ const projectDefinitions = [
       url: "http://127.0.0.1:4321",
     },
   },
+  {
+    name: "export-chromium",
+    testMatch: "**/*.export.spec.ts",
+    use: { contextOptions: { reducedMotion: "reduce" } },
+    webServer: undefined,
+  },
 ] as const;
 
 const projectFilters = readProjectFilters(process.argv);
@@ -131,5 +137,7 @@ export default defineConfig({
     viewport: { height: 900, width: 1440 },
   },
   projects: projectDefinitions.map(({ webServer: _, ...project }) => project),
-  webServer: selectedProjects.map(({ webServer }) => webServer),
+  webServer: selectedProjects.flatMap(({ webServer }) =>
+    webServer === undefined ? [] : [webServer],
+  ),
 });

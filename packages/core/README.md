@@ -23,9 +23,15 @@ React Canary and current browsers; it intentionally uses React `Activity` for
 inactive slide state and effect lifecycle.
 
 Components with media, network work, or global listeners should call
-`useDreverRenderMode()`. It returns `audience`, `speaker-current`, or
+`useDreverRenderMode()`. It returns `audience`, `export`, `speaker-current`, or
 `speaker-next`, allowing a component to stay visually representative while
-suppressing side effects in speaker previews.
+suppressing side effects in previews and deterministic exports.
+
+Exporters can pass `idPrefix` to `DreverRenderModeProvider` when they render the
+same compiled content tree more than once. The prefix keeps rendered slide IDs
+unique without changing the canonical `data-slide-id`. In `export` mode,
+inactive slides are omitted from the tree while active slides retain the same
+Step state semantics as the audience viewer.
 
 ## Status
 

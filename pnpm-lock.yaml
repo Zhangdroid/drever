@@ -235,6 +235,9 @@ catalogs:
     katex:
       specifier: 0.18.1
       version: 0.18.1
+    playwright:
+      specifier: 1.61.1
+      version: 1.61.1
     rehype-katex:
       specifier: 7.0.1
       version: 7.0.1
@@ -353,6 +356,9 @@ importers:
       '@drever/vite':
         specifier: workspace:*
         version: link:../vite
+      playwright:
+        specifier: 'catalog:'
+        version: 1.61.1
       react:
         specifier: 19.3.0-canary-83840902-20260719
         version: 19.3.0-canary-83840902-20260719

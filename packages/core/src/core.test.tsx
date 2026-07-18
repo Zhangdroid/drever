@@ -163,6 +163,88 @@ describe("core primitives", () => {
     expect(markup).not.toContain("Hidden content");
   });
 
+  it("prunes inactive slides from export renders", () => {
+    const markup = renderToStaticMarkup(
+      createElement(
+        DreverRenderModeProvider,
+        { mode: "export" },
+        createElement(
+          SlideStateProvider,
+          {
+            resolver: ({ id }) =>
+              Object.freeze({ active: id === "details", currentStep: id === "details" ? 2 : 0 }),
+          },
+          createElement(Slide, { id: "intro", index: 0 }, "Pruned introduction"),
+          createElement(Slide, { id: "details", index: 1 }, "Exported details"),
+        ),
+      ),
+    );
+
+    expect(markup).not.toContain("intro");
+    expect(markup).not.toContain("Pruned introduction");
+    expect(markup).toContain('id="details"');
+    expect(markup).toContain("Exported details");
+  });
+
+  it("omits audience-only current-page and focus state from export slides", () => {
+    const markup = renderToStaticMarkup(
+      createElement(
+        DreverRenderModeProvider,
+        { mode: "export" },
+        createElement(Slide, { active: true, tabIndex: 0 }, "Static page"),
+      ),
+    );
+
+    expect(markup).not.toContain("aria-current");
+    expect(markup).not.toContain("tabindex");
+    expect(markup).toContain("Static page");
+  });
+
+  it("preserves step states in export renders", () => {
+    const markup = renderToStaticMarkup(
+      createElement(
+        DreverRenderModeProvider,
+        { mode: "export" },
+        createElement(
+          Slide,
+          { id: "steps", active: true, currentStep: 2 },
+          createElement(Step, { at: 1 }, "Complete"),
+          createElement(Step, { at: 2 }, "Active"),
+          createElement(Step, { at: 3 }, "Pending"),
+        ),
+      ),
+    );
+
+    expect(markup).toContain('data-drever-step="1" data-step-state="complete"');
+    expect(markup).toContain('data-drever-step="2" data-step-state="active"');
+    expect(markup).toContain('data-step-state="pending" aria-hidden="true" inert=""');
+    expect(markup).toContain('style="visibility:hidden"');
+  });
+
+  it("prefixes slide IDs for repeated render instances", () => {
+    const Content = () => createElement(Slide, { id: "overview" }, "Overview");
+    const markup = renderToStaticMarkup(
+      createElement(
+        "main",
+        {},
+        createElement(
+          DreverRenderModeProvider,
+          { mode: "export", idPrefix: "page-1" },
+          createElement(Content),
+        ),
+        createElement(
+          DreverRenderModeProvider,
+          { mode: "export", idPrefix: "page-2" },
+          createElement(Content),
+        ),
+      ),
+    );
+
+    expect(markup).toContain('id="page-1-overview"');
+    expect(markup).toContain('id="page-2-overview"');
+    expect(markup.match(/data-slide-id="overview"/g)).toHaveLength(2);
+  });
+
   it("rejects invalid resolver output and missing compiled Step indexes", () => {
     expect(() =>
       renderToStaticMarkup(
@@ -229,6 +311,11 @@ describe("core primitives", () => {
         ),
       ),
     ).toContain('id="speaker-next-slide-2"');
+    expect(
+      renderToStaticMarkup(
+        createElement(DreverRenderModeProvider, { mode: "export" }, createElement(Probe)),
+      ),
+    ).toContain("export");
   });
 });
 

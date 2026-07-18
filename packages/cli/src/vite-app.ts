@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import type { DeckManifest } from "@drever/schema";
 import {
   build,
   createServer,
@@ -104,6 +105,50 @@ const inlineConfig = (project: ResolvedDreverProject, appRoot: string): InlineCo
   };
 };
 
+const requireBuiltManifest = (project: ResolvedDreverProject): DeckManifest => {
+  const manifest = project.getDeckManifest();
+  if (manifest !== undefined) {
+    return manifest;
+  }
+  throw new DreverCliError(
+    "DREVER_BUILD_MANIFEST_MISSING",
+    "The production build did not emit a DeckManifest for the configured entry.",
+    {
+      details: { entry: project.entry },
+      hint: "Ensure the configured entry is the MDX deck compiled by Drever.",
+    },
+  );
+};
+
+const buildPrivateApp = async (
+  project: ResolvedDreverProject,
+  appRoot: string,
+  outDir: string,
+  sourcemap: boolean | "hidden" | "inline",
+  logLevel?: InlineConfig["logLevel"],
+): Promise<DeckManifest> => {
+  await build({
+    ...inlineConfig(project, appRoot),
+    base: "./",
+    build: { emptyOutDir: true, outDir, sourcemap },
+    ...(logLevel === undefined ? {} : { logLevel }),
+  });
+  return requireBuiltManifest(project);
+};
+
+const buildFailure = (
+  cause: unknown,
+  project: ResolvedDreverProject,
+  outDir: string,
+): DreverCliError =>
+  cause instanceof DreverCliError
+    ? cause
+    : new DreverCliError("DREVER_BUILD_FAILED", "The Drever production build failed.", {
+        cause,
+        details: { entry: project.entry, outDir },
+        hint: "Review the compiler diagnostic above and fix the deck or extension configuration.",
+      });
+
 /** @internal Keeps the private generated app alive until its development server closes. */
 export const attachPrivateAppLifetime = (
   server: Pick<ViteDevServer, "close">,
@@ -143,38 +188,36 @@ export const resolveSpeakerUrls = (resolvedUrls: ResolvedServerUrls | null): rea
 export const buildDreverProject = async (project: ResolvedDreverProject): Promise<void> => {
   const app = await createPrivateApp(project.entry, project.config.canvas);
   try {
-    await build({
-      ...inlineConfig(project, app.root),
-      base: "./",
-      build: {
-        emptyOutDir: true,
-        outDir: project.outDir,
-        sourcemap: project.config.build?.sourcemap ?? false,
-      },
-    });
-    const manifest = project.getDeckManifest();
-    if (manifest === undefined) {
-      throw new DreverCliError(
-        "DREVER_BUILD_MANIFEST_MISSING",
-        "The production build did not emit a DeckManifest for the configured entry.",
-        {
-          details: { entry: project.entry },
-          hint: "Ensure the configured entry is the MDX deck compiled by Drever.",
-        },
-      );
-    }
+    const manifest = await buildPrivateApp(
+      project,
+      app.root,
+      project.outDir,
+      project.config.build?.sourcemap ?? false,
+    );
     await writeStaticDeckRoutes(project.outDir, manifest);
   } catch (cause) {
-    if (cause instanceof DreverCliError) {
-      throw cause;
-    }
-    throw new DreverCliError("DREVER_BUILD_FAILED", "The Drever production build failed.", {
-      cause,
-      details: { entry: project.entry, outDir: project.outDir },
-      hint: "Review the compiler diagnostic above and fix the deck or extension configuration.",
-    });
+    throw buildFailure(cause, project, project.outDir);
   } finally {
     await app.dispose();
+  }
+};
+
+export type BuiltDreverExportApp = Readonly<{
+  manifest: DeckManifest;
+  outDir: string;
+}>;
+
+/** @internal Builds an exporter-only app without writing presentation routes or project output. */
+export const buildDreverExportApp = async (
+  project: ResolvedDreverProject,
+  appRoot: string,
+): Promise<BuiltDreverExportApp> => {
+  const outDir = join(appRoot, "dist");
+  try {
+    const manifest = await buildPrivateApp(project, appRoot, outDir, false, "silent");
+    return Object.freeze({ manifest, outDir });
+  } catch (cause) {
+    throw buildFailure(cause, project, outDir);
   }
 };
 

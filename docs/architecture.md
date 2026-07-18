@@ -17,10 +17,10 @@ MDX source
   -> Deck IR
   -> Compile Plan
   -> Deck Artifact
-  -> Audience Viewer / Speaker View
+  -> Audience Viewer / Speaker View / Export Document
 
 Future consumers of the same artifact:
-  -> Overview / Exporter
+  -> Overview / Design Inspector
 ```
 
 The Deck IR is serializable and independent from React, Vite, and the filesystem.
@@ -85,8 +85,8 @@ compiler  core (runtime)
 - `compiler`: MDX parsing, analysis, plugin planning, and artifact emission.
 - `core`: React authoring primitives and deterministic presentation state.
 - `vite`: the standard Vite adapter. Vite+ must not leak into public APIs.
-- `client`: audience and speaker runtimes over shared manifest, routing,
-  state-machine, and synchronization contracts.
+- `client`: audience, speaker, and export runtimes over shared manifest,
+  routing, state-machine, readiness, and synchronization contracts.
 - `cli`: orchestration and terminal formatting only.
 
 The public npm facade and CLI package is `drever`. Supporting libraries use the
@@ -101,11 +101,11 @@ API. The canonical adapter imports its non-configurable grammar and finalizers
 from the explicit `@drever/compiler/internal` subpath; that subpath is not a
 plugin-author extension surface.
 
-The current client vertical slice exposes both audience and speaker surfaces
-through the public `drever dev` and `drever build` flows. `<Note>` is captured
-into the compiler-owned manifest and removed from the audience tree. The speaker
-surface consumes that explicit artifact; overview remains a separate future view
-over the same manifest.
+The current client vertical slice exposes audience, speaker, and export surfaces
+through the public `drever dev`, `drever build`, and `drever export pdf` flows.
+`<Note>` is captured into the compiler-owned manifest and removed from audience
+and export trees. The speaker surface consumes that explicit artifact; overview
+remains a separate future view over the same manifest.
 
 The CLI-generated application selects `createViewer` or `createSpeaker` from
 `@drever/client` based on the canonical route. Both receive compiled MDX
@@ -113,6 +113,13 @@ The CLI-generated application selects `createViewer` or `createSpeaker` from
 module, and the target DOM element. They own React mounting, Navigation API
 interception, keyboard controls, `BroadcastChannel` synchronization, runtime
 setup, and disposal. See [Client runtime](./client-runtime.md).
+
+PDF export uses a dedicated generated application and imports only the
+export-runtime lifecycle boundary. The CLI builds and serves it from an
+operating-system temporary directory, captures one tagged Chromium PDF after
+explicit readiness, disposes the export runtime, then writes the completed
+buffer. It does not drive audience routes, merge page files, or touch the
+configured build directory.
 
 The client intentionally has no legacy router, animation, synchronization, or
 resize fallback. Navigation API, `Element.startViewTransition`,
@@ -149,6 +156,12 @@ motion grammar, design recipes, diagnostics, and plugin protocol. Specialist
 build-time tools such as MDX, Shiki, Tailwind, and KaTeX are allowed because
 their implementations are not Drever's product advantage.
 
+Playwright Library is a CLI-only dependency for deterministic Chromium PDF
+capture. It is dynamically imported only by `export pdf`; the separate browser
+binary is installed explicitly. Browser automation, PDF tagging, page sizing,
+and process cleanup are infrastructure, while Drever retains page planning,
+readiness, plugin lifecycle, and error semantics.
+
 Vite+ is the internal toolchain for formatting, linting, type checking, tests,
 packing, and tasks. Public integrations continue to speak the standard Vite API.
 
@@ -172,8 +185,9 @@ and an actionable hint. The same value is consumed by humans, tests, and AI.
 - Plugin and theme contract tests run against shared fixtures.
 - Real-browser tests cover audience and speaker path routing, native
   element-scoped View Transitions, cross-window synchronization, static deep
-  links, and visual states. Exporter coverage begins with its future vertical
-  slice.
+  links, and visual states. Export E2E runs the public command and verifies
+  final and sparse-Step page counts, tags, dimensions, build isolation, and
+  rejecting-plugin cleanup.
 - Built-in layouts, themes, and motion intents are consumed by small showcase
   decks with Chromium assertions for geometry, state, accessibility, and
   overflow. Pixel baselines are reserved for visual contracts stable enough to

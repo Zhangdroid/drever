@@ -17,24 +17,31 @@ type SlideRuntime = Readonly<{
 
 const SlideContext = createContext<SlideRuntime | undefined>(undefined);
 
-export type DreverRenderMode = "audience" | "speaker-current" | "speaker-next";
+export type DreverRenderMode = "audience" | "export" | "speaker-current" | "speaker-next";
 
 const DreverRenderModeContext = createContext<DreverRenderMode>("audience");
+const DreverRenderIdPrefixContext = createContext<string | undefined>(undefined);
 
 export type DreverRenderModeProviderProps = PropsWithChildren<
   Readonly<{
+    idPrefix?: string;
     mode: DreverRenderMode;
   }>
 >;
 
-/** Identifies whether MDX is rendering for the audience or a speaker preview. */
+/** Identifies the surface rendering MDX and optionally isolates its generated IDs. */
 export const DreverRenderModeProvider = ({
   children,
+  idPrefix,
   mode,
 }: DreverRenderModeProviderProps): ReactElement =>
-  createElement(DreverRenderModeContext.Provider, { value: mode }, children);
+  createElement(
+    DreverRenderModeContext.Provider,
+    { value: mode },
+    createElement(DreverRenderIdPrefixContext.Provider, { value: idPrefix }, children),
+  );
 
-/** Lets components suppress media, network, and global effects in speaker previews. */
+/** Lets components adapt media, network, and global effects to the current render surface. */
 export const useDreverRenderMode = (): DreverRenderMode => useContext(DreverRenderModeContext);
 
 export type SlideIdentity = Readonly<{
@@ -123,10 +130,11 @@ export const Slide = ({
   index,
   currentStep: explicitStep,
   ...props
-}: SlideProps): ReactElement => {
+}: SlideProps): ReactElement | null => {
   assertBoolean("active", explicitActive);
   assertNonNegativeInteger("index", index);
   const renderMode = useContext(DreverRenderModeContext);
+  const idPrefix = useContext(DreverRenderIdPrefixContext);
   const resolver = useContext(SlideStateResolverContext);
   const needsResolvedState = explicitActive === undefined || explicitStep === undefined;
   const resolvedState =
@@ -142,8 +150,20 @@ export const Slide = ({
       : undefined;
   const active = explicitActive ?? resolvedState?.active ?? true;
   const currentStep = explicitStep !== undefined ? explicitStep : (resolvedState?.currentStep ?? 0);
-  const renderedId = id === undefined || renderMode === "audience" ? id : `${renderMode}-${id}`;
+  const exporting = renderMode === "export";
+  const renderedId =
+    id === undefined
+      ? undefined
+      : idPrefix !== undefined
+        ? `${idPrefix}-${id}`
+        : renderMode.startsWith("speaker-")
+          ? `${renderMode}-${id}`
+          : id;
   assertNonNegativeInteger("currentStep", currentStep);
+
+  if (exporting && !active) {
+    return null;
+  }
 
   return createElement(
     "section",
@@ -155,9 +175,9 @@ export const Slide = ({
       "data-slide-index": index,
       "data-slide-state": active ? "active" : "inactive",
       "data-current-step": currentStep,
-      "aria-current": active ? "page" : undefined,
+      "aria-current": !exporting && active ? "page" : undefined,
       "aria-hidden": active ? undefined : true,
-      tabIndex: props.tabIndex ?? (active ? -1 : undefined),
+      tabIndex: exporting ? undefined : (props.tabIndex ?? (active ? -1 : undefined)),
       inert: active ? undefined : true,
       hidden: active ? undefined : true,
     },

@@ -1,13 +1,16 @@
 # Quick start
 
-This guide describes the current audience and speaker vertical slice: author an
-MDX deck, present it locally, and build a standalone web application.
+This guide describes the current delivery slice: author an MDX deck, present it
+locally, build a standalone web application, and export a portable PDF.
 
 ## Requirements
 
 - Node.js 24.18 or newer.
 - A current Chromium-family browser with Navigation API,
   `Element.startViewTransition`, `BroadcastChannel`, and `ResizeObserver`.
+- Playwright Chromium for PDF export. Install it once with
+  `npx playwright install chromium`. CI images can use
+  `npx playwright install --with-deps chromium`.
 
 Drever deliberately has no legacy router or animation fallback. It reports an
 unsupported-platform diagnostic when a required browser API is missing.
@@ -21,7 +24,8 @@ Install `drever` as a project dependency and add scripts for its local binary:
 {
   "scripts": {
     "dev": "drever dev",
-    "build": "drever build"
+    "build": "drever build",
+    "export": "drever export pdf"
   },
   "devDependencies": {
     "drever": "latest"
@@ -65,6 +69,38 @@ command also accepts one entry path, for example `drever dev talks/demo.mdx`.
 Content-only MDX edits use React Fast Refresh and preserve the current URL, Step,
 and interactive component state. Changing slide boundaries or Step stops
 rebuilds the manifest and intentionally reloads the viewer.
+
+## Export a PDF
+
+Export one page per slide at its final authored Step:
+
+```bash
+drever export pdf
+```
+
+The default output is `slides-export.pdf` in the project root. An explicit
+entry and output can appear with the export flags in any order:
+
+```bash
+drever export pdf talks/keynote.mdx --output release/keynote.pdf
+drever export pdf --steps talks/keynote.mdx
+```
+
+`--steps` emits Step 0 followed by every exact compiled stop. A slide with
+`stepStops: [2, 5]` therefore creates pages for `0`, `2`, and `5`; Drever never
+invents intermediate states. Notes are excluded. Export uses the configured or
+theme canvas, disables motion, waits for exporter-only plugin hooks, usable
+fonts, and authored images, and writes the PDF only after capture and cleanup
+succeed. Its temporary Vite application never mutates `build.outDir`.
+
+Use React `useId` in reusable components; duplicate hard-coded DOM IDs fail
+multi-page export. Components that use CSS background images, canvas, video
+posters, or dynamically created media must await them from an `exportSetup`
+hook.
+
+The result is deterministic in page order, presentation state, dimensions, and
+readiness. PDF metadata can vary with Chromium and the host font environment,
+so byte-for-byte equality is not part of the contract.
 
 ## Configure the project
 

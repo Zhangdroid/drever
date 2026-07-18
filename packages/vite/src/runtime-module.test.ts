@@ -210,6 +210,7 @@ describe("runtime virtual modules", () => {
 
     expect(source).toContain('from "chart-export"');
     expect(source).toContain("export const runExportSetup = async (runtime)");
+    expect(source).toContain("__dreverRunHooks(runtime, __dreverHooks, runtime.signal)");
     expect(source).toContain('\\"format\\":\\"pdf\\"');
     expect(source).not.toContain('from "theme-motion"');
     expect(source).not.toContain('from "chart-setup"');

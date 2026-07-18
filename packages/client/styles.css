@@ -832,4 +832,77 @@
       padding-inline: 10px;
     }
   }
+
+  :root:has(.drever-export-document),
+  body:has(.drever-export-document) {
+    overflow: visible;
+    background: transparent;
+  }
+
+  .drever-viewer.drever-export-document {
+    position: static;
+    inset: auto;
+    width: calc(var(--drever-canvas-width) * 1px);
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    background: transparent;
+    color: var(--drever-canvas-color, #15171a);
+    color-scheme: var(--drever-canvas-color-scheme, light);
+    isolation: auto;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .drever-export-document,
+  .drever-export-document *,
+  .drever-export-document::before,
+  .drever-export-document::after,
+  .drever-export-document *::before,
+  .drever-export-document *::after {
+    animation: none !important;
+    transition: none !important;
+    view-transition-name: none !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .drever-export-page {
+    position: relative;
+    isolation: isolate;
+    box-sizing: border-box;
+    width: calc(var(--drever-canvas-width) * 1px);
+    height: calc(var(--drever-canvas-height) * 1px);
+    margin: 0;
+    overflow: hidden;
+    break-after: page;
+    background: var(--drever-canvas-background, #fff);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .drever-export-page:last-child {
+    break-after: auto;
+  }
+
+  .drever-export-page > .drever-deck {
+    width: 100%;
+    height: 100%;
+  }
+
+  @media print {
+    .drever-export-document,
+    .drever-export-page {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .drever-export-page {
+      page-break-after: always;
+    }
+
+    .drever-export-page:last-child {
+      page-break-after: auto;
+    }
+  }
 }

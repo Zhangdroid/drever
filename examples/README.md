@@ -2,7 +2,8 @@
 
 The examples are complete Drever projects, not component sandboxes. Each one
 uses the public `drever` CLI, clean URL state, a speaker view, and a static
-production build.
+production build. The basic example also serves as the final-state and
+sparse-Step PDF export fixture.
 
 | Example        | Purpose                                                                                      | Development URL         | Command                    |
 | -------------- | -------------------------------------------------------------------------------------------- | ----------------------- | -------------------------- |

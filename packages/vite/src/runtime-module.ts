@@ -373,7 +373,7 @@ const hookRunnerSource = (
       `Object.freeze({ owner: ${JSON.stringify(pluginId)}, capability: ${JSON.stringify(capability)}, specifier: ${JSON.stringify(binding.specifier)}, hook: ${binding.local} })`,
   )
   .join(",")}]);
-export const ${name} = async (runtime) => __dreverRunHooks(runtime, __dreverHooks${name === "runSetup" ? ", runtime.signal" : ""});`;
+export const ${name} = async (runtime) => __dreverRunHooks(runtime, __dreverHooks, runtime.signal);`;
 
 const lifecycleContextSource = (
   plan: CompilePlan,

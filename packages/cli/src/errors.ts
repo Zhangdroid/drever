@@ -19,10 +19,23 @@ export class DreverCliError extends Error {
   }
 }
 
+const exportContext = (error: DreverCliError): string | undefined => {
+  if (error.code !== "DREVER_EXPORT_FAILED") {
+    return;
+  }
+  const values = ["stage", "owner", "capability", "specifier"].flatMap((key) => {
+    const value = error.details[key];
+    return typeof value === "string" ? [`${key}=${value}`] : [];
+  });
+  return values.length === 0 ? undefined : `Context: ${values.join(" ")}`;
+};
+
 export const formatCliError = (error: unknown): string => {
   if (error instanceof DreverCliError) {
+    const context = exportContext(error);
     return [
       `[${error.code}] ${error.message}`,
+      ...(context === undefined ? [] : [context]),
       ...(error.hint === undefined ? [] : [`Hint: ${error.hint}`]),
     ].join("\n");
   }

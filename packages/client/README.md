@@ -1,6 +1,6 @@
 # @drever/client
 
-Modern-browser audience and speaker runtimes for compiled Drever presentations.
+Modern-browser audience, speaker, and export runtimes for compiled Drever presentations.
 Generated Drever clients select `createViewer` for audience paths and
 `createSpeaker` for `/speaker` paths; deck authors normally let the `drever` CLI
 create that bootstrap.
@@ -31,10 +31,36 @@ element-scoped View Transitions, runtime setup, and teardown.
 and `BroadcastChannel` synchronization with audience windows. The audience
 runtime opens the equivalent speaker path when the user presses `P`.
 
+`createExport` renders one raw canvas-sized page per slide at its final Step by
+default. Pass `includeSteps: true` to include Step 0 and every exact authored
+Step stop. It runs exporter-only plugin setup, verifies loaded fonts, decodes
+authored images, rejects duplicate DOM IDs, then waits for two animation frames before publishing
+`data-drever-export-status="ready"` on the document root. Failures publish a
+JSON diagnostic through `data-drever-export-error`, including plugin owner,
+capability, and module context when available. The export surface inherits the
+active theme while disabling animation, transitions, and View Transition names.
+
+Repeated page components should use React `useId`. Export plugins must await CSS
+backgrounds, canvas rendering, video posters, and dynamically created resources
+inside `exportSetup`; those resources are not directly observable as authored
+images.
+
+```tsx
+import { createExport } from "@drever/client";
+import { runExportSetup } from "virtual:drever/export-runtime";
+
+const result = await createExport({
+  Content,
+  container,
+  manifest: deckManifest,
+  runExportSetup,
+});
+```
+
 The package targets current browsers and intentionally requires the Navigation
 API, `Element.startViewTransition`, `BroadcastChannel`, and `ResizeObserver`
-instead of shipping legacy fallbacks. Deterministic export remains a separate
-product slice.
+instead of shipping legacy fallbacks. Export readiness similarly depends on
+modern `FontFaceSet`, image decoding, and animation-frame APIs.
 
 ## Status
 

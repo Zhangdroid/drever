@@ -222,7 +222,11 @@ listeners, unmounts React, and invokes an acquired setup disposer. Core teardown
 never waits for a setup acquisition that ignored its abort signal; a late
 disposer is run by a detached continuation and failures are reported through the
 client reporter. Failed creation rolls back the resources already acquired.
-Overview and export lifecycles remain future work.
+The export client owns a separate lifetime: it mounts raw canvas-sized pages,
+awaits `runExportSetup`, fonts, images, and final layout frames, then exposes a
+ready marker for Chromium capture. Its destroy handle unmounts React and runs
+the export-hook disposer before the CLI writes output. Overview remains future
+work.
 
 Each lifecycle module embeds resolved config only for the owners of hooks it
 imports: viewer setup config never pulls in export-only plugin config, and the

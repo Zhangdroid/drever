@@ -35,10 +35,12 @@ Then use the public CLI:
 ```bash
 drever dev
 drever build
+drever export pdf
 ```
 
 `dev` starts the interactive viewer and `build` writes a standalone site to
-`dist/`. The default entry is `slides.mdx`; project settings live in
+`dist/`. `export pdf` writes `slides-export.pdf`; pass `--steps` to emit each
+authored reveal state. The default entry is `slides.mdx`; project settings live in
 `drever.config.ts`. See the [Quick start](./docs/quickstart.md) for installation,
 configuration, keyboard controls, and browser requirements.
 
@@ -55,14 +57,16 @@ The runnable vertical slice includes:
   slide navigation, direct jumps, and black/white pause screens;
 - a speaker view with current/next previews, notes, timer, and
   native `BroadcastChannel` audience synchronization;
+- deterministic, tagged PDF export at each slide's final state or every exact
+  sparse Step stop, without modifying the deployable web build;
 - state-preserving MDX Fast Refresh when the navigation manifest is unchanged;
 - structured diagnostics and deterministic plugin, theme, MDX, and Vite planning;
 - default Shiki and reset-free Tailwind CSS plugins, plus opt-in build-time math;
 - real Chromium end-to-end coverage of development and production output.
 
-PDF export, accessibility preflight, Mermaid, and the broader official plugin
-catalog are future vertical slices. The audience viewer and speaker view are
-usable in development and production builds now. See the
+Accessibility preflight, Mermaid, and the broader official plugin catalog are
+future vertical slices. The audience viewer, speaker view, static build, and
+PDF export are usable now. See the
 [product roadmap](./docs/product-roadmap.md) for the prioritized boundary.
 
 ## Explore the repository demos
@@ -118,8 +122,8 @@ vp run -F @drever/example-basic build
 ## Quality gates
 
 The required gate formats, lints, type-checks, runs meaningful unit and compiler
-tests, builds every workspace package, and executes the public dev/build flows in
-managed Chromium:
+tests, builds every workspace package, and executes the public dev/build/export
+flows in managed Chromium:
 
 ```bash
 vp run ready

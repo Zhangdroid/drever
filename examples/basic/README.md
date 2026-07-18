@@ -8,7 +8,8 @@ runtime paths:
 - browser history and exact path URLs;
 - an interactive React counter whose state survives inactive slides;
 - speaker-only `Note` content;
-- a speaker view with audience-window synchronization.
+- a speaker view with audience-window synchronization;
+- five-page final-state and seven-page sparse-Step PDF exports.
 
 ## Run from this workspace
 
@@ -34,7 +35,12 @@ The production path uses the same deck and configuration:
 
 ```sh
 vp run -F @drever/example-basic build
+vp run -F @drever/example-basic export
 ```
+
+The export command writes `slides-export.pdf`. Add `-- --steps` to include Step
+0, 2, and 5 for the progressive slide. Install its browser once with
+`npx playwright install chromium`.
 
 The root development shortcut is `vp run demo`; the production command is
 shown above. From this directory, `vp run dev` and `vp run build` are equivalent.

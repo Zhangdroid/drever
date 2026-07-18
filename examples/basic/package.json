@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "drever build",
-    "dev": "drever dev"
+    "dev": "drever dev",
+    "export": "drever export pdf"
   },
   "devDependencies": {
     "@types/react": "catalog:",

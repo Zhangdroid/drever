@@ -1,6 +1,13 @@
 export { DEFAULT_CANVAS } from "./canvas.tsx";
 export { DreverClientError, isAbortError } from "./client-error.ts";
 export type { DreverClientErrorOptions } from "./client-error.ts";
+export { createExport } from "./create-export.tsx";
+export type {
+  CreateExportOptions,
+  ExportHandle,
+  ExportRuntime,
+  ExportSetupRunner,
+} from "./create-export.tsx";
 export { createSpeaker } from "./create-speaker.tsx";
 export type { CreateSpeakerOptions, SpeakerHandle } from "./create-speaker.tsx";
 export { createViewer } from "./create-viewer.tsx";
@@ -14,6 +21,10 @@ export type {
   ViewerRuntimeTheme,
   ViewerSetupRunner,
 } from "./create-viewer.tsx";
+export { ExportDocument } from "./export-document.tsx";
+export type { ExportDocumentProps } from "./export-document.tsx";
+export { planExportPages } from "./export-pages.ts";
+export type { ExportPage, ExportPagePlanOptions } from "./export-pages.ts";
 export type {
   DeckCommand,
   DeckPosition,

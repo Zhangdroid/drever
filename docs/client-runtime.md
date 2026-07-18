@@ -1,16 +1,17 @@
 # Client runtime
 
-`@drever/client` ships two product surfaces over one compiled deck contract:
-`createViewer` for the audience and `createSpeaker` for the speaker view. The
-`drever` CLI generates the route-aware bootstrap shown below. Deck authors
-configure Drever and write MDX rather than assembling React, Navigation API,
-`BroadcastChannel`, or Vite integrations. Overview and export remain separate
-future consumers.
+`@drever/client` ships three product surfaces over one compiled deck contract:
+`createViewer` for the audience, `createSpeaker` for the speaker view, and
+`createExport` for deterministic documents. The `drever` CLI generates the
+appropriate bootstrap. Deck authors configure Drever and write MDX rather than
+assembling React, Navigation API, `BroadcastChannel`, export readiness, or Vite
+integrations. Overview remains a separate future consumer.
 
 ## Generated application entry
 
-The canonical Vite adapter exposes the compiled deck and three private virtual
-module boundaries. A generated entry combines them as follows:
+The canonical Vite adapter exposes the compiled deck and four private virtual
+module boundaries. The interactive entry combines the viewer-specific modules
+as follows:
 
 The generated project's `drever-env.d.ts` contains this type-only import, so
 TypeScript can resolve those private modules without hand-written shims:
@@ -246,6 +247,51 @@ properties, so themes can style motion while the client owns its meaning.
 When reduced motion is requested, the same state and navigation path is used but
 presentation animation is disabled. This is an accessibility behavior, not a
 legacy animation fallback.
+
+## Export surface
+
+The CLI builds a separate temporary entry that imports `createExport` and
+`virtual:drever/export-runtime`, but never the viewer setup, theme motion,
+Navigation API, speaker, or synchronization modules. It repeats the compiled
+content tree once per planned page. Core export mode omits inactive slides, and
+an instance prefix keeps generated slide IDs unique across repeated trees.
+
+By default, page planning selects `slide.stepStops.at(-1) ?? 0`. With
+`includeSteps`, it selects Step 0 followed by each exact manifest stop. Export
+therefore preserves authored sparse and grouped reveal semantics.
+
+```tsx
+const result = await createExport({
+  Content,
+  container,
+  manifest: deckManifest,
+  registry,
+  runExportSetup,
+  includeSteps: true,
+});
+
+await result.destroy();
+```
+
+Creation mounts every raw canvas-sized page, awaits `runExportSetup`, waits for
+every usable face in `document.fonts.ready`, decodes every authored `<img>`,
+checks that the repeated document has no duplicate DOM IDs, and waits two
+animation frames for final layout and paint. The document root publishes
+`data-drever-export-status="ready"` only after that sequence. Failure publishes
+`failed` plus a serialized error snapshot with plugin ownership when available.
+The export stylesheet applies normal theme tokens while disabling animations,
+transitions, and View Transition names.
+
+Components repeated across export pages must create identifiers with React
+`useId`; hard-coded IDs are ambiguous in tagged PDFs and fail export. CSS
+background images, canvas drawing, video posters, and other resources that do
+not appear as authored `<img>` elements are owned by the component or plugin.
+Their `exportSetup` hook must await those resources before it resolves.
+
+`destroy()` is idempotent, unmounts React, aborts the export signal, and invokes
+the acquired export-hook disposer. The CLI captures the PDF first, destroys the
+runtime, and only then writes the complete buffer. A failed render or cleanup
+therefore cannot leave a partial PDF or mutate the normal static build.
 
 ## Platform and lifecycle
 

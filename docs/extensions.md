@@ -180,7 +180,13 @@ immutable position snapshots, navigation, subscriptions, lifetime
 from detached work. Hooks should pass `runtime.signal` to abortable work and
 must not install their own presentation router. Runtime components that render
 inside slides can use `useDreverRenderMode()` from `@drever/core` to distinguish
-audience, current-preview, and next-preview trees.
+`audience`, `speaker-current`, `speaker-next`, and `export` trees. Export mode mounts
+only the selected slide and disables presentation motion; components that draw
+to canvas or perform asynchronous rendering must complete that work from an
+`exportSetup` hook before it resolves. The same rule applies to CSS background
+images, video posters, and dynamically created media because the exporter can
+only observe authored `<img>` elements directly. Repeated page components must
+use React `useId` rather than hard-coded DOM IDs.
 
 The client awaits `setup` hooks in CompilePlan order once per app instance. The
 exporter invokes and awaits `exportSetup` independently. Both hook types may

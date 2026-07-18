@@ -1,19 +1,91 @@
+import { basename, extname, resolve } from "node:path";
 import type { ViteDevServer } from "vite";
 import { loadDreverConfig } from "./config.ts";
 import { DreverCliError } from "./errors.ts";
-import { resolveDreverProject } from "./project.ts";
+import { resolveDreverProject, type ResolvedDreverProject } from "./project.ts";
 import { buildDreverProject, serveDreverProject } from "./vite-app.ts";
 
-export type DreverCommand = Readonly<{
+type ProjectCommand = Readonly<{
   entry?: string;
   name: "build" | "dev";
 }>;
+
+export type ExportPdfCommand = Readonly<{
+  entry?: string;
+  format: "pdf";
+  name: "export";
+  output?: string;
+  steps: boolean;
+}>;
+
+export type DreverCommand = ExportPdfCommand | ProjectCommand;
+
+export type PdfExportRequest = Readonly<{
+  output: string;
+  project: ResolvedDreverProject;
+  steps: boolean;
+}>;
+
+const EXPORT_PDF_USAGE = "Usage: drever export pdf [entry] [--steps] [-o|--output <path>]";
+
+const invalidArgument = (message: string, hint: string): never => {
+  throw new DreverCliError("DREVER_ARGUMENT_INVALID", message, { hint });
+};
+
+const parsePdfExport = (arguments_: readonly string[]): ExportPdfCommand => {
+  let entry: string | undefined;
+  let output: string | undefined;
+  let steps = false;
+
+  for (let index = 0; index < arguments_.length; index += 1) {
+    const argument = arguments_[index] as string;
+    if (argument === "--steps") {
+      if (steps) {
+        invalidArgument("--steps can be specified only once.", EXPORT_PDF_USAGE);
+      }
+      steps = true;
+      continue;
+    }
+    if (argument === "-o" || argument === "--output") {
+      if (output !== undefined) {
+        invalidArgument("The PDF output can be specified only once.", EXPORT_PDF_USAGE);
+      }
+      const value = arguments_[index + 1];
+      if (value === undefined || value.length === 0 || value.startsWith("-")) {
+        invalidArgument(`${argument} requires a PDF path.`, EXPORT_PDF_USAGE);
+      }
+      output = value;
+      index += 1;
+      continue;
+    }
+    if (argument.startsWith("-")) {
+      invalidArgument(`Unknown export flag: ${argument}`, EXPORT_PDF_USAGE);
+    }
+    if (entry !== undefined) {
+      invalidArgument("PDF export accepts at most one deck entry path.", EXPORT_PDF_USAGE);
+    }
+    entry = argument;
+  }
+
+  if (output !== undefined && !output.endsWith(".pdf")) {
+    invalidArgument("The export output path must end with .pdf.", EXPORT_PDF_USAGE);
+  }
+
+  return Object.freeze({
+    format: "pdf",
+    name: "export",
+    steps,
+    ...(entry === undefined ? {} : { entry }),
+    ...(output === undefined ? {} : { output }),
+  });
+};
 
 export const HELP = `Drever — AI-first MDX presentations
 
 Usage:
   drever dev [entry]
   drever build [entry]
+  drever export pdf [entry] [--steps] [-o|--output <path>]
 
 The default entry is slides.mdx. Project settings live in drever.config.ts.
 `;
@@ -25,6 +97,16 @@ export const parseCommand = (arguments_: readonly string[]): DreverCommand | "he
   }
   if (command === "--version" || command === "-v") {
     return "version";
+  }
+  if (command === "export") {
+    const [format, ...exportArguments] = rest;
+    if (format !== "pdf") {
+      return invalidArgument(
+        format === undefined ? "Export format is required." : `Unknown export format: ${format}`,
+        EXPORT_PDF_USAGE,
+      );
+    }
+    return parsePdfExport(exportArguments);
   }
   if (command !== "dev" && command !== "build") {
     throw new DreverCliError("DREVER_COMMAND_UNKNOWN", `Unknown command: ${command}`, {
@@ -46,8 +128,18 @@ export const parseCommand = (arguments_: readonly string[]): DreverCommand | "he
 
 export type RunCliOptions = Readonly<{
   cwd?: string;
+  exportPdf?: (request: PdfExportRequest) => Promise<void>;
   stdout?: Pick<NodeJS.WriteStream, "write">;
 }>;
+
+const createPdfExportRequest = (
+  command: ExportPdfCommand,
+  project: ResolvedDreverProject,
+): PdfExportRequest => {
+  const entryName = basename(project.entry, extname(project.entry));
+  const output = resolve(project.root, command.output ?? `${entryName}-export.pdf`);
+  return Object.freeze({ output, project, steps: command.steps });
+};
 
 export const runCli = async (
   arguments_: readonly string[],
@@ -74,6 +166,18 @@ export const runCli = async (
     ...(command.entry === undefined ? {} : { entry: command.entry }),
     root,
   });
+  if (command.name === "export") {
+    const request = createPdfExportRequest(command, project);
+    const exportPdf =
+      options.exportPdf ??
+      (async (value: PdfExportRequest): Promise<void> => {
+        const exporter = await import("./export-pdf.ts");
+        await exporter.exportPdf(value);
+      });
+    await exportPdf(request);
+    output.write(`Exported ${project.entry} to ${request.output}\n`);
+    return;
+  }
   if (command.name === "build") {
     await buildDreverProject(project);
     output.write(`Built ${project.entry} to ${project.outDir}\n`);

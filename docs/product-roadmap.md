@@ -12,6 +12,7 @@ Drever already provides:
 - a speaker view with current and next previews, notes, elapsed time, progress,
   and same-browser audience synchronization;
 - deterministic static builds that preserve audience and speaker deep links;
+- deterministic tagged PDF export for final or incremental presentation states;
 - theme-owned design systems and build-time extension points.
 
 These capabilities should be refined rather than replaced.
@@ -42,9 +43,12 @@ for legacy browsers.
 
 ### Deterministic PDF and print export
 
-Add `drever export pdf`. Export the final Step of each slide by default, with an
-explicit option to emit every Step state. Support slide ranges and an optional
-notes or handout output without changing the interactive static-site artifact.
+The delivered `drever export pdf` command exports the final Step of each slide
+by default. `--steps` emits Step 0 and every exact sparse stop. The exporter uses
+an isolated temporary application, explicit plugin/font/image readiness, tagged
+Chromium output, and success-only writes without changing the interactive
+static-site artifact. Slide ranges and optional notes or handout formats remain
+compatible follow-up work.
 
 PDF is the portable, printable fallback offered by [Google Slides][google-present],
 [PowerPoint][powerpoint-export], [Keynote][keynote-export], and [Slidev][slidev-export].

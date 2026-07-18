@@ -35,6 +35,7 @@
     "@drever/schema": "workspace:*",
     "@drever/theme-default": "workspace:*",
     "@drever/vite": "workspace:*",
+    "playwright": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "vite": "catalog:"
