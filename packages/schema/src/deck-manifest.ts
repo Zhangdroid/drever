@@ -18,6 +18,8 @@ export type SlideManifest = Readonly<{
   index: number;
   speakerNotes: readonly SpeakerNote[];
   stepStops: readonly number[];
+  /** Static readable title inferred from authored Markdown or a semantic layout prop. */
+  title?: string;
 }>;
 
 export type DeckManifest = Readonly<{

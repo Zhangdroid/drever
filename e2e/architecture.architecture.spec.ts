@@ -85,7 +85,7 @@ test("the architecture tour demonstrates deterministic routes and valid manifest
   await page.goto("/6");
 
   await expect(page.locator(activeSlide)).toContainText("The URL is presentation state.");
-  await page.getByRole("button", { name: "speaker" }).click();
+  await page.getByRole("button", { name: "speaker", exact: true }).click();
   await page
     .getByRole("group", { name: "Slide" })
     .getByRole("button", { name: "4", exact: true })

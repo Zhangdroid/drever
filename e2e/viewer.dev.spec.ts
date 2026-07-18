@@ -100,6 +100,126 @@ test("deep links reload exactly and inactive slides preserve React state", async
   health.expectHealthy();
 });
 
+test("audience controls navigate exact states with a pointer", async ({ page }) => {
+  const health = monitorPageHealth(page);
+  await page.goto("/");
+
+  const controls = page.getByRole("navigation", { name: "Presentation controls" });
+  const previous = controls.getByRole("button", { name: "Previous presentation state" });
+  const next = controls.getByRole("button", { name: "Next presentation state" });
+  const position = controls.getByRole("button", { name: "Open slide navigator" });
+
+  await expect(controls).toBeVisible();
+  await expect(position).toContainText("Slide 1 of 5");
+  await expect(previous).toBeDisabled();
+
+  await next.hover();
+  await next.click();
+  await expect(page).toHaveURL(/\/2$/u);
+
+  await next.click();
+  await expect(page).toHaveURL(/\/2\/2$/u);
+  await expect(position).toContainText("Step 1 of 2");
+
+  await previous.click();
+  await expect(page).toHaveURL(/\/2$/u);
+
+  const fullscreen = controls.getByRole("button", { name: "Enter fullscreen" });
+  await expect(fullscreen).toBeEnabled();
+  await expect(fullscreen).toHaveAttribute("title", "Enter fullscreen (F)");
+
+  health.expectHealthy();
+});
+
+test("audience shortcuts skip Steps, search slides, and jump by number", async ({ page }) => {
+  const health = monitorPageHealth(page);
+  await page.goto("/2/2");
+
+  await page.keyboard.press("ArrowDown");
+  await expect(page).toHaveURL(/\/3$/u);
+
+  await page.keyboard.press("ArrowUp");
+  await expect(page).toHaveURL(/\/2$/u);
+  await expect(page.getByTestId("step-2")).toHaveAttribute("data-step-state", "pending");
+
+  await page.keyboard.press("o");
+  const navigator = page.getByRole("dialog", { name: "Slide navigator" });
+  await expect(navigator).toBeVisible();
+  await navigator.getByRole("searchbox", { name: "Find a slide" }).fill("static output");
+  await navigator.getByRole("button", { name: /Static output/u }).click();
+  await expect(page).toHaveURL(/\/3$/u);
+
+  await page.keyboard.press("g");
+  await expect(navigator).toBeVisible();
+  await navigator.getByRole("searchbox", { name: "Find a slide" }).fill("5");
+  await navigator.getByRole("button", { name: /Ship the story/u }).click();
+  await expect(page).toHaveURL(/\/5$/u);
+
+  await page.keyboard.press("4");
+  const goto = page.getByRole("status");
+  await expect(goto).toContainText("Go to slide");
+  await expect(goto).toContainText("4");
+  await expect(goto).toContainText("Press Enter");
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/4$/u);
+
+  health.expectHealthy();
+});
+
+test("audience pause screens and keyboard help are dismissible", async ({ page }) => {
+  const health = monitorPageHealth(page);
+  await page.goto("/2/5");
+
+  await page.keyboard.press("b");
+  const blackPause = page.getByRole("button", {
+    name: "Black pause screen. Press Escape to return.",
+  });
+  await expect(blackPause).toBeVisible();
+  await expect(blackPause).toHaveAttribute("data-pause-screen", "black");
+  await page.keyboard.press("Escape");
+  await expect(blackPause).toHaveCount(0);
+  await expect(page).toHaveURL(/\/2\/5$/u);
+
+  await page.keyboard.press("w");
+  const whitePause = page.getByRole("button", {
+    name: "White pause screen. Press Escape to return.",
+  });
+  await expect(whitePause).toHaveAttribute("data-pause-screen", "white");
+  await whitePause.click();
+  await expect(whitePause).toHaveCount(0);
+
+  await page.keyboard.press("Shift+Slash");
+  const help = page.getByRole("dialog", { name: "Keyboard shortcuts" });
+  await expect(help).toBeVisible();
+  await expect(help).toContainText("Next / previous slide");
+  await expect(help).toContainText("Pause on black / white");
+  await page.keyboard.press("Escape");
+  await expect(help).not.toBeVisible();
+
+  health.expectHealthy();
+});
+
+test.describe("touch audience controls", () => {
+  test.use({ hasTouch: true });
+
+  test("navigate sparse Step states without a keyboard", async ({ page }) => {
+    const health = monitorPageHealth(page);
+    await page.goto("/2");
+
+    const controls = page.getByRole("navigation", { name: "Presentation controls" });
+    const next = controls.getByRole("button", { name: "Next presentation state" });
+    const previous = controls.getByRole("button", { name: "Previous presentation state" });
+
+    await expect(controls).toBeVisible();
+    await next.tap();
+    await expect(page).toHaveURL(/\/2\/2$/u);
+    await previous.tap();
+    await expect(page).toHaveURL(/\/2$/u);
+
+    health.expectHealthy();
+  });
+});
+
 test("speaker view previews sparse steps and synchronizes a late audience window", async ({
   context,
   page,

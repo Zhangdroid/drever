@@ -51,6 +51,8 @@ The runnable vertical slice includes:
 - a polished, dependency-light default theme with `Cover` and `TwoColumn` layouts;
 - clean path-addressable slide and reveal state through the Navigation API;
 - state-preserving inactive slides and canvas-scoped View Transitions;
+- an accessible audience command bar with progress, fullscreen, searchable
+  slide navigation, direct jumps, and black/white pause screens;
 - a speaker view with current/next previews, notes, timer, and
   native `BroadcastChannel` audience synchronization;
 - state-preserving MDX Fast Refresh when the navigation manifest is unchanged;
@@ -58,9 +60,10 @@ The runnable vertical slice includes:
 - default Shiki and reset-free Tailwind CSS plugins, plus opt-in build-time math;
 - real Chromium end-to-end coverage of development and production output.
 
-Overview, PDF export, Mermaid, and the broader official plugin catalog are future
-vertical slices. The audience viewer and speaker view are usable in development
-and production builds now.
+PDF export, accessibility preflight, Mermaid, and the broader official plugin
+catalog are future vertical slices. The audience viewer and speaker view are
+usable in development and production builds now. See the
+[product roadmap](./docs/product-roadmap.md) for the prioritized boundary.
 
 ## Explore the repository demos
 

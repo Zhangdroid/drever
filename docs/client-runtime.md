@@ -198,15 +198,20 @@ MDX AST nodes before Drever's final Remark validation pass. AI-generated decks
 should use direct `<Step>` nodes instead of hiding navigation inside helper
 components.
 
-## Keyboard contract
+## Presentation command contract
 
-| Command      | Keys                                            |
-| ------------ | ----------------------------------------------- |
-| Next         | `ArrowRight`, `ArrowDown`, `PageDown`, `Space`  |
-| Previous     | `ArrowLeft`, `ArrowUp`, `PageUp`, `Shift+Space` |
-| First        | `Home`                                          |
-| Last         | `End`                                           |
-| Speaker view | `P` from the audience                           |
+| Command                | Keys                                     |
+| ---------------------- | ---------------------------------------- |
+| Next Step or slide     | `ArrowRight`, `PageDown`, `Space`        |
+| Previous Step or slide | `ArrowLeft`, `PageUp`, `Shift+Space`     |
+| Next / previous slide  | `ArrowDown` / `ArrowUp`                  |
+| First / last state     | `Home` / `End`                           |
+| Slide navigator        | `O` or `G`                               |
+| Direct slide jump      | Slide number, then `Enter`               |
+| Speaker view           | `P` from the audience                    |
+| Fullscreen             | `F`                                      |
+| Black / white pause    | `B` / `W`; repeat or `Escape` to dismiss |
+| Keyboard help          | `?`                                      |
 
 The viewer ignores already-handled or composing events, keys with
 `Alt`/`Control`/`Meta`, and events from links, buttons, form controls, editable
@@ -216,6 +221,11 @@ or an ancestor marked `data-drever-keyboard="ignore"`.
 The speaker-view shortcut opens a new window at the equivalent speaker path, so
 `/2/4?theme=dark#notes` becomes `/speaker/2/4?theme=dark#notes`. Key repeat is
 ignored to prevent one long press from opening multiple windows.
+
+The built-in audience command bar exposes navigation, exact slide position,
+the searchable slide navigator, speaker view, fullscreen, and keyboard help to
+pointer and touch users. It is a sibling of the canvas rather than slide
+content, so scoped View Transitions never capture presentation chrome.
 
 ## Rendering and motion
 

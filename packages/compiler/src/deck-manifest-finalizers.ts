@@ -292,6 +292,89 @@ const collectStepStops = (
   });
 };
 
+const staticHeadingText = (node: RootContent): string | undefined => {
+  const record = node as unknown as Readonly<Record<string, unknown>>;
+  if (
+    (node.type === "text" || node.type === "inlineCode" || record.type === "inlineMath") &&
+    typeof record.value === "string"
+  ) {
+    return record.value;
+  }
+  if ((node.type === "image" || node.type === "imageReference") && typeof record.alt === "string") {
+    return record.alt;
+  }
+  if (node.type === "break") {
+    return " ";
+  }
+  if (
+    node.type === "html" ||
+    node.type === "mdxTextExpression" ||
+    node.type === "mdxFlowExpression" ||
+    node.type === "mdxJsxTextElement" ||
+    node.type === "mdxJsxFlowElement"
+  ) {
+    return;
+  }
+
+  const children = descendants(node);
+  const values = children.map(staticHeadingText);
+  return values.some((value) => value === undefined) ? undefined : values.join("");
+};
+
+const normalizeTitle = (value: string): string | undefined => {
+  const title = value.replaceAll(/\s+/gu, " ").trim();
+  return title.length === 0 ? undefined : title;
+};
+
+const findFirstHeading = (children: readonly RootContent[]): RootContent | undefined => {
+  for (const child of children) {
+    if (child.type === "heading") {
+      return child;
+    }
+    const nested = findFirstHeading(descendants(child));
+    if (nested !== undefined) {
+      return nested;
+    }
+  }
+  return;
+};
+
+const SEMANTIC_TITLE_PROPS = ["aria-label", "title", "heading", "label"] as const;
+
+const layoutTitle = (children: readonly RootContent[]): string | undefined => {
+  const layout = children.find(isElement);
+  if (layout === undefined) {
+    return;
+  }
+
+  for (const name of SEMANTIC_TITLE_PROPS) {
+    const attribute = namedAttributes(layout, name)[0];
+    if (typeof attribute?.value !== "string") {
+      continue;
+    }
+    const title = normalizeTitle(attribute.value);
+    if (title !== undefined) {
+      return title;
+    }
+  }
+  return;
+};
+
+const slideTitle = (slide: MdxJsxFlowElement): string | undefined => {
+  const children = slide.children as RootContent[];
+  const heading = findFirstHeading(children);
+  if (heading !== undefined) {
+    const text = staticHeadingText(heading);
+    if (text !== undefined) {
+      const title = normalizeTitle(text);
+      if (title !== undefined) {
+        return title;
+      }
+    }
+  }
+  return layoutTitle(children);
+};
+
 const createManifest = (slides: readonly SlideManifest[]): DeckManifest =>
   Object.freeze({
     version: DECK_MANIFEST_VERSION,
@@ -368,11 +451,13 @@ const remarkDeckManifest: Plugin<[], Root> = () => (tree, file) => {
     const identity = slideIdentity(slide, slides.length, file);
     const steps = collectStepStops(slide, file);
     const speakerNotes = expectedSpeakerNotes[slides.length] as readonly SpeakerNote[];
+    const title = slideTitle(slide);
     slides.push(
       Object.freeze({
         ...identity,
         speakerNotes,
         stepStops: steps.stepStops,
+        ...(title === undefined ? {} : { title }),
       }),
     );
     snapshotSlides.push(
@@ -438,7 +523,8 @@ const isDeckManifest = (value: unknown): value is DeckManifest => {
       slide.id !== `slide-${expectedIndex + 1}` ||
       slide.index !== expectedIndex ||
       !Array.isArray(slide.speakerNotes) ||
-      !Array.isArray(slide.stepStops)
+      !Array.isArray(slide.stepStops) ||
+      (slide.title !== undefined && (typeof slide.title !== "string" || slide.title.length === 0))
     ) {
       return false;
     }
@@ -566,6 +652,18 @@ const typeOf = (argument: EstreeNode): EstreeNode => ({
   argument,
 });
 
+// A title-only edit can use React Refresh; navigation or speaker-note changes need a new runtime.
+const manifestHotReloadSignature = (manifest: DeckManifest): string =>
+  JSON.stringify({
+    version: manifest.version,
+    slides: manifest.slides.map(({ id, index, speakerNotes, stepStops }) => ({
+      id,
+      index,
+      speakerNotes,
+      stepStops,
+    })),
+  });
+
 const manifestHotData = (
   manifest: DeckManifest,
   freezeIdentifier: string,
@@ -592,7 +690,7 @@ const manifestHotData = (
         {
           type: "VariableDeclarator",
           id: identifier(signatureIdentifier),
-          init: literal(JSON.stringify(manifest)),
+          init: literal(manifestHotReloadSignature(manifest)),
         },
       ],
     },
@@ -700,6 +798,7 @@ const manifestExpression = (manifest: DeckManifest, freezeIdentifier: string): E
                 object([
                   property("id", literal(slide.id)),
                   property("index", literal(slide.index)),
+                  ...(slide.title === undefined ? [] : [property("title", literal(slide.title))]),
                   property(
                     "speakerNotes",
                     freeze(

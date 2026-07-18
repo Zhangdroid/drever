@@ -13,6 +13,7 @@ const manifest: DeckManifest = {
     {
       id: "slide-1",
       index: 0,
+      title: "A trustworthy artifact",
       speakerNotes: [
         {
           format: "markdown",
@@ -29,6 +30,9 @@ const manifest: DeckManifest = {
 `speakerNotes[].value` preserves the authored Markdown, while `plainText` is a
 compile-time readable projection for lightweight speaker interfaces. Both are
 immutable serializable data; they never contain React nodes or compiler ASTs.
+`title` is optional additive metadata inferred from the first static Markdown
+heading, or from the first top-level MDX element's static `aria-label`, `title`,
+`heading`, or `label` prop when the slide has no usable heading.
 
 The package includes Deck IR, compile-plan, manifest, extension, diagnostic,
 source-location, and JSON-safe value contracts. Contracts are versioned so

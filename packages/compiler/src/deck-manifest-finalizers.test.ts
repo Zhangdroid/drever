@@ -66,13 +66,68 @@ describe("remarkDreverDeckManifest", () => {
       version: DECK_MANIFEST_VERSION,
       slides: [
         { id: "slide-1", index: 0, speakerNotes: [], stepStops: [2, 4] },
-        { id: "slide-2", index: 1, speakerNotes: [], stepStops: [] },
+        { id: "slide-2", index: 1, speakerNotes: [], stepStops: [], title: "No steps" },
       ],
     });
     expect(Object.isFrozen(manifest)).toBe(true);
     expect(Object.isFrozen(manifest.slides)).toBe(true);
     expect(Object.isFrozen(manifest.slides[0])).toBe(true);
     expect(Object.isFrozen(manifest.slides[0]?.stepStops)).toBe(true);
+  });
+
+  it("infers normalized static titles without making titles mandatory", async () => {
+    const manifest =
+      await captureManifest(`# Build **one** [clear story](https://example.com) with \`MDX\`
+
+# Ignore this later heading
+
+---
+
+# Hello {audience}
+
+## Static fallback is not the first heading
+
+---
+
+<Masthead title="  Layout   title  " />
+
+---
+
+<Feature aria-label="Accessible feature" heading="Visible feature" />
+
+---
+
+<TwoColumn primary="A" secondary="B" />`);
+
+    expect(manifest.slides.map((slide) => slide.title)).toEqual([
+      "Build one clear story with MDX",
+      undefined,
+      "Layout title",
+      "Accessible feature",
+      undefined,
+    ]);
+    expect(Object.hasOwn(manifest.slides[1] as object, "title")).toBe(false);
+    expect(Object.hasOwn(manifest.slides[4] as object, "title")).toBe(false);
+  });
+
+  it("uses the first top-level JSX element and only static semantic props", async () => {
+    const manifest = await captureManifest(`<Badge />
+
+<Masthead title="Later layout" />
+
+---
+
+<Statement title={dynamicTitle} label="Static fallback" />
+
+---
+
+<Workbench aria-label="" label="Architecture workbench" />`);
+
+    expect(manifest.slides.map((slide) => slide.title)).toEqual([
+      undefined,
+      "Static fallback",
+      "Architecture workbench",
+    ]);
   });
 
   it("extracts exact Markdown plus readable text and removes notes from audience MDX", async () => {
@@ -292,6 +347,7 @@ describe("recmaDreverDeckManifest", () => {
       Object.freeze({
         id: "slide-1",
         index: 0,
+        title: "Pause with intent",
         speakerNotes: Object.freeze([
           Object.freeze({
             format: "markdown" as const,
@@ -466,9 +522,10 @@ describe("recmaDreverDeckManifest", () => {
   const run = async (
     extraStatements: Record<string, unknown>[] = [],
     mutate?: (tree: TestProgram) => void,
+    manifestData: unknown = manifest,
   ): Promise<Record<string, unknown>[]> => {
     const seed: Plugin = () => (_tree, file) => {
-      file.data[DREVER_DECK_MANIFEST_DATA_KEY] = manifest;
+      file.data[DREVER_DECK_MANIFEST_DATA_KEY] = manifestData;
       file.data[DREVER_REHYPE_SNAPSHOT_DATA_KEY] = Object.freeze({
         slides: Object.freeze([
           Object.freeze({ id: "slide-1", index: 0, stepIndices: Object.freeze([1, 3]) }),
@@ -540,6 +597,10 @@ describe("recmaDreverDeckManifest", () => {
                                     { key: { name: "id" }, value: { value: "slide-1" } },
                                     { key: { name: "index" }, value: { value: 0 } },
                                     {
+                                      key: { name: "title" },
+                                      value: { value: "Pause with intent" },
+                                    },
+                                    {
                                       key: { name: "speakerNotes" },
                                       value: {
                                         type: "CallExpression",
@@ -605,7 +666,21 @@ describe("recmaDreverDeckManifest", () => {
           ),
       ),
     ).toMatchObject({
-      declarations: [{ init: { value: JSON.stringify(manifest) } }],
+      declarations: [
+        {
+          init: {
+            value: JSON.stringify({
+              version: manifest.version,
+              slides: manifest.slides.map(({ id, index, speakerNotes, stepStops }) => ({
+                id,
+                index,
+                speakerNotes,
+                stepStops,
+              })),
+            }),
+          },
+        },
+      ],
     });
     expect(
       body.find((statement) => {
@@ -689,6 +764,18 @@ describe("recmaDreverDeckManifest", () => {
     });
     expect(body.find((statement) => statement.type === "ExportDefaultDeclaration")).toMatchObject({
       declaration: { type: "FunctionDeclaration", id: { name: "DreverContent" } },
+    });
+  });
+
+  it.each(["", 42])("rejects an invalid optional slide title (%j)", async (title) => {
+    const invalidManifest = {
+      ...manifest,
+      slides: [{ ...manifest.slides[0], title }],
+    };
+
+    await expect(run([], undefined, invalidManifest)).rejects.toMatchObject({
+      source: "drever",
+      ruleId: "deck-manifest-data-invalid",
     });
   });
 

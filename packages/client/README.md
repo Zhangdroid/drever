@@ -25,15 +25,16 @@ await viewer.navigate({ type: "next" });
 ```
 
 The viewer owns canvas scaling, exact Step navigation, clean path/history state,
-keyboard controls, element-scoped View Transitions, runtime setup, and teardown.
+an accessible audience command bar and slide navigator, keyboard controls,
+element-scoped View Transitions, runtime setup, and teardown.
 `createSpeaker` adds current/next previews, compiled notes, a timer, controls,
 and `BroadcastChannel` synchronization with audience windows. The audience
 runtime opens the equivalent speaker path when the user presses `P`.
 
 The package targets current browsers and intentionally requires the Navigation
 API, `Element.startViewTransition`, `BroadcastChannel`, and `ResizeObserver`
-instead of shipping legacy fallbacks. Overview and export remain outside the
-current product slice.
+instead of shipping legacy fallbacks. Deterministic export remains a separate
+product slice.
 
 ## Status
 

@@ -82,6 +82,50 @@ test("a production deep link is a reloadable static entry with a computed mount 
   health.expectHealthy();
 });
 
+test("production audience controls keep their navigation and presentation tools", async ({
+  page,
+}) => {
+  const health = monitorPageHealth(page);
+  await page.goto("/2");
+
+  const controls = page.getByRole("navigation", { name: "Presentation controls" });
+  await expect(controls).toBeVisible();
+  await controls.getByRole("button", { name: "Next presentation state" }).click();
+  await expect(page).toHaveURL(/\/2\/2$/u);
+
+  await page.locator('[data-drever-slide][data-slide-state="active"]').focus();
+  await page.keyboard.press("ArrowDown");
+  await expect(page).toHaveURL(/\/3$/u);
+  await page.keyboard.press("ArrowUp");
+  await expect(page).toHaveURL(/\/2$/u);
+
+  await page.keyboard.press("o");
+  const navigator = page.getByRole("dialog", { name: "Slide navigator" });
+  await navigator.getByRole("searchbox", { name: "Find a slide" }).fill("interfaces remember");
+  await navigator.getByRole("button", { name: /Interfaces remember/u }).click();
+  await expect(page).toHaveURL(/\/4$/u);
+
+  await page.keyboard.press("2");
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/2$/u);
+
+  await page.keyboard.press("b");
+  const pause = page.getByRole("button", {
+    name: "Black pause screen. Press Escape to return.",
+  });
+  await expect(pause).toBeVisible();
+  await pause.click();
+  await expect(pause).toHaveCount(0);
+
+  await page.keyboard.press("Shift+Slash");
+  const help = page.getByRole("dialog", { name: "Keyboard shortcuts" });
+  await expect(help).toContainText("Go to slide");
+  await help.getByRole("button", { name: "Close keyboard shortcuts" }).click();
+  await expect(help).not.toBeVisible();
+
+  health.expectHealthy();
+});
+
 test("the production speaker route is a reloadable static control surface", async ({ page }) => {
   const health = monitorPageHealth(page);
   const response = await page.goto("/speaker/2/5");

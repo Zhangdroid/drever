@@ -1,4 +1,10 @@
-export type KeyboardCommand = "first" | "last" | "next" | "previous";
+export type KeyboardCommand =
+  | "first"
+  | "last"
+  | "next"
+  | "nextSlide"
+  | "previous"
+  | "previousSlide";
 
 export type KeyboardNavigationSurface = "audience" | "speaker";
 
@@ -67,6 +73,10 @@ const isHandledOrModified = (event: KeyboardEventInput): boolean =>
 const hasIgnoredTarget = (target: EventTarget | null): boolean =>
   canFindClosest(target) && target.closest(IGNORED_TARGETS) !== null;
 
+/** Applies the shared input policy for non-navigation presentation shortcuts. */
+export const acceptsPresentationShortcut = (event: KeyboardEventInput): boolean =>
+  !isHandledOrModified(event) && !hasIgnoredTarget(event.target);
+
 const commandForKey = (event: KeyboardEventInput): KeyboardCommand | undefined => {
   if (event.key === " " || event.key === "Spacebar") {
     return event.shiftKey ? "previous" : "next";
@@ -74,13 +84,15 @@ const commandForKey = (event: KeyboardEventInput): KeyboardCommand | undefined =
 
   switch (event.key) {
     case "ArrowDown":
+      return "nextSlide";
     case "ArrowRight":
     case "PageDown":
       return "next";
     case "ArrowLeft":
-    case "ArrowUp":
     case "PageUp":
       return "previous";
+    case "ArrowUp":
+      return "previousSlide";
     case "Home":
       return "first";
     case "End":
@@ -119,10 +131,7 @@ export const keyboardCommandFor = (
 
 /** Opens one speaker window from an unmodified audience shortcut. */
 export const isOpenSpeakerShortcut = (event: KeyboardEventInput): boolean =>
-  !event.repeat &&
-  (event.key === "p" || event.key === "P") &&
-  !isHandledOrModified(event) &&
-  !hasIgnoredTarget(event.target);
+  !event.repeat && (event.key === "p" || event.key === "P") && acceptsPresentationShortcut(event);
 
 export type KeyboardEventTarget = Readonly<{
   addEventListener(type: "keydown", listener: (event: KeyboardEvent) => void): void;

@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vite-plus/test";
 import {
+  acceptsPresentationShortcut,
   attachKeyboardNavigation,
   isOpenSpeakerShortcut,
   keyboardCommandFor,
@@ -23,14 +24,30 @@ const keyEvent = (key: string, input: Partial<KeyboardEventInput> = {}): Keyboar
 describe("keyboard navigation", () => {
   it("maps presentation keys without reserving interaction shortcuts", () => {
     expect(keyboardCommandFor(keyEvent("ArrowRight"))).toBe("next");
-    expect(keyboardCommandFor(keyEvent("ArrowDown"))).toBe("next");
+    expect(keyboardCommandFor(keyEvent("ArrowDown"))).toBe("nextSlide");
     expect(keyboardCommandFor(keyEvent("PageDown"))).toBe("next");
     expect(keyboardCommandFor(keyEvent(" "))).toBe("next");
     expect(keyboardCommandFor(keyEvent(" ", { shiftKey: true }))).toBe("previous");
     expect(keyboardCommandFor(keyEvent("ArrowLeft"))).toBe("previous");
+    expect(keyboardCommandFor(keyEvent("ArrowUp"))).toBe("previousSlide");
     expect(keyboardCommandFor(keyEvent("Home"))).toBe("first");
     expect(keyboardCommandFor(keyEvent("End"))).toBe("last");
     expect(keyboardCommandFor(keyEvent("o"))).toBeUndefined();
+  });
+
+  it("shares one input policy with presentation shortcut listeners", () => {
+    expect(acceptsPresentationShortcut(keyEvent("f"))).toBe(true);
+    expect(acceptsPresentationShortcut(keyEvent("F", { shiftKey: true }))).toBe(true);
+    expect(acceptsPresentationShortcut(keyEvent("f", { defaultPrevented: true }))).toBe(false);
+    expect(acceptsPresentationShortcut(keyEvent("f", { isComposing: true }))).toBe(false);
+    expect(acceptsPresentationShortcut(keyEvent("f", { altKey: true }))).toBe(false);
+    expect(acceptsPresentationShortcut(keyEvent("f", { ctrlKey: true }))).toBe(false);
+    expect(acceptsPresentationShortcut(keyEvent("f", { metaKey: true }))).toBe(false);
+
+    const input = {
+      closest: (selectors: string) => (selectors.includes("input") ? ({} as Element) : null),
+    } as unknown as EventTarget;
+    expect(acceptsPresentationShortcut(keyEvent("f", { target: input }))).toBe(false);
   });
 
   it("does not steal keys from interactive, opted-out, modified, or composing content", () => {
@@ -67,6 +84,9 @@ describe("keyboard navigation", () => {
     expect(keyboardCommandFor(keyEvent("ArrowRight", { target: speakerButton }))).toBeUndefined();
     expect(keyboardCommandFor(keyEvent("ArrowRight", { target: speakerButton }), "speaker")).toBe(
       "next",
+    );
+    expect(keyboardCommandFor(keyEvent("ArrowDown", { target: speakerButton }), "speaker")).toBe(
+      "nextSlide",
     );
     expect(keyboardCommandFor(keyEvent("PageUp", { target: speakerButton }), "speaker")).toBe(
       "previous",

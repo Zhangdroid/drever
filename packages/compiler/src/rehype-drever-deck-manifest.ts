@@ -126,6 +126,7 @@ const isManifest = (value: unknown): value is DeckManifest =>
   value.slides.every(
     (slide) =>
       isRecord(slide) &&
+      (slide.title === undefined || (typeof slide.title === "string" && slide.title.length > 0)) &&
       Array.isArray(slide.speakerNotes) &&
       slide.speakerNotes.every(
         (note) =>

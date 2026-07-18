@@ -145,6 +145,21 @@ export const createViewer = async (options: CreateViewerOptions): Promise<Viewer
   let destroyPromise: Promise<void> | undefined;
   let fatalRenderError: unknown;
 
+  const navigateFromControls = async (command: DeckCommand): Promise<void> => {
+    if (navigation === undefined) {
+      throw new DreverClientError(
+        "DREVER_CLIENT_VIEWER_NOT_READY",
+        "The audience viewer is not ready to navigate.",
+      );
+    }
+    await navigation.navigate(command);
+  };
+  const openSpeaker = (): void => {
+    const sourceURL = new URL(platform.navigation.currentEntry?.url ?? currentURL.href);
+    const speakerURL = speakerRoute.encodeURL(store.getSnapshot(), sourceURL);
+    platform.view.open(speakerURL.href, "_blank", "noopener");
+  };
+
   const destroyWithReason = (reason: unknown): Promise<void> => {
     if (destroyPromise !== undefined) {
       return destroyPromise;
@@ -252,8 +267,11 @@ export const createViewer = async (options: CreateViewerOptions): Promise<Viewer
         <ViewerHost
           Content={options.Content}
           {...(canvas === undefined ? {} : { canvas })}
+          machine={machine}
           onError={report}
           onMounted={mounted.resolve}
+          onNavigate={navigateFromControls}
+          onOpenSpeaker={openSpeaker}
           reducedMotion={reducedMotion}
           {...(options.registry === undefined ? {} : { registry: options.registry })}
           store={store}
@@ -291,11 +309,7 @@ export const createViewer = async (options: CreateViewerOptions): Promise<Viewer
       target: platform.keyboardTarget,
       onCommand: (command) => activeNavigation.navigate({ type: command }),
       onError: report,
-      onOpenSpeaker() {
-        const sourceURL = new URL(platform.navigation.currentEntry?.url ?? currentURL.href);
-        const speakerURL = speakerRoute.encodeURL(store.getSnapshot(), sourceURL);
-        platform.view.open(speakerURL.href, "_blank", "noopener");
-      },
+      onOpenSpeaker: openSpeaker,
     });
 
     const runtime: ViewerRuntime = Object.freeze({

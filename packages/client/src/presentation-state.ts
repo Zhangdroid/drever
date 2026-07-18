@@ -18,7 +18,9 @@ export type DeckCommand =
   | Readonly<{ type: "goTo"; slideId: string; step?: number }>
   | Readonly<{ type: "last" }>
   | Readonly<{ type: "next" }>
-  | Readonly<{ type: "previous" }>;
+  | Readonly<{ type: "nextSlide" }>
+  | Readonly<{ type: "previous" }>
+  | Readonly<{ type: "previousSlide" }>;
 
 export type PresentationTransitionType =
   | "drever-jump-backward"
@@ -80,11 +82,13 @@ const snapshotManifest = (input: DeckManifest): DeckManifest => {
       slide.id.length === 0 ||
       slide.index !== expectedIndex ||
       !Array.isArray(slide.speakerNotes) ||
-      !Array.isArray(slide.stepStops)
+      !Array.isArray(slide.stepStops) ||
+      (slide.title !== undefined &&
+        (typeof slide.title !== "string" || slide.title.trim().length === 0))
     ) {
       return fail(
         "DREVER_CLIENT_MANIFEST_INVALID",
-        `Slide ${expectedIndex + 1} has an invalid identity, speaker note list, or Step stop list.`,
+        `Slide ${expectedIndex + 1} has an invalid identity, title, speaker note list, or Step stop list.`,
         { expectedIndex },
       );
     }
@@ -138,6 +142,7 @@ const snapshotManifest = (input: DeckManifest): DeckManifest => {
       index: slide.index,
       speakerNotes: Object.freeze(speakerNotes),
       stepStops: Object.freeze(stepStops),
+      ...(slide.title === undefined ? {} : { title: slide.title }),
     });
   });
 
@@ -245,6 +250,13 @@ export const createPresentationStateMachine = (input: DeckManifest): Presentatio
         }
         break;
       }
+      case "nextSlide": {
+        const nextSlide = manifest.slides[position.slideIndex + 1];
+        if (nextSlide !== undefined) {
+          target = snapshotPosition(nextSlide, 0);
+        }
+        break;
+      }
       case "previous": {
         const previousStop = slide.stepStops.findLast((stop) => stop < position.step);
         const previousSlide = manifest.slides[position.slideIndex - 1];
@@ -254,6 +266,13 @@ export const createPresentationStateMachine = (input: DeckManifest): Presentatio
           target = snapshotPosition(slide, 0);
         } else if (previousSlide !== undefined) {
           target = snapshotPosition(previousSlide, previousSlide.stepStops.at(-1) ?? 0);
+        }
+        break;
+      }
+      case "previousSlide": {
+        const previousSlide = manifest.slides[position.slideIndex - 1];
+        if (previousSlide !== undefined) {
+          target = snapshotPosition(previousSlide, 0);
         }
         break;
       }

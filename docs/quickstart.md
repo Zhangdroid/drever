@@ -143,11 +143,23 @@ components are covered in [Extension authoring](./extensions.md).
 
 ## Present and inspect
 
-- Next: `Space`, `ArrowRight`, `ArrowDown`, or `PageDown`.
-- Previous: `Shift+Space`, `ArrowLeft`, `ArrowUp`, or `PageUp`.
+- Next Step or slide: `Space`, `ArrowRight`, or `PageDown`.
+- Previous Step or slide: `Shift+Space`, `ArrowLeft`, or `PageUp`.
+- Next / previous slide, skipping Steps: `ArrowDown` / `ArrowUp`.
 - First / last: `Home` / `End`.
+- Slide navigator: press `O` or `G`, or select the position in the audience
+  control bar. Search by title or number and select a result to jump through
+  the same path-addressable navigation system.
+- Direct slide jump: type a slide number, then press `Enter`.
+- Fullscreen: `F`. Pause on a blank black or white screen with `B` or `W`;
+  press the same key, `Escape`, or select the screen to return.
+- Keyboard help: `?`.
 - Speaker view: press `P` from the audience to open the same slide and Step in a
   new speaker window.
+- Pointer and touch users can navigate, open the slide navigator or speaker
+  view, and enter fullscreen from the compact audience control bar. The bar is
+  rendered outside the slide canvas, so it is never captured by slide View
+  Transitions.
 - Audience navigation does not capture input or interactive controls. In speaker
   chrome, Arrow/Page/Home/End continue to work after a control receives focus;
   Space and Enter retain the focused button's native behavior, and the focused

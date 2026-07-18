@@ -156,6 +156,398 @@
     }
   }
 
+  .drever-audience-controls {
+    position: fixed;
+    z-index: 20;
+    inset: 0;
+    pointer-events: none;
+    color: #f7f8fb;
+    color-scheme: dark;
+    font-family:
+      Inter, Aptos, "SF Pro Display", "Segoe UI Variable Display", ui-sans-serif, system-ui,
+      sans-serif;
+    font-synthesis: none;
+  }
+
+  .drever-audience-controls__bar {
+    position: absolute;
+    bottom: max(16px, env(safe-area-inset-bottom));
+    left: 50%;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-height: 48px;
+    padding: 5px;
+    border: 1px solid rgb(255 255 255 / 13%);
+    border-radius: 15px;
+    background: rgb(12 15 21 / 82%);
+    box-shadow: 0 12px 38px rgb(0 0 0 / 28%);
+    opacity: 0.34;
+    pointer-events: auto;
+    transform: translateX(-50%);
+    transition:
+      opacity 160ms ease,
+      background 160ms ease,
+      box-shadow 160ms ease;
+    backdrop-filter: blur(18px) saturate(130%);
+  }
+
+  .drever-audience-controls__bar:hover,
+  .drever-audience-controls__bar:focus-within {
+    background: rgb(12 15 21 / 94%);
+    box-shadow: 0 16px 48px rgb(0 0 0 / 38%);
+    opacity: 1;
+  }
+
+  .drever-audience-controls__bar button,
+  .drever-audience-dialog button {
+    display: inline-grid;
+    min-width: 38px;
+    min-height: 38px;
+    place-items: center;
+    box-sizing: border-box;
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .drever-audience-controls__bar button:hover:not(:disabled),
+  .drever-audience-dialog button:hover:not(:disabled) {
+    background: rgb(255 255 255 / 10%);
+  }
+
+  .drever-audience-controls__bar button:focus-visible,
+  .drever-audience-dialog button:focus-visible,
+  .drever-audience-dialog input:focus-visible {
+    outline: 2px solid #91a7ff;
+    outline-offset: 2px;
+  }
+
+  .drever-audience-controls__bar button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .drever-audience-controls__bar .drever-audience-controls__position {
+    display: grid;
+    min-width: 164px;
+    padding: 0 10px 0 7px;
+    grid-template-columns: 22px auto;
+    justify-content: start;
+    gap: 8px;
+    text-align: left;
+  }
+
+  .drever-audience-controls__position > span {
+    display: grid;
+    min-width: 0;
+    gap: 1px;
+  }
+
+  .drever-audience-controls__position strong,
+  .drever-audience-controls__position small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .drever-audience-controls__position strong {
+    font-size: 12px;
+    font-weight: 690;
+    letter-spacing: -0.01em;
+  }
+
+  .drever-audience-controls__position small {
+    color: #9ba2b0;
+    font-size: 9px;
+    font-weight: 680;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .drever-audience-controls__divider {
+    width: 1px;
+    height: 24px;
+    margin: 0 4px;
+    background: rgb(255 255 255 / 13%);
+  }
+
+  .drever-audience-goto {
+    position: absolute;
+    top: 28px;
+    left: 50%;
+    display: grid;
+    min-width: 180px;
+    padding: 15px 18px;
+    border: 1px solid rgb(255 255 255 / 14%);
+    border-radius: 14px;
+    background: rgb(12 15 21 / 92%);
+    box-shadow: 0 18px 54px rgb(0 0 0 / 34%);
+    gap: 2px;
+    pointer-events: auto;
+    transform: translateX(-50%);
+    text-align: center;
+    backdrop-filter: blur(18px);
+  }
+
+  .drever-audience-goto span,
+  .drever-audience-goto small {
+    color: #9ba2b0;
+    font-size: 10px;
+    font-weight: 690;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  .drever-audience-goto strong {
+    font-size: 28px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+  }
+
+  .drever-audience-pause {
+    position: fixed;
+    z-index: 50;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    pointer-events: auto;
+    cursor: none;
+  }
+
+  .drever-audience-pause[data-pause-screen="black"] {
+    background: #000;
+  }
+
+  .drever-audience-pause[data-pause-screen="white"] {
+    background: #fff;
+  }
+
+  .drever-audience-dialog {
+    width: min(820px, calc(100vw - 40px));
+    max-width: none;
+    max-height: min(720px, calc(100vh - 48px));
+    box-sizing: border-box;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid #333a48;
+    border-radius: 20px;
+    background: #11151d;
+    box-shadow: 0 30px 100px rgb(0 0 0 / 58%);
+    color: #f7f8fb;
+    pointer-events: auto;
+  }
+
+  .drever-audience-dialog::backdrop {
+    background: rgb(3 5 9 / 72%);
+    backdrop-filter: blur(5px);
+  }
+
+  .drever-audience-dialog__content {
+    display: grid;
+    max-height: min(720px, calc(100vh - 48px));
+    grid-template-rows: auto auto minmax(0, 1fr);
+  }
+
+  .drever-audience-dialog__content > header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 24px 16px;
+  }
+
+  .drever-audience-dialog__content > header div {
+    display: grid;
+    gap: 3px;
+  }
+
+  .drever-audience-dialog__content > header span {
+    color: #8e97a8;
+    font-size: 10px;
+    font-weight: 760;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .drever-audience-dialog__content > header h2 {
+    margin: 0;
+    font-size: 23px;
+    font-weight: 720;
+    letter-spacing: -0.025em;
+  }
+
+  .drever-audience-dialog__content > header button {
+    color: #aeb5c1;
+    font-size: 25px;
+    font-weight: 320;
+  }
+
+  .drever-audience-dialog__search {
+    display: block;
+    padding: 0 24px 18px;
+  }
+
+  .drever-audience-dialog__search input {
+    width: 100%;
+    height: 42px;
+    box-sizing: border-box;
+    padding: 0 13px;
+    border: 1px solid #343b49;
+    border-radius: 11px;
+    background: #191e28;
+    color: #f7f8fb;
+    font: inherit;
+    font-size: 13px;
+  }
+
+  .drever-audience-dialog__search input::placeholder {
+    color: #737c8c;
+  }
+
+  .drever-audience-dialog__slides {
+    display: grid;
+    padding: 2px 24px 26px;
+    overflow: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+    gap: 9px;
+    overscroll-behavior: contain;
+  }
+
+  .drever-audience-dialog__slides .drever-audience-slide-link {
+    display: grid;
+    min-width: 0;
+    min-height: 64px;
+    padding: 11px 13px;
+    border: 1px solid #2d3441;
+    border-radius: 12px;
+    background: #171c25;
+    grid-template-columns: 30px minmax(0, 1fr) auto;
+    justify-items: start;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+  }
+
+  .drever-audience-slide-link:hover {
+    border-color: #485367;
+  }
+
+  .drever-audience-slide-link[aria-current="page"] {
+    border-color: #657fe7;
+    background: #1d2745;
+    box-shadow: inset 0 0 0 1px rgb(124 156 255 / 18%);
+  }
+
+  .drever-audience-slide-link > span {
+    color: #7f8999;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    font-weight: 720;
+    letter-spacing: 0.08em;
+  }
+
+  .drever-audience-slide-link > strong {
+    min-width: 0;
+    overflow: hidden;
+    font-size: 13px;
+    font-weight: 650;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .drever-audience-slide-link > small {
+    color: #9fb1ff;
+    font-size: 9px;
+    font-weight: 760;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .drever-audience-dialog__slides > p {
+    margin: 22px 0;
+    color: #8e97a8;
+    font-size: 13px;
+    grid-column: 1 / -1;
+    text-align: center;
+  }
+
+  .drever-audience-dialog__content--help {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .drever-audience-dialog__content--help dl {
+    display: grid;
+    margin: 0;
+    padding: 0 24px 26px;
+    overflow: auto;
+  }
+
+  .drever-audience-dialog__content--help dl > div {
+    display: grid;
+    padding: 12px 0;
+    border-top: 1px solid #292f3a;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 24px;
+  }
+
+  .drever-audience-dialog__content--help dt,
+  .drever-audience-dialog__content--help dd {
+    margin: 0;
+    font-size: 12px;
+  }
+
+  .drever-audience-dialog__content--help dt {
+    color: #d9dde5;
+    font-weight: 630;
+  }
+
+  .drever-audience-dialog__content--help dd {
+    color: #929baa;
+    font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+    text-align: right;
+  }
+
+  .drever-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+    white-space: nowrap;
+  }
+
+  @media (pointer: coarse) {
+    .drever-audience-controls__bar {
+      opacity: 0.82;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .drever-audience-controls__bar .drever-audience-controls__position {
+      min-width: 116px;
+    }
+
+    .drever-audience-dialog__slides {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .drever-audience-controls__bar {
+      transition: none;
+    }
+  }
+
   .drever-speaker {
     position: fixed;
     inset: 0;

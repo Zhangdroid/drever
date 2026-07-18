@@ -48,6 +48,23 @@ describe("presentation state machine", () => {
     });
   });
 
+  it("skips reveal stops when navigating by slide", () => {
+    const machine = createPresentationStateMachine(manifest);
+
+    expect(machine.transition(position("intro", 0, 2), { type: "nextSlide" })).toMatchObject({
+      from: position("intro", 0, 2),
+      to: position("details", 1, 0),
+      transitionType: "drever-slide-forward",
+    });
+    expect(machine.transition(position("details", 1, 3), { type: "previousSlide" })).toMatchObject({
+      from: position("details", 1, 3),
+      to: position("intro", 0, 0),
+      transitionType: "drever-slide-backward",
+    });
+    expect(machine.transition(position("intro", 0, 5), { type: "previousSlide" })).toBeUndefined();
+    expect(machine.transition(position("end", 2, 0), { type: "nextSlide" })).toBeUndefined();
+  });
+
   it("stops at the deck edges and classifies explicit jumps", () => {
     const machine = createPresentationStateMachine(manifest);
     const first = machine.initialPosition;
@@ -95,6 +112,7 @@ describe("presentation state machine", () => {
             { format: "markdown" as const, plainText: "Remember this", value: "**Remember** this" },
           ],
           stepStops: [],
+          title: "Opening claim",
         },
       ],
     } satisfies DeckManifest;
@@ -111,6 +129,7 @@ describe("presentation state machine", () => {
       plainText: "Remember this",
       value: "**Remember** this",
     });
+    expect(machine.manifest.slides[0]?.title).toBe("Opening claim");
     expect(Object.isFrozen(machine.manifest.slides[0]?.speakerNotes)).toBe(true);
     expect(Object.isFrozen(machine.manifest.slides[0]?.speakerNotes[0])).toBe(true);
   });
@@ -134,6 +153,12 @@ describe("presentation state machine", () => {
           },
         ],
       } as unknown as DeckManifest),
+    ).toThrowError(expect.objectContaining({ code: "DREVER_CLIENT_MANIFEST_INVALID" }));
+    expect(() =>
+      createPresentationStateMachine({
+        version: DECK_MANIFEST_VERSION,
+        slides: [{ id: "intro", index: 0, speakerNotes: [], stepStops: [], title: "   " }],
+      }),
     ).toThrowError(expect.objectContaining({ code: "DREVER_CLIENT_MANIFEST_INVALID" }));
 
     const machine = createPresentationStateMachine(manifest);

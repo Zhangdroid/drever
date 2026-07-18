@@ -445,6 +445,25 @@ describe("createViewer lifecycle", () => {
     await viewer.destroy();
   });
 
+  it("routes the visible audience controls through the owned navigation and speaker surfaces", async () => {
+    const harness = createHarness({ currentURL: "https://slides.test/talk/2" });
+    const viewer = await createViewer(harness.options());
+
+    await harness.hostProps.onNavigate({ type: "previousSlide" });
+    harness.hostProps.onOpenSpeaker();
+
+    expect(harness.navigationController.navigate).toHaveBeenCalledOnce();
+    expect(harness.navigationController.navigate).toHaveBeenCalledWith({
+      type: "previousSlide",
+    });
+    expect(harness.open).toHaveBeenCalledWith(
+      "https://slides.test/talk/speaker/2",
+      "_blank",
+      "noopener",
+    );
+    await viewer.destroy();
+  });
+
   it("releases listeners and the root when setup fails", async () => {
     const harness = createHarness();
     const onError = vi.fn();

@@ -18,11 +18,18 @@ import {
   useRef,
   useState,
   type Ref,
+  type RefObject,
   type ReactElement,
 } from "react";
+import { AudienceControls } from "./audience-controls.tsx";
 import { CanvasViewport } from "./canvas.tsx";
 import { DreverClientError } from "./client-error.ts";
-import type { DeckPosition, PresentationStore } from "./presentation-state.ts";
+import type {
+  DeckCommand,
+  DeckPosition,
+  PresentationStateMachine,
+  PresentationStore,
+} from "./presentation-state.ts";
 import {
   startScopedViewTransition,
   type ReactTransitionRequest,
@@ -64,19 +71,22 @@ export const Viewer = (props: ViewerProps): ReactElement => <ViewerSurface {...p
 type ViewerSurfaceProps = ViewerProps &
   Readonly<{
     canvasRef?: Ref<HTMLDivElement>;
+    deckRef?: RefObject<HTMLDivElement | null>;
   }>;
 
 const ViewerSurface = ({
   Content,
   canvas,
   canvasRef,
+  deckRef: providedDeckRef,
   manageFocus = true,
   onPositionCommitted,
   position,
   registry,
   renderMode = "audience",
 }: ViewerSurfaceProps): ReactElement => {
-  const deckRef = useRef<HTMLDivElement>(null);
+  const localDeckRef = useRef<HTMLDivElement>(null);
+  const deckRef = providedDeckRef ?? localDeckRef;
   const previousSlideRef = useRef(position.slideIndex);
   const resolver = useCallback(
     (slide: SlideIdentity): ResolvedSlideState => resolveSlideState(position, slide),
@@ -214,8 +224,11 @@ export const createViewerTransitionChannel = (): ViewerTransitionChannel => {
 
 export type ViewerHostProps = Omit<ViewerProps, "onPositionCommitted" | "position"> &
   Readonly<{
+    machine: PresentationStateMachine;
     onError(error: unknown): void;
     onMounted(): void;
+    onNavigate(command: DeckCommand): void | Promise<void>;
+    onOpenSpeaker(): void;
     store: PresentationStore;
     transitions: ViewerTransitionChannel;
   }>;
@@ -230,8 +243,11 @@ type PendingTransition = {
 
 /** @internal Imperative bridge between Navigation interception and React commits. */
 export const ViewerHost = ({
+  machine,
   onError,
   onMounted,
+  onNavigate,
+  onOpenSpeaker,
   store,
   transitions,
   ...viewerProps
@@ -239,6 +255,7 @@ export const ViewerHost = ({
   const [position, setPosition] = useState(store.getSnapshot);
   const reducedMotion = viewerProps.reducedMotion ?? false;
   const canvasRef = useRef<HTMLDivElement>(null);
+  const deckRef = useRef<HTMLDivElement>(null);
   const pendingRef = useRef<PendingTransition | undefined>(undefined);
 
   useLayoutEffect(() => {
@@ -373,11 +390,22 @@ export const ViewerHost = ({
   );
 
   return (
-    <ViewerSurface
-      {...viewerProps}
-      canvasRef={canvasRef}
-      onPositionCommitted={completeCommit}
-      position={position}
-    />
+    <>
+      <ViewerSurface
+        {...viewerProps}
+        canvasRef={canvasRef}
+        deckRef={deckRef}
+        onPositionCommitted={completeCommit}
+        position={position}
+      />
+      <AudienceControls
+        deckRef={deckRef}
+        manifest={machine.manifest}
+        onError={onError}
+        onNavigate={onNavigate}
+        onOpenSpeaker={onOpenSpeaker}
+        position={position}
+      />
+    </>
   );
 };
