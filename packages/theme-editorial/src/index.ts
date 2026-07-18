@@ -66,6 +66,15 @@ export const theme = defineTheme({
     motion: { duration: 520, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
   },
   styles: [{ specifier: `${PACKAGE}/theme.css`, layer: "theme" }],
+  motion: {
+    id: "editorial",
+    intents: ["focus", "replace", "compare", "stagger", "continuity"],
+    guidance: [
+      "Prefer focus and compare when the audience should retain the argument's reading order.",
+      "Use replace for a revised claim or artifact, and stagger no more than four related details.",
+      "Use continuity only for an image, quotation, or artifact that genuinely carries into the next slide.",
+    ],
+  },
   layouts: [
     {
       name: "Masthead",

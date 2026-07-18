@@ -296,7 +296,16 @@ export const validateThemeContract = (theme: ThemeDefinition, diagnostics: Diagn
       );
     }
 
-    if (new Set(theme.motion.intents).size !== theme.motion.intents.length) {
+    if (theme.motion.intents.length === 0) {
+      diagnostics.push(
+        extensionDiagnostic(
+          "DREVER_THEME_MOTION_INVALID",
+          `Theme "${theme.id}" declares an empty motion profile.`,
+          "Remove the profile or declare at least one supported core motion intent.",
+          { details: { issue: "intents-empty", theme: theme.id } },
+        ),
+      );
+    } else if (new Set(theme.motion.intents).size !== theme.motion.intents.length) {
       diagnostics.push(
         extensionDiagnostic(
           "DREVER_THEME_MOTION_INVALID",

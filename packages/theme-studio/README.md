@@ -66,6 +66,20 @@ artifact stays primary.
 - `ratio` is `wide-main` or `equal`; wide-main is the default.
 - Standard `section` attributes are forwarded.
 
+## Motion
+
+Studio supports `focus`, `replace`, `compare`, `stagger`, and `continuity`. Its
+mapping uses precise lateral movement and signal emphasis for system states;
+continuity is reserved for a diagram node, interface, or object that genuinely
+persists. The theme exposes supported intents and author guidance as JSON-safe
+metadata.
+
+Use direct Step children for focus, replacement, and comparison. Put stagger
+inside one Step with at most four direct children. Give continuity the same
+explicit lowercase kebab-case name on the same object across adjacent slides.
+See [Motion choreography](../../docs/motion.md) for the complete grammar and
+accessibility semantics.
+
 ## AI generation
 
 The package exports typed `studioRecipes` and includes machine-readable slot
@@ -80,7 +94,8 @@ signal color for the current decision or focal point. Use Statement only for an
 opening, section marker, or real thesis. Use Workbench when one interface,
 diagram, code sample, or live component is the evidence. Keep rail copy under
 35 words, code large enough to discuss, and use at most four meaningful Steps.
-Avoid neon overload, tiny dashboard cards, and decorative reveals.
+Avoid neon overload, tiny dashboard cards, and decorative reveals. Use
+MotionGroup only when a supported intent explains a real state relationship.
 ```
 
 Studio targets current browsers. Speaker previews keep the dark canvas and

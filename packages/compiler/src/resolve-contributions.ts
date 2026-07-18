@@ -2,7 +2,6 @@ import type {
   CompilePlan,
   Diagnostic,
   ExtensionOwner,
-  ModuleReference,
   OwnedModuleReference,
   OwnedStyleReference,
   PlannedComponent,
@@ -21,7 +20,6 @@ type ThemeContributions = Readonly<{
   elements: readonly PlannedElement[];
   layouts: readonly PlannedLayout[];
   styles: readonly OwnedStyleReference[];
-  motionModule?: ModuleReference;
 }>;
 
 type PluginContributions = Readonly<{
@@ -91,15 +89,10 @@ export const resolveThemeContributions = (
     }
   }
 
-  const motionModule = theme.motion
-    ? normalizeModule(theme.motion.module, theme.baseURL, owner, diagnostics)
-    : undefined;
-
   return {
     elements,
     layouts,
     styles,
-    ...(motionModule === undefined ? {} : { motionModule }),
   };
 };
 

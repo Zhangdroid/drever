@@ -97,7 +97,7 @@ const viewerModuleSource = (entry: string, { canvas, rehearsal }: PrivateAppOpti
 import "@drever/client/styles.css";
 import Content, { deckManifest } from ${JSON.stringify(entry)};
 import { components } from "virtual:drever/mdx-components";
-import { motion, runSetup, theme } from "virtual:drever/runtime";
+import { runSetup, theme } from "virtual:drever/runtime";
 import "virtual:drever/styles.css";
 
 const container = document.querySelector("#drever-root");
@@ -120,7 +120,7 @@ const presentationOptions = {
   manifest: deckManifest,
   onError: reportPresentationError,
   registry: components,
-  runtime: { motion, runSetup, theme },${canvas === undefined ? "" : `\n  canvas: ${JSON.stringify(canvas)},`}
+  runtime: { runSetup, theme },${canvas === undefined ? "" : `\n  canvas: ${JSON.stringify(canvas)},`}
 };
 const presentation = routePath === "document"
   ? await createDocument(presentationOptions)

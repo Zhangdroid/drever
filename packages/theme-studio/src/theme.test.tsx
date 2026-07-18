@@ -19,6 +19,10 @@ describe("@drever/theme-studio", () => {
     expect(result.value.theme).toMatchObject({
       id: "@drever/theme-studio",
       canvas: { width: 1600, height: 900 },
+      motion: {
+        id: "studio",
+        intents: ["focus", "replace", "compare", "stagger", "continuity"],
+      },
     });
     expect(result.value.runtime.styles).toEqual([
       {
@@ -116,5 +120,15 @@ describe("@drever/theme-studio", () => {
     ]) {
       expect(css).toContain(selector);
     }
+
+    const profileKeys = new Set(css.match(/--drever-recipe-[\w-]+(?=:)/gu));
+
+    expect(profileKeys.size).toBe(18);
+    expect(css).toContain("grid-area: 1 / 1;");
+    expect(css.match(/:not\(\[data-drever-render-mode="document"\]\)/gu)).toHaveLength(3);
+    expect(css).toContain("--drever-recipe-stagger-gap: 36ms;");
+    expect(css).toContain("--drever-recipe-continuity-new-from-opacity: 0.36;");
+    expect(css).toContain("[data-drever-reduced-motion]");
+    expect(theme.motion?.guidance?.every((entry) => entry.trim().length > 20)).toBe(true);
   });
 });

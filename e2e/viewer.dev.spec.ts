@@ -1,5 +1,12 @@
 import { expect, test } from "@playwright/test";
+import { expectStableBounds, readElementBounds } from "./support/element-bounds.ts";
 import { monitorPageHealth } from "./support/page-health.ts";
+import {
+  captureNextViewTransition,
+  monitorViewTransitions,
+  readViewTransitionCalls,
+  waitForViewTransition,
+} from "./support/view-transitions.ts";
 
 const activeSlide = '[data-drever-slide][data-slide-state="active"]';
 
@@ -443,55 +450,16 @@ test("speaker chrome keeps remote keys while buttons and notes retain native key
 });
 
 test("slide motion is scoped to the canvas without nested title transitions", async ({ page }) => {
-  await page.addInitScript(() => {
-    const calls: Array<Readonly<{ canvas: boolean; kind: "document" | "element" }>> = [];
-    Object.defineProperty(globalThis, "__dreverTransitionCalls", { value: calls });
-
-    const documentPrototype: object = Document.prototype;
-    const documentStart = Reflect.get(documentPrototype, "startViewTransition") as (
-      ...args: unknown[]
-    ) => unknown;
-    Reflect.set(
-      documentPrototype,
-      "startViewTransition",
-      function (this: Document, ...args: unknown[]) {
-        calls.push({ canvas: false, kind: "document" });
-        return Reflect.apply(documentStart, this, args);
-      },
-    );
-
-    const elementPrototype: object = Element.prototype;
-    const elementStart = Reflect.get(elementPrototype, "startViewTransition") as (
-      ...args: unknown[]
-    ) => unknown;
-    Reflect.set(
-      elementPrototype,
-      "startViewTransition",
-      function (this: Element, ...args: unknown[]) {
-        calls.push({
-          canvas: this instanceof HTMLElement && this.hasAttribute("data-drever-canvas"),
-          kind: "element",
-        });
-        return Reflect.apply(elementStart, this, args);
-      },
-    );
-  });
+  await monitorViewTransitions(page);
 
   await page.goto("/");
-  await page.keyboard.press("ArrowRight");
+  const transition = await captureNextViewTransition(page, () => page.keyboard.press("ArrowRight"));
+  await waitForViewTransition(page, transition, "finished");
   await expect(page).toHaveURL(/\/2$/u);
 
-  await expect
-    .poll(() =>
-      page.evaluate(
-        () =>
-          Reflect.get(globalThis, "__dreverTransitionCalls") as readonly Readonly<{
-            canvas: boolean;
-            kind: "document" | "element";
-          }>[],
-      ),
-    )
-    .toEqual([{ canvas: true, kind: "element" }]);
+  expect(await readViewTransitionCalls(page)).toEqual([
+    { canvas: true, kind: "element", types: ["drever-slide-forward"] },
+  ]);
   await expect(page.locator('[data-drever-slide][data-slide-state="active"] h2')).toHaveCSS(
     "view-transition-name",
     "none",
@@ -499,66 +467,70 @@ test("slide motion is scoped to the canvas without nested title transitions", as
 });
 
 test("step motion keeps unchanged slide content stationary", async ({ page }) => {
+  await monitorViewTransitions(page);
   await page.goto("/2");
-  await page.addStyleTag({
-    content: ".drever-viewer { --drever-motion-duration: 1200ms !important; }",
-  });
 
   const heading = page.locator('[data-drever-slide][data-slide-state="active"] h2');
-  const headingBounds = () =>
-    heading.evaluate((element) => {
-      const { height, width, x, y } = element.getBoundingClientRect();
-      return { height, width, x, y };
+  const lead = page.locator(`${activeSlide} > p`).first();
+  const contentBounds = async () => ({
+    heading: await readElementBounds(heading),
+    lead: await readElementBounds(lead),
+  });
+  const before = await contentBounds();
+
+  for (const navigation of [
+    { key: "ArrowRight", route: /\/2\/2$/u },
+    { key: "ArrowRight", route: /\/2\/5$/u },
+    { key: "ArrowLeft", route: /\/2\/2$/u },
+  ]) {
+    const transition = await captureNextViewTransition(page, () =>
+      page.keyboard.press(navigation.key),
+    );
+    await waitForViewTransition(page, transition, "ready");
+    await expect(page).toHaveURL(navigation.route);
+
+    const during = await contentBounds();
+    expectStableBounds(during.heading, before.heading);
+    expectStableBounds(during.lead, before.lead);
+    expect(
+      await page.evaluate(() => {
+        const canvas = document.querySelector<HTMLElement>("[data-drever-canvas]");
+        if (canvas === null) {
+          throw new Error("Expected the Drever canvas during a Step transition.");
+        }
+        const oldRoot = getComputedStyle(canvas, "::view-transition-old(root)");
+        const newRoot = getComputedStyle(canvas, "::view-transition-new(root)");
+        return {
+          newAnimation: newRoot.animationName,
+          newFilter: newRoot.filter,
+          newOpacity: Number(newRoot.opacity),
+          newTransform: newRoot.transform,
+          oldAnimation: oldRoot.animationName,
+          oldFilter: oldRoot.filter,
+          oldOpacity: Number(oldRoot.opacity),
+          oldTransform: oldRoot.transform,
+        };
+      }),
+    ).toEqual({
+      newAnimation: "none",
+      newFilter: "none",
+      newOpacity: 1,
+      newTransform: "none",
+      oldAnimation: "none",
+      oldFilter: "none",
+      oldOpacity: 0,
+      oldTransform: "none",
     });
-  const before = await headingBounds();
 
-  await page.keyboard.press("ArrowRight");
-  await expect(page).toHaveURL(/\/2\/2$/u);
-  await expect
-    .poll(() =>
-      page.evaluate(() => {
-        const canvas = document.querySelector<HTMLElement>("[data-drever-canvas]");
-        return canvas === null
-          ? "missing"
-          : getComputedStyle(canvas, "::view-transition-new(root)").animationName;
-      }),
-    )
-    .toBe("drever-soft-enter");
+    await waitForViewTransition(page, transition, "finished");
+    const after = await contentBounds();
+    expectStableBounds(after.heading, before.heading);
+    expectStableBounds(after.lead, before.lead);
+  }
 
-  const transition = await page.evaluate(() => {
-    const canvas = document.querySelector<HTMLElement>("[data-drever-canvas]");
-    if (canvas === null) {
-      throw new Error("Expected the Drever canvas during a Step transition.");
-    }
-    const oldRoot = getComputedStyle(canvas, "::view-transition-old(root)");
-    const newRoot = getComputedStyle(canvas, "::view-transition-new(root)");
-    return {
-      newAnimation: newRoot.animationName,
-      newOpacity: Number(newRoot.opacity),
-      newTransform: newRoot.transform,
-      oldAnimation: oldRoot.animationName,
-      oldTransform: oldRoot.transform,
-    };
-  });
-
-  expect(await headingBounds()).toEqual(before);
-  expect(transition).toMatchObject({
-    newAnimation: "drever-soft-enter",
-    newTransform: "none",
-    oldAnimation: "none",
-    oldTransform: "none",
-  });
-  expect(transition.newOpacity).toBeLessThan(1);
-
-  await expect
-    .poll(() =>
-      page.evaluate(() => {
-        const canvas = document.querySelector<HTMLElement>("[data-drever-canvas]");
-        return canvas === null
-          ? "missing"
-          : getComputedStyle(canvas, "::view-transition-new(root)").animationName;
-      }),
-    )
-    .toBe("none");
-  expect(await headingBounds()).toEqual(before);
+  expect(await readViewTransitionCalls(page)).toEqual([
+    { canvas: true, kind: "element", types: ["drever-step-forward"] },
+    { canvas: true, kind: "element", types: ["drever-step-forward"] },
+    { canvas: true, kind: "element", types: ["drever-step-backward"] },
+  ]);
 });

@@ -45,8 +45,9 @@ descriptor cannot invalidate cache keys, builds, or error reports.
 
 Reference meaning is determined by the capability that owns it:
 
-- Theme elements, layouts, plugin components, and motion modules import the
-  selected export as a direct runtime value. They cannot declare `options`.
+- Theme elements, layouts, and plugin components import the selected export as
+  a direct runtime value. They cannot declare `options`. Theme motion profiles
+  are JSON-safe metadata mapped to CSS by the theme.
 - `setup` and `exportSetup` import a Drever lifecycle hook that the relevant
   adapter invokes once with its owned context. They cannot declare `options`.
 - remark, rehype, recma, and Vite entries use `BuildPluginReference`. Their

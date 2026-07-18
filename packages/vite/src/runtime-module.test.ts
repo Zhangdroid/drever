@@ -161,8 +161,7 @@ const plan: CompilePlan = {
     ...basePlan.theme,
     motion: {
       id: "editorial",
-      module: { specifier: "theme-motion", exportName: "motion" },
-      intents: ["reveal", "continuity"],
+      intents: ["focus", "continuity"],
       guidance: ["Prefer continuity between related slides."],
     },
   },
@@ -184,15 +183,17 @@ describe("runtime virtual modules", () => {
     expect(source).not.toContain("theme-motion");
   });
 
-  it("keeps viewer runtime limited to theme motion and setup hooks", () => {
+  it("keeps viewer runtime limited to theme metadata and setup hooks", () => {
     const source = createRuntimeModuleSource(plan);
 
-    expect(source).toContain('from "theme-motion"');
-    expect(source).toContain("export const motion = Object.freeze({ ...__dreverParseJSON(");
-    expect(source).toContain("implementation: __drever_value_0");
+    expect(source).not.toContain("theme-motion");
+    expect(source).not.toContain("export const motion");
     expect(source).toContain('from "chart-setup"');
     expect(source).toContain('from "player-setup"');
     expect(source).toContain("export const theme = __dreverParseJSON(");
+    expect(source).toContain(
+      '\\"motion\\":{\\"id\\":\\"editorial\\",\\"intents\\":[\\"focus\\",\\"continuity\\"]',
+    );
     expect(source).toContain("export const runSetup = async (runtime)");
     expect(source).toContain("plugin: registration.plugin");
     expect(source).not.toContain("pluginConfig:");
@@ -225,10 +226,10 @@ describe("runtime virtual modules", () => {
   it("awaits setup hooks sequentially in compile-plan order", () => {
     const source = createRuntimeModuleSource(plan);
     const chart = source.indexOf(
-      'owner: "charts", capability: "setup", specifier: "chart-setup", hook: __drever_value_1',
+      'owner: "charts", capability: "setup", specifier: "chart-setup", hook: __drever_value_0',
     );
     const player = source.indexOf(
-      'owner: "player", capability: "setup", specifier: "player-setup", hook: __drever_value_2',
+      'owner: "player", capability: "setup", specifier: "player-setup", hook: __drever_value_1',
     );
 
     expect(chart).toBeGreaterThan(-1);

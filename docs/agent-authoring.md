@@ -100,9 +100,9 @@ and intentional sparse stops are therefore represented exactly; they are not
 reconstructed with regular expressions.
 
 The design section is planning evidence. It exposes only JSON-safe public theme,
-layout, motion, component, and plugin metadata. Executable implementation module
-references stay private. This gives an agent the available visual vocabulary
-without coupling its output to Vite internals.
+layout, motion, component, and plugin metadata. Executable layout and component
+module references stay private. This gives an agent the available visual
+vocabulary without coupling its output to Vite internals.
 
 `context` is intentionally not a rendered-deck oracle. It does not:
 
@@ -117,6 +117,22 @@ Preflight inside the report analyzes the authored source. Runtime components
 remain responsible for their generated semantics, and visual claims require
 rendered evidence at the configured canvas and exact Step route.
 
+### Use the motion vocabulary
+
+Read `design.theme.motion` before adding choreography. It reports the active
+theme's supported intent names and author guidance as JSON-safe metadata; there
+is no executable motion module to inspect. Prefer ordinary Steps unless the
+change has one of Drever's five narrative jobs:
+
+- `focus`, `replace`, and `compare` use direct Step children;
+- `stagger` belongs inside one Step and has at most four direct visual children;
+- `continuity` requires the same unique lowercase kebab-case name for the same
+  object on adjacent slides.
+
+Keep persistent titles outside motion groups. Never infer a shared identity,
+invent animation props, or add Step stops merely to create delay. The full
+grammar and accessibility semantics are in [Motion choreography](./motion.md).
+
 ## Recommended loop
 
 For a new project:
@@ -127,7 +143,9 @@ For a new project:
    vocabulary.
 4. Run `drever check --json` and fix proven source defects.
 5. Build and inspect every authored Step state plus `/document`; inspect
-   `/speaker` when notes or presentation behavior changed.
+   `/speaker` when notes, motion, or presentation behavior changed.
+6. For motion edits, verify forward and backward movement, persistent geometry,
+   reduced motion, and the affected continuity boundary in a real browser.
 
 For an existing deck, start with `context --json`, read the complete affected
 source and local imports, and preserve unrelated slide boundaries and Step

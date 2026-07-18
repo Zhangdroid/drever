@@ -95,6 +95,20 @@ Public props:
 - `ratio`: `equal`, `wide-primary`, or `wide-secondary`; defaults to `equal`.
 - Standard HTML `div` attributes.
 
+## Motion
+
+Default supports Drever's complete semantic motion grammar: `focus`, `replace`,
+`compare`, `stagger`, and `continuity`. Its mapping uses quiet fades and short
+spatial movement so the current decision is clear without competing with the
+content. The exported theme definition exposes the same supported intents and
+author guidance as JSON-safe metadata.
+
+Use direct Step children for focus, replacement, and comparison. Put a stagger
+group inside one Step with no more than four direct children. Continuity alone
+requires an explicit lowercase kebab-case name shared by the same object on
+adjacent slides. See [Motion choreography](../../docs/motion.md) for examples,
+accessibility behavior, and the reduced-motion contract.
+
 ## AI generation prompt
 
 This can be pasted after the presentation brief:
@@ -105,7 +119,9 @@ Markdown. Use Cover only for the opening or a true chapter break, and use
 TwoColumn only when the relationship between two ideas is the point. Keep titles
 under 10 words, body copy under 45 words per region, and avoid more than one
 nested list. Use Step for meaningful progressive disclosure, not for animating
-every element. Prefer one strong visual over decorative gradients or dense text.
+every element. Use MotionGroup only for a supported narrative relationship and
+follow its required child shape. Prefer one strong visual over decorative
+gradients or dense text.
 ```
 
 The machine-readable `manifest` on the exported theme contains the same art
@@ -127,5 +143,5 @@ viewer. Do not modify the package CSS:
 
 The theme targets current browsers and intentionally uses `color-mix()` and
 modern text wrapping without legacy fallbacks. The client owns one
-canvas-scoped transition; the default theme does not create nested transition
-groups that could compete with slide motion.
+canvas-scoped transition and names only active semantic participants. Persistent
+headings never receive inferred transition identities.

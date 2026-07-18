@@ -279,7 +279,6 @@ export const createSpeaker = async (options: CreateSpeakerOptions): Promise<Spea
     const runtime: ViewerRuntime = Object.freeze({
       container: options.container,
       getPosition: store.getSnapshot,
-      ...(options.runtime?.motion === undefined ? {} : { motion: options.runtime.motion }),
       navigate,
       reportError: report,
       signal: lifetime.signal,

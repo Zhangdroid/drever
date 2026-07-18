@@ -147,8 +147,8 @@ The adapter owns four private virtual modules:
 - `virtual:drever/mdx-components` statically imports theme elements, layouts,
   and plugin components, then exports the MDX component provider.
 - `virtual:drever/runtime` is the viewer boundary. It statically imports the
-  theme motion implementation and `setup` hooks, then exports `theme`,
-  `motion`, and `runSetup`.
+  `setup` hooks and exports JSON-safe `theme` metadata plus `runSetup`. Motion
+  support and authoring guidance live under `theme.motion`.
 - `virtual:drever/export-runtime` is the exporter boundary. It statically
   imports only `exportSetup` hooks and exports `runExportSetup`.
 - `virtual:drever/styles.css` declares Drever's cascade layer order and imports
@@ -169,7 +169,7 @@ configuration to an author:
 import { createDocument, createSpeaker, createViewer } from "@drever/client";
 import "@drever/client/styles.css";
 import { components as registry } from "virtual:drever/mdx-components";
-import { motion, runSetup, theme } from "virtual:drever/runtime";
+import { runSetup, theme } from "virtual:drever/runtime";
 import "virtual:drever/styles.css";
 import Content, { deckManifest } from "./slides.mdx";
 
@@ -197,7 +197,7 @@ const presentation = await createPresentation({
   container,
   manifest: deckManifest,
   registry,
-  runtime: { motion, runSetup, theme },
+  runtime: { runSetup, theme },
 });
 ```
 

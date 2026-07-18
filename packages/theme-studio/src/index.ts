@@ -68,6 +68,15 @@ export const theme = defineTheme({
     motion: { duration: 440, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" },
   },
   styles: [{ specifier: `${PACKAGE}/theme.css`, layer: "theme" }],
+  motion: {
+    id: "studio",
+    intents: ["focus", "replace", "compare", "stagger", "continuity"],
+    guidance: [
+      "Use focus or replace to explain one meaningful system state at a time.",
+      "Use compare for persistent alternatives and stagger for at most four parts of one artifact.",
+      "Share a continuity name only when a diagram node, interface, or object persists across slides.",
+    ],
+  },
   layouts: [
     {
       name: "Statement",

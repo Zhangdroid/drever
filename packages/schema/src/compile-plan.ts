@@ -63,10 +63,7 @@ export type PlannedTheme = Readonly<{
   version?: string;
   canvas?: CanvasDefinition;
   tokens: JsonObject;
-  motion?: Omit<MotionProfileDefinition, "module"> &
-    Readonly<{
-      module: ModuleReference;
-    }>;
+  motion?: MotionProfileDefinition;
   manifest: ThemeManifest;
 }>;
 

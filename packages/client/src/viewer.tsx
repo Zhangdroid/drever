@@ -82,6 +82,7 @@ const ViewerSurface = ({
   manageFocus = true,
   onPositionCommitted,
   position,
+  reducedMotion = false,
   registry,
   renderMode = "audience",
 }: ViewerSurfaceProps): ReactElement => {
@@ -127,6 +128,7 @@ const ViewerSurface = ({
       <div
         className="drever-deck"
         data-drever-deck=""
+        data-drever-reduced-motion={reducedMotion ? "" : undefined}
         data-drever-render-mode={renderMode}
         ref={deckRef}
       >
@@ -329,6 +331,23 @@ export const ViewerHost = ({
             }),
         );
         pending.transition = transition;
+        void transition.ready.catch((error: unknown) => {
+          if (
+            typeof error === "object" &&
+            error !== null &&
+            "name" in error &&
+            error.name === "AbortError"
+          ) {
+            return;
+          }
+          onError(
+            new DreverClientError(
+              "DREVER_CLIENT_VIEW_TRANSITION_INVALID",
+              "The canvas View Transition could not capture the authored motion identities.",
+              { cause: error },
+            ),
+          );
+        });
         void transition.finished.catch(() => undefined);
         void transition.updateCallbackDone.catch((error: unknown) => {
           if (pendingRef.current !== pending) {

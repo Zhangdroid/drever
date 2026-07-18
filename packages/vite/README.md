@@ -21,7 +21,7 @@ export async function createViteConfig(plan: CompilePlan) {
 
 The adapter loads capability descriptors, assembles the canonical MDX pipeline,
 adds React support, and generates deterministic virtual modules for components,
-styles, motion, and lifecycle hooks.
+styles, theme metadata, and lifecycle hooks.
 
 Generated TypeScript projects include `import "@drever/vite/virtual-modules"`
 in `drever-env.d.ts`. That type-only subpath declares every private Drever

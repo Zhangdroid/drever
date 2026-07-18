@@ -177,10 +177,7 @@ const themeDefinition = object({
   motion: optional(
     object({
       id: field(string),
-      module: field(moduleReference),
-      intents: field(
-        array(enumeration("reveal", "focus", "replace", "continuity", "stagger", "ambient")),
-      ),
+      intents: field(array(enumeration("focus", "replace", "compare", "stagger", "continuity"))),
       guidance: optional(stringArray),
     }),
   ),

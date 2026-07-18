@@ -58,7 +58,8 @@ The runnable vertical slice includes:
 - a typed `drever.config.ts` and public `drever dev` / `drever build` commands;
 - a polished, dependency-light default theme with `Cover` and `TwoColumn` layouts;
 - clean path-addressable slide and reveal state through the Navigation API;
-- state-preserving inactive slides and canvas-scoped View Transitions;
+- state-preserving inactive slides and canvas-scoped View Transitions with
+  semantic focus, replacement, comparison, stagger, and continuity recipes;
 - an accessible audience command bar with progress, fullscreen, searchable
   slide navigation, direct jumps, canonical link copying, and black/white pause
   screens;
@@ -89,11 +90,11 @@ build, and PDF export are usable now. See the
 The repository includes three complete Drever projects. The two showcase decks
 are also the reference consumers for the official Editorial and Studio themes.
 
-| Demo           | Story                                                   | Theme     | Command                    |
-| -------------- | ------------------------------------------------------- | --------- | -------------------------- |
-| `basic`        | Compact authoring and runtime contract                  | Default   | `vp run demo`              |
-| `product-tour` | Audience-facing product story and interaction showcase  | Editorial | `vp run demo:product`      |
-| `architecture` | Deck IR, compilation, routing, extensions, and delivery | Studio    | `vp run demo:architecture` |
+| Demo           | Story                                                     | Theme     | Command                    |
+| -------------- | --------------------------------------------------------- | --------- | -------------------------- |
+| `basic`        | Compact authoring and runtime contract                    | Default   | `vp run demo`              |
+| `product-tour` | Product story, interaction showcase, and motion reference | Editorial | `vp run demo:product`      |
+| `architecture` | Deck IR, compilation, routing, extensions, and delivery   | Studio    | `vp run demo:architecture` |
 
 ```bash
 vp install
@@ -134,10 +135,11 @@ the complete commands.
 - **Studio** uses a restrained technical canvas with `Statement` and
   `Workbench` layouts for architecture and engineering stories.
 
-Every theme owns semantic MDX elements, slide surfaces, Step states, speaker
-previews, typed layout recipes, and an AI-readable manifest. Themes do not own
-compilation or navigation behavior, so decks can change visual systems without
-changing their delivery contract.
+Every theme owns semantic MDX elements, slide surfaces, Step states, motion
+styling, speaker previews, typed layout recipes, and an AI-readable manifest.
+Themes do not own compilation, navigation, or motion state semantics, so decks
+can change visual systems without changing their delivery contract. See
+[Motion choreography](./docs/motion.md) for the shared authoring grammar.
 
 Build the basic demo as a static site:
 
@@ -162,7 +164,8 @@ policy, [Agent authoring](./docs/agent-authoring.md) for the project-local skill
 and machine-readable context contract, [Extension authoring](./docs/extensions.md)
 for plugin and theme contracts, [Official plugins](./docs/official-plugins.md)
 for activation and safety policy, [Canonical adapter](./docs/canonical-adapter.md)
-for the MDX/Vite execution boundary, and [Client runtime](./docs/client-runtime.md)
+for the MDX/Vite execution boundary, [Motion choreography](./docs/motion.md) for
+the semantic animation contract, and [Client runtime](./docs/client-runtime.md)
 for the audience, document, speaker, and export surfaces.
 Repository language, readability, testing, dependency, and commit expectations
 are in [Contributing](./CONTRIBUTING.md).

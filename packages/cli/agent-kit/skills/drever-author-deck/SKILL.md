@@ -12,7 +12,7 @@ description: Author or edit an existing Drever presentation. Use when asked to r
 3. Treat slide boundaries and Step stops as public navigation state. Do not renumber them casually; an exact route may be shared.
 4. Keep one dominant idea, clear hierarchy, and a unique title on every slide. Prefer semantic Markdown and theme layouts over one-off containers.
 5. Use `Step` for an intentional change in audience understanding, not decoration. Preserve meaningful sparse stops.
-6. Express motion with `MotionGroup` intents such as `reveal`, `focus`, `replace`, `continuity`, or `stagger`. Keep persistent titles and content stationary during Step changes.
+6. Express motion with the `MotionGroup` intents `focus`, `replace`, `compare`, `stagger`, and `continuity`. Keep persistent titles and content stationary during Step changes.
 7. Keep speaker-only explanation in `Note` and preserve headings, alternatives, captions, focus behavior, and reduced-motion behavior.
 8. Never edit generated files in `dist/` or `.drever/`.
 

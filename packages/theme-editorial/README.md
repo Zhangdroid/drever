@@ -62,6 +62,20 @@ unrelated ideas on a slide.
 - `balance` is `balanced`, `text-led`, or `visual-led`.
 - Standard `article` attributes are forwarded.
 
+## Motion
+
+Editorial supports `focus`, `replace`, `compare`, `stagger`, and `continuity`.
+Its choreography follows the theme's reading rhythm: restrained clipping and
+fades reveal an argument, while continuity carries a genuine image, quotation,
+or artifact into the next slide. Supported intents and concise author guidance
+are part of the theme's JSON-safe motion metadata.
+
+Use direct Step children for focus, replacement, and comparison. Put stagger
+inside one Step with at most four direct children. Give continuity the same
+explicit lowercase kebab-case name on the same object across adjacent slides.
+See [Motion choreography](../../docs/motion.md) for the complete grammar and
+non-audience behavior.
+
 ## AI generation
 
 The package exports typed `editorialRecipes` and includes machine-readable slot
@@ -75,7 +89,9 @@ Use @drever/theme-editorial. Write headlines with a point of view. Give each
 slide one claim and let typography create the hierarchy. Use Masthead only for
 the opening or a true chapter break. Use Feature only when a single visual is
 evidence for the claim. Keep body copy under 55 words, use at most four list
-items, and avoid card grids, decorative gradients, and generic slogans.
+items, and avoid card grids, decorative gradients, and generic slogans. Use
+MotionGroup only when focus, replacement, comparison, stagger, or continuity
+clarifies the reading order.
 ```
 
 Editorial targets current browsers. Speaker previews retain the full visual

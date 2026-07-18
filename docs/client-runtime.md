@@ -25,7 +25,7 @@ import "@drever/vite/virtual-modules";
 import { createDocument, createSpeaker, createViewer } from "@drever/client";
 import "@drever/client/styles.css";
 import { components as registry } from "virtual:drever/mdx-components";
-import { motion, runSetup, theme } from "virtual:drever/runtime";
+import { runSetup, theme } from "virtual:drever/runtime";
 import "virtual:drever/styles.css";
 import Content, { deckManifest } from "./slides.mdx";
 
@@ -55,7 +55,7 @@ const presentationOptions = {
   manifest: deckManifest,
   onError: reportPresentationError,
   registry,
-  runtime: { motion, runSetup, theme },
+  runtime: { runSetup, theme },
 };
 const presentation =
   routePath === "document"
@@ -77,8 +77,9 @@ The inputs have distinct owners:
   The export is passed through the `manifest` option.
 - `registry` is the resolved theme-element, layout, plugin-component, and core
   component registry from `virtual:drever/mdx-components`.
-- `theme`, `motion`, and `runSetup` are the browser-safe values from
-  `virtual:drever/runtime`. Passing them as `runtime` keeps the client independent
+- `theme` and `runSetup` are the browser-safe values from
+  `virtual:drever/runtime`. Motion intent metadata is available at
+  `theme.motion`; passing both values as `runtime` keeps the client independent
   from Vite module identifiers.
 - `@drever/client/styles.css` owns the viewport and transition surface;
   `virtual:drever/styles.css` imports the planned theme and plugin styles in
@@ -286,26 +287,53 @@ work running.
 
 Navigation commits use React Canary `startTransition` inside
 `Element.startViewTransition({ update, types })` on the slide canvas. The stage
-outside the canvas is never captured, and the default theme does not create
-nested transition groups. Six semantic transition types distinguish
-forward/backward Step, adjacent-slide, and jump motion. The defaults live in the
-lowest `drever.client` cascade layer and expose duration/easing custom
-properties, so themes can style motion while the client owns its meaning.
+outside the canvas is never captured. Six transition types distinguish
+forward/backward Step, adjacent-slide, and jump motion. During Step navigation,
+the client gives newly active Step snapshots a native transition class for
+ordinary reveal or the enclosing `focus`, `replace`, or `compare` intent. A
+`stagger` group moves capture to its direct children and bounds them to four
+delay classes. During slide navigation, only an audience `continuity` group has
+an author-provided shared identity. Headings and surrounding content receive no
+implicit identity, so a Step change cannot turn stable slide geometry into a
+shared-element animation.
+
+`MotionGroup` requires one of five intents. `focus`, `replace`, and `compare`
+operate on direct Step children. `stagger` belongs inside one Step with at most
+four direct visual children. `continuity` alone requires a lowercase kebab-case
+`name`, reused only for the same object across adjacent slides. Replacement
+Steps overlap in one stable grid track; only its active state remains exposed to
+interaction and assistive technology. The complete authoring contract is in
+[Motion choreography](./motion.md).
+
+The client owns capture, direction, and state classification. Core owns intent
+attributes, continuity identity, and replacement accessibility. Themes own the
+actual duration, easing, emphasis, and displacement through CSS. Their
+`theme.motion` field is JSON-safe authoring metadata (`id`, supported `intents`,
+and optional `guidance`), not an executable module, and the generated runtime
+does not export a separate `motion` value.
 
 When reduced motion is requested, the same state and navigation path is used but
-presentation animation is disabled. This is an accessibility behavior, not a
-legacy animation fallback.
+presentation animation and View Transition naming are disabled. Speaker
+previews and export also suppress capture and animation while retaining their
+stable-frame replacement state. Document rendering suppresses motion and
+instead exposes every replacement in normal reading flow. This is an
+accessibility and deterministic-rendering behavior, not a legacy animation
+fallback.
 
 ## Document surface
 
 `createDocument` mounts the compiled MDX tree once and resolves every slide at
 its final authored Step. The page supplies a title-based table of contents and
 one named landmark per slide, so browser Find, assistive technology, copy, and
-linking work across the complete deck. `<Note>` content remains compiler-owned
-and absent. Theme tokens and canvas dimensions still define each slide's visual
-language; document CSS scales those canvases into a responsive vertical flow.
-Below its readable minimum scale, the page keeps horizontal overflow inside the
-slide list instead of shrinking authored body text indefinitely.
+linking work across the complete deck. A `replace` MotionGroup is expanded here:
+its completed and active Steps remain exposed and flow in authored order instead
+of sharing the presentation's stable frame. `<Note>` content remains
+compiler-owned and absent. Theme tokens and canvas dimensions still define each
+slide's visual language; document CSS scales those canvases into a responsive
+vertical flow. A page keeps the canvas height as its minimum and grows when an
+expanded replacement history needs more room. Below its readable minimum scale,
+the page keeps horizontal overflow inside the slide list instead of shrinking
+authored body text indefinitely.
 
 Document mode does not attach Navigation API interception, keyboard
 presentation controls, `BroadcastChannel`, View Transitions, or runtime setup
@@ -412,9 +440,12 @@ An AI generating a Drever application should follow this minimal prompt:
 > MDX JSX `<Step>` elements for reveals; omit `at` for consecutive compiler
 > numbering or use only positive numeric literals for intentional groups and
 > gaps. Do not put Steps in JavaScript expressions or runtime helper components.
+> Prefer ordinary Steps. Use MotionGroup only for the semantic `focus`,
+> `replace`, `compare`, `stagger`, or `continuity` grammar; continuity alone
+> requires an explicit shared lowercase kebab-case name.
 > Keep the generated application entry unchanged: pass the default MDX export as
 > `Content`, `deckManifest` as `manifest`, the virtual component registry as
-> `registry`, and `{ theme, motion, runSetup }` as `runtime` to the generated
+> `registry`, and `{ theme, runSetup }` as `runtime` to the generated
 > route-selected audience, document, or speaker surface.
 > Import both client and virtual styles. Do not implement a router, inspect the
 > rendered DOM for Steps, call native View Transition APIs, or add browser

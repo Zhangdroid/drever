@@ -89,10 +89,12 @@ and runtime adapter contexts.
 
 Build module exports are loaded only by the canonical adapter. Their
 `BuildPluginReference` may contain static JSON `options`. Runtime components,
-elements, layouts, motion modules, and lifecycle hooks use option-free
-`ModuleReference` values, so an adapter never has to guess whether a React
-export is a factory. Runtime modules become static imports in generated virtual
-modules and may enter the final deck bundle.
+elements, layouts, and lifecycle hooks use option-free `ModuleReference`
+values, so an adapter never has to guess whether a React export is a factory.
+Runtime modules become static imports in generated virtual modules and may
+enter the final deck bundle. Theme motion profiles are metadata: themes map the
+fixed Drever intent vocabulary through CSS instead of shipping an executable
+motion module.
 
 A build module exports a capability-specific descriptor, not a bare unified or
 Vite plugin function. This keeps Drever from confusing a plugin attacher with a
@@ -176,8 +178,9 @@ export default setup;
 
 The client runtime exposes its `audience` or `speaker` surface, container,
 immutable position snapshots, navigation, subscriptions, lifetime
-`AbortSignal`, resolved theme and motion values, and `reportError` for failures
-from detached work. Hooks should pass `runtime.signal` to abortable work and
+`AbortSignal`, resolved theme metadata (including its motion profile), and
+`reportError` for failures from detached work. Hooks should pass
+`runtime.signal` to abortable work and
 must not install their own presentation router. Runtime components that render
 inside slides can use `useDreverRenderMode()` from `@drever/core` to distinguish
 `audience`, `document`, `speaker-current`, `speaker-next`, and `export` trees.
@@ -245,8 +248,8 @@ export default defineTheme({
   ],
   motion: {
     id: "editorial",
-    module: { specifier: "./motion.ts" },
-    intents: ["reveal", "focus", "replace", "continuity", "stagger"],
+    intents: ["focus", "replace", "compare", "stagger", "continuity"],
+    guidance: ["Use continuity only for one shared subject across adjacent slides."],
   },
   manifest: {
     title: "Editorial",

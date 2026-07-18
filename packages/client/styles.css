@@ -69,6 +69,221 @@
   }
 
   .drever-canvas:active-view-transition-type(
+      drever-step-forward,
+      drever-step-backward
+    )
+    [data-drever-render-mode="audience"]
+    [data-drever-step][data-step-state="active"] {
+    view-transition-class: drever-motion-item drever-motion-step;
+    view-transition-name: match-element;
+  }
+
+  .drever-canvas:active-view-transition-type(
+      drever-step-forward,
+      drever-step-backward
+    )
+    [data-drever-render-mode="audience"]
+    [data-motion-intent="focus"]
+    > [data-drever-step][data-step-state="active"] {
+    view-transition-class: drever-motion-item drever-motion-accumulate drever-motion-focus;
+  }
+
+  .drever-canvas:active-view-transition-type(
+      drever-step-forward,
+      drever-step-backward
+    )
+    [data-drever-render-mode="audience"]
+    [data-motion-intent="replace"]
+    > [data-drever-step][data-step-state="active"] {
+    view-transition-class: drever-motion-item drever-motion-replace;
+  }
+
+  .drever-canvas:active-view-transition-type(
+      drever-step-forward,
+      drever-step-backward
+    )
+    [data-drever-render-mode="audience"]
+    [data-motion-intent="compare"]
+    > [data-drever-step][data-step-state="active"] {
+    view-transition-class: drever-motion-item drever-motion-accumulate drever-motion-compare;
+  }
+
+  .drever-canvas:active-view-transition-type(
+      drever-step-forward,
+      drever-step-backward
+    )
+    [data-drever-render-mode="audience"]
+    [data-drever-step][data-step-state="active"]:has(> [data-motion-intent="stagger"]) {
+    view-transition-name: none;
+  }
+
+  .drever-canvas:active-view-transition-type(
+      drever-step-forward,
+      drever-step-backward
+    )
+    [data-drever-render-mode="audience"]
+    [data-drever-step][data-step-state="active"]
+    > [data-motion-intent="stagger"]
+    > :nth-child(1) {
+    view-transition-class: drever-motion-item drever-motion-stagger drever-motion-stagger-1;
+    view-transition-name: match-element;
+  }
+
+  .drever-canvas:active-view-transition-type(
+      drever-step-forward,
+      drever-step-backward
+    )
+    [data-drever-render-mode="audience"]
+    [data-drever-step][data-step-state="active"]
+    > [data-motion-intent="stagger"]
+    > :nth-child(2) {
+    view-transition-class: drever-motion-item drever-motion-stagger drever-motion-stagger-2;
+    view-transition-name: match-element;
+  }
+
+  .drever-canvas:active-view-transition-type(
+      drever-step-forward,
+      drever-step-backward
+    )
+    [data-drever-render-mode="audience"]
+    [data-drever-step][data-step-state="active"]
+    > [data-motion-intent="stagger"]
+    > :nth-child(3) {
+    view-transition-class: drever-motion-item drever-motion-stagger drever-motion-stagger-3;
+    view-transition-name: match-element;
+  }
+
+  .drever-canvas:active-view-transition-type(
+      drever-step-forward,
+      drever-step-backward
+    )
+    [data-drever-render-mode="audience"]
+    [data-drever-step][data-step-state="active"]
+    > [data-motion-intent="stagger"]
+    > :nth-child(n + 4) {
+    view-transition-class: drever-motion-item drever-motion-stagger drever-motion-stagger-4;
+    view-transition-name: match-element;
+  }
+
+  .drever-canvas::view-transition-group(.drever-motion-item) {
+    animation-duration: var(--drever-motion-duration, 420ms);
+    animation-timing-function: var(--drever-motion-easing, cubic-bezier(0.22, 1, 0.36, 1));
+  }
+
+  .drever-canvas::view-transition-old(.drever-motion-item),
+  .drever-canvas::view-transition-new(.drever-motion-item) {
+    mix-blend-mode: normal;
+  }
+
+  .drever-canvas::view-transition-old(.drever-motion-step),
+  .drever-canvas::view-transition-old(.drever-motion-accumulate) {
+    animation-name: drever-recipe-exit;
+    animation-duration: var(--drever-recipe-exit-duration, 220ms);
+    animation-timing-function: ease-in;
+    animation-fill-mode: both;
+  }
+
+  .drever-canvas::view-transition-new(.drever-motion-step) {
+    animation-name: drever-recipe-step-enter;
+    animation-duration: var(--drever-recipe-enter-duration, 420ms);
+    animation-timing-function: var(--drever-motion-easing, cubic-bezier(0.22, 1, 0.36, 1));
+    animation-fill-mode: both;
+  }
+
+  .drever-canvas::view-transition-new(.drever-motion-accumulate) {
+    animation-name: drever-recipe-focus-enter;
+    animation-duration: var(--drever-recipe-focus-duration, 360ms);
+    animation-timing-function: ease-out;
+    animation-fill-mode: both;
+  }
+
+  .drever-canvas::view-transition-old(.drever-motion-replace) {
+    animation-name: drever-recipe-replace-exit;
+    animation-duration: var(--drever-recipe-exit-duration, 220ms);
+    animation-timing-function: ease-in;
+    animation-fill-mode: both;
+  }
+
+  .drever-canvas::view-transition-new(.drever-motion-replace) {
+    animation-name: drever-recipe-replace-enter;
+    animation-duration: var(--drever-recipe-enter-duration, 420ms);
+    animation-timing-function: var(--drever-motion-easing, cubic-bezier(0.22, 1, 0.36, 1));
+    animation-fill-mode: both;
+  }
+
+  .drever-canvas::view-transition-old(.drever-motion-stagger) {
+    animation-name: drever-recipe-exit;
+    animation-duration: var(--drever-recipe-exit-duration, 220ms);
+    animation-timing-function: ease-in;
+    animation-fill-mode: both;
+  }
+
+  .drever-canvas::view-transition-new(.drever-motion-stagger) {
+    animation-name: drever-recipe-stagger-enter;
+    animation-duration: var(--drever-recipe-stagger-duration, 380ms);
+    animation-timing-function: var(--drever-motion-easing, cubic-bezier(0.22, 1, 0.36, 1));
+    animation-fill-mode: both;
+  }
+
+  .drever-canvas::view-transition-new(.drever-motion-stagger-2) {
+    animation-delay: var(--drever-recipe-stagger-gap, 42ms);
+  }
+
+  .drever-canvas::view-transition-new(.drever-motion-stagger-3) {
+    animation-delay: calc(var(--drever-recipe-stagger-gap, 42ms) * 2);
+  }
+
+  .drever-canvas::view-transition-new(.drever-motion-stagger-4) {
+    animation-delay: calc(var(--drever-recipe-stagger-gap, 42ms) * 3);
+  }
+
+  .drever-canvas:active-view-transition-type(
+      drever-step-forward,
+      drever-step-backward
+    )
+    [data-drever-render-mode="audience"]
+    [data-motion-intent="continuity"] {
+    view-transition-class: none !important;
+    view-transition-name: none !important;
+  }
+
+  .drever-canvas:active-view-transition-type(
+    drever-slide-forward,
+      drever-slide-backward,
+      drever-jump-forward,
+      drever-jump-backward
+  )::view-transition-group(.drever-motion-continuity) {
+    animation-duration: var(--drever-motion-duration, 420ms);
+    animation-timing-function: var(--drever-motion-easing, cubic-bezier(0.22, 1, 0.36, 1));
+  }
+
+  .drever-canvas:active-view-transition-type(
+    drever-slide-forward,
+      drever-slide-backward,
+      drever-jump-forward,
+      drever-jump-backward
+  )::view-transition-old(.drever-motion-continuity) {
+    animation-name: drever-recipe-continuity-exit;
+    animation-duration: var(--drever-recipe-continuity-exit-duration, 260ms);
+    animation-timing-function: ease-in;
+    animation-fill-mode: both;
+    mix-blend-mode: normal;
+  }
+
+  .drever-canvas:active-view-transition-type(
+    drever-slide-forward,
+      drever-slide-backward,
+      drever-jump-forward,
+      drever-jump-backward
+  )::view-transition-new(.drever-motion-continuity) {
+    animation-name: drever-recipe-continuity-enter;
+    animation-duration: var(--drever-recipe-continuity-enter-duration, 420ms);
+    animation-timing-function: var(--drever-motion-easing, cubic-bezier(0.22, 1, 0.36, 1));
+    animation-fill-mode: both;
+    mix-blend-mode: normal;
+  }
+
+  .drever-canvas:active-view-transition-type(
     drever-slide-forward,
       drever-jump-forward
   )::view-transition-old(root) {
@@ -101,13 +316,19 @@
       drever-step-backward
   )::view-transition-old(root) {
     animation-name: none;
+    filter: none;
+    opacity: 0;
+    transform: none;
   }
 
   .drever-canvas:active-view-transition-type(
     drever-step-forward,
       drever-step-backward
   )::view-transition-new(root) {
-    animation-name: drever-soft-enter;
+    animation-name: none;
+    filter: none;
+    opacity: 1;
+    transform: none;
   }
 
   @keyframes drever-exit-left {
@@ -142,17 +363,90 @@
     }
   }
 
-  @keyframes drever-soft-enter {
+  @keyframes drever-recipe-step-enter {
     from {
-      opacity: 0.72;
+      opacity: 0;
+      transform: var(--drever-recipe-step-from-transform, translateY(14px) scale(0.992));
+      filter: var(--drever-recipe-step-from-filter, blur(3px));
+      clip-path: var(--drever-recipe-step-from-clip, inset(0));
+    }
+  }
+
+  @keyframes drever-recipe-exit {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes drever-recipe-focus-enter {
+    from {
+      opacity: 0;
+      filter: var(--drever-recipe-focus-from-filter, none);
+    }
+  }
+
+  @keyframes drever-recipe-replace-exit {
+    to {
+      opacity: 0;
+      transform: var(--drever-recipe-replace-to-transform, translateY(-6px) scale(0.99));
+    }
+  }
+
+  @keyframes drever-recipe-replace-enter {
+    from {
+      opacity: 0;
+      transform: var(--drever-recipe-replace-from-transform, translateY(10px) scale(0.992));
+      clip-path: var(--drever-recipe-replace-from-clip, inset(0));
+    }
+  }
+
+  @keyframes drever-recipe-stagger-enter {
+    from {
+      opacity: 0;
+      transform: var(--drever-recipe-stagger-from-transform, translateY(10px));
+      clip-path: var(--drever-recipe-stagger-from-clip, inset(0));
+    }
+  }
+
+  @keyframes drever-recipe-continuity-exit {
+    to {
+      opacity: var(--drever-recipe-continuity-old-to-opacity, 0.22);
+    }
+  }
+
+  @keyframes drever-recipe-continuity-enter {
+    from {
+      opacity: var(--drever-recipe-continuity-new-from-opacity, 0.44);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .drever-canvas::view-transition-group(root),
     .drever-canvas::view-transition-old(root),
-    .drever-canvas::view-transition-new(root) {
-      animation-duration: 1ms;
+    .drever-canvas::view-transition-new(root),
+    .drever-canvas::view-transition-group(*),
+    .drever-canvas::view-transition-old(*),
+    .drever-canvas::view-transition-new(*) {
+      animation: none !important;
+    }
+  }
+
+  [data-drever-reduced-motion] *,
+  [data-drever-render-mode="document"] *,
+  [data-drever-render-mode="export"] *,
+  [data-drever-render-mode^="speaker"] * {
+    animation: none !important;
+    transition: none !important;
+    view-transition-class: none !important;
+    view-transition-name: none !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-drever-deck] * {
+      animation: none !important;
+      transition: none !important;
+      view-transition-class: none !important;
+      view-transition-name: none !important;
     }
   }
 
@@ -1271,7 +1565,8 @@
 
   .drever-document__deck > [data-drever-slide] {
     width: calc(var(--drever-canvas-width) * 1px);
-    height: calc(var(--drever-canvas-height) * 1px);
+    min-height: calc(var(--drever-canvas-height) * 1px);
+    height: auto;
     scroll-margin-block-start: 32px;
     box-shadow: 0 24px 72px rgb(0 0 0 / 28%);
   }

@@ -266,6 +266,151 @@ The scarce part is now **judgment**: what to reveal, what to make tangible, and 
 
 ---
 
+## Replace the state—not the frame.
+
+<p>The question stays fixed while one model gives way to the next.</p>
+
+<MotionGroup className="tour-replace" data-testid="motion-replace" intent="replace">
+  <Step at={1}>
+    <article data-motion-state="assumption">
+      <span>01 · Assumption</span>
+      <strong>The deck is a file.</strong>
+      <p>Interaction ends when the talk does.</p>
+    </article>
+  </Step>
+  <Step at={2}>
+    <article data-motion-state="evidence">
+      <span>02 · Evidence</span>
+      <strong>The deck is an interface.</strong>
+      <p>State, behavior, and source can stay inspectable.</p>
+    </article>
+  </Step>
+  <Step at={3}>
+    <article data-motion-state="decision">
+      <span>03 · Decision</span>
+      <strong>Ship the experience.</strong>
+      <p>Keep PDF as evidence, not as the canonical medium.</p>
+    </article>
+  </Step>
+</MotionGroup>
+
+<Note>
+  Advance three times. The frame must never resize, and only the current model should be exposed to
+  assistive technology.
+</Note>
+
+---
+
+## Comparison should preserve both sides.
+
+<MotionGroup className="tour-compare" data-testid="motion-compare" intent="compare">
+  <Step at={1}>
+    <article>
+      <span>Before</span>
+      <strong>Implicit moments</strong>
+      <p>A reviewer has to infer what appears, when it appears, and where it can be reopened.</p>
+    </article>
+  </Step>
+  <Step at={2}>
+    <article>
+      <span>After</span>
+      <strong>Addressable states</strong>
+      <p>Every meaningful moment has a URL, browser history, and deterministic test surface.</p>
+    </article>
+  </Step>
+</MotionGroup>
+
+<Note>
+  The second reveal adds a peer; it does not replace or visually demote the first. Comparison needs
+  simultaneous reading.
+</Note>
+
+---
+
+## One beat can contain a short sequence.
+
+<p>Stagger explains a single system response without inventing four navigation stops.</p>
+
+<Step at={1}>
+  <MotionGroup className="tour-stagger" data-testid="motion-stagger" intent="stagger">
+    <article>
+      <span>Compile</span>
+      <strong>12 s</strong>
+    </article>
+    <article>
+      <span>Checks</span>
+      <strong>Clean</strong>
+    </article>
+    <article>
+      <span>Routes</span>
+      <strong>Exact</strong>
+    </article>
+    <article>
+      <span>Deploy</span>
+      <strong>Static</strong>
+    </article>
+  </MotionGroup>
+</Step>
+
+<Note>
+  One advance reveals all four facts as one restrained gesture. The stagger is bounded and creates
+  no hidden navigation state.
+</Note>
+
+---
+
+## Continuity starts with an identity.
+
+<div className="tour-continuity-stage tour-continuity-stage--source">
+  <MotionGroup
+    className="tour-continuity"
+    data-testid="motion-continuity"
+    intent="continuity"
+    name="deck-contract"
+  >
+    <article>
+      <span>Authored source</span>
+      <strong>MDX</strong>
+      <p>One visible claim, one explicit boundary.</p>
+    </article>
+  </MotionGroup>
+  <Step className="tour-continuity-caption">
+    The identity is authored. Drever never guesses from a title.
+  </Step>
+</div>
+
+<Note>
+  Point to the compact source artifact, then advance. Its identity—not its DOM position or text—ties
+  the two states together.
+</Note>
+
+---
+
+## The same idea becomes a contract.
+
+<div className="tour-continuity-stage tour-continuity-stage--result">
+  <div className="tour-continuity-caption">Geometry changes. Narrative identity does not.</div>
+  <MotionGroup
+    className="tour-continuity"
+    data-testid="motion-continuity"
+    intent="continuity"
+    name="deck-contract"
+  >
+    <article>
+      <span>Compiled artifact</span>
+      <strong>Exact states</strong>
+      <p>Routes, notes, motion, and diagnostics now agree.</p>
+    </article>
+  </MotionGroup>
+</div>
+
+<Note>
+  Move backward as well as forward. The shared artifact should preserve continuity while the title
+  and surrounding slide remain ordinary, independent content.
+</Note>
+
+---
+
 <Masthead
   kicker="The next presentation"
   title="Make the story behave."

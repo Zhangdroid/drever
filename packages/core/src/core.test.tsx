@@ -15,6 +15,8 @@ import {
   Step,
   useDreverRenderMode,
   type MDXContentProps,
+  type DreverRenderMode,
+  type MotionGroupProps,
   type ResolvedSlideState,
   type SlideIdentity,
   type SlideStateResolver,
@@ -29,7 +31,11 @@ describe("core primitives", () => {
         createElement(Step, { at: 1 }, "Complete"),
         createElement(Step, { at: 2 }, "Active"),
         createElement(Step, { at: 3 }, "Pending"),
-        createElement(MotionGroup, { intent: "continuity" }, "Persistent"),
+        createElement(
+          MotionGroup,
+          { intent: "continuity", name: "persistent-title" },
+          "Persistent",
+        ),
       ),
     );
     const sectionTag = markup.slice(0, markup.indexOf(">") + 1);
@@ -47,6 +53,195 @@ describe("core primitives", () => {
     expect(markup).toContain('data-step-state="pending" aria-hidden="true" inert=""');
     expect(markup).toContain('style="visibility:hidden"');
     expect(markup).toContain('data-motion-intent="continuity"');
+  });
+
+  it.each<[DreverRenderMode, boolean]>([
+    ["audience", true],
+    ["document", false],
+    ["export", false],
+    ["speaker-current", false],
+    ["speaker-next", false],
+  ])(
+    "renders continuity metadata but enables its native transition only in %s mode",
+    (mode, enabled) => {
+      const markup = renderToStaticMarkup(
+        createElement(
+          DreverRenderModeProvider,
+          { mode },
+          createElement(
+            MotionGroup,
+            {
+              className: "authored-group",
+              intent: "continuity",
+              name: "hero-title",
+              style: {
+                color: "rebeccapurple",
+                viewTransitionClass: "authored-class",
+                viewTransitionName: "authored-name",
+              } as never,
+            },
+            "Shared title",
+          ),
+        ),
+      );
+
+      expect(markup).toContain('class="authored-group"');
+      expect(markup).toContain('data-motion-intent="continuity"');
+      expect(markup).toContain('data-motion-name="hero-title"');
+      expect(markup).toContain("color:rebeccapurple");
+      expect(markup.includes("view-transition-name:drever-hero-title")).toBe(enabled);
+      expect(markup.includes("view-transition-class:drever-motion-continuity")).toBe(enabled);
+      expect(markup).not.toContain("authored-name");
+      expect(markup).not.toContain("authored-class");
+    },
+  );
+
+  it("preserves authored motion group styles while reserving continuity transition properties", () => {
+    const authoredStyle = {
+      color: "tomato",
+      viewTransitionClass: "authored-class",
+      viewTransitionName: "authored-name",
+    } as never;
+    const continuityMarkup = renderToStaticMarkup(
+      createElement(
+        MotionGroup,
+        { intent: "continuity", name: "shared-card", style: authoredStyle },
+        "Card",
+      ),
+    );
+    const localMarkup = renderToStaticMarkup(
+      createElement(MotionGroup, { intent: "focus", style: authoredStyle }, "Card"),
+    );
+
+    expect(continuityMarkup).toContain("color:tomato");
+    expect(continuityMarkup).toContain("view-transition-name:drever-shared-card");
+    expect(continuityMarkup).toContain("view-transition-class:drever-motion-continuity");
+    expect(continuityMarkup).not.toContain("authored-name");
+    expect(continuityMarkup).not.toContain("authored-class");
+    expect(localMarkup).toContain("color:tomato");
+    expect(localMarkup).toContain("view-transition-name:authored-name");
+    expect(localMarkup).toContain("view-transition-class:authored-class");
+  });
+
+  it.each<[string, MotionGroupProps, boolean]>([
+    ["replace", { intent: "replace" }, true],
+    ["focus", { intent: "focus" }, false],
+    ["compare", { intent: "compare" }, false],
+    ["stagger", { intent: "stagger" }, false],
+    ["continuity", { intent: "continuity", name: "shared-card" }, false],
+  ])(
+    "applies the expected step visibility for the %s recipe",
+    (_intent, groupProps, completeHidden) => {
+      const markup = renderToStaticMarkup(
+        createElement(
+          Slide,
+          { currentStep: 2 },
+          createElement(
+            MotionGroup,
+            groupProps,
+            createElement(Step, { at: 1, style: { color: "red" } }, "Complete"),
+            createElement(Step, { at: 2 }, "Active"),
+            createElement(Step, { at: 3 }, "Pending"),
+          ),
+        ),
+      );
+      const openingTagFor = (content: string): string => {
+        const end = markup.indexOf(`>${content}`);
+        return markup.slice(markup.lastIndexOf("<", end), end + 1);
+      };
+      const completeTag = openingTagFor("Complete");
+      const activeTag = openingTagFor("Active");
+      const pendingTag = openingTagFor("Pending");
+
+      expect(completeTag).toContain('data-step-state="complete"');
+      expect(completeTag).toContain("color:red");
+      expect(completeTag.includes('aria-hidden="true"')).toBe(completeHidden);
+      expect(completeTag.includes(" inert")).toBe(completeHidden);
+      expect(completeTag.includes("visibility:hidden")).toBe(completeHidden);
+      expect(activeTag).toContain('data-step-state="active"');
+      expect(activeTag).not.toContain("aria-hidden");
+      expect(activeTag).not.toContain(" inert");
+      expect(activeTag).not.toContain("visibility:hidden");
+      expect(pendingTag).toContain('data-step-state="pending"');
+      expect(pendingTag).toContain('aria-hidden="true"');
+      expect(pendingTag).toContain(" inert");
+      expect(pendingTag).toContain("visibility:hidden");
+    },
+  );
+
+  it("expands every replacement in document mode", () => {
+    const markup = renderToStaticMarkup(
+      createElement(
+        DreverRenderModeProvider,
+        { mode: "document" },
+        createElement(
+          Slide,
+          { currentStep: 2 },
+          createElement(
+            MotionGroup,
+            { intent: "replace" },
+            createElement(Step, { at: 1 }, "Previous state"),
+            createElement(Step, { at: 2 }, "Final state"),
+          ),
+        ),
+      ),
+    );
+
+    expect(markup).toContain('data-step-state="complete"');
+    expect(markup).toContain('data-step-state="active"');
+    expect(markup).not.toContain("aria-hidden");
+    expect(markup).not.toContain(" inert");
+    expect(markup).not.toContain("visibility:hidden");
+  });
+
+  it("applies replacement semantics only to direct Step children", () => {
+    const markup = renderToStaticMarkup(
+      createElement(
+        Slide,
+        { currentStep: 2 },
+        createElement(
+          MotionGroup,
+          { intent: "replace" },
+          createElement("div", {}, createElement(Step, { at: 1 }, "Nested state")),
+          createElement(Step, { at: 2 }, "Direct state"),
+        ),
+      ),
+    );
+    const nestedEnd = markup.indexOf(">Nested state");
+    const nestedTag = markup.slice(markup.lastIndexOf("<", nestedEnd), nestedEnd + 1);
+
+    expect(nestedTag).toContain('data-step-state="complete"');
+    expect(nestedTag).not.toContain("aria-hidden");
+    expect(nestedTag).not.toContain(" inert");
+    expect(nestedTag).not.toContain("visibility:hidden");
+  });
+
+  it.each([undefined, "", "reveal", "ambient", "Focus"])(
+    "rejects an invalid motion intent (%s) with one stable error code",
+    (intent) => {
+      expect(() =>
+        renderToStaticMarkup(createElement(MotionGroup, { intent } as never, "Invalid")),
+      ).toThrowError(expect.objectContaining({ code: "DREVER_RUNTIME_MOTION_INTENT_INVALID" }));
+    },
+  );
+
+  it.each([undefined, "", "Hero-title", "hero_title", "hero--title", "2-hero"])(
+    "rejects an invalid continuity identity (%s) with one stable error code",
+    (name) => {
+      expect(() =>
+        renderToStaticMarkup(
+          createElement(MotionGroup, { intent: "continuity", name } as never, "Shared"),
+        ),
+      ).toThrowError(expect.objectContaining({ code: "DREVER_RUNTIME_MOTION_IDENTITY_INVALID" }));
+    },
+  );
+
+  it("rejects continuity identities on local motion recipes", () => {
+    expect(() =>
+      renderToStaticMarkup(
+        createElement(MotionGroup, { intent: "focus", name: "shared-card" } as never, "Local"),
+      ),
+    ).toThrowError(expect.objectContaining({ code: "DREVER_RUNTIME_MOTION_IDENTITY_INVALID" }));
   });
 
   it("keeps unnumbered authoring steps visible until compilation assigns indexes", () => {

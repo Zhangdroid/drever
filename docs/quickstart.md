@@ -59,6 +59,28 @@ them. An omitted `at` is assigned in document order. Explicit `at` values must b
 static positive integers; gaps are preserved, so the example navigates through
 stops `0 -> 1 -> 3`.
 
+## Add meaningful motion
+
+Use ordinary Steps for most disclosure. `MotionGroup` adds one of five narrative
+intents when the relationship between states matters:
+
+```mdx
+## Keep context, focus the decision
+
+<MotionGroup intent="focus">
+  <Step>Compile one deterministic artifact.</Step>
+  <Step>Test every addressable state.</Step>
+  <Step>Deploy the experience you reviewed.</Step>
+</MotionGroup>
+```
+
+`focus`, `replace`, and `compare` use direct Step children. `stagger` belongs
+inside one Step and contains at most four direct visual children. `continuity`
+requires the same explicit lowercase kebab-case `name` on the same object across
+adjacent slides. Themes decide how each intent looks; Drever owns Step state,
+accessibility, native canvas capture, and reduced-motion behavior. See
+[Motion choreography](./motion.md) for the complete grammar and examples.
+
 ## Set up agent authoring
 
 Install Drever's project-local authoring instructions and skills:
@@ -358,7 +380,9 @@ surrounded by blank lines. Give each slide one dominant idea. Prefer Markdown;
 use Cover only for an opening or true chapter break and TwoColumn only for a
 meaningful comparison. Keep titles under 10 words and prose under 45 words per
 region. Use static Step elements only for meaningful progressive disclosure.
-Put speaker guidance in Note. Do not reference __DreverSlide or __DreverStep.
+Add MotionGroup only for a semantic focus, replace, compare, stagger, or
+continuity relationship; never invent animation props. Put speaker guidance in
+Note. Do not reference __DreverSlide or __DreverStep.
 ```
 
 The complete runnable example is in [`examples/basic`](../examples/basic/README.md).

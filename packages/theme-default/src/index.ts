@@ -44,6 +44,15 @@ export const theme = defineTheme({
     },
   },
   styles: [{ specifier: `${PACKAGE}/theme.css`, layer: "theme" }],
+  motion: {
+    id: "default",
+    intents: ["focus", "replace", "compare", "stagger", "continuity"],
+    guidance: [
+      "Use focus to keep prior evidence visible while making the current Step unmistakable.",
+      "Use replace for one changing state, compare for cumulative evidence, and stagger for at most four tightly related items.",
+      "Reuse a continuity name only when the same visual object persists across adjacent slides.",
+    ],
+  },
   layouts: [
     {
       name: "Cover",

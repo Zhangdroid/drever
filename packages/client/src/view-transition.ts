@@ -11,6 +11,7 @@ export const PRESENTATION_TRANSITION_TYPES = Object.freeze([
 
 export type ScopedViewTransition = Readonly<{
   finished: Promise<void>;
+  ready: Promise<void>;
   skipTransition(): void;
   updateCallbackDone: Promise<void>;
 }>;

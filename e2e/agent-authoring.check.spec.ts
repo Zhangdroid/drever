@@ -45,7 +45,16 @@ type AuthoringContext = Readonly<{
     }>[];
   }>;
   design: Readonly<{
-    theme: Readonly<{ id: string; version?: string; manifest: Readonly<{ title: string }> }>;
+    theme: Readonly<{
+      id: string;
+      version?: string;
+      manifest: Readonly<{ title: string }>;
+      motion?: Readonly<{
+        guidance?: readonly string[];
+        id: string;
+        intents: readonly string[];
+      }>;
+    }>;
     layouts: readonly Readonly<{ name: string }>[];
   }>;
   plugins: readonly Readonly<{ id: string; origin: string; version?: string }>[];
@@ -182,6 +191,13 @@ test("the built CLI exposes the canonical basic-deck authoring context", async (
     id: "@drever/theme-default",
     version: "0.0.0",
     manifest: { title: "Drever Default" },
+    motion: {
+      id: "default",
+      intents: ["focus", "replace", "compare", "stagger", "continuity"],
+      guidance: expect.arrayContaining([
+        "Reuse a continuity name only when the same visual object persists across adjacent slides.",
+      ]),
+    },
   });
   expect(context.design.layouts.map(({ name }) => name)).toEqual(["Cover", "TwoColumn"]);
   expect(context.plugins.map(({ id, origin, version }) => ({ id, origin, version }))).toEqual([

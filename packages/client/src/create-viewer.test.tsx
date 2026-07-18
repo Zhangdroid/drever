@@ -17,6 +17,7 @@ import {
   type CreateViewerOptions,
   type ViewerDisposer,
   type ViewerRuntime,
+  type ViewerRuntimeTheme,
 } from "./create-viewer.tsx";
 
 const dependencies = vi.hoisted(() => ({
@@ -52,6 +53,17 @@ const manifest = {
 } as const satisfies DeckManifest;
 
 const Content: MDXContent = () => null;
+
+const runtimeTheme = {
+  id: "@drever/theme-test",
+  tokens: {},
+  motion: {
+    id: "editorial",
+    intents: ["focus", "continuity"],
+    guidance: ["Preserve spatial context between related slides."],
+  },
+  manifest: { title: "Test", summary: "A deterministic test theme." },
+} as const satisfies ViewerRuntimeTheme;
 
 const deferred = <Value,>() => {
   let resolve: ((value: Value) => void) | undefined;
@@ -257,7 +269,9 @@ describe("createViewer lifecycle", () => {
     const harness = createHarness({ autoMount: false });
     const runSetup = vi.fn(() => undefined);
     let settled = false;
-    const creation = createViewer(harness.options({ runtime: { runSetup } })).finally(() => {
+    const creation = createViewer(
+      harness.options({ runtime: { runSetup, theme: runtimeTheme } }),
+    ).finally(() => {
       settled = true;
     });
 
@@ -275,7 +289,9 @@ describe("createViewer lifecycle", () => {
     expect(dependencies.createPresentationNavigation).toHaveBeenCalledOnce();
     expect(dependencies.attachKeyboardNavigation).toHaveBeenCalledOnce();
     expect(runSetup).toHaveBeenCalledOnce();
-    expect(runSetup).toHaveBeenCalledWith(expect.objectContaining({ surface: "audience" }));
+    expect(runSetup).toHaveBeenCalledWith(
+      expect.objectContaining({ surface: "audience", theme: runtimeTheme }),
+    );
     await viewer.destroy();
   });
 

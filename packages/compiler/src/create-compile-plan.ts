@@ -159,9 +159,7 @@ const createCompilePlanResult = (
       ...(input.theme.version === undefined ? {} : { version: input.theme.version }),
       ...(input.theme.canvas === undefined ? {} : { canvas: input.theme.canvas }),
       tokens: input.theme.tokens,
-      ...(input.theme.motion && theme.motionModule
-        ? { motion: { ...input.theme.motion, module: theme.motionModule } }
-        : {}),
+      ...(input.theme.motion === undefined ? {} : { motion: input.theme.motion }),
       manifest: input.theme.manifest,
     },
     plugins: plugins.plugins,

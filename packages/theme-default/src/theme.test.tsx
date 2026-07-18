@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { createCompilePlan } from "@drever/compiler";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vite-plus/test";
@@ -18,6 +19,10 @@ describe("@drever/theme-default", () => {
     expect(result.value.theme).toMatchObject({
       id: "@drever/theme-default",
       canvas: { width: 1600, height: 900 },
+      motion: {
+        id: "default",
+        intents: ["focus", "replace", "compare", "stagger", "continuity"],
+      },
     });
     expect(result.value.runtime.styles).toEqual([
       {
@@ -57,5 +62,19 @@ describe("@drever/theme-default", () => {
     expect(columns).toContain('data-drever-layout="two-column"');
     expect(columns).toContain('data-ratio="wide-primary"');
     expect(columns.match(/data-column=/gu)).toHaveLength(2);
+  });
+
+  it("implements every declared semantic motion recipe with bounded choreography", () => {
+    const css = readFileSync(new URL("../theme.css", import.meta.url), "utf8");
+
+    const profileKeys = new Set(css.match(/--drever-recipe-[\w-]+(?=:)/gu));
+
+    expect(profileKeys.size).toBe(18);
+    expect(css).toContain("grid-area: 1 / 1;");
+    expect(css.match(/:not\(\[data-drever-render-mode="document"\]\)/gu)).toHaveLength(3);
+    expect(css).toContain("--drever-recipe-stagger-gap: 42ms;");
+    expect(css).toContain("--drever-recipe-continuity-new-from-opacity: 0.44;");
+    expect(css).toContain("[data-drever-reduced-motion]");
+    expect(theme.motion?.guidance?.every((entry) => entry.trim().length > 20)).toBe(true);
   });
 });

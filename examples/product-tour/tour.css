@@ -583,6 +583,189 @@
   opacity: 0.76;
 }
 
+.tour-replace {
+  min-height: 292px;
+  margin-top: 32px;
+}
+
+.tour-replace > [data-drever-step] > article {
+  display: grid;
+  min-height: 292px;
+  box-sizing: border-box;
+  padding: 38px 42px;
+  border: 2px solid var(--drever-theme-border);
+  border-radius: 26px;
+  align-content: center;
+  background: rgb(255 255 255 / 82%);
+  box-shadow: var(--tour-shadow);
+  gap: 12px;
+}
+
+.tour-replace > [data-drever-step]:nth-child(2) > article {
+  border-color: transparent;
+  background: var(--drever-theme-accent-soft);
+}
+
+.tour-replace > [data-drever-step]:nth-child(3) > article {
+  border-color: transparent;
+  background: #172033;
+  color: white;
+}
+
+.tour-replace article > span,
+.tour-compare article > span,
+.tour-stagger article > span,
+.tour-continuity article > span {
+  color: var(--drever-theme-accent-strong);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+[data-drever-slide] .tour-replace article > strong {
+  color: inherit;
+  font-size: 42px;
+  letter-spacing: -0.04em;
+}
+
+[data-drever-slide] .tour-replace article > p {
+  color: inherit;
+  font-size: 22px;
+  opacity: 0.72;
+}
+
+.tour-compare {
+  display: grid;
+  min-height: 372px;
+  margin-top: 40px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.tour-compare > [data-drever-step] > article {
+  display: grid;
+  min-height: 330px;
+  box-sizing: border-box;
+  padding: 36px;
+  border: 2px solid var(--drever-theme-border);
+  border-radius: 26px;
+  align-content: center;
+  background: rgb(255 255 255 / 82%);
+  gap: 18px;
+}
+
+.tour-compare > [data-drever-step]:last-child > article {
+  border-color: transparent;
+  background: #172033;
+  color: white;
+}
+
+[data-drever-slide] .tour-compare article > strong {
+  color: inherit;
+  font-size: 34px;
+  letter-spacing: -0.035em;
+}
+
+[data-drever-slide] .tour-compare article > p {
+  color: inherit;
+  font-size: 20px;
+  opacity: 0.72;
+}
+
+.tour-stagger {
+  display: grid;
+  margin-top: 38px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.tour-stagger > article {
+  display: grid;
+  min-height: 196px;
+  padding: 26px;
+  border: 2px solid var(--drever-theme-border);
+  border-radius: 22px;
+  align-content: space-between;
+  background: rgb(255 255 255 / 82%);
+}
+
+.tour-stagger > article:last-child {
+  border-color: transparent;
+  background: var(--drever-theme-accent);
+  color: white;
+}
+
+[data-drever-slide] .tour-stagger article > strong {
+  color: inherit;
+  font-size: 32px;
+  letter-spacing: -0.04em;
+}
+
+.tour-continuity-stage {
+  display: grid;
+  min-height: 420px;
+  margin-top: 34px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: center;
+  gap: 54px;
+}
+
+.tour-continuity-stage--result {
+  grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+}
+
+.tour-continuity {
+  width: 430px;
+}
+
+.tour-continuity-stage--result .tour-continuity {
+  width: 100%;
+}
+
+.tour-continuity > article {
+  display: grid;
+  min-height: 250px;
+  box-sizing: border-box;
+  padding: 34px;
+  border: 2px solid transparent;
+  border-radius: 26px;
+  align-content: center;
+  background: #172033;
+  box-shadow: 0 24px 70px rgb(23 32 51 / 24%);
+  color: white;
+  gap: 14px;
+}
+
+.tour-continuity-stage--result .tour-continuity > article {
+  min-height: 330px;
+  background: var(--drever-theme-accent);
+}
+
+.tour-continuity article > span {
+  color: rgb(255 255 255 / 68%);
+}
+
+[data-drever-slide] .tour-continuity article > strong {
+  color: white;
+  font-size: 48px;
+  letter-spacing: -0.045em;
+}
+
+[data-drever-slide] .tour-continuity article > p {
+  color: rgb(255 255 255 / 74%);
+  font-size: 21px;
+}
+
+[data-drever-slide] .tour-continuity-caption {
+  max-width: 24ch;
+  color: var(--drever-theme-muted);
+  font-size: 25px;
+  font-weight: 680;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .tour-signal__meter span,
   .tour-motion__progress span {

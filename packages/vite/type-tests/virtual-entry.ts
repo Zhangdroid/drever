@@ -2,12 +2,12 @@ import type { ViewerRuntimeModule } from "@drever/client";
 import type { MDXComponents } from "@drever/core";
 import { components, useMDXComponents } from "virtual:drever/mdx-components";
 import { runExportSetup } from "virtual:drever/export-runtime";
-import { motion, runSetup, theme } from "virtual:drever/runtime";
+import { runSetup, theme } from "virtual:drever/runtime";
 import "virtual:drever/styles.css";
 
 const registry: MDXComponents = components;
 const providedRegistry: MDXComponents = useMDXComponents();
-const runtime = { motion, runSetup, theme } satisfies ViewerRuntimeModule;
+const runtime = { runSetup, theme } satisfies ViewerRuntimeModule;
 const exportSetup: <Runtime>(value: Runtime) => Promise<() => Promise<void>> = runExportSetup;
 
 void exportSetup;

@@ -336,12 +336,6 @@ const pluginSnapshots = (
     }));
 };
 
-const motionSnapshot = (motion: NonNullable<CompilePlan["theme"]["motion"]>): JsonValue => ({
-  id: motion.id,
-  intents: motion.intents,
-  ...(motion.guidance === undefined ? {} : { guidance: motion.guidance }),
-});
-
 const collectHooks = (
   entries: readonly OwnedModuleReference[],
   imports: string[],
@@ -390,33 +384,22 @@ const __dreverCreateContext = (pluginId, runtime) => {
   });
 };`;
 
-/** Generates theme data and executable runtime lifecycle contributions. */
+/** Generates theme metadata and executable runtime lifecycle contributions. */
 export const createRuntimeModuleSource = (plan: CompilePlan): string => {
   const imports = ['import { DreverRuntimeError } from "@drever/core";'];
   const selections: string[] = [];
-  let importIndex = 0;
-
-  let motionSource = "undefined";
-  if (plan.theme.motion !== undefined) {
-    const binding = importModule(plan.theme.motion.module, importIndex, imports);
-    importIndex += 1;
-    selections.push(selectionSource(binding));
-    motionSource = `Object.freeze({ ...${jsonSnapshotSource(motionSnapshot(plan.theme.motion))}, implementation: ${binding.local} })`;
-  }
-
-  const [setupHooks] = collectHooks(plan.runtime.setup, imports, selections, importIndex, "setup");
+  const [setupHooks] = collectHooks(plan.runtime.setup, imports, selections, 0, "setup");
 
   return `${imports.join("\n")}
 ${runtimePrelude}
 ${selections.join("\n")}
 export const theme = ${jsonSnapshotSource(themeSnapshot(plan))};
-export const motion = ${motionSource};
 ${lifecycleContextSource(plan, plan.runtime.setup)}
 ${hookRunnerSource("runSetup", setupHooks)}
 `;
 };
 
-/** Generates the exporter-only lifecycle module without viewer setup or theme motion. */
+/** Generates the exporter-only lifecycle module without viewer setup or theme metadata. */
 export const createExportRuntimeModuleSource = (plan: CompilePlan): string => {
   const imports = ['import { DreverRuntimeError } from "@drever/core";'];
   const selections: string[] = [];

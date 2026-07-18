@@ -1,4 +1,4 @@
-import { Slide, Step, type MDXContent } from "@drever/core";
+import { MotionGroup, Slide, Step, type MDXContent } from "@drever/core";
 import { DECK_MANIFEST_VERSION, type DeckManifest } from "@drever/schema";
 import { createElement, Fragment } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -21,8 +21,12 @@ const Content: MDXContent = () =>
     createElement(
       Slide,
       { id: "demo", index: 1 },
-      createElement(Step, { at: 2 }, "Evidence"),
-      createElement(Step, { at: 7 }, "Decision"),
+      createElement(
+        MotionGroup,
+        { intent: "replace" },
+        createElement(Step, { at: 2 }, "Evidence"),
+        createElement(Step, { at: 7 }, "Decision"),
+      ),
     ),
   );
 
@@ -48,8 +52,21 @@ describe("DeckDocument", () => {
     expect(markup).toContain('id="demo"');
     expect(markup).toContain('aria-label="Slide 2"');
     expect(markup).toContain('data-current-step="7"');
-    expect(markup).toContain('data-step-state="complete"');
-    expect(markup).toContain('data-step-state="active"');
+    expect(markup).toContain('data-motion-intent="replace"');
+    const openingTagFor = (content: string): string => {
+      const end = markup.indexOf(`>${content}`);
+      return markup.slice(markup.lastIndexOf("<", end), end + 1);
+    };
+    const completeReplacement = openingTagFor("Evidence");
+    const activeReplacement = openingTagFor("Decision");
+
+    expect(completeReplacement).toContain('data-step-state="complete"');
+    expect(activeReplacement).toContain('data-step-state="active"');
+    for (const replacement of [completeReplacement, activeReplacement]) {
+      expect(replacement).not.toContain("aria-hidden");
+      expect(replacement).not.toContain("inert");
+      expect(replacement).not.toContain("visibility:hidden");
+    }
     expect(markup).not.toContain("aria-current");
     expect(markup).not.toContain("aria-hidden");
     expect(markup).not.toContain("inert");

@@ -71,8 +71,7 @@ describe("createCompilePlan", () => {
       ],
       motion: {
         id: "editorial",
-        module: { specifier: "./motion.ts" },
-        intents: ["reveal", "focus"],
+        intents: ["focus", "compare"],
       },
     });
     const charts = createPlugin(
@@ -126,7 +125,7 @@ describe("createCompilePlan", () => {
       theme: {
         id: "@drever/theme-test",
         canvas: { width: 1600, height: 900 },
-        motion: { id: "editorial", module: { specifier: "file:///themes/test/motion.ts" } },
+        motion: { id: "editorial", intents: ["focus", "compare"] },
       },
       plugins: [
         {
@@ -595,6 +594,27 @@ describe("createCompilePlan", () => {
       },
     ]);
   });
+
+  it.each(["reveal", "ambient"])(
+    "rejects the removed %s motion intent at the config boundary",
+    (intent) => {
+      const theme = {
+        ...createTheme(),
+        motion: { id: "legacy-motion", intents: [intent] },
+      } as unknown as ThemeDefinition;
+      const result = createCompilePlan({ theme });
+
+      expect(result).toMatchObject({
+        ok: false,
+        diagnostics: [
+          {
+            code: "DREVER_CONFIG_SHAPE_INVALID",
+            details: { path: "$.theme.motion.intents[0]" },
+          },
+        ],
+      });
+    },
+  );
 
   it("rejects unknown keys even when they match Object prototype names", () => {
     const input = {

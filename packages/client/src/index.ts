@@ -23,7 +23,6 @@ export type {
   ViewerHandle,
   ViewerRuntime,
   ViewerRuntimeModule,
-  ViewerRuntimeMotion,
   ViewerRuntimeTheme,
   ViewerSetupRunner,
 } from "./create-viewer.tsx";

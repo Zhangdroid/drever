@@ -1,13 +1,17 @@
 import type { MotionIntent } from "@drever/schema";
 import {
   Activity,
+  Children,
   createContext,
   createElement,
+  isValidElement,
   useContext,
+  type CSSProperties,
   type ComponentPropsWithoutRef,
   type ElementType,
   type PropsWithChildren,
   type ReactElement,
+  type ReactNode,
 } from "react";
 import { DreverRuntimeError } from "./runtime-error.ts";
 
@@ -16,6 +20,7 @@ type SlideRuntime = Readonly<{
 }>;
 
 const SlideContext = createContext<SlideRuntime | undefined>(undefined);
+const DirectStepMotionContext = createContext<MotionIntent | undefined>(undefined);
 
 export type DreverRenderMode =
   | "audience"
@@ -247,6 +252,8 @@ export const Step = ({
   }
 
   const runtime = useContext(SlideContext);
+  const motionIntent = useContext(DirectStepMotionContext);
+  const renderMode = useContext(DreverRenderModeContext);
   if (at === undefined && runtime !== undefined) {
     throw new DreverRuntimeError(
       "DREVER_RUNTIME_STEP_INDEX_MISSING",
@@ -255,7 +262,9 @@ export const Step = ({
   }
 
   const state = resolveStepState(at, runtime?.currentStep);
-  const pending = state === "pending";
+  const concealed =
+    state === "pending" ||
+    (renderMode !== "document" && motionIntent === "replace" && state === "complete");
 
   return createElement(
     Component,
@@ -263,9 +272,9 @@ export const Step = ({
       ...props,
       "data-drever-step": at ?? "",
       "data-step-state": state,
-      "aria-hidden": pending || undefined,
-      inert: pending || undefined,
-      style: pending ? { ...style, visibility: "hidden" } : style,
+      "aria-hidden": concealed || undefined,
+      inert: concealed || undefined,
+      style: concealed ? { ...style, visibility: "hidden" } : style,
     },
     children,
   );
@@ -275,18 +284,107 @@ export type NoteProps = PropsWithChildren;
 
 export const Note = (_props: NoteProps) => null;
 
-export type MotionGroupProps = ComponentPropsWithoutRef<"div"> &
+type MotionGroupElementProps = Omit<ComponentPropsWithoutRef<"div">, "name">;
+
+type ContinuityMotionGroupProps = MotionGroupElementProps &
   Readonly<{
-    intent?: MotionIntent;
+    intent: "continuity";
+    name: string;
   }>;
 
-export const MotionGroup = ({ children, intent, ...props }: MotionGroupProps): ReactElement =>
-  createElement(
+type LocalMotionIntent = Exclude<MotionIntent, "continuity">;
+
+type LocalMotionGroupProps = MotionGroupElementProps &
+  Readonly<{
+    intent: LocalMotionIntent;
+    name?: never;
+  }>;
+
+export type MotionGroupProps = ContinuityMotionGroupProps | LocalMotionGroupProps;
+
+type ViewTransitionStyle = CSSProperties &
+  Readonly<{
+    viewTransitionClass?: string | undefined;
+    viewTransitionName?: string | undefined;
+  }>;
+
+const MOTION_NAME_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/u;
+const MOTION_INTENT_ERROR = "DREVER_RUNTIME_MOTION_INTENT_INVALID";
+const MOTION_IDENTITY_ERROR = "DREVER_RUNTIME_MOTION_IDENTITY_INVALID";
+
+const resolveMotionIntent = (value: unknown): MotionIntent => {
+  switch (value) {
+    case "focus":
+    case "replace":
+    case "compare":
+    case "stagger":
+    case "continuity":
+      return value;
+  }
+
+  throw new DreverRuntimeError(
+    MOTION_INTENT_ERROR,
+    "MotionGroup intent must be focus, replace, compare, stagger, or continuity.",
+    { received: typeof value === "string" ? value : typeof value },
+  );
+};
+
+const assertMotionIdentity = (intent: MotionIntent, name: string | undefined): void => {
+  if (intent === "continuity") {
+    if (typeof name !== "string" || !MOTION_NAME_PATTERN.test(name)) {
+      throw new DreverRuntimeError(
+        MOTION_IDENTITY_ERROR,
+        "A continuity MotionGroup name must be a lowercase kebab-case identifier.",
+        { intent },
+      );
+    }
+    return;
+  }
+
+  if (name !== undefined) {
+    throw new DreverRuntimeError(
+      MOTION_IDENTITY_ERROR,
+      "MotionGroup name is only valid for the continuity intent.",
+      { intent },
+    );
+  }
+};
+
+const provideIntentToDirectSteps = (children: ReactNode, intent: MotionIntent): ReactNode =>
+  Children.map(children, (child) =>
+    isValidElement(child) && child.type === Step
+      ? createElement(DirectStepMotionContext.Provider, { value: intent }, child)
+      : child,
+  );
+
+export const MotionGroup = ({
+  children,
+  intent,
+  name,
+  style,
+  ...props
+}: MotionGroupProps): ReactElement => {
+  const resolvedIntent = resolveMotionIntent(intent);
+  assertMotionIdentity(resolvedIntent, name);
+  const renderMode = useContext(DreverRenderModeContext);
+  const continuityStyle: ViewTransitionStyle | undefined =
+    resolvedIntent === "continuity"
+      ? {
+          ...style,
+          viewTransitionName: renderMode === "audience" ? `drever-${name}` : undefined,
+          viewTransitionClass: renderMode === "audience" ? "drever-motion-continuity" : undefined,
+        }
+      : style;
+
+  return createElement(
     "div",
     {
       ...props,
       "data-drever-motion-group": "",
-      "data-motion-intent": intent,
+      "data-motion-intent": resolvedIntent,
+      "data-motion-name": name,
+      style: continuityStyle,
     },
-    children,
+    provideIntentToDirectSteps(children, resolvedIntent),
   );
+};

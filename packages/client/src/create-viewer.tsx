@@ -37,22 +37,11 @@ import { releaseLateAcquisition } from "./viewer-lifecycle.ts";
 
 export type ViewerDisposer = RuntimeDisposer;
 
-type ViewerRuntimeThemeMotion = Omit<NonNullable<PlannedTheme["motion"]>, "module">;
-
-export type ViewerRuntimeMotion = ViewerRuntimeThemeMotion &
-  Readonly<{
-    implementation: unknown;
-  }>;
-
-export type ViewerRuntimeTheme = Omit<PlannedTheme, "motion"> &
-  Readonly<{
-    motion?: ViewerRuntimeThemeMotion;
-  }>;
+export type ViewerRuntimeTheme = PlannedTheme;
 
 export type ViewerRuntime = Readonly<{
   container: Element;
   getPosition(): DeckPosition;
-  motion?: ViewerRuntimeMotion;
   navigate(command: DeckCommand): Promise<void>;
   reportError(error: unknown): void;
   signal: AbortSignal;
@@ -65,7 +54,6 @@ export type ViewerSetupRunner = (runtime: ViewerRuntime) => Awaitable<void | Vie
 
 /** Values imported by an application from virtual:drever/runtime. */
 export type ViewerRuntimeModule = Readonly<{
-  motion?: ViewerRuntimeMotion | undefined;
   runSetup?: ViewerSetupRunner;
   theme?: ViewerRuntimeTheme;
 }>;
@@ -344,7 +332,6 @@ export const createViewer = async (options: CreateViewerOptions): Promise<Viewer
     const runtime: ViewerRuntime = Object.freeze({
       container: options.container,
       getPosition: store.getSnapshot,
-      ...(options.runtime?.motion === undefined ? {} : { motion: options.runtime.motion }),
       navigate,
       reportError: report,
       signal: lifetime.signal,

@@ -154,11 +154,10 @@ export type LayoutDefinition = Readonly<{
   example?: string;
 }>;
 
-export type MotionIntent = "reveal" | "focus" | "replace" | "continuity" | "stagger" | "ambient";
+export type MotionIntent = "focus" | "replace" | "compare" | "stagger" | "continuity";
 
 export type MotionProfileDefinition = Readonly<{
   id: string;
-  module: ModuleReference;
   intents: readonly MotionIntent[];
   guidance?: readonly string[];
 }>;

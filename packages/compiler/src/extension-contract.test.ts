@@ -151,7 +151,6 @@ describe("extension contracts", () => {
         ],
         motion: {
           id: " ",
-          module: { specifier: "motion-profile" },
           intents: ["continuity"],
           guidance: ["Preserve spatial context.", " "],
         },
@@ -171,6 +170,22 @@ describe("extension contracts", () => {
       "purpose-empty",
       "accepts-duplicate",
     ]);
+  });
+
+  it("rejects an empty motion profile instead of advertising unsupported choreography", () => {
+    const result = createCompilePlan({
+      theme: createTheme({ motion: { id: "empty", intents: [] } }),
+    });
+
+    expect(result).toMatchObject({
+      ok: false,
+      diagnostics: [
+        {
+          code: "DREVER_THEME_MOTION_INVALID",
+          details: { issue: "intents-empty", theme: "contract-theme" },
+        },
+      ],
+    });
   });
 });
 

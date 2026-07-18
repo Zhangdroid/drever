@@ -111,19 +111,28 @@ plugins, and source preflight. It applies configured Remark contributions but
 does not pretend static analysis can judge rendered composition or runtime React
 output. See [Agent authoring](./agent-authoring.md).
 
-### P1-B — motion choreography
+### P1-B — motion choreography: delivered
 
-Build on `MotionGroup`, theme-owned intent mappings, and canvas-scoped View
-Transitions with a small semantic choreography vocabulary. Each recipe needs a
-clear narrative purpose, stable geometry for persistent content, deterministic
-Step behavior, and an intentional reduced-motion result. High-quality reference
-slides and real-browser assertions should define the bar; adding many animation
-props should not.
+`MotionGroup` now exposes five semantic intents: focused reveal, replacement,
+comparison, restrained stagger, and continuity. The first three operate on
+direct Steps; replacement reserves one shared layout frame and exposes only its
+active state while presenting, then expands its complete history in document
+view. Stagger reveals at most four direct children inside one Step, so visual
+delay never invents navigation state. Continuity requires an explicit lowercase
+kebab-case identity on the same object across adjacent slides.
 
-The first recipes should cover continuity between related states, focused
-reveal, replacement, comparison, and restrained staggered explanation. Shared
-identity across slides must remain explicit so accidental title movement or
-layout reflow cannot masquerade as animation.
+Core owns Step and accessibility semantics, the client owns native
+canvas-scoped capture and navigation direction, and each official theme owns a
+distinct CSS mapping plus JSON-safe guidance. Audience capture is disabled for
+reduced motion and is never assigned in speaker, document, or export rendering.
+The product-tour reference deck and Chromium assertions cover forward and
+backward Step recipes, stable persistent headings and replacement geometry,
+explicit continuity, accessibility state, and non-audience behavior. See
+[Motion choreography](./motion.md).
+
+This slice deliberately does not expose arbitrary animation props, infer shared
+identity, or judge aesthetic quality automatically. Expanded composition
+recipes and rendered geometry evidence remain P1-C work.
 
 ### P1-C — design recipes and rendered preflight
 

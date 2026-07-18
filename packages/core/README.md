@@ -23,9 +23,38 @@ React Canary and current browsers; it intentionally uses React `Activity` for
 inactive slide state and effect lifecycle.
 
 Components with media, network work, or global listeners should call
-`useDreverRenderMode()`. It returns `audience`, `export`, `speaker-current`, or
-`speaker-next`, allowing a component to stay visually representative while
-suppressing side effects in previews and deterministic exports.
+`useDreverRenderMode()`. It returns `audience`, `document`, `export`,
+`speaker-current`, or `speaker-next`, allowing a component to stay visually
+representative while suppressing side effects in reading views, previews, and
+deterministic exports.
+
+## MotionGroup
+
+`MotionGroup` requires a semantic intent. Use direct `Step` children for
+`focus`, `replace`, and `compare`; put `stagger` inside one Step with at most
+four direct visual children. `continuity` is the only intent with a `name`, and
+requires the same explicit lowercase kebab-case identity on the same object
+across adjacent slides:
+
+```tsx
+<MotionGroup intent="focus">
+  <Step at={1}>Retain this context.</Step>
+  <Step at={2}>Focus this decision.</Step>
+</MotionGroup>
+
+<MotionGroup intent="continuity" name="deck-contract">
+  <ContractCard />
+</MotionGroup>
+```
+
+Core owns state attributes, render-mode-aware replacement accessibility, and
+audience-only continuity identity. Audience, speaker, and export expose one
+replacement state; document mode expands every completed and active replacement
+into readable flow. Themes own visual choreography; authors do not pass
+animation parameters. Missing or unknown intents and invalid continuity names
+fail with structured runtime errors. See
+[Motion choreography](../../docs/motion.md) for the complete grammar,
+render-mode behavior, and author checklist.
 
 Exporters can pass `idPrefix` to `DreverRenderModeProvider` when they render the
 same compiled content tree more than once. The prefix keeps rendered slide IDs

@@ -38,6 +38,7 @@ describe("React transition bridge", () => {
   it("starts the native transition on the canvas with one directional type", async () => {
     const nativeTransition: ScopedViewTransition = {
       finished: Promise.resolve(),
+      ready: Promise.resolve(),
       skipTransition: vi.fn(),
       updateCallbackDone: Promise.resolve(),
     };
