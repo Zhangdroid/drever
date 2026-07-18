@@ -1,0 +1,131 @@
+# @drever/theme-default
+
+The default Drever theme is a complete visual baseline for a real presentation,
+not a reset stylesheet. It combines decisive typography, a restrained blue
+accent, generous spacing, semantic layouts, and motion tuned for Drever's View
+Transition navigation.
+
+It has no font, image, or component-library dependency. The only browser
+runtime dependency is React when a deck uses one of its two layouts.
+
+## Use it
+
+```ts
+// drever.config.ts
+import theme from "@drever/theme-default";
+
+export default {
+  theme,
+};
+```
+
+Ordinary Markdown is the default authoring surface:
+
+```mdx
+# Build presentations like products
+
+Version them, test them, and deploy them as a web application.
+
+---
+
+## One idea at a time
+
+- A clear claim
+- Evidence the audience can inspect
+- Motion that explains what changed
+```
+
+The theme uses a 1600 × 900 canvas. It styles headings, prose, lists, quotes,
+code, images, tables, links, Steps, and MotionGroups without requiring custom
+components.
+
+## Layouts
+
+Layouts are for semantic composition, not routine decoration. Prefer Markdown
+until a slide has a clear layout need.
+
+### Cover
+
+Use `Cover` once at the start of a talk and optionally for major chapter
+breaks. Keep `title` under ten words and `supporting` to one short sentence.
+
+```mdx
+<Cover
+  eyebrow="Drever / 2026"
+  title="Presentations can be software."
+  supporting="Interactive, testable, and ready to ship."
+  footer="Zhuo · Engineering"
+  tone="accent"
+/>
+```
+
+Public props:
+
+- `title`: required content rendered as the slide's `h1`.
+- `eyebrow`, `supporting`, and `footer`: optional short content.
+- `tone`: `light`, `dark`, or `accent`; defaults to `light`.
+- Standard HTML `header` attributes, including `className` and `aria-*`.
+
+### TwoColumn
+
+Use `TwoColumn` for comparison, cause and effect, or a text/visual pair. Do not
+use it merely to fit more content on screen.
+
+```mdx
+<TwoColumn
+  ratio="wide-primary"
+  primary={
+    <>
+      <h2>Before</h2>
+      <p>A static file assembled by hand.</p>
+    </>
+  }
+  secondary={
+    <>
+      <h2>After</h2>
+      <p>A living interface with inspectable state.</p>
+    </>
+  }
+/>
+```
+
+Public props:
+
+- `primary` and `secondary`: required React/MDX content regions.
+- `ratio`: `equal`, `wide-primary`, or `wide-secondary`; defaults to `equal`.
+- Standard HTML `div` attributes.
+
+## AI generation prompt
+
+This can be pasted after the presentation brief:
+
+```text
+Use @drever/theme-default. Give every slide one dominant idea. Prefer ordinary
+Markdown. Use Cover only for the opening or a true chapter break, and use
+TwoColumn only when the relationship between two ideas is the point. Keep titles
+under 10 words, body copy under 45 words per region, and avoid more than one
+nested list. Use Step for meaningful progressive disclosure, not for animating
+every element. Prefer one strong visual over decorative gradients or dense text.
+```
+
+The machine-readable `manifest` on the exported theme contains the same art
+direction, choices, layout slots, constraints, and examples so an AI tool does
+not need to scrape this README.
+
+## Custom accents
+
+Add a later Drever utility stylesheet and override theme variables on the
+viewer. Do not modify the package CSS:
+
+```css
+.drever-viewer {
+  --drever-theme-accent: #d63b20;
+  --drever-theme-accent-strong: #942612;
+  --drever-theme-accent-soft: #ffe0d8;
+}
+```
+
+The theme targets current browsers and intentionally uses `color-mix()` and
+modern text wrapping without legacy fallbacks. The client owns one
+canvas-scoped transition; the default theme does not create nested transition
+groups that could compete with slide motion.

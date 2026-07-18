@@ -1,0 +1,17 @@
+{
+  "name": "@drever/example-architecture",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "drever build",
+    "dev": "drever dev"
+  },
+  "devDependencies": {
+    "@drever/schema": "workspace:*",
+    "@drever/theme-studio": "workspace:*",
+    "@types/react": "catalog:",
+    "drever": "workspace:*",
+    "react": "catalog:"
+  }
+}

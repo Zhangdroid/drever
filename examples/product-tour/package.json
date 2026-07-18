@@ -1,0 +1,16 @@
+{
+  "name": "@drever/example-product-tour",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "drever build",
+    "dev": "drever dev"
+  },
+  "devDependencies": {
+    "@drever/theme-editorial": "workspace:*",
+    "@types/react": "catalog:",
+    "drever": "workspace:*",
+    "react": "catalog:"
+  }
+}

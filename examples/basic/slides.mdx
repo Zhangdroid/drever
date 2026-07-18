@@ -1,0 +1,115 @@
+import { Counter } from "./Counter.tsx";
+import "./counter.css";
+
+<Cover
+  eyebrow="Drever / interactive MDX"
+  title="Slides can be software."
+  supporting="Designed with taste. Built to interact. Tested like a product."
+  footer="A small, runnable introduction"
+  tone="accent"
+/>
+
+---
+
+## Motion should carry meaning.
+
+A presentation is a sequence of intentional states—not a pile of pages.
+
+<MotionGroup intent="focus">
+  <Step at={2} data-testid="step-2">
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "84px 1fr",
+        alignItems: "center",
+        marginTop: 34,
+        padding: "24px 30px",
+        borderRadius: 22,
+        background: "var(--drever-theme-accent-soft)",
+        gap: 22,
+      }}
+    >
+      <strong style={{ fontSize: 40 }}>02</strong>
+      <span style={{ fontSize: 26 }}>Reveal the decision when the audience is ready.</span>
+    </div>
+  </Step>
+  <Step at={5} data-testid="step-5">
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "84px 1fr",
+        alignItems: "center",
+        marginTop: 18,
+        padding: "24px 30px",
+        border: "2px solid var(--drever-theme-border)",
+        borderRadius: 22,
+        background: "var(--drever-theme-surface)",
+        gap: 22,
+      }}
+    >
+      <strong style={{ fontSize: 40 }}>05</strong>
+      <span style={{ fontSize: 26 }}>Let the URL describe that exact moment.</span>
+    </div>
+  </Step>
+</MotionGroup>
+
+<Note>
+  Pause at step 2, then jump to step 5. The sparse stops are intentional and should round-trip
+  through browser history.
+</Note>
+
+---
+
+<TwoColumn
+  primary={
+    <>
+      <span style={{ color: "var(--drever-theme-muted)", fontWeight: 760 }}>DOCUMENT</span>
+      <h2>Static output</h2>
+      <p>Export, attach, repeat. Interaction ends when the file leaves your hands.</p>
+    </>
+  }
+  secondary={
+    <>
+      <span style={{ color: "var(--drever-theme-accent-strong)", fontWeight: 760 }}>PRODUCT</span>
+      <h2>Living interface</h2>
+      <p>State, components, navigation and motion remain part of the story.</p>
+    </>
+  }
+/>
+
+---
+
+## Interfaces remember.
+
+<div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "minmax(0, 1.1fr) minmax(0, 0.9fr)",
+    alignItems: "center",
+    marginTop: 40,
+    gap: 58,
+  }}
+>
+  <Counter />
+  <div style={{ display: "grid", gap: 26 }}>
+    <blockquote>Change the number. Leave this slide. Then come back.</blockquote>
+    <p style={{ color: "var(--drever-theme-muted)" }}>
+      {"The slide becomes inactive, but its React state survives."}
+    </p>
+  </div>
+</div>
+
+<Note>
+  Increment the counter, move to the closing slide, then navigate back. Its value demonstrates state
+  preservation across inactive slides.
+</Note>
+
+---
+
+<Cover
+  eyebrow="The next presentation"
+  title="Ship the story."
+  supporting="Write it with AI. Review it as code. Deliver it as an experience."
+  footer="drever · modern browser presentations"
+  tone="dark"
+/>

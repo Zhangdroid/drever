@@ -1,0 +1,643 @@
+.drever-viewer {
+  --drever-theme-ink: #f3f7f5;
+  --drever-theme-muted: #95a6b4;
+  --drever-theme-accent: #6ee7b7;
+  --drever-theme-accent-strong: #83f3c7;
+  --drever-theme-accent-soft: #173a34;
+  --drever-theme-surface: #111c29;
+  --drever-theme-border: #2a3949;
+  --drever-theme-code-canvas: #070d14;
+  --drever-theme-code-ink: #e7f4ee;
+  --arch-amber: #f8bd62;
+  --arch-blue: #6ca7ff;
+  --arch-grid: rgb(148 163 184 / 8%);
+  --drever-stage-background: #05080d;
+  --drever-stage-color: #f3f7f5;
+  --drever-canvas-background: #0b141f;
+  --drever-canvas-color: #f3f7f5;
+  --drever-canvas-color-scheme: dark;
+}
+
+.drever-viewer [data-drever-slide] {
+  background:
+    linear-gradient(var(--arch-grid) 1px, transparent 1px) 0 0 / 46px 46px,
+    linear-gradient(90deg, var(--arch-grid) 1px, transparent 1px) 0 0 / 46px 46px,
+    radial-gradient(circle at 88% 12%, rgb(110 231 183 / 9%), transparent 30%),
+    #0b141f;
+}
+
+.drever-viewer [data-drever-slide]::after {
+  background: var(--drever-theme-accent);
+  box-shadow: 18px 0 0 color-mix(in srgb, var(--drever-theme-accent), transparent 60%);
+}
+
+.arch-kicker {
+  color: var(--drever-theme-accent);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.arch-principles {
+  display: grid;
+  margin-top: 40px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.arch-principles article {
+  display: grid;
+  min-height: 290px;
+  padding: 26px;
+  border: 1px solid var(--drever-theme-border);
+  border-radius: 18px;
+  align-content: space-between;
+  background: rgb(17 28 41 / 82%);
+}
+
+.arch-principles article:nth-child(2) {
+  border-color: color-mix(in srgb, var(--arch-blue), transparent 46%);
+}
+
+.arch-principles article:nth-child(3) {
+  border-color: color-mix(in srgb, var(--drever-theme-accent), transparent 46%);
+}
+
+.arch-principles article:nth-child(4) {
+  border-color: color-mix(in srgb, var(--arch-amber), transparent 46%);
+}
+
+.arch-principles span {
+  color: var(--drever-theme-muted);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 15px;
+}
+
+[data-drever-slide] .arch-principles strong {
+  color: var(--drever-theme-ink);
+  font-size: 27px;
+  letter-spacing: -0.025em;
+  line-height: 1.12;
+}
+
+[data-drever-slide] .arch-principles p {
+  color: var(--drever-theme-muted);
+  font-size: 18px;
+  line-height: 1.42;
+}
+
+.arch-explorer {
+  display: grid;
+  margin-top: 30px;
+  grid-template-columns: 0.72fr 1.28fr;
+  gap: 22px;
+}
+
+.arch-explorer__controls,
+.arch-explorer__artifact {
+  min-height: 430px;
+  box-sizing: border-box;
+  padding: 28px;
+  border: 1px solid var(--drever-theme-border);
+  border-radius: 20px;
+  background: rgb(17 28 41 / 88%);
+}
+
+.arch-explorer__buttons {
+  display: grid;
+  margin-top: 24px;
+  gap: 9px;
+}
+
+.arch-explorer__buttons button,
+.arch-route-lab button {
+  min-height: 54px;
+  padding: 11px 16px;
+  border: 1px solid var(--drever-theme-border);
+  border-radius: 11px;
+  background: #0c1621;
+  color: var(--drever-theme-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 18px;
+  font-weight: 720;
+  text-align: left;
+}
+
+.arch-explorer__buttons button span {
+  display: inline-block;
+  width: 42px;
+  color: #5e7181;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 13px;
+}
+
+.arch-explorer__buttons button[aria-pressed="true"],
+.arch-route-lab button[aria-pressed="true"] {
+  border-color: var(--drever-theme-accent);
+  background: var(--drever-theme-accent-soft);
+  color: var(--drever-theme-accent-strong);
+}
+
+.arch-route-lab button:disabled {
+  cursor: not-allowed;
+  opacity: 0.34;
+}
+
+.arch-explorer__buttons button:focus-visible,
+.arch-route-lab button:focus-visible {
+  outline: 4px solid color-mix(in srgb, var(--drever-theme-accent), transparent 45%);
+  outline-offset: 3px;
+}
+
+.arch-explorer__artifact {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 17px;
+}
+
+.arch-explorer__meta {
+  display: flex;
+  justify-content: space-between;
+  color: var(--drever-theme-muted);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 14px;
+}
+
+.arch-explorer__artifact pre {
+  min-height: 260px;
+  margin: 0;
+  padding: 22px 24px;
+  overflow-wrap: anywhere;
+  font-size: 18px;
+  white-space: pre-wrap;
+}
+
+[data-drever-slide] .arch-explorer__artifact p {
+  color: var(--drever-theme-accent);
+  font-size: 18px;
+}
+
+.arch-pipeline {
+  display: grid;
+  margin-top: 42px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 13px;
+}
+
+.arch-pipeline > [data-drever-step] {
+  display: grid;
+}
+
+.arch-pipeline article {
+  position: relative;
+  display: grid;
+  min-height: 280px;
+  padding: 25px 22px;
+  border: 1px solid var(--drever-theme-border);
+  border-radius: 18px;
+  align-content: space-between;
+  background: rgb(17 28 41 / 90%);
+}
+
+.arch-pipeline article::after {
+  position: absolute;
+  top: 50%;
+  right: -13px;
+  z-index: 2;
+  color: var(--drever-theme-accent);
+  content: "›";
+  font-size: 27px;
+  transform: translate(62%, -54%);
+}
+
+.arch-pipeline > [data-drever-step]:last-child article::after {
+  content: none;
+}
+
+.arch-pipeline span {
+  color: var(--drever-theme-accent);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 14px;
+}
+
+.arch-pipeline strong {
+  color: var(--drever-theme-ink);
+  font-size: 25px;
+}
+
+.arch-pipeline p {
+  color: var(--drever-theme-muted);
+  font-size: 17px;
+}
+
+.arch-boundaries {
+  display: grid;
+  margin-top: 32px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.drever-studio-workbench .arch-boundaries {
+  margin-top: 0;
+}
+
+.arch-boundary {
+  display: grid;
+  min-height: 286px;
+  box-sizing: border-box;
+  padding: 28px;
+  border: 1px solid var(--drever-theme-border);
+  border-radius: 16px;
+  align-content: space-between;
+  background: rgb(17 28 41 / 86%);
+  gap: 16px;
+}
+
+.arch-boundary:last-child {
+  border-color: color-mix(in srgb, var(--drever-theme-accent), transparent 48%);
+  background: color-mix(in srgb, var(--drever-theme-accent-soft), transparent 24%);
+}
+
+.arch-boundary__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.arch-boundary__header code {
+  color: var(--drever-theme-muted);
+  font-size: 15px;
+}
+
+.arch-boundary ul {
+  display: grid;
+  padding: 0;
+  list-style: none;
+  gap: 12px;
+}
+
+.arch-boundary li {
+  padding: 14px 16px;
+  border: 1px solid var(--drever-theme-border);
+  border-radius: 12px;
+  background: rgb(7 13 20 / 35%);
+  font-size: 20px;
+}
+
+.arch-boundary__rule {
+  display: grid;
+  margin-top: 28px;
+  padding: 18px 22px;
+  border-left: 5px solid var(--arch-amber);
+  border-radius: 0 14px 14px 0;
+  background: rgb(248 189 98 / 9%);
+  grid-template-columns: 190px 1fr;
+  align-items: baseline;
+  gap: 22px;
+}
+
+.arch-boundary__rule strong {
+  color: var(--arch-amber);
+  font-size: 19px;
+}
+
+.arch-boundary__rule p {
+  color: #c3ccd4;
+  font-size: 19px;
+}
+
+.drever-studio-workbench .arch-boundary__rule {
+  margin-top: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  grid-template-columns: 1fr;
+  gap: 18px;
+}
+
+.arch-route-lab {
+  display: grid;
+  margin-top: 32px;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 22px;
+}
+
+.arch-route-lab__inputs,
+.arch-route-lab__output {
+  min-height: 395px;
+  box-sizing: border-box;
+  padding: 28px;
+  border: 1px solid var(--drever-theme-border);
+  border-radius: 20px;
+  background: rgb(17 28 41 / 88%);
+}
+
+.arch-route-lab__inputs {
+  display: grid;
+  gap: 18px;
+}
+
+.arch-route-lab fieldset {
+  padding: 0;
+  border: 0;
+}
+
+.arch-route-lab legend {
+  margin-bottom: 8px;
+  color: var(--drever-theme-muted);
+  font-size: 14px;
+  font-weight: 780;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.arch-route-lab fieldset > div {
+  display: flex;
+  gap: 8px;
+}
+
+.arch-route-lab button {
+  min-width: 64px;
+  min-height: 42px;
+  padding: 8px 14px;
+  font-size: 16px;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+.arch-route-lab__output {
+  display: grid;
+  align-content: center;
+  background: radial-gradient(circle at 90% 8%, rgb(110 231 183 / 12%), transparent 34%), #070d14;
+  gap: 14px;
+}
+
+.arch-route-lab__output span {
+  margin-top: 14px;
+  color: var(--drever-theme-muted);
+  font-size: 14px;
+  font-weight: 780;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.arch-route-lab__output strong {
+  color: var(--drever-theme-accent);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 53px;
+  letter-spacing: -0.05em;
+}
+
+.arch-route-lab__output code {
+  overflow-wrap: anywhere;
+  color: var(--arch-blue);
+  font-size: 24px;
+}
+
+.arch-commit {
+  display: grid;
+  margin-top: 38px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.arch-commit div {
+  position: relative;
+  display: grid;
+  min-height: 215px;
+  padding: 23px 18px;
+  border-top: 3px solid var(--drever-theme-border);
+  align-content: space-between;
+  background: linear-gradient(rgb(17 28 41 / 84%), rgb(17 28 41 / 18%));
+}
+
+.arch-commit div:nth-child(4) {
+  border-color: var(--drever-theme-accent);
+  background: linear-gradient(rgb(23 58 52 / 92%), rgb(23 58 52 / 22%));
+}
+
+.arch-commit span {
+  color: var(--drever-theme-muted);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 13px;
+}
+
+.arch-commit strong {
+  color: var(--drever-theme-ink);
+  font-size: 20px;
+}
+
+.arch-commit p {
+  color: var(--drever-theme-muted);
+  font-size: 15px;
+}
+
+.arch-scope {
+  display: flex;
+  margin-top: 24px;
+  padding: 16px 22px;
+  border: 1px solid color-mix(in srgb, var(--drever-theme-accent), transparent 58%);
+  border-radius: 14px;
+  align-items: center;
+  justify-content: space-between;
+  background: rgb(23 58 52 / 58%);
+}
+
+.arch-scope strong {
+  color: var(--drever-theme-accent);
+  font-size: 19px;
+}
+
+.arch-scope code {
+  color: #d2f9ea;
+  font-size: 17px;
+}
+
+.arch-static {
+  display: grid;
+  margin-top: 34px;
+  grid-template-columns: 0.78fr 1.22fr;
+  gap: 26px;
+}
+
+.arch-static__tree,
+.arch-static__contract {
+  min-height: 410px;
+  box-sizing: border-box;
+  padding: 30px;
+  border: 1px solid var(--drever-theme-border);
+  border-radius: 20px;
+  background: rgb(17 28 41 / 88%);
+}
+
+.arch-static__tree {
+  display: grid;
+  align-content: center;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 18px;
+  line-height: 1.9;
+}
+
+.arch-static__tree span {
+  color: var(--drever-theme-muted);
+}
+
+.arch-static__tree strong {
+  color: var(--drever-theme-accent);
+}
+
+.arch-static__contract {
+  display: grid;
+  align-content: center;
+  gap: 18px;
+}
+
+.arch-static__contract div {
+  display: grid;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--drever-theme-border);
+  grid-template-columns: 150px 1fr;
+  gap: 20px;
+}
+
+.arch-static__contract div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.arch-static__contract strong {
+  color: var(--arch-blue);
+  font-size: 19px;
+}
+
+.arch-static__contract p {
+  color: var(--drever-theme-muted);
+  font-size: 18px;
+}
+
+.arch-lifecycle {
+  display: grid;
+  margin-top: 36px;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.arch-resource-stack,
+.arch-diagnostic {
+  min-height: 410px;
+  box-sizing: border-box;
+  padding: 30px;
+  border: 1px solid var(--drever-theme-border);
+  border-radius: 20px;
+  background: rgb(17 28 41 / 88%);
+}
+
+.arch-resource-stack ol {
+  display: grid;
+  margin-top: 24px;
+  padding: 0;
+  list-style: none;
+  counter-reset: resource;
+  gap: 10px;
+}
+
+.arch-resource-stack li {
+  display: flex;
+  padding: 14px 16px;
+  border: 1px solid var(--drever-theme-border);
+  border-radius: 11px;
+  align-items: center;
+  justify-content: space-between;
+  background: #0c1621;
+  font-size: 18px;
+  counter-increment: resource;
+}
+
+.arch-resource-stack li::after {
+  color: var(--drever-theme-muted);
+  content: "acquire 0" counter(resource);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 12px;
+}
+
+.arch-resource-stack small {
+  display: block;
+  margin-top: 18px;
+  color: var(--arch-amber);
+  font-size: 16px;
+}
+
+.arch-diagnostic {
+  display: grid;
+  align-content: center;
+  background: #070d14;
+  gap: 16px;
+}
+
+.arch-diagnostic code {
+  color: var(--arch-amber);
+  font-size: 20px;
+}
+
+.arch-diagnostic strong {
+  color: var(--drever-theme-ink);
+  font-size: 28px;
+}
+
+.arch-diagnostic p {
+  color: var(--drever-theme-muted);
+  font-size: 19px;
+}
+
+.arch-diagnostic__location {
+  padding: 13px 16px;
+  border-left: 4px solid var(--arch-blue);
+  background: rgb(108 167 255 / 10%);
+  color: #b8d3ff;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 15px;
+}
+
+.arch-testing {
+  display: grid;
+  margin-top: 38px;
+  gap: 13px;
+}
+
+.arch-testing div {
+  display: grid;
+  min-height: 102px;
+  padding: 20px 25px;
+  border: 1px solid var(--drever-theme-border);
+  border-radius: 16px;
+  grid-template-columns: 190px 1fr 120px;
+  align-items: center;
+  background: rgb(17 28 41 / 86%);
+  gap: 22px;
+}
+
+.arch-testing div:last-child {
+  min-height: 132px;
+  border-color: var(--drever-theme-accent);
+  background: var(--drever-theme-accent-soft);
+}
+
+.arch-testing strong {
+  color: var(--drever-theme-ink);
+  font-size: 24px;
+}
+
+.arch-testing p {
+  color: var(--drever-theme-muted);
+  font-size: 18px;
+}
+
+.arch-testing span {
+  color: var(--drever-theme-muted);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 13px;
+  text-align: right;
+}

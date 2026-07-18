@@ -1,0 +1,270 @@
+import { AudienceSignal, MomentCard, MotionBoundary } from "./TourComponents.tsx";
+import "./tour.css";
+
+<Masthead
+  kicker="Drever / product tour"
+  title="Don’t export the idea."
+  deck="Ship a presentation that can explain, respond, and keep working after the talk."
+  meta="MDX presentations for modern browsers"
+  tone="ink"
+/>
+
+<Note>
+  Open by separating the idea from the file format. The point is not prettier PowerPoint; it is a
+  presentation that remains software.
+</Note>
+
+---
+
+## AI made slides abundant.
+
+The scarce part is now **judgment**: what to reveal, what to make tangible, and what the room should feel next.
+
+<div className="tour-thesis">
+  <div>
+    <span>Generate</span>
+    <strong>Fast is solved.</strong>
+    <p>Words and layouts arrive in seconds.</p>
+  </div>
+  <div>
+    <span>Communicate</span>
+    <strong>Meaning is not.</strong>
+    <p>Timing, interaction, and restraint still shape understanding.</p>
+  </div>
+  <div>
+    <span>Drever</span>
+    <strong>Give the story a system.</strong>
+    <p>Small authoring grammar. Deliberate motion. Product-grade delivery.</p>
+  </div>
+</div>
+
+<Note>
+  Do not position Drever as an AI slide generator. It is the runtime and contract that lets a human
+  or AI produce a coherent, inspectable experience.
+</Note>
+
+---
+
+## A small grammar leaves room for ideas.
+
+<span
+  className="mt-3 block text-[15px] font-bold uppercase tracking-[0.14em] text-indigo-700"
+  data-testid="tailwind-proof"
+>
+  {"Default build-time utility pipeline"}
+</span>
+
+<div className="tour-grammar">
+
+```mdx
+# One clear claim
+
+<Step>Reveal the evidence.</Step>
+
+<Note>Pause before the proof.</Note>
+
+---
+
+<LiveModel />
+```
+
+  <div className="tour-contract">
+    <span>Four primitives</span>
+    <div><strong>MDX</strong><small>Words and React share one source.</small></div>
+    <div><strong>---</strong><small>A visible, AI-friendly slide boundary.</small></div>
+    <div><strong>Step</strong><small>Meaningful moments inside a page.</small></div>
+    <div><strong>Note</strong><small>Guidance for the speaker, absent from the audience.</small></div>
+  </div>
+</div>
+
+<Note>
+  Emphasize that built-in primitives require no import. The syntax is intentionally easy for an AI
+  to generate and for a reviewer to audit in a diff.
+</Note>
+
+---
+
+## A slide is a sequence of moments.
+
+<p>Advance slowly. The URL, history, and speaker view all agree on the exact state.</p>
+
+<MotionGroup className="tour-moment-stack" intent="focus">
+  <Step at={1}>
+    <MomentCard index="01" title="Claim" detail="Give the room one stable idea." />
+  </Step>
+  <Step at={2}>
+    <MomentCard index="02" title="Evidence" detail="Reveal it when the question appears." />
+  </Step>
+  <Step at={3}>
+    <MomentCard index="03" title="Decision" detail="End with a change in understanding." />
+  </Step>
+</MotionGroup>
+
+<Note>
+  Use three advances here. The accumulation demonstrates that Step is presentation state, not an
+  animation delay or a CSS trick.
+</Note>
+
+---
+
+## Let the room answer.
+
+<AudienceSignal />
+
+<Note>
+  Select a different audience signal, leave this slide, then return. React state survives while the
+  inactive slide leaves the accessibility tree. This is the practical difference between a deck and
+  an interface.
+</Note>
+
+---
+
+<Feature
+  heading="Every moment has an address."
+  body={
+    <p>{"The URL, browser history, audience, and speaker view resolve the same exact state."}</p>
+  }
+  visual={
+    <div className="tour-routes">
+      <div className="tour-route">
+        <code>/</code>
+        <div>
+          <strong>Opening state</strong>
+          <p>Readable, linkable, reloadable.</p>
+        </div>
+      </div>
+      <div className="tour-route">
+        <code>/4/2</code>
+        <div>
+          <strong>Slide 4 · Step 2</strong>
+          <p>History returns to the exact moment.</p>
+        </div>
+      </div>
+      <div className="tour-route">
+        <code>/speaker/4/2</code>
+        <div>
+          <strong>Speaker view</strong>
+          <p>The same state, with a different job.</p>
+        </div>
+      </div>
+    </div>
+  }
+  caption="Canonical paths are presentation state—not incidental browser state."
+  balance="text-led"
+/>
+
+<Note>
+  These are paths, not query parameters. A production build materializes every valid route so deep
+  links remain portable on a static host.
+</Note>
+
+---
+
+## Move the idea—not the browser.
+
+<MotionBoundary />
+
+<Note>
+  Click the local control once or twice, then advance the deck. Drever scopes View Transitions to
+  the canvas element, so the surrounding stage is never captured in the old or new frame.
+</Note>
+
+---
+
+## The speaker gets a second surface.
+
+<div className="tour-speaker">
+  <div className="tour-speaker__previews">
+    <div className="tour-speaker__screen">
+      <span>Current</span>
+      <strong>The idea on stage</strong>
+    </div>
+    <div className="tour-speaker__screen" data-next="true">
+      <span>Next</span>
+      <strong>The moment ahead</strong>
+    </div>
+  </div>
+  <div className="tour-speaker__notes">
+    <span>Speaker note</span>
+    <p>Context for delivery, never mounted for the audience.</p>
+    <strong className="tour-speaker__timer">08:42</strong>
+  </div>
+</div>
+
+<Note>
+  Press P to open the real speaker view at this exact slide. Point out current and next previews,
+  notes, timer, controls, and native BroadcastChannel synchronization with the audience window.
+</Note>
+
+---
+
+## Treat the story like a product.
+
+<div className="tour-delivery">
+  <div>
+    <span>01 · Write</span>
+    <strong>Plain source</strong>
+    <p>Review MDX in the same tools as code.</p>
+  </div>
+  <div>
+    <span>02 · Inspect</span>
+    <strong>Stable contracts</strong>
+    <p>Diagnostics tell humans and AI what to repair.</p>
+  </div>
+  <div>
+    <span>03 · Test</span>
+    <strong>Real browser</strong>
+    <p>Verify routes, motion, reloads, and speaker synchronization.</p>
+  </div>
+  <div>
+    <span>04 · Ship</span>
+    <strong>Static build</strong>
+    <p>Deploy an experience with no application server.</p>
+  </div>
+</div>
+
+<Note>
+  The differentiator is the complete delivery loop: authored as source, checked as a contract,
+  exercised in a browser, and deployed as a static artifact.
+</Note>
+
+---
+
+## AI drafts. Contracts keep it honest.
+
+<div className="tour-ai-loop">
+  <div>
+    <strong>Brief</strong>
+    <p>Audience, purpose, tone, constraints, and source material.</p>
+  </div>
+  <span>→</span>
+  <div>
+    <strong>Semantic deck</strong>
+    <p>Layouts and components describe intent, not pixel coordinates.</p>
+  </div>
+  <span>→</span>
+  <div>
+    <strong>Verified experience</strong>
+    <p>Buildable, testable, deployable—and still yours to edit.</p>
+  </div>
+</div>
+
+<Note>
+  This is the AI-first promise: detailed manifests and narrow primitives improve generation, while
+  deterministic compilation and tests make the result trustworthy.
+</Note>
+
+---
+
+<Masthead
+  kicker="The next presentation"
+  title="Make the story behave."
+  deck="Use words when words are enough. Use software when the idea needs to move, answer, or prove itself."
+  meta="drever · presentations as living interfaces"
+  tone="ink"
+/>
+
+<Note>
+  Close on restraint. Drever is not permission to make every slide interactive; it is permission to
+  use the right medium when interaction makes the idea clearer.
+</Note>

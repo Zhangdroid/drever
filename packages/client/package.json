@@ -1,0 +1,50 @@
+{
+  "name": "@drever/client",
+  "version": "0.0.0",
+  "description": "Modern-browser viewer runtime for Drever presentations.",
+  "license": "MIT",
+  "files": [
+    "dist",
+    "styles.css"
+  ],
+  "type": "module",
+  "sideEffects": [
+    "./styles.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./styles.css": "./styles.css",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "check": "vp check",
+    "test": "vp test"
+  },
+  "dependencies": {
+    "@drever/core": "workspace:*",
+    "@drever/schema": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "peerDependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "engines": {
+    "node": ">=24.18.0"
+  }
+}

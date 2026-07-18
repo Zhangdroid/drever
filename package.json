@@ -1,0 +1,32 @@
+{
+  "name": "drever-workspace",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vp run -r build",
+    "check": "vp check",
+    "demo": "vp run -F @drever/example-basic dev",
+    "demo:architecture": "vp run -F @drever/example-architecture dev",
+    "demo:product": "vp run -F @drever/example-product-tour dev",
+    "ready": "vp check && vp exec tsc -p packages/vite/type-tests/tsconfig.json && vp run -r test && vp run -r build && vp exec playwright test",
+    "test": "vp run -r test",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "11.15.1",
+      "onFail": "download"
+    }
+  },
+  "engines": {
+    "node": ">=24.18.0"
+  }
+}

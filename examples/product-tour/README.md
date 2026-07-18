@@ -1,0 +1,45 @@
+# Drever product tour
+
+An eleven-slide, network-free introduction for people evaluating Drever. It tells a
+single story: AI made slide production cheap, so Drever focuses on the remaining
+work—taste, timing, interaction, and trustworthy delivery.
+
+The deck demonstrates:
+
+- the official Editorial theme through its `Masthead` and `Feature` layouts;
+- the MDX, `---`, `Step`, and `Note` authoring contract;
+- default build-time Shiki highlighting and reset-free Tailwind utilities;
+- accumulated Step states and clean path URLs;
+- React interaction whose state survives inactive slides;
+- element-scoped motion as a visible design boundary;
+- speaker notes and the `/speaker` view;
+- the AI-first write, inspect, test, build, and deploy loop.
+
+All visuals are CSS and local React components. There are no fonts, images,
+analytics, or network requests.
+
+## Run
+
+From the repository root, build workspace packages once and start this deck:
+
+```sh
+vp run -r build
+vp run -F @drever/example-product-tour dev
+```
+
+Open <http://localhost:4320>. Press `P` at any point to open the synchronized
+speaker view, or visit <http://localhost:4320/speaker> directly.
+
+Create the static production artifact with:
+
+```sh
+vp run -F @drever/example-product-tour build
+```
+
+## Delivery notes
+
+The fifth slide contains the main audience interaction. Change its signal,
+navigate away, and return to show preserved React state. On the seventh slide,
+use the local control before advancing to distinguish component interaction from
+Drever's canvas-scoped navigation transition. Speaker guidance for every slide
+is authored in `<Note>` and intentionally absent from the audience DOM.

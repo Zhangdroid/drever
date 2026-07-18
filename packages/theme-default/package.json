@@ -1,0 +1,52 @@
+{
+  "name": "@drever/theme-default",
+  "version": "0.0.0",
+  "description": "The polished, AI-friendly default theme for Drever presentations.",
+  "license": "MIT",
+  "files": [
+    "dist",
+    "theme.css"
+  ],
+  "type": "module",
+  "sideEffects": [
+    "./theme.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./layouts": {
+      "types": "./dist/layouts.d.mts",
+      "import": "./dist/layouts.mjs"
+    },
+    "./theme.css": "./theme.css",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "check": "vp check",
+    "test": "vp test"
+  },
+  "dependencies": {
+    "@drever/compiler": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "peerDependencies": {
+    "react": "catalog:"
+  },
+  "engines": {
+    "node": ">=24.18.0"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "name": "@drever/compiler",
+  "version": "0.0.0",
+  "description": "Compile MDX presentation sources into Drever artifacts.",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./internal": {
+      "types": "./dist/internal.d.mts",
+      "import": "./dist/internal.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "check": "vp check",
+    "test": "vp test"
+  },
+  "dependencies": {
+    "@drever/schema": "workspace:*",
+    "remark-mdx": "catalog:",
+    "remark-parse": "catalog:",
+    "unified": "catalog:"
+  },
+  "devDependencies": {
+    "@types/mdast": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "engines": {
+    "node": ">=24.18.0"
+  }
+}

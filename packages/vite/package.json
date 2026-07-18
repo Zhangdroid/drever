@@ -1,0 +1,51 @@
+{
+  "name": "@drever/vite",
+  "version": "0.0.0",
+  "description": "Canonical Vite and MDX adapter for Drever.",
+  "license": "MIT",
+  "files": [
+    "dist",
+    "virtual-modules.d.ts"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./virtual-modules": {
+      "types": "./virtual-modules.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "check": "vp check",
+    "test": "vp test"
+  },
+  "dependencies": {
+    "@drever/compiler": "workspace:*",
+    "@drever/core": "workspace:*",
+    "@drever/plugin": "workspace:*",
+    "@drever/schema": "workspace:*",
+    "@mdx-js/rollup": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "unified": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "peerDependencies": {
+    "vite": "^8.0.0 || 0.2.5"
+  },
+  "engines": {
+    "node": ">=24.18.0"
+  }
+}

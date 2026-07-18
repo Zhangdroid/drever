@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "exactOptionalPropertyTypes": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "module": "nodenext",
+    "moduleDetection": "force",
+    "moduleResolution": "nodenext",
+    "noEmit": true,
+    "noImplicitOverride": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "paths": {
+      "drever": ["./packages/cli/src/index.ts"],
+      "@drever/client": ["./packages/client/src/index.ts"],
+      "@drever/compiler": ["./packages/compiler/src/index.ts"],
+      "@drever/compiler/internal": ["./packages/compiler/src/internal.ts"],
+      "@drever/core": ["./packages/core/src/index.ts"],
+      "@drever/plugin": ["./packages/plugin/src/index.ts"],
+      "@drever/plugin-math": ["./packages/plugin-math/src/index.ts"],
+      "@drever/plugin-shiki": ["./packages/plugin-shiki/src/index.ts"],
+      "@drever/plugin-tailwindcss": ["./packages/plugin-tailwindcss/src/index.ts"],
+      "@drever/schema": ["./packages/schema/src/index.ts"],
+      "@drever/theme-default": ["./packages/theme-default/src/index.ts"],
+      "@drever/theme-default/layouts": ["./packages/theme-default/src/layouts.tsx"],
+      "@drever/theme-editorial": ["./packages/theme-editorial/src/index.ts"],
+      "@drever/theme-editorial/layouts": ["./packages/theme-editorial/src/layouts.tsx"],
+      "@drever/theme-studio": ["./packages/theme-studio/src/index.ts"],
+      "@drever/theme-studio/layouts": ["./packages/theme-studio/src/layouts.tsx"],
+      "@drever/vite": ["./packages/vite/src/index.ts"]
+    },
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "esnext",
+    "verbatimModuleSyntax": true
+  }
+}

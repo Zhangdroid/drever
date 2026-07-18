@@ -1,0 +1,68 @@
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { afterEach, describe, expect, it } from "vite-plus/test";
+import { loadDreverConfig } from "./config.ts";
+import { DreverCliError } from "./errors.ts";
+
+const directories: string[] = [];
+
+const project = async (): Promise<string> => {
+  const root = await mkdtemp(join(tmpdir(), "drever-config-test-"));
+  directories.push(root);
+  return root;
+};
+
+afterEach(async () => {
+  await Promise.all(
+    directories.splice(0).map((path) => rm(path, { force: true, recursive: true })),
+  );
+});
+
+describe("loadDreverConfig", () => {
+  it("uses an empty config when the project has no config file", async () => {
+    const root = await project();
+
+    await expect(loadDreverConfig({ command: "serve", root })).resolves.toEqual({ config: {} });
+  });
+
+  it("loads TypeScript through Vite and preserves only Drever's public settings", async () => {
+    const root = await project();
+    await writeFile(
+      join(root, "drever.config.ts"),
+      `const port: number = 4317;
+export default {
+  entry: "talk.mdx",
+  canvas: { width: 1600, height: 900 },
+  server: { port, strictPort: true },
+  build: { outDir: "release", sourcemap: "hidden" },
+};
+`,
+    );
+
+    const loaded = await loadDreverConfig({ command: "build", root });
+
+    expect(loaded.path).toBe(join(root, "drever.config.ts"));
+    expect(loaded.config).toEqual({
+      build: { outDir: "release", sourcemap: "hidden" },
+      canvas: { height: 900, width: 1600 },
+      entry: "talk.mdx",
+      server: { port: 4317, strictPort: true },
+    });
+  });
+
+  it("rejects Vite options instead of accidentally exposing Vite as user config", async () => {
+    const root = await project();
+    await writeFile(
+      join(root, "drever.config.ts"),
+      'export default { resolve: { alias: { react: "something-else" } } };\n',
+    );
+
+    const failure = await loadDreverConfig({ command: "serve", root }).catch(
+      (error: unknown) => error,
+    );
+
+    expect(failure).toBeInstanceOf(DreverCliError);
+    expect(failure).toMatchObject({ code: "DREVER_CONFIG_INVALID", details: { path: "resolve" } });
+  });
+});

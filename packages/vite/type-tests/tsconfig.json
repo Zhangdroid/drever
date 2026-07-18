@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "lib": ["es2024", "dom", "dom.iterable"],
+    "noEmit": true,
+    "types": ["node"]
+  },
+  "include": ["./drever-env.d.ts", "./virtual-entry.ts", "../virtual-modules.d.ts"]
+}

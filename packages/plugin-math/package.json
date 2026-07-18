@@ -1,0 +1,49 @@
+{
+  "name": "@drever/plugin-math",
+  "version": "0.0.0",
+  "description": "Build-time LaTeX math rendering for Drever with KaTeX.",
+  "license": "MIT",
+  "files": [
+    "dist",
+    "styles.css"
+  ],
+  "type": "module",
+  "sideEffects": [
+    "./styles.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./styles.css": "./styles.css",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "check": "vp check",
+    "test": "vp test"
+  },
+  "dependencies": {
+    "@drever/compiler": "workspace:*",
+    "@drever/plugin": "workspace:*",
+    "@drever/schema": "workspace:*",
+    "katex": "catalog:",
+    "rehype-katex": "catalog:",
+    "remark-math": "catalog:",
+    "unified": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "remark-parse": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "engines": {
+    "node": ">=24.18.0"
+  }
+}

@@ -1,0 +1,179 @@
+import { expect, test } from "@playwright/test";
+import { monitorPageHealth } from "./support/page-health.ts";
+
+test("the production build is standalone and keeps the viewer contract", async ({ page }) => {
+  const health = monitorPageHealth(page);
+  const response = await page.request.get("/");
+  const html = await response.text();
+
+  expect(response.ok()).toBe(true);
+  expect(html).not.toContain("/@vite/client");
+  expect(html).toMatch(/<script[^>]+data-drever-src="\.\/assets\/.+\.js"/u);
+
+  await page.goto("/");
+  await expect(page.locator("[data-drever-slide]")).toHaveCount(5);
+  await expect(page.locator('[data-drever-slide][data-slide-state="active"]')).toHaveAttribute(
+    "id",
+    "slide-1",
+  );
+
+  const canvas = page.locator("[data-drever-canvas]");
+  await expect(canvas).toBeVisible();
+  const bounds = await canvas.boundingBox();
+  expect(bounds).not.toBeNull();
+  expect(bounds?.width).toBeCloseTo(1440, 0);
+  expect(bounds?.height).toBeCloseTo(810, 0);
+  expect(bounds?.x).toBeCloseTo(0, 0);
+  expect(bounds?.y).toBeCloseTo(45, 0);
+
+  const cover = page.locator('[data-drever-layout="cover"]').first();
+  await expect(cover).toHaveCSS("background-color", "rgb(40, 85, 231)");
+  await expect(cover.locator("h1")).toHaveCSS("font-size", "88px");
+
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("ArrowRight");
+  await expect(page).toHaveURL(/\/2\/2$/u);
+  await expect(page.locator('[data-testid="step-2"]')).toBeVisible();
+
+  health.expectHealthy();
+});
+
+test("a production deep link is a reloadable static entry with a computed mount base", async ({
+  page,
+}) => {
+  const health = monitorPageHealth(page);
+  const response = await page.goto("/2/5");
+  if (response === null) {
+    throw new Error("The production deep link did not return a document response.");
+  }
+
+  expect(response.ok()).toBe(true);
+  expect(await response.text()).toContain('<meta name="drever-base" content="./" />');
+  await expect(page).toHaveURL(/\/2\/5$/u);
+  await expect(page.locator('[data-drever-slide][data-slide-state="active"]')).toHaveAttribute(
+    "id",
+    "slide-2",
+  );
+  await expect(page.locator('[data-testid="step-5"]')).toHaveAttribute("data-step-state", "active");
+
+  await page.reload();
+  await expect(page).toHaveURL(/\/2\/5$/u);
+  await expect(page.locator('[data-testid="step-5"]')).toHaveAttribute("data-step-state", "active");
+
+  const staticEntry = await page.request.get("/2/5/index.html");
+  const staticHtml = await staticEntry.text();
+  const scriptSource = staticHtml.match(/<script[^>]+data-drever-src="([^"]+\.js)"/u)?.[1];
+  if (scriptSource === undefined) {
+    throw new Error("The production deep-link entry did not reference a JavaScript asset.");
+  }
+
+  expect(staticEntry.ok()).toBe(true);
+  expect(staticHtml).toContain('<meta name="drever-base" content="./" />');
+  expect(staticHtml).toContain("const routeDepth = 2;");
+  expect(scriptSource).toMatch(/^\.\/assets\//u);
+
+  const documentBase = await page.evaluate(() => document.baseURI);
+  expect(documentBase).toBe("http://127.0.0.1:4318/");
+  const script = await page.request.get(new URL(scriptSource, documentBase).href);
+  expect(script.ok()).toBe(true);
+  expect(script.headers()["content-type"]).toMatch(/javascript/u);
+  expect(await script.text()).not.toMatch(/^\s*<!doctype html>/iu);
+
+  health.expectHealthy();
+});
+
+test("the production speaker route is a reloadable static control surface", async ({ page }) => {
+  const health = monitorPageHealth(page);
+  const response = await page.goto("/speaker/2/5");
+  if (response === null) {
+    throw new Error("The production speaker route did not return a document response.");
+  }
+
+  expect(response.ok()).toBe(true);
+  expect(await response.text()).toContain('<meta name="drever-base" content="./" />');
+  await expect(page.locator("[data-drever-speaker]")).toBeVisible();
+  await expect(page).toHaveURL(/\/speaker\/2\/5$/u);
+  await expect(page.getByTestId("speaker-notes")).toContainText(
+    "Pause at step 2, then jump to step 5.",
+  );
+  await expect(page.getByTestId("speaker-current").getByTestId("step-5")).toHaveAttribute(
+    "data-step-state",
+    "active",
+  );
+
+  await page.reload();
+  await expect(page.locator("[data-drever-speaker]")).toBeVisible();
+  await expect(page).toHaveURL(/\/speaker\/2\/5$/u);
+
+  health.expectHealthy();
+});
+
+test("static entries work from a subdirectory with and without trailing slashes", async ({
+  page,
+}) => {
+  const health = monitorPageHealth(page);
+  const cases = [
+    { path: "/talk", canonicalPath: "/talk", surface: "audience", slide: "slide-1" },
+    { path: "/talk/", canonicalPath: "/talk/", surface: "audience", slide: "slide-1" },
+    {
+      path: "/talk/index.html",
+      canonicalPath: "/talk/",
+      surface: "audience",
+      slide: "slide-1",
+    },
+    { path: "/talk/2/5", canonicalPath: "/talk/2/5", surface: "audience", slide: "slide-2" },
+    { path: "/talk/2/5/", canonicalPath: "/talk/2/5", surface: "audience", slide: "slide-2" },
+    {
+      path: "/talk/2/5/index.html",
+      canonicalPath: "/talk/2/5",
+      surface: "audience",
+      slide: "slide-2",
+    },
+    {
+      path: "/talk/speaker/2/5",
+      canonicalPath: "/talk/speaker/2/5",
+      surface: "speaker",
+      slide: "slide-2",
+    },
+    {
+      path: "/talk/speaker/2/5/",
+      canonicalPath: "/talk/speaker/2/5",
+      surface: "speaker",
+      slide: "slide-2",
+    },
+    {
+      path: "/talk/speaker/2/5/index.html",
+      canonicalPath: "/talk/speaker/2/5",
+      surface: "speaker",
+      slide: "slide-2",
+    },
+  ] as const;
+
+  for (const route of cases) {
+    const response = await page.goto(route.path);
+    if (response === null) {
+      throw new Error(`The static route ${route.path} did not return a document response.`);
+    }
+    expect(response.ok()).toBe(true);
+    expect(new URL(page.url()).pathname).toBe(route.canonicalPath);
+    expect(await page.evaluate(() => document.baseURI)).toBe("http://127.0.0.1:4318/talk/");
+    expect(
+      await page
+        .locator('script[type="module"]')
+        .evaluate((script) => (script as HTMLScriptElement).src),
+    ).toMatch(/^http:\/\/127\.0\.0\.1:4318\/talk\/assets\//u);
+
+    if (route.surface === "speaker") {
+      await expect(page.locator("[data-drever-speaker]")).toBeVisible();
+    } else {
+      await expect(page.locator('[data-drever-slide][data-slide-state="active"]')).toHaveAttribute(
+        "id",
+        route.slide,
+      );
+    }
+  }
+
+  const missing = await page.request.get("/talk/not-a-route");
+  expect(missing.status()).toBe(404);
+  health.expectHealthy();
+});

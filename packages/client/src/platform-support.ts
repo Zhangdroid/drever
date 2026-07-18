@@ -1,0 +1,92 @@
+import { DreverClientError } from "./client-error.ts";
+import type { NavigationLike } from "./navigation.ts";
+import type { PresentationChannelView } from "./presentation-sync.ts";
+
+export type DreverPlatformCapability =
+  | "BroadcastChannel"
+  | "Element.startViewTransition"
+  | "Navigation API"
+  | "ResizeObserver";
+
+export type ViewerPlatform = Readonly<{
+  channelView: PresentationChannelView;
+  document: Document;
+  keyboardTarget: Document;
+  navigation: NavigationLike;
+  view: Window;
+}>;
+
+type CandidateWindow = Window &
+  Readonly<{
+    BroadcastChannel?: unknown;
+    Element?: Readonly<{
+      prototype?: Readonly<{
+        startViewTransition?: unknown;
+      }>;
+    }>;
+    ResizeObserver?: unknown;
+    navigation?: unknown;
+  }>;
+
+const supportsNavigation = (value: unknown): value is NavigationLike => {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const navigation = value as Partial<NavigationLike>;
+  return (
+    typeof navigation.addEventListener === "function" &&
+    typeof navigation.navigate === "function" &&
+    typeof navigation.removeEventListener === "function" &&
+    typeof navigation.updateCurrentEntry === "function"
+  );
+};
+
+const missingCapabilities = (view: CandidateWindow): readonly DreverPlatformCapability[] => {
+  const missing: DreverPlatformCapability[] = [];
+  if (typeof view.BroadcastChannel !== "function") {
+    missing.push("BroadcastChannel");
+  }
+  if (!supportsNavigation(view.navigation)) {
+    missing.push("Navigation API");
+  }
+  if (typeof view.Element?.prototype?.startViewTransition !== "function") {
+    missing.push("Element.startViewTransition");
+  }
+  if (typeof view.ResizeObserver !== "function") {
+    missing.push("ResizeObserver");
+  }
+  return Object.freeze(missing);
+};
+
+/**
+ * Resolves the modern-browser surface required by the viewer.
+ *
+ * Drever intentionally has no legacy router, animation, or resize fallback.
+ */
+export const requireViewerPlatform = (document: Document): ViewerPlatform => {
+  const view = document.defaultView as CandidateWindow | null;
+  if (view === null) {
+    throw new DreverClientError(
+      "DREVER_CLIENT_PLATFORM_UNSUPPORTED",
+      "Drever requires a browser document connected to a Window.",
+      { details: { capabilities: ["Window"] } },
+    );
+  }
+
+  const missing = missingCapabilities(view);
+  if (missing.length > 0) {
+    throw new DreverClientError(
+      "DREVER_CLIENT_PLATFORM_UNSUPPORTED",
+      `Drever requires ${missing.join(", ")} in this browser.`,
+      { details: { capabilities: missing } },
+    );
+  }
+
+  return Object.freeze({
+    channelView: view as PresentationChannelView,
+    document,
+    keyboardTarget: document,
+    navigation: view.navigation as NavigationLike,
+    view,
+  });
+};

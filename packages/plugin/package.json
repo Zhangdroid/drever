@@ -1,0 +1,42 @@
+{
+  "name": "@drever/plugin",
+  "version": "0.0.0",
+  "description": "Build and runtime extension APIs for Drever plugin authors.",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "check": "vp check",
+    "test": "vp test"
+  },
+  "dependencies": {
+    "@drever/schema": "workspace:*",
+    "unified": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "peerDependencies": {
+    "vite": "^8.0.0 || 0.2.5"
+  },
+  "engines": {
+    "node": ">=24.18.0"
+  }
+}
