@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vite-plus/test";
@@ -49,6 +49,25 @@ export default {
       entry: "talk.mdx",
       server: { port: 4317, strictPort: true },
     });
+  });
+
+  it("loads check config without a temporary bundle and uses production semantics", async () => {
+    const root = await project();
+    const modules = join(root, "node_modules");
+    await mkdir(modules);
+    await writeFile(
+      join(root, "drever.config.ts"),
+      `type Environment = { command: string; mode: string };
+export default ({ command, mode }: Environment) => ({
+  entry: command + "-" + mode + ".mdx",
+});
+`,
+    );
+
+    const loaded = await loadDreverConfig({ command: "check", root });
+
+    expect(loaded.config).toEqual({ entry: "build-production.mdx" });
+    expect(await readdir(modules)).toEqual([]);
   });
 
   it("rejects Vite options instead of accidentally exposing Vite as user config", async () => {

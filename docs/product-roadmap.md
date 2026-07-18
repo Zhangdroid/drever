@@ -4,6 +4,15 @@ Drever is an AI-first framework for interactive presentations, not a browser-bas
 slide editor. The roadmap prioritizes reliable delivery, portable output, and
 accessible artifacts before networked collaboration features.
 
+Priorities follow product necessity, not implementation novelty:
+
+- **Necessary** capabilities make a deck authorable, presentable, testable,
+  deployable, and accessible without assembling framework internals.
+- **Common** capabilities improve recurring presentation workflows but should
+  not increase every audience bundle when unused.
+- **Enhancements** depend on specialized media, a network service, identity, or
+  collaboration infrastructure and belong behind explicit activation.
+
 ## Current foundation
 
 Drever already provides:
@@ -13,11 +22,13 @@ Drever already provides:
   and same-browser audience synchronization;
 - deterministic static builds that preserve audience and speaker deep links;
 - deterministic tagged PDF export for final or incremental presentation states;
+- source-based accessibility preflight with stable human and JSON diagnostics;
+- a searchable, fully revealed document view with one named landmark per slide;
 - theme-owned design systems and build-time extension points.
 
 These capabilities should be refined rather than replaced.
 
-## P0 — necessary
+## P0 — necessary and delivered
 
 ### Overview and direct navigation
 
@@ -56,18 +67,28 @@ The deployed web build remains the canonical format for interactive content.
 
 ### Accessibility contract
 
-Add build diagnostics for missing alternative text, missing or duplicate slide
-titles, invalid heading structure, illogical reading order, and authored media
-without captions. Add a single scrollable document or handout surface with one
-landmark per slide.
+The delivered `drever check` command reports missing or duplicate slide titles,
+missing or empty image alternatives, skipped heading levels, and authored video
+without captions. Human and versioned JSON reports use the same stable codes,
+severity summary, actionable hints, and exact source locations. Only errors make
+the command fail, so warnings remain useful evidence without becoming an
+arbitrary delivery gate.
 
-The contract should fail clearly when Drever can prove a defect and otherwise
-leave judgment to the author. Google recommends alternative text, headings,
-contrast, captions, and a scrollable HTML view in its [accessibility guidance][google-accessibility].
-Microsoft checks alternative text, captions, logical reading order, and unique
-slide titles in its [Accessibility Checker][microsoft-accessibility].
+The `/document` route complements preflight with a scrollable, searchable HTML
+view. It renders every slide at its final Step, labels each slide as a landmark,
+and provides a table of contents without mounting speaker notes. The audience
+control bar and `D` shortcut open the document at the current slide.
 
-## P1 — common and high-value
+The contract fails clearly when Drever can prove a source defect and leaves
+judgment to the author. It does not guess contrast through arbitrary CSS,
+visual reading order, alternative-text quality, caption accuracy, or semantics
+created inside runtime components. Google recommends alternative text,
+headings, contrast, captions, and a scrollable HTML view in its
+[accessibility guidance][google-accessibility]. Microsoft checks alternative
+text, captions, logical reading order, and unique slide titles in its
+[Accessibility Checker][microsoft-accessibility].
+
+## P1 — common and high-value next
 
 - **Annotations:** an ephemeral laser pointer, pen, and highlighter, optionally
   synchronized to the audience. Persistence should be opt-in.
@@ -86,7 +107,7 @@ slide titles in its [Accessibility Checker][microsoft-accessibility].
 These features belong in the client or narrowly scoped official plugins. They
 must not make the default audience bundle pay for unused capabilities.
 
-## P2 — optional services and integrations
+## P2 — optional enhancements and integrations
 
 - moderated audience questions, voting, polls, and reactions;
 - securely paired cross-device remote control;

@@ -445,11 +445,26 @@ describe("createViewer lifecycle", () => {
     await viewer.destroy();
   });
 
+  it("opens the document inside a mount URL without a trailing slash", async () => {
+    const harness = createHarness();
+    const viewer = await createViewer(harness.options({ baseURL: "https://slides.test/talk" }));
+
+    harness.hostProps.onOpenDocument();
+
+    expect(harness.open).toHaveBeenCalledWith(
+      "https://slides.test/talk/document#intro",
+      "_blank",
+      "noopener",
+    );
+    await viewer.destroy();
+  });
+
   it("routes the visible audience controls through the owned navigation and speaker surfaces", async () => {
-    const harness = createHarness({ currentURL: "https://slides.test/talk/2" });
+    const harness = createHarness({ currentURL: "https://slides.test/talk/2?theme=dark#notes" });
     const viewer = await createViewer(harness.options());
 
     await harness.hostProps.onNavigate({ type: "previousSlide" });
+    harness.hostProps.onOpenDocument();
     harness.hostProps.onOpenSpeaker();
 
     expect(harness.navigationController.navigate).toHaveBeenCalledOnce();
@@ -457,7 +472,12 @@ describe("createViewer lifecycle", () => {
       type: "previousSlide",
     });
     expect(harness.open).toHaveBeenCalledWith(
-      "https://slides.test/talk/speaker/2",
+      "https://slides.test/talk/document?theme=dark#details",
+      "_blank",
+      "noopener",
+    );
+    expect(harness.open).toHaveBeenCalledWith(
+      "https://slides.test/talk/speaker/2?theme=dark#notes",
       "_blank",
       "noopener",
     );

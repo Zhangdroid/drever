@@ -52,4 +52,6 @@ export type {
   ThemeManifest,
 } from "./extension.ts";
 export type { JsonArray, JsonObject, JsonPrimitive, JsonValue } from "./json.ts";
+export { DECK_PREFLIGHT_VERSION } from "./preflight.ts";
+export type { DeckPreflightReport, DeckPreflightSummary } from "./preflight.ts";
 export type { SourceFragment, SourcePoint, SourceRange } from "./source.ts";

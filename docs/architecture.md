@@ -15,12 +15,13 @@ Drever is a curated framework rather than a compatibility layer.
 ```text
 MDX source
   -> Deck IR
-  -> Compile Plan
-  -> Deck Artifact
-  -> Audience Viewer / Speaker View / Export Document
+     -> Accessibility Report
+     -> Compile Plan
+        -> Deck Artifact
+           -> Audience Viewer / Document View / Speaker View / Export Document
 
 Future consumers of the same artifact:
-  -> Overview / Design Inspector
+  -> Thumbnail Overview / Design Inspector
 ```
 
 The Deck IR is serializable and independent from React, Vite, and the filesystem.
@@ -36,21 +37,34 @@ runtime therefore navigates and presents notes from compiler data instead of
 inspecting rendered DOM. Step zero is the implicit initial state and is not
 repeated in the manifest.
 
+Accessibility analysis is another Deck IR consumer. `drever check` reads the
+authored structure and emits either a human report or a versioned JSON artifact
+with a severity summary and source ranges. The analyzer reports only evidence it
+can establish statically: title identity, authored image alternatives, heading
+level progression, and caption tracks on authored video. It does not render CSS
+or runtime components, so contrast, visual reading order, semantic quality, and
+dynamic component output remain explicit review responsibilities rather than
+heuristic diagnostics.
+The check path resolves configuration and the deck entry without creating a
+CompilePlan, running build-module factories, or materializing build caches.
+
 Navigation is another artifact boundary. The canonical URL is the source of
 truth for the current slide and Step; Navigation API entry state is only a cache.
 This makes deep links, history traversal, tests, and speaker synchronization agree
 on one serializable position. Audience state uses clean paths (`/`, `/2`,
 `/2/5`) relative to the deployment mount; `/speaker`, `/speaker/2`, and
 `/speaker/2/5` are the equivalent speaker namespace. Query parameters and
-the hash remain unrelated application state.
+the hash remain unrelated application state. `/document` is a non-positional
+reading surface; its table of contents uses slide-id fragments.
 
 Production builds materialize every valid manifest position as a nested static
-`index.html`. Before asset requests begin, each entry computes and installs its
-absolute mount base from the known route depth. A direct deep-link request thus
-starts with the same state for slash or no-slash directory URLs and remains
-portable when the deck is hosted below a subdirectory. This bootstrap is inline:
-strict CSP deployments must currently allow it or derive hashes from final build
-output; generated nonce/hash metadata is a future explicit build mode.
+`index.html` and add the stable `/document` entry. Before asset requests begin,
+each entry computes and installs its absolute mount base from the known route
+depth. A direct deep-link request thus starts with the same state for slash or
+no-slash directory URLs and remains portable when the deck is hosted below a
+subdirectory. This bootstrap is inline: strict CSP deployments must currently
+allow it or derive hashes from final build output; generated nonce/hash metadata
+is a future explicit build mode.
 
 The source grammar reserves a root-level line containing exactly `---` as the
 slide boundary. The same text inside a code fence or nested Markdown construct
@@ -85,8 +99,8 @@ compiler  core (runtime)
 - `compiler`: MDX parsing, analysis, plugin planning, and artifact emission.
 - `core`: React authoring primitives and deterministic presentation state.
 - `vite`: the standard Vite adapter. Vite+ must not leak into public APIs.
-- `client`: audience, speaker, and export runtimes over shared manifest,
-  routing, state-machine, readiness, and synchronization contracts.
+- `client`: audience, document, speaker, and export runtimes over shared
+  manifest, routing, state-machine, readiness, and synchronization contracts.
 - `cli`: orchestration and terminal formatting only.
 
 The public npm facade and CLI package is `drever`. Supporting libraries use the
@@ -101,18 +115,21 @@ API. The canonical adapter imports its non-configurable grammar and finalizers
 from the explicit `@drever/compiler/internal` subpath; that subpath is not a
 plugin-author extension surface.
 
-The current client vertical slice exposes audience, speaker, and export surfaces
-through the public `drever dev`, `drever build`, and `drever export pdf` flows.
-`<Note>` is captured into the compiler-owned manifest and removed from audience
-and export trees. The speaker surface consumes that explicit artifact; overview
-remains a separate future view over the same manifest.
+The current delivery slice exposes accessibility analysis plus audience,
+document, speaker, and export surfaces through the public `drever check`,
+`drever dev`, `drever build`, and `drever export pdf` flows. `<Note>` is
+captured into the compiler-owned manifest and removed from audience, document,
+and export trees. The speaker surface consumes that explicit artifact; a richer
+thumbnail overview remains a future view over the same manifest.
 
-The CLI-generated application selects `createViewer` or `createSpeaker` from
-`@drever/client` based on the canonical route. Both receive compiled MDX
-`Content`, its `deckManifest`, the generated component registry and runtime
-module, and the target DOM element. They own React mounting, Navigation API
-interception, keyboard controls, `BroadcastChannel` synchronization, runtime
-setup, and disposal. See [Client runtime](./client-runtime.md).
+The CLI-generated application selects `createViewer`, `createDocument`, or
+`createSpeaker` from `@drever/client` based on the canonical route. All three
+receive compiled MDX `Content`, its `deckManifest`, the generated component
+registry, theme canvas, and target DOM element. The audience and speaker
+surfaces own navigation, keyboard controls, synchronization, runtime setup, and
+disposal. The document surface owns one static React tree with every final Step
+visible and does not start presentation setup hooks. See
+[Client runtime](./client-runtime.md).
 
 PDF export uses a dedicated generated application and imports only the
 export-runtime lifecycle boundary. The CLI builds and serves it from an
@@ -177,17 +194,26 @@ presenting them through the CLI, browser overlay, or JSON output.
 
 Every diagnostic has a stable code, severity, source location when available,
 and an actionable hint. The same value is consumed by humans, tests, and AI.
+The accessibility CLI wraps those diagnostics in a versioned report containing
+`sourcePath`, `slideCount`, and explicit error, warning, and info totals. JSON
+mode writes the artifact to standard output even when errors set a failing exit
+status, allowing CI and AI tools to inspect the complete result.
 
 ## Testing
 
 - Pure unit tests cover Deck IR, state transitions, ordering, and diagnostics.
 - Compiler fixtures assert semantic IR rather than large generated-JavaScript snapshots.
 - Plugin and theme contract tests run against shared fixtures.
-- Real-browser tests cover audience and speaker path routing, native
+- Real-browser tests cover audience, document, and speaker path routing, native
   element-scoped View Transitions, cross-window synchronization, static deep
-  links, and visual states. Export E2E runs the public command and verifies
+  links, document landmarks and final Step visibility, and visual states.
+  Export E2E runs the public command and verifies
   final and sparse-Step page counts, tags, dimensions, build isolation, and
   rejecting-plugin cleanup.
+- A serverless Playwright project runs the built `drever check` CLI against a
+  clean example and temporary failing source, asserting report schema, exit
+  semantics, stable codes, and exact locations without substituting test-only
+  compiler calls.
 - Built-in layouts, themes, and motion intents are consumed by small showcase
   decks with Chromium assertions for geometry, state, accessibility, and
   overflow. Pixel baselines are reserved for visual contracts stable enough to

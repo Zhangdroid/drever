@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
@@ -53,6 +53,30 @@ describe("parseCommand", () => {
     });
   });
 
+  it("models strict check flags independently of the entry position", () => {
+    expect(parseCommand(["check"])).toEqual({ json: false, name: "check" });
+    expect(parseCommand(["check", "--json", "decks/keynote.mdx"])).toEqual({
+      entry: "decks/keynote.mdx",
+      json: true,
+      name: "check",
+    });
+    expect(parseCommand(["check", "slides.mdx", "--json"])).toEqual({
+      entry: "slides.mdx",
+      json: true,
+      name: "check",
+    });
+  });
+
+  it.each([
+    [["check", "--json", "--json"], "--json can be specified only once."],
+    [["check", "--fix"], "Unknown check flag: --fix"],
+    [["check", "one.mdx", "two.mdx"], "check accepts at most one deck entry path."],
+  ])("rejects invalid check arguments: %j", (arguments_, message) => {
+    expect(() => parseCommand(arguments_)).toThrowError(
+      expect.objectContaining({ code: "DREVER_ARGUMENT_INVALID", message }),
+    );
+  });
+
   it.each([
     [["export"], "Export format is required."],
     [["export", "pptx"], "Unknown export format: pptx"],
@@ -79,6 +103,80 @@ describe("parseCommand", () => {
     expect(() => parseCommand(["preview"])).toThrowError(
       expect.objectContaining({ code: "DREVER_COMMAND_UNKNOWN" }),
     );
+  });
+});
+
+describe("runCli check", () => {
+  it("checks the configured entry without creating build or plugin artifacts", async () => {
+    const root = await mkdtemp(join(tmpdir(), "drever-check-cli-test-"));
+    directories.push(root);
+    await writeFile(join(root, "talk.mdx"), "# Talk\n");
+    await writeFile(
+      join(root, "drever.config.ts"),
+      `type Environment = { command: string; mode: string };
+export default ({ command, mode }: Environment) => ({
+  entry: command === "build" && mode === "production" ? "talk.mdx" : "wrong.mdx",
+  build: { outDir: "generated" },
+});
+`,
+    );
+    const checkDeck = vi.fn(async () => 1 as const);
+    const stdout = { write: vi.fn(() => true) };
+    const authoredEntries = (await readdir(root)).toSorted();
+
+    const outcome = await runCli(["check", "--json"], { checkDeck, cwd: root, stdout });
+
+    expect(outcome).toBe(1);
+    expect(checkDeck).toHaveBeenCalledWith({
+      entry: join(root, "talk.mdx"),
+      json: true,
+      stdout,
+    });
+    expect((await readdir(root)).toSorted()).toEqual(authoredEntries);
+  });
+
+  it("lets a positional check entry override project config", async () => {
+    const root = await mkdtemp(join(tmpdir(), "drever-check-cli-test-"));
+    directories.push(root);
+    await writeFile(join(root, "slides.mdx"), "# Default\n");
+    await writeFile(join(root, "keynote.mdx"), "# Keynote\n");
+    await writeFile(join(root, "drever.config.ts"), 'export default { entry: "slides.mdx" };\n');
+    const checkDeck = vi.fn(async () => 0 as const);
+
+    const outcome = await runCli(["check", "keynote.mdx"], {
+      checkDeck,
+      cwd: root,
+      stdout: { write: () => true },
+    });
+
+    expect(outcome).toBe(0);
+    expect(checkDeck).toHaveBeenCalledWith(
+      expect.objectContaining({ entry: join(root, "keynote.mdx"), json: false }),
+    );
+  });
+
+  it("returns invalid deck diagnostics as JSON through the public command flow", async () => {
+    const root = await mkdtemp(join(tmpdir(), "drever-check-cli-test-"));
+    directories.push(root);
+    const entry = join(root, "slides.mdx");
+    await writeFile(entry, "# Broken\n\n<Component");
+    let output = "";
+    const authoredEntries = (await readdir(root)).toSorted();
+
+    const outcome = await runCli(["check", "--json"], {
+      cwd: root,
+      stdout: { write: (chunk) => ((output += String(chunk)), true) },
+    });
+
+    const report = JSON.parse(output) as {
+      sourcePath: string;
+      summary: { errors: number };
+    };
+    expect(outcome).toBe(1);
+    expect(report.sourcePath).toBe(entry);
+    expect(report.summary.errors).toBeGreaterThan(0);
+    expect(output).toBe(`${JSON.stringify(report, null, 2)}\n`);
+    expect((await readdir(root)).toSorted()).toEqual(authoredEntries);
   });
 });
 

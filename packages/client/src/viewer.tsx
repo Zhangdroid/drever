@@ -228,6 +228,7 @@ export type ViewerHostProps = Omit<ViewerProps, "onPositionCommitted" | "positio
     onError(error: unknown): void;
     onMounted(): void;
     onNavigate(command: DeckCommand): void | Promise<void>;
+    onOpenDocument(): void;
     onOpenSpeaker(): void;
     store: PresentationStore;
     transitions: ViewerTransitionChannel;
@@ -247,6 +248,7 @@ export const ViewerHost = ({
   onError,
   onMounted,
   onNavigate,
+  onOpenDocument,
   onOpenSpeaker,
   store,
   transitions,
@@ -403,6 +405,7 @@ export const ViewerHost = ({
         manifest={machine.manifest}
         onError={onError}
         onNavigate={onNavigate}
+        onOpenDocument={onOpenDocument}
         onOpenSpeaker={onOpenSpeaker}
         position={position}
       />

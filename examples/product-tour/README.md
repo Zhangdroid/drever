@@ -12,6 +12,7 @@ The deck demonstrates:
 - accumulated Step states and clean path URLs;
 - React interaction whose state survives inactive slides;
 - element-scoped motion as a visible design boundary;
+- the searchable, fully revealed `/document` reading view;
 - speaker notes and the `/speaker` view;
 - the AI-first write, inspect, test, build, and deploy loop.
 
@@ -28,13 +29,18 @@ vp run -F @drever/example-product-tour dev
 ```
 
 Open <http://localhost:4320>. Press `P` at any point to open the synchronized
-speaker view, or visit <http://localhost:4320/speaker> directly.
+speaker view, or visit <http://localhost:4320/speaker> directly. Press `D`, or
+visit <http://localhost:4320/document>, to read and search the complete deck.
 
 Create the static production artifact with:
 
 ```sh
+vp run -F @drever/example-product-tour check
 vp run -F @drever/example-product-tour build
 ```
+
+The preflight reads authored MDX and returns a clean, machine-readable
+accessibility report without starting the presentation server.
 
 ## Delivery notes
 

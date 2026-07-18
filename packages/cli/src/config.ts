@@ -42,7 +42,7 @@ export type DreverConfigExport = DreverConfig;
 export const defineConfig = <const Config extends DreverConfig>(config: Config): Config => config;
 
 export type LoadDreverConfigOptions = Readonly<{
-  command: "build" | "serve";
+  command: "build" | "check" | "serve";
   root: string;
 }>;
 
@@ -219,14 +219,18 @@ export const loadDreverConfig = async ({
     });
   }
 
+  const buildEnvironment = command !== "serve";
   const environment: ConfigEnv = {
-    command,
+    command: buildEnvironment ? "build" : "serve",
     isPreview: false,
     isSsrBuild: false,
-    mode: command === "build" ? "production" : "development",
+    mode: buildEnvironment ? "production" : "development",
   };
   try {
-    const loaded = await loadConfigFromFile(environment, path, root, "silent");
+    const loaded =
+      command === "check"
+        ? await loadConfigFromFile(environment, path, root, "silent", undefined, "runner")
+        : await loadConfigFromFile(environment, path, root, "silent");
     if (loaded === null) {
       throw new TypeError(`Vite did not load ${path}.`);
     }

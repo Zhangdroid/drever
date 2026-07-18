@@ -159,6 +159,14 @@ export const createViewer = async (options: CreateViewerOptions): Promise<Viewer
     const speakerURL = speakerRoute.encodeURL(store.getSnapshot(), sourceURL);
     platform.view.open(speakerURL.href, "_blank", "noopener");
   };
+  const openDocument = (): void => {
+    const sourceURL = new URL(platform.navigation.currentEntry?.url ?? currentURL.href);
+    const documentURL = new URL(baseURL);
+    documentURL.pathname = `${route.basePathname}document`;
+    documentURL.search = sourceURL.search;
+    documentURL.hash = store.getSnapshot().slideId;
+    platform.view.open(documentURL.href, "_blank", "noopener");
+  };
 
   const destroyWithReason = (reason: unknown): Promise<void> => {
     if (destroyPromise !== undefined) {
@@ -271,6 +279,7 @@ export const createViewer = async (options: CreateViewerOptions): Promise<Viewer
           onError={report}
           onMounted={mounted.resolve}
           onNavigate={navigateFromControls}
+          onOpenDocument={openDocument}
           onOpenSpeaker={openSpeaker}
           reducedMotion={reducedMotion}
           {...(options.registry === undefined ? {} : { registry: options.registry })}

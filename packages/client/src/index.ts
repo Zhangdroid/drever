@@ -1,6 +1,8 @@
 export { DEFAULT_CANVAS } from "./canvas.tsx";
 export { DreverClientError, isAbortError } from "./client-error.ts";
 export type { DreverClientErrorOptions } from "./client-error.ts";
+export { createDocument } from "./create-document.tsx";
+export type { CreateDocumentOptions, DocumentHandle } from "./create-document.tsx";
 export { createExport } from "./create-export.tsx";
 export type {
   CreateExportOptions,
@@ -25,6 +27,8 @@ export { ExportDocument } from "./export-document.tsx";
 export type { ExportDocumentProps } from "./export-document.tsx";
 export { planExportPages } from "./export-pages.ts";
 export type { ExportPage, ExportPagePlanOptions } from "./export-pages.ts";
+export { DeckDocument } from "./document-view.tsx";
+export type { DeckDocumentProps } from "./document-view.tsx";
 export type {
   DeckCommand,
   DeckPosition,

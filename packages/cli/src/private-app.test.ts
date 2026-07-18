@@ -25,6 +25,9 @@ describe("generated private application", () => {
       expect(source).toContain(
         "const reportPresentationError = (error) => globalThis.reportError(error);",
       );
+      expect(source).toContain('const routePath = relativePath.replace(/\\/+$/u, "");');
+      expect(source).toContain('routePath === "document"');
+      expect(source).toContain("? createDocument");
       expect(source).not.toContain("console.error");
       expect(html).not.toContain("data-drever-export-bootstrap");
 
@@ -46,7 +49,7 @@ describe("generated private application", () => {
           },
         },
         reportPresentationError,
-        viewer: { destroy },
+        presentation: { destroy },
       });
       dispose?.();
 

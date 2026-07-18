@@ -9,8 +9,9 @@ export const abortReason = (signal: AbortSignal): unknown =>
 export const isSignalAbort = (error: unknown, signal: AbortSignal): boolean =>
   signal.aborted && (error === signal.reason || isAbortError(error));
 
-export const destroyedReason = (surface: "export" | "speaker view" | "viewer"): DOMException =>
-  new DOMException(`The Drever ${surface} was destroyed.`, "AbortError");
+export const destroyedReason = (
+  surface: "document view" | "export" | "speaker view" | "viewer",
+): DOMException => new DOMException(`The Drever ${surface} was destroyed.`, "AbortError");
 
 const reportGlobally = (error: unknown): void => {
   const reporter = (globalThis as Readonly<{ reportError?: (reason: unknown) => void }>)

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "drever build",
+    "check": "drever check --json",
     "dev": "drever dev",
     "export": "drever export pdf"
   },

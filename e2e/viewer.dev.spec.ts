@@ -100,6 +100,17 @@ test("deep links reload exactly and inactive slides preserve React state", async
   health.expectHealthy();
 });
 
+test("the document route accepts a trailing directory slash in development", async ({ page }) => {
+  const health = monitorPageHealth(page);
+  const response = await page.goto("/document/");
+
+  expect(response?.ok()).toBe(true);
+  await expect(page).toHaveURL(/\/document\/$/u);
+  await expect(page.locator("[data-drever-document]")).toBeVisible();
+  await expect(page.locator("[data-drever-document] [data-drever-slide]")).toHaveCount(5);
+  health.expectHealthy();
+});
+
 test("audience controls navigate exact states with a pointer", async ({ page }) => {
   const health = monitorPageHealth(page);
   await page.goto("/");

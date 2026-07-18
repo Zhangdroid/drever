@@ -1,13 +1,20 @@
 import { basename, extname, resolve } from "node:path";
 import type { ViteDevServer } from "vite";
-import { loadDreverConfig } from "./config.ts";
+import { loadDreverConfig, type LoadDreverConfigOptions } from "./config.ts";
 import { DreverCliError } from "./errors.ts";
-import { resolveDreverProject, type ResolvedDreverProject } from "./project.ts";
+import { resolveDreverEntry, resolveDreverProject, type ResolvedDreverProject } from "./project.ts";
 import { buildDreverProject, serveDreverProject } from "./vite-app.ts";
+import type { CheckDeckRequest, CheckExitCode } from "./check.ts";
 
 type ProjectCommand = Readonly<{
   entry?: string;
   name: "build" | "dev";
+}>;
+
+export type CheckCommand = Readonly<{
+  entry?: string;
+  json: boolean;
+  name: "check";
 }>;
 
 export type ExportPdfCommand = Readonly<{
@@ -18,7 +25,7 @@ export type ExportPdfCommand = Readonly<{
   steps: boolean;
 }>;
 
-export type DreverCommand = ExportPdfCommand | ProjectCommand;
+export type DreverCommand = CheckCommand | ExportPdfCommand | ProjectCommand;
 
 export type PdfExportRequest = Readonly<{
   output: string;
@@ -27,6 +34,13 @@ export type PdfExportRequest = Readonly<{
 }>;
 
 const EXPORT_PDF_USAGE = "Usage: drever export pdf [entry] [--steps] [-o|--output <path>]";
+const CHECK_USAGE = "Usage: drever check [entry] [--json]";
+const CONFIG_COMMAND = {
+  build: "build",
+  check: "check",
+  dev: "serve",
+  export: "build",
+} as const satisfies Readonly<Record<DreverCommand["name"], LoadDreverConfigOptions["command"]>>;
 
 const invalidArgument = (message: string, hint: string): never => {
   throw new DreverCliError("DREVER_ARGUMENT_INVALID", message, { hint });
@@ -80,11 +94,40 @@ const parsePdfExport = (arguments_: readonly string[]): ExportPdfCommand => {
   });
 };
 
+const parseCheck = (arguments_: readonly string[]): CheckCommand => {
+  let entry: string | undefined;
+  let json = false;
+
+  for (const argument of arguments_) {
+    if (argument === "--json") {
+      if (json) {
+        invalidArgument("--json can be specified only once.", CHECK_USAGE);
+      }
+      json = true;
+      continue;
+    }
+    if (argument.startsWith("-")) {
+      invalidArgument(`Unknown check flag: ${argument}`, CHECK_USAGE);
+    }
+    if (entry !== undefined) {
+      invalidArgument("check accepts at most one deck entry path.", CHECK_USAGE);
+    }
+    entry = argument;
+  }
+
+  return Object.freeze({
+    json,
+    name: "check",
+    ...(entry === undefined ? {} : { entry }),
+  });
+};
+
 export const HELP = `Drever — AI-first MDX presentations
 
 Usage:
   drever dev [entry]
   drever build [entry]
+  drever check [entry] [--json]
   drever export pdf [entry] [--steps] [-o|--output <path>]
 
 The default entry is slides.mdx. Project settings live in drever.config.ts.
@@ -97,6 +140,9 @@ export const parseCommand = (arguments_: readonly string[]): DreverCommand | "he
   }
   if (command === "--version" || command === "-v") {
     return "version";
+  }
+  if (command === "check") {
+    return parseCheck(rest);
   }
   if (command === "export") {
     const [format, ...exportArguments] = rest;
@@ -127,10 +173,13 @@ export const parseCommand = (arguments_: readonly string[]): DreverCommand | "he
 };
 
 export type RunCliOptions = Readonly<{
+  checkDeck?: (request: CheckDeckRequest) => Promise<CheckExitCode>;
   cwd?: string;
   exportPdf?: (request: PdfExportRequest) => Promise<void>;
   stdout?: Pick<NodeJS.WriteStream, "write">;
 }>;
+
+export type RunCliResult = CheckExitCode | void | ViteDevServer;
 
 const createPdfExportRequest = (
   command: ExportPdfCommand,
@@ -144,7 +193,7 @@ const createPdfExportRequest = (
 export const runCli = async (
   arguments_: readonly string[],
   options: RunCliOptions = {},
-): Promise<void | ViteDevServer> => {
+): Promise<RunCliResult> => {
   const command = parseCommand(arguments_);
   const output = options.stdout ?? process.stdout;
   if (command === "help") {
@@ -158,9 +207,23 @@ export const runCli = async (
 
   const root = options.cwd ?? process.cwd();
   const loaded = await loadDreverConfig({
-    command: command.name === "dev" ? "serve" : "build",
+    command: CONFIG_COMMAND[command.name],
     root,
   });
+  if (command.name === "check") {
+    const entry = await resolveDreverEntry({
+      config: loaded.config,
+      ...(command.entry === undefined ? {} : { entry: command.entry }),
+      root,
+    });
+    const checkDeck =
+      options.checkDeck ??
+      (async (request: CheckDeckRequest): Promise<CheckExitCode> => {
+        const checker = await import("./check.ts");
+        return checker.checkDeck(request);
+      });
+    return checkDeck({ entry, json: command.json, stdout: output });
+  }
   const project = await resolveDreverProject({
     config: loaded.config,
     ...(command.entry === undefined ? {} : { entry: command.entry }),

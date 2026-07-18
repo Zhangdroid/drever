@@ -1,7 +1,8 @@
 # Quick start
 
-This guide describes the current delivery slice: author an MDX deck, present it
-locally, build a standalone web application, and export a portable PDF.
+This guide describes the current delivery slice: author and check an MDX deck,
+present it locally, publish an accessible reading view, build a standalone web
+application, and export a portable PDF.
 
 ## Requirements
 
@@ -23,6 +24,7 @@ Install `drever` as a project dependency and add scripts for its local binary:
 ```json
 {
   "scripts": {
+    "check": "drever check",
     "dev": "drever dev",
     "build": "drever build",
     "export": "drever export pdf"
@@ -56,6 +58,48 @@ One clear idea is enough.
 them. An omitted `at` is assigned in document order. Explicit `at` values must be
 static positive integers; gaps are preserved, so the example navigates through
 stops `0 -> 1 -> 3`.
+
+## Check accessibility
+
+Run the source-based preflight before presenting or building:
+
+```bash
+drever check
+drever check talks/keynote.mdx
+drever check --json
+```
+
+The human report prints actionable diagnostics with source locations. `--json`
+emits one stable report with `version`, `sourcePath`, `slideCount`, `summary`,
+and `diagnostics`. Each diagnostic has a stable code, severity, message, stage,
+and exact source range when the issue maps to authored text. This makes the same
+evidence useful to a person, CI, or an AI editing the MDX.
+
+Preflight resolves the configured entry but does not create a CompilePlan, run
+plugin build factories, start Vite, or write build and plugin caches.
+
+The initial rules report defects Drever can establish from static source:
+
+- missing or duplicate slide titles;
+- missing or explicitly empty alternative text on Markdown and MDX images;
+- skipped heading levels within a slide;
+- authored `<video>` elements without a caption `<track>`.
+
+The command exits nonzero only when the report contains errors. Warnings remain
+visible and machine-readable without blocking delivery. For example, a CI step
+can archive the complete report while failing only on proven errors:
+
+```bash
+drever check --json > drever-check.json
+```
+
+This is deliberately not a visual accessibility oracle. Drever does not guess
+whether alternative text is useful, calculate contrast through arbitrary CSS,
+infer visual reading order, judge caption accuracy, or inspect markup generated
+inside opaque runtime components. Review those qualities in the rendered deck;
+custom components remain responsible for exposing accessible semantics. Use the
+`/document` surface described below to inspect the fully revealed reading order
+and browser accessibility tree.
 
 Start the viewer and create a production build:
 
@@ -190,12 +234,14 @@ components are covered in [Extension authoring](./extensions.md).
 - Fullscreen: `F`. Pause on a blank black or white screen with `B` or `W`;
   press the same key, `Escape`, or select the screen to return.
 - Keyboard help: `?`.
+- Document view: press `D` to open a searchable, fully revealed reading view at
+  the current slide.
 - Speaker view: press `P` from the audience to open the same slide and Step in a
   new speaker window.
-- Pointer and touch users can navigate, open the slide navigator or speaker
-  view, and enter fullscreen from the compact audience control bar. The bar is
-  rendered outside the slide canvas, so it is never captured by slide View
-  Transitions.
+- Pointer and touch users can navigate, open the slide navigator, document or
+  speaker view, and enter fullscreen from the compact audience control bar. The
+  bar is rendered outside the slide canvas, so it is never captured by slide
+  View Transitions.
 - Audience navigation does not capture input or interactive controls. In speaker
   chrome, Arrow/Page/Home/End continue to work after a control receives focus;
   Space and Enter retain the focused button's native behavior, and the focused
@@ -216,6 +262,15 @@ path. Its small bootstrap computes the deployment mount before activating
 assets, so clean links work with or without a trailing slash and when the deck
 is deployed below a subdirectory. Query parameters and the hash are preserved
 but do not encode Drever state.
+
+Open `/document` for a single scrollable presentation transcript. It renders
+every slide at its final authored Step, provides a table of contents, and names
+each slide landmark from the compiled title. Browser Find can search the whole
+deck. Speaker notes stay out of this surface. The `D` shortcut opens a new
+window and uses the current slide id as a fragment, such as
+`/document#slide-2`; the fragment is an anchor, not presentation state. The
+static build includes `/document/index.html`, including for subdirectory
+deployments.
 
 Drever-generated navigation omits a trailing slash. A static host may append
 one when serving a directory entry; both forms decode to the same position.

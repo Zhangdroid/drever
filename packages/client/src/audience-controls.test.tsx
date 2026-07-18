@@ -77,6 +77,7 @@ describe("audience controls", () => {
         manifest={manifest}
         onError={vi.fn()}
         onNavigate={vi.fn()}
+        onOpenDocument={vi.fn()}
         onOpenSpeaker={vi.fn()}
         position={{ slideId: "intro", slideIndex: 0, step: 0 }}
       />,
@@ -84,6 +85,7 @@ describe("audience controls", () => {
 
     expect(markup).toContain('aria-label="Presentation controls"');
     expect(markup).toContain('aria-label="Open slide navigator"');
+    expect(markup).toContain('aria-label="Open document view"');
     expect(markup).toContain('aria-label="Open speaker view"');
     expect(markup).toContain('aria-label="Enter fullscreen"');
     expect(markup).toContain("Slide 1 of 3");

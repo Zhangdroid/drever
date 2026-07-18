@@ -1,11 +1,12 @@
 # Client runtime
 
-`@drever/client` ships three product surfaces over one compiled deck contract:
-`createViewer` for the audience, `createSpeaker` for the speaker view, and
-`createExport` for deterministic documents. The `drever` CLI generates the
-appropriate bootstrap. Deck authors configure Drever and write MDX rather than
-assembling React, Navigation API, `BroadcastChannel`, export readiness, or Vite
-integrations. Overview remains a separate future consumer.
+`@drever/client` ships four product surfaces over one compiled deck contract:
+`createViewer` for the audience, `createDocument` for a fully revealed reading
+view, `createSpeaker` for the speaker view, and `createExport` for deterministic
+PDF documents. The `drever` CLI generates the appropriate bootstrap. Deck
+authors configure Drever and write MDX rather than assembling React, Navigation
+API, `BroadcastChannel`, export readiness, or Vite integrations. A richer
+thumbnail overview remains a separate future consumer.
 
 ## Generated application entry
 
@@ -21,7 +22,7 @@ import "@drever/vite/virtual-modules";
 ```
 
 ```tsx
-import { createSpeaker, createViewer } from "@drever/client";
+import { createDocument, createSpeaker, createViewer } from "@drever/client";
 import "@drever/client/styles.css";
 import { components as registry } from "virtual:drever/mdx-components";
 import { motion, runSetup, theme } from "virtual:drever/runtime";
@@ -39,8 +40,13 @@ if (!(base instanceof HTMLMetaElement)) {
 
 const baseURL = new URL(base.content, document.baseURI);
 const relativePath = new URL(document.URL).pathname.slice(baseURL.pathname.length);
+const routePath = relativePath.replace(/\/+$/u, "");
 const createPresentation =
-  relativePath === "speaker" || relativePath.startsWith("speaker/") ? createSpeaker : createViewer;
+  routePath === "document"
+    ? createDocument
+    : routePath === "speaker" || routePath.startsWith("speaker/")
+      ? createSpeaker
+      : createViewer;
 const reportPresentationError = (error: unknown): void => {
   if (typeof globalThis.reportError === "function") {
     globalThis.reportError(error);
@@ -78,13 +84,15 @@ The inputs have distinct owners:
   `virtual:drever/styles.css` imports the planned theme and plugin styles in
   deterministic cascade layers.
 
-Both surfaces require the deck mount `baseURL`; a deep path cannot infer it
-without ambiguity. They also accept an explicit `canvas`, external abort
-`signal`, and `onError` reporter. `createViewer` additionally accepts
-`reducedMotion`. An explicit canvas overrides the theme canvas. Normally the
-generated entry should let the viewer read the user's reduced-motion preference.
+The route-selected audience, document, and speaker surfaces require the deck
+mount `baseURL`; a deep path cannot infer it without ambiguity. They also accept
+an explicit `canvas`, external abort `signal`, and `onError` reporter.
+`createViewer` additionally accepts `reducedMotion`. An explicit canvas
+overrides the theme canvas. Normally the generated entry should let the viewer
+read the user's reduced-motion preference.
 
-The returned handle deliberately stays small:
+The audience and speaker handles expose presentation commands and position
+subscriptions:
 
 ```ts
 await presentation.navigate({ type: "next" });
@@ -96,7 +104,8 @@ await presentation.destroy();
 ```
 
 Commands are `next`, `previous`, `first`, `last`, and `goTo`. A command at a deck
-edge is a no-op. `destroy()` is asynchronous and idempotent.
+edge is a no-op. `createDocument` returns only an asynchronous, idempotent
+`destroy()` handle because it has no presentation position or command stream.
 
 ## URL and navigation contract
 
@@ -134,6 +143,11 @@ nonce/hash metadata a first-class build artifact.
 The speaker namespace uses `/speaker`, `/speaker/2`, and `/speaker/2/4`. It has
 the same sparse position semantics, history behavior, reloadability, and static
 build entries as the audience namespace.
+
+The document namespace is exactly `/document`. It renders the complete deck and
+uses slide-id fragments only as table-of-contents anchors. A static build emits
+`/document/index.html`; it remains portable below a subdirectory like the
+audience and speaker entries.
 
 ## Speaker surface and synchronization
 
@@ -209,6 +223,7 @@ components.
 | First / last state     | `Home` / `End`                           |
 | Slide navigator        | `O` or `G`                               |
 | Direct slide jump      | Slide number, then `Enter`               |
+| Document view          | `D` from the audience                    |
 | Speaker view           | `P` from the audience                    |
 | Fullscreen             | `F`                                      |
 | Black / white pause    | `B` / `W`; repeat or `Escape` to dismiss |
@@ -219,14 +234,17 @@ The viewer ignores already-handled or composing events, keys with
 content, native media controls, focusable custom content, common ARIA widgets,
 or an ancestor marked `data-drever-keyboard="ignore"`.
 
-The speaker-view shortcut opens a new window at the equivalent speaker path, so
+The document shortcut opens `/document` in a new window, preserves the source
+query, and sets the current slide id as its fragment. The speaker-view shortcut
+opens a new window at the equivalent speaker path, so
 `/2/4?theme=dark#notes` becomes `/speaker/2/4?theme=dark#notes`. Key repeat is
 ignored to prevent one long press from opening multiple windows.
 
 The built-in audience command bar exposes navigation, exact slide position,
-the searchable slide navigator, speaker view, fullscreen, and keyboard help to
-pointer and touch users. It is a sibling of the canvas rather than slide
-content, so scoped View Transitions never capture presentation chrome.
+the searchable slide navigator, document and speaker views, fullscreen, and
+keyboard help to pointer and touch users. It is a sibling of the canvas rather
+than slide content, so scoped View Transitions never capture presentation
+chrome.
 
 ## Rendering and motion
 
@@ -247,6 +265,24 @@ properties, so themes can style motion while the client owns its meaning.
 When reduced motion is requested, the same state and navigation path is used but
 presentation animation is disabled. This is an accessibility behavior, not a
 legacy animation fallback.
+
+## Document surface
+
+`createDocument` mounts the compiled MDX tree once and resolves every slide at
+its final authored Step. The page supplies a title-based table of contents and
+one named landmark per slide, so browser Find, assistive technology, copy, and
+linking work across the complete deck. `<Note>` content remains compiler-owned
+and absent. Theme tokens and canvas dimensions still define each slide's visual
+language; document CSS scales those canvases into a responsive vertical flow.
+Below its readable minimum scale, the page keeps horizontal overflow inside the
+slide list instead of shrinking authored body text indefinitely.
+
+Document mode does not attach Navigation API interception, keyboard
+presentation controls, `BroadcastChannel`, View Transitions, or runtime setup
+hooks. Runtime components can detect `document` through
+`useDreverRenderMode()` and should suppress autoplay, global listeners, and
+audience-only network work. This matters because every slide component is
+mounted at once on this surface.
 
 ## Export surface
 
@@ -344,7 +380,7 @@ An AI generating a Drever application should follow this minimal prompt:
 > Keep the generated application entry unchanged: pass the default MDX export as
 > `Content`, `deckManifest` as `manifest`, the virtual component registry as
 > `registry`, and `{ theme, motion, runSetup }` as `runtime` to the generated
-> route-selected client surface.
+> route-selected audience, document, or speaker surface.
 > Import both client and virtual styles. Do not implement a router, inspect the
 > rendered DOM for Steps, call native View Transition APIs, or add browser
 > fallbacks.

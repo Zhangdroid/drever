@@ -7,11 +7,14 @@ const BASE_MARKER = '<meta name="drever-base" content="/" />';
 
 export type StaticDeckRoute = Readonly<{
   segments: readonly string[];
-  surface: "audience" | "speaker";
+  surface: "audience" | "document" | "speaker";
 }>;
 
 export const createStaticDeckRoutes = (manifest: DeckManifest): readonly StaticDeckRoute[] => {
-  const routes: StaticDeckRoute[] = [{ segments: ["speaker"], surface: "speaker" }];
+  const routes: StaticDeckRoute[] = [
+    { segments: ["document"], surface: "document" },
+    { segments: ["speaker"], surface: "speaker" },
+  ];
   for (const slide of manifest.slides) {
     const slideNumber = String(slide.index + 1);
     if (slide.index > 0) {

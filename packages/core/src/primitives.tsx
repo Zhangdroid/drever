@@ -17,7 +17,12 @@ type SlideRuntime = Readonly<{
 
 const SlideContext = createContext<SlideRuntime | undefined>(undefined);
 
-export type DreverRenderMode = "audience" | "export" | "speaker-current" | "speaker-next";
+export type DreverRenderMode =
+  | "audience"
+  | "document"
+  | "export"
+  | "speaker-current"
+  | "speaker-next";
 
 const DreverRenderModeContext = createContext<DreverRenderMode>("audience");
 const DreverRenderIdPrefixContext = createContext<string | undefined>(undefined);
@@ -53,6 +58,7 @@ export type SlideIdentity = Readonly<{
 export type ResolvedSlideState = Readonly<{
   active: boolean;
   currentStep: number;
+  label?: string;
 }>;
 
 export type SlideStateResolver = (slide: SlideIdentity) => ResolvedSlideState;
@@ -97,7 +103,7 @@ const snapshotResolvedState = (value: ResolvedSlideState): ResolvedSlideState =>
     );
   }
 
-  const { active, currentStep } = value;
+  const { active, currentStep, label } = value;
   if (typeof active !== "boolean") {
     throw new DreverRuntimeError(
       "DREVER_RUNTIME_SLIDE_STATE_INVALID",
@@ -112,8 +118,15 @@ const snapshotResolvedState = (value: ResolvedSlideState): ResolvedSlideState =>
       { name: "resolver.currentStep", receivedType: typeof currentStep },
     );
   }
+  if (label !== undefined && (typeof label !== "string" || label.length === 0)) {
+    throw new DreverRuntimeError(
+      "DREVER_RUNTIME_SLIDE_STATE_INVALID",
+      "Slide state resolver label must be a non-empty string when provided.",
+      { name: "resolver.label", receivedType: typeof label },
+    );
+  }
 
-  return Object.freeze({ active, currentStep });
+  return Object.freeze({ active, currentStep, ...(label === undefined ? {} : { label }) });
 };
 
 export type SlideProps = ComponentPropsWithoutRef<"section"> &
@@ -151,6 +164,7 @@ export const Slide = ({
   const active = explicitActive ?? resolvedState?.active ?? true;
   const currentStep = explicitStep !== undefined ? explicitStep : (resolvedState?.currentStep ?? 0);
   const exporting = renderMode === "export";
+  const documentMode = renderMode === "document";
   const renderedId =
     id === undefined
       ? undefined
@@ -175,9 +189,16 @@ export const Slide = ({
       "data-slide-index": index,
       "data-slide-state": active ? "active" : "inactive",
       "data-current-step": currentStep,
-      "aria-current": !exporting && active ? "page" : undefined,
+      "aria-current": !exporting && !documentMode && active ? "page" : undefined,
+      "aria-label": documentMode
+        ? (props["aria-label"] ?? resolvedState?.label)
+        : props["aria-label"],
       "aria-hidden": active ? undefined : true,
-      tabIndex: exporting ? undefined : (props.tabIndex ?? (active ? -1 : undefined)),
+      tabIndex: exporting
+        ? undefined
+        : documentMode
+          ? props.tabIndex
+          : (props.tabIndex ?? (active ? -1 : undefined)),
       inert: active ? undefined : true,
       hidden: active ? undefined : true,
     },

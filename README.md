@@ -33,14 +33,16 @@ Not a pile of pages.
 Then use the public CLI:
 
 ```bash
+drever check
 drever dev
 drever build
 drever export pdf
 ```
 
-`dev` starts the interactive viewer and `build` writes a standalone site to
-`dist/`. `export pdf` writes `slides-export.pdf`; pass `--steps` to emit each
-authored reveal state. The default entry is `slides.mdx`; project settings live in
+`check` runs the source-based accessibility preflight, `dev` starts the
+interactive viewer, and `build` writes a standalone site to `dist/`. `export
+pdf` writes `slides-export.pdf`; pass `--steps` to emit each authored reveal
+state. The default entry is `slides.mdx`; project settings live in
 `drever.config.ts`. See the [Quick start](./docs/quickstart.md) for installation,
 configuration, keyboard controls, and browser requirements.
 
@@ -55,18 +57,22 @@ The runnable vertical slice includes:
 - state-preserving inactive slides and canvas-scoped View Transitions;
 - an accessible audience command bar with progress, fullscreen, searchable
   slide navigation, direct jumps, and black/white pause screens;
+- a searchable `/document` reading surface with every Step revealed, a table of
+  contents, and one named landmark per slide;
 - a speaker view with current/next previews, notes, timer, and
   native `BroadcastChannel` audience synchronization;
 - deterministic, tagged PDF export at each slide's final state or every exact
   sparse Step stop, without modifying the deployable web build;
+- an evidence-based accessibility preflight with stable diagnostics, exact
+  source locations, human output, and AI-friendly JSON;
 - state-preserving MDX Fast Refresh when the navigation manifest is unchanged;
 - structured diagnostics and deterministic plugin, theme, MDX, and Vite planning;
 - default Shiki and reset-free Tailwind CSS plugins, plus opt-in build-time math;
 - real Chromium end-to-end coverage of development and production output.
 
-Accessibility preflight, Mermaid, and the broader official plugin catalog are
-future vertical slices. The audience viewer, speaker view, static build, and
-PDF export are usable now. See the
+Mermaid and the broader official plugin catalog are future vertical slices. The
+audience viewer, document and speaker views, accessibility preflight, static
+build, and PDF export are usable now. See the
 [product roadmap](./docs/product-roadmap.md) for the prioritized boundary.
 
 ## Explore the repository demos
@@ -95,9 +101,14 @@ and next navigation states, compiled `<Note>` content, a timer, and can open and
 synchronize an audience window. `drever dev` prints this speaker URL; from any
 audience state, press `P` to open the matching speaker path in a new window.
 
-The showcase decks run on ports `4320` and `4321`. Their speaker views are
-available at `/speaker`, and both are exercised by the production Chromium
-suite. See the [example catalog](./examples/README.md) for the complete commands.
+Open <http://localhost:4317/document> for a scrollable, browser-searchable
+reading view with every Step revealed. Press `D` from the audience to open it at
+the current slide.
+
+The showcase decks run on ports `4320` and `4321`. Their document and speaker
+views are available at `/document` and `/speaker`, and both are exercised by the
+production Chromium suite. See the [example catalog](./examples/README.md) for
+the complete commands.
 
 ## Official themes
 
@@ -135,6 +146,7 @@ See [Architecture](./docs/architecture.md) for package boundaries and dependency
 policy, [Extension authoring](./docs/extensions.md) for plugin and theme contracts,
 [Official plugins](./docs/official-plugins.md) for activation and safety policy,
 [Canonical adapter](./docs/canonical-adapter.md) for the MDX/Vite execution
-boundary, and [Client runtime](./docs/client-runtime.md) for the audience viewer.
+boundary, and [Client runtime](./docs/client-runtime.md) for the audience,
+document, speaker, and export surfaces.
 Repository language, readability, testing, dependency, and commit expectations
 are in [Contributing](./CONTRIBUTING.md).

@@ -200,6 +200,28 @@ describe("core primitives", () => {
     expect(markup).toContain("Static page");
   });
 
+  it("names fully visible document landmarks without audience focus state", () => {
+    const markup = renderToStaticMarkup(
+      createElement(
+        DreverRenderModeProvider,
+        { mode: "document" },
+        createElement(
+          SlideStateProvider,
+          {
+            resolver: () =>
+              Object.freeze({ active: true, currentStep: 4, label: "Architecture overview" }),
+          },
+          createElement(Slide, { id: "architecture", index: 1 }, "Readable document"),
+        ),
+      ),
+    );
+
+    expect(markup).toContain('aria-label="Architecture overview"');
+    expect(markup).toContain('data-current-step="4"');
+    expect(markup).not.toContain("aria-current");
+    expect(markup).not.toContain("tabindex");
+  });
+
   it("preserves step states in export renders", () => {
     const markup = renderToStaticMarkup(
       createElement(

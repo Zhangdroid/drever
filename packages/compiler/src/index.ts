@@ -3,9 +3,12 @@ export type { CreateCompilePlanOptions } from "./create-compile-plan.ts";
 export { definePlugin, defineTheme } from "./define-extension.ts";
 export { parseDeck } from "./parse-deck.ts";
 export type { ParseDeckOptions } from "./parse-deck.ts";
+export { preflightDeck } from "./preflight-deck.ts";
+export type { PreflightDeckOptions } from "./preflight-deck.ts";
 
 export {
   COMPILE_PLAN_VERSION,
+  DECK_PREFLIGHT_VERSION,
   DECK_MANIFEST_VERSION,
   DREVER_EXTENSION_API_VERSION,
 } from "@drever/schema";
@@ -16,6 +19,8 @@ export type {
   ComponentManifest,
   ComponentPropManifest,
   DreverPlugin,
+  DeckPreflightReport,
+  DeckPreflightSummary,
   DeckManifest,
   LayoutDefinition,
   ModuleReference,

@@ -107,6 +107,12 @@ const projectDefinitions = [
     use: { contextOptions: { reducedMotion: "reduce" } },
     webServer: undefined,
   },
+  {
+    name: "check-cli",
+    testMatch: "**/*.check.spec.ts",
+    use: {},
+    webServer: undefined,
+  },
 ] as const;
 
 const projectFilters = readProjectFilters(process.argv);

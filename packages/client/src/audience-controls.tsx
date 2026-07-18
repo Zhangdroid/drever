@@ -22,6 +22,7 @@ export type AudienceControlsProps = Readonly<{
   manifest: DeckManifest;
   onError(error: unknown): void;
   onNavigate(command: DeckCommand): void | Promise<void>;
+  onOpenDocument(): void;
   onOpenSpeaker(): void;
   position: DeckPosition;
 }>;
@@ -137,6 +138,18 @@ const SpeakerIcon = (): ReactElement => (
   </Icon>
 );
 
+const DocumentIcon = (): ReactElement => (
+  <Icon>
+    <path
+      d="M6 3h9l3 3v15H6zM15 3v4h3M9 11h6M9 15h6"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.6"
+    />
+  </Icon>
+);
+
 const FullscreenIcon = ({ active }: Readonly<{ active: boolean }>): ReactElement => (
   <Icon>
     {active ? (
@@ -179,6 +192,7 @@ const shortcutRows = Object.freeze([
   ["First / last state", "Home  End"],
   ["Slide navigator", "O  G"],
   ["Go to slide", "Number, then Enter"],
+  ["Document view", "D"],
   ["Speaker view", "P"],
   ["Fullscreen", "F"],
   ["Pause on black / white", "B  W"],
@@ -191,6 +205,7 @@ export const AudienceControls = ({
   manifest,
   onError,
   onNavigate,
+  onOpenDocument,
   onOpenSpeaker,
   position,
 }: AudienceControlsProps): ReactElement => {
@@ -333,6 +348,10 @@ export const AudienceControls = ({
           event.preventDefault();
           setPauseScreen((current) => (current === "black" ? undefined : "black"));
           break;
+        case "d":
+          event.preventDefault();
+          run(onOpenDocument);
+          break;
         case "f":
           event.preventDefault();
           toggleFullscreen();
@@ -356,7 +375,7 @@ export const AudienceControls = ({
     };
     document.addEventListener("keydown", listener);
     return () => document.removeEventListener("keydown", listener);
-  }, [gotoBuffer, pauseScreen, submitGoto, toggleFullscreen]);
+  }, [gotoBuffer, onOpenDocument, pauseScreen, run, submitGoto, toggleFullscreen]);
 
   const visibleSlides = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase();
@@ -407,6 +426,14 @@ export const AudienceControls = ({
           <NextIcon />
         </button>
         <span aria-hidden="true" className="drever-audience-controls__divider" />
+        <button
+          aria-label="Open document view"
+          onClick={() => run(onOpenDocument)}
+          title="Document view (D)"
+          type="button"
+        >
+          <DocumentIcon />
+        </button>
         <button
           aria-label="Open speaker view"
           onClick={() => run(onOpenSpeaker)}

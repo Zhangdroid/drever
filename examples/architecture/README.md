@@ -32,13 +32,18 @@ vp run -F @drever/example-architecture dev
 ```
 
 Open <http://localhost:4321>. The synchronized speaker view is available at
-<http://localhost:4321/speaker> or through the `P` shortcut.
+<http://localhost:4321/speaker> or through the `P` shortcut. The fully revealed
+document is available at <http://localhost:4321/document> or through `D`.
 
 Create the complete static route tree with:
 
 ```sh
+vp run -F @drever/example-architecture check
 vp run -F @drever/example-architecture build
 ```
+
+The preflight uses the same compiler-owned source locations as other Drever
+diagnostics and runs without a browser or development server.
 
 ## Suggested delivery
 

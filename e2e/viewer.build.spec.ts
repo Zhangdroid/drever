@@ -123,6 +123,109 @@ test("production audience controls keep their navigation and presentation tools"
   await help.getByRole("button", { name: "Close keyboard shortcuts" }).click();
   await expect(help).not.toBeVisible();
 
+  const documentPromise = page.waitForEvent("popup");
+  await page.keyboard.press("d");
+  const documentView = await documentPromise;
+  const documentHealth = monitorPageHealth(documentView);
+  await expect(documentView).toHaveURL(/\/document#slide-2$/u);
+  await expect(documentView.locator("[data-drever-document]")).toBeVisible();
+  await expect(documentView.getByRole("link", { name: "Return to presentation" })).toHaveAttribute(
+    "href",
+    "http://127.0.0.1:4318/2",
+  );
+  await expect
+    .poll(() =>
+      documentView.locator("#slide-2").evaluate((slide) => {
+        const top = slide.getBoundingClientRect().top;
+        return top >= 0 && top < 96;
+      }),
+    )
+    .toBe(true);
+  documentHealth.expectHealthy();
+  await documentView.close();
+
+  health.expectHealthy();
+});
+
+test("the production document route exposes every fully revealed slide as a landmark", async ({
+  page,
+}) => {
+  const health = monitorPageHealth(page);
+  const response = await page.goto("/document");
+  if (response === null) {
+    throw new Error("The production document route did not return a document response.");
+  }
+
+  expect(response.ok()).toBe(true);
+  expect(await response.text()).toContain('<meta name="drever-base" content="./" />');
+  await expect(page.locator("[data-drever-document]")).toBeVisible();
+  const slides = page.locator("[data-drever-document] [data-drever-slide]");
+  await expect(slides).toHaveCount(5);
+  await expect(
+    page.locator("[data-drever-document] [data-drever-slide][aria-current]"),
+  ).toHaveCount(0);
+  await expect(page.locator("[data-drever-document] [data-drever-slide][aria-hidden]")).toHaveCount(
+    0,
+  );
+  await expect(slides.nth(0)).toHaveAttribute("aria-label", "Slides can be software.");
+  await expect(slides.nth(1)).toHaveAttribute("aria-label", "Motion should carry meaning.");
+  await expect(slides.nth(1).getByTestId("step-5")).toHaveAttribute("data-step-state", "active");
+
+  const links = page.getByRole("navigation", { name: "Slides" }).getByRole("link");
+  await expect(links).toHaveCount(5);
+  await expect(links.nth(0)).toHaveAttribute("href", "http://127.0.0.1:4318/document#slide-1");
+  const firstBounds = await slides.nth(0).boundingBox();
+  const secondBounds = await slides.nth(1).boundingBox();
+  expect(firstBounds?.width).toBeGreaterThan(1_000);
+  expect(secondBounds?.y).toBeGreaterThan((firstBounds?.y ?? 0) + (firstBounds?.height ?? 0));
+  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeGreaterThan(900);
+
+  await links.nth(3).click();
+  await expect(page).toHaveURL(/\/document#slide-4$/u);
+  await expect
+    .poll(() =>
+      slides.nth(3).evaluate((slide) => {
+        const top = slide.getBoundingClientRect().top;
+        return top >= 0 && top < 96;
+      }),
+    )
+    .toBe(true);
+
+  await page.reload();
+  await expect(page.locator("[data-drever-document]")).toBeVisible();
+  health.expectHealthy();
+});
+
+test("the production document keeps slide content readable within mobile horizontal overflow", async ({
+  page,
+}) => {
+  const health = monitorPageHealth(page);
+  await page.setViewportSize({ height: 812, width: 375 });
+  await page.goto("/document");
+
+  const pages = page.locator(".drever-document__pages");
+  const metrics = await pages.evaluate((container) => {
+    const deck = container.querySelector<HTMLElement>(".drever-document__deck");
+    const paragraph = container.querySelector<HTMLElement>("#slide-2 p");
+    if (deck === null || paragraph === null) {
+      throw new Error("The document is missing its deck or readable sample paragraph.");
+    }
+    const zoom = Number.parseFloat(getComputedStyle(deck).zoom);
+    const fontSize = Number.parseFloat(getComputedStyle(paragraph).fontSize) * zoom;
+    return {
+      clientWidth: container.clientWidth,
+      fontSize,
+      rootClientWidth: document.documentElement.clientWidth,
+      rootScrollWidth: document.documentElement.scrollWidth,
+      scrollWidth: container.scrollWidth,
+      zoom,
+    };
+  });
+
+  expect(metrics.zoom).toBeGreaterThanOrEqual(0.575);
+  expect(metrics.fontSize).toBeGreaterThanOrEqual(16);
+  expect(metrics.scrollWidth).toBeGreaterThan(metrics.clientWidth);
+  expect(metrics.rootScrollWidth).toBe(metrics.rootClientWidth);
   health.expectHealthy();
 });
 
@@ -191,6 +294,24 @@ test("static entries work from a subdirectory with and without trailing slashes"
       surface: "speaker",
       slide: "slide-2",
     },
+    {
+      path: "/talk/document",
+      canonicalPath: "/talk/document",
+      surface: "document",
+      slide: "slide-1",
+    },
+    {
+      path: "/talk/document/",
+      canonicalPath: "/talk/document",
+      surface: "document",
+      slide: "slide-1",
+    },
+    {
+      path: "/talk/document/index.html",
+      canonicalPath: "/talk/document",
+      surface: "document",
+      slide: "slide-1",
+    },
   ] as const;
 
   for (const route of cases) {
@@ -209,6 +330,8 @@ test("static entries work from a subdirectory with and without trailing slashes"
 
     if (route.surface === "speaker") {
       await expect(page.locator("[data-drever-speaker]")).toBeVisible();
+    } else if (route.surface === "document") {
+      await expect(page.locator("[data-drever-document]")).toBeVisible();
     } else {
       await expect(page.locator('[data-drever-slide][data-slide-state="active"]')).toHaveAttribute(
         "id",

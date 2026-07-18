@@ -9,6 +9,8 @@ runtime paths:
 - an interactive React counter whose state survives inactive slides;
 - speaker-only `Note` content;
 - a speaker view with audience-window synchronization;
+- a searchable `/document` view with every Step revealed;
+- a clean source-based accessibility report;
 - five-page final-state and seven-page sparse-Step PDF exports.
 
 ## Run from this workspace
@@ -30,13 +32,19 @@ Open <http://localhost:4317/speaker> to use the speaker view; its controls,
 keyboard navigation, and URL keep any open audience window synchronized through
 the browser's native `BroadcastChannel`. The dev command prints this URL, and
 pressing `P` from the audience opens the speaker view at the current slide and Step.
+Open <http://localhost:4317/document>, or press `D`, for the complete scrollable
+reading view.
 
 The production path uses the same deck and configuration:
 
 ```sh
+vp run -F @drever/example-basic check
 vp run -F @drever/example-basic build
 vp run -F @drever/example-basic export
 ```
+
+The check command emits a zero-error JSON report for use by CI or an AI review
+loop. It requires no browser or development server.
 
 The export command writes `slides-export.pdf`. Add `-- --steps` to include Step
 0, 2, and 5 for the progressive slide. Install its browser once with

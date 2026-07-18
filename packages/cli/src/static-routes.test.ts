@@ -157,6 +157,7 @@ afterEach(async () => {
 describe("static presentation routes", () => {
   it("enumerates every canonical audience and speaker deep link", () => {
     expect(createStaticDeckRoutes(manifest)).toEqual([
+      { segments: ["document"], surface: "document" },
       { segments: ["speaker"], surface: "speaker" },
       { segments: ["1", "2"], surface: "audience" },
       { segments: ["speaker", "1", "2"], surface: "speaker" },
@@ -180,6 +181,7 @@ describe("static presentation routes", () => {
     await writeStaticDeckRoutes(outDir, manifest);
 
     const root = await readFile(join(outDir, "index.html"), "utf8");
+    const document = await readFile(join(outDir, "document", "index.html"), "utf8");
     const audience = await readFile(join(outDir, "2", "5", "index.html"), "utf8");
     const speaker = await readFile(join(outDir, "speaker", "2", "5", "index.html"), "utf8");
 
@@ -193,6 +195,11 @@ describe("static presentation routes", () => {
       {
         html: root,
         page: "https://slides.test/talk",
+        expectedBase: "https://slides.test/talk/",
+      },
+      {
+        html: document,
+        page: "https://slides.test/talk/document",
         expectedBase: "https://slides.test/talk/",
       },
       {

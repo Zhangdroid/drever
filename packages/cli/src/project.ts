@@ -130,19 +130,34 @@ const resolveOutDir = (root: string, configured?: string): string => {
   return outDir;
 };
 
-export type ResolveDreverProjectOptions = Readonly<{
+export type ResolveDreverEntryOptions = Readonly<{
   config: DreverConfig;
   entry?: string;
   root: string;
 }>;
+
+export type ResolveDreverProjectOptions = ResolveDreverEntryOptions;
+
+export const resolveDreverEntry = async ({
+  config,
+  entry: positionalEntry,
+  root,
+}: ResolveDreverEntryOptions): Promise<string> => {
+  const entry = resolveConfigPath(root, positionalEntry ?? config.entry ?? DEFAULT_ENTRY);
+  await ensureEntry(entry);
+  return entry;
+};
 
 export const resolveDreverProject = async ({
   config,
   entry: positionalEntry,
   root,
 }: ResolveDreverProjectOptions): Promise<ResolvedDreverProject> => {
-  const entry = resolveConfigPath(root, positionalEntry ?? config.entry ?? DEFAULT_ENTRY);
-  await ensureEntry(entry);
+  const entry = await resolveDreverEntry({
+    config,
+    ...(positionalEntry === undefined ? {} : { entry: positionalEntry }),
+    root,
+  });
   const canonicalEntry = await realpath(entry);
 
   const planResult = createCompilePlan({

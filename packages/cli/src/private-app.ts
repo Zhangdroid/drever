@@ -83,7 +83,7 @@ ${bootstrap}
 const viewerModuleSource = (
   entry: string,
   canvas: Readonly<{ height: number; width: number }> | undefined,
-): string => `import { createSpeaker, createViewer } from "@drever/client";
+): string => `import { createDocument, createSpeaker, createViewer } from "@drever/client";
 import "@drever/client/styles.css";
 import Content, { deckManifest } from ${JSON.stringify(entry)};
 import { components } from "virtual:drever/mdx-components";
@@ -102,10 +102,13 @@ if (!(base instanceof HTMLMetaElement)) {
 const reportPresentationError = (error) => globalThis.reportError(error);
 const baseURL = new URL(base.content, document.baseURI);
 const relativePath = new URL(document.URL).pathname.slice(baseURL.pathname.length);
-const createPresentation = relativePath === "speaker" || relativePath.startsWith("speaker/")
-  ? createSpeaker
-  : createViewer;
-const viewer = await createPresentation({
+const routePath = relativePath.replace(/\\/+$/u, "");
+const createPresentation = routePath === "document"
+  ? createDocument
+  : routePath === "speaker" || routePath.startsWith("speaker/")
+    ? createSpeaker
+    : createViewer;
+const presentation = await createPresentation({
   baseURL,
   Content,
   container,
@@ -117,7 +120,7 @@ const viewer = await createPresentation({
 
 if (import.meta.hot) {
   import.meta.hot.dispose(() => {
-    void viewer.destroy().catch(reportPresentationError);
+    void presentation.destroy().catch(reportPresentationError);
   });
 }
 `;

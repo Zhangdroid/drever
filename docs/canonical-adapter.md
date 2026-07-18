@@ -150,7 +150,7 @@ The generated route-aware entry combines those boundaries without exposing Vite
 configuration to an author:
 
 ```tsx
-import { createSpeaker, createViewer } from "@drever/client";
+import { createDocument, createSpeaker, createViewer } from "@drever/client";
 import "@drever/client/styles.css";
 import { components as registry } from "virtual:drever/mdx-components";
 import { motion, runSetup, theme } from "virtual:drever/runtime";
@@ -168,8 +168,13 @@ if (!(base instanceof HTMLMetaElement)) {
 
 const baseURL = new URL(base.content, document.baseURI);
 const relativePath = new URL(document.URL).pathname.slice(baseURL.pathname.length);
+const routePath = relativePath.replace(/\/+$/u, "");
 const createPresentation =
-  relativePath === "speaker" || relativePath.startsWith("speaker/") ? createSpeaker : createViewer;
+  routePath === "document"
+    ? createDocument
+    : routePath === "speaker" || routePath.startsWith("speaker/")
+      ? createSpeaker
+      : createViewer;
 const presentation = await createPresentation({
   baseURL,
   Content,
@@ -186,14 +191,15 @@ without coupling the client package to one bundler module shape. The CLI owns
 this entry template; ordinary authors should not assemble low-level
 Navigation or React transition bridges.
 
-The audience and speaker preview surfaces supply navigation state through core's
-`SlideStateProvider`. Its
-resolver receives a frozen `{id?, index?}` identity and returns
-`{active, currentStep}`. Explicit `active` and `currentStep` props independently
-win over resolved values. Inactive slides use React Activity and leave the
-accessibility tree while preserving their interactive state. A `Step` inside a
-compiled `Slide` must have an `at` index, preventing post-grammar transforms
-from introducing a silently always-visible step.
+The audience, speaker preview, and document surfaces supply state through core's
+`SlideStateProvider`. Its resolver receives a frozen `{id?, index?}` identity
+and returns `{active, currentStep}` plus an optional landmark label. Explicit
+`active` and `currentStep` props independently win over resolved values.
+Inactive audience slides use React Activity and leave the accessibility tree
+while preserving their interactive state; document slides are all active at
+their final Step. A `Step` inside a compiled `Slide` must have an `at` index,
+preventing post-grammar transforms from introducing a silently always-visible
+step.
 
 Lifecycle runners await hooks in CompilePlan order and do not memoize globally.
 A hook may return a disposer. After successful setup, the runner returns one
@@ -222,11 +228,13 @@ listeners, unmounts React, and invokes an acquired setup disposer. Core teardown
 never waits for a setup acquisition that ignored its abort signal; a late
 disposer is run by a detached continuation and failures are reported through the
 client reporter. Failed creation rolls back the resources already acquired.
+`createDocument` owns a smaller React lifetime: it mounts one fully revealed
+tree, does not run viewer setup hooks, and exposes only idempotent destruction.
 The export client owns a separate lifetime: it mounts raw canvas-sized pages,
 awaits `runExportSetup`, fonts, images, and final layout frames, then exposes a
 ready marker for Chromium capture. Its destroy handle unmounts React and runs
-the export-hook disposer before the CLI writes output. Overview remains future
-work.
+the export-hook disposer before the CLI writes output. A richer thumbnail
+overview remains future work.
 
 Each lifecycle module embeds resolved config only for the owners of hooks it
 imports: viewer setup config never pulls in export-only plugin config, and the
