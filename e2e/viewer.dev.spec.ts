@@ -252,3 +252,68 @@ test("slide motion is scoped to the canvas without nested title transitions", as
     "none",
   );
 });
+
+test("step motion keeps unchanged slide content stationary", async ({ page }) => {
+  await page.goto("/2");
+  await page.addStyleTag({
+    content: ".drever-viewer { --drever-motion-duration: 1200ms !important; }",
+  });
+
+  const heading = page.locator('[data-drever-slide][data-slide-state="active"] h2');
+  const headingBounds = () =>
+    heading.evaluate((element) => {
+      const { height, width, x, y } = element.getBoundingClientRect();
+      return { height, width, x, y };
+    });
+  const before = await headingBounds();
+
+  await page.keyboard.press("ArrowRight");
+  await expect(page).toHaveURL(/\/2\/2$/u);
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const canvas = document.querySelector<HTMLElement>("[data-drever-canvas]");
+        return canvas === null
+          ? "missing"
+          : getComputedStyle(canvas, "::view-transition-new(root)").animationName;
+      }),
+    )
+    .toBe("drever-soft-enter");
+
+  const transition = await page.evaluate(() => {
+    const canvas = document.querySelector<HTMLElement>("[data-drever-canvas]");
+    if (canvas === null) {
+      throw new Error("Expected the Drever canvas during a Step transition.");
+    }
+    const oldRoot = getComputedStyle(canvas, "::view-transition-old(root)");
+    const newRoot = getComputedStyle(canvas, "::view-transition-new(root)");
+    return {
+      newAnimation: newRoot.animationName,
+      newOpacity: Number(newRoot.opacity),
+      newTransform: newRoot.transform,
+      oldAnimation: oldRoot.animationName,
+      oldTransform: oldRoot.transform,
+    };
+  });
+
+  expect(await headingBounds()).toEqual(before);
+  expect(transition).toMatchObject({
+    newAnimation: "drever-soft-enter",
+    newTransform: "none",
+    oldAnimation: "none",
+    oldTransform: "none",
+  });
+  expect(transition.newOpacity).toBeLessThan(1);
+
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const canvas = document.querySelector<HTMLElement>("[data-drever-canvas]");
+        return canvas === null
+          ? "missing"
+          : getComputedStyle(canvas, "::view-transition-new(root)").animationName;
+      }),
+    )
+    .toBe("none");
+  expect(await headingBounds()).toEqual(before);
+});

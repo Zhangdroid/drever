@@ -100,7 +100,7 @@
     drever-step-forward,
       drever-step-backward
   )::view-transition-old(root) {
-    animation-name: drever-soft-exit;
+    animation-name: none;
   }
 
   .drever-canvas:active-view-transition-type(
@@ -142,17 +142,9 @@
     }
   }
 
-  @keyframes drever-soft-exit {
-    to {
-      opacity: 0.72;
-      transform: scale(0.997);
-    }
-  }
-
   @keyframes drever-soft-enter {
     from {
       opacity: 0.72;
-      transform: scale(1.003);
     }
   }
 
