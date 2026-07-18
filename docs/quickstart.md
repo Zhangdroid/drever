@@ -59,6 +59,40 @@ them. An omitted `at` is assigned in document order. Explicit `at` values must b
 static positive integers; gaps are preserved, so the example navigates through
 stops `0 -> 1 -> 3`.
 
+## Set up agent authoring
+
+Install Drever's project-local authoring instructions and skills:
+
+```bash
+drever agent sync
+```
+
+The command creates a managed block in `AGENTS.md` and three skills under
+`.agents/skills` for deck creation, focused authoring, and presentation review.
+It preserves instructions outside its marked block and never replaces an
+unmarked, user-owned skill file. If any target conflicts, sync reports every
+conflict before writing planned files. It can run before the deck or config is
+valid and is safe to repeat after upgrading Drever.
+
+Inspect the resolved authoring contract before substantial generation or edits:
+
+```bash
+drever context --json
+drever context talks/keynote.mdx --json
+```
+
+The versioned report joins the exact compiler-owned slide and sparse Step
+manifest to authored source ranges. It also exposes the resolved canvas, theme
+tokens and guidance, motion intents, layout recipes, component manifests,
+semantic elements, normalized plugins, and source preflight. Executable module
+references are excluded.
+
+`context` runs the protected slide grammar and configured Remark contributions;
+it does not render the deck or execute Rehype, Recma, Vite transforms, or runtime
+React components. Use the checks and rendered inspection below for visual,
+interaction, and delivery evidence. See [Agent authoring](./agent-authoring.md)
+for ownership details and the recommended create/edit/review loop.
+
 ## Check accessibility
 
 Run the source-based preflight before presenting or building:

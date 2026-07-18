@@ -1,8 +1,13 @@
 export { createDreverVitePlugins } from "./create-vite-plugins.ts";
 export type { CreateDreverVitePluginsOptions } from "./create-vite-plugins.ts";
-export { DreverBuildPluginExecutionError, loadBuildModules } from "./load-build-modules.ts";
+export {
+  DreverBuildPluginExecutionError,
+  loadBuildModules,
+  loadRemarkModules,
+} from "./load-build-modules.ts";
 export type {
   CanonicalBuildModules,
+  CanonicalRemarkModules,
   ImportModule,
   LoadBuildModulesOptions,
   ModuleNamespace,

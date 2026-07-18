@@ -13,12 +13,22 @@ afterEach(async () => {
 });
 
 describe("parseCommand", () => {
-  it("models the two public workflows and their optional entry", () => {
+  it("models project workflows and their optional entry", () => {
     expect(parseCommand([])).toBe("help");
     expect(parseCommand(["dev"])).toEqual({ name: "dev" });
     expect(parseCommand(["build", "decks/keynote.mdx"])).toEqual({
       entry: "decks/keynote.mdx",
       name: "build",
+    });
+  });
+
+  it("models the agent setup and authoring context workflows", () => {
+    expect(parseCommand(["agent", "sync"])).toEqual({ action: "sync", name: "agent" });
+    expect(parseCommand(["context"])).toEqual({ json: false, name: "context" });
+    expect(parseCommand(["context", "--json", "decks/keynote.mdx"])).toEqual({
+      entry: "decks/keynote.mdx",
+      json: true,
+      name: "context",
     });
   });
 
@@ -78,6 +88,19 @@ describe("parseCommand", () => {
   });
 
   it.each([
+    [["agent"], "Agent action is required."],
+    [["agent", "install"], "Unknown agent action: install"],
+    [["agent", "sync", "extra"], "agent sync does not accept arguments."],
+    [["context", "--json", "--json"], "--json can be specified only once."],
+    [["context", "--write"], "Unknown context flag: --write"],
+    [["context", "one.mdx", "two.mdx"], "context accepts at most one deck entry path."],
+  ])("rejects invalid agent and context arguments: %j", (arguments_, message) => {
+    expect(() => parseCommand(arguments_)).toThrowError(
+      expect.objectContaining({ code: "DREVER_ARGUMENT_INVALID", message }),
+    );
+  });
+
+  it.each([
     [["export"], "Export format is required."],
     [["export", "pptx"], "Unknown export format: pptx"],
     [["export", "pdf", "--paper"], "Unknown export flag: --paper"],
@@ -103,6 +126,56 @@ describe("parseCommand", () => {
     expect(() => parseCommand(["preview"])).toThrowError(
       expect.objectContaining({ code: "DREVER_COMMAND_UNKNOWN" }),
     );
+  });
+});
+
+describe("runCli agent", () => {
+  it("syncs the agent kit without loading project config or requiring a deck", async () => {
+    const root = await mkdtemp(join(tmpdir(), "drever-agent-cli-test-"));
+    directories.push(root);
+    await writeFile(join(root, "drever.config.ts"), "export default { invalid: true };\n");
+    const syncAgentKit = vi.fn(async () => ({
+      files: [
+        { path: "AGENTS.md", status: "created" as const },
+        { path: ".agents/skills/drever-create-deck/SKILL.md", status: "unchanged" as const },
+      ],
+    }));
+    let output = "";
+
+    await runCli(["agent", "sync"], {
+      cwd: root,
+      stdout: { write: (chunk) => ((output += String(chunk)), true) },
+      syncAgentKit,
+    });
+
+    expect(syncAgentKit).toHaveBeenCalledWith({ root });
+    expect(output).toBe("Synced Drever agent kit: 1 created, 0 updated, 1 unchanged.\n");
+  });
+});
+
+describe("runCli context", () => {
+  it("resolves production config and delegates complete context rendering", async () => {
+    const root = await mkdtemp(join(tmpdir(), "drever-context-cli-test-"));
+    directories.push(root);
+    await writeFile(join(root, "talk.mdx"), "# Agent context\n");
+    await writeFile(
+      join(root, "drever.config.ts"),
+      `type Environment = { command: string; mode: string };
+export default ({ command, mode }: Environment) => ({
+  entry: command === "build" && mode === "production" ? "talk.mdx" : "wrong.mdx",
+});
+`,
+    );
+    const writeAuthoringContext = vi.fn(async () => ({ version: 1 as const }));
+    const stdout = { write: vi.fn(() => true) };
+
+    await runCli(["context", "--json"], { cwd: root, stdout, writeAuthoringContext });
+
+    expect(writeAuthoringContext).toHaveBeenCalledWith({
+      project: expect.objectContaining({ entry: join(root, "talk.mdx"), root }),
+      json: true,
+      stdout,
+    });
   });
 });
 

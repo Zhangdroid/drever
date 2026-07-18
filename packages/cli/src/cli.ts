@@ -2,9 +2,21 @@ import { basename, extname, resolve } from "node:path";
 import type { ViteDevServer } from "vite";
 import { loadDreverConfig, type LoadDreverConfigOptions } from "./config.ts";
 import { DreverCliError } from "./errors.ts";
-import { resolveDreverEntry, resolveDreverProject, type ResolvedDreverProject } from "./project.ts";
+import {
+  resolveDreverEntry,
+  resolveDreverPlan,
+  resolveDreverProject,
+  type ResolvedDreverProject,
+} from "./project.ts";
 import { buildDreverProject, serveDreverProject } from "./vite-app.ts";
 import type { CheckDeckRequest, CheckExitCode } from "./check.ts";
+import type { AgentSyncResult, SyncAgentKitOptions } from "./agent-sync.ts";
+import type { WriteAuthoringContextRequest } from "./context.ts";
+
+export type AgentCommand = Readonly<{
+  action: "sync";
+  name: "agent";
+}>;
 
 type ProjectCommand = Readonly<{
   entry?: string;
@@ -17,6 +29,12 @@ export type CheckCommand = Readonly<{
   name: "check";
 }>;
 
+export type ContextCommand = Readonly<{
+  entry?: string;
+  json: boolean;
+  name: "context";
+}>;
+
 export type ExportPdfCommand = Readonly<{
   entry?: string;
   format: "pdf";
@@ -25,7 +43,12 @@ export type ExportPdfCommand = Readonly<{
   steps: boolean;
 }>;
 
-export type DreverCommand = CheckCommand | ExportPdfCommand | ProjectCommand;
+export type DreverCommand =
+  | AgentCommand
+  | CheckCommand
+  | ContextCommand
+  | ExportPdfCommand
+  | ProjectCommand;
 
 export type PdfExportRequest = Readonly<{
   output: string;
@@ -35,12 +58,17 @@ export type PdfExportRequest = Readonly<{
 
 const EXPORT_PDF_USAGE = "Usage: drever export pdf [entry] [--steps] [-o|--output <path>]";
 const CHECK_USAGE = "Usage: drever check [entry] [--json]";
+const CONTEXT_USAGE = "Usage: drever context [entry] [--json]";
+const AGENT_SYNC_USAGE = "Usage: drever agent sync";
 const CONFIG_COMMAND = {
   build: "build",
   check: "check",
+  context: "check",
   dev: "serve",
   export: "build",
-} as const satisfies Readonly<Record<DreverCommand["name"], LoadDreverConfigOptions["command"]>>;
+} as const satisfies Readonly<
+  Record<Exclude<DreverCommand, AgentCommand>["name"], LoadDreverConfigOptions["command"]>
+>;
 
 const invalidArgument = (message: string, hint: string): never => {
   throw new DreverCliError("DREVER_ARGUMENT_INVALID", message, { hint });
@@ -122,13 +150,57 @@ const parseCheck = (arguments_: readonly string[]): CheckCommand => {
   });
 };
 
+const parseContext = (arguments_: readonly string[]): ContextCommand => {
+  let entry: string | undefined;
+  let json = false;
+
+  for (const argument of arguments_) {
+    if (argument === "--json") {
+      if (json) {
+        invalidArgument("--json can be specified only once.", CONTEXT_USAGE);
+      }
+      json = true;
+      continue;
+    }
+    if (argument.startsWith("-")) {
+      invalidArgument(`Unknown context flag: ${argument}`, CONTEXT_USAGE);
+    }
+    if (entry !== undefined) {
+      invalidArgument("context accepts at most one deck entry path.", CONTEXT_USAGE);
+    }
+    entry = argument;
+  }
+
+  return Object.freeze({
+    json,
+    name: "context",
+    ...(entry === undefined ? {} : { entry }),
+  });
+};
+
+const parseAgent = (arguments_: readonly string[]): AgentCommand => {
+  const [action, ...rest] = arguments_;
+  if (action !== "sync") {
+    invalidArgument(
+      action === undefined ? "Agent action is required." : `Unknown agent action: ${action}`,
+      AGENT_SYNC_USAGE,
+    );
+  }
+  if (rest.length > 0) {
+    invalidArgument("agent sync does not accept arguments.", AGENT_SYNC_USAGE);
+  }
+  return Object.freeze({ action: "sync", name: "agent" });
+};
+
 export const HELP = `Drever — AI-first MDX presentations
 
 Usage:
   drever dev [entry]
   drever build [entry]
   drever check [entry] [--json]
+  drever context [entry] [--json]
   drever export pdf [entry] [--steps] [-o|--output <path>]
+  drever agent sync
 
 The default entry is slides.mdx. Project settings live in drever.config.ts.
 `;
@@ -143,6 +215,12 @@ export const parseCommand = (arguments_: readonly string[]): DreverCommand | "he
   }
   if (command === "check") {
     return parseCheck(rest);
+  }
+  if (command === "context") {
+    return parseContext(rest);
+  }
+  if (command === "agent") {
+    return parseAgent(rest);
   }
   if (command === "export") {
     const [format, ...exportArguments] = rest;
@@ -176,7 +254,9 @@ export type RunCliOptions = Readonly<{
   checkDeck?: (request: CheckDeckRequest) => Promise<CheckExitCode>;
   cwd?: string;
   exportPdf?: (request: PdfExportRequest) => Promise<void>;
+  syncAgentKit?: (options: SyncAgentKitOptions) => Promise<AgentSyncResult>;
   stdout?: Pick<NodeJS.WriteStream, "write">;
+  writeAuthoringContext?: (request: WriteAuthoringContextRequest) => Promise<unknown>;
 }>;
 
 export type RunCliResult = CheckExitCode | void | ViteDevServer;
@@ -188,6 +268,12 @@ const createPdfExportRequest = (
   const entryName = basename(project.entry, extname(project.entry));
   const output = resolve(project.root, command.output ?? `${entryName}-export.pdf`);
   return Object.freeze({ output, project, steps: command.steps });
+};
+
+const formatAgentSyncResult = ({ files }: AgentSyncResult): string => {
+  const count = (status: AgentSyncResult["files"][number]["status"]): number =>
+    files.filter((file) => file.status === status).length;
+  return `Synced Drever agent kit: ${count("created")} created, ${count("updated")} updated, ${count("unchanged")} unchanged.\n`;
 };
 
 export const runCli = async (
@@ -206,6 +292,17 @@ export const runCli = async (
   }
 
   const root = options.cwd ?? process.cwd();
+  if (command.name === "agent") {
+    const syncAgentKit =
+      options.syncAgentKit ??
+      (async (request: SyncAgentKitOptions): Promise<AgentSyncResult> => {
+        const agent = await import("./agent-sync.ts");
+        return agent.syncAgentKit(request);
+      });
+    output.write(formatAgentSyncResult(await syncAgentKit({ root })));
+    return;
+  }
+
   const loaded = await loadDreverConfig({
     command: CONFIG_COMMAND[command.name],
     root,
@@ -223,6 +320,21 @@ export const runCli = async (
         return checker.checkDeck(request);
       });
     return checkDeck({ entry, json: command.json, stdout: output });
+  }
+  if (command.name === "context") {
+    const project = await resolveDreverPlan({
+      config: loaded.config,
+      ...(command.entry === undefined ? {} : { entry: command.entry }),
+      root,
+    });
+    const writeAuthoringContext =
+      options.writeAuthoringContext ??
+      (async (request: WriteAuthoringContextRequest): Promise<unknown> => {
+        const context = await import("./context.ts");
+        return context.writeAuthoringContext(request);
+      });
+    await writeAuthoringContext({ project, json: command.json, stdout: output });
+    return;
   }
   const project = await resolveDreverProject({
     config: loaded.config,

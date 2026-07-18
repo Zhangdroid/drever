@@ -9,10 +9,12 @@ export type {
   DreverServerConfig,
 } from "./config.ts";
 
-export { definePlugin, defineTheme } from "@drever/compiler";
+export { DREVER_AUTHORING_CONTEXT_VERSION, definePlugin, defineTheme } from "@drever/compiler";
 export type {
   ComponentManifest,
   DeckManifest,
+  DreverAuthoringContext,
+  DreverAuthoringSlide,
   DreverPlugin,
   LayoutDefinition,
   PluginConfigManifest,

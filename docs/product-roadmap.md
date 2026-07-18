@@ -1,8 +1,9 @@
 # Product roadmap
 
 Drever is an AI-first framework for interactive presentations, not a browser-based
-slide editor. The roadmap prioritizes reliable delivery, portable output, and
-accessible artifacts before networked collaboration features.
+slide editor. The roadmap prioritizes a machine-readable authoring contract,
+design and motion quality, reliable delivery, portable output, and accessible
+artifacts before networked collaboration features.
 
 Priorities follow product necessity, not implementation novelty:
 
@@ -24,7 +25,8 @@ Drever already provides:
 - deterministic tagged PDF export for final or incremental presentation states;
 - source-based accessibility preflight with stable human and JSON diagnostics;
 - a searchable, fully revealed document view with one named landmark per slide;
-- theme-owned design systems and build-time extension points.
+- theme-owned design systems and build-time extension points;
+- project-local agent skills and a versioned, plugin-aware authoring context.
 
 These capabilities should be refined rather than replaced.
 
@@ -88,40 +90,86 @@ headings, contrast, captions, and a scrollable HTML view in its
 text, captions, logical reading order, and unique slide titles in its
 [Accessibility Checker][microsoft-accessibility].
 
-## P1 — common and in progress
+## P1 — AI-first authoring and design quality
 
-Delivered in the current P1 foundation:
+This phase is the current product priority. AI can already produce plausible
+slide markup; Drever should differentiate by giving an agent an exact framework
+contract and by making consistently strong design, motion, and delivery
+verifiable. The framework should own reusable visual grammar instead of asking
+every prompt to rediscover it.
 
-- **Rehearsal foundation:** the speaker view tracks total and current-slide
-  time, accumulated per-slide time, and visit counts. It supports
-  pause/resume/reset and an optional editable target initialized by
-  `rehearsal.targetDurationMinutes`. Measurements and target edits are local to
-  the speaker session. A remote transition-readiness signal remains pending.
-- **Canonical sharing foundation:** the audience command bar copies the exact
-  current slide and Step URL while preserving query and hash state. It requires
-  the Clipboard API and reports failure without a legacy fallback. Document
-  embedding and dependency-free QR output remain pending.
+### P1-A — agent authoring foundation: delivered
 
-Still pending:
+`drever agent sync` installs versioned project-local skills for creating,
+authoring, and reviewing a deck. Its ownership markers preserve user
+instructions and stop on conflicts instead of silently replacing them.
 
-- **Annotations:** an ephemeral laser pointer, pen, and highlighter, optionally
-  synchronized to the audience. Persistence should be opt-in.
-- **Automatic playback:** authored timings and auto-advance for kiosks, demos,
-  and unattended presentations.
-- **Live captions:** an explicit microphone-powered mode with clear permission,
-  privacy, and language errors. Google documents browser-powered captions in
-  current Chrome, Edge, and Safari in its [caption guidance][google-captions].
+`drever context [entry] --json` exposes the resolved canvas, exact static slide
+and sparse Step manifest, source fragments and ranges, theme tokens and
+guidance, motion intents, layout recipes, component manifests, normalized
+plugins, and source preflight. It applies configured Remark contributions but
+does not pretend static analysis can judge rendered composition or runtime React
+output. See [Agent authoring](./agent-authoring.md).
+
+### P1-B — motion choreography
+
+Build on `MotionGroup`, theme-owned intent mappings, and canvas-scoped View
+Transitions with a small semantic choreography vocabulary. Each recipe needs a
+clear narrative purpose, stable geometry for persistent content, deterministic
+Step behavior, and an intentional reduced-motion result. High-quality reference
+slides and real-browser assertions should define the bar; adding many animation
+props should not.
+
+The first recipes should cover continuity between related states, focused
+reveal, replacement, comparison, and restrained staggered explanation. Shared
+identity across slides must remain explicit so accidental title movement or
+layout reflow cannot masquerade as animation.
+
+### P1-C — design recipes and rendered preflight
+
+Expand a small set of theme-owned composition recipes for the recurring jobs a
+presentation actually needs: opening, argument, comparison, evidence, process,
+media, and conclusion. Prefer a few exceptional recipes over a broad catalog.
+Their manifests must remain useful to both people and agents, with slot purpose,
+content constraints, variants, examples, and canvas behavior.
+
+Add a rendered design-preflight layer that can inspect every exact Step state at
+the configured canvas. It should report evidence such as clipping, unintended
+overflow, unstable persistent geometry, and suspicious density through stable
+diagnostics. Contrast, hierarchy, and aesthetic quality still require calibrated
+rules and human judgment; Drever should not label guesses as compiler facts.
+
+### P1-D — source-aware review loop
+
+Connect rendered evidence back to slide, Step, component, and authored source
+locations. An agent should be able to request the affected states, inspect the
+same evidence as a reviewer, make a focused source change, and rerun the checks.
+This remains a local, repository-native loop: no hosted editor, hidden prompt
+state, or runtime agent dependency is required.
+
+### Existing common delivery foundations
+
+- **Rehearsal:** the speaker view tracks total and current-slide time,
+  accumulated per-slide time, visits, and an optional editable target initialized
+  by `rehearsal.targetDurationMinutes`. Measurements remain session-local. A
+  transition-readiness signal is later work.
+- **Canonical sharing:** the audience command bar copies the exact slide and
+  Step URL while preserving query and hash state. It requires the Clipboard API
+  and reports failure without a legacy fallback. Document embedding and
+  dependency-free QR output remain later work.
 
 Keynote exposes a comparable [timer and readiness indicator][keynote-presenter],
 while PowerPoint records [rehearsal timings][powerpoint-rehearsal]. Drever's
 delivered rehearsal clock does not yet claim the readiness portion of that
 comparison.
 
-These features belong in the client or narrowly scoped official plugins. They
-must not make the default audience bundle pay for unused capabilities.
-
 ## P2 — optional enhancements and integrations
 
+- ephemeral laser pointer, pen, and highlighter, with opt-in persistence;
+- authored timings and automatic playback for kiosks and demos;
+- microphone-powered live captions with explicit permission, privacy, and
+  language errors. Google documents browser-powered captions in current Chrome,
+  Edge, and Safari in its [caption guidance][google-captions];
 - moderated audience questions, voting, polls, and reactions;
 - securely paired cross-device remote control;
 - recording and video export;

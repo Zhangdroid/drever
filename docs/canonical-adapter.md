@@ -38,6 +38,22 @@ Drever virtual modules (pre)
 An extension cannot use a raw Vite transform to reinterpret slide boundaries.
 Markdown syntax belongs in a declared remark or rehype contribution.
 
+## Authoring analysis path
+
+`drever context [entry] --json` reuses the canonical plan without constructing
+the complete Vite plugin graph. The adapter's selective Remark loader imports
+only configured Remark build contributions. The compiler then runs its fixed
+segmentation and Step grammar, those contributions, and the final manifest pass.
+This yields the same static slide identities and exact sparse stops that full MDX
+compilation protects.
+
+The resulting manifest is joined to parser-owned source fragments and public,
+JSON-safe design metadata. Rehype, Recma, Vite transforms, generated modules,
+React rendering, and runtime hooks do not run on this path. A plugin that creates
+authoring-visible structure must therefore express it as static MDX through its
+declared Remark contribution; later transformations cannot change Drever's
+protected navigation contract.
+
 ## MDX grammar
 
 The internal grammar transformer reserves a root thematic break whose original

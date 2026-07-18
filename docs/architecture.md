@@ -48,6 +48,22 @@ heuristic diagnostics.
 The check path resolves configuration and the deck entry without creating a
 CompilePlan, running build-module factories, or materializing build caches.
 
+Agent authoring is a separate CLI boundary. `drever agent sync` runs before
+project resolution and installs only a marked block in `AGENTS.md` plus
+marker-owned files under `.agents/skills`. Existing user instructions remain
+outside Drever's ownership; any malformed or user-owned target makes the sync
+fail before planned writes begin.
+
+`drever context [entry] --json` resolves the production CompilePlan but does not
+create the full Vite adapter or render a deck. It loads only configured Remark
+contributions, applies the protected grammar and final manifest pass, and joins
+the exact static slide and Step result to Deck IR source fragments. The
+versioned artifact also contains JSON-safe theme, layout, motion, component,
+plugin, canvas, and preflight data. Rehype, Recma, Vite transforms, runtime React
+output, and computed visual evidence remain later pipeline stages. Executable
+implementation references are deliberately omitted. See
+[Agent authoring](./agent-authoring.md).
+
 Navigation is another artifact boundary. The canonical URL is the source of
 truth for the current slide and Step; Navigation API entry state is only a cache.
 This makes deep links, history traversal, tests, and speaker synchronization agree
@@ -115,12 +131,13 @@ API. The canonical adapter imports its non-configurable grammar and finalizers
 from the explicit `@drever/compiler/internal` subpath; that subpath is not a
 plugin-author extension surface.
 
-The current delivery slice exposes accessibility analysis plus audience,
-document, speaker, and export surfaces through the public `drever check`,
-`drever dev`, `drever build`, and `drever export pdf` flows. `<Note>` is
-captured into the compiler-owned manifest and removed from audience, document,
-and export trees. The speaker surface consumes that explicit artifact; a richer
-thumbnail overview remains a future view over the same manifest.
+The current delivery slice exposes agent synchronization and authoring context,
+accessibility analysis, and audience, document, speaker, and export surfaces
+through the public `drever agent sync`, `drever context`, `drever check`,
+`drever dev`, `drever build`, and `drever export pdf` flows. `<Note>` is captured
+into the compiler-owned manifest and removed from audience, document, and export
+trees. The speaker surface consumes that explicit artifact; a richer thumbnail
+overview remains a future view over the same manifest.
 
 The CLI-generated application selects `createViewer`, `createDocument`, or
 `createSpeaker` from `@drever/client` based on the canonical route. All three
@@ -198,6 +215,8 @@ The accessibility CLI wraps those diagnostics in a versioned report containing
 `sourcePath`, `slideCount`, and explicit error, warning, and info totals. JSON
 mode writes the artifact to standard output even when errors set a failing exit
 status, allowing CI and AI tools to inspect the complete result.
+The authoring-context schema is versioned independently and embeds the complete
+preflight report rather than defining a second diagnostic vocabulary.
 
 ## Testing
 
@@ -214,6 +233,9 @@ status, allowing CI and AI tools to inspect the complete result.
   clean example and temporary failing source, asserting report schema, exit
   semantics, stable codes, and exact locations without substituting test-only
   compiler calls.
+- CLI tests exercise agent-kit ownership conflicts and plugin-aware context
+  compilation. Serverless end-to-end tests verify the packaged skills,
+  idempotent sync, and the real example's authoring-context JSON.
 - Built-in layouts, themes, and motion intents are consumed by small showcase
   decks with Chromium assertions for geometry, state, accessibility, and
   overflow. Pixel baselines are reserved for visual contracts stable enough to

@@ -12,7 +12,12 @@ import type { JsonObject, PlannedBuildPlugin } from "@drever/schema";
 import { unified, type Plugin as UnifiedPlugin } from "unified";
 import type { Plugin as VitePlugin } from "vite";
 import { describe, expect, it } from "vite-plus/test";
-import { loadBuildModules, type ImportModule, type ModuleNamespace } from "./load-build-modules.ts";
+import {
+  loadBuildModules,
+  loadRemarkModules,
+  type ImportModule,
+  type ModuleNamespace,
+} from "./load-build-modules.ts";
 import { createTestPlan } from "./test/plan.ts";
 
 const entry = (
@@ -52,6 +57,36 @@ const runUnified = (processor: TestProcessor): Promise<unknown> =>
   });
 
 describe("loadBuildModules", () => {
+  it("loads only remark factories for manifest-only compilation", async () => {
+    const capabilities: string[] = [];
+    const plan = createTestPlan({
+      plugins: [{ id: "feature", origin: "user" }],
+      build: {
+        remark: [entry("remark", "remark")],
+        rehype: [entry("rehype", "rehype")],
+        recma: [entry("recma", "recma")],
+        vite: [entry("vite", "vite")],
+      },
+    });
+    const result = await loadRemarkModules(plan, {
+      importModule: importer({
+        remark: {
+          default: defineRemarkPlugin((context) => {
+            capabilities.push(context.capability);
+            return () => undefined;
+          }),
+        },
+      }),
+    });
+
+    expect(result.ok).toBe(true);
+    expect(capabilities).toEqual(["remark"]);
+    if (result.ok) {
+      expect(result.value).toHaveLength(1);
+      expect(Object.isFrozen(result.value)).toBe(true);
+    }
+  });
+
   it("loads capability descriptors in plan order with isolated frozen context", async () => {
     const contexts: BuildPluginContext<never>[] = [];
     const unifiedPlugin = () => undefined;

@@ -1,4 +1,15 @@
 export { COMPILE_PLAN_VERSION } from "./compile-plan.ts";
+export { DREVER_AUTHORING_CONTEXT_VERSION } from "./authoring-context.ts";
+export type {
+  DreverAuthoringComponent,
+  DreverAuthoringContext,
+  DreverAuthoringDeck,
+  DreverAuthoringDesign,
+  DreverAuthoringLayout,
+  DreverAuthoringPlugin,
+  DreverAuthoringSlide,
+  DreverAuthoringTheme,
+} from "./authoring-context.ts";
 export { DREVER_INTERNAL_SLIDE_COMPONENT, DREVER_INTERNAL_STEP_COMPONENT } from "./component.ts";
 export type {
   CompilePlan,

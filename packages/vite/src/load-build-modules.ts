@@ -37,6 +37,8 @@ export type LoadBuildModulesOptions = Readonly<{
   importModule?: ImportModule;
 }>;
 
+export type CanonicalRemarkModules = readonly Pluggable[];
+
 type BuildExecutionDetails = Readonly<{
   capability: "recma" | "rehype" | "remark";
   entry: PlannedBuildPlugin;
@@ -764,4 +766,15 @@ export const loadBuildModules = async (
     }),
     diagnostics: [] as readonly Diagnostic[],
   };
+};
+
+/** Loads only the remark contributions needed to derive the canonical DeckManifest. */
+export const loadRemarkModules = async (
+  plan: CompilePlan,
+  options: LoadBuildModulesOptions = {},
+): Promise<DiagnosticResult<CanonicalRemarkModules>> => {
+  const plugins = pluginIndex(plan.plugins);
+  const projectRoot = resolve(options.root ?? process.cwd());
+  const importer = options.importModule ?? createProjectImporter(options);
+  return loadUnified("remark", plan.build.remark, plugins, importer, projectRoot);
 };

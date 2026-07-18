@@ -33,16 +33,20 @@ Not a pile of pages.
 Then use the public CLI:
 
 ```bash
+drever agent sync
+drever context --json
 drever check
 drever dev
 drever build
 drever export pdf
 ```
 
-`check` runs the source-based accessibility preflight, `dev` starts the
-interactive viewer, and `build` writes a standalone site to `dist/`. `export
-pdf` writes `slides-export.pdf`; pass `--steps` to emit each authored reveal
-state. The default entry is `slides.mdx`; project settings live in
+`agent sync` installs project-local authoring guidance, and `context --json`
+describes the resolved deck and design system as a versioned, machine-readable
+contract. `check` runs the source-based accessibility preflight, `dev` starts
+the interactive viewer, and `build` writes a standalone site to `dist/`.
+`export pdf` writes `slides-export.pdf`; pass `--steps` to emit each authored
+reveal state. The default entry is `slides.mdx`; project settings live in
 `drever.config.ts`. See the [Quick start](./docs/quickstart.md) for installation,
 configuration, keyboard controls, and browser requirements.
 
@@ -67,6 +71,9 @@ The runnable vertical slice includes:
   sparse Step stop, without modifying the deployable web build;
 - an evidence-based accessibility preflight with stable diagnostics, exact
   source locations, human output, and AI-friendly JSON;
+- a project-local agent kit for creating, authoring, and reviewing decks, plus a
+  versioned authoring-context command that exposes exact slide and Step state,
+  source ranges, and the resolved design contract;
 - state-preserving MDX Fast Refresh when the navigation manifest is unchanged;
 - structured diagnostics and deterministic plugin, theme, MDX, and Vite planning;
 - default Shiki and reset-free Tailwind CSS plugins, plus opt-in build-time math;
@@ -151,10 +158,11 @@ vp run ready
 Run only the browser suite with `vp run test:e2e`.
 
 See [Architecture](./docs/architecture.md) for package boundaries and dependency
-policy, [Extension authoring](./docs/extensions.md) for plugin and theme contracts,
-[Official plugins](./docs/official-plugins.md) for activation and safety policy,
-[Canonical adapter](./docs/canonical-adapter.md) for the MDX/Vite execution
-boundary, and [Client runtime](./docs/client-runtime.md) for the audience,
-document, speaker, and export surfaces.
+policy, [Agent authoring](./docs/agent-authoring.md) for the project-local skills
+and machine-readable context contract, [Extension authoring](./docs/extensions.md)
+for plugin and theme contracts, [Official plugins](./docs/official-plugins.md)
+for activation and safety policy, [Canonical adapter](./docs/canonical-adapter.md)
+for the MDX/Vite execution boundary, and [Client runtime](./docs/client-runtime.md)
+for the audience, document, speaker, and export surfaces.
 Repository language, readability, testing, dependency, and commit expectations
 are in [Contributing](./CONTRIBUTING.md).

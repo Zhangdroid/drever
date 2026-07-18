@@ -16,15 +16,19 @@ import type { DreverConfig, DreverPluginUse } from "./config.ts";
 import { resolveConfigPath } from "./config.ts";
 import { DreverCliError } from "./errors.ts";
 
-export type ResolvedDreverProject = Readonly<{
+export type ResolvedDreverPlan = Readonly<{
   config: DreverConfig;
   entry: string;
-  outDir: string;
   plan: CompilePlan;
-  plugins: readonly PluginOption[];
-  getDeckManifest(): DeckManifest | undefined;
   root: string;
 }>;
+
+export type ResolvedDreverProject = ResolvedDreverPlan &
+  Readonly<{
+    outDir: string;
+    plugins: readonly PluginOption[];
+    getDeckManifest(): DeckManifest | undefined;
+  }>;
 
 const DEFAULT_ENTRY = "slides.mdx";
 const DEFAULT_OUT_DIR = "dist";
@@ -137,6 +141,7 @@ export type ResolveDreverEntryOptions = Readonly<{
 }>;
 
 export type ResolveDreverProjectOptions = ResolveDreverEntryOptions;
+export type ResolveDreverPlanOptions = ResolveDreverEntryOptions;
 
 export const resolveDreverEntry = async ({
   config,
@@ -148,18 +153,17 @@ export const resolveDreverEntry = async ({
   return entry;
 };
 
-export const resolveDreverProject = async ({
+/** Resolves the entry and canonical extension plan without loading adapter modules. */
+export const resolveDreverPlan = async ({
   config,
   entry: positionalEntry,
   root,
-}: ResolveDreverProjectOptions): Promise<ResolvedDreverProject> => {
+}: ResolveDreverPlanOptions): Promise<ResolvedDreverPlan> => {
   const entry = await resolveDreverEntry({
     config,
     ...(positionalEntry === undefined ? {} : { entry: positionalEntry }),
     root,
   });
-  const canonicalEntry = await realpath(entry);
-
   const planResult = createCompilePlan({
     theme: config.theme ?? defaultTheme,
     plugins: resolvePluginRegistrations(config.plugins),
@@ -175,11 +179,20 @@ export const resolveDreverProject = async ({
     );
   }
 
+  return Object.freeze({ config, entry, plan: planResult.value, root });
+};
+
+export const resolveDreverProject = async (
+  options: ResolveDreverProjectOptions,
+): Promise<ResolvedDreverProject> => {
+  const resolved = await resolveDreverPlan(options);
+  const canonicalEntry = await realpath(resolved.entry);
+
   let deckManifest: DeckManifest | undefined;
-  const pluginResult = await createDreverVitePlugins(planResult.value, {
-    root,
+  const pluginResult = await createDreverVitePlugins(resolved.plan, {
+    root: resolved.root,
     onDeckManifest(manifest, path) {
-      if (path === entry || path === canonicalEntry) {
+      if (path === resolved.entry || path === canonicalEntry) {
         deckManifest = manifest;
       }
     },
@@ -196,12 +209,9 @@ export const resolveDreverProject = async ({
   }
 
   return Object.freeze({
-    config,
-    entry,
+    ...resolved,
     getDeckManifest: () => deckManifest,
-    outDir: resolveOutDir(root, config.build?.outDir),
-    plan: planResult.value,
+    outDir: resolveOutDir(resolved.root, resolved.config.build?.outDir),
     plugins: pluginResult.value,
-    root,
   });
 };
