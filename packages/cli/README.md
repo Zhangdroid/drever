@@ -35,10 +35,16 @@ import { defineConfig } from "drever";
 
 export default defineConfig({
   canvas: { width: 1600, height: 900 },
+  rehearsal: { targetDurationMinutes: 20 },
   server: { port: 4317 },
   build: { outDir: "dist" },
 });
 ```
+
+`rehearsal.targetDurationMinutes` must be a positive finite number. The CLI
+converts it to the speaker runtime's millisecond target for both development and
+static builds. It initializes the editable target only; rehearsal timings and
+runtime target changes remain local to each speaker-view session.
 
 Deck modules import author-facing primitives from the same package:
 

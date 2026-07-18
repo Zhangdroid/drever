@@ -1,5 +1,30 @@
 import { describe, expect, it, vi } from "vite-plus/test";
-import { attachPrivateAppLifetime, resolveSpeakerUrls } from "./vite-app.ts";
+import {
+  attachPrivateAppLifetime,
+  resolvePrivateAppOptions,
+  resolveSpeakerUrls,
+} from "./vite-app.ts";
+
+describe("resolvePrivateAppOptions", () => {
+  it("converts configured rehearsal minutes to the speaker runtime contract", () => {
+    const canvas = { height: 900, width: 1_600 } as const;
+
+    expect(
+      resolvePrivateAppOptions({
+        canvas,
+        rehearsal: { targetDurationMinutes: 18.5 },
+      }),
+    ).toEqual({
+      canvas,
+      rehearsal: { targetDurationMs: 1_110_000 },
+    });
+  });
+
+  it("does not create runtime rehearsal settings without an explicit target", () => {
+    expect(resolvePrivateAppOptions({})).toEqual({});
+    expect(resolvePrivateAppOptions({ rehearsal: {} })).toEqual({});
+  });
+});
 
 describe("resolveSpeakerUrls", () => {
   it("derives every local and network speaker URL without guessing server details", () => {

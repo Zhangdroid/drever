@@ -7,6 +7,11 @@ export type PrivateApp = Readonly<{
   root: string;
 }>;
 
+export type PrivateAppOptions = Readonly<{
+  canvas?: Readonly<{ height: number; width: number }>;
+  rehearsal?: Readonly<{ targetDurationMs?: number }>;
+}>;
+
 export type PrivateExportAppOptions = Readonly<{
   canvas?: Readonly<{ height: number; width: number }>;
   includeSteps: boolean;
@@ -80,10 +85,15 @@ ${bootstrap}
 </html>
 `;
 
-const viewerModuleSource = (
-  entry: string,
-  canvas: Readonly<{ height: number; width: number }> | undefined,
-): string => `import { createDocument, createSpeaker, createViewer } from "@drever/client";
+const viewerModuleSource = (entry: string, { canvas, rehearsal }: PrivateAppOptions): string => {
+  const speakerOptions =
+    rehearsal === undefined
+      ? "presentationOptions"
+      : `{
+      ...presentationOptions,
+      rehearsal: ${JSON.stringify(rehearsal)},
+    }`;
+  return `import { createDocument, createSpeaker, createViewer } from "@drever/client";
 import "@drever/client/styles.css";
 import Content, { deckManifest } from ${JSON.stringify(entry)};
 import { components } from "virtual:drever/mdx-components";
@@ -103,12 +113,7 @@ const reportPresentationError = (error) => globalThis.reportError(error);
 const baseURL = new URL(base.content, document.baseURI);
 const relativePath = new URL(document.URL).pathname.slice(baseURL.pathname.length);
 const routePath = relativePath.replace(/\\/+$/u, "");
-const createPresentation = routePath === "document"
-  ? createDocument
-  : routePath === "speaker" || routePath.startsWith("speaker/")
-    ? createSpeaker
-    : createViewer;
-const presentation = await createPresentation({
+const presentationOptions = {
   baseURL,
   Content,
   container,
@@ -116,7 +121,12 @@ const presentation = await createPresentation({
   onError: reportPresentationError,
   registry: components,
   runtime: { motion, runSetup, theme },${canvas === undefined ? "" : `\n  canvas: ${JSON.stringify(canvas)},`}
-});
+};
+const presentation = routePath === "document"
+  ? await createDocument(presentationOptions)
+  : routePath === "speaker" || routePath.startsWith("speaker/")
+    ? await createSpeaker(${speakerOptions})
+    : await createViewer(presentationOptions);
 
 if (import.meta.hot) {
   import.meta.hot.dispose(() => {
@@ -124,6 +134,7 @@ if (import.meta.hot) {
   });
 }
 `;
+};
 
 const exportModuleSource = (
   entry: string,
@@ -181,9 +192,9 @@ export const createGeneratedApp = async (
 
 export const createPrivateApp = async (
   entry: string,
-  canvas?: Readonly<{ height: number; width: number }>,
+  options: PrivateAppOptions = {},
 ): Promise<PrivateApp> =>
-  createGeneratedApp("drever-app-", viewerModuleSource(entry, canvas), applicationHtml());
+  createGeneratedApp("drever-app-", viewerModuleSource(entry, options), applicationHtml());
 
 /** @internal Generates the isolated document used only by deterministic exporters. */
 export const createPrivateExportApp = async (

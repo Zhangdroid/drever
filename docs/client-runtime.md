@@ -41,12 +41,6 @@ if (!(base instanceof HTMLMetaElement)) {
 const baseURL = new URL(base.content, document.baseURI);
 const relativePath = new URL(document.URL).pathname.slice(baseURL.pathname.length);
 const routePath = relativePath.replace(/\/+$/u, "");
-const createPresentation =
-  routePath === "document"
-    ? createDocument
-    : routePath === "speaker" || routePath.startsWith("speaker/")
-      ? createSpeaker
-      : createViewer;
 const reportPresentationError = (error: unknown): void => {
   if (typeof globalThis.reportError === "function") {
     globalThis.reportError(error);
@@ -54,7 +48,7 @@ const reportPresentationError = (error: unknown): void => {
   }
   console.error(error);
 };
-const presentation = await createPresentation({
+const presentationOptions = {
   baseURL,
   Content,
   container,
@@ -62,7 +56,13 @@ const presentation = await createPresentation({
   onError: reportPresentationError,
   registry,
   runtime: { motion, runSetup, theme },
-});
+};
+const presentation =
+  routePath === "document"
+    ? await createDocument(presentationOptions)
+    : routePath === "speaker" || routePath.startsWith("speaker/")
+      ? await createSpeaker(presentationOptions)
+      : await createViewer(presentationOptions);
 
 if (import.meta.hot) {
   import.meta.hot.dispose(() => {
@@ -90,6 +90,12 @@ an explicit `canvas`, external abort `signal`, and `onError` reporter.
 `createViewer` additionally accepts `reducedMotion`. An explicit canvas
 overrides the theme canvas. Normally the generated entry should let the viewer
 read the user's reduced-motion preference.
+
+`createSpeaker` additionally accepts an optional `rehearsal.targetDurationMs`.
+When configured, the generated CLI entry passes that speaker-only option with
+`presentationOptions` after converting the author-facing
+`rehearsal.targetDurationMinutes` value. Runtime edits to the target do not
+mutate project configuration.
 
 The audience and speaker handles expose presentation commands and position
 subscriptions:
@@ -129,6 +135,13 @@ slides, extra or internal empty segments, non-canonical integers, and Step value
 absent from the manifest are invalid routes. Same-deck invalid navigation is cancelled
 when the browser permits cancellation and reported through `onError`.
 
+The audience **Copy link** control re-encodes the committed position through
+this same route codec, preserving the current query and hash, then writes the
+absolute URL with the Clipboard API. A missing API produces
+`DREVER_CLIENT_CLIPBOARD_UNAVAILABLE`; a rejected write produces
+`DREVER_CLIENT_CLIPBOARD_WRITE_FAILED`. Both are reported through `onError` and
+produce visible failure feedback. There is intentionally no legacy copy fallback.
+
 Generated navigation omits a trailing slash. Directory-oriented static hosts
 may expose the same entry with one trailing slash; the decoder accepts that
 hosting alias without treating `/1` as an alias for the root slide.
@@ -152,9 +165,25 @@ audience and speaker entries.
 ## Speaker surface and synchronization
 
 The speaker view shows the current state, the exact state reached by the next
-navigation command, compiled speaker notes, an elapsed timer, and previous/next
-controls. “Next” is manifest-driven: for sparse stops `0 -> 2 -> 5`, the preview
-advances through 2 and 5 rather than guessing consecutive numbers.
+navigation command, compiled speaker notes, a rehearsal workspace, and
+previous/next controls. “Next” is manifest-driven: for sparse stops
+`0 -> 2 -> 5`, the preview advances through 2 and 5 rather than guessing
+consecutive numbers.
+
+One rehearsal store belongs to one speaker-view lifetime. Its immutable
+snapshot contains total elapsed time, elapsed time for the current slide,
+accumulated time and visit count for every slide, running state, and optional
+target, remaining, and overtime values. A Step change stays within the same
+slide visit. Moving away and returning increments that slide's visit count.
+Pause/resume preserves accumulated values; reset clears every timing and visit
+count, then starts the current slide at visit one. The target can be edited or
+cleared without resetting the clock.
+
+The rehearsal target supplied by `drever.config.ts` is only an initial value.
+Clock state, per-slide measurements, visits, and runtime target edits are not
+persisted or broadcast. The existing channel synchronizes committed
+presentation positions only; no audience or remote transition-readiness signal
+is claimed in this release.
 
 Current and next previews are separate MDX render trees. Interactive components
 can call `useDreverRenderMode()` from `@drever/core`; it returns `audience`,
@@ -223,6 +252,7 @@ components.
 | First / last state     | `Home` / `End`                           |
 | Slide navigator        | `O` or `G`                               |
 | Direct slide jump      | Slide number, then `Enter`               |
+| Copy current-state URL | Audience command bar                     |
 | Document view          | `D` from the audience                    |
 | Speaker view           | `P` from the audience                    |
 | Fullscreen             | `F`                                      |
@@ -241,10 +271,10 @@ opens a new window at the equivalent speaker path, so
 ignored to prevent one long press from opening multiple windows.
 
 The built-in audience command bar exposes navigation, exact slide position,
-the searchable slide navigator, document and speaker views, fullscreen, and
-keyboard help to pointer and touch users. It is a sibling of the canvas rather
-than slide content, so scoped View Transitions never capture presentation
-chrome.
+canonical link copying, the searchable slide navigator, document and speaker
+views, fullscreen, and keyboard help to pointer and touch users. It is a sibling
+of the canvas rather than slide content, so scoped View Transitions never
+capture presentation chrome.
 
 ## Rendering and motion
 
@@ -342,6 +372,11 @@ The audience and speaker surfaces require a browser document connected to a
 There is intentionally no fallback router, animation engine, or resize polling.
 Unsupported environments fail before React mounts with a structured
 `DREVER_CLIENT_PLATFORM_UNSUPPORTED` error.
+
+The viewer itself does not require Clipboard API support. The Copy link action
+does: it uses `navigator.clipboard.writeText()` in a secure context and reports
+an actionable error when that capability is unavailable or the write fails.
+Drever does not emulate clipboard writes through deprecated DOM commands.
 
 Creation follows one owned sequence: validate the platform and manifest, derive
 the initial position from the URL, mount React, attach Navigation and keyboard

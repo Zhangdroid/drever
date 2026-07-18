@@ -103,6 +103,19 @@ describe("keyboard navigation", () => {
       keyboardCommandFor(keyEvent("Enter", { target: speakerButton }), "speaker"),
     ).toBeUndefined();
 
+    const speakerInput = {
+      closest: (selectors: string) =>
+        selectors === "[data-drever-speaker-controls]" || selectors.includes("input")
+          ? ({} as Element)
+          : null,
+    } as unknown as EventTarget;
+    expect(
+      keyboardCommandFor(keyEvent("ArrowUp", { target: speakerInput }), "speaker"),
+    ).toBeUndefined();
+    expect(
+      keyboardCommandFor(keyEvent("PageDown", { target: speakerInput }), "speaker"),
+    ).toBeUndefined();
+
     const notesScroller = {
       closest: (selectors: string) =>
         selectors.includes("[tabindex]:not([tabindex='-1'])") ? ({} as Element) : null,

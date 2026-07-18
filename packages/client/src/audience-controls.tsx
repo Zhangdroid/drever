@@ -16,10 +16,17 @@ import type { DeckCommand, DeckPosition } from "./presentation-state.ts";
 
 type AudiencePanel = "help" | "overview";
 type PauseScreen = "black" | "white";
+type ShareResult = "copied" | "failed";
+
+type ShareFeedback = Readonly<{
+  positionKey: string;
+  result: ShareResult;
+}>;
 
 export type AudienceControlsProps = Readonly<{
   deckRef: RefObject<HTMLDivElement | null>;
   manifest: DeckManifest;
+  onCopyShareURL(position: DeckPosition): Promise<void>;
   onError(error: unknown): void;
   onNavigate(command: DeckCommand): void | Promise<void>;
   onOpenDocument(): void;
@@ -150,6 +157,18 @@ const DocumentIcon = (): ReactElement => (
   </Icon>
 );
 
+const ShareIcon = (): ReactElement => (
+  <Icon>
+    <rect height="11" rx="2" stroke="currentColor" strokeWidth="1.6" width="11" x="9" y="4" />
+    <path
+      d="M15 15v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeWidth="1.6"
+    />
+  </Icon>
+);
+
 const FullscreenIcon = ({ active }: Readonly<{ active: boolean }>): ReactElement => (
   <Icon>
     {active ? (
@@ -203,6 +222,7 @@ const shortcutRows = Object.freeze([
 export const AudienceControls = ({
   deckRef,
   manifest,
+  onCopyShareURL,
   onError,
   onNavigate,
   onOpenDocument,
@@ -218,10 +238,22 @@ export const AudienceControls = ({
   const [panel, setPanel] = useState<AudiencePanel>();
   const [pauseScreen, setPauseScreen] = useState<PauseScreen>();
   const [query, setQuery] = useState("");
+  const [shareFeedback, setShareFeedback] = useState<ShareFeedback>();
   const [slides, setSlides] = useState<readonly SlideNavigationItem[]>(() =>
     readSlideNavigationItems(null, manifest),
   );
   const progress = resolveAudienceProgress(manifest, position);
+  const positionKey = `${position.slideId}:${position.step}`;
+  const visibleShareResult =
+    shareFeedback?.positionKey === positionKey ? shareFeedback.result : undefined;
+
+  useEffect(() => {
+    if (visibleShareResult === undefined) {
+      return;
+    }
+    const timeout = globalThis.setTimeout(() => setShareFeedback(undefined), 2_400);
+    return () => globalThis.clearTimeout(timeout);
+  }, [visibleShareResult]);
 
   useLayoutEffect(() => {
     setSlides(readSlideNavigationItems(deckRef.current, manifest));
@@ -270,6 +302,22 @@ export const AudienceControls = ({
     (command: DeckCommand): void => run(() => onNavigate(command)),
     [onNavigate, run],
   );
+
+  const copyShareURL = useCallback((): void => {
+    const requestedPosition = position;
+    const requestedPositionKey = positionKey;
+    setShareFeedback(undefined);
+
+    void Promise.resolve()
+      .then(() => onCopyShareURL(requestedPosition))
+      .then(
+        () => setShareFeedback({ positionKey: requestedPositionKey, result: "copied" }),
+        (error: unknown) => {
+          setShareFeedback({ positionKey: requestedPositionKey, result: "failed" });
+          onError(error);
+        },
+      );
+  }, [onCopyShareURL, onError, position, positionKey]);
 
   const jumpTo = useCallback(
     (slide: SlideNavigationItem): void => {
@@ -427,6 +475,15 @@ export const AudienceControls = ({
         </button>
         <span aria-hidden="true" className="drever-audience-controls__divider" />
         <button
+          aria-label="Copy link to current presentation state"
+          data-share-result={visibleShareResult}
+          onClick={copyShareURL}
+          title="Copy link"
+          type="button"
+        >
+          <ShareIcon />
+        </button>
+        <button
           aria-label="Open document view"
           onClick={() => run(onOpenDocument)}
           title="Document view (D)"
@@ -459,6 +516,18 @@ export const AudienceControls = ({
           <HelpIcon />
         </button>
       </nav>
+
+      {visibleShareResult === undefined ? null : (
+        <div
+          aria-atomic="true"
+          aria-live="polite"
+          className="drever-audience-share-status"
+          data-share-result={visibleShareResult}
+          role="status"
+        >
+          {visibleShareResult === "copied" ? "Link copied." : "Could not copy link."}
+        </div>
+      )}
 
       {gotoBuffer.length === 0 ? null : (
         <div aria-atomic="true" aria-live="polite" className="drever-audience-goto" role="status">

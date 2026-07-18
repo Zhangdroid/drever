@@ -149,13 +149,13 @@ The scarce part is now **judgment**: what to reveal, what to make tangible, and 
       </div>
     </div>
   }
-  caption="Canonical paths are presentation state—not incidental browser state."
+  caption="Canonical paths are presentation state—and the command bar copies the exact moment."
   balance="text-led"
 />
 
 <Note>
-  These are paths, not query parameters. A production build materializes every valid route so deep
-  links remain portable on a static host.
+  These are paths, not query parameters. Copy link preserves the current query and hash while a
+  production build materializes every valid route, so deep links remain portable on a static host.
 </Note>
 
 ---
@@ -187,13 +187,23 @@ The scarce part is now **judgment**: what to reveal, what to make tangible, and 
   <div className="tour-speaker__notes">
     <span>Speaker note</span>
     <p>Context for delivery, never mounted for the audience.</p>
-    <strong className="tour-speaker__timer">08:42</strong>
+    <div className="tour-speaker__timer">
+      <span>
+        <small>Elapsed</small>
+        <strong>08:42</strong>
+      </span>
+      <span>
+        <small>Remaining</small>
+        <strong>11:18</strong>
+      </span>
+    </div>
   </div>
 </div>
 
 <Note>
   Press P to open the real speaker view at this exact slide. Point out current and next previews,
-  notes, timer, controls, and native BroadcastChannel synchronization with the audience window.
+  notes, rehearsal target, per-slide timing, controls, and native BroadcastChannel synchronization
+  with the audience window.
 </Note>
 
 ---

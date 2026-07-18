@@ -157,6 +157,7 @@ import { defineConfig } from "drever";
 export default defineConfig({
   entry: "slides.mdx",
   canvas: { width: 1600, height: 900 },
+  rehearsal: { targetDurationMinutes: 20 },
   server: {
     host: "127.0.0.1",
     port: 4317,
@@ -168,6 +169,10 @@ export default defineConfig({
   },
 });
 ```
+
+`rehearsal.targetDurationMinutes` supplies the initial target shown in the
+speaker view. The speaker can edit or clear that target during the current
+session; those changes and all recorded timings remain session-local.
 
 The default theme is active when `theme` is omitted. It styles ordinary Markdown
 and registers the semantic `Cover` and `TwoColumn` layouts:
@@ -234,6 +239,8 @@ components are covered in [Extension authoring](./extensions.md).
 - Fullscreen: `F`. Pause on a blank black or white screen with `B` or `W`;
   press the same key, `Escape`, or select the screen to return.
 - Keyboard help: `?`.
+- Copy link: use the audience command bar to copy the canonical URL for the
+  current slide and exact Step.
 - Document view: press `D` to open a searchable, fully revealed reading view at
   the current slide.
 - Speaker view: press `P` from the audience to open the same slide and Step in a
@@ -263,6 +270,13 @@ assets, so clean links work with or without a trailing slash and when the deck
 is deployed below a subdirectory. Query parameters and the hash are preserved
 but do not encode Drever state.
 
+The audience **Copy link** action encodes the current presentation state against
+that canonical route and preserves the source query and hash. It writes the
+absolute URL through `navigator.clipboard.writeText()`, which requires the
+Clipboard API in a secure context. If the API is absent or the browser rejects
+the write, Drever shows a failure status and reports the error. It does not fall
+back to `document.execCommand()` or an invisible text field.
+
 Open `/document` for a single scrollable presentation transcript. It renders
 every slide at its final authored Step, provides a table of contents, and names
 each slide landmark from the compiled title. Browser Find can search the whole
@@ -283,10 +297,20 @@ future deployment mode rather than an implicit unsafe fallback.
 
 Open `/speaker`, `/speaker/2`, or `/speaker/2/3` for the speaker view at the
 same position. It provides current and next-state previews, `<Note>` content, a
-timer, navigation controls, and an **Open audience** action. Audience windows
-opened before or after the speaker view synchronize through `BroadcastChannel`.
-`drever dev` prints the speaker URL; the `P` shortcut derives its path from the
-current audience state and preserves unrelated query/hash state.
+rehearsal workspace, navigation controls, and an **Open audience** action. The
+workspace tracks total elapsed time, time on the current slide, accumulated
+time and visit count for every slide, and remaining or overtime against an
+optional editable target. Pause/resume stops and restarts accounting; reset
+clears the timings and begins the current slide's first visit again.
+
+Rehearsal state exists only for the lifetime of that speaker view. It is not
+written into the deck, persisted across reloads, or synchronized to an audience
+window. Audience windows opened before or after the speaker view synchronize
+presentation position through `BroadcastChannel`; this release does not claim
+remote transition-readiness synchronization. `drever dev` prints the speaker
+URL; the `P` shortcut derives its path from the current audience state and
+preserves unrelated query/hash state.
+
 Inactive audience slides leave the accessibility tree while React preserves
 their local component state.
 

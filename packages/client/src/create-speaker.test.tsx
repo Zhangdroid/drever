@@ -15,6 +15,7 @@ import type {
   PresentationChannel,
   SpeakerPresentationSync,
 } from "./presentation-sync.ts";
+import type { RehearsalStore } from "./rehearsal.ts";
 import type { SpeakerHostProps } from "./speaker.tsx";
 import { createSpeaker, type CreateSpeakerOptions } from "./create-speaker.tsx";
 
@@ -22,6 +23,7 @@ const dependencies = vi.hoisted(() => ({
   attachKeyboardNavigation: vi.fn(),
   createBrowserPresentationChannel: vi.fn(),
   createPresentationNavigation: vi.fn(),
+  createRehearsalStore: vi.fn(),
   createRoot: vi.fn(),
   createSpeakerSync: vi.fn(),
   requireViewerPlatform: vi.fn(),
@@ -42,6 +44,7 @@ vi.mock("./presentation-sync.ts", () => ({
   createBrowserPresentationChannel: dependencies.createBrowserPresentationChannel,
   createSpeakerSync: dependencies.createSpeakerSync,
 }));
+vi.mock("./rehearsal.ts", () => ({ createRehearsalStore: dependencies.createRehearsalStore }));
 vi.mock("./speaker.tsx", () => ({ SpeakerHost: dependencies.SpeakerHost }));
 
 const manifest = {
@@ -131,6 +134,28 @@ const createHarness = ({
   const syncDispose = vi.fn(() => events.push("sync:dispose"));
   const syncPublish = vi.fn();
   const sync: SpeakerPresentationSync = { dispose: syncDispose, publish: syncPublish };
+  const rehearsalDestroy = vi.fn();
+  const rehearsalCommitPosition = vi.fn();
+  const rehearsal: RehearsalStore = {
+    commitPosition: rehearsalCommitPosition,
+    destroy: rehearsalDestroy,
+    getSnapshot: vi.fn(() => ({
+      currentSlideElapsedMs: 0,
+      currentSlideId: "intro",
+      elapsedMs: 0,
+      running: true,
+      slides: [
+        { elapsedMs: 0, slideId: "intro", slideIndex: 0, visits: 1 },
+        { elapsedMs: 0, slideId: "details", slideIndex: 1, visits: 0 },
+      ],
+    })),
+    pause: vi.fn(),
+    reset: vi.fn(),
+    resume: vi.fn(),
+    setTargetDuration: vi.fn(),
+    subscribe: vi.fn(() => vi.fn()),
+    toggle: vi.fn(),
+  };
   const keyboardDispose = vi.fn(() => events.push("keyboard:dispose"));
   let keyboardOptions: AttachKeyboardNavigationOptions | undefined;
   let navigationOptions: CreatePresentationNavigationOptions | undefined;
@@ -158,6 +183,7 @@ const createHarness = ({
       return sync;
     },
   );
+  dependencies.createRehearsalStore.mockReturnValue(rehearsal);
   dependencies.attachKeyboardNavigation.mockImplementation(
     (options: AttachKeyboardNavigationOptions): (() => void) => {
       events.push("keyboard:attach");
@@ -203,6 +229,9 @@ const createHarness = ({
       };
     },
     rendered: (): ReactNode => rendered,
+    rehearsal,
+    rehearsalCommitPosition,
+    rehearsalDestroy,
     rootUnmount,
     syncDispose,
     syncPublish,
@@ -224,7 +253,12 @@ describe("createSpeaker", () => {
     const harness = createHarness({ autoMount: false });
     const runSetup = vi.fn(() => undefined);
     let settled = false;
-    const creation = createSpeaker(harness.options({ runtime: { runSetup } })).finally(() => {
+    const creation = createSpeaker(
+      harness.options({
+        rehearsal: { targetDurationMs: 20 * 60_000 },
+        runtime: { runSetup },
+      }),
+    ).finally(() => {
       settled = true;
     });
 
@@ -243,6 +277,12 @@ describe("createSpeaker", () => {
       slideId: "intro",
       slideIndex: 0,
       step: 2,
+    });
+    expect(harness.hostProps.rehearsal).toBe(harness.rehearsal);
+    expect(dependencies.createRehearsalStore).toHaveBeenCalledWith({
+      initialPosition: { slideId: "intro", slideIndex: 0, step: 2 },
+      manifest: expect.objectContaining({ version: DECK_MANIFEST_VERSION }),
+      targetDurationMs: 20 * 60_000,
     });
     expect(harness.navigationOptions.surface).toBe("speaker");
     expect(harness.navigationOptions.baseURL.href).toBe("https://slides.test/talk/");
@@ -297,6 +337,8 @@ describe("createSpeaker", () => {
 
     await harness.navigationOptions.commit(change, new AbortController().signal);
 
+    expect(harness.rehearsalCommitPosition).toHaveBeenCalledOnce();
+    expect(harness.rehearsalCommitPosition).toHaveBeenCalledWith(change.to);
     expect(harness.navigationOptions.store.getSnapshot()).toEqual(change.to);
     expect(harness.syncPublish).toHaveBeenCalledOnce();
     expect(harness.syncPublish).toHaveBeenCalledWith("drever-slide-forward");
@@ -341,6 +383,7 @@ describe("createSpeaker", () => {
     expect(harness.syncDispose).toHaveBeenCalledOnce();
     expect(harness.navigationController.dispose).toHaveBeenCalledOnce();
     expect(harness.rootUnmount).toHaveBeenCalledOnce();
+    expect(harness.rehearsalDestroy).toHaveBeenCalledOnce();
     expect(setupDispose).toHaveBeenCalledOnce();
   });
 
@@ -374,5 +417,6 @@ describe("createSpeaker", () => {
     expect(harness.syncDispose).toHaveBeenCalledOnce();
     expect(harness.navigationController.dispose).toHaveBeenCalledOnce();
     expect(harness.rootUnmount).toHaveBeenCalledOnce();
+    expect(harness.rehearsalDestroy).toHaveBeenCalledOnce();
   });
 });

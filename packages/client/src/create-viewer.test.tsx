@@ -80,6 +80,7 @@ type RootCallbacks = Readonly<{
 
 type HarnessOptions = Readonly<{
   autoMount?: boolean;
+  clipboard?: boolean;
   currentURL?: string;
   teardownErrors?: Partial<
     Readonly<{
@@ -103,6 +104,7 @@ const hostPropsFrom = (node: ReactNode): ViewerHostProps => {
 
 const createHarness = ({
   autoMount = true,
+  clipboard = true,
   currentURL = "https://slides.test/talk",
   teardownErrors = {},
 }: HarnessOptions = {}) => {
@@ -123,8 +125,10 @@ const createHarness = ({
     removeEventListener(): void {}
   }
   const open = vi.fn(() => null);
+  const writeText = vi.fn(async () => undefined);
   const platform: ViewerPlatform = {
     channelView: { BroadcastChannel: TestBroadcastChannel },
+    ...(clipboard ? { clipboard: { writeText } } : {}),
     document,
     keyboardTarget: document,
     navigation: navigationSurface,
@@ -237,6 +241,7 @@ const createHarness = ({
       return { baseURL: "https://slides.test/talk/", Content, container, manifest, ...overrides };
     },
     open,
+    writeText,
     rendered: (): ReactNode => rendered,
     rootUnmount,
     transitionClose,
@@ -442,6 +447,44 @@ describe("createViewer lifecycle", () => {
       "_blank",
       "noopener",
     );
+    await viewer.destroy();
+  });
+
+  it("copies the canonical URL for the exact visible slide and Step", async () => {
+    const harness = createHarness({
+      currentURL: "https://slides.test/talk?theme=dark#notes",
+    });
+    const viewer = await createViewer(harness.options({ baseURL: "https://slides.test/talk" }));
+
+    await harness.hostProps.onCopyShareURL({ slideId: "intro", slideIndex: 0, step: 2 });
+
+    expect(harness.writeText).toHaveBeenCalledOnce();
+    expect(harness.writeText).toHaveBeenCalledWith("https://slides.test/talk/1/2?theme=dark#notes");
+    await viewer.destroy();
+  });
+
+  it("fails copying clearly when the optional Clipboard API is unavailable", async () => {
+    const harness = createHarness({ clipboard: false });
+    const viewer = await createViewer(harness.options());
+
+    await expect(
+      harness.hostProps.onCopyShareURL({ slideId: "intro", slideIndex: 0, step: 0 }),
+    ).rejects.toMatchObject({ code: "DREVER_CLIENT_CLIPBOARD_UNAVAILABLE" });
+    await viewer.destroy();
+  });
+
+  it("normalizes a rejected clipboard write into the client error contract", async () => {
+    const failure = new DOMException("Write permission denied.", "NotAllowedError");
+    const harness = createHarness();
+    harness.writeText.mockRejectedValueOnce(failure);
+    const viewer = await createViewer(harness.options());
+
+    await expect(
+      harness.hostProps.onCopyShareURL({ slideId: "intro", slideIndex: 0, step: 0 }),
+    ).rejects.toMatchObject({
+      cause: failure,
+      code: "DREVER_CLIENT_CLIPBOARD_WRITE_FAILED",
+    });
     await viewer.destroy();
   });
 

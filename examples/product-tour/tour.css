@@ -482,10 +482,30 @@
 }
 
 .tour-speaker__timer {
+  display: grid;
   margin-top: auto;
   padding-top: 60px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.tour-speaker__timer > span {
+  display: grid;
+  margin: 0;
+  gap: 5px;
+}
+
+.tour-speaker__timer small {
+  color: var(--drever-theme-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tour-speaker__timer strong {
   color: var(--drever-theme-accent-strong);
-  font-size: 38px;
+  font-size: 30px;
   font-variant-numeric: tabular-nums;
   font-weight: 800;
 }

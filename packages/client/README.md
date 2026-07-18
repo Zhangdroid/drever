@@ -27,8 +27,16 @@ await viewer.navigate({ type: "next" });
 The viewer owns canvas scaling, exact Step navigation, clean path/history state,
 an accessible audience command bar and slide navigator, keyboard controls,
 element-scoped View Transitions, runtime setup, and teardown.
-`createSpeaker` adds current/next previews, compiled notes, a timer, controls,
-and `BroadcastChannel` synchronization with audience windows. The audience
+Its Copy link control writes the canonical URL for the committed slide and Step
+while preserving query and hash state. It requires the Clipboard API in a
+secure context and reports a clear error instead of using a legacy fallback.
+
+`createSpeaker` adds current/next previews, compiled notes, rehearsal controls,
+and `BroadcastChannel` position synchronization with audience windows. Its
+session-local clock reports total and current-slide time plus accumulated time
+and visit counts per slide. The speaker can pause, resume, reset, and edit or
+clear an optional target. Timings and target edits are not persisted or
+broadcast, and transition readiness is not yet a remote contract. The audience
 runtime opens the equivalent speaker path when the user presses `P`.
 
 `createExport` renders one raw canvas-sized page per slide at its final Step by
@@ -61,6 +69,10 @@ The package targets current browsers and intentionally requires the Navigation
 API, `Element.startViewTransition`, `BroadcastChannel`, and `ResizeObserver`
 instead of shipping legacy fallbacks. Export readiness similarly depends on
 modern `FontFaceSet`, image decoding, and animation-frame APIs.
+
+Clipboard support is required only when Copy link is selected. If
+`navigator.clipboard.writeText()` is unavailable or rejects the write, the
+viewer reports the failure; it never substitutes `document.execCommand()`.
 
 ## Status
 

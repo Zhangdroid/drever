@@ -33,10 +33,18 @@ import {
   validateDisposer,
   type Awaitable,
 } from "./runtime-lifecycle.ts";
+import { createRehearsalStore } from "./rehearsal.ts";
 import { SpeakerHost } from "./speaker.tsx";
 import { releaseLateAcquisition } from "./viewer-lifecycle.ts";
 
-export type CreateSpeakerOptions = Omit<CreateViewerOptions, "reducedMotion">;
+export type SpeakerRehearsalOptions = Readonly<{
+  targetDurationMs?: number;
+}>;
+
+export type CreateSpeakerOptions = Omit<CreateViewerOptions, "reducedMotion"> &
+  Readonly<{
+    rehearsal?: SpeakerRehearsalOptions;
+  }>;
 export type SpeakerHandle = ViewerHandle;
 
 /** Mounts the speaker view for a `/speaker` route. */
@@ -53,6 +61,13 @@ export const createSpeaker = async (options: CreateSpeakerOptions): Promise<Spea
   const speakerRoute = createPresentationRouteCodec({ baseURL, machine, surface: "speaker" });
   const audienceRoute = createPresentationRouteCodec({ baseURL, machine });
   const store = createPresentationStore(machine, speakerRoute.decodeURL(currentURL));
+  const rehearsal = createRehearsalStore({
+    initialPosition: store.getSnapshot(),
+    manifest: machine.manifest,
+    ...(options.rehearsal?.targetDurationMs === undefined
+      ? {}
+      : { targetDurationMs: options.rehearsal.targetDurationMs }),
+  });
   const lifetime = new AbortController();
   const subscriptions = new Set<() => void>();
 
@@ -137,6 +152,7 @@ export const createSpeaker = async (options: CreateSpeakerOptions): Promise<Spea
         reactRoot = undefined;
         captureSync(() => root.unmount());
       }
+      captureSync(rehearsal.destroy);
       if (setupDisposer !== undefined) {
         const dispose = setupDisposer;
         setupDisposer = undefined;
@@ -214,6 +230,7 @@ export const createSpeaker = async (options: CreateSpeakerOptions): Promise<Spea
           onMounted={mounted.resolve}
           onNavigate={navigateFromControls}
           onOpenAudience={openAudience}
+          rehearsal={rehearsal}
           {...(options.registry === undefined ? {} : { registry: options.registry })}
           store={store}
         />
@@ -230,6 +247,7 @@ export const createSpeaker = async (options: CreateSpeakerOptions): Promise<Spea
         if (signal.aborted) {
           throw abortReason(signal);
         }
+        rehearsal.commitPosition(change.to);
         store.commit(change.to);
         sync?.publish(change.transitionType);
       },

@@ -9,11 +9,11 @@ The deck demonstrates:
 - the official Editorial theme through its `Masthead` and `Feature` layouts;
 - the MDX, `---`, `Step`, and `Note` authoring contract;
 - default build-time Shiki highlighting and reset-free Tailwind utilities;
-- accumulated Step states and clean path URLs;
+- accumulated Step states, clean path URLs, and canonical link copying;
 - React interaction whose state survives inactive slides;
 - element-scoped motion as a visible design boundary;
 - the searchable, fully revealed `/document` reading view;
-- speaker notes and the `/speaker` view;
+- speaker notes and the `/speaker` rehearsal view with a 20-minute target;
 - the AI-first write, inspect, test, build, and deploy loop.
 
 All visuals are CSS and local React components. There are no fonts, images,
@@ -31,6 +31,8 @@ vp run -F @drever/example-product-tour dev
 Open <http://localhost:4320>. Press `P` at any point to open the synchronized
 speaker view, or visit <http://localhost:4320/speaker> directly. Press `D`, or
 visit <http://localhost:4320/document>, to read and search the complete deck.
+The audience command bar can also copy the canonical URL for the exact visible
+slide and Step.
 
 Create the static production artifact with:
 

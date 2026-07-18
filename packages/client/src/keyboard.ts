@@ -61,6 +61,8 @@ const IGNORED_TARGETS = [
 ].join(",");
 
 const SPEAKER_CONTROLS = "[data-drever-speaker-controls]";
+const SPEAKER_EDITABLE_CONTROLS =
+  "input, textarea, select, [contenteditable]:not([contenteditable='false'])";
 
 const canFindClosest = (value: EventTarget | null): value is EventTarget & ClosestTarget =>
   value !== null &&
@@ -125,7 +127,8 @@ export const keyboardCommandFor = (
   const speakerNavigation =
     surface === "speaker" &&
     !isSpaceKey(event.key) &&
-    event.target.closest(SPEAKER_CONTROLS) !== null;
+    event.target.closest(SPEAKER_CONTROLS) !== null &&
+    event.target.closest(SPEAKER_EDITABLE_CONTROLS) === null;
   return speakerNavigation ? command : undefined;
 };
 

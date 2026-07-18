@@ -5,6 +5,7 @@ const candidateDocument = (
   capabilities: Readonly<{
     broadcastChannel?: unknown;
     elementStartViewTransition?: unknown;
+    clipboard?: unknown;
     navigation?: unknown;
     resizeObserver?: unknown;
   }> = {},
@@ -21,6 +22,9 @@ const candidateDocument = (
         },
       },
       ResizeObserver: capabilities.resizeObserver ?? class {},
+      navigator: {
+        clipboard: capabilities.clipboard ?? { writeText: () => Promise.resolve() },
+      },
       navigation: capabilities.navigation ?? {
         addEventListener: () => undefined,
         navigate: () => undefined,
@@ -43,8 +47,17 @@ describe("viewer platform support", () => {
       keyboardTarget: document,
     });
     expect(platform.navigation).toBe(document.defaultView?.navigation);
+    expect(platform.clipboard).toBe(document.defaultView?.navigator.clipboard);
     expect(Object.isFrozen(platform)).toBe(true);
     expect(startViewTransition).not.toHaveBeenCalled();
+  });
+
+  it("keeps Clipboard API support optional because sharing must not block presentation", () => {
+    const document = candidateDocument({ clipboard: false });
+
+    const platform = requireViewerPlatform(document);
+
+    expect(platform.clipboard).toBeUndefined();
   });
 
   it("reports every missing capability without selecting a fallback", () => {

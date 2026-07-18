@@ -5,6 +5,7 @@ export type {
   DreverConfig,
   DreverConfigExport,
   DreverPluginUse,
+  DreverRehearsalConfig,
   DreverServerConfig,
 } from "./config.ts";
 

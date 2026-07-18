@@ -154,6 +154,25 @@ export const createViewer = async (options: CreateViewerOptions): Promise<Viewer
     }
     await navigation.navigate(command);
   };
+  const copyShareURL = async (position: DeckPosition): Promise<void> => {
+    if (platform.clipboard === undefined) {
+      throw new DreverClientError(
+        "DREVER_CLIENT_CLIPBOARD_UNAVAILABLE",
+        "Copying a presentation link requires the Clipboard API in a secure context.",
+      );
+    }
+    const sourceURL = new URL(platform.navigation.currentEntry?.url ?? currentURL.href);
+    const shareURL = route.encodeURL(position, sourceURL);
+    try {
+      await platform.clipboard.writeText(shareURL.href);
+    } catch (cause) {
+      throw new DreverClientError(
+        "DREVER_CLIENT_CLIPBOARD_WRITE_FAILED",
+        "The browser could not copy the presentation link.",
+        { cause },
+      );
+    }
+  };
   const openSpeaker = (): void => {
     const sourceURL = new URL(platform.navigation.currentEntry?.url ?? currentURL.href);
     const speakerURL = speakerRoute.encodeURL(store.getSnapshot(), sourceURL);
@@ -276,6 +295,7 @@ export const createViewer = async (options: CreateViewerOptions): Promise<Viewer
           Content={options.Content}
           {...(canvas === undefined ? {} : { canvas })}
           machine={machine}
+          onCopyShareURL={copyShareURL}
           onError={report}
           onMounted={mounted.resolve}
           onNavigate={navigateFromControls}

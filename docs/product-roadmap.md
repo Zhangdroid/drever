@@ -88,21 +88,34 @@ headings, contrast, captions, and a scrollable HTML view in its
 text, captions, logical reading order, and unique slide titles in its
 [Accessibility Checker][microsoft-accessibility].
 
-## P1 — common and high-value next
+## P1 — common and in progress
+
+Delivered in the current P1 foundation:
+
+- **Rehearsal foundation:** the speaker view tracks total and current-slide
+  time, accumulated per-slide time, and visit counts. It supports
+  pause/resume/reset and an optional editable target initialized by
+  `rehearsal.targetDurationMinutes`. Measurements and target edits are local to
+  the speaker session. A remote transition-readiness signal remains pending.
+- **Canonical sharing foundation:** the audience command bar copies the exact
+  current slide and Step URL while preserving query and hash state. It requires
+  the Clipboard API and reports failure without a legacy fallback. Document
+  embedding and dependency-free QR output remain pending.
+
+Still pending:
 
 - **Annotations:** an ephemeral laser pointer, pen, and highlighter, optionally
   synchronized to the audience. Persistence should be opt-in.
-- **Rehearsal:** elapsed or remaining time, a target duration, per-slide timing,
-  and a ready-to-advance signal while a transition is active. Keynote exposes a
-  comparable [timer and readiness indicator][keynote-presenter], while PowerPoint
-  records [rehearsal timings][powerpoint-rehearsal].
 - **Automatic playback:** authored timings and auto-advance for kiosks, demos,
   and unattended presentations.
 - **Live captions:** an explicit microphone-powered mode with clear permission,
   privacy, and language errors. Google documents browser-powered captions in
   current Chrome, Edge, and Safari in its [caption guidance][google-captions].
-- **Sharing affordances:** copy the canonical current-state URL, document
-  embedding, and offer a dependency-free QR representation where practical.
+
+Keynote exposes a comparable [timer and readiness indicator][keynote-presenter],
+while PowerPoint records [rehearsal timings][powerpoint-rehearsal]. Drever's
+delivered rehearsal clock does not yet claim the readiness portion of that
+comparison.
 
 These features belong in the client or narrowly scoped official plugins. They
 must not make the default audience bundle pay for unused capabilities.

@@ -12,7 +12,8 @@ import {
   type ViteDevServer,
 } from "vite";
 import type { ResolvedDreverProject } from "./project.ts";
-import { createPrivateApp } from "./private-app.ts";
+import type { DreverConfig } from "./config.ts";
+import { createPrivateApp, type PrivateAppOptions } from "./private-app.ts";
 import { DreverCliError } from "./errors.ts";
 import { writeStaticDeckRoutes } from "./static-routes.ts";
 
@@ -185,8 +186,23 @@ export const resolveSpeakerUrls = (resolvedUrls: ResolvedServerUrls | null): rea
   return [...urls];
 };
 
+/** @internal Converts author-facing minutes into the speaker runtime's millisecond contract. */
+export const resolvePrivateAppOptions = (
+  config: Pick<DreverConfig, "canvas" | "rehearsal">,
+): PrivateAppOptions => {
+  const targetDurationMinutes = config.rehearsal?.targetDurationMinutes;
+  return Object.freeze({
+    ...(config.canvas === undefined ? {} : { canvas: config.canvas }),
+    ...(targetDurationMinutes === undefined
+      ? {}
+      : {
+          rehearsal: Object.freeze({ targetDurationMs: targetDurationMinutes * 60_000 }),
+        }),
+  });
+};
+
 export const buildDreverProject = async (project: ResolvedDreverProject): Promise<void> => {
-  const app = await createPrivateApp(project.entry, project.config.canvas);
+  const app = await createPrivateApp(project.entry, resolvePrivateAppOptions(project.config));
   try {
     const manifest = await buildPrivateApp(
       project,
@@ -224,7 +240,7 @@ export const buildDreverExportApp = async (
 export const serveDreverProject = async (
   project: ResolvedDreverProject,
 ): Promise<ViteDevServer> => {
-  const app = await createPrivateApp(project.entry, project.config.canvas);
+  const app = await createPrivateApp(project.entry, resolvePrivateAppOptions(project.config));
   try {
     const server = await createServer(inlineConfig(project, app.root));
     attachPrivateAppLifetime(server, app.dispose);

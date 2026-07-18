@@ -8,8 +8,13 @@ export type DreverPlatformCapability =
   | "Navigation API"
   | "ResizeObserver";
 
+export type ClipboardWriter = Readonly<{
+  writeText(text: string): Promise<void>;
+}>;
+
 export type ViewerPlatform = Readonly<{
   channelView: PresentationChannelView;
+  clipboard?: ClipboardWriter;
   document: Document;
   keyboardTarget: Document;
   navigation: NavigationLike;
@@ -82,8 +87,11 @@ export const requireViewerPlatform = (document: Document): ViewerPlatform => {
     );
   }
 
+  const clipboard = view.navigator?.clipboard;
+
   return Object.freeze({
     channelView: view as PresentationChannelView,
+    ...(clipboard === undefined || typeof clipboard.writeText !== "function" ? {} : { clipboard }),
     document,
     keyboardTarget: document,
     navigation: view.navigation as NavigationLike,

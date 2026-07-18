@@ -21,6 +21,10 @@ export type DreverBuildConfig = Readonly<{
   sourcemap?: boolean | "hidden" | "inline";
 }>;
 
+export type DreverRehearsalConfig = Readonly<{
+  targetDurationMinutes?: number;
+}>;
+
 export type DreverPluginUse = Readonly<{
   config?: PluginRegistration["config"];
   enabled?: boolean;
@@ -32,6 +36,7 @@ export type DreverConfig = Readonly<{
   canvas?: DreverCanvasConfig;
   entry?: string;
   plugins?: readonly (DreverPlugin | DreverPluginUse)[];
+  rehearsal?: DreverRehearsalConfig;
   server?: DreverServerConfig;
   theme?: ThemeDefinition;
 }>;
@@ -52,9 +57,18 @@ export type LoadedDreverConfig = Readonly<{
 }>;
 
 const CONFIG_FILE = "drever.config.ts";
-const CONFIG_KEYS = new Set(["build", "canvas", "entry", "plugins", "server", "theme"]);
+const CONFIG_KEYS = new Set([
+  "build",
+  "canvas",
+  "entry",
+  "plugins",
+  "rehearsal",
+  "server",
+  "theme",
+]);
 const BUILD_KEYS = new Set(["outDir", "sourcemap"]);
 const CANVAS_KEYS = new Set(["height", "width"]);
+const REHEARSAL_KEYS = new Set(["targetDurationMinutes"]);
 const SERVER_KEYS = new Set(["host", "open", "port", "strictPort"]);
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -62,6 +76,9 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 
 const isPositiveInteger = (value: unknown): value is number =>
   typeof value === "number" && Number.isSafeInteger(value) && value > 0;
+
+const isPositiveFiniteNumber = (value: unknown): value is number =>
+  typeof value === "number" && Number.isFinite(value) && value > 0;
 
 const isPort = (value: unknown): value is number =>
   typeof value === "number" && Number.isSafeInteger(value) && value >= 1 && value <= 65_535;
@@ -160,6 +177,24 @@ const validateServer = (value: unknown): void => {
   }
 };
 
+const validateRehearsal = (value: unknown): void => {
+  const rehearsal = requireRecord(value, "rehearsal must be an object.", "rehearsal");
+  const extra = unknownKey(rehearsal, REHEARSAL_KEYS);
+  if (extra !== undefined) {
+    invalidConfig(`rehearsal.${extra} is not a supported option.`, `rehearsal.${extra}`);
+  }
+  if (
+    rehearsal.targetDurationMinutes !== undefined &&
+    !isPositiveFiniteNumber(rehearsal.targetDurationMinutes)
+  ) {
+    invalidConfig(
+      "rehearsal.targetDurationMinutes must be a finite number greater than zero.",
+      "rehearsal.targetDurationMinutes",
+      rehearsal.targetDurationMinutes,
+    );
+  }
+};
+
 const validateConfig = (value: unknown): DreverConfig => {
   const config = requireRecord(value, "The default export must be an object.", "$");
   const extra = unknownKey(config, CONFIG_KEYS);
@@ -177,6 +212,9 @@ const validateConfig = (value: unknown): DreverConfig => {
   }
   if (config.build !== undefined) {
     validateBuild(config.build);
+  }
+  if (config.rehearsal !== undefined) {
+    validateRehearsal(config.rehearsal);
   }
   if (config.server !== undefined) {
     validateServer(config.server);

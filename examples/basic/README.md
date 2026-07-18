@@ -8,7 +8,9 @@ runtime paths:
 - browser history and exact path URLs;
 - an interactive React counter whose state survives inactive slides;
 - speaker-only `Note` content;
-- a speaker view with audience-window synchronization;
+- a speaker view with a five-minute rehearsal target, per-slide timing, and
+  audience-window synchronization;
+- canonical current-state link copying from the audience controls;
 - a searchable `/document` view with every Step revealed;
 - a clean source-based accessibility report;
 - five-page final-state and seven-page sparse-Step PDF exports.
@@ -30,8 +32,11 @@ Open <http://localhost:4317/2/5> directly to verify that a sparse Step deep link
 also survives a reload.
 Open <http://localhost:4317/speaker> to use the speaker view; its controls,
 keyboard navigation, and URL keep any open audience window synchronized through
-the browser's native `BroadcastChannel`. The dev command prints this URL, and
-pressing `P` from the audience opens the speaker view at the current slide and Step.
+the browser's native `BroadcastChannel`. The rehearsal panel starts with the
+five-minute target from `drever.config.ts` and tracks each slide visit. The dev
+command prints this URL, and pressing `P` from the audience opens the speaker
+view at the current slide and Step. Use **Copy link** in the audience control bar
+to copy that exact slide and Step URL.
 Open <http://localhost:4317/document>, or press `D`, for the complete scrollable
 reading view.
 

@@ -11,7 +11,11 @@ export type {
   ExportSetupRunner,
 } from "./create-export.tsx";
 export { createSpeaker } from "./create-speaker.tsx";
-export type { CreateSpeakerOptions, SpeakerHandle } from "./create-speaker.tsx";
+export type {
+  CreateSpeakerOptions,
+  SpeakerHandle,
+  SpeakerRehearsalOptions,
+} from "./create-speaker.tsx";
 export { createViewer } from "./create-viewer.tsx";
 export type {
   CreateViewerOptions,

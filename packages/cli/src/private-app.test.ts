@@ -27,7 +27,7 @@ describe("generated private application", () => {
       );
       expect(source).toContain('const routePath = relativePath.replace(/\\/+$/u, "");');
       expect(source).toContain('routePath === "document"');
-      expect(source).toContain("? createDocument");
+      expect(source).toContain("? await createDocument(presentationOptions)");
       expect(source).not.toContain("console.error");
       expect(html).not.toContain("data-drever-export-bootstrap");
 
@@ -57,6 +57,31 @@ describe("generated private application", () => {
       expect(await reported.promise).toBe(failure);
       expect(reportPresentationError).toHaveBeenCalledOnce();
       expect(reportPresentationError).toHaveBeenCalledWith(failure);
+    } finally {
+      await app.dispose();
+    }
+  });
+
+  it("passes rehearsal settings exclusively to the speaker surface", async () => {
+    const app = await createPrivateApp("/project/slides.mdx", {
+      canvas: { height: 900, width: 1_600 },
+      rehearsal: { targetDurationMs: 1_110_000 },
+    });
+    try {
+      const source = await readFile(join(app.root, "entry.js"), "utf8");
+      const optionsEnd = source.indexOf("const presentation =");
+      if (optionsEnd < 0) {
+        throw new TypeError("The generated entry is missing its presentation branches.");
+      }
+
+      expect(source.slice(0, optionsEnd)).not.toContain("rehearsal");
+      expect(source).toContain('canvas: {"height":900,"width":1600}');
+      expect(source).toContain("? await createDocument(presentationOptions)");
+      expect(source).toContain(
+        '? await createSpeaker({\n      ...presentationOptions,\n      rehearsal: {"targetDurationMs":1110000}',
+      );
+      expect(source).toContain(": await createViewer(presentationOptions)");
+      expect(source.match(/rehearsal:/gu)).toHaveLength(1);
     } finally {
       await app.dispose();
     }

@@ -142,6 +142,25 @@ test("audience controls navigate exact states with a pointer", async ({ page }) 
   health.expectHealthy();
 });
 
+test("audience sharing copies the canonical visible slide and Step URL", async ({
+  context,
+  page,
+}) => {
+  const health = monitorPageHealth(page);
+  await context.grantPermissions(["clipboard-read", "clipboard-write"], {
+    origin: "http://127.0.0.1:4317",
+  });
+  await page.goto("/2/5?theme=dark#notes");
+
+  await page.getByRole("button", { name: "Copy link to current presentation state" }).click();
+
+  await expect(page.locator(".drever-audience-share-status")).toHaveText("Link copied.");
+  await expect
+    .poll(() => page.evaluate(() => navigator.clipboard.readText()))
+    .toBe("http://127.0.0.1:4317/2/5?theme=dark#notes");
+  health.expectHealthy();
+});
+
 test("audience shortcuts skip Steps, search slides, and jump by number", async ({ page }) => {
   const health = monitorPageHealth(page);
   await page.goto("/2/2");
@@ -284,6 +303,101 @@ test("speaker view previews sparse steps and synchronizes a late audience window
 
   speakerHealth.expectHealthy();
   audienceHealth.expectHealthy();
+});
+
+test("speaker rehearsal accounts for slide visits, targets, pause, and reset", async ({ page }) => {
+  const health = monitorPageHealth(page);
+  await page.clock.install({ time: new Date("2026-01-01T00:00:00Z") });
+  await page.goto("/speaker/2");
+  await expect(page.locator("[data-drever-speaker]")).toBeVisible();
+  await page.clock.pauseAt(new Date("2026-01-01T00:01:00Z"));
+
+  const elapsed = page.getByTestId("rehearsal-elapsed");
+  const currentSlide = page.getByTestId("rehearsal-current-slide");
+  const pace = page.getByTestId("rehearsal-pace");
+  const target = page.getByTestId("rehearsal-target");
+  const pause = page.getByRole("button", { name: "Pause" });
+  const next = page.getByRole("button", { name: "Next presentation state" });
+  const previous = page.getByRole("button", { name: "Previous presentation state" });
+
+  await page.getByRole("button", { name: "Reset" }).click();
+  await expect(target).toHaveValue("5");
+  await page.clock.runFor(10_000);
+  await next.click();
+  await expect(page).toHaveURL(/\/speaker\/2\/2$/u);
+  await page.clock.runFor(5_000);
+  await expect(elapsed).toHaveText("00:00:15");
+  await expect(currentSlide).toHaveText("00:00:15");
+  await expect(pace).toHaveText("00:04:45");
+
+  await next.click();
+  await next.click();
+  await expect(page).toHaveURL(/\/speaker\/3$/u);
+  await page.clock.runFor(7_000);
+  await previous.click();
+  await expect(page).toHaveURL(/\/speaker\/2\/5$/u);
+  await page.clock.runFor(3_000);
+
+  await page.locator('summary[aria-label="Open per-slide timing summary"]').click();
+  const timings = page.getByTestId("rehearsal-timings");
+  const slideTwo = timings.locator('[data-slide-id="slide-2"]');
+  const slideThree = timings.locator('[data-slide-id="slide-3"]');
+  await expect(slideTwo).toContainText("2 visits");
+  await expect(slideTwo.locator("time")).toHaveText("00:00:18");
+  await expect(slideThree).toContainText("1 visit");
+  await expect(slideThree.locator("time")).toHaveText("00:00:07");
+
+  await pause.click();
+  await page.clock.runFor(30_000);
+  await expect(elapsed).toHaveText("00:00:25");
+  await expect(currentSlide).toHaveText("00:00:03");
+  await target.fill("0.3");
+  await expect(pace).toHaveText("00:00:07");
+  await expect(pace.locator("..")).toHaveAttribute("data-rehearsal-pace", "over");
+
+  await page.getByRole("button", { name: "Reset" }).click();
+  await expect(elapsed).toHaveText("00:00:00");
+  await expect(currentSlide).toHaveText("00:00:00");
+  await expect(pace).toHaveText("00:00:18");
+  await expect(slideTwo).toContainText("1 visit");
+  await expect(slideThree).toContainText("Not visited");
+
+  await page.getByRole("button", { name: "Resume" }).click();
+  await page.clock.runFor(2_000);
+  await expect(elapsed).toHaveText("00:00:02");
+  health.expectHealthy();
+});
+
+test.describe("compact speaker rehearsal", () => {
+  test.use({ viewport: { height: 720, width: 480 } });
+
+  test("keeps controls and the timing summary inside the viewport", async ({ page }) => {
+    const health = monitorPageHealth(page);
+    await page.goto("/speaker/2");
+
+    const header = page.locator(".drever-speaker__header");
+    await expect(header).toBeVisible();
+    expect(
+      await header.evaluate((element) => ({
+        clientWidth: element.clientWidth,
+        scrollWidth: element.scrollWidth,
+      })),
+    ).toEqual({ clientWidth: 480, scrollWidth: 480 });
+    await expect(page.getByTestId("rehearsal-target")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Pause" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Reset" })).toBeVisible();
+
+    await page.locator('summary[aria-label="Open per-slide timing summary"]').click();
+    const popover = page.getByTestId("rehearsal-timings");
+    await expect(popover).toBeVisible();
+    expect(
+      await popover.evaluate((element) => {
+        const bounds = element.getBoundingClientRect();
+        return { left: bounds.left, right: bounds.right };
+      }),
+    ).toEqual({ left: 8, right: 472 });
+    health.expectHealthy();
+  });
 });
 
 test("speaker chrome keeps remote keys while buttons and notes retain native keyboard behavior", async ({

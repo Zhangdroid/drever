@@ -225,6 +225,7 @@ export const createViewerTransitionChannel = (): ViewerTransitionChannel => {
 export type ViewerHostProps = Omit<ViewerProps, "onPositionCommitted" | "position"> &
   Readonly<{
     machine: PresentationStateMachine;
+    onCopyShareURL(position: DeckPosition): Promise<void>;
     onError(error: unknown): void;
     onMounted(): void;
     onNavigate(command: DeckCommand): void | Promise<void>;
@@ -245,6 +246,7 @@ type PendingTransition = {
 /** @internal Imperative bridge between Navigation interception and React commits. */
 export const ViewerHost = ({
   machine,
+  onCopyShareURL,
   onError,
   onMounted,
   onNavigate,
@@ -403,6 +405,7 @@ export const ViewerHost = ({
       <AudienceControls
         deckRef={deckRef}
         manifest={machine.manifest}
+        onCopyShareURL={onCopyShareURL}
         onError={onError}
         onNavigate={onNavigate}
         onOpenDocument={onOpenDocument}

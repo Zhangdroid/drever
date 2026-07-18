@@ -276,6 +276,25 @@
     background: rgb(255 255 255 / 13%);
   }
 
+  .drever-audience-share-status {
+    position: absolute;
+    bottom: max(78px, calc(62px + env(safe-area-inset-bottom)));
+    left: 50%;
+    padding: 8px 12px;
+    border: 1px solid rgb(255 255 255 / 14%);
+    border-radius: 10px;
+    background: rgb(12 15 21 / 92%);
+    box-shadow: 0 10px 32px rgb(0 0 0 / 28%);
+    font-size: 12px;
+    font-weight: 650;
+    pointer-events: none;
+    transform: translateX(-50%);
+  }
+
+  .drever-audience-share-status[data-share-result="failed"] {
+    color: #ffb4ad;
+  }
+
   .drever-audience-goto {
     position: absolute;
     top: 28px;
@@ -602,22 +621,24 @@
   }
 
   .drever-speaker__header {
+    position: relative;
+    z-index: 10;
     justify-content: space-between;
     border-bottom: 1px solid #252933;
   }
 
-  .drever-speaker__header > div:first-child {
+  .drever-speaker__brand {
     display: flex;
     align-items: baseline;
     gap: 10px;
   }
 
-  .drever-speaker__header strong {
+  .drever-speaker__brand > strong {
     font-size: 17px;
     letter-spacing: -0.02em;
   }
 
-  .drever-speaker__header span {
+  .drever-speaker__brand > span {
     color: #969daa;
     font-size: 12px;
     font-weight: 650;
@@ -631,14 +652,172 @@
     gap: 8px;
   }
 
-  .drever-speaker__timer time {
-    min-width: 94px;
-    margin-right: 4px;
+  .drever-speaker__metric,
+  .drever-speaker__target {
+    display: grid;
+    min-width: 76px;
+    gap: 2px;
+  }
+
+  .drever-speaker__metric > span,
+  .drever-speaker__target > span {
+    color: #858c99;
+    font-size: 9px;
+    font-weight: 720;
+    letter-spacing: 0.075em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .drever-speaker__metric time {
     color: #f8f9fb;
     font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-    font-size: 20px;
+    font-size: 15px;
     font-variant-numeric: tabular-nums;
+    font-weight: 650;
+    letter-spacing: 0.025em;
+    line-height: 1.1;
+  }
+
+  .drever-speaker__metric[data-rehearsal-pace="over"] time {
+    color: #ff9a91;
+  }
+
+  .drever-speaker__target {
+    min-width: 58px;
+  }
+
+  .drever-speaker__target input {
+    width: 58px;
+    height: 26px;
+    box-sizing: border-box;
+    padding: 0 7px;
+    border: 1px solid #343945;
+    border-radius: 7px;
+    background: #171a21;
+    color: #f4f5f7;
+    color-scheme: dark;
+    font:
+      650 12px/1 ui-monospace,
+      "SFMono-Regular",
+      Consolas,
+      monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .drever-speaker__target input:focus-visible,
+  .drever-speaker__timings summary:focus-visible {
+    outline: 2px solid #7c9cff;
+    outline-offset: 2px;
+  }
+
+  .drever-speaker__timings {
+    position: relative;
+  }
+
+  .drever-speaker__timings summary {
+    display: grid;
+    min-height: 30px;
+    padding: 0 11px;
+    border: 1px solid #343945;
+    border-radius: 9px;
+    background: #1b1e26;
+    color: #f4f5f7;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 680;
+    list-style: none;
+    place-items: center;
+  }
+
+  .drever-speaker__timings summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .drever-speaker__timings[open] summary,
+  .drever-speaker__timings summary:hover {
+    border-color: #555d6e;
+    background: #252a35;
+  }
+
+  .drever-speaker__timings-popover {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: min(360px, calc(100vw - 32px));
+    max-height: min(520px, calc(100vh - 112px));
+    box-sizing: border-box;
+    padding: 15px;
+    overflow: auto;
+    border: 1px solid #343a47;
+    border-radius: 13px;
+    background: rgb(17 19 26 / 98%);
+    box-shadow: 0 20px 58px rgb(0 0 0 / 48%);
+    scrollbar-color: #424957 transparent;
+  }
+
+  .drever-speaker__timings-popover > strong {
+    display: block;
+    margin: 1px 2px 10px;
+    font-size: 12px;
     letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .drever-speaker__timings-popover ol {
+    display: grid;
+    padding: 0;
+    margin: 0;
+    gap: 4px;
+    list-style: none;
+  }
+
+  .drever-speaker__timings-popover li {
+    display: grid;
+    align-items: center;
+    min-width: 0;
+    padding: 8px 9px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 14px;
+  }
+
+  .drever-speaker__timings-popover li[data-current] {
+    border-color: rgb(113 144 255 / 32%);
+    background: rgb(70 99 199 / 16%);
+  }
+
+  .drever-speaker__timings-popover li > span {
+    display: grid;
+    min-width: 0;
+    gap: 2px;
+  }
+
+  .drever-speaker__timings-popover li strong,
+  .drever-speaker__timings-popover li small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .drever-speaker__timings-popover li strong {
+    font-size: 12px;
+  }
+
+  .drever-speaker__timings-popover li small {
+    color: #858c99;
+    font-size: 10px;
+  }
+
+  .drever-speaker__timings-popover li time {
+    color: #d9dce3;
+    font:
+      620 12px/1 ui-monospace,
+      "SFMono-Regular",
+      Consolas,
+      monospace;
+    font-variant-numeric: tabular-nums;
   }
 
   .drever-speaker__timer button {
@@ -823,6 +1002,11 @@
       gap: 10px;
     }
 
+    .drever-speaker__brand > span,
+    .drever-speaker__metric--slide {
+      display: none;
+    }
+
     .drever-speaker__controls {
       padding-inline: 12px;
     }
@@ -830,6 +1014,56 @@
     .drever-speaker__navigation button {
       min-width: 84px;
       padding-inline: 10px;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .drever-speaker {
+      grid-template-rows: 96px minmax(0, 1fr) 68px;
+    }
+
+    .drever-speaker__header {
+      padding: 8px;
+    }
+
+    .drever-speaker__brand {
+      display: none;
+    }
+
+    .drever-speaker__timer {
+      display: grid;
+      width: 100%;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px 8px;
+    }
+
+    .drever-speaker__metric,
+    .drever-speaker__target {
+      min-width: 0;
+      justify-items: center;
+    }
+
+    .drever-speaker__target input {
+      width: min(58px, 100%);
+    }
+
+    .drever-speaker__timings,
+    .drever-speaker__timer button {
+      width: 100%;
+    }
+
+    .drever-speaker__timings summary,
+    .drever-speaker__timer button {
+      padding-inline: 6px;
+    }
+
+    .drever-speaker__timings-popover {
+      position: fixed;
+      top: 104px;
+      right: 8px;
+      left: 8px;
+      width: auto;
+      max-height: calc(100vh - 180px);
     }
   }
 

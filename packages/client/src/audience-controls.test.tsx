@@ -75,6 +75,7 @@ describe("audience controls", () => {
       <AudienceControls
         deckRef={{ current: null }}
         manifest={manifest}
+        onCopyShareURL={vi.fn()}
         onError={vi.fn()}
         onNavigate={vi.fn()}
         onOpenDocument={vi.fn()}
@@ -85,6 +86,7 @@ describe("audience controls", () => {
 
     expect(markup).toContain('aria-label="Presentation controls"');
     expect(markup).toContain('aria-label="Open slide navigator"');
+    expect(markup).toContain('aria-label="Copy link to current presentation state"');
     expect(markup).toContain('aria-label="Open document view"');
     expect(markup).toContain('aria-label="Open speaker view"');
     expect(markup).toContain('aria-label="Enter fullscreen"');

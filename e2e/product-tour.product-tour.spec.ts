@@ -29,6 +29,7 @@ test("the product tour proves interaction, persistence, and the speaker workflow
   await expect(speaker).toHaveURL(/\/speaker\/5$/u);
   await expect(speaker.locator("[data-drever-speaker]")).toBeVisible();
   await expect(speaker.getByTestId("speaker-notes")).toContainText("React state survives");
+  await expect(speaker.getByTestId("rehearsal-target")).toHaveValue("20");
   const relations = await speaker.evaluate(() => {
     const references = [
       ...Array.from(document.querySelectorAll(".tour-signal[aria-labelledby]"), (element) =>

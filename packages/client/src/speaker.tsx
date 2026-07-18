@@ -1,12 +1,13 @@
 import type { DreverRenderMode, MDXComponents, MDXContent } from "@drever/core";
 import type { CanvasDefinition, DeckManifest, SlideManifest } from "@drever/schema";
-import { useCallback, useEffect, useState, useSyncExternalStore, type ReactElement } from "react";
+import { useEffect, useSyncExternalStore, type ReactElement } from "react";
 import type {
   DeckCommand,
   DeckPosition,
   PresentationStateMachine,
   PresentationStore,
 } from "./presentation-state.ts";
+import type { RehearsalStore } from "./rehearsal.ts";
 import { Viewer } from "./viewer.tsx";
 
 export type SpeakerProps = Readonly<{
@@ -16,6 +17,7 @@ export type SpeakerProps = Readonly<{
   manifest: DeckManifest;
   onNavigate(command: DeckCommand): void | Promise<void>;
   onOpenAudience(): void;
+  rehearsal: RehearsalStore;
   registry?: MDXComponents;
   store: PresentationStore;
 }>;
@@ -36,59 +38,114 @@ export const nextSpeakerPosition = (
 const positionLabel = (position: DeckPosition): string =>
   `Slide ${position.slideIndex + 1}${position.step === 0 ? "" : ` · Step ${position.step}`}`;
 
-type TimerState = Readonly<{
-  accumulated: number;
-  running: boolean;
-  startedAt: number;
-}>;
+const durationDateTime = (milliseconds: number): string =>
+  `PT${Math.max(0, Math.floor(milliseconds / 1_000))}S`;
 
-const useSpeakerTimer = (): Readonly<{
-  elapsed: string;
-  reset(): void;
-  running: boolean;
-  toggle(): void;
-}> => {
-  const [clock, setClock] = useState(Date.now);
-  const [timer, setTimer] = useState<TimerState>(() => ({
-    accumulated: 0,
-    running: true,
-    startedAt: Date.now(),
-  }));
+const targetMinutes = (milliseconds: number | undefined): string | number =>
+  milliseconds === undefined ? "" : milliseconds / 60_000;
 
-  useEffect(() => {
-    if (!timer.running) {
-      return;
-    }
-    const interval = globalThis.setInterval(() => setClock(Date.now()), 500);
-    return () => globalThis.clearInterval(interval);
-  }, [timer.running]);
+const RehearsalPanel = ({
+  manifest,
+  rehearsal,
+}: Readonly<{ manifest: DeckManifest; rehearsal: RehearsalStore }>): ReactElement => {
+  const snapshot = useSyncExternalStore(
+    rehearsal.subscribe,
+    rehearsal.getSnapshot,
+    rehearsal.getSnapshot,
+  );
+  const overtime = snapshot.overtimeMs ?? 0;
+  const targetValue = overtime > 0 ? overtime : snapshot.remainingMs;
+  const targetLabel = overtime > 0 ? "Over" : "Remaining";
 
-  const reset = useCallback(() => {
-    const now = Date.now();
-    setClock(now);
-    setTimer((current) => ({ accumulated: 0, running: current.running, startedAt: now }));
-  }, []);
-  const toggle = useCallback(() => {
-    const now = Date.now();
-    setClock(now);
-    setTimer((current) =>
-      current.running
-        ? {
-            accumulated: current.accumulated + (now - current.startedAt),
-            running: false,
-            startedAt: now,
-          }
-        : { ...current, running: true, startedAt: now },
-    );
-  }, []);
-  const milliseconds =
-    timer.accumulated + (timer.running ? Math.max(0, clock - timer.startedAt) : 0);
-  return Object.freeze({
-    elapsed: formatSpeakerElapsedTime(milliseconds),
-    reset,
-    running: timer.running,
-    toggle,
-  });
+  return (
+    <div
+      aria-label="Rehearsal timer"
+      className="drever-speaker__timer"
+      data-drever-speaker-controls=""
+      role="group"
+    >
+      <div className="drever-speaker__metric">
+        <span>Elapsed</span>
+        <time data-testid="rehearsal-elapsed" dateTime={durationDateTime(snapshot.elapsedMs)}>
+          {formatSpeakerElapsedTime(snapshot.elapsedMs)}
+        </time>
+      </div>
+      <div className="drever-speaker__metric drever-speaker__metric--slide">
+        <span>Current slide</span>
+        <time
+          data-testid="rehearsal-current-slide"
+          dateTime={durationDateTime(snapshot.currentSlideElapsedMs)}
+        >
+          {formatSpeakerElapsedTime(snapshot.currentSlideElapsedMs)}
+        </time>
+      </div>
+      {targetValue === undefined ? null : (
+        <div
+          className="drever-speaker__metric"
+          data-rehearsal-pace={overtime > 0 ? "over" : "remaining"}
+        >
+          <span>{targetLabel}</span>
+          <time data-testid="rehearsal-pace" dateTime={durationDateTime(targetValue)}>
+            {formatSpeakerElapsedTime(targetValue)}
+          </time>
+        </div>
+      )}
+      <label className="drever-speaker__target">
+        <span>Target min</span>
+        <input
+          aria-label="Target duration in minutes"
+          data-testid="rehearsal-target"
+          min={Number.MIN_VALUE}
+          onChange={(event) => {
+            const minutes = event.currentTarget.valueAsNumber;
+            rehearsal.setTargetDuration(
+              Number.isFinite(minutes) && minutes > 0 ? minutes * 60_000 : undefined,
+            );
+          }}
+          placeholder="—"
+          step="any"
+          type="number"
+          value={targetMinutes(snapshot.targetDurationMs)}
+        />
+      </label>
+      <details className="drever-speaker__timings" data-drever-keyboard="ignore">
+        <summary aria-label="Open per-slide timing summary">Timings</summary>
+        <div className="drever-speaker__timings-popover" data-testid="rehearsal-timings">
+          <strong>Per-slide timing</strong>
+          <ol>
+            {snapshot.slides.map((timing) => {
+              const slide = manifest.slides[timing.slideIndex] as SlideManifest;
+              return (
+                <li
+                  data-current={timing.slideId === snapshot.currentSlideId ? "" : undefined}
+                  data-slide-id={timing.slideId}
+                  key={timing.slideId}
+                >
+                  <span>
+                    <strong>{slide.title ?? `Slide ${timing.slideIndex + 1}`}</strong>
+                    <small>
+                      {timing.visits === 0
+                        ? "Not visited"
+                        : `${timing.visits} ${timing.visits === 1 ? "visit" : "visits"}`}
+                    </small>
+                  </span>
+                  <time dateTime={durationDateTime(timing.elapsedMs)}>
+                    {formatSpeakerElapsedTime(timing.elapsedMs)}
+                  </time>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      </details>
+      <button onClick={rehearsal.toggle} type="button">
+        {snapshot.running ? "Pause" : "Resume"}
+      </button>
+      <button onClick={rehearsal.reset} type="button">
+        Reset
+      </button>
+    </div>
+  );
 };
 
 const Preview = ({
@@ -137,13 +194,13 @@ export const Speaker = ({
   manifest,
   onNavigate,
   onOpenAudience,
+  rehearsal,
   registry,
   store,
 }: SpeakerProps): ReactElement => {
-  const position = useSyncExternalStore(store.subscribe, store.getSnapshot);
+  const position = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
   const nextPosition = nextSpeakerPosition(machine, position);
   const slide = manifest.slides[position.slideIndex] as SlideManifest;
-  const timer = useSpeakerTimer();
   const previousDisabled = machine.transition(position, { type: "previous" }) === undefined;
   const nextDisabled = nextPosition === undefined;
 
@@ -154,24 +211,11 @@ export const Speaker = ({
   return (
     <div className="drever-speaker" data-drever-speaker="">
       <header className="drever-speaker__header">
-        <div>
+        <div className="drever-speaker__brand">
           <strong>Drever</strong>
           <span>Speaker view</span>
         </div>
-        <div
-          aria-label="Presentation timer"
-          className="drever-speaker__timer"
-          data-drever-speaker-controls=""
-          role="group"
-        >
-          <time>{timer.elapsed}</time>
-          <button onClick={timer.toggle} type="button">
-            {timer.running ? "Pause" : "Resume"}
-          </button>
-          <button onClick={timer.reset} type="button">
-            Reset
-          </button>
-        </div>
+        <RehearsalPanel manifest={manifest} rehearsal={rehearsal} />
       </header>
 
       <main className="drever-speaker__workspace">

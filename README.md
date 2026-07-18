@@ -56,11 +56,13 @@ The runnable vertical slice includes:
 - clean path-addressable slide and reveal state through the Navigation API;
 - state-preserving inactive slides and canvas-scoped View Transitions;
 - an accessible audience command bar with progress, fullscreen, searchable
-  slide navigation, direct jumps, and black/white pause screens;
+  slide navigation, direct jumps, canonical link copying, and black/white pause
+  screens;
 - a searchable `/document` reading surface with every Step revealed, a table of
   contents, and one named landmark per slide;
-- a speaker view with current/next previews, notes, timer, and
-  native `BroadcastChannel` audience synchronization;
+- a speaker view with current/next previews, notes, a session-local rehearsal
+  clock, per-slide timing and visits, an optional target, and native
+  `BroadcastChannel` audience synchronization;
 - deterministic, tagged PDF export at each slide's final state or every exact
   sparse Step stop, without modifying the deployable web build;
 - an evidence-based accessibility preflight with stable diagnostics, exact
@@ -97,9 +99,15 @@ links such as <http://localhost:4317/2/5>, browser history, semantic
 default-theme layouts, speaker notes, and React state preservation.
 
 Open <http://localhost:4317/speaker> for the speaker view. It shows the current
-and next navigation states, compiled `<Note>` content, a timer, and can open and
-synchronize an audience window. `drever dev` prints this speaker URL; from any
-audience state, press `P` to open the matching speaker path in a new window.
+and next navigation states, compiled `<Note>` content, total and current-slide
+rehearsal time, per-slide timing and visit counts, and can open and synchronize
+an audience window. `drever dev` prints this speaker URL; from any audience
+state, press `P` to open the matching speaker path in a new window.
+
+The audience command bar can copy the canonical URL for its exact slide and
+Step while preserving the current query and hash. Copying requires the modern
+Clipboard API in a secure context; Drever reports failure instead of installing
+a legacy copy fallback.
 
 Open <http://localhost:4317/document> for a scrollable, browser-searchable
 reading view with every Step revealed. Press `D` from the audience to open it at
