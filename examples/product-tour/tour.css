@@ -199,6 +199,12 @@
   gap: 14px;
 }
 
+[data-drever-render-mode="audience"]
+  :is(.tour-moment-stack, .tour-replace)
+  > [data-drever-step][data-step-state="active"] {
+  animation-name: none;
+}
+
 .tour-moment {
   display: grid;
   min-height: 98px;

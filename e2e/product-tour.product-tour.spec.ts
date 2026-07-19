@@ -325,10 +325,6 @@ test("semantic focus and replacement preserve geometry and accessibility state",
   expectStableBounds(await readElementBounds(focus), focusBounds);
   await expect(focusSteps.first()).toHaveAttribute("data-step-state", "active");
   await expect(focusSteps.first()).not.toHaveAttribute("aria-hidden", "true");
-  await expect(focusSteps.first()).toHaveCSS(
-    "animation-name",
-    "drever-editorial-step-block-reveal",
-  );
 
   await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/\/5\/2$/u);
@@ -358,10 +354,6 @@ test("semantic focus and replacement preserve geometry and accessibility state",
   await expect(page).toHaveURL(/\/11\/1$/u);
   expectStableBounds(await readElementBounds(replace), replaceBounds);
   await expect(replaceSteps.first()).toBeVisible();
-  await expect(replaceSteps.first()).toHaveCSS(
-    "animation-name",
-    "drever-editorial-step-inline-reveal",
-  );
 
   await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/\/11\/2$/u);
