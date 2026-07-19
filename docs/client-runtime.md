@@ -334,6 +334,13 @@ views, fullscreen, and keyboard help to pointer and touch users. It is a sibling
 of the canvas rather than slide content. React transition boundaries activate
 only presentation content, and the document root remains visually still.
 
+On fine-pointer displays, the command bar leaves the interaction surface after
+1.8 seconds without pointer activity and returns on movement or focus. Coarse
+pointer controls remain available. While the visible audience document is
+fullscreen, Drever uses the native Screen Wake Lock API and hides the idle
+cursor; visibility loss, fullscreen exit, and teardown release those resources.
+There is no legacy wake-lock fallback.
+
 ## Rendering and motion
 
 Only the current slide is active and receives its current Step. Inactive slides

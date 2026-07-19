@@ -14,6 +14,7 @@ import {
   type SVGProps,
 } from "react";
 import { DreverClientError } from "./client-error.ts";
+import { createFullscreenSession, PRESENTATION_IDLE_DELAY_MS } from "./fullscreen-session.ts";
 import { acceptsPresentationShortcut } from "./keyboard.ts";
 import type { DeckCommand, DeckPosition } from "./presentation-state.ts";
 
@@ -229,8 +230,6 @@ const chromeTransition = Object.freeze({
   "drever-slide-forward": "drever-motion-chrome",
 });
 
-const CONTROLS_IDLE_DELAY_MS = 1_800;
-
 const useIdleControls = (
   hostRef: RefObject<HTMLDivElement | null>,
   barRef: RefObject<HTMLElement | null>,
@@ -254,7 +253,7 @@ const useIdleControls = (
       if (barRef.current?.contains(document.activeElement) === true) {
         return;
       }
-      timeout = window.setTimeout(() => setIdle(true), CONTROLS_IDLE_DELAY_MS);
+      timeout = window.setTimeout(() => setIdle(true), PRESENTATION_IDLE_DELAY_MS);
     };
     const show = (): void => {
       setIdle(false);
@@ -357,11 +356,15 @@ export const AudienceControls = ({
     if (document === undefined) {
       return;
     }
+    const session = createFullscreenSession({ document, onError });
     const update = (): void => setFullscreen(document.fullscreenElement !== null);
     update();
     document.addEventListener("fullscreenchange", update);
-    return () => document.removeEventListener("fullscreenchange", update);
-  }, []);
+    return () => {
+      document.removeEventListener("fullscreenchange", update);
+      session.dispose();
+    };
+  }, [onError]);
 
   const run = useCallback(
     (action: () => void | Promise<void>): void => {

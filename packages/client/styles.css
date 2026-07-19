@@ -336,6 +336,11 @@
     transform: translate(-50%, 10px) scale(0.98);
   }
 
+  :root[data-drever-cursor-hidden],
+  :root[data-drever-cursor-hidden] * {
+    cursor: none !important;
+  }
+
   .drever-audience-controls__bar button,
   .drever-audience-dialog button {
     display: inline-grid;

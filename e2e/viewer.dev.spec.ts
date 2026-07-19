@@ -171,6 +171,81 @@ test("audience controls leave the canvas after pointer inactivity and return on 
   await expect(host).not.toHaveAttribute("data-drever-controls-idle", "");
 });
 
+test("fullscreen keeps the display awake and removes an idle cursor", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => {
+    const state = globalThis as typeof globalThis & {
+      __dreverFullscreen: boolean;
+      __dreverWakeReleases: number;
+      __dreverWakeRequests: number;
+    };
+    state.__dreverFullscreen = false;
+    state.__dreverWakeReleases = 0;
+    state.__dreverWakeRequests = 0;
+    Object.defineProperty(document, "fullscreenElement", {
+      configurable: true,
+      get: () => (state.__dreverFullscreen ? document.documentElement : null),
+    });
+    Object.defineProperty(navigator, "wakeLock", {
+      configurable: true,
+      value: {
+        async request(type: string) {
+          if (type !== "screen") throw new TypeError(`Unexpected wake lock type: ${type}`);
+          state.__dreverWakeRequests += 1;
+          return {
+            addEventListener() {},
+            async release() {
+              state.__dreverWakeReleases += 1;
+            },
+            removeEventListener() {},
+          };
+        },
+      },
+    });
+    Object.defineProperty(document.documentElement, "requestFullscreen", {
+      configurable: true,
+      value: async () => {
+        state.__dreverFullscreen = true;
+        document.dispatchEvent(new Event("fullscreenchange"));
+      },
+    });
+    Object.defineProperty(document, "exitFullscreen", {
+      configurable: true,
+      value: async () => {
+        state.__dreverFullscreen = false;
+        document.dispatchEvent(new Event("fullscreenchange"));
+      },
+    });
+  });
+
+  const controls = page.getByRole("navigation", { name: "Presentation controls" });
+  await controls.getByRole("button", { name: "Enter fullscreen" }).click();
+  await expect(controls.getByRole("button", { name: "Exit fullscreen" })).toBeVisible();
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          (globalThis as typeof globalThis & { __dreverWakeRequests: number }).__dreverWakeRequests,
+      ),
+    )
+    .toBe(1);
+  await expect.poll(() => page.locator("html").getAttribute("data-drever-cursor-hidden")).toBe("");
+
+  await page.mouse.move(300, 220);
+  await expect(page.locator("html")).not.toHaveAttribute("data-drever-cursor-hidden", "");
+
+  await controls.getByRole("button", { name: "Exit fullscreen" }).click();
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          (globalThis as typeof globalThis & { __dreverWakeReleases: number }).__dreverWakeReleases,
+      ),
+    )
+    .toBe(1);
+  await expect(page.locator("html")).not.toHaveAttribute("data-drever-cursor-hidden", "");
+});
+
 test("audience sharing copies the canonical visible slide and Step URL", async ({
   context,
   page,
