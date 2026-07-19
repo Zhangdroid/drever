@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "es2024"],
+    "types": ["vite/client"]
+  },
+  "include": ["src"]
+}

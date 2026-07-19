@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 
 const demoRoot = fileURLToPath(new URL("./examples/basic", import.meta.url));
 const architectureDemoRoot = fileURLToPath(new URL("./examples/architecture", import.meta.url));
+const brandDemoRoot = fileURLToPath(new URL("./examples/brand", import.meta.url));
 const motionRecipesRoot = fileURLToPath(new URL("./examples/motion-recipes", import.meta.url));
 const productTourRoot = fileURLToPath(new URL("./examples/product-tour", import.meta.url));
 const ci = process.env.CI !== undefined;
@@ -115,6 +116,21 @@ const projectDefinitions = [
       reuseExistingServer: false,
       timeout: 60_000,
       url: "http://127.0.0.1:4322",
+    },
+  },
+  {
+    name: "brand-chromium",
+    testMatch: "**/*.brand.spec.ts",
+    use: {
+      baseURL: "http://127.0.0.1:4323",
+      contextOptions: { reducedMotion: "no-preference" },
+    },
+    webServer: {
+      command: "vp dev --host 127.0.0.1 --port 4323",
+      cwd: brandDemoRoot,
+      reuseExistingServer: false,
+      timeout: 60_000,
+      url: "http://127.0.0.1:4323",
     },
   },
   {

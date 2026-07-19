@@ -1,0 +1,55 @@
+{
+  "name": "@drever/brand",
+  "version": "0.0.0",
+  "description": "Canonical Drever brand tokens, typography, and vector assets.",
+  "license": "MIT",
+  "files": [
+    "assets",
+    "dist",
+    "fonts",
+    "fonts.css",
+    "LICENSE",
+    "README.md",
+    "tokens.css",
+    "tokens.json"
+  ],
+  "type": "module",
+  "sideEffects": [
+    "./fonts.css",
+    "./tokens.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./assets/drever-lockup-dark.svg": "./assets/drever-lockup-dark.svg",
+    "./assets/drever-lockup.svg": "./assets/drever-lockup.svg",
+    "./assets/drever-mark-dark.svg": "./assets/drever-mark-dark.svg",
+    "./assets/drever-mark-mono.svg": "./assets/drever-mark-mono.svg",
+    "./assets/drever-mark.svg": "./assets/drever-mark.svg",
+    "./assets/favicon.svg": "./assets/favicon.svg",
+    "./fonts.css": "./fonts.css",
+    "./tokens.css": "./tokens.css",
+    "./tokens.json": "./tokens.json",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "node scripts/generate-tokens.mjs --check && vp pack",
+    "check": "node scripts/generate-tokens.mjs --check && vp check",
+    "generate": "node scripts/generate-tokens.mjs",
+    "test": "vp test"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "engines": {
+    "node": ">=24.18.0"
+  }
+}

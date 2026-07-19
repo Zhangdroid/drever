@@ -1,0 +1,16 @@
+{
+  "name": "@drever/example-brand",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vp build",
+    "dev": "vp dev"
+  },
+  "dependencies": {
+    "@drever/brand": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "catalog:"
+  }
+}

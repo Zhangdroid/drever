@@ -1,0 +1,8 @@
+@font-face {
+  font-family: "Instrument Sans";
+  font-style: normal;
+  font-weight: 400 700;
+  font-stretch: 75% 100%;
+  font-display: swap;
+  src: url("./fonts/InstrumentSans[wdth,wght].woff2") format("woff2-variations");
+}

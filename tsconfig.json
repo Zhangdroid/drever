@@ -15,6 +15,7 @@
     "noUnusedParameters": true,
     "paths": {
       "drever": ["./packages/cli/src/index.ts"],
+      "@drever/brand": ["./packages/brand/src/index.ts"],
       "@drever/client": ["./packages/client/src/index.ts"],
       "@drever/compiler": ["./packages/compiler/src/index.ts"],
       "@drever/compiler/internal": ["./packages/compiler/src/internal.ts"],

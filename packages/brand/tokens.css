@@ -1,0 +1,60 @@
+/* Generated from tokens.json. Run `vp run -F @drever/brand generate` to update. */
+:root {
+  --drever-brand-color-ink: #172033;
+  --drever-brand-color-paper: #f8f8f4;
+  --drever-brand-color-white: #ffffff;
+  --drever-brand-color-coral: #ff704d;
+  --drever-brand-color-coral-soft: #ffe4dc;
+  --drever-brand-color-indigo: #4b56e8;
+  --drever-brand-color-indigo-soft: #e5e7ff;
+  --drever-brand-color-graphite: #667085;
+  --drever-brand-color-line: #d9dde7;
+  --drever-brand-color-night: #0d1019;
+  --drever-brand-color-night-surface: #181c2b;
+  --drever-brand-color-night-line: #353a4f;
+  --drever-brand-color-night-text: #f8f8f4;
+  --drever-brand-color-night-muted: #aeb5c6;
+  --drever-brand-font-family-sans:
+    "Instrument Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --drever-brand-font-family-mono:
+    "SFMono-Regular", "Cascadia Code", "Roboto Mono", ui-monospace, monospace;
+  --drever-brand-font-weight-regular: 400;
+  --drever-brand-font-weight-medium: 520;
+  --drever-brand-font-weight-semibold: 650;
+  --drever-brand-font-weight-bold: 700;
+  --drever-brand-font-width-display: 82;
+  --drever-brand-font-width-compact: 88;
+  --drever-brand-font-width-text: 100;
+  --drever-brand-font-line-height-display: 0.92;
+  --drever-brand-font-line-height-heading: 1.04;
+  --drever-brand-font-line-height-body: 1.5;
+  --drever-brand-font-tracking-display: -0.055;
+  --drever-brand-font-tracking-heading: -0.035;
+  --drever-brand-font-tracking-body: -0.012;
+  --drever-brand-font-tracking-label: 0.1;
+  --drever-brand-space-zero: 0px;
+  --drever-brand-space-one: 0.25rem;
+  --drever-brand-space-two: 0.5rem;
+  --drever-brand-space-three: 0.75rem;
+  --drever-brand-space-four: 1rem;
+  --drever-brand-space-six: 1.5rem;
+  --drever-brand-space-eight: 2rem;
+  --drever-brand-space-twelve: 3rem;
+  --drever-brand-space-sixteen: 4rem;
+  --drever-brand-space-twenty-four: 6rem;
+  --drever-brand-radius-zero: 0px;
+  --drever-brand-radius-small: 0.5rem;
+  --drever-brand-radius-medium: 0.875rem;
+  --drever-brand-radius-large: 1.25rem;
+  --drever-brand-radius-xlarge: 2rem;
+  --drever-brand-radius-full: 999px;
+  --drever-brand-stroke-hairline: 1px;
+  --drever-brand-stroke-strong: 2px;
+  --drever-brand-motion-duration-instant: 120ms;
+  --drever-brand-motion-duration-quick: 180ms;
+  --drever-brand-motion-duration-standard: 320ms;
+  --drever-brand-motion-duration-expressive: 520ms;
+  --drever-brand-motion-easing-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  --drever-brand-motion-easing-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+  --drever-brand-motion-easing-exit: cubic-bezier(0.4, 0, 1, 1);
+}
