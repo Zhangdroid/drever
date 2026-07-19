@@ -449,17 +449,56 @@ test("speaker chrome keeps remote keys while buttons and notes retain native key
   health.expectHealthy();
 });
 
-test("slide motion is scoped to the canvas without nested title transitions", async ({ page }) => {
+test("React owns one slide transition while the document surface stays still", async ({ page }) => {
   await monitorViewTransitions(page);
 
   await page.goto("/");
   const transition = await captureNextViewTransition(page, () => page.keyboard.press("ArrowRight"));
-  await waitForViewTransition(page, transition, "finished");
+  await waitForViewTransition(page, transition, "ready");
   await expect(page).toHaveURL(/\/2$/u);
 
   expect(await readViewTransitionCalls(page)).toEqual([
-    { canvas: true, kind: "element", types: ["drever-slide-forward"] },
+    { kind: "document", target: "document", types: ["drever-slide-forward"] },
   ]);
+  const transitionStyles = await page.evaluate(() => {
+    const root = document.documentElement;
+    const read = (pseudo: string) => {
+      const style = getComputedStyle(root, pseudo);
+      return {
+        animationName: style.animationName,
+        filter: style.filter,
+        height: Number.parseFloat(style.height),
+        mixBlendMode: style.mixBlendMode,
+        opacity: Number(style.opacity),
+        width: Number.parseFloat(style.width),
+        zIndex: style.zIndex,
+      };
+    };
+    return {
+      chromeGroup: read("::view-transition-group(drever-audience-chrome)"),
+      newChrome: read("::view-transition-new(drever-audience-chrome)"),
+      newRoot: read("::view-transition-new(root)"),
+      newSlide: read("::view-transition-new(drever-slide-1)"),
+      oldRoot: read("::view-transition-old(root)"),
+      oldSlide: read("::view-transition-old(drever-slide-0)"),
+    };
+  });
+  expect(transitionStyles).toMatchObject({
+    chromeGroup: { animationName: "none", zIndex: "4" },
+    newChrome: { animationName: "none", opacity: 1 },
+    newRoot: { animationName: "none", mixBlendMode: "normal", opacity: 1 },
+    newSlide: {
+      animationName: "drever-slide-cover",
+      filter: "none",
+      mixBlendMode: "normal",
+      opacity: 1,
+    },
+    oldRoot: { animationName: "none", mixBlendMode: "normal", opacity: 0 },
+    oldSlide: { filter: "none", mixBlendMode: "normal", opacity: 0 },
+  });
+  expect(transitionStyles.chromeGroup.height).toBeLessThan(100);
+  expect(transitionStyles.chromeGroup.width).toBeLessThan(1_000);
+  await waitForViewTransition(page, transition, "finished");
   await expect(page.locator('[data-drever-slide][data-slide-state="active"] h2')).toHaveCSS(
     "view-transition-name",
     "none",
@@ -483,54 +522,64 @@ test("step motion keeps unchanged slide content stationary", async ({ page }) =>
     { key: "ArrowRight", route: /\/2\/5$/u },
     { key: "ArrowLeft", route: /\/2\/2$/u },
   ]) {
-    const transition = await captureNextViewTransition(page, () =>
-      page.keyboard.press(navigation.key),
-    );
-    await waitForViewTransition(page, transition, "ready");
+    await page.keyboard.press(navigation.key);
     await expect(page).toHaveURL(navigation.route);
 
     const during = await contentBounds();
     expectStableBounds(during.heading, before.heading);
     expectStableBounds(during.lead, before.lead);
+    const activeStep = page.locator(`${activeSlide} [data-drever-step][data-step-state="active"]`);
+    await expect(activeStep).toHaveCSS("view-transition-name", "none");
     expect(
-      await page.evaluate(() => {
-        const canvas = document.querySelector<HTMLElement>("[data-drever-canvas]");
-        if (canvas === null) {
-          throw new Error("Expected the Drever canvas during a Step transition.");
-        }
-        const oldRoot = getComputedStyle(canvas, "::view-transition-old(root)");
-        const newRoot = getComputedStyle(canvas, "::view-transition-new(root)");
+      await activeStep.evaluate((element) => {
+        const style = getComputedStyle(element);
         return {
-          newAnimation: newRoot.animationName,
-          newFilter: newRoot.filter,
-          newOpacity: Number(newRoot.opacity),
-          newTransform: newRoot.transform,
-          oldAnimation: oldRoot.animationName,
-          oldFilter: oldRoot.filter,
-          oldOpacity: Number(oldRoot.opacity),
-          oldTransform: oldRoot.transform,
+          duration: style.transitionDuration,
+          property: style.transitionProperty,
         };
       }),
-    ).toEqual({
-      newAnimation: "none",
-      newFilter: "none",
-      newOpacity: 1,
-      newTransform: "none",
-      oldAnimation: "none",
-      oldFilter: "none",
-      oldOpacity: 0,
-      oldTransform: "none",
-    });
-
-    await waitForViewTransition(page, transition, "finished");
+    ).toMatchObject({ property: expect.stringContaining("opacity") });
     const after = await contentBounds();
     expectStableBounds(after.heading, before.heading);
     expectStableBounds(after.lead, before.lead);
   }
 
+  expect(await readViewTransitionCalls(page)).toEqual([]);
+});
+
+test("back-to-back Step commands commit only the newest exact state", async ({ page }) => {
+  const health = monitorPageHealth(page);
+  await monitorViewTransitions(page);
+  await page.goto("/2");
+
+  await page.evaluate(() => {
+    document.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "ArrowRight" }));
+    document.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "ArrowRight" }));
+  });
+
+  await expect(page).toHaveURL(/\/2\/5$/u);
+  await expect(page.locator('[data-testid="step-5"]')).toHaveAttribute("data-step-state", "active");
+  expect(await readViewTransitionCalls(page)).toEqual([]);
+  health.expectHealthy();
+});
+
+test("a second slide navigation supersedes an in-flight transition cleanly", async ({ page }) => {
+  const health = monitorPageHealth(page);
+  await monitorViewTransitions(page);
+  await page.goto("/2/5");
+
+  const first = await captureNextViewTransition(page, () => page.keyboard.press("ArrowRight"));
+  await waitForViewTransition(page, first, "ready");
+  await expect(page).toHaveURL(/\/3$/u);
+
+  const second = await captureNextViewTransition(page, () => page.keyboard.press("ArrowRight"));
+  await waitForViewTransition(page, second, "finished");
+  await expect(page).toHaveURL(/\/4$/u);
+  await waitForViewTransition(page, first, "finished");
+
   expect(await readViewTransitionCalls(page)).toEqual([
-    { canvas: true, kind: "element", types: ["drever-step-forward"] },
-    { canvas: true, kind: "element", types: ["drever-step-forward"] },
-    { canvas: true, kind: "element", types: ["drever-step-backward"] },
+    { kind: "document", target: "document", types: ["drever-slide-forward"] },
+    { kind: "document", target: "document", types: ["drever-slide-forward"] },
   ]);
+  health.expectHealthy();
 });

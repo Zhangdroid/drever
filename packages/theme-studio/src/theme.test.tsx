@@ -121,13 +121,22 @@ describe("@drever/theme-studio", () => {
       expect(css).toContain(selector);
     }
 
-    const profileKeys = new Set(css.match(/--drever-recipe-[\w-]+(?=:)/gu));
+    const profileKeys = [...new Set(css.match(/--drever-recipe-[\w-]+(?=:)/gu))].sort();
 
-    expect(profileKeys.size).toBe(18);
+    expect(profileKeys).toEqual([
+      "--drever-recipe-enter-duration",
+      "--drever-recipe-replace-from-translate",
+      "--drever-recipe-stagger-duration",
+      "--drever-recipe-stagger-from-translate",
+      "--drever-recipe-stagger-gap",
+      "--drever-recipe-step-from-translate",
+    ]);
     expect(css).toContain("grid-area: 1 / 1;");
     expect(css.match(/:not\(\[data-drever-render-mode="document"\]\)/gu)).toHaveLength(3);
-    expect(css).toContain("--drever-recipe-stagger-gap: 36ms;");
-    expect(css).toContain("--drever-recipe-continuity-new-from-opacity: 0.36;");
+    expect(css).toContain(":root:has(.drever-viewer),");
+    expect(css).toContain("--drever-motion-slide-offset: 2.8%;");
+    expect(css).toContain("--drever-recipe-stagger-gap: 32ms;");
+    expect(css).not.toContain("--drever-recipe-step-from-transform");
     expect(css).toContain("[data-drever-reduced-motion]");
     expect(theme.motion?.guidance?.every((entry) => entry.trim().length > 20)).toBe(true);
   });

@@ -165,8 +165,8 @@ The scarce part is now **judgment**: what to reveal, what to make tangible, and 
 <MotionBoundary />
 
 <Note>
-  Click the local control once or twice, then advance the deck. Drever scopes View Transitions to
-  the canvas element, so the surrounding stage is never captured in the old or new frame.
+  Click the local control once or twice, then advance the deck. React owns the View Transition,
+  while Drever activates only the slide boundary and keeps the surrounding stage visually still.
 </Note>
 
 ---

@@ -55,15 +55,9 @@ describe("core primitives", () => {
     expect(markup).toContain('data-motion-intent="continuity"');
   });
 
-  it.each<[DreverRenderMode, boolean]>([
-    ["audience", true],
-    ["document", false],
-    ["export", false],
-    ["speaker-current", false],
-    ["speaker-next", false],
-  ])(
-    "renders continuity metadata but enables its native transition only in %s mode",
-    (mode, enabled) => {
+  it.each<DreverRenderMode>(["audience", "document", "export", "speaker-current", "speaker-next"])(
+    "keeps continuity metadata free of native transition styles in %s mode",
+    (mode) => {
       const markup = renderToStaticMarkup(
         createElement(
           DreverRenderModeProvider,
@@ -89,8 +83,8 @@ describe("core primitives", () => {
       expect(markup).toContain('data-motion-intent="continuity"');
       expect(markup).toContain('data-motion-name="hero-title"');
       expect(markup).toContain("color:rebeccapurple");
-      expect(markup.includes("view-transition-name:drever-hero-title")).toBe(enabled);
-      expect(markup.includes("view-transition-class:drever-motion-continuity")).toBe(enabled);
+      expect(markup).not.toContain("view-transition-name");
+      expect(markup).not.toContain("view-transition-class");
       expect(markup).not.toContain("authored-name");
       expect(markup).not.toContain("authored-class");
     },
@@ -114,8 +108,8 @@ describe("core primitives", () => {
     );
 
     expect(continuityMarkup).toContain("color:tomato");
-    expect(continuityMarkup).toContain("view-transition-name:drever-shared-card");
-    expect(continuityMarkup).toContain("view-transition-class:drever-motion-continuity");
+    expect(continuityMarkup).not.toContain("view-transition-name");
+    expect(continuityMarkup).not.toContain("view-transition-class");
     expect(continuityMarkup).not.toContain("authored-name");
     expect(continuityMarkup).not.toContain("authored-class");
     expect(localMarkup).toContain("color:tomato");
@@ -276,41 +270,53 @@ describe("core primitives", () => {
     let calls = 0;
     const explicitStepMarkup = renderToStaticMarkup(
       createElement(
-        SlideStateProvider,
-        {
-          resolver: () => {
-            calls += 1;
-            return Object.freeze({ active: false, currentStep: 4 });
+        DreverRenderModeProvider,
+        { mode: "document" },
+        createElement(
+          SlideStateProvider,
+          {
+            resolver: () => {
+              calls += 1;
+              return Object.freeze({ active: false, currentStep: 4 });
+            },
           },
-        },
-        createElement(Slide, { currentStep: 1 }, createElement(Step, { at: 1 }, "Now")),
+          createElement(Slide, { currentStep: 1 }, createElement(Step, { at: 1 }, "Now")),
+        ),
       ),
     );
     const explicitActiveMarkup = renderToStaticMarkup(
       createElement(
-        SlideStateProvider,
-        {
-          resolver: () => {
-            calls += 1;
-            return Object.freeze({ active: false, currentStep: 4 });
+        DreverRenderModeProvider,
+        { mode: "document" },
+        createElement(
+          SlideStateProvider,
+          {
+            resolver: () => {
+              calls += 1;
+              return Object.freeze({ active: false, currentStep: 4 });
+            },
           },
-        },
-        createElement(Slide, { active: true }, createElement(Step, { at: 4 }, "Now")),
+          createElement(Slide, { active: true }, createElement(Step, { at: 4 }, "Now")),
+        ),
       ),
     );
     const fullyExplicitMarkup = renderToStaticMarkup(
       createElement(
-        SlideStateProvider,
-        {
-          resolver: () => {
-            calls += 1;
-            return Object.freeze({ active: false, currentStep: 4 });
-          },
-        },
+        DreverRenderModeProvider,
+        { mode: "document" },
         createElement(
-          Slide,
-          { active: true, currentStep: 1 },
-          createElement(Step, { at: 1 }, "Now"),
+          SlideStateProvider,
+          {
+            resolver: () => {
+              calls += 1;
+              return Object.freeze({ active: false, currentStep: 4 });
+            },
+          },
+          createElement(
+            Slide,
+            { active: true, currentStep: 1 },
+            createElement(Step, { at: 1 }, "Now"),
+          ),
         ),
       ),
     );
@@ -341,7 +347,28 @@ describe("core primitives", () => {
     expect(markup).not.toContain('tabindex="-1"');
   });
 
-  it("marks inactive slides as hidden, inert, and outside the accessibility tree", () => {
+  it("marks inactive non-audience slides as hidden, inert, and outside the accessibility tree", () => {
+    const markup = renderToStaticMarkup(
+      createElement(
+        DreverRenderModeProvider,
+        { mode: "speaker-next" },
+        createElement(
+          SlideStateProvider,
+          { resolver: () => Object.freeze({ active: false, currentStep: 3 }) },
+          createElement(Slide, { id: "hidden-slide", index: 2 }, "Hidden content"),
+        ),
+      ),
+    );
+
+    expect(markup).toContain('data-slide-state="inactive"');
+    expect(markup).toContain('data-current-step="3"');
+    expect(markup).toContain('aria-hidden="true"');
+    expect(markup).toContain('inert=""');
+    expect(markup).toContain('hidden=""');
+    expect(markup).not.toContain("Hidden content");
+  });
+
+  it("keeps inactive audience metadata outside deferred Activity content", () => {
     const markup = renderToStaticMarkup(
       createElement(
         SlideStateProvider,

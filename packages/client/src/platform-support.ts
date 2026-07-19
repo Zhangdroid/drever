@@ -4,7 +4,7 @@ import type { PresentationChannelView } from "./presentation-sync.ts";
 
 export type DreverPlatformCapability =
   | "BroadcastChannel"
-  | "Element.startViewTransition"
+  | "Document.startViewTransition"
   | "Navigation API"
   | "ResizeObserver";
 
@@ -24,14 +24,11 @@ export type ViewerPlatform = Readonly<{
 type CandidateWindow = Window &
   Readonly<{
     BroadcastChannel?: unknown;
-    Element?: Readonly<{
-      prototype?: Readonly<{
-        startViewTransition?: unknown;
-      }>;
-    }>;
     ResizeObserver?: unknown;
     navigation?: unknown;
   }>;
+
+type CandidateDocument = Document & Readonly<{ startViewTransition?: unknown }>;
 
 const supportsNavigation = (value: unknown): value is NavigationLike => {
   if (typeof value !== "object" || value === null) {
@@ -46,7 +43,10 @@ const supportsNavigation = (value: unknown): value is NavigationLike => {
   );
 };
 
-const missingCapabilities = (view: CandidateWindow): readonly DreverPlatformCapability[] => {
+const missingCapabilities = (
+  document: CandidateDocument,
+  view: CandidateWindow,
+): readonly DreverPlatformCapability[] => {
   const missing: DreverPlatformCapability[] = [];
   if (typeof view.BroadcastChannel !== "function") {
     missing.push("BroadcastChannel");
@@ -54,8 +54,8 @@ const missingCapabilities = (view: CandidateWindow): readonly DreverPlatformCapa
   if (!supportsNavigation(view.navigation)) {
     missing.push("Navigation API");
   }
-  if (typeof view.Element?.prototype?.startViewTransition !== "function") {
-    missing.push("Element.startViewTransition");
+  if (typeof document.startViewTransition !== "function") {
+    missing.push("Document.startViewTransition");
   }
   if (typeof view.ResizeObserver !== "function") {
     missing.push("ResizeObserver");
@@ -78,7 +78,7 @@ export const requireViewerPlatform = (document: Document): ViewerPlatform => {
     );
   }
 
-  const missing = missingCapabilities(view);
+  const missing = missingCapabilities(document as CandidateDocument, view);
   if (missing.length > 0) {
     throw new DreverClientError(
       "DREVER_CLIENT_PLATFORM_UNSUPPORTED",

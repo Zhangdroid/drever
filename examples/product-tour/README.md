@@ -11,7 +11,7 @@ The deck demonstrates:
 - default build-time Shiki highlighting and reset-free Tailwind utilities;
 - accumulated Step states, clean path URLs, and canonical link copying;
 - React interaction whose state survives inactive slides;
-- element-scoped motion as a visible design boundary;
+- React-owned motion with a stable stage boundary;
 - the searchable, fully revealed `/document` reading view;
 - speaker notes and the `/speaker` rehearsal view with a 20-minute target;
 - the AI-first write, inspect, test, build, and deploy loop.
@@ -49,5 +49,5 @@ accessibility report without starting the presentation server.
 The fifth slide contains the main audience interaction. Change its signal,
 navigate away, and return to show preserved React state. On the seventh slide,
 use the local control before advancing to distinguish component interaction from
-Drever's canvas-scoped navigation transition. Speaker guidance for every slide
+Drever's slide navigation transition. Speaker guidance for every slide
 is authored in `<Note>` and intentionally absent from the audience DOM.

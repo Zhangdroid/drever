@@ -122,23 +122,19 @@ test("semantic motion recipes preserve geometry and accessibility state", async 
   await expect(focusSteps.first()).toHaveAttribute("data-step-state", "pending");
   await expect(focusSteps.first()).toHaveAttribute("aria-hidden", "true");
 
-  const firstFocusTransition = await captureNextViewTransition(page, () =>
-    page.keyboard.press("ArrowRight"),
-  );
-  await waitForViewTransition(page, firstFocusTransition, "finished");
+  await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/\/4\/1$/u);
   expectStableBounds(await readElementBounds(focus), focusBounds);
   await expect(focusSteps.first()).toHaveAttribute("data-step-state", "active");
   await expect(focusSteps.first()).not.toHaveAttribute("aria-hidden", "true");
 
-  const secondFocusTransition = await captureNextViewTransition(page, () =>
-    page.keyboard.press("ArrowRight"),
-  );
-  await waitForViewTransition(page, secondFocusTransition, "finished");
+  await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/\/4\/2$/u);
   expectStableBounds(await readElementBounds(focus), focusBounds);
   await expect(focusSteps.first()).toHaveAttribute("data-step-state", "complete");
   await expect(focusSteps.first()).not.toHaveAttribute("inert", "");
+  await expect(focusSteps.nth(1)).toHaveAttribute("data-step-state", "active");
+  await expect(focusSteps.nth(1)).toHaveCSS("opacity", "1");
   const focusedCompletedOpacity = Number(
     await focusSteps.first().evaluate((element) => getComputedStyle(element).opacity),
   );
@@ -147,8 +143,6 @@ test("semantic motion recipes preserve geometry and accessibility state", async 
   );
   expect(focusedCompletedOpacity).toBeGreaterThanOrEqual(0.5);
   expect(focusedCompletedOpacity).toBeLessThan(focusedActiveOpacity);
-  await expect(focusSteps.nth(1)).toHaveAttribute("data-step-state", "active");
-  await expect(focusSteps.nth(1)).toHaveCSS("opacity", "1");
 
   await page.goto("/11");
   const replace = page.getByTestId("motion-replace");
@@ -156,18 +150,12 @@ test("semantic motion recipes preserve geometry and accessibility state", async 
   const replaceBounds = await readElementBounds(replace);
   await expect(replaceSteps).toHaveCount(3);
 
-  const firstReplaceTransition = await captureNextViewTransition(page, () =>
-    page.keyboard.press("ArrowRight"),
-  );
-  await waitForViewTransition(page, firstReplaceTransition, "finished");
+  await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/\/11\/1$/u);
   expectStableBounds(await readElementBounds(replace), replaceBounds);
   await expect(replaceSteps.first()).toBeVisible();
 
-  const secondReplaceTransition = await captureNextViewTransition(page, () =>
-    page.keyboard.press("ArrowRight"),
-  );
-  await waitForViewTransition(page, secondReplaceTransition, "finished");
+  await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/\/11\/2$/u);
   expectStableBounds(await readElementBounds(replace), replaceBounds);
   await expect(replaceSteps.first()).toHaveAttribute("data-step-state", "complete");
@@ -184,14 +172,13 @@ test("semantic motion recipes preserve geometry and accessibility state", async 
   await expect(compareSteps.first()).toHaveAttribute("data-step-state", "active");
   await expect(compareSteps.nth(1)).toHaveAttribute("aria-hidden", "true");
 
-  const compareTransition = await captureNextViewTransition(page, () =>
-    page.keyboard.press("ArrowRight"),
-  );
-  await waitForViewTransition(page, compareTransition, "finished");
+  await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/\/12\/2$/u);
   expectStableBounds(await readElementBounds(compare), compareBounds);
   await expect(compareSteps.first()).toHaveAttribute("data-step-state", "complete");
   await expect(compareSteps.first()).not.toHaveAttribute("aria-hidden", "true");
+  await expect(compareSteps.nth(1)).toHaveAttribute("data-step-state", "active");
+  await expect(compareSteps.nth(1)).toHaveCSS("opacity", "1");
   const compareCompletedOpacity = Number(
     await compareSteps.first().evaluate((element) => getComputedStyle(element).opacity),
   );
@@ -200,9 +187,9 @@ test("semantic motion recipes preserve geometry and accessibility state", async 
   );
   expect(compareCompletedOpacity).toBeGreaterThanOrEqual(0.5);
   expect(compareCompletedOpacity).toBeLessThan(compareActiveOpacity);
-  await expect(compareSteps.nth(1)).toHaveAttribute("data-step-state", "active");
   await expect(compareSteps.nth(1)).toBeVisible();
 
+  expect(await readViewTransitionCalls(page)).toEqual([]);
   health.expectHealthy();
 });
 
@@ -215,8 +202,7 @@ test("stagger reveals one state with four bounded beats", async ({ page }) => {
   const before = await readElementBounds(stagger);
   await expect(stagger).toBeHidden();
 
-  const transition = await captureNextViewTransition(page, () => page.keyboard.press("ArrowRight"));
-  await waitForViewTransition(page, transition, "ready");
+  await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/\/13\/1$/u);
   await expect(stagger).toBeVisible();
   expectStableBounds(await readElementBounds(stagger), before);
@@ -239,7 +225,7 @@ test("stagger reveals one state with four bounded beats", async ({ page }) => {
   expect(delays).toEqual([...delays].sort((left, right) => left - right));
   expect(delays.at(-1)).toBeLessThanOrEqual(150);
 
-  await waitForViewTransition(page, transition, "finished");
+  expect(await readViewTransitionCalls(page)).toEqual([]);
   await expect(page).toHaveURL(/\/13\/1$/u);
   health.expectHealthy();
 });
@@ -251,40 +237,49 @@ test("continuity uses one explicit identity in both directions", async ({ page }
 
   const continuity = page.locator(`${activeSlide} [data-testid="motion-continuity"]`);
   await expect(continuity).toHaveAttribute("data-motion-name", "deck-contract");
-  await expect(continuity).toHaveCSS("view-transition-name", "drever-deck-contract");
-  await expect(continuity).toHaveCSS("view-transition-class", "drever-motion-continuity");
+  await expect(continuity).toHaveCSS("view-transition-name", "none");
   await expect(page.locator(`${activeSlide} h2`)).toHaveCSS("view-transition-name", "none");
 
-  const stepTransition = await captureNextViewTransition(page, () =>
-    page.keyboard.press("ArrowRight"),
-  );
-  await waitForViewTransition(page, stepTransition, "ready");
+  await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/\/14\/1$/u);
   await expect(continuity).toHaveCSS("view-transition-name", "none");
-  await waitForViewTransition(page, stepTransition, "finished");
-  await expect(continuity).toHaveCSS("view-transition-name", "drever-deck-contract");
 
   const forwardTransition = await captureNextViewTransition(page, () =>
     page.keyboard.press("ArrowRight"),
   );
   await waitForViewTransition(page, forwardTransition, "ready");
   await expect(page).toHaveURL(/\/15$/u);
-  await expect(continuity).toHaveCSS("view-transition-name", "drever-deck-contract");
+  expect(
+    await page.evaluate(() =>
+      document.documentElement.getAnimations({ subtree: true }).flatMap((animation) => {
+        const pseudo = Reflect.get(animation.effect ?? {}, "pseudoElement");
+        return typeof pseudo === "string" ? [pseudo] : [];
+      }),
+    ),
+  ).toContain("::view-transition-group(drever-deck-contract)");
   await expect(page.locator(`${activeSlide} h2`)).toHaveCSS("view-transition-name", "none");
   await waitForViewTransition(page, forwardTransition, "finished");
+  await expect(continuity).toHaveCSS("view-transition-name", "none");
 
   const backwardTransition = await captureNextViewTransition(page, () =>
     page.keyboard.press("ArrowLeft"),
   );
   await waitForViewTransition(page, backwardTransition, "ready");
   await expect(page).toHaveURL(/\/14\/1$/u);
-  await expect(continuity).toHaveCSS("view-transition-name", "drever-deck-contract");
+  expect(
+    await page.evaluate(() =>
+      document.documentElement.getAnimations({ subtree: true }).flatMap((animation) => {
+        const pseudo = Reflect.get(animation.effect ?? {}, "pseudoElement");
+        return typeof pseudo === "string" ? [pseudo] : [];
+      }),
+    ),
+  ).toContain("::view-transition-group(drever-deck-contract)");
   await waitForViewTransition(page, backwardTransition, "finished");
+  await expect(continuity).toHaveCSS("view-transition-name", "none");
 
   expect(await readViewTransitionCalls(page)).toEqual([
-    { canvas: true, kind: "element", types: ["drever-step-forward"] },
-    { canvas: true, kind: "element", types: ["drever-slide-forward"] },
-    { canvas: true, kind: "element", types: ["drever-slide-backward"] },
+    { kind: "document", target: "document", types: ["drever-slide-forward"] },
+    { kind: "document", target: "document", types: ["drever-slide-backward"] },
   ]);
   health.expectHealthy();
 });

@@ -142,6 +142,7 @@ viewer. Do not modify the package CSS:
 ```
 
 The theme targets current browsers and intentionally uses `color-mix()` and
-modern text wrapping without legacy fallbacks. The client owns one
-canvas-scoped transition and names only active semantic participants. Persistent
-headings never receive inferred transition identities.
+modern text wrapping without legacy fallbacks. React owns the document View
+Transition while named slide and continuity boundaries visually confine motion
+to the canvas. Steps animate in the live DOM, and persistent headings never
+receive inferred transition identities.

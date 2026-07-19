@@ -58,7 +58,7 @@ The runnable vertical slice includes:
 - a typed `drever.config.ts` and public `drever dev` / `drever build` commands;
 - a polished, dependency-light default theme with `Cover` and `TwoColumn` layouts;
 - clean path-addressable slide and reveal state through the Navigation API;
-- state-preserving inactive slides and canvas-scoped View Transitions with
+- state-preserving inactive slides and React-owned View Transitions with
   semantic focus, replacement, comparison, stagger, and continuity recipes;
 - an accessible audience command bar with progress, fullscreen, searchable
   slide navigation, direct jumps, canonical link copying, and black/white pause

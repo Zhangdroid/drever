@@ -1,3 +1,5 @@
+/// <reference types="react/canary" />
+
 import type { DeckManifest, SlideManifest } from "@drever/schema";
 import {
   useCallback,
@@ -6,6 +8,7 @@ import {
   useMemo,
   useRef,
   useState,
+  ViewTransition,
   type ReactElement,
   type RefObject,
   type SVGProps,
@@ -217,6 +220,14 @@ const shortcutRows = Object.freeze([
   ["Pause on black / white", "B  W"],
   ["Keyboard help", "?"],
 ] as const);
+
+const chromeTransition = Object.freeze({
+  default: "none",
+  "drever-jump-backward": "drever-motion-chrome",
+  "drever-jump-forward": "drever-motion-chrome",
+  "drever-slide-backward": "drever-motion-chrome",
+  "drever-slide-forward": "drever-motion-chrome",
+});
 
 /** Discoverable controls layered outside the transitioning presentation canvas. */
 export const AudienceControls = ({
@@ -441,81 +452,83 @@ export const AudienceControls = ({
 
   return (
     <div className="drever-audience-controls" data-drever-audience-controls="" ref={hostRef}>
-      <nav aria-label="Presentation controls" className="drever-audience-controls__bar">
-        <button
-          aria-label="Previous presentation state"
-          disabled={!progress.canGoPrevious}
-          onClick={() => navigate({ type: "previous" })}
-          title="Previous Step (Arrow Left)"
-          type="button"
-        >
-          <PreviousIcon />
-        </button>
-        <button
-          aria-label="Open slide navigator"
-          className="drever-audience-controls__position"
-          onClick={() => setPanel("overview")}
-          title="Slide navigator (O)"
-          type="button"
-        >
-          <OverviewIcon />
-          <span>
-            <strong>{progress.slideLabel}</strong>
-            {progress.stepLabel === undefined ? null : <small>{progress.stepLabel}</small>}
-          </span>
-        </button>
-        <button
-          aria-label="Next presentation state"
-          disabled={!progress.canGoNext}
-          onClick={() => navigate({ type: "next" })}
-          title="Next Step (Arrow Right)"
-          type="button"
-        >
-          <NextIcon />
-        </button>
-        <span aria-hidden="true" className="drever-audience-controls__divider" />
-        <button
-          aria-label="Copy link to current presentation state"
-          data-share-result={visibleShareResult}
-          onClick={copyShareURL}
-          title="Copy link"
-          type="button"
-        >
-          <ShareIcon />
-        </button>
-        <button
-          aria-label="Open document view"
-          onClick={() => run(onOpenDocument)}
-          title="Document view (D)"
-          type="button"
-        >
-          <DocumentIcon />
-        </button>
-        <button
-          aria-label="Open speaker view"
-          onClick={() => run(onOpenSpeaker)}
-          title="Speaker view (P)"
-          type="button"
-        >
-          <SpeakerIcon />
-        </button>
-        <button
-          aria-label={fullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-          onClick={toggleFullscreen}
-          title={`${fullscreen ? "Exit" : "Enter"} fullscreen (F)`}
-          type="button"
-        >
-          <FullscreenIcon active={fullscreen} />
-        </button>
-        <button
-          aria-label="Show keyboard shortcuts"
-          onClick={() => setPanel("help")}
-          title="Keyboard shortcuts (?)"
-          type="button"
-        >
-          <HelpIcon />
-        </button>
-      </nav>
+      <ViewTransition name="drever-audience-chrome" default="none" update={chromeTransition}>
+        <nav aria-label="Presentation controls" className="drever-audience-controls__bar">
+          <button
+            aria-label="Previous presentation state"
+            disabled={!progress.canGoPrevious}
+            onClick={() => navigate({ type: "previous" })}
+            title="Previous Step (Arrow Left)"
+            type="button"
+          >
+            <PreviousIcon />
+          </button>
+          <button
+            aria-label="Open slide navigator"
+            className="drever-audience-controls__position"
+            onClick={() => setPanel("overview")}
+            title="Slide navigator (O)"
+            type="button"
+          >
+            <OverviewIcon />
+            <span>
+              <strong>{progress.slideLabel}</strong>
+              {progress.stepLabel === undefined ? null : <small>{progress.stepLabel}</small>}
+            </span>
+          </button>
+          <button
+            aria-label="Next presentation state"
+            disabled={!progress.canGoNext}
+            onClick={() => navigate({ type: "next" })}
+            title="Next Step (Arrow Right)"
+            type="button"
+          >
+            <NextIcon />
+          </button>
+          <span aria-hidden="true" className="drever-audience-controls__divider" />
+          <button
+            aria-label="Copy link to current presentation state"
+            data-share-result={visibleShareResult}
+            onClick={copyShareURL}
+            title="Copy link"
+            type="button"
+          >
+            <ShareIcon />
+          </button>
+          <button
+            aria-label="Open document view"
+            onClick={() => run(onOpenDocument)}
+            title="Document view (D)"
+            type="button"
+          >
+            <DocumentIcon />
+          </button>
+          <button
+            aria-label="Open speaker view"
+            onClick={() => run(onOpenSpeaker)}
+            title="Speaker view (P)"
+            type="button"
+          >
+            <SpeakerIcon />
+          </button>
+          <button
+            aria-label={fullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+            onClick={toggleFullscreen}
+            title={`${fullscreen ? "Exit" : "Enter"} fullscreen (F)`}
+            type="button"
+          >
+            <FullscreenIcon active={fullscreen} />
+          </button>
+          <button
+            aria-label="Show keyboard shortcuts"
+            onClick={() => setPanel("help")}
+            title="Keyboard shortcuts (?)"
+            type="button"
+          >
+            <HelpIcon />
+          </button>
+        </nav>
+      </ViewTransition>
 
       {visibleShareResult === undefined ? null : (
         <div

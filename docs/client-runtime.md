@@ -274,8 +274,8 @@ ignored to prevent one long press from opening multiple windows.
 The built-in audience command bar exposes navigation, exact slide position,
 canonical link copying, the searchable slide navigator, document and speaker
 views, fullscreen, and keyboard help to pointer and touch users. It is a sibling
-of the canvas rather than slide content, so scoped View Transitions never
-capture presentation chrome.
+of the canvas rather than slide content. React transition boundaries activate
+only presentation content, and the document root remains visually still.
 
 ## Rendering and motion
 
@@ -285,17 +285,16 @@ DOM and state while cleaning up effects. This is important for interactive
 slides: returning to a slide restores component state without leaving inactive
 work running.
 
-Navigation commits use React Canary `startTransition` inside
-`Element.startViewTransition({ update, types })` on the slide canvas. The stage
-outside the canvas is never captured. Six transition types distinguish
-forward/backward Step, adjacent-slide, and jump motion. During Step navigation,
-the client gives newly active Step snapshots a native transition class for
-ordinary reveal or the enclosing `focus`, `replace`, or `compare` intent. A
-`stagger` group moves capture to its direct children and bounds them to four
-delay classes. During slide navigation, only an audience `continuity` group has
-an author-provided shared identity. Headings and surrounding content receive no
-implicit identity, so a Step change cannot turn stable slide geometry into a
-shared-element animation.
+Navigation commits use React Canary `startTransition` and `addTransitionType`.
+React `<ViewTransition>` owns native capture; Drever disables the document root
+animation and activates explicit slide and continuity boundaries. Six
+transition types still describe forward/backward Step, adjacent-slide, and jump
+changes. Step navigation does not capture a bitmap: ordinary reveal plus the
+`focus`, `replace`, `compare`, and bounded `stagger` recipes animate live DOM.
+During slide navigation, only an audience `continuity` group has an
+author-provided shared identity. Headings and surrounding content receive no
+implicit identity, so Step changes keep stable slide geometry live and cannot
+produce a second snapshot of the same content.
 
 `MotionGroup` requires one of five intents. `focus`, `replace`, and `compare`
 operate on direct Step children. `stagger` belongs inside one Step with at most
@@ -305,9 +304,10 @@ Steps overlap in one stable grid track; only its active state remains exposed to
 interaction and assistive technology. The complete authoring contract is in
 [Motion choreography](./motion.md).
 
-The client owns capture, direction, and state classification. Core owns intent
-attributes, continuity identity, and replacement accessibility. Themes own the
-actual duration, easing, emphasis, and displacement through CSS. Their
+The client owns the Navigation-to-React commit, direction, and state
+classification. Core owns React transition boundaries, intent attributes,
+continuity identity, and replacement accessibility. Themes own duration,
+easing, emphasis, and displacement through CSS. Their
 `theme.motion` field is JSON-safe authoring metadata (`id`, supported `intents`,
 and optional `guidance`), not an executable module, and the generated runtime
 does not export a separate `motion` value.
@@ -394,7 +394,7 @@ The audience and speaker surfaces require a browser document connected to a
 
 - `BroadcastChannel`
 - Navigation API
-- `Element.startViewTransition`
+- `Document.startViewTransition`
 - `ResizeObserver`
 
 There is intentionally no fallback router, animation engine, or resize polling.
@@ -413,7 +413,7 @@ If any stage fails, acquired resources are released before the failure is
 returned.
 
 The external abort signal and `destroy()` both end the viewer lifetime.
-Destruction aborts pending navigation, closes the React transition bridge,
+Destruction aborts pending navigation, closes the React commit bridge,
 removes listeners, and unmounts React immediately. An acquired setup disposer is
 then awaited. The generated setup runner observes the same lifetime signal before
 every hook and races the current acquisition against cancellation. It stops the
@@ -430,7 +430,7 @@ cancellation, setup races, listener ownership, synchronization, cleanup
 ordering, and idempotence without adding a simulated DOM dependency. Chromium
 CI remains the authority for the browser-owned boundary: the speaker UI,
 cross-window synchronization, Navigation interception, focus/inert behavior,
-and native scoped View Transition timing.
+and React-owned View Transition timing.
 
 ## AI generation contract
 

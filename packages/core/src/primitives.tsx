@@ -1,3 +1,5 @@
+/// <reference types="react/canary" />
+
 import type { MotionIntent } from "@drever/schema";
 import {
   Activity,
@@ -6,6 +8,7 @@ import {
   createElement,
   isValidElement,
   useContext,
+  ViewTransition,
   type CSSProperties,
   type ComponentPropsWithoutRef,
   type ElementType,
@@ -16,6 +19,7 @@ import {
 import { DreverRuntimeError } from "./runtime-error.ts";
 
 type SlideRuntime = Readonly<{
+  active: boolean;
   currentStep: number;
 }>;
 
@@ -184,7 +188,12 @@ export const Slide = ({
     return null;
   }
 
-  return createElement(
+  const content = createElement(
+    SlideContext.Provider,
+    { value: Object.freeze({ active, currentStep }) },
+    children,
+  );
+  const section = createElement(
     "section",
     {
       ...props,
@@ -207,14 +216,23 @@ export const Slide = ({
       inert: active ? undefined : true,
       hidden: active ? undefined : true,
     },
-    createElement(Activity, {
-      mode: active ? "visible" : "hidden",
-      children: createElement(
-        SlideContext.Provider,
-        { value: Object.freeze({ currentStep }) },
-        children,
-      ),
-    }),
+    createElement(Activity, { mode: active ? "visible" : "hidden", children: content }),
+  );
+
+  if (renderMode !== "audience") {
+    return section;
+  }
+
+  return createElement(
+    ViewTransition,
+    {
+      name: index === undefined ? "auto" : `drever-slide-${index}`,
+      default: "none",
+      enter: "none",
+      exit: "none",
+      update: active ? "drever-motion-slide-enter" : "drever-motion-slide-exit",
+    },
+    section,
   );
 };
 
@@ -357,6 +375,20 @@ const provideIntentToDirectSteps = (children: ReactNode, intent: MotionIntent): 
       : child,
   );
 
+const withoutNativeTransitionStyles = (
+  style: ViewTransitionStyle | undefined,
+): CSSProperties | undefined => {
+  if (style === undefined) {
+    return undefined;
+  }
+  const {
+    viewTransitionClass: _viewTransitionClass,
+    viewTransitionName: _viewTransitionName,
+    ...authoredStyle
+  } = style;
+  return authoredStyle;
+};
+
 export const MotionGroup = ({
   children,
   intent,
@@ -367,24 +399,36 @@ export const MotionGroup = ({
   const resolvedIntent = resolveMotionIntent(intent);
   assertMotionIdentity(resolvedIntent, name);
   const renderMode = useContext(DreverRenderModeContext);
-  const continuityStyle: ViewTransitionStyle | undefined =
-    resolvedIntent === "continuity"
-      ? {
-          ...style,
-          viewTransitionName: renderMode === "audience" ? `drever-${name}` : undefined,
-          viewTransitionClass: renderMode === "audience" ? "drever-motion-continuity" : undefined,
-        }
-      : style;
-
-  return createElement(
+  const slide = useContext(SlideContext);
+  const group = createElement(
     "div",
     {
       ...props,
       "data-drever-motion-group": "",
       "data-motion-intent": resolvedIntent,
       "data-motion-name": name,
-      style: continuityStyle,
+      style:
+        resolvedIntent === "continuity"
+          ? withoutNativeTransitionStyles(style as ViewTransitionStyle | undefined)
+          : style,
     },
     provideIntentToDirectSteps(children, resolvedIntent),
+  );
+
+  if (renderMode !== "audience" || resolvedIntent !== "continuity") {
+    return group;
+  }
+
+  return createElement(
+    ViewTransition,
+    {
+      name: slide?.active === false ? "auto" : `drever-${name}`,
+      default: "none",
+      enter: "none",
+      exit: "none",
+      share: "drever-motion-continuity",
+      update: "none",
+    },
+    group,
   );
 };

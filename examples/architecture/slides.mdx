@@ -185,7 +185,7 @@ import "./architecture.css";
   <div>
     <span>04</span>
     <strong>Transition</strong>
-    <p>The canvas captures old and new.</p>
+    <p>React activates the slide boundary.</p>
   </div>
   <div>
     <span>05</span>
@@ -200,14 +200,14 @@ import "./architecture.css";
 </div>
 
 <div className="arch-scope">
-  <strong>Element-scoped by design</strong>
-  <code>canvas.startViewTransition(&#123; update, types &#125;)</code>
+  <strong>React-owned by design</strong>
+  <code>&lt;ViewTransition default="none" /&gt;</code>
 </div>
 
 <Note>
   This protocol prevents the URL, React tree, animation, and remote audience from briefly
-  disagreeing. The transition root is the slide canvas, so stage chrome is not part of either
-  captured frame.
+  disagreeing. React owns the document transition lifecycle, while explicit boundaries keep stage
+  chrome visually stable and Step changes in the live DOM.
 </Note>
 
 ---

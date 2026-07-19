@@ -2,9 +2,13 @@ import type { MDXComponents, MDXContent } from "@drever/core";
 import type { CanvasDefinition, DeckManifest, PlannedTheme } from "@drever/schema";
 import { StrictMode } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { DreverClientError } from "./client-error.ts";
+import { DreverClientError, isAbortError } from "./client-error.ts";
 import { attachKeyboardNavigation } from "./keyboard.ts";
-import { createPresentationNavigation, type PresentationNavigation } from "./navigation.ts";
+import {
+  createPresentationNavigation,
+  type PresentationCommit,
+  type PresentationNavigation,
+} from "./navigation.ts";
 import { requireViewerPlatform } from "./platform-support.ts";
 import {
   createPresentationStateMachine,
@@ -31,8 +35,7 @@ import {
   type Awaitable,
   type RuntimeDisposer,
 } from "./runtime-lifecycle.ts";
-import { createReactTransitionBridge } from "./view-transition.ts";
-import { createViewerTransitionChannel, ViewerHost } from "./viewer.tsx";
+import { ViewerHost, type ViewerCommitRegistrar } from "./viewer.tsx";
 import { releaseLateAcquisition } from "./viewer-lifecycle.ts";
 
 export type ViewerDisposer = RuntimeDisposer;
@@ -89,16 +92,51 @@ export const createViewer = async (options: CreateViewerOptions): Promise<Viewer
 
   const platform = requireViewerPlatform(options.container.ownerDocument);
   const report = createReporter(options.onError);
+  const reportNavigationError = (error: unknown): void => {
+    if (isAbortError(error)) return;
+    report(error);
+  };
   const machine = createPresentationStateMachine(options.manifest);
   const currentURL = new URL(platform.navigation.currentEntry?.url ?? platform.document.URL);
   const baseURL = new URL(options.baseURL, currentURL);
   const route = createPresentationRouteCodec({ baseURL, machine });
   const speakerRoute = createPresentationRouteCodec({ baseURL, machine, surface: "speaker" });
   const store = createPresentationStore(machine, route.decodeURL(currentURL));
-  const transitions = createViewerTransitionChannel();
-  const bridge = createReactTransitionBridge(transitions.schedule);
   const lifetime = new AbortController();
   const subscriptions = new Set<() => void>();
+  let viewerCommit: PresentationCommit | undefined;
+
+  const registerCommit: ViewerCommitRegistrar = (commit) => {
+    if (viewerCommit !== undefined) {
+      throw new DreverClientError(
+        "DREVER_CLIENT_VIEWER_ALREADY_MOUNTED",
+        "A presentation commit can only be registered by one React viewer.",
+      );
+    }
+    viewerCommit = commit;
+    return () => {
+      if (viewerCommit === commit) {
+        viewerCommit = undefined;
+      }
+    };
+  };
+  const commitNavigation: PresentationCommit = (change, signal) => {
+    if (signal.aborted) {
+      return Promise.reject(abortReason(signal));
+    }
+    if (lifetime.signal.aborted) {
+      return Promise.reject(abortReason(lifetime.signal));
+    }
+    if (viewerCommit === undefined) {
+      return Promise.reject(
+        new DreverClientError(
+          "DREVER_CLIENT_VIEWER_NOT_READY",
+          "The React viewer is not ready to commit a navigation.",
+        ),
+      );
+    }
+    return viewerCommit(change, signal);
+  };
 
   const subscribe = (listener: () => void): (() => void) => {
     if (lifetime.signal.aborted) {
@@ -184,7 +222,6 @@ export const createViewer = async (options: CreateViewerOptions): Promise<Viewer
         lifetime.abort(reason);
       }
       options.signal?.removeEventListener("abort", onExternalAbort);
-      transitions.close(reason);
 
       const errors: unknown[] = [];
       const capture = async (release: () => Awaitable<void>): Promise<void> => {
@@ -284,15 +321,15 @@ export const createViewer = async (options: CreateViewerOptions): Promise<Viewer
           {...(canvas === undefined ? {} : { canvas })}
           machine={machine}
           onCopyShareURL={copyShareURL}
-          onError={report}
+          onError={reportNavigationError}
           onMounted={mounted.resolve}
           onNavigate={navigateFromControls}
           onOpenDocument={openDocument}
           onOpenSpeaker={openSpeaker}
           reducedMotion={reducedMotion}
+          registerCommit={registerCommit}
           {...(options.registry === undefined ? {} : { registry: options.registry })}
           store={store}
-          transitions={transitions}
         />
       </StrictMode>,
     );
@@ -303,7 +340,7 @@ export const createViewer = async (options: CreateViewerOptions): Promise<Viewer
 
     const activeNavigation = createPresentationNavigation({
       baseURL,
-      commit: bridge.commit,
+      commit: commitNavigation,
       machine,
       navigation: platform.navigation,
       onError: report,
@@ -320,12 +357,12 @@ export const createViewer = async (options: CreateViewerOptions): Promise<Viewer
       channel: createBrowserPresentationChannel(platform.channelView, baseURL),
       machine,
       navigate: activeNavigation.navigate,
-      onError: report,
+      onError: reportNavigationError,
     });
     keyboardDisposer = attachKeyboardNavigation({
       target: platform.keyboardTarget,
       onCommand: (command) => activeNavigation.navigate({ type: command }),
-      onError: report,
+      onError: reportNavigationError,
       onOpenSpeaker: openSpeaker,
     });
 

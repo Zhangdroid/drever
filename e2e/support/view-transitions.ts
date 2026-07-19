@@ -1,8 +1,8 @@
 import type { Page } from "@playwright/test";
 
 export type ViewTransitionCall = Readonly<{
-  canvas: boolean;
   kind: "document" | "element";
+  target: string;
   types: readonly string[];
 }>;
 
@@ -23,21 +23,31 @@ export const monitorViewTransitions = async (page: Page): Promise<void> => {
       const start = Reflect.get(prototype, "startViewTransition") as (
         ...args: unknown[]
       ) => unknown;
-      Reflect.set(prototype, "startViewTransition", function (this: Element, ...args: unknown[]) {
-        const options = args[0] as Readonly<{ types?: Iterable<string> }> | undefined;
-        const call = {
-          canvas:
-            kind === "element" &&
-            this instanceof HTMLElement &&
-            this.hasAttribute("data-drever-canvas"),
-          kind,
-          types: [...(options?.types ?? [])],
-        } satisfies ViewTransitionCall;
-        const transition = Reflect.apply(start, this, args) as ViewTransition;
-        calls.push(call);
-        transitions.push(transition);
-        return transition;
-      });
+      if (typeof start !== "function") return;
+
+      Reflect.set(
+        prototype,
+        "startViewTransition",
+        function (this: Document | Element, ...args: unknown[]) {
+          const options = args[0] as Readonly<{ types?: Iterable<string> }> | undefined;
+          const call = {
+            kind,
+            target:
+              kind === "document"
+                ? "document"
+                : this instanceof HTMLElement && this.hasAttribute("data-drever-canvas")
+                  ? "canvas"
+                  : this instanceof Element
+                    ? this.localName
+                    : "element",
+            types: [...(options?.types ?? [])],
+          } satisfies ViewTransitionCall;
+          const index = calls.push(call) - 1;
+          const transition = Reflect.apply(start, this, args) as ViewTransition;
+          transitions[index] = transition;
+          return transition;
+        },
+      );
     };
 
     wrap(Document.prototype, "document");
@@ -55,13 +65,15 @@ export const captureNextViewTransition = async (
   action: () => Promise<unknown>,
 ): Promise<CapturedViewTransition> => {
   const index = await page.evaluate(
-    () => (Reflect.get(globalThis, "__dreverTransitions") as readonly ViewTransition[]).length,
+    () =>
+      (Reflect.get(globalThis, "__dreverTransitionCalls") as readonly ViewTransitionCall[]).length,
   );
   await action();
   await page.waitForFunction(
     (expectedIndex) =>
-      (Reflect.get(globalThis, "__dreverTransitions") as readonly ViewTransition[]).length >
-      expectedIndex,
+      (Reflect.get(globalThis, "__dreverTransitions") as readonly (ViewTransition | undefined)[])[
+        expectedIndex
+      ] !== undefined,
     index,
   );
   return { index };

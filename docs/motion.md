@@ -152,11 +152,11 @@ stable structured runtime errors.
 
 ## Runtime and accessibility contract
 
-The audience viewer captures motion with a native, canvas-scoped View
-Transition. Step navigation classifies new Step snapshots by intent; slide
-navigation captures explicitly named continuity groups. Persistent titles and
-surrounding slide content are not assigned shared identities, which keeps their
-geometry stable during a Step change.
+The audience viewer lets React own the native document View Transition and
+activates only explicit slide and continuity boundaries. The document root does
+not animate, so the surrounding stage remains visually stable. Step recipes run
+on the live DOM instead of captured bitmaps; persistent titles and surrounding
+content therefore never receive duplicate transition snapshots.
 
 Native capture is audience-only. Speaker previews and PDF export retain the
 stable-frame replacement semantics but disable animation and View Transition
@@ -165,10 +165,11 @@ replacement states into its reading flow. Reduced-motion preference, or the
 `createViewer` reduced-motion option, follows the same navigation and state
 path without presentation animation.
 
-Core owns `Step` visibility, replacement accessibility, intent attributes, and
-continuity identity. The client owns canvas capture and navigation direction.
-Themes own the visual mapping: duration, easing, emphasis, displacement, and
-the intentional reduced-motion result. A theme's `motion` field is JSON-safe
+Core owns `Step` visibility, replacement accessibility, intent attributes,
+React transition boundaries, and continuity identity. The client owns the
+Navigation-to-React commit and navigation direction. Themes own the visual
+mapping: duration, easing, emphasis, displacement, and the intentional
+reduced-motion result. A theme's `motion` field is JSON-safe
 metadata containing `id`, supported `intents`, and optional author guidance; it
 does not load a JavaScript motion module and there is no separate
 `runtime.motion` value.

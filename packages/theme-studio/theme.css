@@ -1,29 +1,19 @@
+:root:has(.drever-viewer),
 .drever-viewer {
   --drever-stage-background: #050706;
   --drever-stage-color: #f2f4ed;
   --drever-canvas-background: #101311;
   --drever-canvas-color: #f2f4ed;
   --drever-canvas-color-scheme: dark;
-  --drever-motion-duration: 440ms;
+  --drever-motion-duration: 340ms;
   --drever-motion-easing: cubic-bezier(0.2, 0.8, 0.2, 1);
-  --drever-recipe-enter-duration: 390ms;
-  --drever-recipe-exit-duration: 190ms;
-  --drever-recipe-focus-duration: 320ms;
-  --drever-recipe-stagger-duration: 350ms;
-  --drever-recipe-stagger-gap: 36ms;
-  --drever-recipe-continuity-enter-duration: 390ms;
-  --drever-recipe-continuity-exit-duration: 220ms;
-  --drever-recipe-step-from-transform: translateX(12px);
-  --drever-recipe-step-from-filter: none;
-  --drever-recipe-step-from-clip: inset(0 12% 0 0);
-  --drever-recipe-focus-from-filter: blur(2px);
-  --drever-recipe-replace-from-transform: translateX(14px);
-  --drever-recipe-replace-from-clip: inset(0 16% 0 0);
-  --drever-recipe-replace-to-transform: translateX(-10px);
-  --drever-recipe-stagger-from-transform: translateX(9px);
-  --drever-recipe-stagger-from-clip: inset(0);
-  --drever-recipe-continuity-old-to-opacity: 0.16;
-  --drever-recipe-continuity-new-from-opacity: 0.36;
+  --drever-motion-slide-offset: 2.8%;
+  --drever-recipe-enter-duration: 250ms;
+  --drever-recipe-stagger-duration: 240ms;
+  --drever-recipe-stagger-gap: 32ms;
+  --drever-recipe-step-from-translate: 10px 0;
+  --drever-recipe-replace-from-translate: 12px 0;
+  --drever-recipe-stagger-from-translate: 8px 0;
   --drever-studio-canvas: #101311;
   --drever-studio-ink: #f2f4ed;
   --drever-studio-muted: #9da59d;
@@ -341,25 +331,21 @@
 [data-drever-motion-group=""][data-motion-intent="focus"]
   > [data-drever-step][data-step-state="complete"] {
   opacity: 0.44;
-  filter: saturate(0.24);
 }
 
 [data-drever-motion-group=""][data-motion-intent="focus"]
   > [data-drever-step][data-step-state="active"] {
   opacity: 1;
-  filter: none;
 }
 
 [data-drever-motion-group=""][data-motion-intent="compare"]
   > [data-drever-step][data-step-state="complete"] {
   opacity: 0.66;
-  filter: saturate(0.56);
 }
 
 [data-drever-motion-group=""][data-motion-intent="compare"]
   > [data-drever-step][data-step-state="active"] {
   opacity: 1;
-  filter: none;
 }
 
 [data-drever-deck]:not([data-drever-render-mode="document"])

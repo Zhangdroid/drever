@@ -13,7 +13,6 @@ import {
   createPresentationStore,
   type PresentationChange,
 } from "./presentation-state.ts";
-import { createReactTransitionBridge, type ReactTransitionRequest } from "./view-transition.ts";
 
 const manifest = {
   version: DECK_MANIFEST_VERSION,
@@ -402,17 +401,25 @@ describe("presentation Navigation API adapter", () => {
     });
   });
 
-  it("passes abort signals through the commit bridge and removes its listener", async () => {
-    let request: ReactTransitionRequest | undefined;
-    const bridge = createReactTransitionBridge((next) => {
-      request = next;
+  it("passes abort signals through commits and removes its navigation listener", async () => {
+    let receivedSignal: AbortSignal | undefined;
+    const commit = vi.fn((_change: PresentationChange, signal: AbortSignal): Promise<void> => {
+      receivedSignal = signal;
+      return new Promise((_resolve, reject) => {
+        const rejectAbort = (): void => reject(signal.reason);
+        if (signal.aborted) {
+          rejectAbort();
+          return;
+        }
+        signal.addEventListener("abort", rejectAbort, { once: true });
+      });
     });
     const machine = createPresentationStateMachine(manifest);
     const store = createPresentationStore(machine);
     const platform = createNavigationHarness("https://slides.test/talk");
     const controller = createPresentationNavigation({
       baseURL: new URL("https://slides.test/talk"),
-      commit: bridge.commit,
+      commit,
       machine,
       navigation: platform.navigation,
       onError: vi.fn(),
@@ -426,7 +433,7 @@ describe("presentation Navigation API adapter", () => {
     abort.abort();
 
     await expect(handled).rejects.toMatchObject({ name: "AbortError" });
-    expect(request?.signal).toBe(abort.signal);
+    expect(receivedSignal).toBe(abort.signal);
     controller.dispose();
     expect(platform.hasListener()).toBe(false);
     expect(platform.dispatch("https://slides.test/talk/3").getInterception()).toBeUndefined();

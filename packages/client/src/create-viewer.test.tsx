@@ -10,8 +10,8 @@ import type {
   PresentationNavigation,
 } from "./navigation.ts";
 import type { ViewerPlatform } from "./platform-support.ts";
-import type { DeckPosition } from "./presentation-state.ts";
-import type { ViewerHostProps, ViewerTransitionChannel } from "./viewer.tsx";
+import type { DeckPosition, PresentationChange } from "./presentation-state.ts";
+import type { ViewerHostProps } from "./viewer.tsx";
 import {
   createViewer,
   type CreateViewerOptions,
@@ -24,7 +24,6 @@ const dependencies = vi.hoisted(() => ({
   attachKeyboardNavigation: vi.fn(),
   createPresentationNavigation: vi.fn(),
   createRoot: vi.fn(),
-  createViewerTransitionChannel: vi.fn(),
   requireViewerPlatform: vi.fn(),
   ViewerHost: vi.fn(() => null),
 }));
@@ -40,7 +39,6 @@ vi.mock("./platform-support.ts", () => ({
   requireViewerPlatform: dependencies.requireViewerPlatform,
 }));
 vi.mock("./viewer.tsx", () => ({
-  createViewerTransitionChannel: dependencies.createViewerTransitionChannel,
   ViewerHost: dependencies.ViewerHost,
 }));
 
@@ -149,34 +147,41 @@ const createHarness = ({
       open,
     } as unknown as Window,
   };
+  let hostProps: ViewerHostProps | undefined;
+  let unregisterCommit: (() => void) | undefined;
+  const viewerCommit = vi.fn(async (change: PresentationChange, signal: AbortSignal) => {
+    if (signal.aborted) {
+      throw signal.reason;
+    }
+    hostProps?.store.commit(change.to);
+  });
   const rootUnmount = vi.fn(() => {
     events.push("root:unmount");
+    unregisterCommit?.();
+    unregisterCommit = undefined;
     if (teardownErrors.root !== undefined) {
       throw teardownErrors.root;
     }
   });
-  let hostProps: ViewerHostProps | undefined;
   let rendered: ReactNode;
   let rootCallbacks: RootCallbacks | undefined;
+  const mountHost = (): void => {
+    if (hostProps === undefined) {
+      return;
+    }
+    unregisterCommit ??= hostProps.registerCommit(viewerCommit);
+    hostProps.onMounted();
+  };
   const root: Root = {
     render(node) {
       events.push("root:render");
       rendered = node;
       hostProps = hostPropsFrom(node);
       if (autoMount) {
-        queueMicrotask(() => hostProps?.onMounted());
+        queueMicrotask(mountHost);
       }
     },
     unmount: rootUnmount,
-  };
-  const transitionClose = vi.fn((reason: unknown) => {
-    events.push("transitions:close");
-    return reason;
-  });
-  const transitionChannel: ViewerTransitionChannel = {
-    attach: vi.fn(() => vi.fn()),
-    close: transitionClose,
-    schedule: vi.fn(),
   };
   const keyboardDispose = vi.fn(() => {
     events.push("keyboard:dispose");
@@ -205,7 +210,6 @@ const createHarness = ({
       return root;
     },
   );
-  dependencies.createViewerTransitionChannel.mockReturnValue(transitionChannel);
   dependencies.createPresentationNavigation.mockImplementation(
     (options: CreatePresentationNavigationOptions): PresentationNavigation => {
       events.push("navigation:attach");
@@ -240,7 +244,7 @@ const createHarness = ({
       return keyboardOptions;
     },
     mount(): void {
-      hostProps?.onMounted();
+      mountHost();
     },
     navigationController,
     get navigationOptions(): CreatePresentationNavigationOptions {
@@ -256,7 +260,7 @@ const createHarness = ({
     writeText,
     rendered: (): ReactNode => rendered,
     rootUnmount,
-    transitionClose,
+    viewerCommit,
   };
 };
 
@@ -295,6 +299,33 @@ describe("createViewer lifecycle", () => {
     await viewer.destroy();
   });
 
+  it("delegates Navigation commits to the mounted React viewer", async () => {
+    const harness = createHarness();
+    const viewer = await createViewer(harness.options());
+    const change = {
+      from: { slideId: "intro", slideIndex: 0, step: 0 },
+      to: { slideId: "details", slideIndex: 1, step: 0 },
+      transitionType: "drever-slide-forward",
+    } as const satisfies PresentationChange;
+
+    await harness.navigationOptions.commit(change, new AbortController().signal);
+
+    expect(harness.viewerCommit).toHaveBeenCalledOnce();
+    expect(harness.viewerCommit).toHaveBeenCalledWith(change, expect.any(AbortSignal));
+    expect(harness.navigationOptions.store.getSnapshot()).toEqual(change.to);
+
+    const aborted = new AbortController();
+    const reason = new DOMException("superseded before React commit", "AbortError");
+    aborted.abort(reason);
+    await expect(harness.navigationOptions.commit(change, aborted.signal)).rejects.toBe(reason);
+    expect(harness.viewerCommit).toHaveBeenCalledOnce();
+
+    await viewer.destroy();
+    await expect(
+      harness.navigationOptions.commit(change, new AbortController().signal),
+    ).rejects.toMatchObject({ name: "AbortError" });
+  });
+
   it("rejects a pre-aborted signal without acquiring platform resources", async () => {
     const harness = createHarness();
     const controller = new AbortController();
@@ -320,7 +351,6 @@ describe("createViewer lifecycle", () => {
     expect(dependencies.createPresentationNavigation).not.toHaveBeenCalled();
     expect(dependencies.attachKeyboardNavigation).not.toHaveBeenCalled();
     expect(harness.rootUnmount).toHaveBeenCalledOnce();
-    expect(harness.transitionClose).toHaveBeenCalledWith(reason);
   });
 
   it("releases core resources immediately and a setup resource that arrives after abort", async () => {
@@ -345,7 +375,6 @@ describe("createViewer lifecycle", () => {
     expect(harness.events).toContain("navigation:dispose");
     expect(harness.events).toContain("root:unmount");
     expect(lateDispose).not.toHaveBeenCalled();
-    expect(harness.transitionClose).toHaveBeenCalledWith(reason);
 
     acquisition.resolve(lateDispose);
     await acquisition.promise;
@@ -371,8 +400,6 @@ describe("createViewer lifecycle", () => {
     await viewer.destroy();
     await viewer.destroy();
 
-    expect(harness.transitionClose).toHaveBeenCalledOnce();
-    expect(harness.transitionClose).toHaveBeenCalledWith(reason);
     expect(harness.rootUnmount).toHaveBeenCalledOnce();
     expect(harness.navigationController.dispose).toHaveBeenCalledOnce();
     expect(setupDispose).toHaveBeenCalledOnce();
@@ -396,8 +423,7 @@ describe("createViewer lifecycle", () => {
     const second = viewer.destroy();
 
     expect(second).toBe(first);
-    expect(harness.events.slice(-5)).toEqual([
-      "transitions:close",
+    expect(harness.events.slice(-4)).toEqual([
       "keyboard:dispose",
       "navigation:dispose",
       "root:unmount",

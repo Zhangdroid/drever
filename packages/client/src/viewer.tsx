@@ -12,30 +12,26 @@ import {
 } from "@drever/core";
 import type { CanvasDefinition } from "@drever/schema";
 import {
+  addTransitionType,
   startTransition,
   useCallback,
   useLayoutEffect,
   useRef,
   useState,
-  type Ref,
   type RefObject,
   type ReactElement,
 } from "react";
 import { AudienceControls } from "./audience-controls.tsx";
 import { CanvasViewport } from "./canvas.tsx";
 import { DreverClientError } from "./client-error.ts";
+import type { PresentationCommit } from "./navigation.ts";
 import type {
   DeckCommand,
   DeckPosition,
+  PresentationChange,
   PresentationStateMachine,
   PresentationStore,
 } from "./presentation-state.ts";
-import {
-  startScopedViewTransition,
-  type ReactTransitionRequest,
-  type ReactTransitionScheduler,
-  type ScopedViewTransition,
-} from "./view-transition.ts";
 import { scheduleStableMountNotification } from "./viewer-lifecycle.ts";
 
 export type ViewerProps = Readonly<{
@@ -70,14 +66,12 @@ export const Viewer = (props: ViewerProps): ReactElement => <ViewerSurface {...p
 
 type ViewerSurfaceProps = ViewerProps &
   Readonly<{
-    canvasRef?: Ref<HTMLDivElement>;
     deckRef?: RefObject<HTMLDivElement | null>;
   }>;
 
 const ViewerSurface = ({
   Content,
   canvas,
-  canvasRef,
   deckRef: providedDeckRef,
   manageFocus = true,
   onPositionCommitted,
@@ -109,7 +103,7 @@ const ViewerSurface = ({
       activeElement.closest("[inert], [aria-hidden='true']") !== null;
     if (previousSlideRef.current !== position.slideIndex || focusBecameHidden) {
       const activeSlide = deck.querySelector<HTMLElement>(
-        '[data-drever-slide][data-slide-state="active"]',
+        `[data-drever-slide][data-slide-index="${position.slideIndex}"]`,
       );
       activeSlide?.focus({ preventScroll: true });
     }
@@ -121,10 +115,7 @@ const ViewerSurface = ({
   }, [onPositionCommitted, position]);
 
   return (
-    <CanvasViewport
-      {...(canvas === undefined ? {} : { canvas })}
-      {...(canvasRef === undefined ? {} : { canvasRef })}
-    >
+    <CanvasViewport {...(canvas === undefined ? {} : { canvas })}>
       <div
         className="drever-deck"
         data-drever-deck=""
@@ -142,87 +133,7 @@ const ViewerSurface = ({
   );
 };
 
-export type ViewerTransitionChannel = Readonly<{
-  attach(scheduler: ReactTransitionScheduler): () => void;
-  close(error: unknown): void;
-  schedule: ReactTransitionScheduler;
-}>;
-
-export const createViewerTransitionChannel = (): ViewerTransitionChannel => {
-  let closed = false;
-  let closeReason: unknown;
-  let scheduler: ReactTransitionScheduler | undefined;
-  const requests = new Set<ReactTransitionRequest>();
-
-  const schedule = (request: ReactTransitionRequest): void => {
-    if (closed) {
-      throw closeReason;
-    }
-    if (scheduler === undefined) {
-      throw new DreverClientError(
-        "DREVER_CLIENT_VIEWER_NOT_READY",
-        "The React viewer is not ready to commit a navigation.",
-      );
-    }
-
-    let wrapped: ReactTransitionRequest;
-    const settle = (callback: () => void): void => {
-      if (!requests.delete(wrapped)) {
-        return;
-      }
-      callback();
-    };
-    wrapped = Object.freeze({
-      ...request,
-      complete: () => settle(request.complete),
-      fail: (error) => settle(() => request.fail(error)),
-    });
-    requests.add(wrapped);
-    try {
-      scheduler(wrapped);
-    } catch (error) {
-      requests.delete(wrapped);
-      throw error;
-    }
-  };
-
-  return Object.freeze({
-    attach(nextScheduler) {
-      if (closed) {
-        throw closeReason;
-      }
-      if (scheduler !== undefined) {
-        throw new DreverClientError(
-          "DREVER_CLIENT_VIEWER_ALREADY_MOUNTED",
-          "A transition channel can only be attached to one React viewer.",
-        );
-      }
-      scheduler = nextScheduler;
-      return () => {
-        if (scheduler === nextScheduler) {
-          scheduler = undefined;
-        }
-      };
-    },
-    close(error) {
-      if (closed) {
-        return;
-      }
-      closed = true;
-      closeReason =
-        error ??
-        new DreverClientError(
-          "DREVER_CLIENT_VIEWER_CLOSED",
-          "The React viewer transition channel is closed.",
-        );
-      scheduler = undefined;
-      for (const request of requests) {
-        request.fail(closeReason);
-      }
-    },
-    schedule,
-  });
-};
+export type ViewerCommitRegistrar = (commit: PresentationCommit) => () => void;
 
 export type ViewerHostProps = Omit<ViewerProps, "onPositionCommitted" | "position"> &
   Readonly<{
@@ -233,19 +144,25 @@ export type ViewerHostProps = Omit<ViewerProps, "onPositionCommitted" | "positio
     onNavigate(command: DeckCommand): void | Promise<void>;
     onOpenDocument(): void;
     onOpenSpeaker(): void;
+    registerCommit: ViewerCommitRegistrar;
     store: PresentationStore;
-    transitions: ViewerTransitionChannel;
   }>;
 
-type PendingTransition = {
+type PendingCommit = {
+  change: PresentationChange;
+  reject(error: unknown): void;
   removeAbortListener(): void;
-  request: ReactTransitionRequest;
-  rejectUpdate?(error: unknown): void;
-  resolveUpdate?(): void;
-  transition?: ScopedViewTransition;
+  resolve(): void;
+  signal: AbortSignal;
 };
 
-/** @internal Imperative bridge between Navigation interception and React commits. */
+const navigationAbortReason = (signal: AbortSignal): unknown =>
+  signal.reason ?? new DOMException("The presentation navigation was aborted.", "AbortError");
+
+const supersededNavigation = (): DOMException =>
+  new DOMException("A newer presentation navigation superseded the pending commit.", "AbortError");
+
+/** @internal Owns the React state commit that unblocks Navigation interception. */
 export const ViewerHost = ({
   machine,
   onCopyShareURL,
@@ -254,160 +171,108 @@ export const ViewerHost = ({
   onNavigate,
   onOpenDocument,
   onOpenSpeaker,
+  registerCommit,
   store,
-  transitions,
   ...viewerProps
 }: ViewerHostProps): ReactElement => {
   const [position, setPosition] = useState(store.getSnapshot);
   const reducedMotion = viewerProps.reducedMotion ?? false;
-  const canvasRef = useRef<HTMLDivElement>(null);
   const deckRef = useRef<HTMLDivElement>(null);
-  const pendingRef = useRef<PendingTransition | undefined>(undefined);
+  const pendingRef = useRef<PendingCommit | undefined>(undefined);
 
   useLayoutEffect(() => {
-    const unsubscribe = store.subscribe(() => {
+    return store.subscribe(() => {
       const next = store.getSnapshot();
       setPosition((current) => (samePosition(current, next) ? current : next));
     });
-    const detach = transitions.attach((request) => {
-      if (request.signal.aborted) {
-        request.fail(request.signal.reason);
-        return;
+  }, [store]);
+
+  const commit = useCallback<PresentationCommit>(
+    (change, signal) => {
+      if (signal.aborted) {
+        return Promise.reject(navigationAbortReason(signal));
       }
 
-      const previous = pendingRef.current;
-      previous?.removeAbortListener();
-      const superseded = new DreverClientError(
-        "DREVER_CLIENT_NAVIGATION_SUPERSEDED",
-        "A newer presentation navigation superseded the pending React commit.",
-      );
-      previous?.transition?.skipTransition();
-      previous?.rejectUpdate?.(superseded);
-      previous?.request.fail(superseded);
-
-      const onAbort = (): void => {
-        const pending = pendingRef.current;
-        if (pending?.request !== request) {
-          return;
-        }
-        pendingRef.current = undefined;
-        pending.transition?.skipTransition();
-        pending.rejectUpdate?.(request.signal.reason);
-        request.fail(request.signal.reason);
-        startTransition(() => setPosition(store.getSnapshot()));
-      };
-      request.signal.addEventListener("abort", onAbort, { once: true });
-      const pending: PendingTransition = {
-        removeAbortListener: () => request.signal.removeEventListener("abort", onAbort),
-        request,
-      };
-      pendingRef.current = pending;
-
-      try {
-        if (reducedMotion) {
-          startTransition(() => setPosition(request.change.to));
-          return;
+      return new Promise<void>((resolve, reject) => {
+        const previous = pendingRef.current;
+        if (previous !== undefined) {
+          pendingRef.current = undefined;
+          previous.removeAbortListener();
+          previous.reject(supersededNavigation());
         }
 
-        const canvas = canvasRef.current;
-        if (canvas === null) {
-          throw new DreverClientError(
-            "DREVER_CLIENT_VIEWER_NOT_READY",
-            "The viewer canvas is not ready to start a scoped transition.",
-          );
-        }
-        const transition = startScopedViewTransition(
-          canvas,
-          request.transitionType,
-          () =>
-            new Promise<void>((resolve, reject) => {
-              if (pendingRef.current !== pending || request.signal.aborted) {
-                reject(request.signal.reason ?? superseded);
-                return;
-              }
-              pending.resolveUpdate = resolve;
-              pending.rejectUpdate = reject;
-              startTransition(() => setPosition(request.change.to));
-            }),
-        );
-        pending.transition = transition;
-        void transition.ready.catch((error: unknown) => {
-          if (
-            typeof error === "object" &&
-            error !== null &&
-            "name" in error &&
-            error.name === "AbortError"
-          ) {
-            return;
-          }
-          onError(
-            new DreverClientError(
-              "DREVER_CLIENT_VIEW_TRANSITION_INVALID",
-              "The canvas View Transition could not capture the authored motion identities.",
-              { cause: error },
-            ),
-          );
-        });
-        void transition.finished.catch(() => undefined);
-        void transition.updateCallbackDone.catch((error: unknown) => {
+        let pending: PendingCommit;
+        const onAbort = (): void => {
           if (pendingRef.current !== pending) {
             return;
           }
           pendingRef.current = undefined;
           pending.removeAbortListener();
-          request.fail(error);
-          onError(error);
-        });
-      } catch (error) {
-        if (pendingRef.current === pending) {
-          pendingRef.current = undefined;
-        }
-        pending.removeAbortListener();
-        request.fail(error);
-        onError(error);
-      }
-    });
-    const cancelMountNotification = scheduleStableMountNotification(onMounted);
+          reject(navigationAbortReason(signal));
+          setPosition(store.getSnapshot());
+        };
+        pending = {
+          change,
+          reject,
+          removeAbortListener: () => signal.removeEventListener("abort", onAbort),
+          resolve,
+          signal,
+        };
+        pendingRef.current = pending;
+        signal.addEventListener("abort", onAbort, { once: true });
 
+        const changesSlide = change.from.slideIndex !== change.to.slideIndex;
+        if (reducedMotion || !changesSlide) {
+          setPosition(change.to);
+          return;
+        }
+        startTransition(() => {
+          addTransitionType(change.transitionType);
+          setPosition(change.to);
+        });
+      });
+    },
+    [reducedMotion, store],
+  );
+
+  useLayoutEffect(() => {
+    const unregister = registerCommit(commit);
     return () => {
-      cancelMountNotification();
-      detach();
-      unsubscribe();
+      unregister();
       const pending = pendingRef.current;
       pendingRef.current = undefined;
-      if (pending !== undefined) {
-        pending.removeAbortListener();
-        pending.transition?.skipTransition();
-        const unmounted = new DreverClientError(
+      if (pending === undefined) {
+        return;
+      }
+      pending.removeAbortListener();
+      pending.reject(
+        new DreverClientError(
           "DREVER_CLIENT_VIEWER_UNMOUNTED",
           "The React viewer unmounted before navigation committed.",
-        );
-        pending.rejectUpdate?.(unmounted);
-        pending.request.fail(unmounted);
-      }
+        ),
+      );
     };
-  }, [onError, onMounted, reducedMotion, store, transitions]);
+  }, [commit, registerCommit]);
+
+  useLayoutEffect(() => scheduleStableMountNotification(onMounted), [onMounted]);
 
   const completeCommit = useCallback(
     (committed: DeckPosition): void => {
       const pending = pendingRef.current;
-      if (pending === undefined || !samePosition(pending.request.change.to, committed)) {
+      if (pending === undefined || !samePosition(pending.change.to, committed)) {
         return;
       }
 
       pendingRef.current = undefined;
       pending.removeAbortListener();
-      if (pending.request.signal.aborted) {
-        pending.transition?.skipTransition();
-        pending.rejectUpdate?.(pending.request.signal.reason);
-        pending.request.fail(pending.request.signal.reason);
-        startTransition(() => setPosition(store.getSnapshot()));
+      if (pending.signal.aborted) {
+        pending.reject(navigationAbortReason(pending.signal));
+        setPosition(store.getSnapshot());
         return;
       }
 
-      store.commit(pending.request.change.to);
-      pending.resolveUpdate?.();
-      pending.request.complete();
+      store.commit(pending.change.to);
+      pending.resolve();
     },
     [store],
   );
@@ -416,7 +281,6 @@ export const ViewerHost = ({
     <>
       <ViewerSurface
         {...viewerProps}
-        canvasRef={canvasRef}
         deckRef={deckRef}
         onPositionCommitted={completeCommit}
         position={position}
