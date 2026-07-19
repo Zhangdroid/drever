@@ -11,18 +11,21 @@ The brand package is not a component library and is not a parent theme.
 
 ## Strategy
 
-Drever should look composed before it looks decorated. A branded surface uses:
+Drever's composition grammar is **Stage / Signal / Shift**. It turns the
+horizontal cut in the Shifted Stage D mark into a repeatable layout rule:
 
-- one clear reading axis;
-- a dominant paper or ink field;
-- one meaningful shifted plane, crop, rule, or alignment break;
-- coral for the current decision or action;
-- indigo for navigation, connection, and continuity;
-- motion only when it explains a change in state.
+- **Stage:** one stable Paper or Ink field with a clear reading axis;
+- **Signal:** at most one Coral horizontal rail or band that marks the current
+  decision, active state, or narrative turn;
+- **Shift:** at most one changed object displaced by the canonical `12px`;
+- **Continuity:** Indigo used as a thin route, connector, or navigation state;
+- **Motion:** only the Signal or changed object moves while the Stage stays put.
 
-The shift is a scarce device. Do not offset every card, heading, or image. Keep
-the surrounding geometry aligned so the shifted element has a reason to exist.
-Avoid gradients, glass effects, ornamental grids, and repeated card mosaics.
+The Signal and Shift are scarce devices. Keep surrounding geometry aligned so
+the exception has a reason to exist. Prefer rectilinear planes and edge-to-edge
+relationships to floating rounded cards. Avoid generic split SaaS heroes,
+gradients, glass effects, ornamental grids, repeated card mosaics, and a large
+Coral field competing with a large Indigo field.
 
 ## Ownership
 
@@ -30,8 +33,10 @@ Avoid gradients, glass effects, ornamental grids, and repeated card mosaics.
 
 - the Shifted Stage D mark, wordmark, lockup, and favicon;
 - the core colors and documented derived values;
-- the Instrument Sans font files and `@font-face` declarations;
-- spacing, radius, stroke, and product-motion reference tokens;
+- the Bricolage Grotesque and Instrument Sans font files and `@font-face`
+  declarations;
+- signature geometry, spacing, radius, stroke, and product-motion reference
+  tokens;
 - JSON-safe token metadata and CSS custom properties.
 
 It must not contain React components, a reset stylesheet, layout components,
@@ -136,6 +141,7 @@ depend on that border alone to make its boundary or state perceivable.
 | Ink on Paper    | `15.28:1` | Text at any supported size                      |
 | Indigo on Paper |  `5.19:1` | Normal text, links, icons, and focus indicators |
 | Ink on Coral    |  `5.95:1` | Text and icons on primary actions               |
+| Coral on Night  |  `6.95:1` | Dark-mode links, focus, and decisive emphasis   |
 | Paper on Coral  |  `2.57:1` | Not valid for normal text or essential icons    |
 | Indigo on Ink   |  `2.94:1` | Not valid for normal text or essential icons    |
 | Coral on Indigo |  `2.02:1` | Do not use as a foreground/background pair      |
@@ -145,41 +151,60 @@ text, shape, position, underline, or another persistent cue.
 
 ## Typography
 
-Instrument Sans Variable is the brand typeface. It is self-hosted by
-`@drever/brand`; do not load it from a third-party CDN or font-loader package.
-Use the actual licensed family name in `@font-face` and include the upstream
-license and font version in the package.
+Drever uses two typographic voices. Bricolage Grotesque Variable is the
+expressive display face. Instrument Sans Variable is the calm body, product UI,
+and wordmark face. Both are self-hosted by `@drever/brand`; do not load them
+from a third-party CDN or font-loader package. Use the licensed family names in
+`@font-face` and ship each upstream license with the font files.
 
 ```css
-font-family: var(--drever-brand-font-family-sans);
+font-family: var(--drever-brand-font-family-display); /* expressive headings */
+font-family: var(--drever-brand-font-family-sans); /* prose and product UI */
 font-synthesis: none;
 ```
 
-Use the variable weight axis deliberately. Body copy should normally be `450`;
-labels and controls use `550` to `650`; display copy uses `620` to `700`. Do not
-simulate missing weights or italics. Keep the system monospace stack for code in
-the first release.
+Set both families at their natural `100%` width. The display face may use
+optical sizing, but must not be compressed to manufacture personality. Body
+copy should normally be `450`; labels and controls use `550` to `650`; display
+copy uses `620` to `720`. Do not simulate missing weights or italics. Keep the
+system monospace stack for code in the first release.
+
+Bricolage Grotesque is bundled for Latin and Latin Extended. Its token includes
+the full Drever CJK fallback stack, so unsupported glyphs remain legible. Do not
+apply Latin display tracking or forced uppercase to CJK text.
 
 ### Product and documentation scale
 
-| Role      | Size / line height | Weight |   Tracking |
-| --------- | ------------------ | -----: | ---------: |
-| Display   | `64 / 64px`        |  `680` | `-0.045em` |
-| Heading 1 | `48 / 52px`        |  `660` | `-0.035em` |
-| Heading 2 | `36 / 41px`        |  `640` | `-0.030em` |
-| Heading 3 | `26 / 32px`        |  `620` | `-0.020em` |
-| Lead      | `20 / 30px`        |  `450` | `-0.010em` |
-| Body      | `16 / 25px`        |  `450` |        `0` |
-| Small     | `14 / 21px`        |  `500` |        `0` |
-| Label     | `12 / 16px`        |  `650` |  `0.055em` |
+| Role      | Family     | Size / line height | Weight |   Tracking |
+| --------- | ---------- | ------------------ | -----: | ---------: |
+| Display   | Bricolage  | `72 / 66px`        |  `700` | `-0.030em` |
+| Heading 1 | Bricolage  | `52 / 54px`        |  `680` | `-0.025em` |
+| Heading 2 | Bricolage  | `38 / 42px`        |  `660` | `-0.020em` |
+| Heading 3 | Instrument | `26 / 32px`        |  `620` | `-0.015em` |
+| Lead      | Instrument | `20 / 30px`        |  `450` | `-0.010em` |
+| Body      | Instrument | `16 / 25px`        |  `450` |        `0` |
+| Small     | Instrument | `14 / 21px`        |  `500` |        `0` |
+| Label     | Instrument | `12 / 16px`        |  `650` |  `0.055em` |
 
 Use Label tracking only for short Latin labels. Do not force uppercase or wide
 tracking on CJK text. Keep prose between `45ch` and `75ch`, with `68ch` as the
 default maximum. Use tabular numerals for timers, slide numbers, and aligned
 measurements.
 
-Presentation themes own their canvas type scale. They may use Instrument Sans,
-but must not inherit these product sizes.
+Presentation themes own their canvas type scale. They may use either brand
+family, but must not inherit these product sizes.
+
+## Signature geometry
+
+The canonical Shift is `12px`. The canonical Signal is either a `2px` rail or a
+`12px` band. A composition uses one Signal weight, not both as decoration. A
+Signal may cross a container boundary or continue between sections, but it must
+remain horizontal and aligned to the reading direction.
+
+Use the `12px` Shift on one object that changed: a heading line, active step,
+media crop, or state plane. Do not shift a whole grid, every list item, or both
+the Signal and its content. On narrow screens, preserve the meaning of the
+offset even if the layout collapses to one column.
 
 ## Spacing
 
@@ -239,9 +264,10 @@ do not add React to `@drever/brand`.
 
 ## Motion
 
-Brand motion follows the Shifted Stage model: keep the stage stable and move the
-state that changed. Use opacity and short translation before scale. Avoid blur
-on text and controls.
+Brand motion follows Stage / Signal / Shift: keep the Stage stable and move the
+Signal or state that changed. A horizontal Signal grows or travels inline; a
+vertical evidence sequence reveals in the block direction. Use opacity and
+short translation before scale. Avoid blur on text and controls.
 
 | Token      | Duration | Use                                               |
 | ---------- | -------: | ------------------------------------------------- |
@@ -322,22 +348,27 @@ Use this prompt when generating a Drever-branded documentation or product
 surface. It is not a substitute for a selected presentation theme.
 
 ```text
-Apply the Drever Shifted Stage D design system.
+Apply the Drever Shifted Stage D design system using the Stage / Signal / Shift
+composition grammar.
 
-Use Instrument Sans Variable. Use #F8F8F4 Paper and #172033 Ink for most of the
-surface. Use #FF704D Coral only for the current action, active state, or one
-decisive emphasis. Use #4B56E8 Indigo for links, navigation, connection, and
-continuity. Never place Paper text on Coral, Indigo text on Ink, or Coral on
-Indigo for essential content.
+Use Bricolage Grotesque Variable at natural width for expressive headings. Use
+Instrument Sans Variable for prose and product UI. Use #F8F8F4 Paper and
+#172033 Ink for most of the surface. Use #FF704D Coral only for the current
+action, active state, or one decisive emphasis. Use #4B56E8 Indigo as a thin
+route for links, navigation, connection, and continuity. Never place Paper text
+on Coral, Indigo text on Ink, or Coral on Indigo for essential content.
 
-Create one clear reading axis and one deliberate shifted plane, crop, rule, or
-alignment break. Keep surrounding geometry aligned. Do not turn every section
-into a card. Avoid gradients, glass effects, ornamental grids, excessive
-rounding, and decorative animation.
+Create one stable rectilinear Stage, at most one horizontal Coral Signal, and at
+most one object shifted by 12px. Keep surrounding geometry aligned. Do not use a
+generic split SaaS hero or turn every section into a rounded card. Avoid
+gradients, glass effects, ornamental grids, repeated card mosaics, excessive
+rounding, and decorative animation. Do not make Coral and Indigo compete as two
+large color fields.
 
-Use the 4px spacing scale, 8/14/20/32px radii, 24px two-stroke icons, visible
-focus rings, 44px interaction targets, and the documented type scale. Keep
-prose near 68ch. Use a maximum 12px motion offset and honor reduced motion.
+Use the 4px spacing scale. Prefer square edges; reserve 8/14px radii for
+controls and 20/32px radii for one dominant surface. Use 24px two-stroke icons,
+visible focus rings, 44px interaction targets, and the documented type scale.
+Keep prose near 68ch. Use a maximum 12px motion offset and honor reduced motion.
 
 Use the supplied logo asset without redrawing, recoloring, or changing its
 offset. Preserve 25% of the mark height as clear space. Use the lockup at 112px

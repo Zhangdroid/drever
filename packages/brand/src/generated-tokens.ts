@@ -19,6 +19,7 @@ export const brandTokens = {
   },
   font: {
     family: {
+      display: '"Bricolage Grotesque", "Instrument Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
       sans: '"Instrument Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
       mono: '"SFMono-Regular", "Cascadia Code", "Roboto Mono", ui-monospace, monospace',
     },
@@ -29,8 +30,8 @@ export const brandTokens = {
       bold: "700",
     },
     width: {
-      display: "82",
-      compact: "88",
+      display: "100",
+      compact: "100",
       text: "100",
     },
     lineHeight: {
@@ -39,11 +40,16 @@ export const brandTokens = {
       body: "1.5",
     },
     tracking: {
-      display: "-0.055",
-      heading: "-0.035",
+      display: "-0.03",
+      heading: "-0.02",
       body: "-0.012",
       label: "0.1",
     },
+  },
+  geometry: {
+    shift: "0.75rem",
+    signalRail: "0.125rem",
+    signalBand: "0.75rem",
   },
   space: {
     zero: "0px",
@@ -99,6 +105,7 @@ export const brandTokenValues = {
   "color.nightLine": brandTokens.color.nightLine,
   "color.nightText": brandTokens.color.nightText,
   "color.nightMuted": brandTokens.color.nightMuted,
+  "font.family.display": brandTokens.font.family.display,
   "font.family.sans": brandTokens.font.family.sans,
   "font.family.mono": brandTokens.font.family.mono,
   "font.weight.regular": brandTokens.font.weight.regular,
@@ -115,6 +122,9 @@ export const brandTokenValues = {
   "font.tracking.heading": brandTokens.font.tracking.heading,
   "font.tracking.body": brandTokens.font.tracking.body,
   "font.tracking.label": brandTokens.font.tracking.label,
+  "geometry.shift": brandTokens.geometry.shift,
+  "geometry.signalRail": brandTokens.geometry.signalRail,
+  "geometry.signalBand": brandTokens.geometry.signalBand,
   "space.zero": brandTokens.space.zero,
   "space.one": brandTokens.space.one,
   "space.two": brandTokens.space.two,

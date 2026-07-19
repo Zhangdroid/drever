@@ -41,6 +41,8 @@ describe("@drever/brand", () => {
     expect(readPackageFile("src/generated-tokens.ts")).toBe(renderTypescript(tokens));
     expect(Object.keys(brandTokenValues)).toHaveLength(tokens.length);
     expect(brandTokens.motion.duration.standard).toBe("320ms");
+    expect(brandTokens.geometry.shift).toBe("0.75rem");
+    expect(brandTokens.font.family.display).toContain('"Bricolage Grotesque"');
   });
 
   it("rejects malformed token names and values at generation time", () => {
@@ -92,14 +94,25 @@ describe("@drever/brand", () => {
     }
   });
 
-  it("ships a small self-hosted variable font with its complete license", () => {
-    const fontUrl = new URL("../fonts/InstrumentSans[wdth,wght].woff2", import.meta.url);
-    const size = statSync(fontUrl).size;
+  it("ships self-hosted variable fonts with their complete licenses", () => {
+    const fontSizes = [
+      "InstrumentSans[wdth,wght].woff2",
+      "BricolageGrotesque-Latin[opsz,wdth,wght].woff2",
+      "BricolageGrotesque-LatinExt[opsz,wdth,wght].woff2",
+    ].map((font) => statSync(new URL(`../fonts/${font}`, import.meta.url)).size);
 
-    expect(size).toBeGreaterThan(40_000);
-    expect(size).toBeLessThan(150_000);
+    for (const size of fontSizes) {
+      expect(size).toBeGreaterThan(40_000);
+      expect(size).toBeLessThan(150_000);
+    }
+
     expect(readPackageFile("fonts/OFL.txt")).toContain("SIL OPEN FONT LICENSE Version 1.1");
+    expect(readPackageFile("fonts/OFL-Bricolage-Grotesque.txt")).toContain(
+      "SIL OPEN FONT LICENSE Version 1.1",
+    );
     expect(readPackageFile("LICENSE")).toContain("MIT License");
+    expect(readPackageFile("fonts.css")).toContain('font-family: "Bricolage Grotesque"');
+    expect(readPackageFile("fonts.css")).toContain("font-weight: 200 800");
     expect(readPackageFile("fonts.css")).toContain("font-weight: 400 700");
     expect(readPackageFile("fonts.css")).toContain("font-stretch: 75% 100%");
   });

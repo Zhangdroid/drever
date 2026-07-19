@@ -56,13 +56,16 @@ test("the specimen renders the canonical local brand system at desktop and mobil
     )
     .toBe(true);
 
-  const instrumentSansLoaded = await page.evaluate(async () => {
+  const brandFontsLoaded = await page.evaluate(async () => {
     await document.fonts.ready;
-    return [...document.fonts].some(
-      (face) => face.family.replaceAll('"', "") === "Instrument Sans" && face.status === "loaded",
+    const loadedFamilies = new Set(
+      [...document.fonts]
+        .filter((face) => face.status === "loaded")
+        .map((face) => face.family.replaceAll('"', "")),
     );
+    return ["Bricolage Grotesque", "Instrument Sans"].every((family) => loadedFamilies.has(family));
   });
-  expect(instrumentSansLoaded).toBe(true);
+  expect(brandFontsLoaded).toBe(true);
   expect([...foreignOrigins]).toEqual([]);
 
   await page.setViewportSize({ height: 844, width: 390 });

@@ -14,6 +14,8 @@
   --drever-brand-color-night-line: #353a4f;
   --drever-brand-color-night-text: #f8f8f4;
   --drever-brand-color-night-muted: #aeb5c6;
+  --drever-brand-font-family-display:
+    "Bricolage Grotesque", "Instrument Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   --drever-brand-font-family-sans:
     "Instrument Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   --drever-brand-font-family-mono:
@@ -22,16 +24,19 @@
   --drever-brand-font-weight-medium: 520;
   --drever-brand-font-weight-semibold: 650;
   --drever-brand-font-weight-bold: 700;
-  --drever-brand-font-width-display: 82;
-  --drever-brand-font-width-compact: 88;
+  --drever-brand-font-width-display: 100;
+  --drever-brand-font-width-compact: 100;
   --drever-brand-font-width-text: 100;
   --drever-brand-font-line-height-display: 0.92;
   --drever-brand-font-line-height-heading: 1.04;
   --drever-brand-font-line-height-body: 1.5;
-  --drever-brand-font-tracking-display: -0.055;
-  --drever-brand-font-tracking-heading: -0.035;
+  --drever-brand-font-tracking-display: -0.03;
+  --drever-brand-font-tracking-heading: -0.02;
   --drever-brand-font-tracking-body: -0.012;
   --drever-brand-font-tracking-label: 0.1;
+  --drever-brand-geometry-shift: 0.75rem;
+  --drever-brand-geometry-signal-rail: 0.125rem;
+  --drever-brand-geometry-signal-band: 0.75rem;
   --drever-brand-space-zero: 0px;
   --drever-brand-space-one: 0.25rem;
   --drever-brand-space-two: 0.5rem;

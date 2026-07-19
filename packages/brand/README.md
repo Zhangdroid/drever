@@ -2,7 +2,7 @@
 
 Canonical Drever brand primitives with no runtime dependencies.
 
-The package deliberately contains tokens, one self-hosted variable font, and static SVG assets—not React components, resets, or theme semantics. Documentation surfaces can consume the complete system. Presentation themes can map only the primitives that fit their own visual voice.
+The package deliberately contains tokens, two self-hosted variable font families, and static SVG assets—not React components, resets, or theme semantics. Documentation surfaces can consume the complete system. Presentation themes can map only the primitives that fit their own visual voice.
 
 ## Use
 
@@ -48,3 +48,7 @@ Instrument Sans is sourced from the official repository at commit
 `7fa22308a3d0c94ee2b3cd537a1196b65db34a3e`. The bundled variable webfont is
 unmodified. The lockup converts a `650` weight, `100` width wordmark to direct
 SVG outlines so logo rendering never depends on font loading.
+
+Bricolage Grotesque version 9 is sourced from the official Google Fonts build
+and used only for expressive display typography. Instrument Sans remains the
+body and product UI family, and the outlined lockup remains unchanged.
