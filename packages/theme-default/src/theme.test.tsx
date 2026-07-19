@@ -67,6 +67,9 @@ describe("@drever/theme-default", () => {
   it("implements every declared semantic motion recipe with bounded choreography", () => {
     const css = readFileSync(new URL("../theme.css", import.meta.url), "utf8");
 
+    expect(css).toMatch(/\[data-drever-stage-layer="background"\] \{[^}]*background:/su);
+    expect(css).toMatch(/\[data-drever-slide\] \{[^}]*background: transparent;/su);
+
     const profileKeys = [...new Set(css.match(/--drever-recipe-[\w-]+(?=:)/gu))].sort();
 
     expect(profileKeys).toEqual([

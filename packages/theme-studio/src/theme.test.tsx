@@ -104,6 +104,8 @@ describe("@drever/theme-studio", () => {
     expect(css).toContain(`--drever-studio-canvas: ${colorTokens.canvas}`);
     expect(css).toContain(`--drever-studio-ink: ${colorTokens.ink}`);
     expect(css).toContain(`--drever-studio-signal: ${colorTokens.signal}`);
+    expect(css).toMatch(/\[data-drever-stage-layer="background"\] \{[^}]*background:/su);
+    expect(css).toMatch(/\[data-drever-slide\] \{[^}]*background: transparent;/su);
     for (const selector of [
       "h1",
       "h2",

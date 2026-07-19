@@ -112,6 +112,8 @@ describe("@drever/theme-editorial", () => {
     expect(css).toContain(`--drever-editorial-paper: ${colorTokens.canvas}`);
     expect(css).toContain(`--drever-editorial-ink: ${colorTokens.ink}`);
     expect(css).toContain(`--drever-editorial-accent: ${colorTokens.accent}`);
+    expect(css).toMatch(/\[data-drever-stage-layer="background"\] \{[^}]*background:/su);
+    expect(css).toMatch(/\[data-drever-slide\] \{[^}]*background: transparent;/su);
     for (const selector of [
       "h1",
       "h2",

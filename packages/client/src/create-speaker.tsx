@@ -232,6 +232,7 @@ export const createSpeaker = async (options: CreateSpeakerOptions): Promise<Spea
           onOpenAudience={openAudience}
           rehearsal={rehearsal}
           {...(options.registry === undefined ? {} : { registry: options.registry })}
+          {...(options.stage === undefined ? {} : { stage: options.stage })}
           store={store}
         />
       </StrictMode>,

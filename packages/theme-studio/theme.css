@@ -44,19 +44,11 @@
   box-shadow: 0 18px 50px rgb(0 0 0 / 40%);
 }
 
-[data-drever-slide] {
-  position: relative;
-  display: grid;
-  box-sizing: border-box;
-  align-content: center;
-  padding: 76px 96px;
-  overflow: clip;
-  isolation: isolate;
+[data-drever-stage-layer="background"] {
   background: var(--drever-studio-canvas);
-  color: var(--drever-studio-ink);
 }
 
-[data-drever-slide]::before {
+[data-drever-stage-layer="background"]::before {
   position: absolute;
   top: 36px;
   left: 96px;
@@ -66,7 +58,7 @@
   content: "";
 }
 
-[data-drever-slide]::after {
+[data-drever-stage-layer="background"]::after {
   position: absolute;
   right: 48px;
   bottom: 42px;
@@ -76,6 +68,18 @@
   border-bottom: 1px solid var(--drever-studio-muted);
   content: "";
   opacity: 0.62;
+}
+
+[data-drever-slide] {
+  position: relative;
+  display: grid;
+  box-sizing: border-box;
+  align-content: center;
+  padding: 76px 96px;
+  overflow: clip;
+  isolation: isolate;
+  background: transparent;
+  color: var(--drever-studio-ink);
 }
 
 [data-drever-slide] :where(h1, h2, h3, h4, h5, h6, p, ul, ol, blockquote, pre, table, figure) {

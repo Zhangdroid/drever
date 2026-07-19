@@ -25,6 +25,11 @@ export type DreverRehearsalConfig = Readonly<{
   targetDurationMinutes?: number;
 }>;
 
+export type DreverStageConfig = Readonly<{
+  background?: string;
+  foreground?: string;
+}>;
+
 export type DreverPluginUse = Readonly<{
   config?: PluginRegistration["config"];
   enabled?: boolean;
@@ -38,6 +43,7 @@ export type DreverConfig = Readonly<{
   plugins?: readonly (DreverPlugin | DreverPluginUse)[];
   rehearsal?: DreverRehearsalConfig;
   server?: DreverServerConfig;
+  stage?: DreverStageConfig;
   theme?: ThemeDefinition;
 }>;
 
@@ -64,12 +70,14 @@ const CONFIG_KEYS = new Set([
   "plugins",
   "rehearsal",
   "server",
+  "stage",
   "theme",
 ]);
 const BUILD_KEYS = new Set(["outDir", "sourcemap"]);
 const CANVAS_KEYS = new Set(["height", "width"]);
 const REHEARSAL_KEYS = new Set(["targetDurationMinutes"]);
 const SERVER_KEYS = new Set(["host", "open", "port", "strictPort"]);
+const STAGE_KEYS = new Set(["background", "foreground"]);
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
@@ -195,6 +203,23 @@ const validateRehearsal = (value: unknown): void => {
   }
 };
 
+const validateStage = (value: unknown): void => {
+  const stage = requireRecord(value, "stage must be an object.", "stage");
+  const extra = unknownKey(stage, STAGE_KEYS);
+  if (extra !== undefined) {
+    invalidConfig(`stage.${extra} is not a supported option.`, `stage.${extra}`);
+  }
+  if (stage.background === undefined && stage.foreground === undefined) {
+    invalidConfig("stage must define a background or foreground component module.", "stage", stage);
+  }
+  for (const key of STAGE_KEYS) {
+    const module = stage[key];
+    if (module !== undefined && (typeof module !== "string" || module.length === 0)) {
+      invalidConfig(`stage.${key} must be a non-empty module path.`, `stage.${key}`, module);
+    }
+  }
+};
+
 const validateConfig = (value: unknown): DreverConfig => {
   const config = requireRecord(value, "The default export must be an object.", "$");
   const extra = unknownKey(config, CONFIG_KEYS);
@@ -218,6 +243,9 @@ const validateConfig = (value: unknown): DreverConfig => {
   }
   if (config.server !== undefined) {
     validateServer(config.server);
+  }
+  if (config.stage !== undefined) {
+    validateStage(config.stage);
   }
   if (config.plugins !== undefined && !Array.isArray(config.plugins)) {
     invalidConfig(

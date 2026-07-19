@@ -7,10 +7,11 @@ import {
   type ResolvedSlideState,
   type SlideIdentity,
 } from "@drever/core";
-import type { CanvasDefinition } from "@drever/schema";
+import type { CanvasDefinition, DeckManifest } from "@drever/schema";
 import { useLayoutEffect, type CSSProperties, type ReactElement } from "react";
 import { DEFAULT_CANVAS } from "./canvas.tsx";
 import type { ExportPage } from "./export-pages.ts";
+import { PresentationStage, type StageComponents } from "./stage.tsx";
 import { scheduleStableMountNotification } from "./viewer-lifecycle.ts";
 
 type ExportDocumentStyle = CSSProperties &
@@ -22,22 +23,30 @@ type ExportDocumentStyle = CSSProperties &
 export type ExportDocumentProps = Readonly<{
   Content: MDXContent;
   canvas?: CanvasDefinition;
+  manifest: DeckManifest;
   pages: readonly ExportPage[];
   registry?: MDXComponents;
+  stage?: StageComponents;
 }>;
 
 type ExportPageDocumentProps = Readonly<{
   Content: MDXContent;
+  canvas: CanvasDefinition;
+  manifest: DeckManifest;
   page: ExportPage;
   pageNumber: number;
   registry?: MDXComponents;
+  stage?: StageComponents;
 }>;
 
 const ExportPageDocument = ({
   Content,
+  canvas,
+  manifest,
   page,
   pageNumber,
   registry,
+  stage,
 }: ExportPageDocumentProps): ReactElement => {
   const resolve = (slide: SlideIdentity): ResolvedSlideState => {
     const identified = slide.id !== undefined || slide.index !== undefined;
@@ -58,13 +67,22 @@ const ExportPageDocument = ({
       data-slide-index={page.slideIndex}
       data-step={page.step}
     >
-      <div className="drever-deck" data-drever-deck="" data-drever-render-mode="export">
-        <DreverRenderModeProvider mode="export" idPrefix={`drever-export-page-${pageNumber}`}>
-          <SlideStateProvider resolver={resolve}>
-            <MDXRenderer Content={Content} {...(registry === undefined ? {} : { registry })} />
-          </SlideStateProvider>
-        </DreverRenderModeProvider>
-      </div>
+      <DreverRenderModeProvider mode="export" idPrefix={`drever-export-page-${pageNumber}`}>
+        <PresentationStage
+          canvas={canvas}
+          manifest={manifest}
+          position={page}
+          reducedMotion
+          renderMode="export"
+          {...(stage === undefined ? {} : { stage })}
+        >
+          <div className="drever-deck" data-drever-deck="" data-drever-render-mode="export">
+            <SlideStateProvider resolver={resolve}>
+              <MDXRenderer Content={Content} {...(registry === undefined ? {} : { registry })} />
+            </SlideStateProvider>
+          </div>
+        </PresentationStage>
+      </DreverRenderModeProvider>
     </article>
   );
 };
@@ -73,8 +91,10 @@ const ExportPageDocument = ({
 export const ExportDocument = ({
   Content,
   canvas = DEFAULT_CANVAS,
+  manifest,
   pages,
   registry,
+  stage,
 }: ExportDocumentProps): ReactElement => {
   const style: ExportDocumentStyle = {
     "--drever-canvas-height": canvas.height,
@@ -93,10 +113,13 @@ export const ExportDocument = ({
       {pages.map((page, pageIndex) => (
         <ExportPageDocument
           Content={Content}
+          canvas={canvas}
           key={`${page.slideId}:${page.step}`}
+          manifest={manifest}
           page={page}
           pageNumber={pageIndex + 1}
           {...(registry === undefined ? {} : { registry })}
+          {...(stage === undefined ? {} : { stage })}
         />
       ))}
     </div>

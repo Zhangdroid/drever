@@ -37,10 +37,42 @@
     color-scheme: var(--drever-canvas-color-scheme, light);
   }
 
+  .drever-stage,
+  .drever-stage__background,
+  .drever-stage__content,
+  .drever-stage__foreground,
   .drever-deck,
   [data-drever-slide] {
     width: 100%;
     height: 100%;
+  }
+
+  .drever-stage {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .drever-stage__background,
+  .drever-stage__content,
+  .drever-stage__foreground {
+    position: absolute;
+    inset: 0;
+  }
+
+  .drever-stage__background {
+    z-index: 0;
+    overflow: clip;
+    pointer-events: none;
+  }
+
+  .drever-stage__content {
+    z-index: 1;
+  }
+
+  .drever-stage__foreground {
+    z-index: 2;
+    overflow: clip;
+    pointer-events: none;
   }
 
   [data-drever-slide] {
@@ -243,7 +275,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    [data-drever-deck] * {
+    [data-drever-stage] * {
       animation: none !important;
       transition: none !important;
       view-transition-class: none !important;
@@ -1214,7 +1246,7 @@
     break-after: auto;
   }
 
-  .drever-export-page > .drever-deck {
+  .drever-export-page > .drever-stage {
     width: 100%;
     height: 100%;
   }
@@ -1364,12 +1396,18 @@
     gap: 64px;
   }
 
-  .drever-document__deck > [data-drever-slide] {
+  .drever-document__page {
+    position: relative;
+    isolation: isolate;
+    overflow: clip;
     width: calc(var(--drever-canvas-width) * 1px);
-    min-height: calc(var(--drever-canvas-height) * 1px);
-    height: auto;
-    scroll-margin-block-start: 32px;
+    height: calc(var(--drever-canvas-height) * 1px);
+    background: var(--drever-canvas-background, #fff);
     box-shadow: 0 24px 72px rgb(0 0 0 / 28%);
+  }
+
+  .drever-document__page [data-drever-slide] {
+    scroll-margin-block-start: 32px;
   }
 
   .drever-document,

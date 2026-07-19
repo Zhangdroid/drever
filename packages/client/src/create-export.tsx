@@ -20,6 +20,7 @@ import {
   type Awaitable,
   type RuntimeDisposer,
 } from "./runtime-lifecycle.ts";
+import type { StageComponents } from "./stage.tsx";
 import { releaseLateAcquisition } from "./viewer-lifecycle.ts";
 
 export type ExportRuntime = Readonly<{
@@ -44,6 +45,7 @@ export type CreateExportOptions = ExportPagePlanOptions &
     registry?: MDXComponents;
     runExportSetup?: ExportSetupRunner;
     signal?: AbortSignal;
+    stage?: StageComponents;
   }>;
 
 export type ExportHandle = Readonly<{
@@ -167,9 +169,11 @@ export const createExport = async (options: CreateExportOptions): Promise<Export
         <ExportHost
           Content={options.Content}
           {...(options.canvas === undefined ? {} : { canvas: options.canvas })}
+          manifest={manifest}
           onMounted={mounted.resolve}
           pages={pages}
           {...(options.registry === undefined ? {} : { registry: options.registry })}
+          {...(options.stage === undefined ? {} : { stage: options.stage })}
         />
       </StrictMode>,
     );

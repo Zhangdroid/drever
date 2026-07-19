@@ -18,7 +18,7 @@
   --drever-canvas-color-scheme: dark;
 }
 
-.drever-viewer [data-drever-slide] {
+.drever-viewer [data-drever-stage-layer="background"] {
   background:
     linear-gradient(var(--arch-grid) 1px, transparent 1px) 0 0 / 46px 46px,
     linear-gradient(90deg, var(--arch-grid) 1px, transparent 1px) 0 0 / 46px 46px,
@@ -26,7 +26,7 @@
     #0b141f;
 }
 
-.drever-viewer [data-drever-slide]::after {
+.drever-viewer [data-drever-stage-layer="background"]::after {
   background: var(--drever-theme-accent);
   box-shadow: 18px 0 0 color-mix(in srgb, var(--drever-theme-accent), transparent 60%);
 }

@@ -408,6 +408,29 @@ describe("core primitives", () => {
     expect(markup).toContain("Exported details");
   });
 
+  it("lets repeated static surfaces prune inactive slides without changing render mode", () => {
+    const markup = renderToStaticMarkup(
+      createElement(
+        DreverRenderModeProvider,
+        { mode: "document" },
+        createElement(
+          SlideStateProvider,
+          {
+            pruneInactive: true,
+            resolver: ({ id }) =>
+              Object.freeze({ active: id === "details", currentStep: id === "details" ? 2 : 0 }),
+          },
+          createElement(Slide, { id: "intro", index: 0 }, "Pruned introduction"),
+          createElement(Slide, { id: "details", index: 1 }, "Readable details"),
+        ),
+      ),
+    );
+
+    expect(markup).not.toContain("Pruned introduction");
+    expect(markup).toContain("Readable details");
+    expect(markup).toContain('data-current-step="2"');
+  });
+
   it("omits audience-only current-page and focus state from export slides", () => {
     const markup = renderToStaticMarkup(
       createElement(

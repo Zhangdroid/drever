@@ -8,6 +8,7 @@ import type {
   PresentationStore,
 } from "./presentation-state.ts";
 import type { RehearsalStore } from "./rehearsal.ts";
+import type { StageComponents } from "./stage.tsx";
 import { Viewer } from "./viewer.tsx";
 
 export type SpeakerProps = Readonly<{
@@ -19,6 +20,7 @@ export type SpeakerProps = Readonly<{
   onOpenAudience(): void;
   rehearsal: RehearsalStore;
   registry?: MDXComponents;
+  stage?: StageComponents;
   store: PresentationStore;
 }>;
 
@@ -152,17 +154,21 @@ const Preview = ({
   Content,
   canvas,
   label,
+  manifest,
   position,
   registry,
   renderMode,
+  stage,
   testId,
 }: Readonly<{
   Content: MDXContent;
   canvas?: CanvasDefinition;
   label: string;
+  manifest: DeckManifest;
   position: DeckPosition;
   registry?: MDXComponents;
   renderMode: DreverRenderMode;
+  stage?: StageComponents;
   testId: string;
 }>): ReactElement => (
   <section
@@ -177,11 +183,13 @@ const Preview = ({
       <Viewer
         Content={Content}
         {...(canvas === undefined ? {} : { canvas })}
+        manifest={manifest}
         manageFocus={false}
         position={position}
         reducedMotion
         {...(registry === undefined ? {} : { registry })}
         renderMode={renderMode}
+        {...(stage === undefined ? {} : { stage })}
       />
     </div>
   </section>
@@ -196,6 +204,7 @@ export const Speaker = ({
   onOpenAudience,
   rehearsal,
   registry,
+  stage,
   store,
 }: SpeakerProps): ReactElement => {
   const position = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
@@ -223,9 +232,11 @@ export const Speaker = ({
           Content={Content}
           {...(canvas === undefined ? {} : { canvas })}
           label={`Current · ${positionLabel(position)}`}
+          manifest={manifest}
           position={position}
           {...(registry === undefined ? {} : { registry })}
           renderMode="speaker-current"
+          {...(stage === undefined ? {} : { stage })}
           testId="speaker-current"
         />
         {nextPosition === undefined ? (
@@ -243,9 +254,11 @@ export const Speaker = ({
             Content={Content}
             {...(canvas === undefined ? {} : { canvas })}
             label={`Next · ${positionLabel(nextPosition)}`}
+            manifest={manifest}
             position={nextPosition}
             {...(registry === undefined ? {} : { registry })}
             renderMode="speaker-next"
+            {...(stage === undefined ? {} : { stage })}
             testId="speaker-next"
           />
         )}

@@ -12,6 +12,7 @@ import {
   destroyedReason,
   disposalFailure,
 } from "./runtime-lifecycle.ts";
+import type { StageComponents } from "./stage.tsx";
 
 export type CreateDocumentOptions = Readonly<{
   baseURL: string | URL;
@@ -23,6 +24,7 @@ export type CreateDocumentOptions = Readonly<{
   registry?: MDXComponents;
   runtime?: Pick<ViewerRuntimeModule, "theme">;
   signal?: AbortSignal;
+  stage?: StageComponents;
 }>;
 
 export type DocumentHandle = Readonly<{
@@ -108,6 +110,7 @@ export const createDocument = async (options: CreateDocumentOptions): Promise<Do
           manifest={manifest}
           onMounted={mounted.resolve}
           {...(options.registry === undefined ? {} : { registry: options.registry })}
+          {...(options.stage === undefined ? {} : { stage: options.stage })}
         />
       </StrictMode>,
     );

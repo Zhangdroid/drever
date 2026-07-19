@@ -7,7 +7,7 @@ import { preview, type PreviewServer } from "vite";
 import type { PdfExportRequest } from "./cli.ts";
 import { DreverCliError } from "./errors.ts";
 import { createPrivateExportApp } from "./private-app.ts";
-import { buildDreverExportApp } from "./vite-app.ts";
+import { buildDreverExportApp, resolvePrivateAppOptions } from "./vite-app.ts";
 
 const EXPORT_TIMEOUT = 30_000;
 const EXPORT_CLEANUP_TIMEOUT = 10_000;
@@ -440,7 +440,12 @@ export const writePdf = async (
 
 export const exportPdf = async ({ output, project, steps }: PdfExportRequest): Promise<void> => {
   const canvas = project.config.canvas ?? project.plan.theme.canvas ?? DEFAULT_CANVAS;
-  const app = await createPrivateExportApp(project.entry, { canvas, includeSteps: steps });
+  const { stage } = resolvePrivateAppOptions(project.config, project.root);
+  const app = await createPrivateExportApp(project.entry, {
+    canvas,
+    includeSteps: steps,
+    ...(stage === undefined ? {} : { stage }),
+  });
   const contents = await runWithCleanup(
     async () => {
       const build = await buildDreverExportApp(project, app.root);

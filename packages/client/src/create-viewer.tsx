@@ -35,6 +35,7 @@ import {
   type Awaitable,
   type RuntimeDisposer,
 } from "./runtime-lifecycle.ts";
+import type { StageComponents } from "./stage.tsx";
 import { ViewerHost, type ViewerCommitRegistrar } from "./viewer.tsx";
 import { releaseLateAcquisition } from "./viewer-lifecycle.ts";
 
@@ -72,6 +73,7 @@ export type CreateViewerOptions = Readonly<{
   registry?: MDXComponents;
   runtime?: ViewerRuntimeModule;
   signal?: AbortSignal;
+  stage?: StageComponents;
 }>;
 
 export type ViewerHandle = Readonly<{
@@ -329,6 +331,7 @@ export const createViewer = async (options: CreateViewerOptions): Promise<Viewer
           reducedMotion={reducedMotion}
           registerCommit={registerCommit}
           {...(options.registry === undefined ? {} : { registry: options.registry })}
+          {...(options.stage === undefined ? {} : { stage: options.stage })}
           store={store}
         />
       </StrictMode>,

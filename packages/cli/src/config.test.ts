@@ -35,6 +35,7 @@ export default {
   entry: "talk.mdx",
   canvas: { width: 1600, height: 900 },
   rehearsal: { targetDurationMinutes: 18.5 },
+  stage: { background: "./Background.tsx", foreground: "./Chrome.tsx" },
   server: { port, strictPort: true },
   build: { outDir: "release", sourcemap: "hidden" },
 };
@@ -50,6 +51,7 @@ export default {
       entry: "talk.mdx",
       rehearsal: { targetDurationMinutes: 18.5 },
       server: { port: 4317, strictPort: true },
+      stage: { background: "./Background.tsx", foreground: "./Chrome.tsx" },
     });
   });
 
@@ -122,6 +124,24 @@ export default ({ command, mode }: Environment) => ({
     expect(failure).toMatchObject({
       code: "DREVER_CONFIG_INVALID",
       details: { path: "rehearsal.targetMinutes" },
+    });
+  });
+
+  it.each([
+    ["empty stage", "{}", "stage"],
+    ["empty module path", '{ background: "" }', "stage.background"],
+    ["unknown layer", '{ overlay: "./Overlay.tsx" }', "stage.overlay"],
+  ])("rejects an invalid %s", async (_label, stage, path) => {
+    const root = await project();
+    await writeFile(join(root, "drever.config.ts"), `export default { stage: ${stage} };\n`);
+
+    const failure = await loadDreverConfig({ command: "serve", root }).catch(
+      (error: unknown) => error,
+    );
+
+    expect(failure).toMatchObject({
+      code: "DREVER_CONFIG_INVALID",
+      details: { path },
     });
   });
 });

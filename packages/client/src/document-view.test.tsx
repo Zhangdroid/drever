@@ -68,7 +68,8 @@ describe("DeckDocument", () => {
       expect(replacement).not.toContain("visibility:hidden");
     }
     expect(markup).not.toContain("aria-current");
-    expect(markup).not.toContain("aria-hidden");
-    expect(markup).not.toContain("inert");
+    expect(markup).not.toContain('data-slide-state="inactive"');
+    expect(markup.match(/data-drever-stage=""/g)).toHaveLength(2);
+    expect(markup.match(/data-drever-stage-layer="background" inert=""/g)).toHaveLength(2);
   });
 });

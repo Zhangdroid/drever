@@ -278,6 +278,21 @@ and the detailed
 The complete runnable versions are in the
 [`motion-recipes` example](../examples/motion-recipes/README.md).
 
+## Stage motion
+
+Project Stage components separate persistent canvas decoration from the
+per-slide transition boundary. The background stays behind the deck; the
+foreground can hold restrained branding, a page number, or another fixed visual
+reference. Both remain mounted while audience navigation updates their
+`StageLayerProps`.
+
+Do not give the complete background or foreground a slide entrance, exit, or
+continuity identity. For a deliberate scene change, isolate the smallest
+changing sub-element—such as one glow, line, crop, or counter—and animate only
+that element. Keep its geometry explicit and leave unchanged Stage pixels
+stationary. Read `reducedMotion` and `renderMode` from the layer props or
+`useStage()` and suppress motion in speaker, document, and export surfaces.
+
 ## Runtime and accessibility contract
 
 The audience viewer lets React own the native document View Transition and
@@ -306,6 +321,8 @@ does not load a JavaScript motion module and there is no separate
 
 - Start with ordinary Steps; add a MotionGroup only for a clear narrative job.
 - Keep persistent headings and context outside Step-oriented MotionGroups.
+- Keep global backgrounds, branding, and page numbers in Stage layers. Animate
+  only a Stage sub-element whose visual state changes.
 - Use direct Step children for `focus`, `replace`, and `compare`.
 - Put `stagger` inside one Step and limit it to four direct children.
 - Use `replace` when one state should be accessible at a time while presenting;
@@ -328,7 +345,9 @@ one Step and use at most four direct children. Use continuity only for the same
 object on adjacent slides and give both groups the same unique lowercase
 kebab-case name. Keep its endpoint size, aspect ratio, typography, wrapping,
 and media crop explicit; keep changing copy outside the shared snapshot. Keep
-persistent titles outside Step motion groups. Do not invent animation props,
-hidden Step stops, runtime.motion, or View Transition calls. Check
-forward/backward, reduced-motion, speaker, document, and export states.
+persistent titles outside Step motion groups. Put persistent canvas decoration
+and page information in Stage layers; animate only a changed Stage child. Do
+not invent animation props, hidden Step stops, runtime.motion, or native View
+Transition calls. Check forward/backward, reduced-motion, speaker, document,
+and export states.
 ```

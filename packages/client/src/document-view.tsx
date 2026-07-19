@@ -8,14 +8,10 @@ import {
   type SlideIdentity,
 } from "@drever/core";
 import type { CanvasDefinition, DeckManifest, SlideManifest } from "@drever/schema";
-import {
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  type CSSProperties,
-  type ReactElement,
-} from "react";
+import { useLayoutEffect, type CSSProperties, type ReactElement } from "react";
 import { DEFAULT_CANVAS } from "./canvas.tsx";
+import type { DeckPosition } from "./presentation-state.ts";
+import { PresentationStage, type StageComponents } from "./stage.tsx";
 import { scheduleStableMountNotification } from "./viewer-lifecycle.ts";
 
 type DocumentStyle = CSSProperties &
@@ -31,6 +27,7 @@ export type DeckDocumentProps = Readonly<{
   documentURL: string;
   manifest: DeckManifest;
   registry?: MDXComponents;
+  stage?: StageComponents;
 }>;
 
 const finalStep = (slide: SlideManifest): number => slide.stepStops.at(-1) ?? 0;
@@ -38,6 +35,68 @@ const slideURL = (documentURL: string, slideId: string): string => {
   const url = new URL(documentURL);
   url.hash = slideId;
   return url.href;
+};
+
+type DocumentPageProps = Readonly<{
+  Content: MDXContent;
+  canvas: CanvasDefinition;
+  manifest: DeckManifest;
+  registry?: MDXComponents;
+  slide: SlideManifest;
+  stage?: StageComponents;
+}>;
+
+const DocumentPage = ({
+  Content,
+  canvas,
+  manifest,
+  registry,
+  slide,
+  stage,
+}: DocumentPageProps): ReactElement => {
+  const position: DeckPosition = Object.freeze({
+    slideId: slide.id,
+    slideIndex: slide.index,
+    step: finalStep(slide),
+  });
+  const resolve = (identity: SlideIdentity): ResolvedSlideState => {
+    const identified = identity.id !== undefined || identity.index !== undefined;
+    const active =
+      identified &&
+      (identity.id === undefined || identity.id === slide.id) &&
+      (identity.index === undefined || identity.index === slide.index);
+    return Object.freeze({
+      active,
+      currentStep: active ? position.step : 0,
+      ...(active ? { label: slide.title ?? `Slide ${slide.index + 1}` } : {}),
+    });
+  };
+
+  return (
+    <article
+      className="drever-document__page"
+      data-drever-document-page=""
+      data-slide-id={slide.id}
+      data-slide-index={slide.index}
+    >
+      <DreverRenderModeProvider mode="document">
+        <PresentationStage
+          canvas={canvas}
+          manifest={manifest}
+          position={position}
+          reducedMotion
+          renderMode="document"
+          {...(stage === undefined ? {} : { stage })}
+        >
+          <div className="drever-deck" data-drever-deck="" data-drever-render-mode="document">
+            <SlideStateProvider pruneInactive resolver={resolve}>
+              <MDXRenderer Content={Content} {...(registry === undefined ? {} : { registry })} />
+            </SlideStateProvider>
+          </div>
+        </PresentationStage>
+      </DreverRenderModeProvider>
+    </article>
+  );
 };
 
 /** Renders one searchable, fully revealed document with a named landmark per slide. */
@@ -48,29 +107,8 @@ export const DeckDocument = ({
   documentURL,
   manifest,
   registry,
+  stage,
 }: DeckDocumentProps): ReactElement => {
-  const slidesById = useMemo(
-    () => new Map(manifest.slides.map((slide) => [slide.id, slide])),
-    [manifest],
-  );
-  const resolve = useCallback(
-    (identity: SlideIdentity): ResolvedSlideState => {
-      const slide =
-        identity.id === undefined
-          ? manifest.slides[identity.index ?? -1]
-          : slidesById.get(identity.id);
-      const active =
-        slide !== undefined &&
-        (identity.index === undefined || identity.index === slide.index) &&
-        (identity.id === undefined || identity.id === slide.id);
-      return Object.freeze({
-        active,
-        currentStep: active ? finalStep(slide) : 0,
-        ...(active ? { label: slide.title ?? `Slide ${slide.index + 1}` } : {}),
-      });
-    },
-    [manifest.slides, slidesById],
-  );
   const style: DocumentStyle = {
     "--drever-canvas-height": canvas.height,
     "--drever-canvas-width": canvas.width,
@@ -99,16 +137,18 @@ export const DeckDocument = ({
         </ol>
       </nav>
       <div className="drever-document__pages">
-        <div
-          className="drever-deck drever-document__deck"
-          data-drever-deck=""
-          data-drever-render-mode="document"
-        >
-          <DreverRenderModeProvider mode="document">
-            <SlideStateProvider resolver={resolve}>
-              <MDXRenderer Content={Content} {...(registry === undefined ? {} : { registry })} />
-            </SlideStateProvider>
-          </DreverRenderModeProvider>
+        <div className="drever-document__deck">
+          {manifest.slides.map((slide) => (
+            <DocumentPage
+              Content={Content}
+              canvas={canvas}
+              key={slide.id}
+              manifest={manifest}
+              {...(registry === undefined ? {} : { registry })}
+              slide={slide}
+              {...(stage === undefined ? {} : { stage })}
+            />
+          ))}
         </div>
       </div>
     </div>

@@ -60,6 +60,8 @@ The runnable vertical slice includes:
 - clean path-addressable slide and reveal state through the Navigation API;
 - state-preserving inactive slides and React-owned View Transitions with
   semantic focus, replacement, comparison, stagger, and continuity recipes;
+- persistent background and foreground Stage components for canvas art,
+  branding, and page information outside per-slide transition snapshots;
 - an accessible audience command bar with progress, fullscreen, searchable
   slide navigation, direct jumps, canonical link copying, and black/white pause
   screens;
@@ -136,7 +138,7 @@ for the complete commands.
 - **Studio** uses a restrained technical canvas with `Statement` and
   `Workbench` layouts for architecture and engineering stories.
 
-Every theme owns semantic MDX elements, slide surfaces, Step states, motion
+Every theme owns semantic MDX elements, Stage and slide surfaces, Step states, motion
 styling, speaker previews, typed layout recipes, and an AI-readable manifest.
 Themes do not own compilation, navigation, or motion state semantics, so decks
 can change visual systems without changing their delivery contract. See

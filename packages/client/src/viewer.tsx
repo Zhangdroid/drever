@@ -10,7 +10,7 @@ import {
   type ResolvedSlideState,
   type SlideIdentity,
 } from "@drever/core";
-import type { CanvasDefinition } from "@drever/schema";
+import type { CanvasDefinition, DeckManifest } from "@drever/schema";
 import {
   addTransitionType,
   startTransition,
@@ -22,7 +22,7 @@ import {
   type ReactElement,
 } from "react";
 import { AudienceControls } from "./audience-controls.tsx";
-import { CanvasViewport } from "./canvas.tsx";
+import { CanvasViewport, DEFAULT_CANVAS } from "./canvas.tsx";
 import { DreverClientError } from "./client-error.ts";
 import type { PresentationCommit } from "./navigation.ts";
 import type {
@@ -32,17 +32,20 @@ import type {
   PresentationStateMachine,
   PresentationStore,
 } from "./presentation-state.ts";
+import { PresentationStage, type StageComponents } from "./stage.tsx";
 import { scheduleStableMountNotification } from "./viewer-lifecycle.ts";
 
 export type ViewerProps = Readonly<{
   Content: MDXContent;
   canvas?: CanvasDefinition;
+  manifest: DeckManifest;
   manageFocus?: boolean;
   onPositionCommitted?: (position: DeckPosition) => void;
   position: DeckPosition;
   reducedMotion?: boolean;
   registry?: MDXComponents;
   renderMode?: DreverRenderMode;
+  stage?: StageComponents;
 }>;
 
 const samePosition = (left: DeckPosition, right: DeckPosition): boolean =>
@@ -75,10 +78,12 @@ const ViewerSurface = ({
   deckRef: providedDeckRef,
   manageFocus = true,
   onPositionCommitted,
+  manifest,
   position,
   reducedMotion = false,
   registry,
   renderMode = "audience",
+  stage,
 }: ViewerSurfaceProps): ReactElement => {
   const localDeckRef = useRef<HTMLDivElement>(null);
   const deckRef = providedDeckRef ?? localDeckRef;
@@ -87,6 +92,7 @@ const ViewerSurface = ({
     (slide: SlideIdentity): ResolvedSlideState => resolveSlideState(position, slide),
     [position],
   );
+  const resolvedCanvas = canvas ?? DEFAULT_CANVAS;
 
   useLayoutEffect(() => {
     if (!manageFocus) {
@@ -115,27 +121,36 @@ const ViewerSurface = ({
   }, [onPositionCommitted, position]);
 
   return (
-    <CanvasViewport {...(canvas === undefined ? {} : { canvas })}>
-      <div
-        className="drever-deck"
-        data-drever-deck=""
-        data-drever-reduced-motion={reducedMotion ? "" : undefined}
-        data-drever-render-mode={renderMode}
-        ref={deckRef}
-      >
-        <DreverRenderModeProvider mode={renderMode}>
-          <SlideStateProvider resolver={resolver}>
-            <MDXRenderer Content={Content} {...(registry === undefined ? {} : { registry })} />
-          </SlideStateProvider>
-        </DreverRenderModeProvider>
-      </div>
+    <CanvasViewport canvas={resolvedCanvas}>
+      <DreverRenderModeProvider mode={renderMode}>
+        <PresentationStage
+          canvas={resolvedCanvas}
+          manifest={manifest}
+          position={position}
+          reducedMotion={reducedMotion}
+          renderMode={renderMode}
+          {...(stage === undefined ? {} : { stage })}
+        >
+          <div
+            className="drever-deck"
+            data-drever-deck=""
+            data-drever-reduced-motion={reducedMotion ? "" : undefined}
+            data-drever-render-mode={renderMode}
+            ref={deckRef}
+          >
+            <SlideStateProvider resolver={resolver}>
+              <MDXRenderer Content={Content} {...(registry === undefined ? {} : { registry })} />
+            </SlideStateProvider>
+          </div>
+        </PresentationStage>
+      </DreverRenderModeProvider>
     </CanvasViewport>
   );
 };
 
 export type ViewerCommitRegistrar = (commit: PresentationCommit) => () => void;
 
-export type ViewerHostProps = Omit<ViewerProps, "onPositionCommitted" | "position"> &
+export type ViewerHostProps = Omit<ViewerProps, "manifest" | "onPositionCommitted" | "position"> &
   Readonly<{
     machine: PresentationStateMachine;
     onCopyShareURL(position: DeckPosition): Promise<void>;
@@ -282,6 +297,7 @@ export const ViewerHost = ({
       <ViewerSurface
         {...viewerProps}
         deckRef={deckRef}
+        manifest={machine.manifest}
         onPositionCommitted={completeCommit}
         position={position}
       />

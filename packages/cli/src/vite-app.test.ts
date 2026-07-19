@@ -10,13 +10,21 @@ describe("resolvePrivateAppOptions", () => {
     const canvas = { height: 900, width: 1_600 } as const;
 
     expect(
-      resolvePrivateAppOptions({
-        canvas,
-        rehearsal: { targetDurationMinutes: 18.5 },
-      }),
+      resolvePrivateAppOptions(
+        {
+          canvas,
+          rehearsal: { targetDurationMinutes: 18.5 },
+          stage: { background: "./Background.tsx", foreground: "./Chrome.tsx" },
+        },
+        "/project",
+      ),
     ).toEqual({
       canvas,
       rehearsal: { targetDurationMs: 1_110_000 },
+      stage: {
+        background: "/project/Background.tsx",
+        foreground: "/project/Chrome.tsx",
+      },
     });
   });
 

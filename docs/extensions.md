@@ -267,6 +267,30 @@ Themes cannot add remark, rehype, recma, Vite, client setup, or feature
 components. Publish those capabilities as a companion plugin so changing a
 theme cannot change content semantics.
 
+## Theme, Stage, and Plugin responsibilities
+
+These three surfaces solve different problems:
+
+- A Theme defines the reusable visual language: tokens, Markdown elements,
+  layouts, canvas defaults, motion guidance, and theme/layout CSS. Theme CSS may
+  style Drever's stable Stage slots, but a theme does not silently install a
+  project component.
+- Project `stage.background` and `stage.foreground` modules define deck-specific
+  persistent visuals such as an art-directed backdrop, branding, or page
+  number. They are application-shell components, not MDX components, and each
+  module default-exports a component receiving `StageLayerProps` from `drever`.
+  Nested components may call `useStage()`.
+- A Plugin adds reusable capabilities: syntax transforms, Vite integration,
+  feature components, styles, and runtime/export setup. Plugins do not
+  implicitly inject Stage UI; a project selects a Stage module explicitly when
+  a plugin-backed visual belongs outside slide content.
+
+Keep the Stage shell stable across navigation. A Stage component may react to
+its current position, but only the sub-element that visibly changes should own
+motion. Background media, canvas drawing, video, and other asynchronous output
+still follow the same render-mode and export-readiness rules as slide
+components.
+
 ## Ordering
 
 Use `build.enforce` for broad build phases and `order.before` / `order.after`

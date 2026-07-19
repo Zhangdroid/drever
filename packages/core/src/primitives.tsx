@@ -73,15 +73,25 @@ export type ResolvedSlideState = Readonly<{
 export type SlideStateResolver = (slide: SlideIdentity) => ResolvedSlideState;
 
 const SlideStateResolverContext = createContext<SlideStateResolver | undefined>(undefined);
+const SlideStatePruningContext = createContext(false);
 
 export type SlideStateProviderProps = PropsWithChildren<
   Readonly<{
+    pruneInactive?: boolean;
     resolver: SlideStateResolver;
   }>
 >;
 
-export const SlideStateProvider = ({ children, resolver }: SlideStateProviderProps): ReactElement =>
-  createElement(SlideStateResolverContext.Provider, { value: resolver }, children);
+export const SlideStateProvider = ({
+  children,
+  pruneInactive = false,
+  resolver,
+}: SlideStateProviderProps): ReactElement =>
+  createElement(
+    SlideStateResolverContext.Provider,
+    { value: resolver },
+    createElement(SlideStatePruningContext.Provider, { value: pruneInactive }, children),
+  );
 
 const assertNonNegativeInteger = (name: string, value: number | undefined): void => {
   if (value !== undefined && (!Number.isSafeInteger(value) || value < 0)) {
@@ -158,6 +168,7 @@ export const Slide = ({
   const renderMode = useContext(DreverRenderModeContext);
   const idPrefix = useContext(DreverRenderIdPrefixContext);
   const resolver = useContext(SlideStateResolverContext);
+  const pruneInactive = useContext(SlideStatePruningContext);
   const needsResolvedState = explicitActive === undefined || explicitStep === undefined;
   const resolvedState =
     needsResolvedState && resolver !== undefined
@@ -184,7 +195,7 @@ export const Slide = ({
           : id;
   assertNonNegativeInteger("currentStep", currentStep);
 
-  if (exporting && !active) {
+  if ((exporting || pruneInactive) && !active) {
     return null;
   }
 

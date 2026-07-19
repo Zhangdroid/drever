@@ -19,7 +19,7 @@
   --drever-motion-easing: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.drever-viewer [data-drever-slide] {
+.drever-viewer [data-drever-stage-layer="background"] {
   background:
     radial-gradient(circle at 90% 6%, rgb(215 82 61 / 9%), transparent 26%),
     linear-gradient(90deg, var(--motion-coral) 0 8px, transparent 8px), var(--motion-paper);

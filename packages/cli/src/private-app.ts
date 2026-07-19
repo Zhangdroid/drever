@@ -10,11 +10,19 @@ export type PrivateApp = Readonly<{
 export type PrivateAppOptions = Readonly<{
   canvas?: Readonly<{ height: number; width: number }>;
   rehearsal?: Readonly<{ targetDurationMs?: number }>;
+  stage?: Readonly<{
+    background?: string;
+    foreground?: string;
+  }>;
 }>;
 
 export type PrivateExportAppOptions = Readonly<{
   canvas?: Readonly<{ height: number; width: number }>;
   includeSteps: boolean;
+  stage?: Readonly<{
+    background?: string;
+    foreground?: string;
+  }>;
 }>;
 
 const exportBootstrapReporter = `<script data-drever-export-bootstrap>
@@ -85,7 +93,32 @@ ${bootstrap}
 </html>
 `;
 
-const viewerModuleSource = (entry: string, { canvas, rehearsal }: PrivateAppOptions): string => {
+const stageModuleSource = (
+  stage: PrivateAppOptions["stage"],
+): Readonly<{ imports: string; option: string }> => {
+  const imports = [
+    stage?.background === undefined
+      ? undefined
+      : `import StageBackground from ${JSON.stringify(stage.background)};`,
+    stage?.foreground === undefined
+      ? undefined
+      : `import StageForeground from ${JSON.stringify(stage.foreground)};`,
+  ].filter((entry): entry is string => entry !== undefined);
+  const components = [
+    stage?.background === undefined ? undefined : "background: StageBackground",
+    stage?.foreground === undefined ? undefined : "foreground: StageForeground",
+  ].filter((entry): entry is string => entry !== undefined);
+  return Object.freeze({
+    imports: imports.length === 0 ? "" : `${imports.join("\n")}\n`,
+    option: components.length === 0 ? "" : `\n  stage: { ${components.join(", ")} },`,
+  });
+};
+
+const viewerModuleSource = (
+  entry: string,
+  { canvas, rehearsal, stage }: PrivateAppOptions,
+): string => {
+  const stageSource = stageModuleSource(stage);
   const speakerOptions =
     rehearsal === undefined
       ? "presentationOptions"
@@ -98,7 +131,7 @@ import "@drever/client/styles.css";
 import Content, { deckManifest } from ${JSON.stringify(entry)};
 import { components } from "virtual:drever/mdx-components";
 import { runSetup, theme } from "virtual:drever/runtime";
-import "virtual:drever/styles.css";
+${stageSource.imports}import "virtual:drever/styles.css";
 
 const container = document.querySelector("#drever-root");
 const base = document.querySelector('meta[name="drever-base"]');
@@ -120,7 +153,7 @@ const presentationOptions = {
   manifest: deckManifest,
   onError: reportPresentationError,
   registry: components,
-  runtime: { runSetup, theme },${canvas === undefined ? "" : `\n  canvas: ${JSON.stringify(canvas)},`}
+  runtime: { runSetup, theme },${canvas === undefined ? "" : `\n  canvas: ${JSON.stringify(canvas)},`}${stageSource.option}
 };
 const presentation = routePath === "document"
   ? await createDocument(presentationOptions)
@@ -138,13 +171,15 @@ if (import.meta.hot) {
 
 const exportModuleSource = (
   entry: string,
-  { canvas, includeSteps }: PrivateExportAppOptions,
-): string => `import { createExport } from "@drever/client";
+  { canvas, includeSteps, stage }: PrivateExportAppOptions,
+): string => {
+  const stageSource = stageModuleSource(stage);
+  return `import { createExport } from "@drever/client";
 import "@drever/client/styles.css";
 import Content, { deckManifest } from ${JSON.stringify(entry)};
 import { components } from "virtual:drever/mdx-components";
 import { runExportSetup } from "virtual:drever/export-runtime";
-import "virtual:drever/styles.css";
+${stageSource.imports}import "virtual:drever/styles.css";
 
 const container = document.querySelector("#drever-root");
 if (!(container instanceof Element)) {
@@ -157,9 +192,10 @@ globalThis.__dreverExportHandle = await createExport({
   manifest: deckManifest,
   registry: components,
   runExportSetup,
-  includeSteps: ${JSON.stringify(includeSteps)},${canvas === undefined ? "" : `\n  canvas: ${JSON.stringify(canvas)},`}
+  includeSteps: ${JSON.stringify(includeSteps)},${canvas === undefined ? "" : `\n  canvas: ${JSON.stringify(canvas)},`}${stageSource.option}
 });
 `;
+};
 
 type GeneratedFileWriter = (path: string, contents: string) => Promise<void>;
 

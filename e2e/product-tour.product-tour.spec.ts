@@ -110,6 +110,104 @@ test("the product narrative renders default plugins, exact routes, and its motio
   health.expectHealthy();
 });
 
+test("the global stage stays mounted while slides and Steps change independently", async ({
+  page,
+}) => {
+  const health = monitorPageHealth(page);
+  await monitorViewTransitions(page);
+  await page.goto("/4");
+
+  const canvas = page.locator("[data-drever-canvas]");
+  const stage = page.locator("[data-drever-stage]");
+  const backgroundLayer = page.locator('[data-drever-stage-layer="background"]');
+  const background = page.getByTestId("tour-stage-background");
+  const pageNumber = page.getByTestId("tour-stage-page-number");
+  const initialBounds = await readElementBounds(stage);
+
+  await expect(stage).toHaveCount(1);
+  await expect(stage).toHaveAttribute("data-page-number", "4");
+  await expect(stage).toHaveAttribute("data-current-step", "0");
+  await expect(backgroundLayer).toHaveAttribute("aria-hidden", "true");
+  await expect(backgroundLayer).toHaveAttribute("inert", "");
+  await expect(background).toHaveAttribute("data-scene", "opening");
+  await expect(background).toHaveCSS("view-transition-name", "none");
+  await expect(pageNumber).toHaveText("04 / 16");
+  await expect(pageNumber).toHaveCSS("view-transition-name", "none");
+  await expect(page.locator(activeSlide)).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+  expectStableBounds(await readElementBounds(canvas), initialBounds);
+  expectStableBounds(await readElementBounds(backgroundLayer), initialBounds);
+  expectStableBounds(await readElementBounds(background), initialBounds);
+
+  await page.evaluate(() => {
+    const select = (selector: string): Element => {
+      const element = document.querySelector(selector);
+      if (element === null) throw new Error(`Missing persistent stage node: ${selector}`);
+      return element;
+    };
+    Reflect.set(globalThis, "__dreverProductTourStageNodes", {
+      background: select('[data-testid="tour-stage-background"]'),
+      backgroundLayer: select('[data-drever-stage-layer="background"]'),
+      pageNumber: select('[data-testid="tour-stage-page-number"]'),
+      stage: select("[data-drever-stage]"),
+    });
+  });
+  const stageIdentity = () =>
+    page.evaluate(() => {
+      const remembered = Reflect.get(globalThis, "__dreverProductTourStageNodes") as
+        | Readonly<Record<string, Element>>
+        | undefined;
+      if (remembered === undefined) throw new Error("The persistent stage nodes were not saved.");
+      return {
+        background:
+          remembered.background === document.querySelector('[data-testid="tour-stage-background"]'),
+        backgroundLayer:
+          remembered.backgroundLayer ===
+          document.querySelector('[data-drever-stage-layer="background"]'),
+        pageNumber:
+          remembered.pageNumber ===
+          document.querySelector('[data-testid="tour-stage-page-number"]'),
+        stage: remembered.stage === document.querySelector("[data-drever-stage]"),
+      };
+    });
+
+  await page.keyboard.press("ArrowRight");
+  await expect(page).toHaveURL(/\/4\/1$/u);
+  await expect(stage).toHaveAttribute("data-current-step", "1");
+  await expect(pageNumber).toHaveText("04 / 16");
+  expect(await stageIdentity()).toEqual({
+    background: true,
+    backgroundLayer: true,
+    pageNumber: true,
+    stage: true,
+  });
+  expectStableBounds(await readElementBounds(stage), initialBounds);
+  expectStableBounds(await readElementBounds(background), initialBounds);
+  expect(await readViewTransitionCalls(page)).toEqual([]);
+
+  const nextSlide = await captureNextViewTransition(page, () => page.keyboard.press("ArrowDown"));
+  await waitForViewTransition(page, nextSlide, "ready");
+  await expect(page).toHaveURL(/\/5$/u);
+  await expect(stage).toHaveAttribute("data-page-number", "5");
+  await expect(stage).toHaveAttribute("data-current-step", "0");
+  await expect(pageNumber).toHaveText("05 / 16");
+  await expect(page.locator(activeSlide)).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+  expect(await stageIdentity()).toEqual({
+    background: true,
+    backgroundLayer: true,
+    pageNumber: true,
+    stage: true,
+  });
+  expectStableBounds(await readElementBounds(stage), initialBounds);
+  expectStableBounds(await readElementBounds(backgroundLayer), initialBounds);
+  expectStableBounds(await readElementBounds(background), initialBounds);
+  await waitForViewTransition(page, nextSlide, "finished");
+
+  expect(await readViewTransitionCalls(page)).toEqual([
+    { kind: "document", target: "document", types: ["drever-slide-forward"] },
+  ]);
+  health.expectHealthy();
+});
+
 test("semantic motion recipes preserve geometry and accessibility state", async ({ page }) => {
   const health = monitorPageHealth(page);
   await monitorViewTransitions(page);
@@ -360,22 +458,65 @@ test("reduced-motion audience state changes without motion capture", async ({ pa
   health.expectHealthy();
 });
 
-test("speaker and document surfaces suppress motion identities", async ({ page }) => {
+test("speaker and document surfaces project static stages without motion identities", async ({
+  page,
+}) => {
   const health = monitorPageHealth(page);
   await page.emulateMedia({ reducedMotion: "no-preference" });
   expect(await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches)).toBe(
     false,
   );
 
-  await page.goto("/speaker/14");
-  await expect(
-    page.getByTestId("speaker-current").locator(activeSlide).getByTestId("motion-continuity"),
-  ).toHaveCSS("view-transition-name", "none");
-  await expect(
-    page.getByTestId("speaker-next").locator(activeSlide).getByTestId("motion-continuity"),
-  ).toHaveCSS("view-transition-name", "none");
+  await page.goto("/speaker/14/1");
+  const speakerCurrent = page.getByTestId("speaker-current");
+  const speakerNext = page.getByTestId("speaker-next");
+  await expect(speakerCurrent.locator("[data-drever-stage]")).toHaveAttribute(
+    "data-drever-render-mode",
+    "speaker-current",
+  );
+  await expect(speakerNext.locator("[data-drever-stage]")).toHaveAttribute(
+    "data-drever-render-mode",
+    "speaker-next",
+  );
+  await expect(speakerCurrent.getByTestId("tour-stage-background")).toHaveCount(1);
+  await expect(speakerNext.getByTestId("tour-stage-background")).toHaveCount(1);
+  await expect(speakerCurrent.getByTestId("tour-stage-page-number")).toHaveText("14 / 16");
+  await expect(speakerNext.getByTestId("tour-stage-page-number")).toHaveText("15 / 16");
+  await expect(speakerCurrent.locator('[data-drever-stage-layer="background"]')).toHaveAttribute(
+    "inert",
+    "",
+  );
+  await expect(speakerCurrent.getByTestId("tour-stage-background")).toHaveCSS(
+    "view-transition-name",
+    "none",
+  );
+  await expect(speakerCurrent.locator(activeSlide).getByTestId("motion-continuity")).toHaveCSS(
+    "view-transition-name",
+    "none",
+  );
+  await expect(speakerNext.locator(activeSlide).getByTestId("motion-continuity")).toHaveCSS(
+    "view-transition-name",
+    "none",
+  );
 
   await page.goto("/document");
+  const documentPages = page.locator("[data-drever-document-page]");
+  const documentStages = documentPages.locator("[data-drever-stage]");
+  const documentBackgrounds = documentPages.getByTestId("tour-stage-background");
+  const documentPageNumbers = documentPages.getByTestId("tour-stage-page-number");
+  await expect(documentPages).toHaveCount(16);
+  await expect(documentStages).toHaveCount(16);
+  await expect(documentBackgrounds).toHaveCount(16);
+  await expect(documentPageNumbers).toHaveCount(16);
+  await expect(documentPages.first().getByTestId("tour-stage-page-number")).toHaveText("01 / 16");
+  await expect(documentPages.last().getByTestId("tour-stage-page-number")).toHaveText("16 / 16");
+  await expect(documentStages.first()).toHaveAttribute("data-drever-render-mode", "document");
+  await expect(documentStages.last()).toHaveAttribute("data-drever-render-mode", "document");
+  await expect(documentBackgrounds.first()).toHaveCSS("view-transition-name", "none");
+  expectStableBounds(
+    await readElementBounds(documentStages.first()),
+    await readElementBounds(documentPages.first()),
+  );
   const documentContinuity = page
     .locator("[data-drever-document]")
     .getByTestId("motion-continuity");

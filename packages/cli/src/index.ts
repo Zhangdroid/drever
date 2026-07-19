@@ -7,6 +7,7 @@ export type {
   DreverPluginUse,
   DreverRehearsalConfig,
   DreverServerConfig,
+  DreverStageConfig,
 } from "./config.ts";
 
 export { DREVER_AUTHORING_CONTEXT_VERSION, definePlugin, defineTheme } from "@drever/compiler";
@@ -24,6 +25,8 @@ export type {
 } from "@drever/compiler";
 export { MotionGroup, Note, Step } from "@drever/core";
 export type { MotionGroupProps, NoteProps, StepProps, StepState } from "@drever/core";
+export { useStage } from "@drever/client";
+export type { StageComponents, StageLayerComponent, StageLayerProps } from "@drever/client";
 export { shiki, shikiPlugin } from "@drever/plugin-shiki";
 export type { ShikiOptions } from "@drever/plugin-shiki";
 export { tailwindCss, tailwindCssPlugin } from "@drever/plugin-tailwindcss";

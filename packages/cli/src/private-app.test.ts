@@ -66,6 +66,10 @@ describe("generated private application", () => {
     const app = await createPrivateApp("/project/slides.mdx", {
       canvas: { height: 900, width: 1_600 },
       rehearsal: { targetDurationMs: 1_110_000 },
+      stage: {
+        background: "/project/Background.tsx",
+        foreground: "/project/Chrome.tsx",
+      },
     });
     try {
       const source = await readFile(join(app.root, "entry.js"), "utf8");
@@ -76,6 +80,11 @@ describe("generated private application", () => {
 
       expect(source.slice(0, optionsEnd)).not.toContain("rehearsal");
       expect(source).toContain('canvas: {"height":900,"width":1600}');
+      expect(source).toContain('import StageBackground from "/project/Background.tsx"');
+      expect(source).toContain('import StageForeground from "/project/Chrome.tsx"');
+      expect(source).toContain(
+        "stage: { background: StageBackground, foreground: StageForeground }",
+      );
       expect(source).toContain("? await createDocument(presentationOptions)");
       expect(source).toContain(
         '? await createSpeaker({\n      ...presentationOptions,\n      rehearsal: {"targetDurationMs":1110000}',
@@ -91,6 +100,7 @@ describe("generated private application", () => {
     const app = await createPrivateExportApp("/project/slides.mdx", {
       canvas: { height: 900, width: 1_600 },
       includeSteps: true,
+      stage: { foreground: "/project/Chrome.tsx" },
     });
     try {
       const source = await readFile(join(app.root, "entry.js"), "utf8");
@@ -99,6 +109,8 @@ describe("generated private application", () => {
       expect(source).toContain('import { runExportSetup } from "virtual:drever/export-runtime"');
       expect(source).toContain("includeSteps: true");
       expect(source).toContain('canvas: {"height":900,"width":1600}');
+      expect(source).toContain('import StageForeground from "/project/Chrome.tsx"');
+      expect(source).toContain("stage: { foreground: StageForeground }");
       expect(source).toContain("globalThis.__dreverExportHandle");
       expect(source).not.toContain("createViewer");
       expect(source).not.toContain("createSpeaker");

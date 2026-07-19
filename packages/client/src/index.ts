@@ -37,6 +37,13 @@ export type {
   DeckPosition,
   PresentationTransitionType,
 } from "./presentation-state.ts";
+export { PresentationStage, useStage } from "./stage.tsx";
+export type {
+  PresentationStageProps,
+  StageComponents,
+  StageLayerComponent,
+  StageLayerProps,
+} from "./stage.tsx";
 export { PRESENTATION_TRANSITION_TYPES } from "./view-transition.ts";
 export { Viewer } from "./viewer.tsx";
 export type { ViewerProps } from "./viewer.tsx";

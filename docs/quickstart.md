@@ -213,6 +213,10 @@ import { defineConfig } from "drever";
 export default defineConfig({
   entry: "slides.mdx",
   canvas: { width: 1600, height: 900 },
+  stage: {
+    background: "./stage-background.tsx",
+    foreground: "./stage-foreground.tsx",
+  },
   rehearsal: { targetDurationMinutes: 20 },
   server: {
     host: "127.0.0.1",
@@ -229,6 +233,42 @@ export default defineConfig({
 `rehearsal.targetDurationMinutes` supplies the initial target shown in the
 speaker view. The speaker can edit or clear that target during the current
 session; those changes and all recorded timings remain session-local.
+
+`stage` adds project-wide visual layers without putting them inside each
+slide's transition. Each configured path is relative to the project root and
+must default-export a React component that accepts `StageLayerProps` from
+`drever`. Either layer may be omitted.
+
+```tsx
+// stage-foreground.tsx
+import type { StageLayerProps } from "drever";
+
+export default function StageForeground({ manifest, position }: StageLayerProps) {
+  return (
+    <span aria-hidden="true" className="page-number">
+      {position.slideIndex + 1} / {manifest.slides.length}
+    </span>
+  );
+}
+```
+
+The props contain the resolved `canvas`, complete `manifest`, current
+`position`, `reducedMotion` value, and exact `renderMode`. A nested component
+may read the same frozen value with `useStage()` from `drever` instead of
+threading those props through every level.
+
+Drever mounts the background behind the slide content and the foreground above
+it. In the audience viewer, both component instances persist while their props
+update across slides and Steps. Speaker view creates one instance for each
+current/next preview. Document view creates one reduced-motion Stage for each
+fully revealed slide page, and export creates one for each output page at that
+page's exact Step. Stage components must therefore suppress audience-only
+effects outside audience mode and use `useId` for identifiers repeated in
+document or export output.
+
+Keep stable decoration stable. If a background scene changes, animate only the
+glow, shape, number, or other sub-element that actually changed; do not put the
+complete background or foreground into the slide transition.
 
 The default theme is active when `theme` is omitted. It styles ordinary Markdown
 and registers the semantic `Cover` and `TwoColumn` layouts:

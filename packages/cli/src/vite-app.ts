@@ -12,7 +12,7 @@ import {
   type ViteDevServer,
 } from "vite";
 import type { ResolvedDreverProject } from "./project.ts";
-import type { DreverConfig } from "./config.ts";
+import { resolveConfigPath, type DreverConfig } from "./config.ts";
 import { createPrivateApp, type PrivateAppOptions } from "./private-app.ts";
 import { DreverCliError } from "./errors.ts";
 import { writeStaticDeckRoutes } from "./static-routes.ts";
@@ -188,7 +188,8 @@ export const resolveSpeakerUrls = (resolvedUrls: ResolvedServerUrls | null): rea
 
 /** @internal Converts author-facing minutes into the speaker runtime's millisecond contract. */
 export const resolvePrivateAppOptions = (
-  config: Pick<DreverConfig, "canvas" | "rehearsal">,
+  config: Pick<DreverConfig, "canvas" | "rehearsal" | "stage">,
+  root = ".",
 ): PrivateAppOptions => {
   const targetDurationMinutes = config.rehearsal?.targetDurationMinutes;
   return Object.freeze({
@@ -198,11 +199,26 @@ export const resolvePrivateAppOptions = (
       : {
           rehearsal: Object.freeze({ targetDurationMs: targetDurationMinutes * 60_000 }),
         }),
+    ...(config.stage === undefined
+      ? {}
+      : {
+          stage: Object.freeze({
+            ...(config.stage.background === undefined
+              ? {}
+              : { background: resolveConfigPath(root, config.stage.background) }),
+            ...(config.stage.foreground === undefined
+              ? {}
+              : { foreground: resolveConfigPath(root, config.stage.foreground) }),
+          }),
+        }),
   });
 };
 
 export const buildDreverProject = async (project: ResolvedDreverProject): Promise<void> => {
-  const app = await createPrivateApp(project.entry, resolvePrivateAppOptions(project.config));
+  const app = await createPrivateApp(
+    project.entry,
+    resolvePrivateAppOptions(project.config, project.root),
+  );
   try {
     const manifest = await buildPrivateApp(
       project,
@@ -240,7 +256,10 @@ export const buildDreverExportApp = async (
 export const serveDreverProject = async (
   project: ResolvedDreverProject,
 ): Promise<ViteDevServer> => {
-  const app = await createPrivateApp(project.entry, resolvePrivateAppOptions(project.config));
+  const app = await createPrivateApp(
+    project.entry,
+    resolvePrivateAppOptions(project.config, project.root),
+  );
   try {
     const server = await createServer(inlineConfig(project, app.root));
     attachPrivateAppLifetime(server, app.dispose);

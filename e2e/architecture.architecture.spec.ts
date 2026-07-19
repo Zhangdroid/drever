@@ -8,7 +8,11 @@ test("the architecture tour makes compiler artifacts inspectable", async ({ page
   await page.goto("/");
 
   await expect(page.locator(activeSlide).locator('[data-drever-layout="statement"]')).toBeVisible();
-  await expect(page.locator(activeSlide)).toHaveCSS("background-color", "rgb(11, 20, 31)");
+  await expect(page.locator('[data-drever-stage-layer="background"]')).toHaveCSS(
+    "background-color",
+    "rgb(11, 20, 31)",
+  );
+  await expect(page.locator(activeSlide)).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
 
   await page.goto("/3");
 
