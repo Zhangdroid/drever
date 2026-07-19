@@ -190,14 +190,15 @@
     animation: none;
   }
 
+  /* Keep pointer feedback stable while the live toolbar is hidden behind transition snapshots. */
   ::view-transition-old(.drever-motion-chrome) {
     animation: none;
-    opacity: 0;
+    opacity: 1;
   }
 
   ::view-transition-new(.drever-motion-chrome) {
     animation: none;
-    opacity: 1;
+    opacity: 0;
   }
 
   [data-drever-render-mode="audience"] [data-drever-step] {

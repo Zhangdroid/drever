@@ -598,7 +598,7 @@ test("React owns one slide transition while the document surface stays still", a
   });
   expect(transitionStyles).toMatchObject({
     chromeGroup: { animationName: "none", zIndex: "4" },
-    newChrome: { animationName: "none", opacity: 1 },
+    newChrome: { animationName: "none", opacity: 0 },
     newRoot: { animationName: "none", mixBlendMode: "normal", opacity: 1 },
     newSlide: {
       animationName: "drever-slide-cover",
