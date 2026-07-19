@@ -25,6 +25,10 @@
 }
 
 .tour-stage-background {
+  --tour-orb-opacity: 1;
+  --tour-orb-scale: 1;
+  --tour-orb-x: 0px;
+  --tour-orb-y: 0px;
   position: absolute;
   inset: 0;
 }
@@ -38,20 +42,34 @@
   border: 1px solid rgb(75 86 232 / 12%);
   border-radius: 50%;
   background: radial-gradient(circle, rgb(255 112 77 / 10%), transparent 68%);
-  transform: translate3d(0, 0, 0) scale(1);
+  opacity: var(--tour-orb-opacity);
+  scale: var(--tour-orb-scale);
+  translate: var(--tour-orb-x) var(--tour-orb-y);
   transition:
-    transform 900ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 700ms ease;
+    translate 960ms cubic-bezier(0.22, 0.8, 0.32, 1),
+    scale 960ms cubic-bezier(0.22, 0.8, 0.32, 1),
+    opacity 640ms ease-out;
 }
 
-.tour-stage-background[data-scene="system"] > span {
-  opacity: 0.72;
-  transform: translate3d(-120px, 70px, 0) scale(0.9);
+.tour-stage-background[data-scene="system"] {
+  --tour-orb-opacity: 0.72;
+  --tour-orb-scale: 0.96;
+  --tour-orb-x: -72px;
+  --tour-orb-y: 44px;
 }
 
-.tour-stage-background[data-scene="motion"] > span {
-  opacity: 0.9;
-  transform: translate3d(-40px, 170px, 0) scale(1.12);
+.tour-stage-background[data-scene="motion"] {
+  --tour-orb-opacity: 0.82;
+  --tour-orb-scale: 1.05;
+  --tour-orb-x: -36px;
+  --tour-orb-y: 118px;
+}
+
+.tour-stage-background[data-scene="closing"] {
+  --tour-orb-opacity: 0.48;
+  --tour-orb-scale: 1.1;
+  --tour-orb-x: -8px;
+  --tour-orb-y: 136px;
 }
 
 .tour-stage-foreground {

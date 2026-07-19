@@ -1,10 +1,11 @@
 import type { StageLayerProps } from "drever";
 import type { ReactElement } from "react";
 
-const sceneFor = (slideIndex: number): "opening" | "system" | "motion" => {
+const sceneFor = (slideIndex: number): "opening" | "system" | "motion" | "closing" => {
   if (slideIndex < 5) return "opening";
-  if (slideIndex < 11) return "system";
-  return "motion";
+  if (slideIndex < 10) return "system";
+  if (slideIndex < 15) return "motion";
+  return "closing";
 };
 
 export default function ProductTourBackground({ position }: StageLayerProps): ReactElement {
@@ -12,6 +13,7 @@ export default function ProductTourBackground({ position }: StageLayerProps): Re
     <div
       className="tour-stage-background"
       data-scene={sceneFor(position.slideIndex)}
+      data-slide-number={position.slideIndex + 1}
       data-testid="tour-stage-background"
     >
       <span />
