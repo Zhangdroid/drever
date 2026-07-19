@@ -200,6 +200,12 @@
   gap: 14px;
 }
 
+[data-drever-render-mode="audience"]
+  .tour-moment-stack
+  > [data-drever-step][data-step-state="active"] {
+  animation-name: none;
+}
+
 .tour-moment {
   display: grid;
   min-height: 98px;
@@ -210,7 +216,16 @@
   align-items: center;
   background: rgb(255 255 255 / 78%);
   box-shadow: 0 12px 30px rgb(35 43 89 / 7%);
+  transition: box-shadow var(--drever-recipe-enter-duration, 320ms)
+    var(--drever-motion-easing, cubic-bezier(0.22, 1, 0.36, 1));
   gap: 18px;
+}
+
+[data-drever-render-mode="audience"]
+  .tour-moment-stack
+  > [data-drever-step][data-step-state="pending"]
+  > .tour-moment {
+  box-shadow: 0 12px 30px rgb(35 43 89 / 0%);
 }
 
 .tour-moment > span {
