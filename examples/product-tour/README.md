@@ -1,6 +1,6 @@
 # Drever product tour
 
-An eleven-slide, network-free introduction for people evaluating Drever. It tells a
+A sixteen-slide, network-free introduction for people evaluating Drever. It tells a
 single story: AI made slide production cheap, so Drever focuses on the remaining
 work—taste, timing, interaction, and trustworthy delivery.
 

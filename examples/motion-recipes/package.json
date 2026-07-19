@@ -1,0 +1,17 @@
+{
+  "name": "@drever/example-motion-recipes",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "drever build",
+    "check": "drever check --json",
+    "dev": "drever dev"
+  },
+  "devDependencies": {
+    "@drever/theme-editorial": "workspace:*",
+    "@types/react": "catalog:",
+    "drever": "workspace:*",
+    "react": "catalog:"
+  }
+}

@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 
 const demoRoot = fileURLToPath(new URL("./examples/basic", import.meta.url));
 const architectureDemoRoot = fileURLToPath(new URL("./examples/architecture", import.meta.url));
+const motionRecipesRoot = fileURLToPath(new URL("./examples/motion-recipes", import.meta.url));
 const productTourRoot = fileURLToPath(new URL("./examples/product-tour", import.meta.url));
 const ci = process.env.CI !== undefined;
 
@@ -99,6 +100,21 @@ const projectDefinitions = [
       reuseExistingServer: false,
       timeout: 60_000,
       url: "http://127.0.0.1:4321",
+    },
+  },
+  {
+    name: "motion-recipes-chromium",
+    testMatch: "**/*.motion-recipes.spec.ts",
+    use: {
+      baseURL: "http://127.0.0.1:4322",
+      contextOptions: { reducedMotion: "no-preference" },
+    },
+    webServer: {
+      command: "vp exec drever dev",
+      cwd: motionRecipesRoot,
+      reuseExistingServer: false,
+      timeout: 60_000,
+      url: "http://127.0.0.1:4322",
     },
   },
   {

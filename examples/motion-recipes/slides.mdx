@@ -1,0 +1,299 @@
+import coastline from "./assets/coastline.svg";
+import "./motion.css";
+
+<Masthead
+  kicker="Drever / motion field notes"
+  title="Stable motion starts before the animation."
+  deck="Three small geometry contracts for shared shells, persistent text, and responsive media."
+  meta="Forward, backward, and reduced-motion by design"
+  tone="ink"
+/>
+
+<Note>
+  Frame View Transitions as captured pixels moving between two layout states. Most visual artifacts
+  begin when those endpoint states are underspecified, not when the easing curve is wrong.
+</Note>
+
+---
+
+<div
+  aria-label="Share the frame, not its changing prose."
+  className="recipe recipe--shell recipe--source"
+  data-recipe="shell-source"
+>
+  <header className="recipe__copy">
+    <span>Recipe 01 · fixed shell</span>
+    <h2>Share the frame, not its changing prose.</h2>
+    <p>The named snapshot has one explicit size. Volatile copy stays outside its raster.</p>
+  </header>
+
+<MotionGroup
+  aria-label="Fixed-size interface shell"
+  className="recipe-shell"
+  data-testid="shared-shell"
+  intent="continuity"
+  name="stable-shell"
+  role="img"
+>
+  <div className="recipe-shell__bar" aria-hidden="true">
+    <i />
+    <i />
+    <i />
+  </div>
+  <div className="recipe-shell__body" aria-hidden="true">
+    <div className="recipe-shell__rail">
+      <i />
+      <i />
+      <i />
+    </div>
+    <div className="recipe-shell__content">
+      <b />
+      <span />
+      <span />
+      <div>
+        <i />
+        <i />
+      </div>
+    </div>
+  </div>
+</MotionGroup>
+
+  <aside className="recipe__contract" data-testid="shell-copy">
+    <strong>440 × 270</strong>
+    <span>absolute endpoint</span>
+  </aside>
+</div>
+
+<Note>
+  Advance, then move backward. The shell translates without resizing, while the explanatory copy
+  cuts independently. Under reduced motion, Drever skips the capture and commits the destination.
+</Note>
+
+---
+
+<div
+  aria-label="Changing words no longer leave a double image."
+  className="recipe recipe--shell recipe--result"
+  data-recipe="shell-result"
+>
+  <header className="recipe__copy">
+    <span>Recipe 01 · fixed shell</span>
+    <h2>Changing words no longer leave a double image.</h2>
+    <p>Only the stable visual frame owns continuity; new meaning renders as ordinary slide content.</p>
+  </header>
+
+<MotionGroup
+  aria-label="Fixed-size interface shell"
+  className="recipe-shell"
+  data-testid="shared-shell"
+  intent="continuity"
+  name="stable-shell"
+  role="img"
+>
+  <div className="recipe-shell__bar" aria-hidden="true">
+    <i />
+    <i />
+    <i />
+  </div>
+  <div className="recipe-shell__body" aria-hidden="true">
+    <div className="recipe-shell__rail">
+      <i />
+      <i />
+      <i />
+    </div>
+    <div className="recipe-shell__content">
+      <b />
+      <span />
+      <span />
+      <div>
+        <i />
+        <i />
+      </div>
+    </div>
+  </div>
+</MotionGroup>
+
+  <aside className="recipe__contract" data-testid="shell-copy">
+    <strong>same raster</strong>
+    <span>new copy outside</span>
+  </aside>
+</div>
+
+<Note>
+  Reverse to verify the same identity and dimensions in both directions. If text inside the shared
+  shell must change, give that text a separate transition identity or leave it unshared.
+</Note>
+
+---
+
+<div
+  aria-label="Keep the glyph raster invariant."
+  className="recipe recipe--text recipe--source"
+  data-recipe="text-source"
+>
+  <header className="recipe__copy">
+    <span>Recipe 02 · persistent text</span>
+    <h2>Keep the glyph raster invariant.</h2>
+    <p>Movement is safe when measure, font, weight, line-height, and wrapping remain identical.</p>
+  </header>
+
+<MotionGroup
+  className="recipe-text"
+  data-testid="shared-text"
+  intent="continuity"
+  name="stable-text"
+>
+  <p data-testid="persistent-copy">Motion preserves context across a changing frame.</p>
+</MotionGroup>
+
+  <aside className="recipe__contract">
+    <strong>600 × 124</strong>
+    <span>43px / 56px · fixed wrap</span>
+  </aside>
+</div>
+
+<Note>
+  Advance and reverse. The sentence moves diagonally but never scales or reflows. Reduced motion
+  presents the same endpoint immediately, preserving reading order without an intermediate raster.
+</Note>
+
+---
+
+<div
+  aria-label="Translation stays crisp when type does not reflow."
+  className="recipe recipe--text recipe--result"
+  data-recipe="text-result"
+>
+  <header className="recipe__copy">
+    <span>Recipe 02 · persistent text</span>
+    <h2>Translation stays crisp when type does not reflow.</h2>
+    <p>The destination changes placement, not typography or line breaks.</p>
+  </header>
+
+<MotionGroup
+  className="recipe-text"
+  data-testid="shared-text"
+  intent="continuity"
+  name="stable-text"
+>
+  <p data-testid="persistent-copy">Motion preserves context across a changing frame.</p>
+</MotionGroup>
+
+  <aside className="recipe__contract">
+    <strong>same line boxes</strong>
+    <span>position may change</span>
+  </aside>
+</div>
+
+<Note>
+  Move backward once. A shared heading that changes width, font metrics, or wrapping is two
+  incompatible rasters; either hold those metrics constant or let the new heading render normally.
+</Note>
+
+---
+
+<div
+  aria-label="Give media a box before asking it to move."
+  className="recipe recipe--media recipe--source"
+  data-recipe="media-source"
+>
+  <header className="recipe__copy">
+    <span>Recipe 03 · media continuity</span>
+    <h2>Give media a box before asking it to move.</h2>
+    <p>Explicit endpoints and one crop policy prevent late layout and stretched imagery.</p>
+  </header>
+
+<MotionGroup
+  className="recipe-media"
+  data-testid="shared-media"
+  intent="continuity"
+  name="stable-media"
+>
+  <img
+    alt="Abstract coastline at dusk"
+    data-testid="stable-media-image"
+    height="900"
+    src={coastline}
+    width="1600"
+  />
+</MotionGroup>
+
+  <aside className="recipe__contract">
+    <strong>640 × 360</strong>
+    <span>16:9 · cover · 50% 48%</span>
+  </aside>
+</div>
+
+<Note>
+  Advance to resize, then reverse. The frame declares both dimensions and the image fills it with
+  the same object-fit and object-position at either endpoint. Reduced motion performs no capture.
+</Note>
+
+---
+
+<div
+  aria-label="The crop remains intentional while the frame changes scale."
+  className="recipe recipe--media recipe--result"
+  data-recipe="media-result"
+>
+  <header className="recipe__copy">
+    <span>Recipe 03 · media continuity</span>
+    <h2>The crop remains intentional while the frame changes scale.</h2>
+    <p>Width and height interpolate; aspect ratio and focal point stay stable.</p>
+  </header>
+
+<MotionGroup
+  className="recipe-media"
+  data-testid="shared-media"
+  intent="continuity"
+  name="stable-media"
+>
+  <img
+    alt="Abstract coastline at dusk"
+    data-testid="stable-media-image"
+    height="900"
+    src={coastline}
+    width="1600"
+  />
+</MotionGroup>
+
+  <aside className="recipe__contract">
+    <strong>480 × 270</strong>
+    <span>same ratio · same focal point</span>
+  </aside>
+</div>
+
+<Note>
+  Reverse once more. Intrinsic width and height reserve space before decode, while CSS defines the
+  rendered frame. For a different crop, use a deliberate cut instead of hiding it inside continuity.
+</Note>
+
+---
+
+<div aria-label="Stability is a geometry contract." className="recipe-summary">
+  <span>Endpoint checklist</span>
+  <h2>Stability is a geometry contract.</h2>
+  <div>
+    <article>
+      <strong>01</strong>
+      <p>Share the smallest stable visual identity.</p>
+    </article>
+    <article>
+      <strong>02</strong>
+      <p>Freeze text metrics and wrapping across endpoints.</p>
+    </article>
+    <article>
+      <strong>03</strong>
+      <p>Declare media size, ratio, fit, and focal point.</p>
+    </article>
+    <article>
+      <strong>00</strong>
+      <p>Reduced motion skips capture and commits meaning.</p>
+    </article>
+  </div>
+</div>
+
+<Note>
+  Close by separating continuity from spectacle. A stable shared element has one identity and two
+  well-defined endpoint boxes. Everything else can arrive as ordinary content.
+</Note>

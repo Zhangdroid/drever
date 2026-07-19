@@ -315,6 +315,21 @@ importers:
         specifier: 19.3.0-canary-83840902-20260719
         version: 19.3.0-canary-83840902-20260719
 
+  examples/motion-recipes:
+    devDependencies:
+      '@drever/theme-editorial':
+        specifier: workspace:*
+        version: link:../../packages/theme-editorial
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.17
+      drever:
+        specifier: workspace:*
+        version: link:../../packages/cli
+      react:
+        specifier: 19.3.0-canary-83840902-20260719
+        version: 19.3.0-canary-83840902-20260719
+
   examples/product-tour:
     devDependencies:
       '@drever/theme-editorial':

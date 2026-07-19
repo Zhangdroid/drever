@@ -16,6 +16,8 @@ description: Author or edit an existing Drever presentation. Use when asked to r
 7. Keep speaker-only explanation in `Note` and preserve headings, alternatives, captions, focus behavior, and reduced-motion behavior.
 8. Never edit generated files in `dist/` or `.drever/`.
 
+For continuity, share the smallest object with persistent identity. Keep endpoint size or aspect ratio, `box-sizing`, typography, line wrapping, and media crop explicit. Use `inline-size: fit-content` only for invariant non-wrapping text; give media intrinsic dimensions plus `object-fit` and `object-position`. Keep changing prose outside the shared bitmap or split independently moving parts into separate named boundaries. Use absolute positioning only when both endpoints share the same explicit containing block.
+
 When changing React components, preserve keyboard and screen-reader semantics, suppress audience-only side effects outside audience mode, and make asynchronous media participate in export readiness.
 
 Run `drever context --json`, `drever check --json`, and `drever build`. Inspect every affected exact slide and Step route. Check `/document`; check `/speaker` when notes or presentation behavior changed. Verify reload and history after slide or Step topology changes.

@@ -21,8 +21,11 @@ Review for:
 - Stable alignment, deliberate spacing, readable type, sufficient contrast, and no clipping or overflow.
 - Step changes that reveal meaning without moving persistent content.
 - Motion that communicates continuity and respects reduced motion.
+- Continuity boundaries whose endpoint bounds, aspect ratio, text metrics, wrapping, and media crop are deliberate; investigate ghosting as a snapshot-geometry mismatch before changing timing or easing.
 - Correct headings, alternatives, captions, focus behavior, and document reading order.
 - Working exact deep links, reload, history, speaker synchronization, build output, and export readiness.
+
+For continuity defects, compare endpoint `getBoundingClientRect()` values and inspect the transition in both directions. Prefer a fixed shared shell, invariant shrink-wrapped text, or explicit media fitting. Keep changing copy outside the shared bitmap; absolute positioning is useful only when it produces equivalent containing geometry at both endpoints.
 
 Fix the cause in authored MDX, configuration, local components, or styles. Do not patch generated output or add legacy-browser fallbacks.
 

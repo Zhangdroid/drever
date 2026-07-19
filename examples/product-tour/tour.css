@@ -712,21 +712,26 @@
 }
 
 .tour-continuity-stage--result {
-  grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .tour-continuity {
-  width: 430px;
+  inline-size: 480px;
+  block-size: 300px;
+  box-sizing: border-box;
+  justify-self: start;
 }
 
 .tour-continuity-stage--result .tour-continuity {
-  width: 100%;
+  justify-self: end;
 }
 
 .tour-continuity > article {
   display: grid;
-  min-height: 250px;
+  inline-size: 100%;
+  block-size: 100%;
   box-sizing: border-box;
+  overflow: clip;
   padding: 34px;
   border: 2px solid transparent;
   border-radius: 26px;
@@ -738,8 +743,7 @@
 }
 
 .tour-continuity-stage--result .tour-continuity > article {
-  min-height: 330px;
-  background: var(--drever-theme-accent);
+  background: #172033;
 }
 
 .tour-continuity article > span {
@@ -764,6 +768,33 @@
   font-weight: 680;
   letter-spacing: -0.02em;
   line-height: 1.35;
+}
+
+.tour-continuity-caption > span {
+  display: block;
+  margin-bottom: 14px;
+  color: var(--drever-theme-accent-strong);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+[data-drever-slide] .tour-continuity-caption > strong {
+  display: block;
+  color: var(--drever-theme-ink);
+  font-size: 42px;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+[data-drever-slide] .tour-continuity-caption > p {
+  margin-top: 14px;
+  color: var(--drever-theme-muted);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.45;
 }
 
 @media (prefers-reduced-motion: reduce) {

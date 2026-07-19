@@ -87,14 +87,15 @@ build, and PDF export are usable now. See the
 
 ## Explore the repository demos
 
-The repository includes three complete Drever projects. The two showcase decks
-are also the reference consumers for the official Editorial and Studio themes.
+The repository includes four complete Drever projects. Three showcase decks are
+also reference consumers for the official Editorial and Studio themes.
 
-| Demo           | Story                                                     | Theme     | Command                    |
-| -------------- | --------------------------------------------------------- | --------- | -------------------------- |
-| `basic`        | Compact authoring and runtime contract                    | Default   | `vp run demo`              |
-| `product-tour` | Product story, interaction showcase, and motion reference | Editorial | `vp run demo:product`      |
-| `architecture` | Deck IR, compilation, routing, extensions, and delivery   | Studio    | `vp run demo:architecture` |
+| Demo             | Story                                                     | Theme     | Command                    |
+| ---------------- | --------------------------------------------------------- | --------- | -------------------------- |
+| `basic`          | Compact authoring and runtime contract                    | Default   | `vp run demo`              |
+| `product-tour`   | Product story, interaction showcase, and motion reference | Editorial | `vp run demo:product`      |
+| `architecture`   | Deck IR, compilation, routing, extensions, and delivery   | Studio    | `vp run demo:architecture` |
+| `motion-recipes` | Stable shared-shell, text, and media geometry recipes     | Editorial | `vp run demo:motion`       |
 
 ```bash
 vp install
@@ -121,10 +122,10 @@ Open <http://localhost:4317/document> for a scrollable, browser-searchable
 reading view with every Step revealed. Press `D` from the audience to open it at
 the current slide.
 
-The showcase decks run on ports `4320` and `4321`. Their document and speaker
-views are available at `/document` and `/speaker`, and both are exercised by the
-production Chromium suite. See the [example catalog](./examples/README.md) for
-the complete commands.
+The showcase decks run on ports `4320`, `4321`, and `4322`. Their document and
+speaker views are available at `/document` and `/speaker`, and all are exercised
+by the production Chromium suite. See the [example catalog](./examples/README.md)
+for the complete commands.
 
 ## Official themes
 

@@ -236,6 +236,39 @@ test("continuity uses one explicit identity in both directions", async ({ page }
   await page.goto("/14");
 
   const continuity = page.locator(`${activeSlide} [data-testid="motion-continuity"]`);
+  const readContinuityContract = () =>
+    continuity.evaluate((element) => {
+      const bounds = element.getBoundingClientRect();
+      const text = element.querySelector("strong");
+      if (text === null) throw new Error("The continuity example requires a primary label.");
+      const groupStyle = getComputedStyle(element);
+      const textStyle = getComputedStyle(text);
+      return {
+        aspectRatio: bounds.width / bounds.height,
+        boxSizing: groupStyle.boxSizing,
+        height: bounds.height,
+        label: element.textContent?.replace(/\s+/gu, " ").trim(),
+        text: {
+          fontFamily: textStyle.fontFamily,
+          fontSize: textStyle.fontSize,
+          fontWeight: textStyle.fontWeight,
+          letterSpacing: textStyle.letterSpacing,
+          lineHeight: textStyle.lineHeight,
+        },
+        width: bounds.width,
+      };
+    });
+  const expectStableContinuityContract = (
+    candidate: Awaited<ReturnType<typeof readContinuityContract>>,
+    expected: Awaited<ReturnType<typeof readContinuityContract>>,
+  ) => {
+    expect(candidate.width).toBeCloseTo(expected.width, 3);
+    expect(candidate.height).toBeCloseTo(expected.height, 3);
+    expect(candidate.aspectRatio).toBeCloseTo(expected.aspectRatio, 3);
+    expect(candidate.boxSizing).toBe(expected.boxSizing);
+    expect(candidate.label).toBe(expected.label);
+    expect(candidate.text).toEqual(expected.text);
+  };
   await expect(continuity).toHaveAttribute("data-motion-name", "deck-contract");
   await expect(continuity).toHaveCSS("view-transition-name", "none");
   await expect(page.locator(`${activeSlide} h2`)).toHaveCSS("view-transition-name", "none");
@@ -243,6 +276,7 @@ test("continuity uses one explicit identity in both directions", async ({ page }
   await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/\/14\/1$/u);
   await expect(continuity).toHaveCSS("view-transition-name", "none");
+  const sourceContract = await readContinuityContract();
 
   const forwardTransition = await captureNextViewTransition(page, () =>
     page.keyboard.press("ArrowRight"),
@@ -260,6 +294,7 @@ test("continuity uses one explicit identity in both directions", async ({ page }
   await expect(page.locator(`${activeSlide} h2`)).toHaveCSS("view-transition-name", "none");
   await waitForViewTransition(page, forwardTransition, "finished");
   await expect(continuity).toHaveCSS("view-transition-name", "none");
+  expectStableContinuityContract(await readContinuityContract(), sourceContract);
 
   const backwardTransition = await captureNextViewTransition(page, () =>
     page.keyboard.press("ArrowLeft"),
@@ -276,6 +311,7 @@ test("continuity uses one explicit identity in both directions", async ({ page }
   ).toContain("::view-transition-group(drever-deck-contract)");
   await waitForViewTransition(page, backwardTransition, "finished");
   await expect(continuity).toHaveCSS("view-transition-name", "none");
+  expectStableContinuityContract(await readContinuityContract(), sourceContract);
 
   expect(await readViewTransitionCalls(page)).toEqual([
     { kind: "document", target: "document", types: ["drever-slide-forward"] },

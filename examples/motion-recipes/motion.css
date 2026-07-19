@@ -1,0 +1,405 @@
+.drever-viewer {
+  --drever-editorial-paper: #f4f1e9;
+  --drever-editorial-ink: #172033;
+  --drever-editorial-muted: #687080;
+  --drever-editorial-accent: #d7523d;
+  --drever-editorial-accent-soft: #f2d9cc;
+  --drever-editorial-surface: #fffdf8;
+  --drever-editorial-border: #d5d2ca;
+  --drever-theme-ink: #172033;
+  --drever-theme-muted: #687080;
+  --drever-theme-accent: #d7523d;
+  --motion-blue: #385d8f;
+  --motion-navy: #172033;
+  --motion-paper: #f4f1e9;
+  --motion-surface: #fffdf8;
+  --motion-coral: #d7523d;
+  --motion-border: #d5d2ca;
+  --drever-motion-duration: 520ms;
+  --drever-motion-easing: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.drever-viewer [data-drever-slide] {
+  background:
+    radial-gradient(circle at 90% 6%, rgb(215 82 61 / 9%), transparent 26%),
+    linear-gradient(90deg, var(--motion-coral) 0 8px, transparent 8px), var(--motion-paper);
+}
+
+.recipe {
+  position: relative;
+  width: 100%;
+  height: 500px;
+}
+
+.recipe__copy {
+  position: absolute;
+  z-index: 1;
+  width: 510px;
+}
+
+.recipe__copy > span,
+.recipe-summary > span {
+  display: block;
+  margin-bottom: 16px;
+  color: var(--motion-coral);
+  font-size: 14px;
+  font-weight: 820;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+[data-drever-slide] .recipe__copy h2 {
+  max-width: 13ch;
+  font-size: 48px;
+  line-height: 1.02;
+}
+
+[data-drever-slide] .recipe__copy p {
+  max-width: 35ch;
+  margin-top: 18px;
+  color: var(--motion-navy);
+  font-size: 20px;
+  line-height: 1.42;
+  opacity: 0.68;
+}
+
+.recipe__contract {
+  position: absolute;
+  display: grid;
+  padding-left: 15px;
+  border-left: 3px solid var(--motion-coral);
+  color: var(--motion-navy);
+  gap: 4px;
+}
+
+.recipe__contract strong {
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.recipe__contract span {
+  color: var(--drever-theme-muted);
+  font-size: 13px;
+  font-weight: 680;
+  letter-spacing: 0.04em;
+}
+
+.recipe-shell {
+  position: absolute;
+  overflow: clip;
+  inline-size: 440px;
+  block-size: 270px;
+  box-sizing: border-box;
+  border: 2px solid rgb(23 32 51 / 12%);
+  border-radius: 24px;
+  background: var(--motion-surface);
+  box-shadow: 0 24px 70px rgb(23 32 51 / 18%);
+}
+
+.recipe--shell.recipe--source .recipe__copy {
+  top: 24px;
+  left: 0;
+}
+
+.recipe--shell.recipe--source .recipe-shell {
+  right: 0;
+  bottom: 12px;
+}
+
+.recipe--shell.recipe--source .recipe__contract {
+  left: 470px;
+  bottom: 15px;
+}
+
+.recipe--shell.recipe--result .recipe__copy {
+  top: 24px;
+  right: 0;
+  width: 520px;
+}
+
+.recipe--shell.recipe--result .recipe-shell {
+  bottom: 12px;
+  left: 0;
+}
+
+.recipe--shell.recipe--result .recipe__contract {
+  right: 0;
+  bottom: 20px;
+}
+
+.recipe-shell__bar {
+  display: flex;
+  height: 42px;
+  box-sizing: border-box;
+  padding: 0 17px;
+  border-bottom: 1px solid rgb(23 32 51 / 10%);
+  align-items: center;
+  background: #f8f6f0;
+  gap: 7px;
+}
+
+.recipe-shell__bar i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #c8c6bf;
+}
+
+.recipe-shell__bar i:first-child {
+  background: var(--motion-coral);
+}
+
+.recipe-shell__body {
+  display: grid;
+  height: 228px;
+  grid-template-columns: 92px 1fr;
+}
+
+.recipe-shell__rail {
+  display: grid;
+  padding: 25px 18px;
+  border-right: 1px solid rgb(23 32 51 / 9%);
+  align-content: start;
+  background: #f4f1e9;
+  gap: 16px;
+}
+
+.recipe-shell__rail i {
+  height: 7px;
+  border-radius: 999px;
+  background: rgb(23 32 51 / 16%);
+}
+
+.recipe-shell__rail i:first-child {
+  width: 72%;
+  background: var(--motion-coral);
+}
+
+.recipe-shell__content {
+  display: grid;
+  padding: 31px;
+  align-content: start;
+  gap: 14px;
+}
+
+.recipe-shell__content > b {
+  width: 46%;
+  height: 16px;
+  border-radius: 5px;
+  background: var(--motion-navy);
+}
+
+.recipe-shell__content > span {
+  width: 92%;
+  height: 7px;
+  border-radius: 999px;
+  background: rgb(23 32 51 / 15%);
+}
+
+.recipe-shell__content > span:nth-of-type(2) {
+  width: 70%;
+}
+
+.recipe-shell__content > div {
+  display: grid;
+  margin-top: 15px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.recipe-shell__content > div i {
+  height: 74px;
+  border-radius: 12px;
+  background: #e9ddd4;
+}
+
+.recipe-shell__content > div i:last-child {
+  background: #d9e3ef;
+}
+
+.recipe--text .recipe__copy {
+  top: 14px;
+  width: 480px;
+}
+
+.recipe--text.recipe--source .recipe__copy {
+  right: 0;
+}
+
+.recipe--text.recipe--result .recipe__copy {
+  left: 0;
+}
+
+.recipe-text {
+  position: absolute;
+  display: grid;
+  inline-size: 600px;
+  block-size: 124px;
+  align-items: center;
+}
+
+.recipe--text.recipe--source .recipe-text {
+  bottom: 28px;
+  left: 0;
+}
+
+.recipe--text.recipe--result .recipe-text {
+  right: 0;
+  bottom: 86px;
+}
+
+[data-drever-slide] .recipe-text > p {
+  width: 600px;
+  max-width: none;
+  margin: 0;
+  color: var(--motion-navy);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 43px;
+  font-synthesis: none;
+  font-weight: 680;
+  letter-spacing: -0.025em;
+  line-height: 56px;
+  text-wrap: wrap;
+}
+
+.recipe--text.recipe--source .recipe__contract {
+  bottom: 174px;
+  left: 0;
+}
+
+.recipe--text.recipe--result .recipe__contract {
+  right: 0;
+  bottom: 28px;
+}
+
+.recipe--media .recipe__copy {
+  top: 12px;
+  width: 420px;
+}
+
+.recipe--media.recipe--source .recipe__copy {
+  right: 0;
+}
+
+.recipe--media.recipe--result .recipe__copy {
+  left: 0;
+}
+
+.recipe-media {
+  position: absolute;
+  overflow: clip;
+  box-sizing: border-box;
+  border: 5px solid var(--motion-surface);
+  border-radius: 26px;
+  background: #d9e3ef;
+  box-shadow: 0 24px 70px rgb(23 32 51 / 22%);
+  aspect-ratio: 16 / 9;
+}
+
+.recipe--media.recipe--source .recipe-media {
+  bottom: 16px;
+  left: 0;
+  inline-size: 640px;
+  block-size: 360px;
+}
+
+.recipe--media.recipe--result .recipe-media {
+  right: 0;
+  bottom: 68px;
+  inline-size: 480px;
+  block-size: 270px;
+}
+
+.recipe-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  border: 0;
+  object-fit: cover;
+  object-position: 50% 48%;
+}
+
+.recipe--media.recipe--source .recipe__contract {
+  right: 0;
+  bottom: 28px;
+}
+
+.recipe--media.recipe--result .recipe__contract {
+  bottom: 24px;
+  left: 0;
+}
+
+::view-transition-old(drever-stable-shell),
+::view-transition-new(drever-stable-shell),
+::view-transition-old(drever-stable-text),
+::view-transition-new(drever-stable-text) {
+  width: 100%;
+  height: 100%;
+  object-fit: none;
+  object-position: center;
+}
+
+::view-transition-old(drever-stable-media),
+::view-transition-new(drever-stable-media) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 48%;
+}
+
+.recipe-summary > h2 {
+  max-width: 15ch;
+}
+
+.recipe-summary > div {
+  display: grid;
+  margin-top: 42px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.recipe-summary article {
+  display: grid;
+  min-height: 210px;
+  box-sizing: border-box;
+  padding: 25px;
+  border: 2px solid var(--motion-border);
+  border-radius: 22px;
+  align-content: space-between;
+  background: rgb(255 253 248 / 78%);
+}
+
+.recipe-summary article:last-child {
+  border-color: transparent;
+  background: var(--motion-navy);
+  color: white;
+}
+
+[data-drever-slide] .recipe-summary article strong {
+  color: var(--motion-coral);
+  font-size: 35px;
+  letter-spacing: -0.04em;
+}
+
+[data-drever-slide] .recipe-summary article p {
+  color: inherit;
+  font-size: 19px;
+  line-height: 1.38;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(drever-stable-shell),
+  ::view-transition-group(drever-stable-text),
+  ::view-transition-group(drever-stable-media),
+  ::view-transition-old(drever-stable-shell),
+  ::view-transition-new(drever-stable-shell),
+  ::view-transition-old(drever-stable-text),
+  ::view-transition-new(drever-stable-text),
+  ::view-transition-old(drever-stable-media),
+  ::view-transition-new(drever-stable-media) {
+    animation: none !important;
+  }
+}

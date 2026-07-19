@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title description">
+  <title id="title">Abstract coastline at dusk</title>
+  <desc id="description">Layered coral hills meet a deep blue sea beneath a pale moon.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f7efe4" />
+      <stop offset="0.55" stop-color="#e7a18b" />
+      <stop offset="1" stop-color="#354b78" />
+    </linearGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#29466e" />
+      <stop offset="1" stop-color="#13243e" />
+    </linearGradient>
+    <linearGradient id="shore" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#a9443f" />
+      <stop offset="1" stop-color="#d97558" />
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#sky)" />
+  <circle cx="1210" cy="210" r="94" fill="#fff7dc" opacity="0.9" />
+  <path d="M0 430 190 335 350 405 540 260 760 450 930 330 1130 470 1340 350 1600 480V900H0Z" fill="#584c67" opacity="0.72" />
+  <path d="M0 520 220 430 420 515 650 380 870 555 1090 420 1320 545 1600 440V900H0Z" fill="url(#shore)" />
+  <path d="M0 610c250-100 440 55 690-20 260-78 410 44 910-42v352H0Z" fill="url(#sea)" />
+  <path d="M0 686c265-72 464 42 728-28 294-78 513 54 872-28" fill="none" stroke="#f8d9bc" stroke-width="8" opacity="0.72" />
+  <path d="M0 753c232-48 449 38 690-16 330-74 560 48 910-30" fill="none" stroke="#8bb8c2" stroke-width="5" opacity="0.44" />
+</svg>
