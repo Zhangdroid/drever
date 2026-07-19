@@ -14,6 +14,12 @@
   --drever-recipe-step-from-translate: 0 12px;
   --drever-recipe-replace-from-translate: 0 9px;
   --drever-recipe-stagger-from-translate: 0 8px;
+  --drever-recipe-step-block-from-translate: 0 12px;
+  --drever-recipe-step-inline-from-translate: 12px 0;
+  --drever-recipe-replace-block-from-translate: 0 9px;
+  --drever-recipe-replace-inline-from-translate: 9px 0;
+  --drever-recipe-stagger-block-from-translate: 0 8px;
+  --drever-recipe-stagger-inline-from-translate: 8px 0;
   --drever-theme-ink: #171816;
   --drever-theme-muted: #62665f;
   --drever-theme-accent: #2855e7;

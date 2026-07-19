@@ -102,6 +102,23 @@ test("the architecture tour demonstrates deterministic routes and valid manifest
   await expect(output).toContainText("/speaker/4/2");
   await expect(output).toContainText("dist/speaker/4/2/index.html");
 
+  await page.goto("/4");
+  const pipeline = page.locator(`${activeSlide} .arch-pipeline`);
+  const firstPipelineStep = pipeline.locator(":scope > [data-drever-step]").first();
+  await expect(pipeline).toHaveAttribute("data-motion-flow", "inline");
+  expect(
+    await firstPipelineStep.evaluate((element) => {
+      const [x = "0", y = "0"] = getComputedStyle(element).translate.split(" ");
+      return [Number.parseFloat(x), Number.parseFloat(y)];
+    }),
+  ).toEqual([10, 0]);
+  expect(
+    await firstPipelineStep.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return { opacity: Number(style.opacity), scale: Number(style.scale) };
+    }),
+  ).toEqual({ opacity: 0.12, scale: 0.985 });
+
   await page.goto("/4/5");
   await expect(page.locator(activeSlide)).toContainText("Compilation is an owned sequence.");
   await expect(page.locator('[data-drever-step="5"]')).toHaveAttribute("data-step-state", "active");

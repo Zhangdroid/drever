@@ -135,17 +135,27 @@ describe("@drever/theme-editorial", () => {
 
     expect(profileKeys).toEqual([
       "--drever-recipe-enter-duration",
+      "--drever-recipe-replace-block-from-translate",
       "--drever-recipe-replace-from-translate",
+      "--drever-recipe-replace-inline-from-translate",
+      "--drever-recipe-stagger-block-from-translate",
       "--drever-recipe-stagger-duration",
       "--drever-recipe-stagger-from-translate",
       "--drever-recipe-stagger-gap",
+      "--drever-recipe-stagger-inline-from-translate",
+      "--drever-recipe-step-block-from-translate",
       "--drever-recipe-step-from-translate",
+      "--drever-recipe-step-inline-from-translate",
     ]);
     expect(css).toContain("grid-area: 1 / 1;");
     expect(css.match(/:not\(\[data-drever-render-mode="document"\]\)/gu)).toHaveLength(3);
     expect(css).toContain(":root:has(.drever-viewer),");
     expect(css).toContain("--drever-motion-slide-offset: 1.8%;");
     expect(css).toContain("--drever-recipe-stagger-gap: 44ms;");
+    expect(css).toContain("--drever-recipe-replace-block-from-translate: 0 8px;");
+    expect(css).toContain("--drever-recipe-replace-inline-from-translate: 10px 0;");
+    expect(css).toContain("@keyframes drever-editorial-stagger-block-enter");
+    expect(css).toContain("clip-path: inset(0 12% 0 0);");
     expect(css).not.toContain("--drever-recipe-step-from-transform");
     expect(css).toContain("[data-drever-reduced-motion]");
     expect(theme.motion?.guidance?.every((entry) => entry.trim().length > 20)).toBe(true);

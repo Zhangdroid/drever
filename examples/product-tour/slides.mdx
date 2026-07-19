@@ -88,7 +88,7 @@ The scarce part is now **judgment**: what to reveal, what to make tangible, and 
 
 <p>Advance slowly. The URL, history, and speaker view all agree on the exact state.</p>
 
-<MotionGroup className="tour-moment-stack" intent="focus">
+<MotionGroup className="tour-moment-stack" flow="block" intent="focus">
   <Step at={1}>
     <MomentCard index="01" title="Claim" detail="Give the room one stable idea." />
   </Step>
@@ -270,7 +270,7 @@ The scarce part is now **judgment**: what to reveal, what to make tangible, and 
 
 <p>The question stays fixed while one model gives way to the next.</p>
 
-<MotionGroup className="tour-replace" data-testid="motion-replace" intent="replace">
+<MotionGroup className="tour-replace" data-testid="motion-replace" flow="inline" intent="replace">
   <Step at={1}>
     <article data-motion-state="assumption">
       <span>01 · Assumption</span>
@@ -303,7 +303,7 @@ The scarce part is now **judgment**: what to reveal, what to make tangible, and 
 
 ## Comparison should preserve both sides.
 
-<MotionGroup className="tour-compare" data-testid="motion-compare" intent="compare">
+<MotionGroup className="tour-compare" data-testid="motion-compare" flow="inline" intent="compare">
   <Step at={1}>
     <article>
       <span>Before</span>

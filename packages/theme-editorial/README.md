@@ -70,10 +70,19 @@ fades reveal an argument, while continuity carries a genuine image, quotation,
 or artifact into the next slide. Supported intents and concise author guidance
 are part of the theme's JSON-safe motion metadata.
 
-Use direct Step children for focus, replacement, and comparison. Put stagger
-inside one Step with at most four direct children. Give continuity the same
-explicit lowercase kebab-case name on the same object across adjacent slides.
-See [Motion choreography](../../docs/motion.md) for the complete grammar and
+Intent explains why content moves; optional flow identifies its logical
+progression axis; Editorial turns that meaning into a publication-led visual voice. Use
+`flow="block"` for vertical reading rhythm and `flow="inline"` for a horizontal
+pipeline or comparison, or omit it to retain the theme default. Use direct Step
+children for focus, replacement, and comparison. Put stagger inside one Step
+with at most four direct children. Give continuity the same explicit lowercase
+kebab-case name on the same object across adjacent slides; continuity rejects
+flow.
+
+Persistent Stage decoration may make an occasional quiet shift, like a small
+change in crop or rule position. It must yield when a stronger content reveal
+or continuity transition carries the argument. See
+[Motion choreography](../../docs/motion.md) for the complete grammar and
 non-audience behavior.
 
 ## AI generation
@@ -91,7 +100,10 @@ the opening or a true chapter break. Use Feature only when a single visual is
 evidence for the claim. Keep body copy under 55 words, use at most four list
 items, and avoid card grids, decorative gradients, and generic slogans. Use
 MotionGroup only when focus, replacement, comparison, stagger, or continuity
-clarifies the reading order.
+clarifies the reading order. Intent says why; set flow="block" for vertical
+reading or flow="inline" for a horizontal pipeline, comparison, or successive state, and omit flow
+when Editorial's default fits. Never set flow on continuity. Keep Stage
+surprises sparse, quiet, and subordinate to the argument.
 ```
 
 Editorial targets current browsers. Speaker previews retain the full visual

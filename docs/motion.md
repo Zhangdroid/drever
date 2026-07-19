@@ -1,8 +1,11 @@
 # Motion choreography
 
-Drever motion describes why a visual change exists. Authors choose one of five
-semantic intents; the active theme decides how that intent looks. Navigation,
-Step state, accessibility, and shared identity remain framework-owned.
+Drever motion separates narrative purpose, logical progression, and visual
+voice. `intent` says why a visual change exists, optional `flow` identifies the
+logical axis that carries it, and the active theme decides how that
+relationship moves.
+Navigation, Step state, accessibility, and shared identity remain
+framework-owned.
 
 `MotionGroup` is built into compiled MDX. Its `intent` is required:
 
@@ -13,6 +16,20 @@ Step state, accessibility, and shared identity remain framework-owned.
 | `compare`    | Add evidence that must remain readable together     | Direct `Step` children                    |
 | `stagger`    | Reveal up to four parts as one explanatory beat     | Inside one `Step`; direct visual children |
 | `continuity` | Carry one object across adjacent slides             | One explicit shared `name`                |
+
+For `focus`, `replace`, `compare`, and `stagger`, add `flow="block"` when the
+content follows a vertical reading order or `flow="inline"` for a horizontal
+pipeline, comparison, or successive state. `flow` does not create a layout or
+prescribe animation parameters; it gives the theme enough structural meaning
+to choose a fitting direction and rhythm. Omit it when the theme's default is
+appropriate.
+`continuity` rejects `flow` because shared-object motion comes from the two
+authored layouts instead of a reveal direction.
+
+Official themes have distinct motion voices: Default favors unadorned fades
+and short travel, Editorial uncovers content from its reading edge, and Studio
+uses a brief scale-lock to make system states feel precise. These mappings stay
+theme-owned; authors never select the underlying effect.
 
 Use motion only when it explains a state change. Ordinary `Step` elements are
 the right default for progressive disclosure.
@@ -31,7 +48,7 @@ be unmistakable:
 ```mdx
 ## Three decisions
 
-<MotionGroup intent="focus">
+<MotionGroup intent="focus" flow="block">
   <Step>Compile the deck once.</Step>
   <Step>Address every meaningful state.</Step>
   <Step>Ship the same artifact you tested.</Step>
@@ -81,7 +98,7 @@ Use `compare` when each revealed item must remain readable as a peer:
 ```mdx
 ## Before and after
 
-<MotionGroup className="comparison" intent="compare">
+<MotionGroup className="comparison" intent="compare" flow="inline">
   <Step>
     <ResultCard label="Before" />
   </Step>
@@ -104,7 +121,7 @@ direct visual children:
 
 ```mdx
 <Step>
-  <MotionGroup className="pipeline" intent="stagger">
+  <MotionGroup className="pipeline" intent="stagger" flow="inline">
     <Stage>Parse</Stage>
     <Stage>Compile</Stage>
     <Stage>Verify</Stage>
@@ -146,9 +163,10 @@ it only when the object is narratively the same, and only across adjacent
 slides; Drever never infers continuity from matching titles, text, or DOM
 position.
 
-`name` is required for `continuity` and invalid for every other intent. A
-missing or unknown intent and an invalid identity both fail immediately with
-stable structured runtime errors.
+`name` is required for `continuity` and invalid for every other intent. `flow`
+is invalid for `continuity`. A missing or unknown intent, invalid identity, or
+invalid prop combination fails immediately with stable structured runtime
+errors.
 
 ### Stable snapshot geometry
 
@@ -287,11 +305,14 @@ reference. Both remain mounted while audience navigation updates their
 `StageLayerProps`.
 
 Do not give the complete background or foreground a slide entrance, exit, or
-continuity identity. For a deliberate scene change, isolate the smallest
-changing sub-element—such as one glow, line, crop, or counter—and animate only
-that element. Keep its geometry explicit and leave unchanged Stage pixels
-stationary. Read `reducedMotion` and `renderMode` from the layer props or
-`useStage()` and suppress motion in speaker, document, and export surfaces.
+continuity identity. A Stage may provide an occasional quiet surprise—a small
+shift in one glow, line, crop, or counter—but it should not demand attention on
+every navigation. Isolate that smallest changing sub-element, keep its geometry
+explicit, and leave unchanged Stage pixels stationary. Stage motion must yield
+to stronger content motion: reduce or omit it when a reveal, replacement, or
+continuity transition carries the idea. Read `reducedMotion` and `renderMode`
+from the layer props or `useStage()` and suppress motion in speaker, document,
+and export surfaces.
 
 ## Runtime and accessibility contract
 
@@ -308,10 +329,10 @@ replacement states into its reading flow. Reduced-motion preference, or the
 `createViewer` reduced-motion option, follows the same navigation and state
 path without presentation animation.
 
-Core owns `Step` visibility, replacement accessibility, intent attributes,
-React transition boundaries, and continuity identity. The client owns the
-Navigation-to-React commit and navigation direction. Themes own the visual
-mapping: duration, easing, emphasis, displacement, and the intentional
+Core owns `Step` visibility, replacement accessibility, intent and flow
+attributes, React transition boundaries, and continuity identity. The client
+owns the Navigation-to-React commit and navigation direction. Themes own the
+visual mapping: duration, easing, emphasis, displacement, and the intentional
 reduced-motion result. A theme's `motion` field is JSON-safe
 metadata containing `id`, supported `intents`, and optional author guidance; it
 does not load a JavaScript motion module and there is no separate
@@ -321,8 +342,11 @@ does not load a JavaScript motion module and there is no separate
 
 - Start with ordinary Steps; add a MotionGroup only for a clear narrative job.
 - Keep persistent headings and context outside Step-oriented MotionGroups.
+- Use `flow="block"` for vertical reading order and `flow="inline"` for a
+  horizontal pipeline or comparison; omit it when the theme default fits.
 - Keep global backgrounds, branding, and page numbers in Stage layers. Animate
-  only a Stage sub-element whose visual state changes.
+  only a Stage sub-element whose visual state changes, and let it yield to
+  stronger content motion.
 - Use direct Step children for `focus`, `replace`, and `compare`.
 - Put `stagger` inside one Step and limit it to four direct children.
 - Use `replace` when one state should be accessible at a time while presenting;
@@ -341,13 +365,17 @@ Use Drever motion semantically. Prefer ordinary Step for disclosure. Use a
 MotionGroup with direct Step children for focus (retain context), replace (one
 accessible state in a stable presentation frame; the document view expands all
 states), or compare (retain readable peers). Put a stagger MotionGroup inside
-one Step and use at most four direct children. Use continuity only for the same
-object on adjacent slides and give both groups the same unique lowercase
-kebab-case name. Keep its endpoint size, aspect ratio, typography, wrapping,
-and media crop explicit; keep changing copy outside the shared snapshot. Keep
-persistent titles outside Step motion groups. Put persistent canvas decoration
-and page information in Stage layers; animate only a changed Stage child. Do
-not invent animation props, hidden Step stops, runtime.motion, or native View
-Transition calls. Check forward/backward, reduced-motion, speaker, document,
-and export states.
+one Step and use at most four direct children. Intent explains why; optional
+flow identifies the logical progression axis; the theme owns the visual voice. Use
+flow="block" for vertical reading order and flow="inline" for a horizontal
+pipeline or comparison; omit it when the theme default fits. Use continuity
+only for the same object on adjacent slides, give both groups the same unique
+lowercase kebab-case name, and never give continuity a flow. Keep its endpoint
+size, aspect ratio, typography, wrapping, and media crop explicit; keep
+changing copy outside the shared snapshot. Keep persistent titles outside Step
+motion groups. Put persistent canvas decoration and page information in Stage
+layers; use sparse, quiet changes on one Stage child and let them yield to
+stronger content motion. Do not invent animation props, hidden Step stops,
+runtime.motion, or native View Transition calls. Check forward/backward,
+reduced-motion, speaker, document, and export states.
 ```

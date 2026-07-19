@@ -315,8 +315,11 @@ export const Note = (_props: NoteProps) => null;
 
 type MotionGroupElementProps = Omit<ComponentPropsWithoutRef<"div">, "name">;
 
+export type MotionFlow = "block" | "inline";
+
 type ContinuityMotionGroupProps = MotionGroupElementProps &
   Readonly<{
+    flow?: never;
     intent: "continuity";
     name: string;
   }>;
@@ -325,6 +328,7 @@ type LocalMotionIntent = Exclude<MotionIntent, "continuity">;
 
 type LocalMotionGroupProps = MotionGroupElementProps &
   Readonly<{
+    flow?: MotionFlow;
     intent: LocalMotionIntent;
     name?: never;
   }>;
@@ -338,6 +342,7 @@ type ViewTransitionStyle = CSSProperties &
   }>;
 
 const MOTION_NAME_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/u;
+const MOTION_FLOW_ERROR = "DREVER_RUNTIME_MOTION_FLOW_INVALID";
 const MOTION_INTENT_ERROR = "DREVER_RUNTIME_MOTION_INTENT_INVALID";
 const MOTION_IDENTITY_ERROR = "DREVER_RUNTIME_MOTION_IDENTITY_INVALID";
 
@@ -355,6 +360,23 @@ const resolveMotionIntent = (value: unknown): MotionIntent => {
     MOTION_INTENT_ERROR,
     "MotionGroup intent must be focus, replace, compare, stagger, or continuity.",
     { received: typeof value === "string" ? value : typeof value },
+  );
+};
+
+const resolveMotionFlow = (value: unknown, intent: MotionIntent): MotionFlow | undefined => {
+  if (value === undefined) {
+    return;
+  }
+  if (intent !== "continuity" && (value === "block" || value === "inline")) {
+    return value;
+  }
+
+  throw new DreverRuntimeError(
+    MOTION_FLOW_ERROR,
+    intent === "continuity"
+      ? "MotionGroup flow is not valid for the continuity intent."
+      : "MotionGroup flow must be block or inline when provided.",
+    { intent, received: typeof value === "string" ? value : typeof value },
   );
 };
 
@@ -402,12 +424,14 @@ const withoutNativeTransitionStyles = (
 
 export const MotionGroup = ({
   children,
+  flow,
   intent,
   name,
   style,
   ...props
 }: MotionGroupProps): ReactElement => {
   const resolvedIntent = resolveMotionIntent(intent);
+  const resolvedFlow = resolveMotionFlow(flow, resolvedIntent);
   assertMotionIdentity(resolvedIntent, name);
   const renderMode = useContext(DreverRenderModeContext);
   const slide = useContext(SlideContext);
@@ -416,6 +440,7 @@ export const MotionGroup = ({
     {
       ...props,
       "data-drever-motion-group": "",
+      "data-motion-flow": resolvedFlow,
       "data-motion-intent": resolvedIntent,
       "data-motion-name": name,
       style:

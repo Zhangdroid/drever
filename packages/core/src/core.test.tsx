@@ -117,6 +117,26 @@ describe("core primitives", () => {
     expect(localMarkup).toContain("view-transition-class:authored-class");
   });
 
+  it.each(["block", "inline"] as const)(
+    "exposes an authored %s content flow without leaking a native attribute",
+    (flow) => {
+      const markup = renderToStaticMarkup(
+        createElement(MotionGroup, { flow, intent: "focus" }, "Sequence"),
+      );
+
+      expect(markup).toContain(`data-motion-flow="${flow}"`);
+      expect(markup).not.toMatch(/\sflow=/u);
+    },
+  );
+
+  it("keeps existing theme choreography when no content flow is authored", () => {
+    const markup = renderToStaticMarkup(
+      createElement(MotionGroup, { intent: "focus" }, "Neutral composition"),
+    );
+
+    expect(markup).not.toContain("data-motion-flow");
+  });
+
   it.each<[string, MotionGroupProps, boolean]>([
     ["replace", { intent: "replace" }, true],
     ["focus", { intent: "focus" }, false],
@@ -218,6 +238,29 @@ describe("core primitives", () => {
       ).toThrowError(expect.objectContaining({ code: "DREVER_RUNTIME_MOTION_INTENT_INVALID" }));
     },
   );
+
+  it.each(["", "vertical", "grid", "Block"])(
+    "rejects an invalid motion flow (%s) with one stable error code",
+    (flow) => {
+      expect(() =>
+        renderToStaticMarkup(
+          createElement(MotionGroup, { flow, intent: "focus" } as never, "Invalid"),
+        ),
+      ).toThrowError(expect.objectContaining({ code: "DREVER_RUNTIME_MOTION_FLOW_INVALID" }));
+    },
+  );
+
+  it("rejects content flow on continuity because endpoint geometry owns that movement", () => {
+    expect(() =>
+      renderToStaticMarkup(
+        createElement(
+          MotionGroup,
+          { flow: "inline", intent: "continuity", name: "shared-card" } as never,
+          "Shared",
+        ),
+      ),
+    ).toThrowError(expect.objectContaining({ code: "DREVER_RUNTIME_MOTION_FLOW_INVALID" }));
+  });
 
   it.each([undefined, "", "Hero-title", "hero_title", "hero--title", "2-hero"])(
     "rejects an invalid continuity identity (%s) with one stable error code",

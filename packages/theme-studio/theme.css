@@ -14,6 +14,12 @@
   --drever-recipe-step-from-translate: 10px 0;
   --drever-recipe-replace-from-translate: 12px 0;
   --drever-recipe-stagger-from-translate: 8px 0;
+  --drever-recipe-step-block-from-translate: 0 10px;
+  --drever-recipe-step-inline-from-translate: 10px 0;
+  --drever-recipe-replace-block-from-translate: 0 10px;
+  --drever-recipe-replace-inline-from-translate: 12px 0;
+  --drever-recipe-stagger-block-from-translate: 0 8px;
+  --drever-recipe-stagger-inline-from-translate: 8px 0;
   --drever-studio-canvas: #101311;
   --drever-studio-ink: #f2f4ed;
   --drever-studio-muted: #9da59d;
@@ -350,6 +356,57 @@
 [data-drever-motion-group=""][data-motion-intent="compare"]
   > [data-drever-step][data-step-state="active"] {
   opacity: 1;
+}
+
+[data-drever-render-mode="audience"] [data-drever-motion-group=""] > [data-drever-step] {
+  transform-origin: 0 50%;
+}
+
+[data-drever-render-mode="audience"]
+  [data-drever-motion-group=""][data-motion-flow="block"]
+  > [data-drever-step] {
+  transform-origin: 50% 0;
+}
+
+[data-drever-render-mode="audience"]
+  [data-drever-motion-group=""]
+  > [data-drever-step][data-step-state="pending"] {
+  opacity: 0.12;
+  scale: 0.985;
+}
+
+[data-drever-render-mode="audience"]
+  [data-drever-motion-group=""][data-motion-intent="replace"]
+  > [data-drever-step][data-step-state="pending"] {
+  scale: 0.99;
+}
+
+[data-drever-render-mode="audience"]
+  [data-drever-step][data-step-state="active"]
+  > [data-drever-motion-group=""][data-motion-intent="stagger"]
+  > * {
+  animation-fill-mode: backwards;
+  animation-name: drever-studio-stagger-enter;
+  transform-origin: 0 50%;
+}
+
+[data-drever-render-mode="audience"]
+  [data-drever-step][data-step-state="active"]
+  > [data-drever-motion-group=""][data-motion-intent="stagger"][data-motion-flow="block"]
+  > * {
+  transform-origin: 50% 0;
+}
+
+@keyframes drever-studio-stagger-enter {
+  from {
+    opacity: 0.12;
+    scale: 0.96;
+    translate: var(--drever-recipe-resolved-stagger-from-translate);
+  }
+
+  to {
+    scale: 1;
+  }
 }
 
 [data-drever-deck]:not([data-drever-render-mode="document"])

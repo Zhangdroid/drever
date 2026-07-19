@@ -30,14 +30,18 @@ deterministic exports.
 
 ## MotionGroup
 
-`MotionGroup` requires a semantic intent. Use direct `Step` children for
-`focus`, `replace`, and `compare`; put `stagger` inside one Step with at most
-four direct visual children. `continuity` is the only intent with a `name`, and
-requires the same explicit lowercase kebab-case identity on the same object
-across adjacent slides:
+`MotionGroup` requires a semantic intent. `intent` explains why content moves,
+optional `flow` identifies its logical progression axis, and the active theme
+supplies the visual voice. Use `flow="block"` for vertical reading order and
+`flow="inline"` for a horizontal pipeline, comparison, or successive state;
+omit it to preserve the theme default. Use direct `Step` children for `focus`, `replace`, and
+`compare`; put `stagger` inside one Step with at most four direct visual
+children. `continuity` is the only intent with a `name`, requires the same
+explicit lowercase kebab-case identity on the same object across adjacent
+slides, and rejects `flow`:
 
 ```tsx
-<MotionGroup intent="focus">
+<MotionGroup intent="focus" flow="block">
   <Step at={1}>Retain this context.</Step>
   <Step at={2}>Focus this decision.</Step>
 </MotionGroup>
@@ -49,10 +53,10 @@ across adjacent slides:
 
 Core owns state attributes, render-mode-aware replacement accessibility, and
 audience-only continuity identity. Audience, speaker, and export expose one
-replacement state; document mode expands every completed and active replacement
-into readable flow. Themes own visual choreography; authors do not pass
-animation parameters. Missing or unknown intents and invalid continuity names
-fail with structured runtime errors. See
+replacement state; document mode expands every completed and active
+replacement into readable flow. Themes own visual choreography; authors do not
+pass animation parameters. Missing or unknown intents, invalid continuity
+names, and invalid prop combinations fail with structured runtime errors. See
 [Motion choreography](../../docs/motion.md) for the complete grammar,
 render-mode behavior, and author checklist.
 

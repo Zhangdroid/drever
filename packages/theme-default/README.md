@@ -103,11 +103,20 @@ spatial movement so the current decision is clear without competing with the
 content. The exported theme definition exposes the same supported intents and
 author guidance as JSON-safe metadata.
 
-Use direct Step children for focus, replacement, and comparison. Put a stagger
-group inside one Step with no more than four direct children. Continuity alone
-requires an explicit lowercase kebab-case name shared by the same object on
-adjacent slides. See [Motion choreography](../../docs/motion.md) for examples,
-accessibility behavior, and the reduced-motion contract.
+Intent explains why content moves; optional flow identifies its logical
+progression axis; the theme supplies the visual voice. Use `flow="block"` for a
+vertical reading order and `flow="inline"` for a horizontal pipeline,
+comparison, or successive state, or omit it
+to keep Default's balanced direction. Use direct Step children for focus,
+replacement, and comparison. Put a stagger group inside one Step with no more
+than four direct children. Continuity alone requires an explicit lowercase
+kebab-case name shared by the same object on adjacent slides and rejects flow.
+
+Persistent Stage decoration may make a sparse, quiet shift between selected
+slides. Keep that surprise smaller than the content motion and omit it when a
+strong reveal or continuity transition already carries the idea. See
+[Motion choreography](../../docs/motion.md) for examples, accessibility
+behavior, and the reduced-motion contract.
 
 ## AI generation prompt
 
@@ -120,8 +129,11 @@ TwoColumn only when the relationship between two ideas is the point. Keep titles
 under 10 words, body copy under 45 words per region, and avoid more than one
 nested list. Use Step for meaningful progressive disclosure, not for animating
 every element. Use MotionGroup only for a supported narrative relationship and
-follow its required child shape. Prefer one strong visual over decorative
-gradients or dense text.
+follow its required child shape. Intent says why; set flow="block" for vertical
+reading order or flow="inline" for a horizontal pipeline, comparison, or successive state, and
+omit flow when the theme default fits. Never set flow on continuity. Keep Stage
+motion sparse, quiet, and subordinate to stronger content motion. Prefer one
+strong visual over decorative gradients or dense text.
 ```
 
 The machine-readable `manifest` on the exported theme contains the same art

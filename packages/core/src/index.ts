@@ -14,6 +14,7 @@ export {
 export type {
   DreverRenderMode,
   DreverRenderModeProviderProps,
+  MotionFlow,
   MotionGroupProps,
   NoteProps,
   ResolvedSlideState,
@@ -25,3 +26,4 @@ export type {
   StepState,
 } from "./primitives.tsx";
 export { DreverRuntimeError } from "./runtime-error.ts";
+export type { MotionIntent } from "@drever/schema";

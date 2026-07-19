@@ -24,7 +24,14 @@ export type {
   ThemeDefinition,
 } from "@drever/compiler";
 export { MotionGroup, Note, Step } from "@drever/core";
-export type { MotionGroupProps, NoteProps, StepProps, StepState } from "@drever/core";
+export type {
+  MotionFlow,
+  MotionGroupProps,
+  MotionIntent,
+  NoteProps,
+  StepProps,
+  StepState,
+} from "@drever/core";
 export { useStage } from "@drever/client";
 export type { StageComponents, StageLayerComponent, StageLayerProps } from "@drever/client";
 export { shiki, shikiPlugin } from "@drever/plugin-shiki";

@@ -28,6 +28,22 @@ test("the public dev command runs the complete interactive presentation workflow
     "data-step-state",
     "pending",
   );
+  await expect(page.locator(`${activeSlide} [data-drever-motion-group]`)).toHaveAttribute(
+    "data-motion-flow",
+    "block",
+  );
+  expect(
+    await page.locator('[data-testid="step-2"]').evaluate((element) => {
+      const [x = "0", y = "0"] = getComputedStyle(element).translate.split(" ");
+      return [Number.parseFloat(x), Number.parseFloat(y)];
+    }),
+  ).toEqual([0, 12]);
+  expect(
+    await page.locator('[data-testid="step-2"]').evaluate((element) => {
+      const style = getComputedStyle(element);
+      return { clipPath: style.clipPath, scale: style.scale };
+    }),
+  ).toEqual({ clipPath: "none", scale: "1" });
 
   await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/\/2\/2$/u);

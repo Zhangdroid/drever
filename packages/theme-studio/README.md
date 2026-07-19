@@ -69,16 +69,23 @@ artifact stays primary.
 ## Motion
 
 Studio supports `focus`, `replace`, `compare`, `stagger`, and `continuity`. Its
-mapping uses precise lateral movement and signal emphasis for system states;
+mapping uses precise axis movement and a subtle scale-lock for system states;
 continuity is reserved for a diagram node, interface, or object that genuinely
 persists. The theme exposes supported intents and author guidance as JSON-safe
 metadata.
 
-Use direct Step children for focus, replacement, and comparison. Put stagger
-inside one Step with at most four direct children. Give continuity the same
-explicit lowercase kebab-case name on the same object across adjacent slides.
-See [Motion choreography](../../docs/motion.md) for the complete grammar and
-accessibility semantics.
+Intent explains why content moves; optional flow identifies its logical
+progression axis; Studio turns both into a precise technical visual voice. Use `flow="block"` for a
+vertical sequence and `flow="inline"` for a horizontal pipeline or comparison,
+or omit it to retain Studio's lateral default. Use direct Step children for
+focus, replacement, and comparison. Put stagger inside one Step with at most
+four direct children. Give continuity the same explicit lowercase kebab-case
+name on the same object across adjacent slides; continuity rejects flow.
+
+Persistent Stage decoration may make an occasional low-amplitude signal shift.
+It must yield when a stronger content reveal or continuity transition already
+explains the system change. See [Motion choreography](../../docs/motion.md) for
+the complete grammar and accessibility semantics.
 
 ## AI generation
 
@@ -96,6 +103,10 @@ diagram, code sample, or live component is the evidence. Keep rail copy under
 35 words, code large enough to discuss, and use at most four meaningful Steps.
 Avoid neon overload, tiny dashboard cards, and decorative reveals. Use
 MotionGroup only when a supported intent explains a real state relationship.
+Intent says why; set flow="block" for a vertical sequence or flow="inline" for
+a horizontal pipeline, comparison, or successive state, and omit flow when Studio's default fits.
+Never set flow on continuity. Keep Stage signal motion sparse, quiet, and
+subordinate to stronger content motion.
 ```
 
 Studio targets current browsers. Speaker previews keep the dark canvas and
