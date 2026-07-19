@@ -1,8 +1,9 @@
 # Drever product tour
 
-A sixteen-slide, network-free introduction for people evaluating Drever. It tells a
-single story: AI made slide production cheap, so Drever focuses on the remaining
-work—taste, timing, interaction, and trustworthy delivery.
+A fourteen-slide, network-free product story for people meeting Drever for the first
+time. It begins with the room, turns one idea into an interactive sequence, and follows
+that story through live delivery, post-talk reading, AI-assisted authoring, and a static
+artifact.
 
 The deck demonstrates:
 
@@ -46,8 +47,10 @@ accessibility report without starting the presentation server.
 
 ## Delivery notes
 
-The fifth slide contains the main audience interaction. Change its signal,
-navigate away, and return to show preserved React state. On the seventh slide,
-use the local control before advancing to distinguish component interaction from
-Drever's slide navigation transition. Speaker guidance for every slide
+The story has three acts: the room, the system, and the proof. The third slide contains
+the main audience interaction; change its signal, navigate away, and return to show
+preserved React state. On the seventh slide, use the local control before advancing to
+show motion following the changing idea while the global stage remains calm. Press `D`
+on the ninth slide to turn the post-talk promise into a real document, and press `P` on
+the eighth to open the synchronized speaker surface. Speaker guidance for every slide
 is authored in `<Note>` and intentionally absent from the audience DOM.

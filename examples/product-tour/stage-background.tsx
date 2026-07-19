@@ -2,9 +2,9 @@ import type { StageLayerProps } from "drever";
 import type { ReactElement } from "react";
 
 const sceneFor = (slideIndex: number): "opening" | "system" | "motion" | "closing" => {
-  if (slideIndex < 5) return "opening";
+  if (slideIndex < 3) return "opening";
   if (slideIndex < 10) return "system";
-  if (slideIndex < 15) return "motion";
+  if (slideIndex < 13) return "motion";
   return "closing";
 };
 

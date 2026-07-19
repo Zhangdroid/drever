@@ -3,153 +3,161 @@ import "./tour.css";
 
 <Masthead
   kicker="Drever / product tour"
-  title="Don’t export the idea."
-  deck="Ship a presentation that can explain, respond, and keep working after the talk."
-  meta="MDX presentations for modern browsers"
+  title="The room changes. Your deck should too."
+  deck="Reveal an idea. Let people challenge it. Send them home with something that still works."
+  meta="A presentation authored as software"
   tone="ink"
 />
 
 <Note>
-  Open by separating the idea from the file format. The point is not prettier PowerPoint; it is a
-  presentation that remains software.
+  Begin with the room, not the technology. The promise is simple: the story can respond while you
+  speak and remain useful after everyone leaves.
 </Note>
 
 ---
 
-## AI made slides abundant.
+## AI made slides abundant. Attention stayed scarce.
 
-The scarce part is now **judgment**: what to reveal, what to make tangible, and what the room should feel next.
+The hard part is no longer filling pages. It is deciding **what the room should believe next**.
 
 <div className="tour-thesis">
   <div>
-    <span>Generate</span>
-    <strong>Fast is solved.</strong>
-    <p>Words and layouts arrive in seconds.</p>
+    <span>01 · New reality</span>
+    <strong>Slides are cheap.</strong>
+    <p>AI can fill a deck before the argument is clear.</p>
   </div>
   <div>
-    <span>Communicate</span>
-    <strong>Meaning is not.</strong>
-    <p>Timing, interaction, and restraint still shape understanding.</p>
+    <span>02 · Old constraint</span>
+    <strong>Attention is not.</strong>
+    <p>The room still changes its mind one moment at a time.</p>
   </div>
   <div>
-    <span>Drever</span>
-    <strong>Give the story a system.</strong>
-    <p>Small authoring grammar. Deliberate motion. Product-grade delivery.</p>
+    <span>03 · Drever’s bet</span>
+    <strong>Design the change.</strong>
+    <p>Author what people see, do, and remember next.</p>
   </div>
 </div>
 
 <Note>
-  Do not position Drever as an AI slide generator. It is the runtime and contract that lets a human
-  or AI produce a coherent, inspectable experience.
-</Note>
-
----
-
-## A small grammar leaves room for ideas.
-
-<span
-  className="mt-3 block text-[15px] font-bold uppercase tracking-[0.14em] text-indigo-700"
-  data-testid="tailwind-proof"
->
-  {"Default build-time utility pipeline"}
-</span>
-
-<div className="tour-grammar">
-
-```mdx
-# One clear claim
-
-<Step>Reveal the evidence.</Step>
-
-<Note>Pause before the proof.</Note>
-
----
-
-<LiveModel />
-```
-
-  <div className="tour-contract">
-    <span>Four primitives</span>
-    <div><strong>MDX</strong><small>Words and React share one source.</small></div>
-    <div><strong>---</strong><small>A visible, AI-friendly slide boundary.</small></div>
-    <div><strong>Step</strong><small>Meaningful moments inside a page.</small></div>
-    <div><strong>Note</strong><small>Guidance for the speaker, absent from the audience.</small></div>
-  </div>
-</div>
-
-<Note>
-  Emphasize that built-in primitives require no import. The syntax is intentionally easy for an AI
-  to generate and for a reviewer to audit in a diff.
-</Note>
-
----
-
-## A slide is a sequence of moments.
-
-<p>Advance slowly. The URL, history, and speaker view all agree on the exact state.</p>
-
-<MotionGroup className="tour-moment-stack" flow="block" intent="focus">
-  <Step at={1}>
-    <MomentCard index="01" title="Claim" detail="Give the room one stable idea." />
-  </Step>
-  <Step at={2}>
-    <MomentCard index="02" title="Evidence" detail="Reveal it when the question appears." />
-  </Step>
-  <Step at={3}>
-    <MomentCard index="03" title="Decision" detail="End with a change in understanding." />
-  </Step>
-</MotionGroup>
-
-<Note>
-  Use three advances here. The accumulation demonstrates that Step is presentation state, not an
-  animation delay or a CSS trick.
+  Drever is not another AI slide generator. It is the system that helps a human or AI turn an
+  argument into a coherent, inspectable experience.
 </Note>
 
 ---
 
 ## Let the room answer.
 
+<p>Choose one. This is a real React component, not a screenshot.</p>
+
 <AudienceSignal />
 
 <Note>
-  Select a different audience signal, leave this slide, then return. React state survives while the
-  inactive slide leaves the accessibility tree. This is the practical difference between a deck and
-  an interface.
+  This is a custom React example, not a built-in polling service. Select a signal, leave, then
+  return: React state survives while the inactive slide leaves the accessibility tree. The story can
+  behave like an interface because it is one.
+</Note>
+
+---
+
+## Start with the story in plain sight.
+
+<span
+  className="mt-3 block text-[15px] font-bold uppercase tracking-[0.14em] text-indigo-700"
+  data-testid="tailwind-proof"
+>
+  {"One readable source"}
+</span>
+
+<div className="tour-grammar">
+
+```mdx
+# One clear idea
+
+<Step>Let the question appear.</Step>
+
+<Step>
+  <LiveModel />
+</Step>
+
+<Note>Ask the room before the proof.</Note>
+
+---
+
+# The decision
+```
+
+  <div className="tour-contract">
+    <span>One readable source</span>
+    <div><strong>MDX</strong><small>Words and live React stay together.</small></div>
+    <div><strong>---</strong><small>A slide boundary anyone can see.</small></div>
+    <div><strong>Step</strong><small>The moments that move the argument.</small></div>
+    <div><strong>Note</strong><small>Private guidance for the person speaking.</small></div>
+  </div>
+</div>
+
+<Note>
+  The built-in primitives need no import. The source is deliberately easy for AI to generate and for
+  a person to understand in a review.
+</Note>
+
+---
+
+## A slide can think in beats.
+
+<p>Do not show everything at once. Let the argument earn its next moment.</p>
+
+<MotionGroup className="tour-moment-stack" flow="block" intent="focus">
+  <Step at={1}>
+    <MomentCard index="01" title="Establish" detail="Give the room one idea to hold." />
+  </Step>
+  <Step at={2}>
+    <MomentCard index="02" title="Challenge" detail="Let the doubt become visible." />
+  </Step>
+  <Step at={3}>
+    <MomentCard
+      index="03"
+      title="Resolve"
+      detail="Reveal the proof when it can change the decision."
+    />
+  </Step>
+</MotionGroup>
+
+<Note>
+  Advance three times. Each Step is a real presentation state—not an animation delay—so the sequence
+  can be reopened, rehearsed, and tested.
 </Note>
 
 ---
 
 <Feature
   heading="Every moment has an address."
-  body={
-    <p>{"The URL, browser history, audience, and speaker view resolve the same exact state."}</p>
-  }
+  body={<p>{"Share the exact objection—not ‘slide four, second bullet.’"}</p>}
   visual={
     <div className="tour-routes">
       <div className="tour-route">
         <code>/</code>
         <div>
-          <strong>Opening state</strong>
-          <p>Readable, linkable, reloadable.</p>
+          <strong>Start the story</strong>
+          <p>A clean path for the opening idea.</p>
         </div>
       </div>
       <div className="tour-route">
-        <code>/4/2</code>
+        <code>/5/2</code>
         <div>
-          <strong>Slide 4 · Step 2</strong>
-          <p>History returns to the exact moment.</p>
+          <strong>Reopen the challenge</strong>
+          <p>Reload and history return to the same beat.</p>
         </div>
       </div>
       <div className="tour-route">
-        <code>/speaker/4/2</code>
+        <code>/speaker/5/2</code>
         <div>
-          <strong>Speaker view</strong>
-          <p>The same state, with a different job.</p>
+          <strong>Prepare the next beat</strong>
+          <p>The speaker sees the same moment with more context.</p>
         </div>
       </div>
     </div>
   }
-  caption="Canonical paths are presentation state—and the command bar copies the exact moment."
+  caption="The URL, browser history, audience, and speaker view all agree on the moment."
   balance="text-led"
 />
 
@@ -160,33 +168,33 @@ The scarce part is now **judgment**: what to reveal, what to make tangible, and 
 
 ---
 
-## Move the idea—not the browser.
+## Move the idea. Keep the stage still.
 
 <MotionBoundary />
 
 <Note>
-  Click the local control once or twice, then advance the deck. React owns the View Transition,
-  while Drever activates only the slide boundary and keeps the surrounding stage visually still.
+  Click the local control, then advance the deck. Motion belongs to the thought that changed; the
+  background and global stage remain calm enough for the room to stay oriented.
 </Note>
 
 ---
 
-## The speaker gets a second surface.
+## The audience sees the moment. You see the whole run.
 
 <div className="tour-speaker">
   <div className="tour-speaker__previews">
     <div className="tour-speaker__screen">
       <span>Current</span>
-      <strong>The idea on stage</strong>
+      <strong>The room’s focus</strong>
     </div>
     <div className="tour-speaker__screen" data-next="true">
       <span>Next</span>
-      <strong>The moment ahead</strong>
+      <strong>The proof ahead</strong>
     </div>
   </div>
   <div className="tour-speaker__notes">
     <span>Speaker note</span>
-    <p>Context for delivery, never mounted for the audience.</p>
+    <p>Pause. Ask for doubt before revealing the evidence.</p>
     <div className="tour-speaker__timer">
       <span>
         <small>Elapsed</small>
@@ -201,165 +209,122 @@ The scarce part is now **judgment**: what to reveal, what to make tangible, and 
 </div>
 
 <Note>
-  Press P to open the real speaker view at this exact slide. Point out current and next previews,
-  notes, rehearsal target, per-slide timing, controls, and native BroadcastChannel synchronization
-  with the audience window.
+  Press P to open the real speaker view. Current and next previews, private notes, rehearsal timing,
+  and controls stay synchronized with the audience window.
 </Note>
 
 ---
 
-## Treat the story like a product.
+## The talk ends. The story doesn’t.
 
-<div className="tour-delivery">
-  <div>
-    <span>01 · Write</span>
-    <strong>Plain source</strong>
-    <p>Review MDX in the same tools as code.</p>
+<p>The same source becomes something people can reopen, search, and share.</p>
+
+<div className="tour-afterlife">
+  <div className="tour-document-preview">
+    <header>
+      <span>Document view</span>
+      <code>/document</code>
+    </header>
+    <div className="tour-document-preview__search">
+      <span>Search the whole story</span>
+      <kbd>⌘ F</kbd>
+    </div>
+    <article>
+      <span>04 · A slide can think in beats</span>
+      <strong>Establish → Challenge → Resolve</strong>
+      <p>Fully revealed, readable, and ready to revisit.</p>
+    </article>
   </div>
-  <div>
-    <span>02 · Inspect</span>
-    <strong>Stable contracts</strong>
-    <p>Diagnostics tell humans and AI what to repair.</p>
-  </div>
-  <div>
-    <span>03 · Test</span>
-    <strong>Real browser</strong>
-    <p>Verify routes, motion, reloads, and speaker synchronization.</p>
-  </div>
-  <div>
-    <span>04 · Ship</span>
-    <strong>Static build</strong>
-    <p>Deploy an experience with no application server.</p>
+  <div className="tour-afterlife__outcomes">
+    <div>
+      <span>Reopen</span>
+      <strong>Exact links</strong>
+      <p>Return to the moment that mattered.</p>
+    </div>
+    <div>
+      <span>Read</span>
+      <strong>Searchable document</strong>
+      <p>Use the story without replaying the talk.</p>
+    </div>
+    <div>
+      <span>Ship</span>
+      <strong>Static artifact</strong>
+      <p>Deploy it without an application server.</p>
+    </div>
   </div>
 </div>
 
 <Note>
-  The differentiator is the complete delivery loop: authored as source, checked as a contract,
-  exercised in a browser, and deployed as a static artifact.
+  Press D to open the real Document View. It reveals every Step, preserves slide landmarks, and
+  makes the complete story searchable. Exact links and the static build keep it useful after the
+  live presentation.
 </Note>
 
 ---
 
-## AI drafts. Contracts keep it honest.
+## AI can draft the story. Drever makes its promises testable.
 
 <div className="tour-ai-loop">
   <div>
     <strong>Brief</strong>
-    <p>Audience, purpose, tone, constraints, and source material.</p>
+    <p>What should this room understand, feel, and do?</p>
   </div>
   <span>→</span>
   <div>
-    <strong>Semantic deck</strong>
-    <p>Layouts and components describe intent, not pixel coordinates.</p>
+    <strong>Draft</strong>
+    <p>AI writes semantic MDX and components—not a screenshot.</p>
   </div>
   <span>→</span>
   <div>
-    <strong>Verified experience</strong>
-    <p>Buildable, testable, deployable—and still yours to edit.</p>
+    <strong>Proof</strong>
+    <p>Structural diagnostics and a deterministic build verify what ships.</p>
   </div>
 </div>
 
 <Note>
-  This is the AI-first promise: detailed manifests and narrow primitives improve generation, while
-  deterministic compilation and tests make the result trustworthy.
+  AI gets explicit primitives and machine-readable diagnostics. People keep reviewable source,
+  deterministic compilation makes the artifact reproducible, and teams can add focused browser tests
+  for their critical behavior.
 </Note>
 
 ---
 
-## Replace the state—not the frame.
+## Now watch one belief change.
 
-<p>The question stays fixed while one model gives way to the next.</p>
+<p>The frame stays fixed while the argument moves from assumption to evidence to decision.</p>
 
 <MotionGroup className="tour-replace" data-testid="motion-replace" flow="inline" intent="replace">
   <Step at={1}>
     <article data-motion-state="assumption">
       <span>01 · Assumption</span>
-      <strong>The deck is a file.</strong>
-      <p>Interaction ends when the talk does.</p>
+      <strong>A deck is a file.</strong>
+      <p>It speaks once, then becomes an attachment.</p>
     </article>
   </Step>
   <Step at={2}>
     <article data-motion-state="evidence">
       <span>02 · Evidence</span>
-      <strong>The deck is an interface.</strong>
-      <p>State, behavior, and source can stay inspectable.</p>
+      <strong>This deck is responding now.</strong>
+      <p>Its state, behavior, and source remain inspectable.</p>
     </article>
   </Step>
   <Step at={3}>
     <article data-motion-state="decision">
       <span>03 · Decision</span>
       <strong>Ship the experience.</strong>
-      <p>Keep PDF as evidence, not as the canonical medium.</p>
+      <p>Keep PDF as a fallback—not the limit of the idea.</p>
     </article>
   </Step>
 </MotionGroup>
 
 <Note>
-  Advance three times. The frame must never resize, and only the current model should be exposed to
-  assistive technology.
+  Advance three times. The content changes, but the frame never resizes. Motion follows the argument
+  and only the current model is exposed to assistive technology.
 </Note>
 
 ---
 
-## Comparison should preserve both sides.
-
-<MotionGroup className="tour-compare" data-testid="motion-compare" flow="inline" intent="compare">
-  <Step at={1}>
-    <article>
-      <span>Before</span>
-      <strong>Implicit moments</strong>
-      <p>A reviewer has to infer what appears, when it appears, and where it can be reopened.</p>
-    </article>
-  </Step>
-  <Step at={2}>
-    <article>
-      <span>After</span>
-      <strong>Addressable states</strong>
-      <p>Every meaningful moment has a URL, browser history, and deterministic test surface.</p>
-    </article>
-  </Step>
-</MotionGroup>
-
-<Note>
-  The second reveal adds a peer; it does not replace or visually demote the first. Comparison needs
-  simultaneous reading.
-</Note>
-
----
-
-## One beat can contain a short sequence.
-
-<p>Stagger explains a single system response without inventing four navigation stops.</p>
-
-<Step at={1}>
-  <MotionGroup className="tour-stagger" data-testid="motion-stagger" intent="stagger">
-    <article>
-      <span>Compile</span>
-      <strong>12 s</strong>
-    </article>
-    <article>
-      <span>Checks</span>
-      <strong>Clean</strong>
-    </article>
-    <article>
-      <span>Routes</span>
-      <strong>Exact</strong>
-    </article>
-    <article>
-      <span>Deploy</span>
-      <strong>Static</strong>
-    </article>
-  </MotionGroup>
-</Step>
-
-<Note>
-  One advance reveals all four facts as one restrained gesture. The stagger is bounded and creates
-  no hidden navigation state.
-</Note>
-
----
-
-## Continuity starts with an identity.
+## Behind that moment: one authored source.
 
 <div className="tour-continuity-stage tour-continuity-stage--source">
   <MotionGroup
@@ -369,30 +334,38 @@ The scarce part is now **judgment**: what to reveal, what to make tangible, and 
     name="deck-contract"
   >
     <article>
-      <span>Authored source</span>
+      <span>One authored source</span>
       <strong>MDX</strong>
-      <p>One visible claim. One explicit boundary.</p>
+      <p>Words, state, and intent in one reviewable artifact.</p>
     </article>
   </MotionGroup>
   <Step className="tour-continuity-caption">
-    The identity is authored. Drever never guesses from a title.
+    The author writes meaning—not a screenshot of the meaning.
   </Step>
 </div>
 
 <Note>
-  Point to the compact source artifact, then advance. Its identity—not its DOM position or text—ties
-  the two states together.
+  Point to the compact source artifact, then advance. A deliberate identity ties it to the next
+  surface, so continuity is authored rather than guessed.
 </Note>
 
 ---
 
-## The same idea becomes a contract.
+## …and becomes every surface.
 
 <div className="tour-continuity-stage tour-continuity-stage--result">
   <div className="tour-continuity-caption">
-    <span>Compiled contract</span>
-    <strong>Exact states</strong>
-    <p>Routes, notes, motion, and diagnostics now agree.</p>
+    <span>One compiled system</span>
+    <strong>Every surface agrees.</strong>
+    <div className="tour-surface-list">
+      <small>Audience</small>
+      <small>Speaker</small>
+      <small>Document</small>
+    </div>
+    <div className="tour-delivery-line">
+      <span>Delivery</span>
+      <strong>Static build</strong>
+    </div>
   </div>
   <MotionGroup
     className="tour-continuity"
@@ -401,17 +374,16 @@ The scarce part is now **judgment**: what to reveal, what to make tangible, and 
     name="deck-contract"
   >
     <article>
-      <span>Authored source</span>
+      <span>One authored source</span>
       <strong>MDX</strong>
-      <p>One visible claim. One explicit boundary.</p>
+      <p>Words, state, and intent in one reviewable artifact.</p>
     </article>
   </MotionGroup>
 </div>
 
 <Note>
-  Move backward as well as forward. The shared artifact keeps identical geometry, typography, and
-  copy; only its position changes. The compiled result is new context, so it remains outside the
-  shared bitmap instead of being stretched with it.
+  The same authored artifact now sits inside a larger system: audience, speaker, document, and
+  static delivery. Move backward too; the identity and geometry remain stable in both directions.
 </Note>
 
 ---
@@ -419,12 +391,12 @@ The scarce part is now **judgment**: what to reveal, what to make tangible, and 
 <Masthead
   kicker="The next presentation"
   title="Make the story behave."
-  deck="Use words when words are enough. Use software when the idea needs to move, answer, or prove itself."
-  meta="drever · presentations as living interfaces"
+  deck="Use words when words are enough. When the idea needs to reveal, respond, or prove itself, use software."
+  meta="drever · author the moment"
   tone="ink"
 />
 
 <Note>
-  Close on restraint. Drever is not permission to make every slide interactive; it is permission to
-  use the right medium when interaction makes the idea clearer.
+  Close on restraint. Drever does not make every slide interactive. It lets the form change only
+  when the idea becomes clearer, more credible, or more memorable because of it.
 </Note>

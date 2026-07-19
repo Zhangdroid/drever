@@ -4,21 +4,18 @@ const SIGNALS = [
   {
     id: "aligned",
     label: "Aligned",
-    pulse: "82%",
     response: "Advance the story",
     guidance: "The room has the model. Move from explanation to decision.",
   },
   {
     id: "uncertain",
     label: "Uncertain",
-    pulse: "51%",
     response: "Reveal one example",
     guidance: "Keep the claim. Add evidence at the moment it becomes useful.",
   },
   {
     id: "challenging",
     label: "Challenging",
-    pulse: "24%",
     response: "Open the system",
     guidance: "Let the audience inspect or change the model instead of adding bullets.",
   },
@@ -26,7 +23,7 @@ const SIGNALS = [
 
 type Signal = (typeof SIGNALS)[number];
 
-/** A small proof that a slide can respond to the room and retain local state. */
+/** A small proof that authored React can respond to the room and retain local state. */
 export const AudienceSignal = (): ReactElement => {
   const titleId = useId();
   const [signal, setSignal] = useState<Signal>(SIGNALS[1]);
@@ -34,8 +31,8 @@ export const AudienceSignal = (): ReactElement => {
   return (
     <section className="tour-signal" aria-labelledby={titleId}>
       <div className="tour-signal__prompt">
-        <span className="tour-kicker">Live audience signal</span>
-        <h3 id={titleId}>Where is the room?</h3>
+        <span className="tour-kicker">Your component · live state</span>
+        <h3 id={titleId}>Where is the room now?</h3>
         <div className="tour-signal__choices" role="group" aria-label="Audience response">
           {SIGNALS.map((candidate) => (
             <button
@@ -53,10 +50,7 @@ export const AudienceSignal = (): ReactElement => {
       </div>
 
       <div className="tour-signal__result" data-signal={signal.id} role="status" aria-live="polite">
-        <div className="tour-signal__meter" aria-hidden="true">
-          <span style={{ inlineSize: signal.pulse }} />
-        </div>
-        <span className="tour-signal__score">Signal confidence · {signal.pulse}</span>
+        <span className="tour-signal__score">Selected · {signal.label}</span>
         <strong>{signal.response}</strong>
         <p>{signal.guidance}</p>
       </div>
@@ -67,28 +61,28 @@ export const AudienceSignal = (): ReactElement => {
 const MOMENTS = [
   {
     label: "Claim",
-    detail: "A presentation can be a living interface.",
+    detail: "A strong story begins with one stable belief.",
   },
   {
     label: "Proof",
-    detail: "This panel changes. The surrounding stage stays still.",
+    detail: "Only this idea changes. The surrounding stage keeps its place.",
   },
   {
     label: "Meaning",
-    detail: "Motion explains continuity instead of decorating a cut.",
+    detail: "The room follows the thought instead of watching an effect.",
   },
 ] as const;
 
-/** An interactive diagram of the canvas boundary used by Drever transitions. */
+/** An interactive example of motion following a changing thought. */
 export const MotionBoundary = (): ReactElement => {
   const stateId = useId();
   const [moment, setMoment] = useState(0);
   const activeMoment = MOMENTS[moment] ?? MOMENTS[0];
 
   return (
-    <section className="tour-motion" aria-label="Element-scoped motion diagram">
+    <section className="tour-motion" aria-label="Story moment motion example">
       <div className="tour-motion__stage">
-        <span className="tour-motion__stage-label">Browser stage · stable</span>
+        <span className="tour-motion__stage-label">Stage · stays still</span>
         <div
           className="tour-motion__canvas"
           data-moment={moment}
@@ -97,7 +91,7 @@ export const MotionBoundary = (): ReactElement => {
           aria-atomic="true"
           aria-live="polite"
         >
-          <span className="tour-kicker">Canvas transition boundary</span>
+          <span className="tour-kicker">The moment that changed</span>
           <strong>{activeMoment.label}</strong>
           <p>{activeMoment.detail}</p>
           <div className="tour-motion__progress" aria-hidden="true">
