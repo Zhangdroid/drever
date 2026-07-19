@@ -6,6 +6,8 @@ projects. The contract has two parts:
 - `drever agent sync` installs concise, project-local working instructions.
 - `drever context [entry] --json` reports the resolved deck and design system in
   a stable, machine-readable form.
+- `drever current --json` identifies the state currently visible in a local
+  audience or speaker window.
 
 The MDX source remains authoritative. Agents use the contract to make smaller,
 more accurate changes and then validate those changes through the same CLI and
@@ -117,6 +119,30 @@ Preflight inside the report analyzes the authored source. Runtime components
 remain responsible for their generated semantics, and visual claims require
 rendered evidence at the configured canvas and exact Step route.
 
+## Follow the live presentation
+
+While `drever dev` is running, each audience or speaker window publishes its
+latest committed position under `.drever/cache/current/`. Read it through the
+public command instead of depending on that cache path:
+
+```bash
+drever current
+drever current --json
+```
+
+The versioned JSON contains the resolved `sourcePath`, `surface`, exact `route`,
+and compiler-owned `slideId`, zero-based `slideIndex`, and sparse `step`. Query
+parameters and the fragment remain part of the route. The most recently updated
+open audience or speaker window is authoritative; if it closes, Drever falls
+back to the previous open window. Document and export surfaces never publish a
+cursor.
+
+The snapshot is local, ephemeral development state. Drever clears it when the
+last interactive window disconnects or the development server closes. A missing
+snapshot is an actionable error: start `drever dev`, open an interactive surface,
+and try again. Agents should use this signal to locate the user's current state,
+then use `context --json` and the authored source for edits.
+
 ### Use the motion vocabulary
 
 Read `design.theme.motion` before adding choreography. It reports the active
@@ -149,8 +175,10 @@ For a new project:
 
 For an existing deck, start with `context --json`, read the complete affected
 source and local imports, and preserve unrelated slide boundaries and Step
-stops. A route such as `/4/7` is public presentation state, not incidental
-markup. After editing, regenerate the context and repeat the relevant checks.
+stops. When the user refers to “this slide,” use `current --json` to resolve the
+live route first. A route such as `/4/7` is public presentation state, not
+incidental markup. After editing, regenerate the context and repeat the relevant
+checks.
 
 This foundation is deliberately file- and CLI-based. It makes agent changes
 reviewable in Git and usable across local and hosted coding agents without

@@ -111,6 +111,12 @@ plugins, and source preflight. It applies configured Remark contributions but
 does not pretend static analysis can judge rendered composition or runtime React
 output. See [Agent authoring](./agent-authoring.md).
 
+`drever current --json` adds the first live authoring signal: an ephemeral,
+versioned snapshot of the last audience or speaker position published by
+`drever dev`. It lets an agent resolve “this slide” without introducing an
+editor service or shipping authoring code in production bundles. Read-only MCP
+access and source-linked visual review build on this contract.
+
 ### P1-B — motion choreography: delivered
 
 `MotionGroup` now exposes five semantic intents: focused reveal, replacement,

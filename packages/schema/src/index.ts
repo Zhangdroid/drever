@@ -10,6 +10,8 @@ export type {
   DreverAuthoringSlide,
   DreverAuthoringTheme,
 } from "./authoring-context.ts";
+export { DREVER_CURRENT_POSITION_VERSION } from "./current-position.ts";
+export type { DreverCurrentPosition, DreverCurrentSurface } from "./current-position.ts";
 export { DREVER_INTERNAL_SLIDE_COMPONENT, DREVER_INTERNAL_STEP_COMPONENT } from "./component.ts";
 export type {
   CompilePlan,

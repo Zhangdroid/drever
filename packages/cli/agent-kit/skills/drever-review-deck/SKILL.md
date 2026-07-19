@@ -9,7 +9,7 @@ description: Review, debug, and improve an existing Drever presentation for narr
 
 Respect the requested scope. Report findings without editing for review-only requests; apply and verify fixes when asked to fix or polish.
 
-1. Run `drever context --json` and inspect its complete design contract, source map, exact Step topology, and preflight findings.
+1. When the review starts from a visible state, run `drever current --json` to capture its exact surface and route. Run `drever context --json` and inspect its complete design contract, source map, exact Step topology, and preflight findings.
 2. Run `drever check --json`. Inspect the report even when the command exits nonzero.
 3. Inspect every slide and exact sparse Step state at the configured canvas size. Use rendered evidence rather than judging source alone.
 4. Inspect `/document` for reading order and fully revealed content. Inspect `/speaker` for notes, previews, and presentation usability.

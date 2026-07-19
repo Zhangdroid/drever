@@ -13,6 +13,7 @@ import {
 } from "vite";
 import type { ResolvedDreverProject } from "./project.ts";
 import { resolveConfigPath, type DreverConfig } from "./config.ts";
+import { createCurrentPositionPlugin } from "./current-position.ts";
 import { createPrivateApp, type PrivateAppOptions } from "./private-app.ts";
 import { DreverCliError } from "./errors.ts";
 import { writeStaticDeckRoutes } from "./static-routes.ts";
@@ -89,12 +90,16 @@ const projectModuleResolver = (root: string): Plugin => {
   };
 };
 
-const inlineConfig = (project: ResolvedDreverProject, appRoot: string): InlineConfig => {
+const inlineConfig = (
+  project: ResolvedDreverProject,
+  appRoot: string,
+  plugins: readonly Plugin[] = [],
+): InlineConfig => {
   const aliases = [...frameworkAliases()];
   return {
     appType: "spa",
     configFile: false,
-    plugins: [projectModuleResolver(project.root), ...project.plugins],
+    plugins: [projectModuleResolver(project.root), ...plugins, ...project.plugins],
     resolve: { alias: aliases },
     root: appRoot,
     server: {
@@ -261,7 +266,11 @@ export const serveDreverProject = async (
     resolvePrivateAppOptions(project.config, project.root),
   );
   try {
-    const server = await createServer(inlineConfig(project, app.root));
+    const server = await createServer(
+      inlineConfig(project, app.root, [
+        createCurrentPositionPlugin({ root: project.root, sourcePath: project.entry }),
+      ]),
+    );
     attachPrivateAppLifetime(server, app.dispose);
     await server.listen();
     server.printUrls();

@@ -12,6 +12,7 @@ import { buildDreverProject, serveDreverProject } from "./vite-app.ts";
 import type { CheckDeckRequest, CheckExitCode } from "./check.ts";
 import type { AgentSyncResult, SyncAgentKitOptions } from "./agent-sync.ts";
 import type { WriteAuthoringContextRequest } from "./context.ts";
+import type { WriteCurrentPositionRequest } from "./current-position.ts";
 
 export type AgentCommand = Readonly<{
   action: "sync";
@@ -35,6 +36,11 @@ export type ContextCommand = Readonly<{
   name: "context";
 }>;
 
+export type CurrentCommand = Readonly<{
+  json: boolean;
+  name: "current";
+}>;
+
 export type ExportPdfCommand = Readonly<{
   entry?: string;
   format: "pdf";
@@ -47,6 +53,7 @@ export type DreverCommand =
   | AgentCommand
   | CheckCommand
   | ContextCommand
+  | CurrentCommand
   | ExportPdfCommand
   | ProjectCommand;
 
@@ -59,6 +66,7 @@ export type PdfExportRequest = Readonly<{
 const EXPORT_PDF_USAGE = "Usage: drever export pdf [entry] [--steps] [-o|--output <path>]";
 const CHECK_USAGE = "Usage: drever check [entry] [--json]";
 const CONTEXT_USAGE = "Usage: drever context [entry] [--json]";
+const CURRENT_USAGE = "Usage: drever current [--json]";
 const AGENT_SYNC_USAGE = "Usage: drever agent sync";
 const CONFIG_COMMAND = {
   build: "build",
@@ -67,7 +75,10 @@ const CONFIG_COMMAND = {
   dev: "serve",
   export: "build",
 } as const satisfies Readonly<
-  Record<Exclude<DreverCommand, AgentCommand>["name"], LoadDreverConfigOptions["command"]>
+  Record<
+    Exclude<DreverCommand, AgentCommand | CurrentCommand>["name"],
+    LoadDreverConfigOptions["command"]
+  >
 >;
 
 const invalidArgument = (message: string, hint: string): never => {
@@ -178,6 +189,23 @@ const parseContext = (arguments_: readonly string[]): ContextCommand => {
   });
 };
 
+const parseCurrent = (arguments_: readonly string[]): CurrentCommand => {
+  let json = false;
+  for (const argument of arguments_) {
+    if (argument === "--json" && !json) {
+      json = true;
+      continue;
+    }
+    invalidArgument(
+      argument === "--json"
+        ? "--json can be specified only once."
+        : `Unknown current argument: ${argument}`,
+      CURRENT_USAGE,
+    );
+  }
+  return Object.freeze({ json, name: "current" });
+};
+
 const parseAgent = (arguments_: readonly string[]): AgentCommand => {
   const [action, ...rest] = arguments_;
   if (action !== "sync") {
@@ -199,6 +227,7 @@ Usage:
   drever build [entry]
   drever check [entry] [--json]
   drever context [entry] [--json]
+  drever current [--json]
   drever export pdf [entry] [--steps] [-o|--output <path>]
   drever agent sync
 
@@ -218,6 +247,9 @@ export const parseCommand = (arguments_: readonly string[]): DreverCommand | "he
   }
   if (command === "context") {
     return parseContext(rest);
+  }
+  if (command === "current") {
+    return parseCurrent(rest);
   }
   if (command === "agent") {
     return parseAgent(rest);
@@ -257,6 +289,7 @@ export type RunCliOptions = Readonly<{
   syncAgentKit?: (options: SyncAgentKitOptions) => Promise<AgentSyncResult>;
   stdout?: Pick<NodeJS.WriteStream, "write">;
   writeAuthoringContext?: (request: WriteAuthoringContextRequest) => Promise<unknown>;
+  writeCurrentPosition?: (request: WriteCurrentPositionRequest) => Promise<unknown>;
 }>;
 
 export type RunCliResult = CheckExitCode | void | ViteDevServer;
@@ -300,6 +333,17 @@ export const runCli = async (
         return agent.syncAgentKit(request);
       });
     output.write(formatAgentSyncResult(await syncAgentKit({ root })));
+    return;
+  }
+
+  if (command.name === "current") {
+    const writeCurrentPosition =
+      options.writeCurrentPosition ??
+      (async (request: WriteCurrentPositionRequest): Promise<unknown> => {
+        const current = await import("./current-position.ts");
+        return current.writeCurrentPosition(request);
+      });
+    await writeCurrentPosition({ json: command.json, root, stdout: output });
     return;
   }
 

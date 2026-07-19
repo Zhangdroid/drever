@@ -166,6 +166,11 @@ Commands are `next`, `previous`, `first`, `last`, and `goTo`. A command at a dec
 edge is a no-op. `createDocument` returns only an asynchronous, idempotent
 `destroy()` handle because it has no presentation position or command stream.
 
+In development, the generated audience and speaker entries publish this same
+committed position through Vite's development channel. The CLI validates and
+atomically stores the latest event for `drever current --json`; the mechanism is
+absent from production builds and does not add code to the deployed viewer.
+
 ## URL and navigation contract
 
 The browser URL is the source of truth. Navigation API history-entry state is a

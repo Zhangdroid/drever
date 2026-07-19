@@ -14,6 +14,91 @@ const exportBootstrapSource = (html: string): string => {
 };
 
 describe("generated private application", () => {
+  it("publishes live positions from interactive surfaces until HMR disposal", async () => {
+    const app = await createPrivateApp("/project/slides.mdx");
+    try {
+      const source = await readFile(join(app.root, "entry.js"), "utf8");
+      const hotStart = source.indexOf("if (import.meta.hot)");
+      if (hotStart < 0) {
+        throw new TypeError("The generated entry is missing its HMR block.");
+      }
+
+      const hotProgram = source.slice(hotStart).replaceAll("import.meta.hot", "hot");
+      let position = { slideId: "slide-2", slideIndex: 1, step: 3 };
+      let publish: (() => void) | undefined;
+      let dispose: (() => void) | undefined;
+      let routeChanged: (() => void) | undefined;
+      const documentState = {
+        URL: "http://127.0.0.1:4317/speaker/2/3?theme=dark#notes",
+      };
+      const unsubscribe = vi.fn();
+      const destroy = vi.fn(() => Promise.resolve());
+      const removeEventListener = vi.fn();
+      const send = vi.fn();
+
+      runInNewContext(hotProgram, {
+        URL,
+        document: documentState,
+        hot: {
+          dispose(callback: () => void) {
+            dispose = callback;
+          },
+          send,
+        },
+        navigation: {
+          addEventListener(event: string, callback: () => void) {
+            expect(event).toBe("currententrychange");
+            routeChanged = callback;
+          },
+          removeEventListener,
+        },
+        presentation: {
+          destroy,
+          getPosition: () => position,
+          subscribe(callback: () => void) {
+            publish = callback;
+            return unsubscribe;
+          },
+        },
+        reportPresentationError: vi.fn(),
+        routePath: "speaker/2/3",
+      });
+
+      expect(send).toHaveBeenCalledTimes(1);
+      expect(send.mock.calls[0]).toEqual([
+        "drever:current-position",
+        {
+          position: { slideId: "slide-2", slideIndex: 1, step: 3 },
+          route: "/speaker/2/3?theme=dark#notes",
+          surface: "speaker",
+        },
+      ]);
+
+      position = { slideId: "slide-4", slideIndex: 3, step: 0 };
+      publish?.();
+      expect(send.mock.calls.at(-1)?.[1]).toEqual({
+        position: { slideId: "slide-4", slideIndex: 3, step: 0 },
+        route: "/speaker/2/3?theme=dark#notes",
+        surface: "speaker",
+      });
+
+      documentState.URL = "http://127.0.0.1:4317/speaker/4?review=true#current";
+      routeChanged?.();
+      expect(send.mock.calls.at(-1)?.[1]).toEqual({
+        position: { slideId: "slide-4", slideIndex: 3, step: 0 },
+        route: "/speaker/4?review=true#current",
+        surface: "speaker",
+      });
+
+      dispose?.();
+      expect(unsubscribe).toHaveBeenCalledOnce();
+      expect(removeEventListener).toHaveBeenCalledWith("currententrychange", expect.any(Function));
+      expect(destroy).toHaveBeenCalledOnce();
+    } finally {
+      await app.dispose();
+    }
+  });
+
   it("routes an asynchronous HMR cleanup failure through the presentation reporter", async () => {
     const app = await createPrivateApp("/project/slides.mdx");
     try {

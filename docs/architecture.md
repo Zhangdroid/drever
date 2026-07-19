@@ -64,6 +64,13 @@ output, and computed visual evidence remain later pipeline stages. Executable
 implementation references are deliberately omitted. See
 [Agent authoring](./agent-authoring.md).
 
+During development, audience and speaker entries publish validated position
+events through Vite's existing WebSocket channel. The CLI keeps one ephemeral
+snapshot per dev-server session and `drever current --json` selects the most
+recent open surface. Vite client disconnects remove or roll back session state;
+document and export entries never publish. Production builds contain none of
+this authoring channel.
+
 Navigation is another artifact boundary. The canonical URL is the source of
 truth for the current slide and Step; Navigation API entry state is only a cache.
 This makes deep links, history traversal, tests, and speaker synchronization agree
@@ -134,10 +141,10 @@ plugin-author extension surface.
 The current delivery slice exposes agent synchronization and authoring context,
 accessibility analysis, and audience, document, speaker, and export surfaces
 through the public `drever agent sync`, `drever context`, `drever check`,
-`drever dev`, `drever build`, and `drever export pdf` flows. `<Note>` is captured
-into the compiler-owned manifest and removed from audience, document, and export
-trees. The speaker surface consumes that explicit artifact; a richer thumbnail
-overview remains a future view over the same manifest.
+`drever dev`, `drever current`, `drever build`, and `drever export pdf` flows.
+`<Note>` is captured into the compiler-owned manifest and removed from audience,
+document, and export trees. The speaker surface consumes that explicit artifact;
+a richer thumbnail overview remains a future view over the same manifest.
 
 The CLI-generated application selects `createViewer`, `createDocument`, or
 `createSpeaker` from `@drever/client` based on the canonical route. All three

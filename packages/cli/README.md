@@ -19,6 +19,7 @@ Run it with:
 drever agent sync
 drever context slides.mdx --json
 drever dev slides.mdx
+drever current --json
 drever build slides.mdx
 drever export pdf slides.mdx --steps --output slides-export.pdf
 ```
@@ -108,6 +109,13 @@ runtime-generated content and computed visual quality. Use `drever check
 --json`, a production build, and rendered slide, document, and speaker evidence
 for those later validation layers. Without `--json`, `context` prints only a
 concise human summary.
+
+While `drever dev` and an audience or speaker window are active, `drever current
+--json` reports the most recently updated open surface, exact route, source path,
+slide id, zero-based slide index, and sparse Step. It follows query and fragment
+changes, falls back across multiple open windows or dev-server sessions, and
+removes session state when the window disconnects. The development-only cache
+is not included in production output.
 
 See [Agent authoring](../../docs/agent-authoring.md) for the ownership contract,
 output scope, and recommended create/edit/review loop.

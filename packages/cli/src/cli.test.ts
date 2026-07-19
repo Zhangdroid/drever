@@ -30,6 +30,7 @@ describe("parseCommand", () => {
       json: true,
       name: "context",
     });
+    expect(parseCommand(["current", "--json"])).toEqual({ json: true, name: "current" });
   });
 
   it("models PDF export flags independently of their position", () => {
@@ -94,6 +95,8 @@ describe("parseCommand", () => {
     [["context", "--json", "--json"], "--json can be specified only once."],
     [["context", "--write"], "Unknown context flag: --write"],
     [["context", "one.mdx", "two.mdx"], "context accepts at most one deck entry path."],
+    [["current", "--json", "--json"], "--json can be specified only once."],
+    [["current", "slides.mdx"], "Unknown current argument: slides.mdx"],
   ])("rejects invalid agent and context arguments: %j", (arguments_, message) => {
     expect(() => parseCommand(arguments_)).toThrowError(
       expect.objectContaining({ code: "DREVER_ARGUMENT_INVALID", message }),
@@ -150,6 +153,20 @@ describe("runCli agent", () => {
 
     expect(syncAgentKit).toHaveBeenCalledWith({ root });
     expect(output).toBe("Synced Drever agent kit: 1 created, 0 updated, 1 unchanged.\n");
+  });
+});
+
+describe("runCli current", () => {
+  it("reads the live position without loading project config", async () => {
+    const root = await mkdtemp(join(tmpdir(), "drever-current-cli-test-"));
+    directories.push(root);
+    await writeFile(join(root, "drever.config.ts"), "export default { invalid: true };\n");
+    const stdout = { write: vi.fn(() => true) };
+    const writeCurrentPosition = vi.fn(async () => ({ version: 1 as const }));
+
+    await runCli(["current", "--json"], { cwd: root, stdout, writeCurrentPosition });
+
+    expect(writeCurrentPosition).toHaveBeenCalledWith({ json: true, root, stdout });
   });
 });
 

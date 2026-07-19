@@ -170,6 +170,21 @@ Content-only MDX edits use React Fast Refresh and preserve the current URL, Step
 and interactive component state. Changing slide boundaries or Step stops
 rebuilds the manifest and intentionally reloads the viewer.
 
+With an audience or speaker window open, inspect the last live position from a
+second terminal:
+
+```bash
+drever current
+drever current --json
+```
+
+The JSON form reports the exact route, surface, source path, slide id,
+zero-based slide index, and sparse Step. It is intended for local AI and editor
+workflows. The underlying `.drever/cache/current/` snapshots are ignored by
+Git and removed when the last interactive window disconnects or `drever dev`
+stops. With multiple windows, the most recently updated open audience or speaker
+surface wins. Document and export surfaces do not publish a live position.
+
 ## Export a PDF
 
 Export one page per slide at its final authored Step:

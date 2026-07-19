@@ -162,7 +162,32 @@ const presentation = routePath === "document"
     : await createViewer(presentationOptions);
 
 if (import.meta.hot) {
+  let stopPublishingCurrentPosition;
+  if (
+    typeof presentation.getPosition === "function" &&
+    typeof presentation.subscribe === "function"
+  ) {
+    const surface = routePath === "speaker" || routePath.startsWith("speaker/")
+      ? "speaker"
+      : "audience";
+    const publishCurrentPosition = () => {
+      const url = new URL(document.URL);
+      import.meta.hot.send("drever:current-position", {
+        position: presentation.getPosition(),
+        route: url.pathname + url.search + url.hash,
+        surface,
+      });
+    };
+    const stopPositionSubscription = presentation.subscribe(publishCurrentPosition);
+    globalThis.navigation.addEventListener("currententrychange", publishCurrentPosition);
+    stopPublishingCurrentPosition = () => {
+      stopPositionSubscription();
+      globalThis.navigation.removeEventListener("currententrychange", publishCurrentPosition);
+    };
+    publishCurrentPosition();
+  }
   import.meta.hot.dispose(() => {
+    stopPublishingCurrentPosition?.();
     void presentation.destroy().catch(reportPresentationError);
   });
 }
