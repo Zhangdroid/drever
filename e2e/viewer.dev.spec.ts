@@ -149,6 +149,28 @@ test("audience controls navigate exact states with a pointer", async ({ page }) 
   health.expectHealthy();
 });
 
+test("audience controls leave the canvas after pointer inactivity and return on intent", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const host = page.locator("[data-drever-audience-controls]");
+  const controls = page.getByRole("navigation", { name: "Presentation controls" });
+
+  await page.mouse.move(200, 200);
+  await expect(host).not.toHaveAttribute("data-drever-controls-idle", "");
+  await expect.poll(() => host.getAttribute("data-drever-controls-idle")).toBe("");
+  await expect(controls).toHaveCSS("pointer-events", "none");
+
+  await page.mouse.move(260, 220);
+  await expect(host).not.toHaveAttribute("data-drever-controls-idle", "");
+  await expect(controls).toHaveCSS("pointer-events", "auto");
+
+  const next = controls.getByRole("button", { name: "Next presentation state" });
+  await next.focus();
+  await page.waitForTimeout(2_000);
+  await expect(host).not.toHaveAttribute("data-drever-controls-idle", "");
+});
+
 test("audience sharing copies the canonical visible slide and Step URL", async ({
   context,
   page,

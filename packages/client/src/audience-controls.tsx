@@ -229,6 +229,69 @@ const chromeTransition = Object.freeze({
   "drever-slide-forward": "drever-motion-chrome",
 });
 
+const CONTROLS_IDLE_DELAY_MS = 1_800;
+
+const useIdleControls = (
+  hostRef: RefObject<HTMLDivElement | null>,
+  barRef: RefObject<HTMLElement | null>,
+): boolean => {
+  const [idle, setIdle] = useState(false);
+
+  useEffect(() => {
+    const document = hostRef.current?.ownerDocument;
+    if (document === undefined) {
+      return;
+    }
+    const window = document.defaultView;
+    if (window === null || !window.matchMedia("(pointer: fine)").matches) {
+      return;
+    }
+
+    let timeout: number | undefined;
+    const clearIdleTimer = (): void => window.clearTimeout(timeout);
+    const scheduleIdle = (): void => {
+      clearIdleTimer();
+      if (barRef.current?.contains(document.activeElement) === true) {
+        return;
+      }
+      timeout = window.setTimeout(() => setIdle(true), CONTROLS_IDLE_DELAY_MS);
+    };
+    const show = (): void => {
+      setIdle(false);
+      scheduleIdle();
+    };
+    const handleFocusIn = (event: FocusEvent): void => {
+      if (event.target instanceof window.Node && barRef.current?.contains(event.target) === true) {
+        clearIdleTimer();
+        setIdle(false);
+      }
+    };
+    const handleFocusOut = (event: FocusEvent): void => {
+      if (
+        !(event.relatedTarget instanceof window.Node) ||
+        !barRef.current?.contains(event.relatedTarget)
+      ) {
+        scheduleIdle();
+      }
+    };
+
+    document.addEventListener("pointermove", show, { passive: true });
+    document.addEventListener("pointerdown", show, { passive: true });
+    document.addEventListener("focusin", handleFocusIn);
+    document.addEventListener("focusout", handleFocusOut);
+    scheduleIdle();
+    return () => {
+      clearIdleTimer();
+      document.removeEventListener("pointermove", show);
+      document.removeEventListener("pointerdown", show);
+      document.removeEventListener("focusin", handleFocusIn);
+      document.removeEventListener("focusout", handleFocusOut);
+    };
+  }, [barRef, hostRef]);
+
+  return idle;
+};
+
 /** Discoverable controls layered outside the transitioning presentation canvas. */
 export const AudienceControls = ({
   deckRef,
@@ -241,6 +304,7 @@ export const AudienceControls = ({
   position,
 }: AudienceControlsProps): ReactElement => {
   const hostRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const [fullscreen, setFullscreen] = useState(false);
@@ -253,6 +317,7 @@ export const AudienceControls = ({
   const [slides, setSlides] = useState<readonly SlideNavigationItem[]>(() =>
     readSlideNavigationItems(null, manifest),
   );
+  const controlsIdle = useIdleControls(hostRef, barRef);
   const progress = resolveAudienceProgress(manifest, position);
   const positionKey = `${position.slideId}:${position.step}`;
   const visibleShareResult =
@@ -451,9 +516,18 @@ export const AudienceControls = ({
   const closePanel = (): void => setPanel(undefined);
 
   return (
-    <div className="drever-audience-controls" data-drever-audience-controls="" ref={hostRef}>
+    <div
+      className="drever-audience-controls"
+      data-drever-audience-controls=""
+      data-drever-controls-idle={controlsIdle ? "" : undefined}
+      ref={hostRef}
+    >
       <ViewTransition name="drever-audience-chrome" default="none" update={chromeTransition}>
-        <nav aria-label="Presentation controls" className="drever-audience-controls__bar">
+        <nav
+          aria-label="Presentation controls"
+          className="drever-audience-controls__bar"
+          ref={barRef}
+        >
           <button
             aria-label="Previous presentation state"
             disabled={!progress.canGoPrevious}

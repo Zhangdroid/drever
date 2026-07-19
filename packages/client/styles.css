@@ -307,23 +307,33 @@
     padding: 5px;
     border: 1px solid rgb(255 255 255 / 13%);
     border-radius: 15px;
-    background: rgb(12 15 21 / 82%);
-    box-shadow: 0 12px 38px rgb(0 0 0 / 28%);
-    opacity: 0.34;
+    background: linear-gradient(180deg, rgb(26 30 40 / 72%), rgb(9 12 18 / 64%));
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 8%),
+      0 14px 42px rgb(0 0 0 / 28%);
+    opacity: 0.86;
     pointer-events: auto;
     transform: translateX(-50%);
     transition:
       opacity 160ms ease,
       background 160ms ease,
-      box-shadow 160ms ease;
-    backdrop-filter: blur(18px) saturate(130%);
+      box-shadow 160ms ease,
+      transform 220ms ease;
+    backdrop-filter: blur(22px) saturate(150%);
   }
 
   .drever-audience-controls__bar:hover,
   .drever-audience-controls__bar:focus-within {
-    background: rgb(12 15 21 / 94%);
+    background: linear-gradient(180deg, rgb(31 36 48 / 84%), rgb(11 14 21 / 78%));
     box-shadow: 0 16px 48px rgb(0 0 0 / 38%);
     opacity: 1;
+  }
+
+  .drever-audience-controls[data-drever-controls-idle]
+    .drever-audience-controls__bar:not(:focus-within) {
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 10px) scale(0.98);
   }
 
   .drever-audience-controls__bar button,
