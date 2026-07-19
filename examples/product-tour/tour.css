@@ -201,7 +201,7 @@
 }
 
 [data-drever-render-mode="audience"]
-  .tour-moment-stack
+  :is(.tour-moment-stack, .tour-replace)
   > [data-drever-step][data-step-state="active"] {
   animation-name: none;
 }
@@ -674,7 +674,16 @@
   align-content: center;
   background: rgb(255 255 255 / 82%);
   box-shadow: var(--tour-shadow);
+  transition: box-shadow var(--drever-recipe-enter-duration, 320ms)
+    var(--drever-motion-easing, cubic-bezier(0.22, 1, 0.36, 1));
   gap: 12px;
+}
+
+[data-drever-render-mode="audience"]
+  .tour-replace
+  > [data-drever-step][data-step-state="pending"]
+  > article {
+  box-shadow: 0 22px 64px rgb(35 43 89 / 0%);
 }
 
 .tour-replace > [data-drever-step]:nth-child(2) > article {

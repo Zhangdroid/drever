@@ -40,6 +40,24 @@ the right default for progressive disclosure.
 slide title and other persistent context outside the group so Step navigation
 cannot move them.
 
+### Surface-aware reveals
+
+Treat cards, panels, media frames, and other elements with shadows, glows, or
+outlines as complete painted surfaces. A `clip-path` on the surface or any
+ancestor is a hard paint boundary: even `inset(0)` clips overflow, and returning
+to `none` when an animation finishes can make the missing effect appear in one
+frame. Do not apply a reading-edge clip to these boundaries unless losing that
+overflow is intentional.
+
+Prefer opacity with `translate` or `scale` on the outer surface. If its copy
+needs a directional wipe, put that copy in an inner wrapper and clip only the
+inner content; keep the outer border, radius, and shadow un-clipped. When
+elevation changes, give every endpoint the same `box-shadow` list: preserve the
+number of shadows, `inset` mode, offsets, blur, and spread, then make the
+starting colors transparent. Interpolate alpha instead of switching between
+`none` and an opaque or multi-layer shadow. Inspect intermediate frames because
+correct endpoints do not expose paint clipping during the animation.
+
 ### Focus
 
 Use `focus` when prior points should remain available but the newest point must
@@ -342,6 +360,8 @@ does not load a JavaScript motion module and there is no separate
 
 - Start with ordinary Steps; add a MotionGroup only for a clear narrative job.
 - Keep persistent headings and context outside Step-oriented MotionGroups.
+- Keep shadows, glows, and other overflow effects outside hard clip reveals;
+  interpolate matching transparent and opaque shadow lists.
 - Use `flow="block"` for vertical reading order and `flow="inline"` for a
   horizontal pipeline or comparison; omit it when the theme default fits.
 - Keep global backgrounds, branding, and page numbers in Stage layers. Animate
@@ -373,9 +393,12 @@ only for the same object on adjacent slides, give both groups the same unique
 lowercase kebab-case name, and never give continuity a flow. Keep its endpoint
 size, aspect ratio, typography, wrapping, and media crop explicit; keep
 changing copy outside the shared snapshot. Keep persistent titles outside Step
-motion groups. Put persistent canvas decoration and page information in Stage
-layers; use sparse, quiet changes on one Stage child and let them yield to
-stronger content motion. Do not invent animation props, hidden Step stops,
-runtime.motion, or native View Transition calls. Check forward/backward,
-reduced-motion, speaker, document, and export states.
+motion groups. Treat cards and media frames as complete painted surfaces: keep
+shadows and glows outside clip reveals, or clip only an inner content wrapper;
+animate matching shadow geometry from transparent colors. Put persistent
+canvas decoration and page information in Stage layers; use sparse, quiet
+changes on one Stage child and let them yield to stronger content motion. Do
+not invent animation props, hidden Step stops, runtime.motion, or native View
+Transition calls. Check forward/backward, reduced-motion, speaker, document,
+and export states.
 ```
