@@ -608,6 +608,15 @@ figure {
   letter-spacing: var(--spec-heading-tracking);
 }
 
+.logo-concept-selected .logo-concept-heading {
+  color: var(--drever-brand-color-ink);
+  background: var(--drever-brand-color-coral);
+}
+
+.logo-concept-selected .logo-concept-heading span {
+  color: var(--drever-brand-color-ink);
+}
+
 .logo-concept-stage {
   position: relative;
   display: grid;

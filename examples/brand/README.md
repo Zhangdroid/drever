@@ -12,5 +12,5 @@ pnpm --filter @drever/example-brand dev
 The page intentionally depends only on `@drever/brand` and Vite. It imports the package's public
 font, token, and SVG asset exports so changes to the shared identity are visible here immediately.
 
-The logo lab is an internal comparison surface. Its concepts are explorations, not approved brand
-assets, and are intentionally kept outside the published `@drever/brand` package.
+The logo lab records the identity decision. Break Frame is the selected production mark; the other
+concepts remain archived explorations outside the published `@drever/brand` package.

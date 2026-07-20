@@ -1,8 +1,9 @@
 # Drever design system
 
 This document defines Drever's brand foundation. The selected identity is
-**Shifted Stage D**: a stable stage with one deliberate offset that represents
-change without losing context.
+**Break Frame**: the MDX thematic break begins as three source marks, then its
+final mark turns into the next slide. It represents authored structure becoming
+an expressive visual stage.
 
 The system is intentionally small. `@drever/brand` owns brand assets and
 reference primitives with zero runtime dependencies. Documentation, product UI,
@@ -11,8 +12,10 @@ The brand package is not a component library and is not a parent theme.
 
 ## Strategy
 
-Drever's composition grammar is **Stage / Signal / Shift**. It turns the
-horizontal cut in the Shifted Stage D mark into a repeatable layout rule:
+Drever's logo narrative is **Source / Break / Frame**. The two Coral marks
+establish authored source, while the final Ink mark crosses the break and forms
+the frame. Product and documentation compositions translate that transformation
+into the **Stage / Signal / Shift** layout grammar:
 
 - **Stage:** one stable Paper or Ink field with a clear reading axis;
 - **Signal:** at most one Coral horizontal rail or band that marks the current
@@ -31,7 +34,7 @@ Coral field competing with a large Indigo field.
 
 `@drever/brand` contains only stable, reusable primitives:
 
-- the Shifted Stage D mark, wordmark, lockup, and favicon;
+- the Break Frame mark, wordmark, lockup, and favicon;
 - the core colors and documented derived values;
 - the Bricolage Grotesque and Instrument Sans font files and `@font-face`
   declarations;
@@ -90,8 +93,9 @@ not need to appear inside every slide.
 Do not:
 
 - stretch, skew, rotate, crop, outline, or add a shadow to the logo;
-- change the offset or separate the shifted stage from the D;
-- recreate the mark with a letter, font, CSS shape, or AI approximation;
+- change the dash spacing, interrupt the turning stroke, or detach the source
+  marks from the frame;
+- recreate the mark with punctuation, a font, CSS shapes, or an AI approximation;
 - place the full-color asset on a field that changes its color relationships;
 - animate the complete logo as navigation feedback;
 - put copy or controls inside its clear space;
@@ -348,8 +352,9 @@ Use this prompt when generating a Drever-branded documentation or product
 surface. It is not a substitute for a selected presentation theme.
 
 ```text
-Apply the Drever Shifted Stage D design system using the Stage / Signal / Shift
-composition grammar.
+Apply the Drever Break Frame identity using the Stage / Signal / Shift
+composition grammar. The logo represents MDX source becoming a visual stage;
+do not use the logo punctuation as decorative page furniture.
 
 Use Bricolage Grotesque Variable at natural width for expressive headings. Use
 Instrument Sans Variable for prose and product UI. Use #F8F8F4 Paper and
@@ -370,9 +375,10 @@ controls and 20/32px radii for one dominant surface. Use 24px two-stroke icons,
 visible focus rings, 44px interaction targets, and the documented type scale.
 Keep prose near 68ch. Use a maximum 12px motion offset and honor reduced motion.
 
-Use the supplied logo asset without redrawing, recoloring, or changing its
-offset. Preserve 25% of the mark height as clear space. Use the lockup at 112px
-or wider and the mark at 20px or larger, except for the dedicated favicon.
+Use the supplied logo asset without redrawing, recoloring, changing its dash
+spacing, or altering the turning stroke. Preserve 25% of the mark height as
+clear space. Use the lockup at 112px or wider and the mark at 20px or larger,
+except for the dedicated favicon.
 
 If the output is a presentation theme, keep its canvas typography, layouts,
 semantic theme variables, and motion choreography theme-owned. Reuse brand

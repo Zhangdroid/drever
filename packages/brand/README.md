@@ -4,6 +4,9 @@ Canonical Drever brand primitives with no runtime dependencies.
 
 The package deliberately contains tokens, two self-hosted variable font families, and static SVG assets—not React components, resets, or theme semantics. Documentation surfaces can consume the complete system. Presentation themes can map only the primitives that fit their own visual voice.
 
+The canonical **Break Frame** mark turns Drever's MDX `---` boundary into the
+next slide frame: authored source becoming a visual stage.
+
 ## Use
 
 ```ts
@@ -51,4 +54,5 @@ SVG outlines so logo rendering never depends on font loading.
 
 Bricolage Grotesque version 9 is sourced from the official Google Fonts build
 and used only for expressive display typography. Instrument Sans remains the
-body and product UI family, and the outlined lockup remains unchanged.
+body and product UI family. The lockup preserves the outlined Instrument Sans
+wordmark so it renders without a font request.

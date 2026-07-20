@@ -11,6 +11,9 @@ import { describe, expect, it } from "vite-plus/test";
 const readPackageFile = (path: string): string =>
   readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
+const pathData = (source: string): readonly string[] =>
+  [...source.matchAll(/<path\b[^>]*\bd="([^"]+)"/gu)].map((match) => match[1]!);
+
 function relativeLuminance(hex: string): number {
   const channels = hex
     .slice(1)
@@ -138,5 +141,21 @@ describe("@drever/brand", () => {
 
     expect(readPackageFile("assets/drever-mark.svg")).toContain("#FF704D");
     expect(readPackageFile("assets/drever-mark-mono.svg")).toContain("currentColor");
+  });
+
+  it("keeps the canonical Break Frame geometry synchronized across variants", () => {
+    const canonical = pathData(readPackageFile("assets/drever-mark.svg"));
+
+    expect(canonical).toHaveLength(2);
+    expect(pathData(readPackageFile("assets/drever-mark-dark.svg"))).toEqual(canonical);
+    expect(pathData(readPackageFile("assets/drever-mark-mono.svg"))).toEqual(canonical);
+    expect(pathData(readPackageFile("assets/drever-lockup.svg")).slice(0, 2)).toEqual(canonical);
+    expect(pathData(readPackageFile("assets/drever-lockup-dark.svg")).slice(0, 2)).toEqual(
+      canonical,
+    );
+
+    const favicon = pathData(readPackageFile("assets/favicon.svg"));
+    expect(favicon).toHaveLength(2);
+    expect(favicon).not.toEqual(canonical);
   });
 });
