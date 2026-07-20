@@ -9,6 +9,7 @@
     "dev": "drever dev"
   },
   "devDependencies": {
+    "@drever/brand": "workspace:*",
     "@drever/theme-editorial": "workspace:*",
     "@types/react": "catalog:",
     "drever": "workspace:*",

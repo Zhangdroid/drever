@@ -342,6 +342,9 @@ importers:
 
   examples/product-tour:
     devDependencies:
+      '@drever/brand':
+        specifier: workspace:*
+        version: link:../../packages/brand
       '@drever/theme-editorial':
         specifier: workspace:*
         version: link:../../packages/theme-editorial

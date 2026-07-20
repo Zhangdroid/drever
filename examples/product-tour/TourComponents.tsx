@@ -2,22 +2,22 @@ import { useId, useState, type ReactElement } from "react";
 
 const SIGNALS = [
   {
-    id: "aligned",
-    label: "Aligned",
-    response: "Advance the story",
-    guidance: "The room has the model. Move from explanation to decision.",
+    id: "example",
+    label: "Show an example",
+    response: "Make it concrete.",
+    guidance: "Reveal one example, right when it can make the idea click.",
   },
   {
-    id: "uncertain",
-    label: "Uncertain",
-    response: "Reveal one example",
-    guidance: "Keep the claim. Add evidence at the moment it becomes useful.",
+    id: "evidence",
+    label: "Show the evidence",
+    response: "Bring in the proof.",
+    guidance: "Move from claim to evidence without leaving the story.",
   },
   {
-    id: "challenging",
-    label: "Challenging",
-    response: "Open the system",
-    guidance: "Let the audience inspect or change the model instead of adding bullets.",
+    id: "explore",
+    label: "Let me try",
+    response: "Hand over control.",
+    guidance: "Let people explore the idea for themselves instead of adding another bullet.",
   },
 ] as const;
 
@@ -31,8 +31,8 @@ export const AudienceSignal = (): ReactElement => {
   return (
     <section className="tour-signal" aria-labelledby={titleId}>
       <div className="tour-signal__prompt">
-        <span className="tour-kicker">Your component · live state</span>
-        <h3 id={titleId}>Where is the room now?</h3>
+        <span className="tour-kicker">The room · one choice</span>
+        <h3 id={titleId}>What would help you decide?</h3>
         <div className="tour-signal__choices" role="group" aria-label="Audience response">
           {SIGNALS.map((candidate) => (
             <button
@@ -60,16 +60,16 @@ export const AudienceSignal = (): ReactElement => {
 
 const MOMENTS = [
   {
-    label: "Claim",
-    detail: "A strong story begins with one stable belief.",
+    label: "Assumption",
+    detail: "A presentation explains the idea.",
   },
   {
-    label: "Proof",
-    detail: "Only this idea changes. The surrounding stage keeps its place.",
+    label: "Evidence",
+    detail: "This presentation lets the room try it.",
   },
   {
-    label: "Meaning",
-    detail: "The room follows the thought instead of watching an effect.",
+    label: "Decision",
+    detail: "The experience becomes the proof.",
   },
 ] as const;
 
@@ -91,7 +91,7 @@ export const MotionBoundary = (): ReactElement => {
           aria-atomic="true"
           aria-live="polite"
         >
-          <span className="tour-kicker">The moment that changed</span>
+          <span className="tour-kicker">Only the changed idea</span>
           <strong>{activeMoment.label}</strong>
           <p>{activeMoment.detail}</p>
           <div className="tour-motion__progress" aria-hidden="true">
@@ -107,7 +107,7 @@ export const MotionBoundary = (): ReactElement => {
         onClick={() => setMoment((current) => (current + 1) % MOMENTS.length)}
         type="button"
       >
-        Change the moment
+        Change the idea
       </button>
     </section>
   );

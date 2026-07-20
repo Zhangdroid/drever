@@ -5,9 +5,10 @@ const page = (value: number): string => String(value).padStart(2, "0");
 
 const chapter = (slideIndex: number): string => {
   if (slideIndex < 3) return "01 · The room";
-  if (slideIndex < 10) return "02 · The system";
-  if (slideIndex < 13) return "03 · The proof";
-  return "04 · The invitation";
+  if (slideIndex < 7) return "02 · The story";
+  if (slideIndex < 10) return "03 · After the room";
+  if (slideIndex < 13) return "04 · One story";
+  return "05 · Begin";
 };
 
 export default function ProductTourForeground({

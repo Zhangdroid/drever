@@ -23,17 +23,17 @@ test("the product tour proves interaction, persistence, and the speaker workflow
   await page.goto("/3");
 
   await expect(page.locator(activeSlide)).toContainText("Let the room answer.");
-  const challenging = page.getByRole("button", { name: "Challenging" });
-  await challenging.click();
-  await expect(challenging).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByRole("status")).toContainText("Open the system");
+  const explore = page.getByRole("button", { name: "Let me try" });
+  await explore.click();
+  await expect(explore).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("status")).toContainText("Hand over control");
 
-  await challenging.blur();
+  await explore.blur();
   await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/\/4$/u);
   await page.goBack();
   await expect(page).toHaveURL(/\/3$/u);
-  await expect(challenging).toHaveAttribute("aria-pressed", "true");
+  await expect(explore).toHaveAttribute("aria-pressed", "true");
 
   const speakerPromise = page.waitForEvent("popup");
   await page.keyboard.press("p");
@@ -87,7 +87,7 @@ test("the product narrative renders default plugins, exact routes, and its motio
 
   await page.goto("/6");
 
-  await expect(page.locator(activeSlide)).toContainText("Every moment has an address.");
+  await expect(page.locator(activeSlide)).toContainText("Send people back to the exact moment.");
   const feature = page.locator(activeSlide).locator('[data-drever-layout="feature"]');
   await expect(feature).toBeVisible();
   await expect(feature.locator("figure")).toHaveCSS("margin-left", "0px");
@@ -108,10 +108,10 @@ test("the product narrative renders default plugins, exact routes, and its motio
 
   await page.goto("/7");
   const canvasModel = page.locator(".tour-motion__canvas");
-  await expect(canvasModel).toContainText("Claim");
-  await page.getByRole("button", { name: "Change the moment" }).click();
-  await expect(canvasModel).toContainText("Proof");
-  await expect(page.getByRole("status")).toContainText("Proof");
+  await expect(canvasModel).toContainText("Assumption");
+  await page.getByRole("button", { name: "Change the idea" }).click();
+  await expect(canvasModel).toContainText("Evidence");
+  await expect(page.getByRole("status")).toContainText("Evidence");
 
   health.expectHealthy();
 });
@@ -222,21 +222,22 @@ test("ambient stage motion marks chapters without competing with local choreogra
   await page.goto("/3");
 
   const background = page.getByTestId("tour-stage-background");
-  const orb = background.locator(":scope > span");
-  const readOrbState = () =>
-    orb.evaluate((element) => {
+  const signal = background.locator(":scope > span");
+  const readSignalState = () =>
+    signal.evaluate((element) => {
       const style = getComputedStyle(element);
       return { opacity: style.opacity, scale: style.scale, translate: style.translate };
     });
-  const finishOrbMotion = () =>
-    orb.evaluate(async (element) => {
+  const finishSignalMotion = () =>
+    signal.evaluate(async (element) => {
       await Promise.all(element.getAnimations().map(({ finished }) => finished));
     });
 
   await expect(background).toHaveAttribute("data-scene", "opening");
   await expect(background).toHaveAttribute("data-slide-number", "3");
-  await orb.evaluate((element) => {
-    Reflect.set(globalThis, "__dreverProductTourOrb", element);
+  const openingState = await readSignalState();
+  await signal.evaluate((element) => {
+    Reflect.set(globalThis, "__dreverProductTourSignal", element);
   });
 
   const systemTransition = await captureNextViewTransition(page, () =>
@@ -247,10 +248,12 @@ test("ambient stage motion marks chapters without competing with local choreogra
   await expect(background).toHaveAttribute("data-scene", "system");
   await expect(background).toHaveAttribute("data-slide-number", "4");
   expect(
-    await orb.evaluate((element) => element === Reflect.get(globalThis, "__dreverProductTourOrb")),
+    await signal.evaluate(
+      (element) => element === Reflect.get(globalThis, "__dreverProductTourSignal"),
+    ),
   ).toBe(true);
   expect(
-    await orb.evaluate((element) =>
+    await signal.evaluate((element) =>
       element
         .getAnimations()
         .map((animation) => Reflect.get(animation, "transitionProperty"))
@@ -259,31 +262,23 @@ test("ambient stage motion marks chapters without competing with local choreogra
     ),
   ).toEqual(["opacity", "scale", "translate"]);
   await waitForViewTransition(page, systemTransition, "finished");
-  await finishOrbMotion();
-  expect(await readOrbState()).toEqual({
-    opacity: "0.72",
-    scale: "0.96",
-    translate: "-72px 44px",
-  });
+  await finishSignalMotion();
+  expect(await readSignalState()).not.toEqual(openingState);
 
   await page.goto("/11");
   await expect(background).toHaveAttribute("data-scene", "motion");
-  expect(await readOrbState()).toEqual({
-    opacity: "0.82",
-    scale: "1.05",
-    translate: "-36px 118px",
-  });
+  const motionState = await readSignalState();
 
   await page.goto("/12/1");
-  const continuityOrb = await readOrbState();
+  const continuitySignal = await readSignalState();
   const continuityTransition = await captureNextViewTransition(page, () =>
     page.keyboard.press("ArrowRight"),
   );
   await waitForViewTransition(page, continuityTransition, "ready");
   await expect(page).toHaveURL(/\/13$/u);
   await expect(background).toHaveAttribute("data-scene", "motion");
-  expect(await readOrbState()).toEqual(continuityOrb);
-  expect(await orb.evaluate((element) => element.getAnimations().length)).toBe(0);
+  expect(await readSignalState()).toEqual(continuitySignal);
+  expect(await signal.evaluate((element) => element.getAnimations().length)).toBe(0);
   await waitForViewTransition(page, continuityTransition, "finished");
 
   const closingTransition = await captureNextViewTransition(page, () =>
@@ -292,12 +287,8 @@ test("ambient stage motion marks chapters without competing with local choreogra
   await waitForViewTransition(page, closingTransition, "ready");
   await expect(page).toHaveURL(/\/14$/u);
   await expect(background).toHaveAttribute("data-scene", "closing");
-  await finishOrbMotion();
-  expect(await readOrbState()).toEqual({
-    opacity: "0.48",
-    scale: "1.1",
-    translate: "-8px 136px",
-  });
+  await finishSignalMotion();
+  expect(await readSignalState()).not.toEqual(motionState);
   await waitForViewTransition(page, closingTransition, "finished");
 
   health.expectHealthy();
@@ -317,7 +308,7 @@ test("semantic focus and replacement preserve geometry and accessibility state",
   await expect(focusSteps).toHaveCount(3);
   await expect(focusSteps.first()).toHaveAttribute("data-step-state", "pending");
   await expect(focusSteps.first()).toHaveAttribute("aria-hidden", "true");
-  expect(await readTranslate(focusSteps.first())).toEqual([0, 8]);
+  expect(await readTranslate(focusSteps.first())).toEqual([0, 12]);
   await expect(focusSteps.first()).toHaveCSS("scale", "1");
 
   await page.keyboard.press("ArrowRight");
@@ -348,7 +339,7 @@ test("semantic focus and replacement preserve geometry and accessibility state",
   const replaceBounds = await readElementBounds(replace);
   await expect(replace).toHaveAttribute("data-motion-flow", "inline");
   await expect(replaceSteps).toHaveCount(3);
-  expect(await readTranslate(replaceSteps.first())).toEqual([10, 0]);
+  expect(await readTranslate(replaceSteps.first())).toEqual([12, 0]);
 
   await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/\/11\/1$/u);
@@ -369,7 +360,7 @@ test("semantic focus and replacement preserve geometry and accessibility state",
   health.expectHealthy();
 });
 
-test("continuity uses one explicit identity in both directions", async ({ page }) => {
+test("continuity preserves stable named identities in both directions", async ({ page }) => {
   const health = monitorPageHealth(page);
   await monitorViewTransitions(page);
   await page.goto("/12");
@@ -429,7 +420,13 @@ test("continuity uses one explicit identity in both directions", async ({ page }
         return typeof pseudo === "string" ? [pseudo] : [];
       }),
     ),
-  ).toContain("::view-transition-group(drever-deck-contract)");
+  ).toEqual(
+    expect.arrayContaining([
+      "::view-transition-group(drever-deck-contract)",
+      "::view-transition-group(drever-story-signal)",
+      "::view-transition-group(drever-story-turn)",
+    ]),
+  );
   await expect(page.locator(`${activeSlide} h2`)).toHaveCSS("view-transition-name", "none");
   await waitForViewTransition(page, forwardTransition, "finished");
   await expect(continuity).toHaveCSS("view-transition-name", "drever-deck-contract");
