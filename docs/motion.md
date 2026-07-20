@@ -7,6 +7,36 @@ relationship moves.
 Navigation, Step state, accessibility, and shared identity remain
 framework-owned.
 
+## Non-negotiable motion principles
+
+These principles are normative for every official deck, example, generated
+deck, and review Skill:
+
+1. **Explain, do not decorate.** Motion must clarify focus, order,
+   replacement, comparison, continuity, or a real Stage state change. If it
+   does not improve audience understanding, omit it.
+2. **Follow the content and theme.** Direction follows reading order and layout:
+   vertical stacks progress on the block axis; horizontal pipelines progress
+   on the inline axis. The theme supplies the visual voice. Occasional quiet
+   surprises are welcome, but repeated generic entrances are not.
+3. **Move the smallest meaningful object.** Persistent titles, layout anchors,
+   Stage shells, backgrounds, page numbers, branding, dialogs, and audience
+   controls stay live and stationary. Animate only the child whose narrative
+   state changed.
+4. **Keep geometry deliberate.** Stable objects need stable size, aspect ratio,
+   typography, wrapping, and media crop. A transition must not create layout
+   shift, title drift, scaled glyphs, or a ghost frame.
+5. **Treat painted surfaces as indivisible.** Never hard-clip a card, panel, or
+   media frame when its shadow, glow, outline, or filter must remain visible.
+   Clip an inner content wrapper, or use opacity with translate or scale. Shadow
+   endpoints use matching lists and transparent colors, never `none` to opaque.
+6. **Review the journey, not only the endpoints.** Inspect intermediate frames,
+   transition completion, forward and backward navigation, repeated Step
+   changes, pointer focus, reduced motion, speaker, document, and export modes.
+
+The rest of this document defines the primitives and implementation details
+that satisfy those principles.
+
 `MotionGroup` is built into compiled MDX. Its `intent` is required:
 
 | Intent       | Narrative job                                       | Authoring shape                           |
@@ -369,6 +399,8 @@ does not load a JavaScript motion module and there is no separate
 - Keep global backgrounds, branding, and page numbers in Stage layers. Animate
   only a Stage sub-element whose visual state changes, and let it yield to
   stronger content motion.
+- Keep audience controls, dialogs, and other client chrome outside the deck
+  transition surface; never give them slide or continuity identities.
 - Use direct Step children for `focus`, `replace`, and `compare`.
 - Put `stagger` inside one Step and limit it to four direct children.
 - Use `replace` when one state should be accessible at a time while presenting;
@@ -376,7 +408,8 @@ does not load a JavaScript motion module and there is no separate
 - Reuse a continuity name only for the same object on adjacent slides.
 - Keep continuity geometry, text metrics, and media crop explicit at both endpoints.
 - Keep changing prose outside a shared snapshot; split independent identities into separate boundaries.
-- Inspect forward and backward movement at every affected route.
+- Inspect intermediate frames and the finished handoff in both directions at
+  every affected route; verify that toolbar hover and focus remain stable.
 - Verify reduced motion, `/speaker`, `/document`, and export after changing
   choreography.
 
@@ -400,7 +433,9 @@ shadows and glows outside clip reveals, or clip only an inner content wrapper;
 animate matching shadow geometry from transparent colors. Put persistent
 canvas decoration and page information in Stage layers; use sparse, quiet
 changes on one Stage child and let them yield to stronger content motion. Do
-not invent animation props, hidden Step stops, runtime.motion, or native View
-Transition calls. Check forward/backward, reduced-motion, speaker, document,
-and export states.
+not put persistent titles, backgrounds, page numbers, dialogs, or audience
+controls inside slide transitions. Do not invent animation props, hidden Step
+stops, runtime.motion, or native View Transition calls. Inspect intermediate
+frames and the finished handoff in both directions; check repeated Steps,
+pointer focus, reduced-motion, speaker, document, and export states.
 ```

@@ -19,12 +19,15 @@ Author with these rules:
 - Prefer Markdown and documented theme layouts over custom markup.
 - Keep titles concise and remove prose that does not support the slide's claim.
 - Use static `Step` elements only for meaningful progressive disclosure. Use positive integer `at` values only for intentional sparse stops.
+- Use motion only to explain focus, order, replacement, comparison, continuity, or a real Stage state change. Match its direction to the content flow and its visual voice to the theme; avoid repeated generic entrances.
+- Keep persistent titles, layout anchors, Stage shells, backgrounds, page numbers, branding, dialogs, and audience controls stationary. Animate the smallest child whose narrative state changed.
+- Treat cards, panels, and media frames as complete painted surfaces. Do not hard-clip their shadows, glows, outlines, or filters; clip an inner wrapper or use opacity with translate or scale. Interpolate matching shadow lists from transparent colors instead of switching from `none`.
 - Put speaker guidance in `Note`; do not duplicate visible slide text there.
 - Add alternative text to meaningful images and captions to authored video.
 - Never reference `__DreverSlide` or `__DreverStep` or edit `dist/` and `.drever/`.
 
 Use custom React only when interaction materially improves the explanation. Keep it keyboard accessible, deterministic in export, and meaningful in document and speaker-preview modes.
 
-Run `drever context --json` and `drever check --json`, fix every proven error, then run `drever build`. Inspect the rendered deck when browser tooling is available, including every authored Step state and `/document`.
+Run `drever context --json` and `drever check --json`, fix every proven error, then run `drever build`. Inspect the rendered deck when browser tooling is available, including every authored Step state and `/document`. For motion, inspect intermediate frames and the finished handoff in both directions; verify stable geometry, pointer focus, reduced motion, and relevant speaker and export states.
 
 Report the files created, assumptions made, validation run, and remaining judgment calls.

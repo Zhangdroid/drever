@@ -12,16 +12,18 @@ description: Author or edit an existing Drever presentation. Use when asked to r
 3. Treat slide boundaries and Step stops as public navigation state. Do not renumber them casually; an exact route may be shared.
 4. Keep one dominant idea, clear hierarchy, and a unique title on every slide. Prefer semantic Markdown and theme layouts over one-off containers.
 5. Use `Step` for an intentional change in audience understanding, not decoration. Preserve meaningful sparse stops.
-6. Express motion with the `MotionGroup` intents `focus`, `replace`, `compare`, `stagger`, and `continuity`. Keep persistent titles and content stationary during Step changes.
+6. Express motion with the `MotionGroup` intents `focus`, `replace`, `compare`, `stagger`, and `continuity`. Motion must explain a narrative state change, follow the content flow, and use the theme's visual voice; avoid repeated generic entrances.
 7. Keep speaker-only explanation in `Note` and preserve headings, alternatives, captions, focus behavior, and reduced-motion behavior.
 8. Never edit generated files in `dist/` or `.drever/`.
 
 Use `stage.background` for persistent canvas decoration and `stage.foreground` for fixed branding or page information. Each path names a default-exporting React component that receives `StageLayerProps` from `drever`; nested components may call `useStage()`. Keep the Stage shell stationary and animate only a sub-element whose visual state actually changes.
 
+Keep persistent titles, layout anchors, Stage shells, backgrounds, page numbers, branding, dialogs, and audience controls outside slide motion. Move the smallest meaningful child. Treat cards, panels, and media frames as complete painted surfaces: never hard-clip a required shadow, glow, outline, or filter. Clip an inner content wrapper or use opacity with translate or scale, and interpolate matching shadow lists from transparent colors instead of switching from `none`.
+
 For continuity, share the smallest object with persistent identity. Keep endpoint size or aspect ratio, `box-sizing`, typography, line wrapping, and media crop explicit. Use `inline-size: fit-content` only for invariant non-wrapping text; give media intrinsic dimensions plus `object-fit` and `object-position`. Keep changing prose outside the shared bitmap or split independently moving parts into separate named boundaries. Use absolute positioning only when both endpoints share the same explicit containing block.
 
 When changing React components, preserve keyboard and screen-reader semantics, suppress audience-only side effects outside audience mode, and make asynchronous media participate in export readiness. Remember that Stage components persist in the audience, render once per speaker preview, and repeat for every document and export page.
 
-Run `drever context --json`, `drever check --json`, and `drever build`. Inspect every affected exact slide and Step route. Check `/document`; check `/speaker` when notes or presentation behavior changed, and export when Stage output or readiness changed. Verify reload and history after slide or Step topology changes.
+Run `drever context --json`, `drever check --json`, and `drever build`. Inspect every affected exact slide and Step route. For motion, inspect intermediate frames and the finished handoff in both directions; verify stable geometry and pointer focus. Check reduced motion and `/document`; check `/speaker` when notes or presentation behavior changed, and export when Stage output or readiness changed. Verify reload and history after slide or Step topology changes.
 
 Report the narrative or behavior changed, affected routes, and validation evidence.

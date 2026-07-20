@@ -20,13 +20,14 @@ Review for:
 - A coherent story, one dominant idea per slide, useful evidence, and a clear conclusion.
 - Stable alignment, deliberate spacing, readable type, sufficient contrast, and no clipping or overflow.
 - Step changes that reveal meaning without moving persistent content.
-- Motion that communicates continuity and respects reduced motion.
-- Stage backgrounds and foreground chrome that remain stationary across slide transitions; animate only a changed sub-element.
+- Motion that has a clear narrative job, follows the content flow, fits the theme, avoids repeated generic entrances, and respects reduced motion.
+- Stage backgrounds, page information, persistent titles, audience controls, dialogs, and foreground chrome that remain stationary across slide transitions; animate only the smallest changed sub-element.
+- Cards, panels, and media frames whose required shadows, glows, outlines, and filters are never hard-clipped; shadow endpoints must use matching lists with transparent colors instead of `none`.
 - Continuity boundaries whose endpoint bounds, aspect ratio, text metrics, wrapping, and media crop are deliberate; investigate ghosting as a snapshot-geometry mismatch before changing timing or easing.
 - Correct headings, alternatives, captions, focus behavior, and document reading order.
 - Working exact deep links, reload, history, speaker synchronization, build output, and export readiness.
 
-For continuity defects, compare endpoint `getBoundingClientRect()` values and inspect the transition in both directions. Prefer a fixed shared shell, invariant shrink-wrapped text, or explicit media fitting. Keep changing copy outside the shared bitmap; absolute positioning is useful only when it produces equivalent containing geometry at both endpoints.
+For motion defects, inspect intermediate frames and the finished handoff in both directions, not only the endpoints. Verify that repeated Step changes do not move persistent text and that toolbar hover and focus remain live. For continuity defects, compare endpoint `getBoundingClientRect()` values. Prefer a fixed shared shell, invariant shrink-wrapped text, or explicit media fitting. Keep changing copy outside the shared bitmap; absolute positioning is useful only when it produces equivalent containing geometry at both endpoints.
 
 When Stage modules are configured, verify that the audience reuses the same background and foreground instances while position props update, page information does not change on a Step-only navigation, and no full Stage layer joins the slide transition. Check both speaker previews plus every document and export page; Stage effects must respect `renderMode`, reduced motion, repeated IDs, and export readiness. Nested Stage components may read state with `useStage()`.
 
