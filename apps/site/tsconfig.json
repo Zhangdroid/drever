@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": [".react-router/types/**/*", "**/*"],
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "rootDirs": [".", "./.react-router/types"]
+  }
+}
