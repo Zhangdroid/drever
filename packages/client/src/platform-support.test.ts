@@ -5,6 +5,7 @@ const candidateDocument = (
   capabilities: Readonly<{
     broadcastChannel?: unknown;
     clipboard?: unknown;
+    elementStartViewTransition?: unknown;
     documentStartViewTransition?: unknown;
     navigation?: unknown;
     resizeObserver?: unknown;
@@ -18,6 +19,13 @@ const candidateDocument = (
   Object.defineProperty(document, "defaultView", {
     value: {
       BroadcastChannel: capabilities.broadcastChannel ?? class {},
+      Element: {
+        prototype: {
+          startViewTransition:
+            capabilities.elementStartViewTransition ??
+            (() => Object.freeze({ finished: Promise.resolve() })),
+        },
+      },
       ResizeObserver: capabilities.resizeObserver ?? class {},
       navigator: {
         clipboard: capabilities.clipboard ?? { writeText: () => Promise.resolve() },
@@ -36,7 +44,7 @@ const candidateDocument = (
 describe("viewer platform support", () => {
   it("returns the exact modern browser surfaces used by the viewer", () => {
     const startViewTransition = vi.fn();
-    const document = candidateDocument({ documentStartViewTransition: startViewTransition });
+    const document = candidateDocument({ elementStartViewTransition: startViewTransition });
     const platform = requireViewerPlatform(document);
 
     expect(platform).toMatchObject({
@@ -60,7 +68,7 @@ describe("viewer platform support", () => {
   it("reports every missing capability without selecting a fallback", () => {
     const document = candidateDocument({
       broadcastChannel: false,
-      documentStartViewTransition: false,
+      elementStartViewTransition: false,
       navigation: false,
       resizeObserver: false,
     });
@@ -75,7 +83,7 @@ describe("viewer platform support", () => {
           capabilities: [
             "BroadcastChannel",
             "Navigation API",
-            "Document.startViewTransition",
+            "Element.startViewTransition",
             "ResizeObserver",
           ],
         },
@@ -83,15 +91,15 @@ describe("viewer platform support", () => {
     }
   });
 
-  it("does not accept the element-scoped API as a document transition fallback", () => {
-    const document = candidateDocument({ documentStartViewTransition: false });
-    Object.assign(document.defaultView as Window, {
-      Element: { prototype: { startViewTransition: vi.fn() } },
+  it("does not accept the document API as an element-scoped transition fallback", () => {
+    const document = candidateDocument({
+      documentStartViewTransition: vi.fn(),
+      elementStartViewTransition: false,
     });
 
     expect(() => requireViewerPlatform(document)).toThrowError(
       expect.objectContaining({
-        details: { capabilities: ["Document.startViewTransition"] },
+        details: { capabilities: ["Element.startViewTransition"] },
       }),
     );
   });

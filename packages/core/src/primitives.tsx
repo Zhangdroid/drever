@@ -8,7 +8,6 @@ import {
   createElement,
   isValidElement,
   useContext,
-  ViewTransition,
   type CSSProperties,
   type ComponentPropsWithoutRef,
   type ElementType,
@@ -230,21 +229,7 @@ export const Slide = ({
     createElement(Activity, { mode: active ? "visible" : "hidden", children: content }),
   );
 
-  if (renderMode !== "audience") {
-    return section;
-  }
-
-  return createElement(
-    ViewTransition,
-    {
-      name: index === undefined ? "auto" : `drever-slide-${index}`,
-      default: "none",
-      enter: "none",
-      exit: "none",
-      update: active ? "drever-motion-slide-enter" : "drever-motion-slide-exit",
-    },
-    section,
-  );
+  return section;
 };
 
 export type StepState = "active" | "complete" | "pending";
@@ -435,6 +420,10 @@ export const MotionGroup = ({
   assertMotionIdentity(resolvedIntent, name);
   const renderMode = useContext(DreverRenderModeContext);
   const slide = useContext(SlideContext);
+  const continuityStyle =
+    resolvedIntent === "continuity"
+      ? withoutNativeTransitionStyles(style as ViewTransitionStyle | undefined)
+      : undefined;
   const group = createElement(
     "div",
     {
@@ -445,26 +434,19 @@ export const MotionGroup = ({
       "data-motion-name": name,
       style:
         resolvedIntent === "continuity"
-          ? withoutNativeTransitionStyles(style as ViewTransitionStyle | undefined)
+          ? {
+              ...continuityStyle,
+              ...(renderMode === "audience" && slide?.active !== false
+                ? {
+                    viewTransitionClass: "drever-motion-continuity",
+                    viewTransitionName: `drever-${name}`,
+                  }
+                : {}),
+            }
           : style,
     },
     provideIntentToDirectSteps(children, resolvedIntent),
   );
 
-  if (renderMode !== "audience" || resolvedIntent !== "continuity") {
-    return group;
-  }
-
-  return createElement(
-    ViewTransition,
-    {
-      name: slide?.active === false ? "auto" : `drever-${name}`,
-      default: "none",
-      enter: "none",
-      exit: "none",
-      share: "drever-motion-continuity",
-      update: "none",
-    },
-    group,
-  );
+  return group;
 };

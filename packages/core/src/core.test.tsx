@@ -55,7 +55,7 @@ describe("core primitives", () => {
     expect(markup).toContain('data-motion-intent="continuity"');
   });
 
-  it.each<DreverRenderMode>(["audience", "document", "export", "speaker-current", "speaker-next"])(
+  it.each<DreverRenderMode>(["document", "export", "speaker-current", "speaker-next"])(
     "keeps continuity metadata free of native transition styles in %s mode",
     (mode) => {
       const markup = renderToStaticMarkup(
@@ -90,6 +90,19 @@ describe("core primitives", () => {
     },
   );
 
+  it("assigns continuity identity only to the live audience surface", () => {
+    const markup = renderToStaticMarkup(
+      createElement(
+        DreverRenderModeProvider,
+        { mode: "audience" },
+        createElement(MotionGroup, { intent: "continuity", name: "hero-title" }, "Shared title"),
+      ),
+    );
+
+    expect(markup).toContain("view-transition-name:drever-hero-title");
+    expect(markup).toContain("view-transition-class:drever-motion-continuity");
+  });
+
   it("preserves authored motion group styles while reserving continuity transition properties", () => {
     const authoredStyle = {
       color: "tomato",
@@ -108,8 +121,8 @@ describe("core primitives", () => {
     );
 
     expect(continuityMarkup).toContain("color:tomato");
-    expect(continuityMarkup).not.toContain("view-transition-name");
-    expect(continuityMarkup).not.toContain("view-transition-class");
+    expect(continuityMarkup).toContain("view-transition-name:drever-shared-card");
+    expect(continuityMarkup).toContain("view-transition-class:drever-motion-continuity");
     expect(continuityMarkup).not.toContain("authored-name");
     expect(continuityMarkup).not.toContain("authored-class");
     expect(localMarkup).toContain("color:tomato");

@@ -88,117 +88,75 @@
     outline: none;
   }
 
-  :root:is(
+  .drever-deck:is(
     :active-view-transition-type(drever-slide-forward),
     :active-view-transition-type(drever-slide-backward),
     :active-view-transition-type(drever-jump-forward),
     :active-view-transition-type(drever-jump-backward)
-  ) {
-    &::view-transition-group(root),
-    &::view-transition-old(root),
-    &::view-transition-new(root) {
-      animation: none !important;
-      mix-blend-mode: normal;
-    }
-
-    &::view-transition-group(root) {
-      z-index: 0;
-    }
-
-    &::view-transition-old(root) {
-      opacity: 0;
-    }
-
-    &::view-transition-new(root) {
-      opacity: 1;
-    }
-  }
-
-  ::view-transition-group(.drever-motion-slide-exit) {
-    z-index: 1;
-  }
-
-  ::view-transition-group(.drever-motion-slide-enter) {
-    z-index: 2;
-  }
-
-  ::view-transition-group(.drever-motion-slide-enter),
-  ::view-transition-group(.drever-motion-slide-exit),
-  ::view-transition-group(.drever-motion-continuity) {
+  )::view-transition-group(root),
+  .drever-deck::view-transition-group(.drever-motion-continuity) {
     animation-duration: var(--drever-motion-duration, 420ms);
     animation-timing-function: var(--drever-motion-easing, cubic-bezier(0.22, 1, 0.36, 1));
   }
 
-  ::view-transition-old(.drever-motion-slide-exit),
-  ::view-transition-new(.drever-motion-slide-enter),
-  ::view-transition-old(.drever-motion-continuity),
-  ::view-transition-new(.drever-motion-continuity) {
+  .drever-deck::view-transition-group(root) {
+    z-index: 1;
+  }
+
+  .drever-deck::view-transition-old(root),
+  .drever-deck::view-transition-new(root),
+  .drever-deck::view-transition-old(.drever-motion-continuity),
+  .drever-deck::view-transition-new(.drever-motion-continuity) {
     mix-blend-mode: normal;
   }
 
-  ::view-transition-old(.drever-motion-slide-exit) {
+  .drever-deck::view-transition-old(root) {
     animation: none;
     opacity: 0;
   }
 
-  ::view-transition-new(.drever-motion-slide-enter) {
+  .drever-deck::view-transition-new(root) {
     animation-duration: var(--drever-motion-duration, 420ms);
     animation-fill-mode: both;
     animation-timing-function: var(--drever-motion-easing, cubic-bezier(0.22, 1, 0.36, 1));
     opacity: 1;
   }
 
-  :root:is(
+  .drever-deck:is(
     :active-view-transition-type(drever-slide-forward),
     :active-view-transition-type(drever-jump-forward)
-  )::view-transition-new(.drever-motion-slide-enter) {
+  )::view-transition-new(root) {
     --drever-motion-slide-x: var(--drever-motion-slide-offset, 2.5%);
     animation-name: drever-slide-cover;
   }
 
-  :root:is(
+  .drever-deck:is(
     :active-view-transition-type(drever-slide-backward),
     :active-view-transition-type(drever-jump-backward)
-  )::view-transition-new(.drever-motion-slide-enter) {
+  )::view-transition-new(root) {
     --drever-motion-slide-x: calc(var(--drever-motion-slide-offset, 2.5%) * -1);
     animation-name: drever-slide-cover;
   }
 
-  :root:is(
+  .drever-deck:is(
     :active-view-transition-type(drever-jump-forward),
     :active-view-transition-type(drever-jump-backward)
-  )::view-transition-new(.drever-motion-slide-enter) {
+  )::view-transition-new(root) {
     animation-duration: calc(var(--drever-motion-duration, 420ms) * 1.08);
   }
 
-  ::view-transition-group(.drever-motion-continuity) {
-    z-index: 3;
+  .drever-deck::view-transition-group(.drever-motion-continuity) {
+    z-index: 2;
   }
 
-  ::view-transition-old(.drever-motion-continuity) {
+  .drever-deck::view-transition-old(.drever-motion-continuity) {
     animation: none;
     opacity: 0;
   }
 
-  ::view-transition-new(.drever-motion-continuity) {
+  .drever-deck::view-transition-new(.drever-motion-continuity) {
     animation: none;
     opacity: 1;
-  }
-
-  ::view-transition-group(.drever-motion-chrome) {
-    z-index: 4;
-    animation: none;
-  }
-
-  /* Keep pointer feedback stable while the live toolbar is hidden behind transition snapshots. */
-  ::view-transition-old(.drever-motion-chrome) {
-    animation: none;
-    opacity: 1;
-  }
-
-  ::view-transition-new(.drever-motion-chrome) {
-    animation: none;
-    opacity: 0;
   }
 
   [data-drever-render-mode="audience"] [data-drever-step] {
@@ -307,7 +265,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    :root:is(
+    .drever-deck:is(
       :active-view-transition-type(drever-slide-forward),
       :active-view-transition-type(drever-slide-backward),
       :active-view-transition-type(drever-jump-forward),
@@ -351,6 +309,7 @@
       Inter, Aptos, "SF Pro Display", "Segoe UI Variable Display", ui-sans-serif, system-ui,
       sans-serif;
     font-synthesis: none;
+    view-transition-name: none;
   }
 
   .drever-audience-controls__bar {

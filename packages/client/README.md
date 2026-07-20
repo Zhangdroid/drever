@@ -26,7 +26,7 @@ await viewer.navigate({ type: "next" });
 
 The viewer owns canvas scaling, exact Step navigation, clean path/history state,
 an accessible audience command bar and slide navigator, keyboard controls,
-React-owned View Transitions, runtime setup, and teardown.
+deck-scoped View Transitions, runtime setup, and teardown.
 Its Copy link control writes the canonical URL for the committed slide and Step
 while preserving query and hash state. It requires the Clipboard API in a
 secure context and reports a clear error instead of using a legacy fallback.
@@ -66,7 +66,7 @@ const result = await createExport({
 ```
 
 The package targets current browsers and intentionally requires the Navigation
-API, `Document.startViewTransition`, `BroadcastChannel`, and `ResizeObserver`
+API, `Element.startViewTransition`, `BroadcastChannel`, and `ResizeObserver`
 instead of shipping legacy fallbacks. Export readiness similarly depends on
 modern `FontFaceSet`, image decoding, and animation-frame APIs.
 

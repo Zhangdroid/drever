@@ -200,14 +200,14 @@ import "./architecture.css";
 </div>
 
 <div className="arch-scope">
-  <strong>React-owned by design</strong>
-  <code>&lt;ViewTransition default="none" /&gt;</code>
+  <strong>Deck-scoped by design</strong>
+  <code>{"deck.startViewTransition({ update })"}</code>
 </div>
 
 <Note>
   This protocol prevents the URL, React tree, animation, and remote audience from briefly
-  disagreeing. React owns the document transition lifecycle, while explicit boundaries keep stage
-  chrome visually stable and Step changes in the live DOM.
+  disagreeing. The deck owns native capture while React owns the state commit, keeping Stage layers
+  and audience controls live while Step changes stay in the DOM.
 </Note>
 
 ---

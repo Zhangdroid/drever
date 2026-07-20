@@ -113,9 +113,10 @@ foreground
 
 The background is inert and hidden from assistive technology. Both visual
 layers ignore pointer input by default; audience controls remain separate
-client chrome. The content layer contains the framework-owned Slide and
-continuity View Transition boundaries, so a stable Stage background or page
-number is not captured as part of each incoming or outgoing slide.
+client chrome. The content layer contains the deck-scoped View Transition
+surface and framework-owned continuity identities, so a stable Stage
+background or page number is not captured as part of each incoming or outgoing
+slide.
 
 `drever.config.ts` may name a default-exporting module for either visual layer:
 
@@ -145,10 +146,10 @@ suppress autoplay, global listeners, and other audience-only effects. Repeated
 document and export instances must use React `useId`, and non-observable media
 must follow the normal export-readiness contract.
 
-Stage components may render ordinary nested components. They should add a
-React View Transition only around a sub-element whose visual state actually
-changes. The full background, foreground, and canvas frame should remain
-stationary unless the narrative explicitly changes that layer.
+Stage components may render ordinary nested components. Use a restrained CSS
+transition only on a sub-element whose visual state actually changes. Do not
+start another View Transition from a Stage component: the full background,
+foreground, and canvas frame remain outside the deck capture surface.
 
 The audience and speaker handles expose presentation commands and position
 subscriptions:
@@ -330,9 +331,10 @@ ignored to prevent one long press from opening multiple windows.
 
 The built-in audience command bar exposes navigation, exact slide position,
 canonical link copying, the searchable slide navigator, document and speaker
-views, fullscreen, and keyboard help to pointer and touch users. It is a sibling
-of the canvas rather than slide content. React transition boundaries activate
-only presentation content, and the document root remains visually still.
+views, fullscreen, and keyboard help to pointer and touch users. It is a live
+sibling of the canvas rather than slide content. The element-scoped transition
+captures only the deck, so command-bar hover, focus, and state never hand off
+through transition snapshots.
 
 On fine-pointer displays, the command bar leaves the interaction surface after
 1.8 seconds without pointer activity and returns on movement or focus. Coarse
@@ -349,12 +351,14 @@ DOM and state while cleaning up effects. This is important for interactive
 slides: returning to a slide restores component state without leaving inactive
 work running.
 
-Navigation commits use React Canary `startTransition` and `addTransitionType`.
-React `<ViewTransition>` owns native capture; Drever disables the document root
-animation and activates explicit slide and continuity boundaries. Six
-transition types still describe forward/backward Step, adjacent-slide, and jump
-changes. Step navigation does not capture a bitmap: ordinary reveal plus the
-`focus`, `replace`, `compare`, and bounded `stagger` recipes animate live DOM.
+For a slide change, the client starts `Element.startViewTransition` on the deck
+and commits React state with `startTransition` inside its update callback. React
+Canary's `<ViewTransition>` currently starts capture on the owner document, so
+it is intentionally not the surface owner: document capture would include the
+Stage and audience chrome. Six transition types describe forward/backward Step,
+adjacent-slide, and jump changes. Step navigation does not capture a bitmap:
+ordinary reveal plus the `focus`, `replace`, `compare`, and bounded `stagger`
+recipes animate live DOM.
 During slide navigation, only an audience `continuity` group has an
 author-provided shared identity. Headings and surrounding content receive no
 implicit identity, so Step changes keep stable slide geometry live and cannot
@@ -368,10 +372,10 @@ Steps overlap in one stable grid track; only its active state remains exposed to
 interaction and assistive technology. The complete authoring contract is in
 [Motion choreography](./motion.md).
 
-The client owns the Navigation-to-React commit, direction, and state
-classification. Core owns React transition boundaries, intent attributes,
-continuity identity, and replacement accessibility. Themes own duration,
-easing, emphasis, and displacement through CSS. Their
+The client owns deck-scoped capture, the Navigation-to-React commit, direction,
+and state classification. Core owns intent attributes, continuity identity,
+and replacement accessibility. Themes own duration, easing, emphasis, and
+displacement through CSS. Their
 `theme.motion` field is JSON-safe authoring metadata (`id`, supported `intents`,
 and optional `guidance`), not an executable module, and the generated runtime
 does not export a separate `motion` value.
@@ -458,7 +462,7 @@ The audience and speaker surfaces require a browser document connected to a
 
 - `BroadcastChannel`
 - Navigation API
-- `Document.startViewTransition`
+- `Element.startViewTransition`
 - `ResizeObserver`
 
 There is intentionally no fallback router, animation engine, or resize polling.
@@ -494,7 +498,7 @@ cancellation, setup races, listener ownership, synchronization, cleanup
 ordering, and idempotence without adding a simulated DOM dependency. Chromium
 CI remains the authority for the browser-owned boundary: the speaker UI,
 cross-window synchronization, Navigation interception, focus/inert behavior,
-and React-owned View Transition timing.
+and deck-scoped View Transition timing.
 
 ## AI generation contract
 

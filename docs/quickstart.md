@@ -8,7 +8,7 @@ application, and export a portable PDF.
 
 - Node.js 24.18 or newer.
 - A current Chromium-family browser with Navigation API,
-  `Document.startViewTransition`, `BroadcastChannel`, and `ResizeObserver`.
+  `Element.startViewTransition`, `BroadcastChannel`, and `ResizeObserver`.
 - Playwright Chromium for PDF export. Install it once with
   `npx playwright install chromium`. CI images can use
   `npx playwright install --with-deps chromium`.
@@ -78,7 +78,7 @@ intents when the relationship between states matters:
 inside one Step and contains at most four direct visual children. `continuity`
 requires the same explicit lowercase kebab-case `name` on the same object across
 adjacent slides. Themes decide how each intent looks; Drever owns Step state,
-accessibility, React transition boundaries, and reduced-motion behavior. See
+accessibility, continuity identity, deck-scoped capture, and reduced-motion behavior. See
 [Motion choreography](./motion.md) for the complete grammar and examples.
 
 ## Set up agent authoring

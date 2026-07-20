@@ -163,11 +163,11 @@ buffer. It does not drive audience routes, merge page files, or touch the
 configured build directory.
 
 The client intentionally has no legacy router, animation, synchronization, or
-resize fallback. Navigation API, `Document.startViewTransition`,
-`BroadcastChannel`, and `ResizeObserver` are hard requirements. React owns the
-document transition lifecycle, but only explicit presentation boundaries
-animate; the root snapshot and stage remain visually still. React concurrent
-rendering and Navigation interception remain one commit protocol. Reduced
+resize fallback. Navigation API, `Element.startViewTransition`,
+`BroadcastChannel`, and `ResizeObserver` are hard requirements. The deck owns
+the native capture surface while React owns its state commit, so Stage layers
+and client chrome remain live. React concurrent rendering and Navigation
+interception remain one commit protocol. Reduced
 motion disables presentation animation but does not select an alternate
 runtime.
 
@@ -232,7 +232,7 @@ preflight report rather than defining a second diagnostic vocabulary.
 - Compiler fixtures assert semantic IR rather than large generated-JavaScript snapshots.
 - Plugin and theme contract tests run against shared fixtures.
 - Real-browser tests cover audience, document, and speaker path routing,
-  React-owned View Transitions, rapid navigation, cross-window synchronization, static deep
+  deck-scoped View Transitions, rapid navigation, cross-window synchronization, static deep
   links, document landmarks and final Step visibility, and visual states.
   Export E2E runs the public command and verifies
   final and sparse-Step page counts, tags, dimensions, build isolation, and

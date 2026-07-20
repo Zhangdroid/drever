@@ -35,11 +35,13 @@ export const monitorViewTransitions = async (page: Page): Promise<void> => {
             target:
               kind === "document"
                 ? "document"
-                : this instanceof HTMLElement && this.hasAttribute("data-drever-canvas")
-                  ? "canvas"
-                  : this instanceof Element
-                    ? this.localName
-                    : "element",
+                : this instanceof HTMLElement && this.hasAttribute("data-drever-deck")
+                  ? "deck"
+                  : this instanceof HTMLElement && this.hasAttribute("data-drever-canvas")
+                    ? "canvas"
+                    : this instanceof Element
+                      ? this.localName
+                      : "element",
             types: [...(options?.types ?? [])],
           } satisfies ViewTransitionCall;
           const index = calls.push(call) - 1;

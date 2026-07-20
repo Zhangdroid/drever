@@ -209,7 +209,7 @@ test("the global stage stays mounted while slides and Steps change independently
   await waitForViewTransition(page, nextSlide, "finished");
 
   expect(await readViewTransitionCalls(page)).toEqual([
-    { kind: "document", target: "document", types: ["drever-slide-forward"] },
+    { kind: "element", target: "deck", types: ["drever-slide-forward"] },
   ]);
   health.expectHealthy();
 });
@@ -409,12 +409,12 @@ test("continuity uses one explicit identity in both directions", async ({ page }
     expect(candidate.text).toEqual(expected.text);
   };
   await expect(continuity).toHaveAttribute("data-motion-name", "deck-contract");
-  await expect(continuity).toHaveCSS("view-transition-name", "none");
+  await expect(continuity).toHaveCSS("view-transition-name", "drever-deck-contract");
   await expect(page.locator(`${activeSlide} h2`)).toHaveCSS("view-transition-name", "none");
 
   await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/\/12\/1$/u);
-  await expect(continuity).toHaveCSS("view-transition-name", "none");
+  await expect(continuity).toHaveCSS("view-transition-name", "drever-deck-contract");
   const sourceContract = await readContinuityContract();
 
   const forwardTransition = await captureNextViewTransition(page, () =>
@@ -432,7 +432,7 @@ test("continuity uses one explicit identity in both directions", async ({ page }
   ).toContain("::view-transition-group(drever-deck-contract)");
   await expect(page.locator(`${activeSlide} h2`)).toHaveCSS("view-transition-name", "none");
   await waitForViewTransition(page, forwardTransition, "finished");
-  await expect(continuity).toHaveCSS("view-transition-name", "none");
+  await expect(continuity).toHaveCSS("view-transition-name", "drever-deck-contract");
   expectStableContinuityContract(await readContinuityContract(), sourceContract);
 
   const backwardTransition = await captureNextViewTransition(page, () =>
@@ -449,12 +449,12 @@ test("continuity uses one explicit identity in both directions", async ({ page }
     ),
   ).toContain("::view-transition-group(drever-deck-contract)");
   await waitForViewTransition(page, backwardTransition, "finished");
-  await expect(continuity).toHaveCSS("view-transition-name", "none");
+  await expect(continuity).toHaveCSS("view-transition-name", "drever-deck-contract");
   expectStableContinuityContract(await readContinuityContract(), sourceContract);
 
   expect(await readViewTransitionCalls(page)).toEqual([
-    { kind: "document", target: "document", types: ["drever-slide-forward"] },
-    { kind: "document", target: "document", types: ["drever-slide-backward"] },
+    { kind: "element", target: "deck", types: ["drever-slide-forward"] },
+    { kind: "element", target: "deck", types: ["drever-slide-backward"] },
   ]);
   health.expectHealthy();
 });

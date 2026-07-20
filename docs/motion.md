@@ -334,10 +334,12 @@ and export surfaces.
 
 ## Runtime and accessibility contract
 
-The audience viewer lets React own the native document View Transition and
-activates only explicit slide and continuity boundaries. The document root does
-not animate, so the surrounding stage remains visually stable. Step recipes run
-on the live DOM instead of captured bitmaps; persistent titles and surrounding
+The audience viewer starts the native View Transition on the deck element and
+commits the corresponding React state inside its update callback. Only the deck
+and explicit continuity identities are captured. Stage layers, dialogs, and
+audience controls remain live siblings outside that snapshot, so their hover,
+focus, and visual state do not hand off through stale bitmaps. Step recipes run
+on the live DOM instead of captured images; persistent titles and surrounding
 content therefore never receive duplicate transition snapshots.
 
 Native capture is audience-only. Speaker previews and PDF export retain the
@@ -348,9 +350,9 @@ replacement states into its reading flow. Reduced-motion preference, or the
 path without presentation animation.
 
 Core owns `Step` visibility, replacement accessibility, intent and flow
-attributes, React transition boundaries, and continuity identity. The client
-owns the Navigation-to-React commit and navigation direction. Themes own the
-visual mapping: duration, easing, emphasis, displacement, and the intentional
+attributes, and continuity identity. The client owns deck-scoped capture, the
+Navigation-to-React commit, and navigation direction. Themes own the visual
+mapping: duration, easing, emphasis, displacement, and the intentional
 reduced-motion result. A theme's `motion` field is JSON-safe
 metadata containing `id`, supported `intents`, and optional author guidance; it
 does not load a JavaScript motion module and there is no separate

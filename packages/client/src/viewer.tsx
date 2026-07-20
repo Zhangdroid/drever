@@ -12,7 +12,6 @@ import {
 } from "@drever/core";
 import type { CanvasDefinition, DeckManifest } from "@drever/schema";
 import {
-  addTransitionType,
   startTransition,
   useCallback,
   useLayoutEffect,
@@ -23,7 +22,7 @@ import {
 } from "react";
 import { AudienceControls } from "./audience-controls.tsx";
 import { CanvasViewport, DEFAULT_CANVAS } from "./canvas.tsx";
-import { DreverClientError } from "./client-error.ts";
+import { DreverClientError, isAbortError } from "./client-error.ts";
 import type { PresentationCommit } from "./navigation.ts";
 import type {
   DeckCommand,
@@ -33,6 +32,7 @@ import type {
   PresentationStore,
 } from "./presentation-state.ts";
 import { PresentationStage, type StageComponents } from "./stage.tsx";
+import { startScopedViewTransition, type ScopedViewTransition } from "./view-transition.ts";
 import { scheduleStableMountNotification } from "./viewer-lifecycle.ts";
 
 export type ViewerProps = Readonly<{
@@ -103,11 +103,16 @@ const ViewerSurface = ({
       return;
     }
     const activeElement = deck.ownerDocument.activeElement;
+    const slideChanged = previousSlideRef.current !== position.slideIndex;
+    const presentationOwnedFocus =
+      activeElement === null ||
+      activeElement === deck.ownerDocument.body ||
+      deck.contains(activeElement);
     const focusBecameHidden =
       activeElement !== null &&
       deck.contains(activeElement) &&
       activeElement.closest("[inert], [aria-hidden='true']") !== null;
-    if (previousSlideRef.current !== position.slideIndex || focusBecameHidden) {
+    if ((slideChanged && presentationOwnedFocus) || focusBecameHidden) {
       const activeSlide = deck.querySelector<HTMLElement>(
         `[data-drever-slide][data-slide-index="${position.slideIndex}"]`,
       );
@@ -166,9 +171,12 @@ export type ViewerHostProps = Omit<ViewerProps, "manifest" | "onPositionCommitte
 type PendingCommit = {
   change: PresentationChange;
   reject(error: unknown): void;
+  rejectUpdate?(error: unknown): void;
   removeAbortListener(): void;
   resolve(): void;
+  resolveUpdate?(): void;
   signal: AbortSignal;
+  transition?: ScopedViewTransition;
 };
 
 const navigationAbortReason = (signal: AbortSignal): unknown =>
@@ -213,7 +221,10 @@ export const ViewerHost = ({
         if (previous !== undefined) {
           pendingRef.current = undefined;
           previous.removeAbortListener();
-          previous.reject(supersededNavigation());
+          const superseded = supersededNavigation();
+          previous.transition?.skipTransition();
+          previous.rejectUpdate?.(superseded);
+          previous.reject(superseded);
         }
 
         let pending: PendingCommit;
@@ -223,7 +234,10 @@ export const ViewerHost = ({
           }
           pendingRef.current = undefined;
           pending.removeAbortListener();
-          reject(navigationAbortReason(signal));
+          const reason = navigationAbortReason(signal);
+          pending.transition?.skipTransition();
+          pending.rejectUpdate?.(reason);
+          reject(reason);
           setPosition(store.getSnapshot());
         };
         pending = {
@@ -241,13 +255,69 @@ export const ViewerHost = ({
           setPosition(change.to);
           return;
         }
-        startTransition(() => {
-          addTransitionType(change.transitionType);
-          setPosition(change.to);
-        });
+
+        const deck = deckRef.current;
+        if (deck === null) {
+          pendingRef.current = undefined;
+          pending.removeAbortListener();
+          reject(
+            new DreverClientError(
+              "DREVER_CLIENT_VIEWER_NOT_READY",
+              "The presentation deck is not ready to start a scoped View Transition.",
+            ),
+          );
+          return;
+        }
+
+        try {
+          const transition = startScopedViewTransition(
+            deck,
+            change.transitionType,
+            () =>
+              new Promise<void>((resolveUpdate, rejectUpdate) => {
+                if (pendingRef.current !== pending || signal.aborted) {
+                  rejectUpdate(
+                    signal.aborted ? navigationAbortReason(signal) : supersededNavigation(),
+                  );
+                  return;
+                }
+                pending.resolveUpdate = resolveUpdate;
+                pending.rejectUpdate = rejectUpdate;
+                startTransition(() => setPosition(change.to));
+              }),
+          );
+          pending.transition = transition;
+          void transition.ready.catch((error: unknown) => {
+            if (isAbortError(error)) {
+              return;
+            }
+            onError(
+              new DreverClientError(
+                "DREVER_CLIENT_VIEW_TRANSITION_INVALID",
+                "The deck View Transition could not capture the authored motion identities.",
+                { cause: error },
+              ),
+            );
+          });
+          void transition.finished.catch(() => undefined);
+          void transition.updateCallbackDone.catch((error: unknown) => {
+            if (pendingRef.current !== pending) {
+              return;
+            }
+            pendingRef.current = undefined;
+            pending.removeAbortListener();
+            reject(error);
+            onError(error);
+          });
+        } catch (error) {
+          pendingRef.current = undefined;
+          pending.removeAbortListener();
+          reject(error);
+          onError(error);
+        }
       });
     },
-    [reducedMotion, store],
+    [onError, reducedMotion, store],
   );
 
   useLayoutEffect(() => {
@@ -260,12 +330,13 @@ export const ViewerHost = ({
         return;
       }
       pending.removeAbortListener();
-      pending.reject(
-        new DreverClientError(
-          "DREVER_CLIENT_VIEWER_UNMOUNTED",
-          "The React viewer unmounted before navigation committed.",
-        ),
+      pending.transition?.skipTransition();
+      const unmounted = new DreverClientError(
+        "DREVER_CLIENT_VIEWER_UNMOUNTED",
+        "The React viewer unmounted before navigation committed.",
       );
+      pending.rejectUpdate?.(unmounted);
+      pending.reject(unmounted);
     };
   }, [commit, registerCommit]);
 
@@ -281,12 +352,16 @@ export const ViewerHost = ({
       pendingRef.current = undefined;
       pending.removeAbortListener();
       if (pending.signal.aborted) {
-        pending.reject(navigationAbortReason(pending.signal));
+        const reason = navigationAbortReason(pending.signal);
+        pending.transition?.skipTransition();
+        pending.rejectUpdate?.(reason);
+        pending.reject(reason);
         setPosition(store.getSnapshot());
         return;
       }
 
       store.commit(pending.change.to);
+      pending.resolveUpdate?.();
       pending.resolve();
     },
     [store],

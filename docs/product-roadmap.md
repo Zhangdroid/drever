@@ -127,10 +127,11 @@ view. Stagger reveals at most four direct children inside one Step, so visual
 delay never invents navigation state. Continuity requires an explicit lowercase
 kebab-case identity on the same object across adjacent slides.
 
-Core owns Step and accessibility semantics plus React transition boundaries,
-the client owns the Navigation-to-React commit and navigation direction, and
-each official theme owns a distinct CSS mapping plus JSON-safe guidance. Audience motion is disabled for
-reduced motion and is never assigned in speaker, document, or export rendering.
+Core owns Step and accessibility semantics plus continuity identity. The client
+owns deck-scoped capture, the Navigation-to-React commit, and navigation
+direction. Each official theme owns a distinct CSS mapping plus JSON-safe
+guidance. Audience motion is disabled for reduced motion and is never assigned
+in speaker, document, or export rendering.
 The product-tour reference deck and Chromium assertions cover forward and
 backward Step recipes, stable persistent headings and replacement geometry,
 explicit continuity, accessibility state, and non-audience behavior. See

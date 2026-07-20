@@ -562,55 +562,63 @@ test("speaker chrome keeps remote keys while buttons and notes retain native key
   health.expectHealthy();
 });
 
-test("React owns one slide transition while the document surface stays still", async ({ page }) => {
+test("the deck owns slide transitions while audience controls stay live", async ({ page }) => {
   await monitorViewTransitions(page);
 
   await page.goto("/");
-  const transition = await captureNextViewTransition(page, () => page.keyboard.press("ArrowRight"));
+  const next = page.getByRole("button", { name: "Next presentation state" });
+  await page.evaluate(() => {
+    Reflect.set(
+      globalThis,
+      "__dreverAudienceControls",
+      document.querySelector("[data-drever-audience-controls]"),
+    );
+  });
+
+  const transition = await captureNextViewTransition(page, () => next.click());
   await waitForViewTransition(page, transition, "ready");
   await expect(page).toHaveURL(/\/2$/u);
+  await expect(next).toBeFocused();
 
   expect(await readViewTransitionCalls(page)).toEqual([
-    { kind: "document", target: "document", types: ["drever-slide-forward"] },
+    { kind: "element", target: "deck", types: ["drever-slide-forward"] },
   ]);
   const transitionStyles = await page.evaluate(() => {
-    const root = document.documentElement;
+    const deck = document.querySelector<HTMLElement>("[data-drever-deck]");
+    const controls = document.querySelector<HTMLElement>("[data-drever-audience-controls]");
+    const canvas = document.querySelector<HTMLElement>("[data-drever-canvas]");
+    if (deck === null || controls === null || canvas === null) {
+      throw new Error("Expected the audience viewer surfaces to be mounted.");
+    }
     const read = (pseudo: string) => {
-      const style = getComputedStyle(root, pseudo);
+      const style = getComputedStyle(deck, pseudo);
       return {
         animationName: style.animationName,
         filter: style.filter,
-        height: Number.parseFloat(style.height),
         mixBlendMode: style.mixBlendMode,
         opacity: Number(style.opacity),
-        width: Number.parseFloat(style.width),
-        zIndex: style.zIndex,
       };
     };
     return {
-      chromeGroup: read("::view-transition-group(drever-audience-chrome)"),
-      newChrome: read("::view-transition-new(drever-audience-chrome)"),
+      controlsAreLive:
+        controls === Reflect.get(globalThis, "__dreverAudienceControls") &&
+        !deck.contains(controls) &&
+        !canvas.contains(controls) &&
+        getComputedStyle(controls).viewTransitionName === "none",
       newRoot: read("::view-transition-new(root)"),
-      newSlide: read("::view-transition-new(drever-slide-1)"),
       oldRoot: read("::view-transition-old(root)"),
-      oldSlide: read("::view-transition-old(drever-slide-0)"),
     };
   });
   expect(transitionStyles).toMatchObject({
-    chromeGroup: { animationName: "none", zIndex: "4" },
-    newChrome: { animationName: "none", opacity: 0 },
-    newRoot: { animationName: "none", mixBlendMode: "normal", opacity: 1 },
-    newSlide: {
+    controlsAreLive: true,
+    newRoot: {
       animationName: "drever-slide-cover",
       filter: "none",
       mixBlendMode: "normal",
       opacity: 1,
     },
     oldRoot: { animationName: "none", mixBlendMode: "normal", opacity: 0 },
-    oldSlide: { filter: "none", mixBlendMode: "normal", opacity: 0 },
   });
-  expect(transitionStyles.chromeGroup.height).toBeLessThan(100);
-  expect(transitionStyles.chromeGroup.width).toBeLessThan(1_000);
   await waitForViewTransition(page, transition, "finished");
   await expect(page.locator('[data-drever-slide][data-slide-state="active"] h2')).toHaveCSS(
     "view-transition-name",
@@ -691,8 +699,8 @@ test("a second slide navigation supersedes an in-flight transition cleanly", asy
   await waitForViewTransition(page, first, "finished");
 
   expect(await readViewTransitionCalls(page)).toEqual([
-    { kind: "document", target: "document", types: ["drever-slide-forward"] },
-    { kind: "document", target: "document", types: ["drever-slide-forward"] },
+    { kind: "element", target: "deck", types: ["drever-slide-forward"] },
+    { kind: "element", target: "deck", types: ["drever-slide-forward"] },
   ]);
   health.expectHealthy();
 });
