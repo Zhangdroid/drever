@@ -7,7 +7,7 @@ description: Create a new Drever presentation from a brief, outline, source docu
 
 # Create a Drever deck
 
-1. Inspect `package.json`, `drever.config.ts`, existing assets, local components, and the configured entry. Run `drever context --json` when a deck already exists.
+1. Inspect `package.json`, `drever.config.ts`, existing assets, local components, and the configured entry. When a deck already exists, use `drever_get_context` if the read-only Drever MCP is connected; otherwise run `drever context --json`.
 2. Derive the audience, purpose, duration, tone, and desired action from the brief. State material assumptions instead of inventing facts.
 3. Plan one dominant idea per slide: establish context, develop the argument, show evidence, and close with a clear conclusion.
 4. Write the configured MDX entry, defaulting to `slides.mdx`.

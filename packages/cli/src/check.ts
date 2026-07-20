@@ -63,13 +63,16 @@ const readDeck = async (path: string): Promise<string> => {
   }
 };
 
+export const createCheckReport = async (entry: string): Promise<DeckPreflightReport> =>
+  preflightDeck(await readDeck(entry), { path: entry });
+
 /** Runs a read-only deck preflight and reports source diagnostics as data. */
 export const checkDeck = async ({
   entry,
   json,
   stdout,
 }: CheckDeckRequest): Promise<CheckExitCode> => {
-  const report = preflightDeck(await readDeck(entry), { path: entry });
+  const report = await createCheckReport(entry);
   stdout.write(json ? formatCheckJson(report) : formatCheckHuman(report));
   return report.summary.errors === 0 ? 0 : 1;
 };

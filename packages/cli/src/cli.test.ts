@@ -1,6 +1,7 @@
 import { mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { Readable } from "node:stream";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import { parseCommand, runCli } from "./cli.ts";
 
@@ -31,6 +32,10 @@ describe("parseCommand", () => {
       name: "context",
     });
     expect(parseCommand(["current", "--json"])).toEqual({ json: true, name: "current" });
+    expect(parseCommand(["mcp", "decks/keynote.mdx"])).toEqual({
+      entry: "decks/keynote.mdx",
+      name: "mcp",
+    });
   });
 
   it("models PDF export flags independently of their position", () => {
@@ -97,6 +102,8 @@ describe("parseCommand", () => {
     [["context", "one.mdx", "two.mdx"], "context accepts at most one deck entry path."],
     [["current", "--json", "--json"], "--json can be specified only once."],
     [["current", "slides.mdx"], "Unknown current argument: slides.mdx"],
+    [["mcp", "one.mdx", "two.mdx"], "mcp accepts at most one deck entry path."],
+    [["mcp", "--port"], "mcp accepts at most one deck entry path."],
   ])("rejects invalid agent and context arguments: %j", (arguments_, message) => {
     expect(() => parseCommand(arguments_)).toThrowError(
       expect.objectContaining({ code: "DREVER_ARGUMENT_INVALID", message }),
@@ -193,6 +200,34 @@ export default ({ command, mode }: Environment) => ({
       json: true,
       stdout,
     });
+  });
+});
+
+describe("runCli mcp", () => {
+  it("resolves production authoring config and reserves stdout for protocol messages", async () => {
+    const root = await mkdtemp(join(tmpdir(), "drever-mcp-cli-test-"));
+    directories.push(root);
+    await writeFile(join(root, "talk.mdx"), "# MCP deck\n");
+    await writeFile(
+      join(root, "drever.config.ts"),
+      `type Environment = { command: string; mode: string };
+export default ({ command, mode }: Environment) => ({
+  entry: command === "build" && mode === "production" ? "talk.mdx" : "wrong.mdx",
+});
+`,
+    );
+    const input = Readable.from([]);
+    const stdout = { write: vi.fn(() => true) };
+    const serveMcp = vi.fn(async () => {});
+
+    await runCli(["mcp"], { cwd: root, stdin: input, stdout, serveMcp });
+
+    expect(serveMcp).toHaveBeenCalledWith({
+      input,
+      output: stdout,
+      project: expect.objectContaining({ entry: join(root, "talk.mdx"), root }),
+    });
+    expect(stdout.write).not.toHaveBeenCalled();
   });
 });
 

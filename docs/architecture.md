@@ -71,6 +71,15 @@ recent open surface. Vite client disconnects remove or roll back session state;
 document and export entries never publish. Production builds contain none of
 this authoring channel.
 
+`drever mcp [entry]` is a separate read-only adapter over the same domains. Its
+dependency-free stdio transport implements MCP `2025-11-25` and writes only
+newline-delimited JSON-RPC to stdout. The static tool catalog projects fresh
+authoring context, slide source, preflight, and development-position evidence;
+it does not introduce another parser or source mutation path. Config and the
+CompilePlan are resolved at process startup, while authored MDX is read and
+compiled for each tool call. Expected Drever and input failures are tool results;
+malformed envelopes and unknown methods remain protocol errors.
+
 Navigation is another artifact boundary. The canonical URL is the source of
 truth for the current slide and Step; Navigation API entry state is only a cache.
 This makes deep links, history traversal, tests, and speaker synchronization agree
@@ -141,7 +150,8 @@ plugin-author extension surface.
 The current delivery slice exposes agent synchronization and authoring context,
 accessibility analysis, and audience, document, speaker, and export surfaces
 through the public `drever agent sync`, `drever context`, `drever check`,
-`drever dev`, `drever current`, `drever build`, and `drever export pdf` flows.
+`drever dev`, `drever current`, `drever mcp`, `drever build`, and
+`drever export pdf` flows.
 `<Note>` is captured into the compiler-owned manifest and removed from audience,
 document, and export trees. The speaker surface consumes that explicit artifact;
 a richer thumbnail overview remains a future view over the same manifest.

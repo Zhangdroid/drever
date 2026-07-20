@@ -13,6 +13,7 @@ import type { CheckDeckRequest, CheckExitCode } from "./check.ts";
 import type { AgentSyncResult, SyncAgentKitOptions } from "./agent-sync.ts";
 import type { WriteAuthoringContextRequest } from "./context.ts";
 import type { WriteCurrentPositionRequest } from "./current-position.ts";
+import type { RunMcpServerRequest } from "./mcp-server.ts";
 
 export type AgentCommand = Readonly<{
   action: "sync";
@@ -41,6 +42,11 @@ export type CurrentCommand = Readonly<{
   name: "current";
 }>;
 
+export type McpCommand = Readonly<{
+  entry?: string;
+  name: "mcp";
+}>;
+
 export type ExportPdfCommand = Readonly<{
   entry?: string;
   format: "pdf";
@@ -55,6 +61,7 @@ export type DreverCommand =
   | ContextCommand
   | CurrentCommand
   | ExportPdfCommand
+  | McpCommand
   | ProjectCommand;
 
 export type PdfExportRequest = Readonly<{
@@ -67,6 +74,7 @@ const EXPORT_PDF_USAGE = "Usage: drever export pdf [entry] [--steps] [-o|--outpu
 const CHECK_USAGE = "Usage: drever check [entry] [--json]";
 const CONTEXT_USAGE = "Usage: drever context [entry] [--json]";
 const CURRENT_USAGE = "Usage: drever current [--json]";
+const MCP_USAGE = "Usage: drever mcp [entry]";
 const AGENT_SYNC_USAGE = "Usage: drever agent sync";
 const CONFIG_COMMAND = {
   build: "build",
@@ -74,6 +82,7 @@ const CONFIG_COMMAND = {
   context: "check",
   dev: "serve",
   export: "build",
+  mcp: "check",
 } as const satisfies Readonly<
   Record<
     Exclude<DreverCommand, AgentCommand | CurrentCommand>["name"],
@@ -220,6 +229,14 @@ const parseAgent = (arguments_: readonly string[]): AgentCommand => {
   return Object.freeze({ action: "sync", name: "agent" });
 };
 
+const parseMcp = (arguments_: readonly string[]): McpCommand => {
+  const [entry, ...rest] = arguments_;
+  if (rest.length > 0 || entry?.startsWith("-") === true) {
+    invalidArgument("mcp accepts at most one deck entry path.", MCP_USAGE);
+  }
+  return Object.freeze({ name: "mcp", ...(entry === undefined ? {} : { entry }) });
+};
+
 export const HELP = `Drever — AI-first MDX presentations
 
 Usage:
@@ -228,6 +245,7 @@ Usage:
   drever check [entry] [--json]
   drever context [entry] [--json]
   drever current [--json]
+  drever mcp [entry]
   drever export pdf [entry] [--steps] [-o|--output <path>]
   drever agent sync
 
@@ -250,6 +268,9 @@ export const parseCommand = (arguments_: readonly string[]): DreverCommand | "he
   }
   if (command === "current") {
     return parseCurrent(rest);
+  }
+  if (command === "mcp") {
+    return parseMcp(rest);
   }
   if (command === "agent") {
     return parseAgent(rest);
@@ -287,6 +308,8 @@ export type RunCliOptions = Readonly<{
   cwd?: string;
   exportPdf?: (request: PdfExportRequest) => Promise<void>;
   syncAgentKit?: (options: SyncAgentKitOptions) => Promise<AgentSyncResult>;
+  serveMcp?: (request: RunMcpServerRequest) => Promise<void>;
+  stdin?: NodeJS.ReadableStream;
   stdout?: Pick<NodeJS.WriteStream, "write">;
   writeAuthoringContext?: (request: WriteAuthoringContextRequest) => Promise<unknown>;
   writeCurrentPosition?: (request: WriteCurrentPositionRequest) => Promise<unknown>;
@@ -378,6 +401,25 @@ export const runCli = async (
         return context.writeAuthoringContext(request);
       });
     await writeAuthoringContext({ project, json: command.json, stdout: output });
+    return;
+  }
+  if (command.name === "mcp") {
+    const project = await resolveDreverPlan({
+      config: loaded.config,
+      ...(command.entry === undefined ? {} : { entry: command.entry }),
+      root,
+    });
+    const serveMcp =
+      options.serveMcp ??
+      (async (request: RunMcpServerRequest): Promise<void> => {
+        const mcp = await import("./mcp-server.ts");
+        await mcp.runMcpServer(request);
+      });
+    await serveMcp({
+      input: options.stdin ?? process.stdin,
+      output,
+      project,
+    });
     return;
   }
   const project = await resolveDreverProject({

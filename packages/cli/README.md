@@ -20,6 +20,7 @@ drever agent sync
 drever context slides.mdx --json
 drever dev slides.mdx
 drever current --json
+drever mcp slides.mdx
 drever build slides.mdx
 drever export pdf slides.mdx --steps --output slides-export.pdf
 ```
@@ -116,6 +117,41 @@ slide id, zero-based slide index, and sparse Step. It follows query and fragment
 changes, falls back across multiple open windows or dev-server sessions, and
 removes session state when the window disconnects. The development-only cache
 is not included in production output.
+
+## Read-only MCP
+
+Run `drever mcp [entry]` to expose the authoring contract as a standalone MCP
+2025-11-25 stdio server. It does not require a development server and adds no
+SDK dependency. Register the local project binary with an MCP client:
+
+```json
+{
+  "mcpServers": {
+    "drever": {
+      "command": "npx",
+      "args": ["drever", "mcp", "slides.mdx"]
+    }
+  }
+}
+```
+
+The server exposes five read-only tools:
+
+- `drever_get_context`: the complete resolved authoring and design contract;
+- `drever_list_slides`: compact slide identity, Step, note, and source ranges;
+- `drever_get_slide`: exact authored source and notes for one slide;
+- `drever_check`: source preflight with `valid` and stable diagnostics;
+- `drever_get_current`: the latest available `drever dev` audience or speaker
+  position.
+
+Each successful tool returns both `structuredContent` and its JSON projection as
+text. Tool calls reread and recompile the MDX source, so edits are visible without
+restarting the server. Restart after changing `drever.config.ts`, the selected
+theme, or plugin registrations because those are resolved when `mcp` starts.
+Source mutation is intentionally outside the MCP server: agents use their normal
+workspace tools, and Git remains the review and rollback boundary. Stdout is
+reserved exclusively for newline-delimited JSON-RPC; process diagnostics use
+stderr.
 
 See [Agent authoring](../../docs/agent-authoring.md) for the ownership contract,
 output scope, and recommended create/edit/review loop.

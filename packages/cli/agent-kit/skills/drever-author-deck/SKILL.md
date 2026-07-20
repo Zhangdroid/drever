@@ -7,7 +7,7 @@ description: Author or edit an existing Drever presentation. Use when asked to r
 
 # Author a Drever deck
 
-1. When the user refers to the visible slide, run `drever current --json` while `drever dev` and an audience or speaker window are active. Then run `drever context --json`; use its source ranges, exact Step stops, theme guidance, layouts, and component manifests as the authoring contract.
+1. When Drever MCP tools are available, use `drever_get_current` for “this slide,” `drever_get_slide` for its exact source, and `drever_get_context` for the design contract. Otherwise run `drever current --json` while `drever dev` and an audience or speaker window are active, then run `drever context --json`. Use source ranges, exact Step stops, theme guidance, layouts, and component manifests as the authoring contract.
 2. Read the complete affected MDX plus imported local components, configured Stage modules, and styles. Preserve unrelated work.
 3. Treat slide boundaries and Step stops as public navigation state. Do not renumber them casually; an exact route may be shared.
 4. Keep one dominant idea, clear hierarchy, and a unique title on every slide. Prefer semantic Markdown and theme layouts over one-off containers.

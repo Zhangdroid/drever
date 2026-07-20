@@ -8,6 +8,7 @@ projects. The contract has two parts:
   a stable, machine-readable form.
 - `drever current --json` identifies the state currently visible in a local
   audience or speaker window.
+- `drever mcp [entry]` exposes those read-only contracts to MCP-capable agents.
 
 The MDX source remains authoritative. Agents use the contract to make smaller,
 more accurate changes and then validate those changes through the same CLI and
@@ -142,6 +143,34 @@ last interactive window disconnects or the development server closes. A missing
 snapshot is an actionable error: start `drever dev`, open an interactive surface,
 and try again. Agents should use this signal to locate the user's current state,
 then use `context --json` and the authored source for edits.
+
+## Connect an MCP agent
+
+Start the dependency-free stdio server directly from an MCP client:
+
+```json
+{
+  "mcpServers": {
+    "drever": {
+      "command": "npx",
+      "args": ["drever", "mcp", "slides.mdx"]
+    }
+  }
+}
+```
+
+The server follows MCP `2025-11-25` and exposes `drever_get_context`,
+`drever_list_slides`, `drever_get_slide`, `drever_check`, and
+`drever_get_current`. Every tool is annotated read-only and returns both
+structured JSON and a text projection. Slide and context calls read the current
+MDX on every invocation. The config, theme, plugin plan, and entry are resolved
+when the server starts; restart it after changing those inputs.
+
+MCP does not replace the file workflow. Drever deliberately leaves source edits
+to the agent's normal workspace tools so permissions, diffs, tests, and Git
+rollback remain visible. `drever_get_current` is the only tool that depends on a
+running `drever dev` session; it returns `available: false` when no interactive
+window is connected. All other tools work without a browser or server.
 
 ### Use the motion vocabulary
 

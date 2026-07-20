@@ -38,6 +38,7 @@ drever context --json
 drever check
 drever dev
 drever current --json
+drever mcp
 drever build
 drever export pdf
 ```
@@ -46,7 +47,8 @@ drever export pdf
 describes the resolved deck and design system as a versioned, machine-readable
 contract. `check` runs the source-based accessibility preflight, `dev` starts
 the interactive viewer, and `current --json` reports the most recently updated
-open audience or speaker state. `build` writes a standalone site to `dist/`.
+open audience or speaker state. `mcp` exposes the same authoring evidence as
+read-only structured tools over stdio. `build` writes a standalone site to `dist/`.
 `export pdf` writes `slides-export.pdf`; pass `--steps` to emit each authored
 reveal state. The default entry is `slides.mdx`; project settings live in
 `drever.config.ts`. See the [Quick start](./docs/quickstart.md) for installation,
@@ -81,6 +83,8 @@ The runnable vertical slice includes:
   source ranges, and the resolved design contract;
 - an ephemeral live-position command for resolving “this slide” across open
   audience and speaker windows without shipping authoring code in builds;
+- a dependency-free MCP 2025-11-25 stdio server with read-only context, slide,
+  preflight, and current-position tools;
 - state-preserving MDX Fast Refresh when the navigation manifest is unchanged;
 - structured diagnostics and deterministic plugin, theme, MDX, and Vite planning;
 - default Shiki and reset-free Tailwind CSS plugins, plus opt-in build-time math;

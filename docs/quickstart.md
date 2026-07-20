@@ -115,6 +115,28 @@ React components. Use the checks and rendered inspection below for visual,
 interaction, and delivery evidence. See [Agent authoring](./agent-authoring.md)
 for ownership details and the recommended create/edit/review loop.
 
+### Connect an MCP agent
+
+Expose the same evidence as read-only MCP tools without starting Vite:
+
+```json
+{
+  "mcpServers": {
+    "drever": {
+      "command": "npx",
+      "args": ["drever", "mcp", "slides.mdx"]
+    }
+  }
+}
+```
+
+`drever mcp [entry]` uses the newline-delimited stdio transport from MCP
+`2025-11-25`. It offers full context, compact slide listing, exact one-slide
+source, source preflight, and the optional live `drever dev` position. MDX is
+reread on every tool call; restart the process after config, theme, or plugin
+changes. The tools never modify source. Agents edit normal project files and run
+the existing checks, leaving permissions and Git review in one place.
+
 ## Check accessibility
 
 Run the source-based preflight before presenting or building:

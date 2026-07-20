@@ -1,7 +1,8 @@
-import { execFile } from "node:child_process";
+import { execFile, spawn } from "node:child_process";
 import { mkdtemp, readFile, realpath, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { createInterface } from "node:readline";
 import { promisify } from "node:util";
 import { expect, test } from "@playwright/test";
 
@@ -211,4 +212,90 @@ test("the built CLI exposes the canonical basic-deck authoring context", async (
     summary: { errors: 0, warnings: 0, info: 0 },
     diagnostics: [],
   });
+});
+
+test("the built stdio MCP serves fresh source through protocol-only stdout", async () => {
+  const root = await realpath(await mkdtemp(join(tmpdir(), "drever-mcp-e2e-")));
+  const slides = join(root, "slides.mdx");
+  await writeFile(slides, "# Opening\n\n---\n\n## Before\n");
+  const child = spawn(process.execPath, [cli, "mcp"], {
+    cwd: root,
+    env: environment,
+    stdio: ["pipe", "pipe", "pipe"],
+  });
+  const lines = createInterface({ input: child.stdout, crlfDelay: Number.POSITIVE_INFINITY });
+  const responses = lines[Symbol.asyncIterator]();
+  let stderr = "";
+  child.stderr.on("data", (chunk: Buffer) => (stderr += chunk.toString()));
+
+  const send = (message: object): void => {
+    child.stdin.write(`${JSON.stringify(message)}\n`);
+  };
+  const requestMcp = async (message: object): Promise<Record<string, unknown>> => {
+    send(message);
+    const response = await responses.next();
+    if (response.done) {
+      throw new Error(`Drever MCP exited before responding.\n${stderr}`);
+    }
+    return JSON.parse(response.value) as Record<string, unknown>;
+  };
+  const callTool = (id: number, name: string, arguments_: object = {}) =>
+    requestMcp({
+      jsonrpc: "2.0",
+      id,
+      method: "tools/call",
+      params: { name, arguments: arguments_ },
+    });
+
+  try {
+    await expect(
+      requestMcp({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "initialize",
+        params: {
+          protocolVersion: "2025-11-25",
+          capabilities: {},
+          clientInfo: { name: "drever-e2e", version: "1.0.0" },
+        },
+      }),
+    ).resolves.toMatchObject({
+      id: 1,
+      result: { protocolVersion: "2025-11-25", capabilities: { tools: {} } },
+    });
+    send({ jsonrpc: "2.0", method: "notifications/initialized" });
+
+    await expect(callTool(2, "drever_get_slide", { number: 2 })).resolves.toMatchObject({
+      id: 2,
+      result: {
+        structuredContent: { number: 2, title: "Before", source: "## Before" },
+      },
+    });
+
+    await writeFile(slides, "# Opening\n\n---\n\n## After\n\n<Step at={3}>Fresh.</Step>\n");
+    await expect(callTool(3, "drever_get_slide", { number: 2 })).resolves.toMatchObject({
+      id: 3,
+      result: {
+        structuredContent: {
+          number: 2,
+          title: "After",
+          stepStops: [3],
+          source: "## After\n\n<Step at={3}>Fresh.</Step>",
+        },
+      },
+    });
+    await expect(callTool(4, "drever_check")).resolves.toMatchObject({
+      id: 4,
+      result: { structuredContent: { valid: true, slideCount: 2 } },
+    });
+    await expect(callTool(5, "drever_get_current")).resolves.toMatchObject({
+      id: 5,
+      result: { structuredContent: { available: false, sourcePath: slides } },
+    });
+  } finally {
+    child.stdin.end();
+    await expect.poll(() => child.exitCode, { message: stderr }).toBe(0);
+    lines.close();
+    await rm(root, { force: true, recursive: true });
+  }
 });

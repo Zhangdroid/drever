@@ -114,8 +114,15 @@ output. See [Agent authoring](./agent-authoring.md).
 `drever current --json` adds the first live authoring signal: an ephemeral,
 versioned snapshot of the last audience or speaker position published by
 `drever dev`. It lets an agent resolve “this slide” without introducing an
-editor service or shipping authoring code in production bundles. Read-only MCP
-access and source-linked visual review build on this contract.
+editor service or shipping authoring code in production bundles.
+
+`drever mcp [entry]` now exposes the context, compact slide catalog, exact slide
+source, source preflight, and optional development position as dependency-free,
+read-only MCP `2025-11-25` stdio tools. Tool calls reread authored MDX, while the
+config and CompilePlan remain stable for one server process. Source writes stay
+in normal workspace tools so permission, diff, testing, and rollback semantics
+do not split across two editing systems. Source-linked visual review builds on
+this boundary.
 
 ### P1-B — motion choreography: delivered
 
