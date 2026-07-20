@@ -5,6 +5,7 @@ import type { DeckManifest } from "@drever/schema";
 import {
   build,
   createServer,
+  searchForWorkspaceRoot,
   type Alias,
   type InlineConfig,
   type Plugin,
@@ -90,6 +91,19 @@ const projectModuleResolver = (root: string): Plugin => {
   };
 };
 
+/** @internal Keeps generated apps, authored files, and workspace package assets available to Vite. */
+export const resolveServerFsAllow = (
+  projectRoot: string,
+  appRoot: string,
+  resolvedAliases: readonly string[],
+  workspaceRoot = searchForWorkspaceRoot(projectRoot),
+): string[] => [
+  appRoot,
+  projectRoot,
+  workspaceRoot,
+  ...resolvedAliases.map((replacement) => dirname(replacement)),
+];
+
 const inlineConfig = (
   project: ResolvedDreverProject,
   appRoot: string,
@@ -104,7 +118,11 @@ const inlineConfig = (
     root: appRoot,
     server: {
       fs: {
-        allow: [appRoot, project.root, ...aliases.map(({ replacement }) => dirname(replacement))],
+        allow: resolveServerFsAllow(
+          project.root,
+          appRoot,
+          aliases.map(({ replacement }) => replacement),
+        ),
       },
       ...project.config.server,
     },

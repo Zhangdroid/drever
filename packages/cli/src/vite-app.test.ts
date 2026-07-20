@@ -2,8 +2,28 @@ import { describe, expect, it, vi } from "vite-plus/test";
 import {
   attachPrivateAppLifetime,
   resolvePrivateAppOptions,
+  resolveServerFsAllow,
   resolveSpeakerUrls,
 } from "./vite-app.ts";
+
+describe("resolveServerFsAllow", () => {
+  it("allows assets from the authored workspace and resolved framework packages", () => {
+    expect(
+      resolveServerFsAllow(
+        "/workspace/examples/deck",
+        "/private/generated-app",
+        ["/workspace/packages/client/index.ts", "/opt/drever/core/index.js"],
+        "/workspace",
+      ),
+    ).toEqual([
+      "/private/generated-app",
+      "/workspace/examples/deck",
+      "/workspace",
+      "/workspace/packages/client",
+      "/opt/drever/core",
+    ]);
+  });
+});
 
 describe("resolvePrivateAppOptions", () => {
   it("converts configured rehearsal minutes to the speaker runtime contract", () => {
