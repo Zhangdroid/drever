@@ -24,7 +24,9 @@ document.querySelector("img")!.src = lockupUrl;
 The JavaScript export contains the same CSS-ready values as the custom properties:
 
 ```ts
-brandTokens.color.ink; // "#172033"
+brandTokens.color.ink; // "#19172B"
+brandTokens.color.signal; // "#C7F03A"
+brandTokens.color.continuity; // "#5B45D8"
 brandTokens.motion.duration.standard; // "320ms"
 ```
 

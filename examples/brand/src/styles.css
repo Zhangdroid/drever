@@ -5,12 +5,12 @@
   --spec-ink-soft: var(--drever-brand-color-graphite);
   --spec-paper: var(--drever-brand-color-paper);
   --spec-surface: var(--drever-brand-color-white);
-  --spec-blue: var(--drever-brand-color-indigo);
-  --spec-continuity: var(--drever-brand-color-indigo);
-  --spec-signal: var(--drever-brand-color-coral);
+  --spec-focus: var(--drever-brand-color-continuity);
+  --spec-continuity: var(--drever-brand-color-continuity);
+  --spec-signal: var(--drever-brand-color-signal);
   --spec-line: var(--drever-brand-color-line);
   --spec-muted: var(--drever-brand-color-graphite);
-  --spec-technical-surface: var(--drever-brand-color-indigo-soft);
+  --spec-technical-surface: var(--drever-brand-color-continuity-soft);
   --spec-display: var(--drever-brand-font-family-display, var(--drever-brand-font-family-sans));
   --spec-sans: var(--drever-brand-font-family-sans);
   --spec-mono: var(--drever-brand-font-family-mono);
@@ -41,7 +41,7 @@
   --spec-line: var(--drever-brand-color-night-line);
   --spec-muted: var(--drever-brand-color-night-muted);
   --spec-technical-surface: var(--drever-brand-color-night-surface);
-  --spec-blue: var(--drever-brand-color-coral);
+  --spec-focus: var(--drever-brand-color-signal);
 }
 
 * {
@@ -96,7 +96,7 @@ figure {
 }
 
 :focus-visible {
-  outline: 2px solid var(--spec-blue);
+  outline: 2px solid var(--spec-focus);
   outline-offset: 3px;
 }
 
@@ -177,7 +177,7 @@ figure {
   left: 0;
   height: 1px;
   content: "";
-  background: var(--spec-blue);
+  background: var(--spec-focus);
   transform: scaleX(0);
   transform-origin: right;
   transition: transform var(--spec-duration-quick) var(--spec-ease-out);
@@ -206,7 +206,7 @@ figure {
 
 .theme-toggle:hover {
   color: var(--drever-brand-color-ink);
-  background: var(--drever-brand-color-indigo-soft);
+  background: var(--drever-brand-color-continuity-soft);
 }
 
 :root[data-theme="dark"] .theme-toggle:hover {
@@ -353,7 +353,7 @@ figure {
   gap: 0.55rem;
   align-items: center;
   padding: 0.65rem 0;
-  border-bottom: 1px solid var(--spec-blue);
+  border-bottom: 1px solid var(--spec-focus);
 }
 
 .hero-stage {
@@ -545,7 +545,7 @@ figure {
 
 .logo-lab-kicker {
   margin-bottom: 1rem;
-  color: var(--drever-brand-color-coral);
+  color: var(--drever-brand-color-signal);
 }
 
 .logo-lab-status {
@@ -610,7 +610,7 @@ figure {
 
 .logo-concept-selected .logo-concept-heading {
   color: var(--drever-brand-color-ink);
-  background: var(--drever-brand-color-coral);
+  background: var(--drever-brand-color-signal);
 }
 
 .logo-concept-selected .logo-concept-heading span {
@@ -637,7 +637,7 @@ figure {
   left: 0;
   height: 1px;
   content: "";
-  background: var(--drever-brand-color-coral);
+  background: var(--drever-brand-color-signal);
   opacity: 0.42;
 }
 
@@ -818,7 +818,7 @@ figure {
 
 .section-index {
   margin-bottom: 1.5rem;
-  color: var(--spec-blue);
+  color: var(--spec-focus);
 }
 
 .section-intro > p,
@@ -859,7 +859,7 @@ figure {
 
 .principle-number {
   padding-top: 0.2rem;
-  color: var(--spec-blue);
+  color: var(--spec-focus);
   font-family: var(--spec-mono);
   font-size: 0.65rem;
 }
@@ -947,7 +947,7 @@ figure {
   display: grid;
   width: 6rem;
   aspect-ratio: 1;
-  border: 1px dashed var(--spec-blue);
+  border: 1px dashed var(--spec-focus);
   place-items: center;
 }
 
@@ -981,7 +981,7 @@ figure {
   position: absolute;
   z-index: 2;
   padding: 0.2rem;
-  color: var(--spec-blue);
+  color: var(--spec-focus);
   font-family: var(--spec-mono);
   font-size: 0.55rem;
   background: var(--spec-paper);
@@ -1078,12 +1078,12 @@ figure {
   --swatch: var(--drever-brand-color-paper);
 }
 
-.swatch-indigo {
-  --swatch: var(--drever-brand-color-indigo);
+.swatch-continuity {
+  --swatch: var(--drever-brand-color-continuity);
 }
 
-.swatch-coral {
-  --swatch: var(--drever-brand-color-coral);
+.swatch-signal {
+  --swatch: var(--drever-brand-color-signal);
 }
 
 .swatch-graphite {
@@ -1250,19 +1250,19 @@ figure {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 0;
-  border-top: 1px solid var(--spec-blue);
-  border-left: 1px solid var(--spec-blue);
+  border-top: 1px solid var(--spec-focus);
+  border-left: 1px solid var(--spec-focus);
 }
 
 .radius-scale > div {
   display: flex;
   min-height: 7rem;
   padding: 0.7rem;
-  border-right: 1px solid var(--spec-blue);
-  border-bottom: 1px solid var(--spec-blue);
+  border-right: 1px solid var(--spec-focus);
+  border-bottom: 1px solid var(--spec-focus);
   flex-direction: column;
   justify-content: space-between;
-  color: var(--spec-blue);
+  color: var(--spec-focus);
   background: var(--spec-technical-surface);
 }
 
@@ -1652,7 +1652,7 @@ figure {
 }
 
 .closing .section-index {
-  color: var(--drever-brand-color-coral);
+  color: var(--drever-brand-color-signal);
 }
 
 .closing h2 {

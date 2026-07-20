@@ -37,7 +37,7 @@ function applyTheme(nextTheme: Theme): void {
   themeToggle.ariaPressed = String(isDark);
   themeToggle.ariaLabel = `Switch to ${isDark ? "light" : "dark"} mode`;
   themeLabel.textContent = isDark ? "Light" : "Dark";
-  themeColor.content = isDark ? "#0d1019" : "#f8f8f4";
+  themeColor.content = isDark ? "#111018" : "#F6F3E9";
 
   for (const image of document.querySelectorAll<HTMLImageElement>("[data-drever-lockup]")) {
     image.src = isDark ? dreverLockupDarkUrl : dreverLockupUrl;

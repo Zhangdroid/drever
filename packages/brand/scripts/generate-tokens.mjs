@@ -166,12 +166,32 @@ function kebabCase(value) {
     .toLowerCase();
 }
 
+function wrapCssValue(value, indentation = "    ", maxWidth = 100) {
+  const parts = value.split(", ");
+  if (parts.length === 1) return `${indentation}${value};`;
+
+  const lines = [];
+  let line = indentation;
+  for (const [index, part] of parts.entries()) {
+    const segment = `${part}${index === parts.length - 1 ? ";" : ","}`;
+    const candidate = line === indentation ? `${line}${segment}` : `${line} ${segment}`;
+    if (line !== indentation && candidate.length > maxWidth) {
+      lines.push(line);
+      line = `${indentation}${segment}`;
+    } else {
+      line = candidate;
+    }
+  }
+  lines.push(line);
+  return lines.join("\n");
+}
+
 export function renderCss(tokens) {
   const declarations = tokens.map(({ name, value }) => {
     const property = `--drever-brand-${kebabCase(name)}`;
     const cssValue = value.startsWith("#") ? value.toLowerCase() : value;
     const declaration = `  ${property}: ${cssValue};`;
-    return declaration.length > 100 ? `  ${property}:\n    ${cssValue};` : declaration;
+    return declaration.length > 100 ? `  ${property}:\n${wrapCssValue(cssValue)}` : declaration;
   });
   return `/* Generated from tokens.json. Run \`vp run -F @drever/brand generate\` to update. */\n:root {\n${declarations.join("\n")}\n}\n`;
 }
@@ -199,7 +219,11 @@ export function renderTypescript(tokens) {
         : typeof child === "string" && child.includes('"') && !child.includes("'")
           ? `'${child}'`
           : JSON.stringify(child);
-      return `${"  ".repeat(depth + 1)}${property}: ${rendered},`;
+      const propertyIndentation = "  ".repeat(depth + 1);
+      const entry = `${propertyIndentation}${property}: ${rendered},`;
+      return !isRecord(child) && entry.length > 100
+        ? `${propertyIndentation}${property}:\n${"  ".repeat(depth + 2)}${rendered},`
+        : entry;
     });
     return `{\n${entries.join("\n")}\n${indentation}}`;
   }

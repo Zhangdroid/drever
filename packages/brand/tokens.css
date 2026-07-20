@@ -1,21 +1,22 @@
 /* Generated from tokens.json. Run `vp run -F @drever/brand generate` to update. */
 :root {
-  --drever-brand-color-ink: #172033;
-  --drever-brand-color-paper: #f8f8f4;
+  --drever-brand-color-ink: #19172b;
+  --drever-brand-color-paper: #f6f3e9;
   --drever-brand-color-white: #ffffff;
-  --drever-brand-color-coral: #ff704d;
-  --drever-brand-color-coral-soft: #ffe4dc;
-  --drever-brand-color-indigo: #4b56e8;
-  --drever-brand-color-indigo-soft: #e5e7ff;
-  --drever-brand-color-graphite: #667085;
-  --drever-brand-color-line: #d9dde7;
-  --drever-brand-color-night: #0d1019;
-  --drever-brand-color-night-surface: #181c2b;
-  --drever-brand-color-night-line: #353a4f;
-  --drever-brand-color-night-text: #f8f8f4;
-  --drever-brand-color-night-muted: #aeb5c6;
+  --drever-brand-color-signal: #c7f03a;
+  --drever-brand-color-signal-soft: #ecf8c6;
+  --drever-brand-color-continuity: #5b45d8;
+  --drever-brand-color-continuity-soft: #e9e4ff;
+  --drever-brand-color-graphite: #686474;
+  --drever-brand-color-line: #d9d4e1;
+  --drever-brand-color-night: #111018;
+  --drever-brand-color-night-surface: #1d1a2a;
+  --drever-brand-color-night-line: #3a3549;
+  --drever-brand-color-night-text: #f6f3e9;
+  --drever-brand-color-night-muted: #b9b3c7;
   --drever-brand-font-family-display:
-    "Bricolage Grotesque", "Instrument Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    "Bricolage Grotesque", "Instrument Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    sans-serif;
   --drever-brand-font-family-sans:
     "Instrument Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   --drever-brand-font-family-mono:

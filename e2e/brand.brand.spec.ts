@@ -25,22 +25,22 @@ test("the specimen renders the canonical local brand system at desktop and mobil
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Ideas, in motion.");
   await expect(page.getByText("Keep 25% of the rendered mark height clear")).toBeVisible();
-  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(248, 248, 244)");
+  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(246, 243, 233)");
 
   const tokens = await page.evaluate(() => {
     const style = getComputedStyle(document.documentElement);
     return Object.fromEntries(
-      ["ink", "paper", "coral", "indigo"].map((name) => [
+      ["ink", "paper", "signal", "continuity"].map((name) => [
         name,
         style.getPropertyValue(`--drever-brand-color-${name}`).trim().toUpperCase(),
       ]),
     );
   });
   expect(tokens).toEqual({
-    coral: "#FF704D",
-    indigo: "#4B56E8",
-    ink: "#172033",
-    paper: "#F8F8F4",
+    continuity: "#5B45D8",
+    ink: "#19172B",
+    paper: "#F6F3E9",
+    signal: "#C7F03A",
   });
 
   const images = page.locator("[data-drever-lockup], [data-drever-mark]");
@@ -91,7 +91,7 @@ test("theme switching uses a native View Transition and swaps the approved dark 
   const readHeroMark = async (): Promise<string> =>
     decodeURIComponent((await heroMark.getAttribute("src")) ?? "");
   await expect(toggle).toHaveAccessibleName("Switch to dark mode");
-  expect(await readHeroMark()).toContain("#172033");
+  expect(await readHeroMark()).toContain("#19172B");
   await expect(headerLockup).not.toHaveAttribute("src", /lockup-dark/u);
 
   const transition = await captureNextViewTransition(page, () => toggle.click());
@@ -99,12 +99,12 @@ test("theme switching uses a native View Transition and swaps the approved dark 
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await expect(toggle).toHaveAttribute("aria-pressed", "true");
   await expect(toggle).toHaveAccessibleName("Switch to light mode");
-  await expect.poll(readHeroMark).toContain("#F8F8F4");
+  await expect.poll(readHeroMark).toContain("#F6F3E9");
   await expect(headerLockup).toHaveAttribute("src", /lockup-dark/u);
-  await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute("content", "#0d1019");
+  await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute("content", "#111018");
   await waitForViewTransition(page, transition, "finished");
 
-  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(13, 16, 25)");
+  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(17, 16, 24)");
   expect(await readViewTransitionCalls(page)).toEqual([
     { kind: "document", target: "document", types: [] },
   ]);

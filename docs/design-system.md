@@ -12,23 +12,23 @@ The brand package is not a component library and is not a parent theme.
 
 ## Strategy
 
-Drever's logo narrative is **Source / Break / Frame**. The two Coral marks
+Drever's logo narrative is **Source / Break / Frame**. The two Signal marks
 establish authored source, while the final Ink mark crosses the break and forms
 the frame. Product and documentation compositions translate that transformation
 into the **Stage / Signal / Shift** layout grammar:
 
 - **Stage:** one stable Paper or Ink field with a clear reading axis;
-- **Signal:** at most one Coral horizontal rail or band that marks the current
+- **Signal:** at most one Citron horizontal rail or band that marks the current
   decision, active state, or narrative turn;
 - **Shift:** at most one changed object displaced by the canonical `12px`;
-- **Continuity:** Indigo used as a thin route, connector, or navigation state;
+- **Continuity:** Iris used as a thin route, connector, or navigation state;
 - **Motion:** only the Signal or changed object moves while the Stage stays put.
 
 The Signal and Shift are scarce devices. Keep surrounding geometry aligned so
 the exception has a reason to exist. Prefer rectilinear planes and edge-to-edge
 relationships to floating rounded cards. Avoid generic split SaaS heroes,
-gradients, glass effects, ornamental grids, repeated card mosaics, and a large
-Coral field competing with a large Indigo field.
+gradients, glass effects, ornamental grids, repeated card mosaics, and two large
+accent fields competing for attention.
 
 ## Ownership
 
@@ -106,16 +106,16 @@ Do not:
 
 ### Core palette
 
-| Token                         | Value     | Primary role                                        |
-| ----------------------------- | --------- | --------------------------------------------------- |
-| `--drever-brand-color-ink`    | `#172033` | Primary text, structure, and dark fields            |
-| `--drever-brand-color-paper`  | `#F8F8F4` | Primary light canvas and reversed text              |
-| `--drever-brand-color-coral`  | `#FF704D` | Current action, active state, and decisive emphasis |
-| `--drever-brand-color-indigo` | `#4B56E8` | Navigation, links, connection, and continuity       |
+| Token                             | Value     | Primary role                                        |
+| --------------------------------- | --------- | --------------------------------------------------- |
+| `--drever-brand-color-ink`        | `#19172B` | Primary text, structure, and dark fields            |
+| `--drever-brand-color-paper`      | `#F6F3E9` | Primary light canvas and reversed text              |
+| `--drever-brand-color-signal`     | `#C7F03A` | Current action, active state, and decisive emphasis |
+| `--drever-brand-color-continuity` | `#5B45D8` | Navigation, links, connection, and continuity       |
 
-Paper and Ink should occupy most of a surface. Use Coral and Indigo as roles,
-not as interchangeable decoration. A component normally uses one accent. Never
-place Coral and Indigo text directly on each other.
+Paper and Ink should occupy most of a surface. Use Citron Signal and Iris
+Continuity as roles, not as interchangeable decoration. A component normally
+uses one accent. Do not turn the two accents into competing background fields.
 
 ### Derived UI roles
 
@@ -123,16 +123,16 @@ Derived values are deterministic mixtures of the core palette. Product and
 documentation CSS should consume semantic aliases rather than repeating the
 mixtures inside components.
 
-| Role                        | Light value         | Dark value                     |
-| --------------------------- | ------------------- | ------------------------------ |
-| Canvas                      | Paper `#F8F8F4`     | Night `#0D1019`                |
-| Text                        | Ink `#172033`       | Night Text `#F8F8F4`           |
-| Muted text                  | Graphite `#667085`  | Night Muted `#AEB5C6`          |
-| Subtle surface              | White `#FFFFFF`     | Night Surface `#181C2B`        |
-| Border                      | Line `#D9DDE7`      | Night Line `#353A4F`           |
-| Primary action              | Coral with Ink text | Coral with Ink text            |
-| Link or navigational action | Indigo              | Coral or underlined Night Text |
-| Focus ring                  | Indigo              | Coral                          |
+| Role                        | Light value          | Dark value                      |
+| --------------------------- | -------------------- | ------------------------------- |
+| Canvas                      | Paper `#F6F3E9`      | Night `#111018`                 |
+| Text                        | Ink `#19172B`        | Night Text `#F6F3E9`            |
+| Muted text                  | Graphite `#686474`   | Night Muted `#B9B3C7`           |
+| Subtle surface              | White `#FFFFFF`      | Night Surface `#1D1A2A`         |
+| Border                      | Line `#D9D4E1`       | Night Line `#3A3549`            |
+| Primary action              | Signal with Ink text | Signal with Ink text            |
+| Link or navigational action | Continuity           | Signal or underlined Night Text |
+| Focus ring                  | Continuity           | Signal                          |
 
 Borders and subtle surfaces are non-text roles and must not be reused as text
 colors. The subtle border is decorative; an interactive control must not
@@ -140,15 +140,15 @@ depend on that border alone to make its boundary or state perceivable.
 
 ### Known contrast pairs
 
-| Pair            |  Contrast | Use                                             |
-| --------------- | --------: | ----------------------------------------------- |
-| Ink on Paper    | `15.28:1` | Text at any supported size                      |
-| Indigo on Paper |  `5.19:1` | Normal text, links, icons, and focus indicators |
-| Ink on Coral    |  `5.95:1` | Text and icons on primary actions               |
-| Coral on Night  |  `6.95:1` | Dark-mode links, focus, and decisive emphasis   |
-| Paper on Coral  |  `2.57:1` | Not valid for normal text or essential icons    |
-| Indigo on Ink   |  `2.94:1` | Not valid for normal text or essential icons    |
-| Coral on Indigo |  `2.02:1` | Do not use as a foreground/background pair      |
+| Pair                 |  Contrast | Use                                             |
+| -------------------- | --------: | ----------------------------------------------- |
+| Ink on Paper         | `15.78:1` | Text at any supported size                      |
+| Continuity on Paper  |  `5.75:1` | Normal text, links, icons, and focus indicators |
+| Ink on Signal        | `13.31:1` | Text and icons on primary actions               |
+| Signal on Night      | `14.36:1` | Dark-mode links, focus, and decisive emphasis   |
+| Paper on Signal      |  `1.19:1` | Not valid for text or essential icons           |
+| Continuity on Ink    |  `2.74:1` | Not valid for text or essential icons           |
+| Signal on Continuity |  `4.85:1` | Accessible, but avoid competing accent roles    |
 
 Color must not be the only indication of selection, validity, or progress. Add
 text, shape, position, underline, or another persistent cue.
@@ -299,8 +299,8 @@ Every branded surface must meet these rules:
 
 - normal text reaches at least `4.5:1`; large text and essential graphics reach
   at least `3:1`;
-- focus is a visible `2px` ring with a `2px` offset: Indigo on light surfaces,
-  Coral on Ink surfaces, and Ink on Coral surfaces;
+- focus is a visible `2px` ring with a `2px` offset: Continuity on light
+  surfaces, Signal on Ink surfaces, and Ink on Signal surfaces;
 - focus, hover, active, selected, invalid, and disabled states remain distinct
   without relying on color alone;
 - interactive targets are at least `44 × 44px` unless they are inline text;
@@ -357,18 +357,18 @@ composition grammar. The logo represents MDX source becoming a visual stage;
 do not use the logo punctuation as decorative page furniture.
 
 Use Bricolage Grotesque Variable at natural width for expressive headings. Use
-Instrument Sans Variable for prose and product UI. Use #F8F8F4 Paper and
-#172033 Ink for most of the surface. Use #FF704D Coral only for the current
-action, active state, or one decisive emphasis. Use #4B56E8 Indigo as a thin
-route for links, navigation, connection, and continuity. Never place Paper text
-on Coral, Indigo text on Ink, or Coral on Indigo for essential content.
+Instrument Sans Variable for prose and product UI. Use #F6F3E9 Paper and
+#19172B Ink for most of the surface. Use #C7F03A Citron Signal only for the
+current action, active state, or one decisive emphasis. Use #5B45D8 Iris
+Continuity as a thin route for links, navigation, connection, and continuity.
+Never place Paper text on Signal or Continuity text on Ink for essential content.
 
-Create one stable rectilinear Stage, at most one horizontal Coral Signal, and at
+Create one stable rectilinear Stage, at most one horizontal Citron Signal, and at
 most one object shifted by 12px. Keep surrounding geometry aligned. Do not use a
 generic split SaaS hero or turn every section into a rounded card. Avoid
 gradients, glass effects, ornamental grids, repeated card mosaics, excessive
-rounding, and decorative animation. Do not make Coral and Indigo compete as two
-large color fields.
+rounding, and decorative animation. Do not make the two accents compete as large
+color fields.
 
 Use the 4px spacing scale. Prefer square edges; reserve 8/14px radii for
 controls and 20/32px radii for one dominant surface. Use 24px two-stroke icons,

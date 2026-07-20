@@ -2,17 +2,17 @@
   --drever-editorial-paper: var(--drever-brand-color-paper);
   --drever-editorial-ink: var(--drever-brand-color-ink);
   --drever-editorial-muted: var(--drever-brand-color-graphite);
-  --drever-editorial-accent: var(--drever-brand-color-indigo);
-  --drever-editorial-accent-soft: var(--drever-brand-color-indigo-soft);
+  --drever-editorial-accent: var(--drever-brand-color-continuity);
+  --drever-editorial-accent-soft: var(--drever-brand-color-continuity-soft);
   --drever-editorial-surface: var(--drever-brand-color-white);
   --drever-editorial-border: var(--drever-brand-color-line);
   --drever-editorial-code: var(--drever-brand-color-ink);
   --drever-editorial-code-ink: var(--drever-brand-color-paper);
   --drever-theme-ink: var(--drever-brand-color-ink);
   --drever-theme-muted: var(--drever-brand-color-graphite);
-  --drever-theme-accent: var(--drever-brand-color-indigo);
-  --drever-theme-accent-strong: #3039a8;
-  --drever-theme-accent-soft: var(--drever-brand-color-indigo-soft);
+  --drever-theme-accent: var(--drever-brand-color-continuity);
+  --drever-theme-accent-strong: #4030a8;
+  --drever-theme-accent-soft: var(--drever-brand-color-continuity-soft);
   --drever-theme-surface: var(--drever-brand-color-white);
   --drever-theme-border: var(--drever-brand-color-line);
   --drever-motion-duration: var(--drever-brand-motion-duration-expressive);
@@ -22,12 +22,12 @@
   --drever-recipe-step-block-from-translate: 0 var(--drever-brand-geometry-shift);
   --drever-recipe-step-inline-from-translate: var(--drever-brand-geometry-shift) 0;
   --drever-recipe-replace-inline-from-translate: var(--drever-brand-geometry-shift) 0;
-  --tour-coral: var(--drever-brand-color-coral);
-  --tour-coral-soft: var(--drever-brand-color-coral-soft);
+  --tour-signal: var(--drever-brand-color-signal);
+  --tour-signal-soft: var(--drever-brand-color-signal-soft);
   --tour-ink: var(--drever-brand-color-ink);
   --tour-paper: var(--drever-brand-color-paper);
-  --tour-indigo: var(--drever-brand-color-indigo);
-  --tour-indigo-soft: var(--drever-brand-color-indigo-soft);
+  --tour-continuity: var(--drever-brand-color-continuity);
+  --tour-continuity-soft: var(--drever-brand-color-continuity-soft);
   --tour-line: var(--drever-brand-color-line);
   --tour-muted: var(--drever-brand-color-graphite);
   font-family: var(--drever-brand-font-family-sans);
@@ -36,8 +36,8 @@
 
 .drever-canvas {
   box-shadow:
-    0 48px 112px rgb(13 16 25 / 26%),
-    0 1px 8px rgb(13 16 25 / 18%);
+    0 48px 112px color-mix(in srgb, var(--drever-brand-color-night), transparent 74%),
+    0 1px 8px color-mix(in srgb, var(--drever-brand-color-night), transparent 82%);
 }
 
 .drever-viewer [data-drever-stage-layer="background"] {
@@ -76,8 +76,8 @@
   right: 108px;
   width: 236px;
   height: 236px;
-  border-top: 1px solid color-mix(in srgb, var(--tour-indigo), transparent 78%);
-  border-right: 1px solid color-mix(in srgb, var(--tour-indigo), transparent 78%);
+  border-top: 1px solid color-mix(in srgb, var(--tour-continuity), transparent 78%);
+  border-right: 1px solid color-mix(in srgb, var(--tour-continuity), transparent 78%);
   content: "";
 }
 
@@ -87,9 +87,9 @@
   left: 108px;
   width: 248px;
   height: var(--drever-brand-geometry-signal-band);
-  border-right: 48px solid var(--tour-indigo);
+  border-right: 48px solid var(--tour-continuity);
   box-sizing: border-box;
-  background: var(--tour-coral);
+  background: var(--tour-signal);
   opacity: var(--tour-signal-opacity);
   scale: var(--tour-signal-scale);
   transform-origin: left center;
@@ -172,7 +172,7 @@
 
 [data-drever-slide] > h2 strong {
   padding-inline: 0.12em;
-  background: var(--tour-coral);
+  background: var(--tour-signal);
   box-decoration-break: clone;
   color: var(--tour-ink);
   -webkit-box-decoration-break: clone;
@@ -180,7 +180,7 @@
 
 .tour-kicker,
 .tour-continuity-kicker {
-  color: var(--tour-indigo);
+  color: var(--tour-continuity);
   font-family: var(--drever-brand-font-family-sans);
   font-size: 15px;
   font-weight: 650;
@@ -211,13 +211,13 @@
 .drever-editorial-masthead.tour-cover::before {
   left: 0;
   width: 300px;
-  background: var(--tour-coral);
+  background: var(--tour-signal);
 }
 
 .drever-editorial-masthead.tour-cover::after {
   left: 300px;
   width: 64px;
-  background: var(--tour-indigo);
+  background: var(--tour-continuity);
 }
 
 .tour-cover .drever-editorial-masthead__rule {
@@ -259,7 +259,7 @@
 
 .tour-cover .drever-editorial-masthead__title mark {
   padding-inline: 0.11em;
-  background: var(--tour-coral);
+  background: var(--tour-signal);
   box-decoration-break: clone;
   color: var(--tour-ink);
   font: inherit;
@@ -332,9 +332,9 @@
 .tour-tension__route {
   width: 100%;
   height: var(--drever-brand-geometry-signal-band);
-  border-right: 48px solid var(--tour-indigo);
+  border-right: 48px solid var(--tour-continuity);
   box-sizing: border-box;
-  background: var(--tour-coral);
+  background: var(--tour-signal);
 }
 
 .tour-signal {
@@ -388,25 +388,25 @@
 }
 
 .tour-signal__choice:hover {
-  border-color: var(--tour-indigo);
+  border-color: var(--tour-continuity);
 }
 
 .tour-signal__choice[aria-pressed="true"] {
-  border-color: var(--tour-coral);
-  background: var(--tour-coral);
+  border-color: var(--tour-signal);
+  background: var(--tour-signal);
   color: var(--tour-ink);
   translate: var(--drever-brand-geometry-shift) 0;
 }
 
 .tour-signal__choice:focus-visible,
 .tour-motion__button:focus-visible {
-  outline: 2px solid var(--tour-indigo);
+  outline: 2px solid var(--tour-continuity);
   outline-offset: 3px;
 }
 
 .tour-signal__result {
   display: grid;
-  border-left: var(--drever-brand-geometry-signal-band) solid var(--tour-coral);
+  border-left: var(--drever-brand-geometry-signal-band) solid var(--tour-signal);
   align-content: center;
   background: var(--tour-ink);
   color: var(--tour-paper);
@@ -468,7 +468,7 @@
 
 .tour-contract > span {
   margin-bottom: 16px;
-  color: var(--tour-indigo);
+  color: var(--tour-continuity);
   font-size: 15px;
   font-weight: 650;
   letter-spacing: 0.08em;
@@ -523,7 +523,7 @@
   inset-block: 0;
   inset-inline-start: 0;
   width: var(--drever-brand-geometry-signal-band);
-  background: var(--tour-coral);
+  background: var(--tour-signal);
   content: "";
   opacity: 0;
   transition: opacity var(--drever-brand-motion-duration-quick) ease-out;
@@ -538,7 +538,7 @@
 }
 
 .tour-moment > span {
-  color: var(--tour-indigo);
+  color: var(--tour-continuity);
   font-family: var(--drever-brand-font-family-display);
   font-size: 35px;
   font-weight: 700;
@@ -563,7 +563,7 @@
 
 .tour-route-feature .drever-editorial-feature__visual {
   padding-inline-start: 28px;
-  border-inline-start-color: var(--tour-indigo);
+  border-inline-start-color: var(--tour-continuity);
 }
 
 .tour-routes {
@@ -587,12 +587,12 @@
 
 .tour-route:nth-child(2) {
   padding-inline: var(--drever-brand-geometry-shift);
-  background: var(--tour-indigo-soft);
+  background: var(--tour-continuity-soft);
 }
 
 .tour-route code {
   width: max-content;
-  color: var(--tour-indigo);
+  color: var(--tour-continuity);
   font-size: 20px;
   font-weight: 700;
 }
@@ -640,7 +640,7 @@
   min-height: 260px;
   box-sizing: border-box;
   padding: 32px;
-  border-inline-start: var(--drever-brand-geometry-signal-band) solid var(--tour-indigo);
+  border-inline-start: var(--drever-brand-geometry-signal-band) solid var(--tour-continuity);
   align-content: center;
   background: var(--tour-paper);
   gap: 10px;
@@ -650,13 +650,13 @@
 }
 
 .tour-motion__canvas[data-moment="1"] {
-  border-color: var(--tour-coral);
-  background: var(--tour-indigo-soft);
+  border-color: var(--tour-signal);
+  background: var(--tour-continuity-soft);
 }
 
 .tour-motion__canvas[data-moment="2"] {
-  border-color: var(--tour-coral);
-  background: var(--tour-coral-soft);
+  border-color: var(--tour-signal);
+  background: var(--tour-signal-soft);
 }
 
 .tour-motion__canvas strong {
@@ -689,13 +689,13 @@
 
 .tour-motion__progress span[data-active="true"] {
   width: 76px;
-  background: var(--tour-coral);
+  background: var(--tour-signal);
 }
 
 .tour-motion__button {
   min-height: 60px;
-  border-color: var(--tour-coral);
-  background: var(--tour-coral);
+  border-color: var(--tour-signal);
+  background: var(--tour-signal);
   color: var(--tour-ink);
   text-align: center;
 }
@@ -731,7 +731,7 @@
   display: grid;
   min-height: 244px;
   padding: 28px;
-  border-inline-start: var(--drever-brand-geometry-signal-band) solid var(--tour-coral);
+  border-inline-start: var(--drever-brand-geometry-signal-band) solid var(--tour-signal);
   align-content: center;
   background: var(--tour-paper);
   color: var(--tour-ink);
@@ -739,7 +739,7 @@
 
 .tour-speaker__screen[data-next="true"] {
   min-height: 186px;
-  border-color: var(--tour-indigo);
+  border-color: var(--tour-continuity);
   opacity: 0.74;
 }
 
@@ -763,7 +763,7 @@
 .tour-speaker__notes {
   display: grid;
   align-content: start;
-  background: var(--tour-indigo-soft);
+  background: var(--tour-continuity-soft);
   color: var(--tour-ink);
   gap: 14px;
 }
@@ -776,7 +776,7 @@
   display: grid;
   margin-top: auto;
   padding-top: 54px;
-  border-top: 1px solid color-mix(in srgb, var(--tour-indigo), transparent 72%);
+  border-top: 1px solid color-mix(in srgb, var(--tour-continuity), transparent 72%);
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
 }
@@ -795,7 +795,7 @@
 }
 
 .tour-speaker__timer strong {
-  color: var(--tour-indigo);
+  color: var(--tour-continuity);
   font-size: 28px;
   font-variant-numeric: tabular-nums;
   font-weight: 700;
@@ -842,7 +842,7 @@
 .tour-document-preview__search {
   margin-top: 20px;
   padding: 14px 16px;
-  border: 1px solid rgb(248 248 244 / 18%);
+  border: 1px solid color-mix(in srgb, var(--tour-paper), transparent 82%);
   border-radius: var(--drever-brand-radius-small);
   color: color-mix(in srgb, var(--tour-paper), transparent 26%);
   font-size: 15px;
@@ -850,7 +850,7 @@
 
 .tour-document-preview__search kbd {
   padding: 3px 7px;
-  border: 1px solid rgb(248 248 244 / 24%);
+  border: 1px solid color-mix(in srgb, var(--tour-paper), transparent 76%);
   border-radius: 4px;
   color: var(--tour-paper);
   font: inherit;
@@ -871,14 +871,14 @@
   inset-block: 0;
   inset-inline-start: 0;
   width: var(--drever-brand-geometry-signal-band);
-  background: var(--tour-coral);
+  background: var(--tour-signal);
   content: "";
 }
 
 .tour-document-preview article > span,
 .tour-afterlife__outcomes span {
   display: block;
-  color: var(--tour-indigo);
+  color: var(--tour-continuity);
   font-size: 12px;
   font-weight: 650;
   letter-spacing: 0.08em;
@@ -923,7 +923,7 @@
 .tour-afterlife__outcomes span {
   grid-row: 1 / span 2;
   align-self: start;
-  color: var(--tour-coral);
+  color: var(--tour-continuity);
 }
 
 [data-drever-slide] .tour-afterlife__outcomes strong {
@@ -955,7 +955,7 @@
 }
 
 .tour-ai-loop > div:last-child {
-  border-inline-start: var(--drever-brand-geometry-signal-band) solid var(--tour-coral);
+  border-inline-start: var(--drever-brand-geometry-signal-band) solid var(--tour-signal);
   background: var(--tour-ink);
   color: var(--tour-paper);
   translate: var(--drever-brand-geometry-shift) 0;
@@ -965,20 +965,20 @@
   align-self: center;
   width: 100%;
   height: var(--drever-brand-geometry-signal-band);
-  border-right: 24px solid var(--tour-indigo);
+  border-right: 24px solid var(--tour-continuity);
   box-sizing: border-box;
-  background: var(--tour-coral);
+  background: var(--tour-signal);
 }
 
 .tour-ai-loop div > span {
-  color: var(--tour-indigo);
+  color: var(--tour-continuity);
   font-size: 13px;
   font-weight: 650;
   letter-spacing: 0.08em;
 }
 
 .tour-ai-loop > div:last-child > span {
-  color: var(--tour-coral);
+  color: var(--tour-signal);
 }
 
 .tour-ai-loop strong {
@@ -1012,8 +1012,8 @@
   align-content: center;
   background: color-mix(in srgb, var(--tour-paper), white 32%);
   box-shadow:
-    12px 12px 0 rgb(75 86 232 / 0%),
-    0 20px 52px rgb(23 32 51 / 0%);
+    12px 12px 0 rgb(91 69 216 / 0%),
+    0 20px 52px rgb(25 23 43 / 0%);
   gap: 10px;
   transition:
     box-shadow var(--drever-brand-motion-duration-standard)
@@ -1027,33 +1027,33 @@
   inset-block: 0;
   inset-inline-start: 0;
   width: var(--drever-brand-geometry-signal-band);
-  background: var(--tour-indigo);
+  background: var(--tour-continuity);
   content: "";
 }
 
 .tour-replace > [data-drever-step]:nth-child(2) > article {
-  border-color: var(--tour-indigo);
-  background: var(--tour-indigo-soft);
+  border-color: var(--tour-continuity);
+  background: var(--tour-continuity-soft);
   box-shadow:
-    12px 12px 0 rgb(75 86 232 / 14%),
-    0 20px 52px rgb(23 32 51 / 0%);
+    12px 12px 0 rgb(91 69 216 / 14%),
+    0 20px 52px rgb(25 23 43 / 0%);
 }
 
 .tour-replace > [data-drever-step]:nth-child(3) > article {
   border-color: var(--tour-ink);
   background: var(--tour-ink);
   box-shadow:
-    12px 12px 0 rgb(255 112 77 / 18%),
-    0 20px 52px rgb(23 32 51 / 12%);
+    12px 12px 0 rgb(199 240 58 / 18%),
+    0 20px 52px rgb(25 23 43 / 12%);
   color: var(--tour-paper);
 }
 
 .tour-replace > [data-drever-step]:nth-child(3) > article::before {
-  background: var(--tour-coral);
+  background: var(--tour-signal);
 }
 
 .tour-replace article > span {
-  color: var(--tour-indigo);
+  color: var(--tour-continuity);
   font-size: 14px;
   font-weight: 650;
   letter-spacing: 0.08em;
@@ -1061,7 +1061,7 @@
 }
 
 .tour-replace > [data-drever-step]:nth-child(3) article > span {
-  color: var(--tour-coral);
+  color: var(--tour-signal);
 }
 
 [data-drever-slide] .tour-replace article > strong {
@@ -1121,7 +1121,7 @@
 
 .tour-continuity-turn strong {
   width: max-content;
-  color: var(--tour-indigo);
+  color: var(--tour-continuity);
   font: inherit;
   white-space: nowrap;
 }
@@ -1171,18 +1171,18 @@
   align-content: center;
   background: var(--tour-ink);
   box-shadow:
-    12px 12px 0 rgb(75 86 232 / 14%),
-    0 20px 52px rgb(23 32 51 / 12%);
+    12px 12px 0 rgb(91 69 216 / 14%),
+    0 20px 52px rgb(25 23 43 / 12%);
   color: var(--tour-paper);
   gap: 12px;
 }
 
 .tour-continuity-stage--result .tour-continuity > article {
-  border-color: var(--tour-indigo);
-  background: var(--tour-indigo);
+  border-color: var(--tour-continuity);
+  background: var(--tour-continuity);
   box-shadow:
-    12px 12px 0 rgb(255 112 77 / 18%),
-    0 20px 52px rgb(23 32 51 / 12%);
+    12px 12px 0 rgb(199 240 58 / 18%),
+    0 20px 52px rgb(25 23 43 / 12%);
 }
 
 .tour-continuity article > span {
@@ -1230,9 +1230,9 @@
   display: block;
   inline-size: 100%;
   block-size: 100%;
-  border-right: 44px solid var(--tour-indigo);
+  border-right: 44px solid var(--tour-continuity);
   box-sizing: border-box;
-  background: var(--tour-coral);
+  background: var(--tour-signal);
 }
 
 .tour-continuity-stage--result .tour-continuity-signal > span {

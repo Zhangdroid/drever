@@ -85,9 +85,9 @@ describe("@drever/brand", () => {
     const pairs = [
       [brandTokens.color.ink, brandTokens.color.paper],
       [brandTokens.color.paper, brandTokens.color.ink],
-      [brandTokens.color.white, brandTokens.color.indigo],
-      [brandTokens.color.ink, brandTokens.color.coral],
-      [brandTokens.color.ink, brandTokens.color.coralSoft],
+      [brandTokens.color.white, brandTokens.color.continuity],
+      [brandTokens.color.ink, brandTokens.color.signal],
+      [brandTokens.color.ink, brandTokens.color.signalSoft],
       [brandTokens.color.nightText, brandTokens.color.night],
       [brandTokens.color.nightMuted, brandTokens.color.night],
     ] as const;
@@ -139,7 +139,7 @@ describe("@drever/brand", () => {
       expect(Buffer.byteLength(source)).toBeLessThan(20_000);
     }
 
-    expect(readPackageFile("assets/drever-mark.svg")).toContain("#FF704D");
+    expect(readPackageFile("assets/drever-mark.svg")).toContain("#C7F03A");
     expect(readPackageFile("assets/drever-mark-mono.svg")).toContain("currentColor");
   });
 
