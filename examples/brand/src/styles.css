@@ -509,6 +509,280 @@ figure {
   left: 0;
 }
 
+.logo-lab {
+  color: var(--drever-brand-color-night-text);
+  background: var(--drever-brand-color-night);
+}
+
+.logo-lab-shell {
+  width: var(--spec-page);
+  margin: 0 auto;
+  padding: clamp(5rem, 10vw, 10rem) 0;
+}
+
+.logo-lab-heading {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: clamp(3rem, 6vw, 6rem);
+}
+
+.logo-lab-heading > div {
+  grid-column: 1 / 9;
+}
+
+.logo-lab-kicker,
+.logo-lab-status,
+.logo-concept-heading span,
+.logo-concept-coordinate,
+.logo-test-label,
+.logo-concept footer span {
+  font-family: var(--spec-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.logo-lab-kicker {
+  margin-bottom: 1rem;
+  color: var(--drever-brand-color-coral);
+}
+
+.logo-lab-status {
+  display: inline-flex;
+  width: fit-content;
+  margin-bottom: 2.25rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--drever-brand-color-night-line);
+  color: var(--drever-brand-color-night-muted);
+}
+
+.logo-lab-heading h2 {
+  max-width: 10ch;
+  font-family: var(--spec-display);
+  font-size: clamp(3.4rem, 6.7vw, 6.7rem);
+  font-weight: 620;
+  font-optical-sizing: auto;
+  line-height: 0.96;
+  letter-spacing: var(--spec-heading-tracking);
+}
+
+.logo-lab-heading > p {
+  grid-column: 9 / -1;
+  align-self: end;
+  color: var(--drever-brand-color-night-muted);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.logo-concept-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid var(--drever-brand-color-night-line);
+  border-left: 1px solid var(--drever-brand-color-night-line);
+}
+
+.logo-concept {
+  min-width: 0;
+  border-right: 1px solid var(--drever-brand-color-night-line);
+  border-bottom: 1px solid var(--drever-brand-color-night-line);
+}
+
+.logo-concept-heading {
+  display: flex;
+  min-height: 7.5rem;
+  padding: 1.25rem;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.logo-concept-heading span,
+.logo-concept footer span {
+  color: var(--drever-brand-color-night-muted);
+}
+
+.logo-concept-heading h3 {
+  font-family: var(--spec-display);
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  font-weight: 580;
+  letter-spacing: var(--spec-heading-tracking);
+}
+
+.logo-concept-stage {
+  position: relative;
+  display: grid;
+  min-height: clamp(20rem, 37vw, 33rem);
+  overflow: hidden;
+  background:
+    linear-gradient(var(--drever-brand-color-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--drever-brand-color-line) 1px, transparent 1px),
+    var(--drever-brand-color-paper);
+  background-size: 2rem 2rem;
+  place-items: center;
+}
+
+.logo-concept-stage::after {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 1px;
+  content: "";
+  background: var(--drever-brand-color-coral);
+  opacity: 0.42;
+}
+
+.logo-concept-stage > img {
+  z-index: 1;
+  width: clamp(8rem, 15vw, 12rem);
+}
+
+.logo-concept-coordinate {
+  position: absolute;
+  z-index: 2;
+  right: 1rem;
+  bottom: 1rem;
+  color: var(--drever-brand-color-graphite);
+}
+
+.logo-concept-tests {
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  min-height: 13rem;
+}
+
+.logo-test {
+  padding: 1rem;
+  border-top: 1px solid var(--drever-brand-color-night-line);
+}
+
+.logo-test-label {
+  display: block;
+  color: var(--drever-brand-color-night-muted);
+}
+
+.logo-test-scale {
+  background: var(--drever-brand-color-paper);
+}
+
+.logo-test-scale .logo-test-label {
+  color: var(--drever-brand-color-graphite);
+}
+
+.logo-test-scale > div {
+  display: flex;
+  gap: 1rem;
+  align-items: end;
+  min-height: 6rem;
+  margin-top: 1.2rem;
+}
+
+.logo-test-scale img:nth-child(1) {
+  width: 4rem;
+}
+
+.logo-test-scale img:nth-child(2) {
+  width: 2rem;
+}
+
+.logo-test-scale img:nth-child(3) {
+  width: 1.25rem;
+}
+
+.logo-test-mono {
+  display: flex;
+  border-left: 1px solid var(--drever-brand-color-night-line);
+  flex-direction: column;
+  justify-content: space-between;
+  background: var(--drever-brand-color-ink);
+}
+
+.logo-test-mono img {
+  width: 3rem;
+  margin: auto;
+  filter: brightness(0) invert(1);
+}
+
+.logo-test-lockup {
+  grid-column: 1 / -1;
+  color: var(--drever-brand-color-ink);
+  background: var(--drever-brand-color-paper);
+}
+
+.logo-test-lockup .logo-test-label {
+  color: var(--drever-brand-color-graphite);
+}
+
+.logo-test-lockup > div {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+
+.logo-test-lockup img {
+  width: 2.4rem;
+}
+
+.logo-test-lockup strong {
+  font-family: var(--spec-sans);
+  font-size: 2rem;
+  font-weight: 650;
+  letter-spacing: -0.055em;
+}
+
+.logo-concept footer {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2rem;
+  min-height: 9.5rem;
+  padding: 1.25rem;
+  border-top: 1px solid var(--drever-brand-color-night-line);
+}
+
+.logo-concept footer p {
+  max-width: 34rem;
+  color: var(--drever-brand-color-night-muted);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.logo-concept footer span {
+  white-space: nowrap;
+}
+
+.logo-concept-wordmark .logo-concept-stage > img {
+  width: min(63%, 23rem);
+}
+
+.logo-concept-wordmark .logo-test-scale > div {
+  gap: 1rem;
+  align-items: center;
+  flex-direction: column;
+}
+
+.logo-concept-wordmark .logo-test-scale img:nth-child(1) {
+  width: 9.75rem;
+}
+
+.logo-concept-wordmark .logo-test-scale img:nth-child(2) {
+  width: 7rem;
+}
+
+.logo-concept-wordmark .logo-test-scale img:nth-child(3) {
+  width: 5rem;
+}
+
+.logo-concept-wordmark .logo-test-mono img {
+  width: min(100%, 8.5rem);
+}
+
+.logo-test-native p {
+  margin-top: 1.5rem;
+  color: var(--drever-brand-color-graphite);
+  font-size: 0.82rem;
+}
+
 .section-intro,
 .section-heading {
   display: grid;
@@ -1527,6 +1801,11 @@ figure {
   .icon-grid figure:nth-child(-n + 2) {
     border-bottom: 1px solid var(--spec-line);
   }
+
+  .logo-concept footer {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 }
 
 @media (max-width: 42rem) {
@@ -1585,7 +1864,8 @@ figure {
   }
 
   .section-intro,
-  .section-heading {
+  .section-heading,
+  .logo-lab-heading {
     display: block;
   }
 
@@ -1597,6 +1877,22 @@ figure {
 
   .principles {
     gap: 3rem;
+  }
+
+  .logo-lab-heading > p {
+    margin-top: 2rem;
+  }
+
+  .logo-concept-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .logo-concept-stage {
+    min-height: 22rem;
+  }
+
+  .logo-concept-tests {
+    grid-template-columns: 1fr 1fr;
   }
 
   .principle-list {
