@@ -341,12 +341,7 @@ import "./tour.css";
 
 <section className="tour-continuity-page tour-continuity-page--source">
   <span className="tour-continuity-kicker">Behind every moment</span>
-  <div className="tour-continuity-heading" aria-hidden="true">
-    <span>One story,</span>
-    <MotionGroup className="tour-continuity-turn" intent="continuity" name="story-turn">
-      <strong>made once.</strong>
-    </MotionGroup>
-  </div>
+  <div className="tour-continuity-heading" aria-hidden="true" />
   <p>Words, choices, motion, and notes stay together in a source you can read and revise.</p>
 
   <div className="tour-continuity-stage tour-continuity-stage--source">
@@ -362,14 +357,22 @@ import "./tour.css";
         <p>Words, state, and intent in one reviewable artifact.</p>
       </article>
     </MotionGroup>
-    <MotionGroup
-      aria-hidden="true"
-      className="tour-continuity-signal"
-      intent="continuity"
-      name="story-signal"
-    >
-      <span />
-    </MotionGroup>
+    <div aria-hidden="true" className="tour-continuity-signal">
+      <MotionGroup
+        className="tour-continuity-signal__track"
+        intent="continuity"
+        name="story-signal-track"
+      >
+        <span />
+      </MotionGroup>
+      <MotionGroup
+        className="tour-continuity-signal__cap"
+        intent="continuity"
+        name="story-signal-cap"
+      >
+        <span />
+      </MotionGroup>
+    </div>
     <Step className="tour-continuity-caption">
       Readable by you. Structured for AI. Ready for the room.
     </Step>
@@ -387,12 +390,7 @@ import "./tour.css";
 
 <section className="tour-continuity-page tour-continuity-page--result">
   <span className="tour-continuity-kicker">Wherever it needs to live</span>
-  <div className="tour-continuity-heading" aria-hidden="true">
-    <span>One story,</span>
-    <MotionGroup className="tour-continuity-turn" intent="continuity" name="story-turn">
-      <strong>alive everywhere.</strong>
-    </MotionGroup>
-  </div>
+  <div className="tour-continuity-heading" aria-hidden="true" />
   <p>Live for the room. Guided for the speaker. Searchable after the meeting.</p>
 
   <div className="tour-continuity-stage tour-continuity-stage--result">
@@ -401,14 +399,22 @@ import "./tour.css";
       <div><span>Speaker</span><strong>Guided</strong></div>
       <div><span>Document</span><strong>Searchable</strong></div>
     </div>
-    <MotionGroup
-      aria-hidden="true"
-      className="tour-continuity-signal"
-      intent="continuity"
-      name="story-signal"
-    >
-      <span />
-    </MotionGroup>
+    <div aria-hidden="true" className="tour-continuity-signal">
+      <MotionGroup
+        className="tour-continuity-signal__track"
+        intent="continuity"
+        name="story-signal-track"
+      >
+        <span />
+      </MotionGroup>
+      <MotionGroup
+        className="tour-continuity-signal__cap"
+        intent="continuity"
+        name="story-signal-cap"
+      >
+        <span />
+      </MotionGroup>
+    </div>
     <MotionGroup
       className="tour-continuity"
       data-testid="motion-continuity"
