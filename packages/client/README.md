@@ -37,10 +37,11 @@ while preserving query and hash state. It requires the Clipboard API in a
 secure context and reports a clear error instead of using a legacy fallback.
 
 The audience command bar also opens Focus Tools for pointer, touch, and stylus
-input. Press `L` to toggle the laser, or choose Pen or Highlighter from the
-toolbar; choosing a tool closes its palette, and the command bar yields while
-the presenter draws. Completed ink can be undone or cleared. Ink remains
-visible across Step changes on the same slide and clears when the slide changes.
+input. Press `L` for Laser, `I` for Pen (ink), or `H` for Highlighter. Pressing
+the active tool's shortcut again turns it off. Choosing a tool closes its palette,
+and the command bar yields while the presenter draws. Completed ink can be
+undone or cleared. Ink remains visible across Step changes on the same slide and
+clears when the slide changes.
 The laser is transient. The overlay is mounted inside `.drever-canvas`, above
 the Stage but outside `.drever-deck`, so it never enters the deck-scoped View
 Transition. `focusTools` sets per-viewer appearance, while themes and project

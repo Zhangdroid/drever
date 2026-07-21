@@ -339,6 +339,8 @@ components.
 | Document view          | `D` from the audience                    |
 | Speaker view           | `P` from the audience                    |
 | Toggle laser pointer   | `L`                                      |
+| Toggle pen / ink       | `I`                                      |
+| Toggle highlighter     | `H`                                      |
 | Fullscreen             | `F`                                      |
 | Black / white pause    | `B` / `W`; repeat or `Escape` to dismiss |
 | Keyboard help          | `?`                                      |
@@ -363,13 +365,15 @@ through transition snapshots.
 
 ### Audience Focus Tools
 
-Open **Focus Tools** from the command bar or press `L` to toggle the laser.
-The toolbar provides Laser, Pen, Highlighter, Undo, Clear, and Close; `Escape`
-also closes it. Choosing a tool keeps that tool active while closing the palette,
-and the command bar fades out during an active pointer stroke so it cannot cover
-the drawing surface. Pointer Events give mouse, touch, and stylus input the same
-canvas-relative coordinate model. The laser exists only while pointing. Pen and
-highlighter strokes remain across Step changes on the current slide so a reveal
+Open **Focus Tools** from the command bar, or press `L` for Laser, `I` for Pen
+(ink), or `H` for Highlighter. A shortcut selects and activates its tool;
+pressing the active tool's shortcut again turns it off. The toolbar also provides
+Undo, Clear, and Close. `Escape` closes the palette first, then the active tool.
+Choosing a tool keeps it active while closing the palette, and the command bar
+fades out during an active pointer stroke so it cannot cover the drawing surface.
+Pointer Events give mouse, touch, and stylus input the same canvas-relative model.
+The laser exists only while pointing. Pen and highlighter strokes remain across
+Step changes on the current slide so a reveal
 does not erase the presenter's context; changing slides clears them. Unexpected
 pointer-capture loss commits the ink already drawn instead of discarding it.
 Undo removes the latest stroke and Clear removes every mark on that slide. These

@@ -387,11 +387,12 @@ components are covered in [Extension authoring](./extensions.md).
 - Direct slide jump: type a slide number, then press `Enter`.
 - Fullscreen: `F`. Pause on a blank black or white screen with `B` or `W`;
   press the same key, `Escape`, or select the screen to return.
-- Focus Tools: press `L` to toggle the laser, or open the toolbar to select Pen
-  or Highlighter, undo the latest stroke, or clear every mark. Mouse, touch,
-  and stylus input use the same canvas overlay. Ink survives Step changes on
-  the current slide and clears when the slide changes; the laser is transient.
-  Press `Escape` to close the tools.
+- Focus Tools: press `L` for Laser, `I` for Pen (ink), or `H` for Highlighter.
+  Pressing the active tool's shortcut again turns it off. Open the toolbar to
+  select a tool, undo the latest stroke, or clear every mark. Mouse, touch, and
+  stylus input use the same canvas overlay. Ink survives Step changes on the
+  current slide and clears when the slide changes; the laser is transient.
+  `Escape` closes the palette first, then the active tool.
 - Keyboard help: `?`.
 - Copy link: use the audience command bar to copy the canonical URL for the
   current slide and exact Step.
