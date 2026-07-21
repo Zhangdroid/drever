@@ -51,9 +51,9 @@ vp run -F @drever/example-basic export
 The check command emits a zero-error JSON report for use by CI or an AI review
 loop. It requires no browser or development server.
 
-The export command writes `slides-export.pdf`. Add `-- --steps` to include Step
-0, 2, and 5 for the progressive slide. Install its browser once with
-`npx playwright install chromium`.
+The export command writes `slides-export.pdf`. Add `-- --slides 2 --steps` to
+export only the progressive slide at Step 0, 2, and 5. Install its browser once
+with `npx playwright install chromium`.
 
 The root development shortcut is `vp run demo`; the production command is
 shown above. From this directory, `vp run dev` and `vp run build` are equivalent.

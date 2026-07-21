@@ -2,7 +2,13 @@ import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
-import { destroyExport, runWithCleanup, writePdf, type PdfWriteOperations } from "./export-pdf.ts";
+import {
+  destroyExport,
+  runWithCleanup,
+  validatePdfSlideSelection,
+  writePdf,
+  type PdfWriteOperations,
+} from "./export-pdf.ts";
 
 const directories: string[] = [];
 
@@ -124,6 +130,31 @@ describe("destroyExport", () => {
       },
       message: "The export runtime could not release its resources.",
     });
+  });
+});
+
+describe("PDF slide selection", () => {
+  it("accepts selections within the compiled deck", () => {
+    expect(() =>
+      validatePdfSlideSelection(
+        [
+          { first: 2, last: 5 },
+          { first: 8, last: 8 },
+        ],
+        8,
+      ),
+    ).not.toThrow();
+  });
+
+  it("reports the selected slide and compiled deck size when a range exceeds the deck", () => {
+    expect(() => validatePdfSlideSelection([{ first: 4, last: 8 }], 5)).toThrowError(
+      expect.objectContaining({
+        code: "DREVER_ARGUMENT_INVALID",
+        details: { selectedSlide: 8, slideCount: 5 },
+        hint: "Choose slide numbers between 1 and 5.",
+        message: "--slides selects slide 8, but this deck contains 5 slides.",
+      }),
+    );
   });
 });
 

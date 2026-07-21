@@ -49,8 +49,9 @@ contract. `check` runs the source-based accessibility preflight, `dev` starts
 the interactive viewer, and `current --json` reports the most recently updated
 open audience or speaker state. `mcp` exposes the same authoring evidence as
 read-only structured tools over stdio. `build` writes a standalone site to `dist/`.
-`export pdf` writes `slides-export.pdf`; pass `--steps` to emit each authored
-reveal state. The default entry is `slides.mdx`; project settings live in
+`export pdf` writes `slides-export.pdf`; pass `--slides 2-5,8` to select
+one-based slide ranges and `--steps` to emit each authored reveal state for the
+selected slides. The default entry is `slides.mdx`; project settings live in
 `drever.config.ts`. See the [Quick start](./docs/quickstart.md) for installation,
 configuration, keyboard controls, and browser requirements.
 

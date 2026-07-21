@@ -57,11 +57,12 @@ for legacy browsers.
 ### Deterministic PDF and print export
 
 The delivered `drever export pdf` command exports the final Step of each slide
-by default. `--steps` emits Step 0 and every exact sparse stop. The exporter uses
+by default. `--slides` selects validated one-based slide ranges, and `--steps`
+emits Step 0 and every exact sparse stop for those slides. The exporter uses
 an isolated temporary application, explicit plugin/font/image readiness, tagged
 Chromium output, and success-only writes without changing the interactive
-static-site artifact. Slide ranges and optional notes or handout formats remain
-compatible follow-up work.
+static-site artifact. Optional notes and handout formats remain compatible
+follow-up work.
 
 PDF is the portable, printable fallback offered by [Google Slides][google-present],
 [PowerPoint][powerpoint-export], [Keynote][keynote-export], and [Slidev][slidev-export].

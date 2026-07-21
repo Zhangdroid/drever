@@ -47,11 +47,17 @@ export type McpCommand = Readonly<{
   name: "mcp";
 }>;
 
+export type PdfSlideRange = Readonly<{
+  first: number;
+  last: number;
+}>;
+
 export type ExportPdfCommand = Readonly<{
   entry?: string;
   format: "pdf";
   name: "export";
   output?: string;
+  slides?: readonly PdfSlideRange[];
   steps: boolean;
 }>;
 
@@ -67,10 +73,12 @@ export type DreverCommand =
 export type PdfExportRequest = Readonly<{
   output: string;
   project: ResolvedDreverProject;
+  slides?: readonly PdfSlideRange[];
   steps: boolean;
 }>;
 
-const EXPORT_PDF_USAGE = "Usage: drever export pdf [entry] [--steps] [-o|--output <path>]";
+const EXPORT_PDF_USAGE =
+  "Usage: drever export pdf [entry] [--steps] [--slides <range>] [-o|--output <path>]";
 const CHECK_USAGE = "Usage: drever check [entry] [--json]";
 const CONTEXT_USAGE = "Usage: drever context [entry] [--json]";
 const CURRENT_USAGE = "Usage: drever current [--json]";
@@ -94,9 +102,39 @@ const invalidArgument = (message: string, hint: string): never => {
   throw new DreverCliError("DREVER_ARGUMENT_INVALID", message, { hint });
 };
 
+const parsePdfSlideRanges = (source: string): readonly PdfSlideRange[] =>
+  Object.freeze(
+    source.split(",").map((fragment) => {
+      const range = fragment.trim();
+      const match = /^(\d+)(?:-(\d+))?$/u.exec(range);
+      if (match === null) {
+        return invalidArgument(
+          `Invalid --slides selection "${source}". Use one-based slide numbers and inclusive ranges such as 2-5,8.`,
+          EXPORT_PDF_USAGE,
+        );
+      }
+      const first = Number(match[1]);
+      const last = Number(match[2] ?? match[1]);
+      if (![first, last].every((value) => Number.isSafeInteger(value) && value > 0)) {
+        return invalidArgument(
+          `Invalid --slides range "${range}". Slide numbers must be positive safe integers.`,
+          EXPORT_PDF_USAGE,
+        );
+      }
+      if (first > last) {
+        return invalidArgument(
+          `Invalid --slides range "${range}". The first slide must not exceed the last slide.`,
+          EXPORT_PDF_USAGE,
+        );
+      }
+      return Object.freeze({ first, last });
+    }),
+  );
+
 const parsePdfExport = (arguments_: readonly string[]): ExportPdfCommand => {
   let entry: string | undefined;
   let output: string | undefined;
+  let slides: readonly PdfSlideRange[] | undefined;
   let steps = false;
 
   for (let index = 0; index < arguments_.length; index += 1) {
@@ -106,6 +144,20 @@ const parsePdfExport = (arguments_: readonly string[]): ExportPdfCommand => {
         invalidArgument("--steps can be specified only once.", EXPORT_PDF_USAGE);
       }
       steps = true;
+      continue;
+    }
+    if (argument === "--slides") {
+      if (slides !== undefined) {
+        invalidArgument("--slides can be specified only once.", EXPORT_PDF_USAGE);
+      }
+      const value =
+        arguments_[index + 1] ??
+        invalidArgument("--slides requires a slide selection such as 2-5,8.", EXPORT_PDF_USAGE);
+      if (value.length === 0 || value.startsWith("-")) {
+        invalidArgument("--slides requires a slide selection such as 2-5,8.", EXPORT_PDF_USAGE);
+      }
+      slides = parsePdfSlideRanges(value);
+      index += 1;
       continue;
     }
     if (argument === "-o" || argument === "--output") {
@@ -139,6 +191,7 @@ const parsePdfExport = (arguments_: readonly string[]): ExportPdfCommand => {
     steps,
     ...(entry === undefined ? {} : { entry }),
     ...(output === undefined ? {} : { output }),
+    ...(slides === undefined ? {} : { slides }),
   });
 };
 
@@ -246,7 +299,7 @@ Usage:
   drever context [entry] [--json]
   drever current [--json]
   drever mcp [entry]
-  drever export pdf [entry] [--steps] [-o|--output <path>]
+  drever export pdf [entry] [--steps] [--slides <range>] [-o|--output <path>]
   drever agent sync
 
 The default entry is slides.mdx. Project settings live in drever.config.ts.
@@ -323,7 +376,12 @@ const createPdfExportRequest = (
 ): PdfExportRequest => {
   const entryName = basename(project.entry, extname(project.entry));
   const output = resolve(project.root, command.output ?? `${entryName}-export.pdf`);
-  return Object.freeze({ output, project, steps: command.steps });
+  return Object.freeze({
+    output,
+    project,
+    steps: command.steps,
+    ...(command.slides === undefined ? {} : { slides: command.slides }),
+  });
 };
 
 const formatAgentSyncResult = ({ files }: AgentSyncResult): string => {

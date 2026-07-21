@@ -35,10 +35,27 @@ const directoryDigest = async (root: string): Promise<string | undefined> => {
   return hash.digest("hex");
 };
 
-const exportPdf = async (output: string, steps = false): Promise<string> => {
+type ExportPdfOptions = Readonly<{
+  slides?: string;
+  steps?: boolean;
+}>;
+
+const exportPdf = async (
+  output: string,
+  { slides, steps = false }: ExportPdfOptions = {},
+): Promise<string> => {
   const { stdout } = await execute(
     "vp",
-    ["exec", "drever", "export", "pdf", ...(steps ? ["--steps"] : []), "--output", output],
+    [
+      "exec",
+      "drever",
+      "export",
+      "pdf",
+      ...(steps ? ["--steps"] : []),
+      ...(slides === undefined ? [] : ["--slides", slides]),
+      "--output",
+      output,
+    ],
     { cwd: projectRoot, timeout: 30_000 },
   );
   return stdout;
@@ -52,6 +69,7 @@ test("the public export command creates deterministic PDFs without touching the 
   const directory = await mkdtemp(join(tmpdir(), "drever-export-e2e-"));
   try {
     const defaultOutput = join(directory, "slides.pdf");
+    const selectedOutput = join(directory, "slides-selected-with-steps.pdf");
     const stepsOutput = join(directory, "slides-with-steps.pdf");
     const distBefore = await directoryDigest(join(projectRoot, "dist"));
 
@@ -60,7 +78,7 @@ test("the public export command creates deterministic PDFs without touching the 
     expect(defaultPdf.subarray(0, 5).toString()).toBe("%PDF-");
     expect(pdfPageCount(defaultPdf)).toBe(5);
 
-    expect(await exportPdf(stepsOutput, true)).toContain(
+    expect(await exportPdf(stepsOutput, { steps: true })).toContain(
       `Exported ${join(projectRoot, "slides.mdx")}`,
     );
     const stepsPdf = await readFile(stepsOutput);
@@ -70,6 +88,11 @@ test("the public export command creates deterministic PDFs without touching the 
     expect(source).toContain("/MarkInfo");
     expect(source).toContain("/Outlines");
     expect(source).toMatch(/\/MediaBox\s*\[0\s+0\s+1200\s+675\.12\]/u);
+
+    expect(await exportPdf(selectedOutput, { slides: "2,4-5", steps: true })).toContain(
+      `Exported ${join(projectRoot, "slides.mdx")}`,
+    );
+    expect(pdfPageCount(await readFile(selectedOutput))).toBe(5);
 
     expect(await directoryDigest(join(projectRoot, "dist"))).toBe(distBefore);
   } finally {

@@ -51,6 +51,8 @@ describe("parseCommand", () => {
         "--output",
         "release/talk.pdf",
         "--steps",
+        "--slides",
+        "2-5, 8",
         "decks/keynote.mdx",
       ]),
     ).toEqual({
@@ -58,6 +60,10 @@ describe("parseCommand", () => {
       format: "pdf",
       name: "export",
       output: "release/talk.pdf",
+      slides: [
+        { first: 2, last: 5 },
+        { first: 8, last: 8 },
+      ],
       steps: true,
     });
     expect(parseCommand(["export", "pdf", "-o", "talk.pdf", "slides.mdx"])).toEqual({
@@ -115,6 +121,23 @@ describe("parseCommand", () => {
     [["export", "pptx"], "Unknown export format: pptx"],
     [["export", "pdf", "--paper"], "Unknown export flag: --paper"],
     [["export", "pdf", "--steps", "--steps"], "--steps can be specified only once."],
+    [["export", "pdf", "--slides", "2", "--slides", "3"], "--slides can be specified only once."],
+    [
+      ["export", "pdf", "--slides", "--steps"],
+      "--slides requires a slide selection such as 2-5,8.",
+    ],
+    [
+      ["export", "pdf", "--slides", "2--5"],
+      'Invalid --slides selection "2--5". Use one-based slide numbers and inclusive ranges such as 2-5,8.',
+    ],
+    [
+      ["export", "pdf", "--slides", "0"],
+      'Invalid --slides range "0". Slide numbers must be positive safe integers.',
+    ],
+    [
+      ["export", "pdf", "--slides", "5-2"],
+      'Invalid --slides range "5-2". The first slide must not exceed the last slide.',
+    ],
     [["export", "pdf", "-o"], "-o requires a PDF path."],
     [["export", "pdf", "--output", "--steps"], "--output requires a PDF path."],
     [
@@ -314,7 +337,7 @@ describe("runCli export", () => {
     const exportPdf = vi.fn(async () => {});
     let output = "";
 
-    await runCli(["export", "pdf", "--steps"], {
+    await runCli(["export", "pdf", "--steps", "--slides", "2-5,8"], {
       cwd: root,
       exportPdf,
       stdout: { write: (chunk) => ((output += String(chunk)), true) },
@@ -325,6 +348,10 @@ describe("runCli export", () => {
       expect.objectContaining({
         output: join(root, "talk-export.pdf"),
         project: expect.objectContaining({ entry: join(root, "talk.mdx"), root }),
+        slides: [
+          { first: 2, last: 5 },
+          { first: 8, last: 8 },
+        ],
         steps: true,
       }),
     );

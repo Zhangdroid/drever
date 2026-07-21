@@ -221,14 +221,19 @@ entry and output can appear with the export flags in any order:
 ```bash
 drever export pdf talks/keynote.mdx --output release/keynote.pdf
 drever export pdf --steps talks/keynote.mdx
+drever export pdf --slides 2-5,8 talks/keynote.mdx
 ```
 
 `--steps` emits Step 0 followed by every exact compiled stop. A slide with
 `stepStops: [2, 5]` therefore creates pages for `0`, `2`, and `5`; Drever never
-invents intermediate states. Notes are excluded. Export uses the configured or
-theme canvas, disables motion, waits for exporter-only plugin hooks, usable
-fonts, and authored images, and writes the PDF only after capture and cleanup
-succeed. Its temporary Vite application never mutates `build.outDir`.
+invents intermediate states. `--slides` accepts comma-separated, one-based slide
+numbers and inclusive ranges. It preserves deck order, validates every range
+against the compiled deck, and composes with `--steps`, so only the selected
+slides emit their exact authored Step pages. Notes are excluded. Export uses the
+configured or theme canvas, disables motion, waits for exporter-only plugin
+hooks, usable fonts, and authored images, and writes the PDF only after capture
+and cleanup succeed. Its temporary Vite application never mutates
+`build.outDir`.
 
 Use React `useId` in reusable components; duplicate hard-coded DOM IDs fail
 multi-page export. Components that use CSS background images, canvas, video

@@ -4,7 +4,7 @@ import { access, mkdir, rename, rm, writeFile } from "node:fs/promises";
 import { basename, dirname, join } from "node:path";
 import { chromium, type Browser, type Page } from "playwright";
 import { preview, type PreviewServer } from "vite";
-import type { PdfExportRequest } from "./cli.ts";
+import type { PdfExportRequest, PdfSlideRange } from "./cli.ts";
 import { DreverCliError } from "./errors.ts";
 import { createPrivateExportApp } from "./private-app.ts";
 import { buildDreverExportApp, resolvePrivateAppOptions } from "./vite-app.ts";
@@ -253,6 +253,55 @@ type ExportDocumentMetadata = Readonly<{
   width: number;
 }>;
 
+/** @internal Validates the one-based selection after compilation reveals the deck size. */
+export const validatePdfSlideSelection = (
+  selection: readonly PdfSlideRange[] | undefined,
+  slideCount: number,
+): void => {
+  const outOfBounds = selection?.find(({ last }) => last > slideCount);
+  if (outOfBounds === undefined) {
+    return;
+  }
+  throw new DreverCliError(
+    "DREVER_ARGUMENT_INVALID",
+    `--slides selects slide ${outOfBounds.last}, but this deck contains ${slideCount} ${slideCount === 1 ? "slide" : "slides"}.`,
+    {
+      details: { selectedSlide: outOfBounds.last, slideCount },
+      hint: `Choose slide numbers between 1 and ${slideCount}.`,
+    },
+  );
+};
+
+const applyPdfSlideSelection = async (
+  page: Page,
+  selection: readonly PdfSlideRange[] | undefined,
+): Promise<void> => {
+  if (selection === undefined) {
+    return;
+  }
+  const indices = new Set<number>();
+  for (const { first, last } of selection) {
+    for (let slide = first; slide <= last; slide += 1) {
+      indices.add(slide - 1);
+    }
+  }
+  const selectedSlides = [...indices].map((index) => `[data-slide-index="${index}"]`);
+  const selectedPages = selectedSlides
+    .map((selector) => `[data-drever-export-page]${selector}`)
+    .join(",");
+  await page.addStyleTag({
+    content: `[data-drever-export-page]:not(:is(${selectedSlides.join(",")})) { display: none !important; }`,
+  });
+  const retainedPages = await page.locator(selectedPages).count();
+  if (retainedPages === 0) {
+    throw exportFailure(
+      "runtime",
+      "The export document did not contain the selected slides.",
+      new TypeError("The selected slide pages were missing after export rendering."),
+    );
+  }
+};
+
 const readDocumentMetadata = async (page: Page): Promise<ExportDocumentMetadata> => {
   const document = page.locator("[data-drever-export-document]");
   const [heightSource, pageCountSource, widthSource] = await Promise.all([
@@ -438,7 +487,12 @@ export const writePdf = async (
   }
 };
 
-export const exportPdf = async ({ output, project, steps }: PdfExportRequest): Promise<void> => {
+export const exportPdf = async ({
+  output,
+  project,
+  slides,
+  steps,
+}: PdfExportRequest): Promise<void> => {
   const canvas = project.config.canvas ?? project.plan.theme.canvas ?? DEFAULT_CANVAS;
   const { stage } = resolvePrivateAppOptions(project.config, project.root);
   const app = await createPrivateExportApp(project.entry, {
@@ -449,6 +503,7 @@ export const exportPdf = async ({ output, project, steps }: PdfExportRequest): P
   const contents = await runWithCleanup(
     async () => {
       const build = await buildDreverExportApp(project, app.root);
+      validatePdfSlideSelection(slides, build.manifest.slides.length);
       const server = await startPreview(app.root, build.outDir);
       return runWithCleanup(
         async () => {
@@ -465,6 +520,7 @@ export const exportPdf = async ({ output, project, steps }: PdfExportRequest): P
               const page = await context.newPage();
               await page.emulateMedia({ media: "screen", reducedMotion: "reduce" });
               await waitForExport(page, previewUrl(server));
+              await applyPdfSlideSelection(page, slides);
               return runWithCleanup(
                 async () => capturePdf(page, await readDocumentMetadata(page)),
                 async () => destroyExport(page),
