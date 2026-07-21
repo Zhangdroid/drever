@@ -1,7 +1,11 @@
 import { DECK_MANIFEST_VERSION, type DeckManifest } from "@drever/schema";
 import { describe, expect, it, vi } from "vite-plus/test";
 import type { DeckPosition } from "./presentation-state.ts";
-import { createRehearsalStore, type RehearsalScheduler } from "./rehearsal.ts";
+import {
+  createRehearsalStore,
+  resolveRehearsalPace,
+  type RehearsalScheduler,
+} from "./rehearsal.ts";
 
 const manifest = {
   version: DECK_MANIFEST_VERSION,
@@ -47,6 +51,21 @@ const createClock = () => {
 };
 
 describe("rehearsal store", () => {
+  it("compares elapsed time with the target window for each exact presentation state", () => {
+    const target = 4 * 60_000;
+
+    expect(resolveRehearsalPace(manifest, position("intro", 0), 30_000, target)).toBe("on-pace");
+    expect(resolveRehearsalPace(manifest, position("intro", 0, 2), 50_000, target)).toBe("ahead");
+    expect(resolveRehearsalPace(manifest, position("intro", 0, 2), 90_000, target)).toBe("on-pace");
+    expect(resolveRehearsalPace(manifest, position("intro", 0, 2), 130_000, target)).toBe("behind");
+    expect(resolveRehearsalPace(manifest, position("details", 1), 150_000, target)).toBe("on-pace");
+    expect(resolveRehearsalPace(manifest, position("end", 2), 220_000, target)).toBe("on-pace");
+    expect(resolveRehearsalPace(manifest, position("end", 2), 250_000, target)).toBe("behind");
+    expect(
+      resolveRehearsalPace(manifest, position("details", 1), 150_000, undefined),
+    ).toBeUndefined();
+  });
+
   it("attributes running time to slides without splitting sparse Steps", () => {
     const clock = createClock();
     const store = createRehearsalStore({

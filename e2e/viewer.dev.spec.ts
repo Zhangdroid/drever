@@ -421,6 +421,16 @@ test("speaker view previews sparse steps and synchronizes a late audience window
   await expect(popup).toHaveURL(/\/2\/5$/u);
   await popup.close();
 
+  await page.getByRole("button", { name: /Browse slides/u }).click();
+  const navigator = page.getByRole("dialog", { name: "Jump to a slide" });
+  await expect(navigator).toBeVisible();
+  await expect(navigator.getByRole("searchbox", { name: "Find a slide" })).toBeFocused();
+  await navigator.getByRole("searchbox", { name: "Find a slide" }).fill("interfaces");
+  await navigator.getByRole("button", { name: "Go to slide 4: Interfaces remember." }).click();
+  await expect(page).toHaveURL(/\/speaker\/4$/u);
+  await expect(audience).toHaveURL(/\/4$/u);
+  await expect(navigator).not.toBeVisible();
+
   speakerHealth.expectHealthy();
   audienceHealth.expectHealthy();
 });
@@ -474,6 +484,7 @@ test("speaker rehearsal accounts for slide visits, targets, pause, and reset", a
   await target.fill("0.3");
   await expect(pace).toHaveText("00:00:07");
   await expect(pace.locator("..")).toHaveAttribute("data-rehearsal-pace", "over");
+  await expect(page.getByTestId("rehearsal-status")).toHaveText("Behind");
 
   await page.getByRole("button", { name: "Reset" }).click();
   await expect(elapsed).toHaveText("00:00:00");

@@ -11,6 +11,8 @@ export type RehearsalSlideTiming = Readonly<{
   visits: number;
 }>;
 
+export type RehearsalPace = "ahead" | "behind" | "on-pace";
+
 export type RehearsalSnapshot = Readonly<{
   currentSlideElapsedMs: number;
   currentSlideId: string;
@@ -49,6 +51,46 @@ type MutableSlideTiming = {
   slideId: string;
   slideIndex: number;
   visits: number;
+};
+
+const REHEARSAL_PACE_TOLERANCE = 0.02;
+const MAX_REHEARSAL_PACE_TOLERANCE_MS = 30_000;
+
+const slideStateCount = (slide: DeckManifest["slides"][number]): number =>
+  slide.stepStops.length + 1;
+
+/** Compares elapsed time with the target window allocated to the current presentation state. */
+export const resolveRehearsalPace = (
+  manifest: DeckManifest,
+  position: DeckPosition,
+  elapsedMs: number,
+  targetDurationMs: number | undefined,
+): RehearsalPace | undefined => {
+  if (targetDurationMs === undefined) {
+    return;
+  }
+
+  const slide = manifest.slides[position.slideIndex] as DeckManifest["slides"][number];
+  const stateIndex =
+    manifest.slides
+      .slice(0, position.slideIndex)
+      .reduce((count, candidate) => count + slideStateCount(candidate), 0) +
+    (position.step === 0 ? 0 : slide.stepStops.indexOf(position.step) + 1);
+  const stateDuration =
+    targetDurationMs /
+    manifest.slides.reduce((count, candidate) => count + slideStateCount(candidate), 0);
+  const tolerance = Math.min(
+    MAX_REHEARSAL_PACE_TOLERANCE_MS,
+    targetDurationMs * REHEARSAL_PACE_TOLERANCE,
+  );
+
+  if (elapsedMs < stateIndex * stateDuration - tolerance) {
+    return "ahead";
+  }
+  if (elapsedMs > (stateIndex + 1) * stateDuration + tolerance) {
+    return "behind";
+  }
+  return "on-pace";
 };
 
 const defaultNow = (): number => performance.now();

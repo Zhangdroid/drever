@@ -5,7 +5,12 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vite-plus/test";
 import { createPresentationStateMachine, createPresentationStore } from "./presentation-state.ts";
 import { createRehearsalStore } from "./rehearsal.ts";
-import { formatSpeakerElapsedTime, nextSpeakerPosition, Speaker } from "./speaker.tsx";
+import {
+  filterSpeakerSlides,
+  formatSpeakerElapsedTime,
+  nextSpeakerPosition,
+  Speaker,
+} from "./speaker.tsx";
 
 const manifest = {
   version: DECK_MANIFEST_VERSION,
@@ -39,7 +44,14 @@ describe("speaker view state", () => {
     ).toBeUndefined();
   });
 
-  it("renders an accessible compact rehearsal control and per-slide summary", () => {
+  it("filters the speaker slide catalog by number and readable title", () => {
+    expect(filterSpeakerSlides(manifest, "")).toBe(manifest.slides);
+    expect(filterSpeakerSlides(manifest, "opening").map(({ id }) => id)).toEqual(["intro"]);
+    expect(filterSpeakerSlides(manifest, "2").map(({ id }) => id)).toEqual(["end"]);
+    expect(filterSpeakerSlides(manifest, "missing")).toEqual([]);
+  });
+
+  it("renders accessible rehearsal status, timing details, and quick slide navigation", () => {
     const machine = createPresentationStateMachine(manifest);
     const store = createPresentationStore(machine);
     const rehearsal = createRehearsalStore({
@@ -67,6 +79,9 @@ describe("speaker view state", () => {
     expect(markup).toContain('data-testid="rehearsal-elapsed"');
     expect(markup).toContain('data-testid="rehearsal-current-slide"');
     expect(markup).toContain('data-testid="rehearsal-pace"');
+    expect(markup).toContain('data-testid="rehearsal-status"');
+    expect(markup).toContain('data-rehearsal-status="on-pace"');
+    expect(markup).toContain("On pace");
     expect(markup).toContain('aria-label="Target duration in minutes"');
     expect(markup).toContain('value="25"');
     expect(markup).toContain('aria-label="Open per-slide timing summary"');
@@ -75,6 +90,12 @@ describe("speaker view state", () => {
     expect(markup).toContain("1 visit");
     expect(markup).toContain(">Pause<");
     expect(markup).toContain(">Reset<");
+    expect(markup).toContain('aria-expanded="false"');
+    expect(markup).toContain('aria-haspopup="dialog"');
+    expect(markup).toContain('id="drever-speaker-slide-dialog"');
+    expect(markup).toContain('aria-label="Go to slide 1: Opening claim"');
+    expect(markup).toContain('aria-label="Go to slide 2: Closing thought"');
+    expect(markup).toContain("2 slides found.");
 
     rehearsal.destroy();
   });

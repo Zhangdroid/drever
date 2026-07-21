@@ -1,13 +1,20 @@
 import type { DreverRenderMode, MDXComponents, MDXContent } from "@drever/core";
 import type { CanvasDefinition, DeckManifest, SlideManifest } from "@drever/schema";
-import { useEffect, useSyncExternalStore, type ReactElement } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ReactElement,
+} from "react";
 import type {
   DeckCommand,
   DeckPosition,
   PresentationStateMachine,
   PresentationStore,
 } from "./presentation-state.ts";
-import type { RehearsalStore } from "./rehearsal.ts";
+import { resolveRehearsalPace, type RehearsalPace, type RehearsalStore } from "./rehearsal.ts";
 import type { StageComponents } from "./stage.tsx";
 import { Viewer } from "./viewer.tsx";
 
@@ -40,6 +47,28 @@ export const nextSpeakerPosition = (
 const positionLabel = (position: DeckPosition): string =>
   `Slide ${position.slideIndex + 1}${position.step === 0 ? "" : ` · Step ${position.step}`}`;
 
+const slideTitle = (slide: SlideManifest): string => slide.title ?? `Slide ${slide.index + 1}`;
+
+export const filterSpeakerSlides = (
+  manifest: DeckManifest,
+  query: string,
+): readonly SlideManifest[] => {
+  const needle = query.trim().toLowerCase();
+  if (needle.length === 0) {
+    return manifest.slides;
+  }
+  return Object.freeze(
+    manifest.slides.filter(
+      (slide) =>
+        String(slide.index + 1).includes(needle) ||
+        slideTitle(slide).toLowerCase().includes(needle),
+    ),
+  );
+};
+
+const paceLabel = (pace: RehearsalPace): string =>
+  ({ ahead: "Ahead", behind: "Behind", "on-pace": "On pace" })[pace];
+
 const durationDateTime = (milliseconds: number): string =>
   `PT${Math.max(0, Math.floor(milliseconds / 1_000))}S`;
 
@@ -48,8 +77,13 @@ const targetMinutes = (milliseconds: number | undefined): string | number =>
 
 const RehearsalPanel = ({
   manifest,
+  position,
   rehearsal,
-}: Readonly<{ manifest: DeckManifest; rehearsal: RehearsalStore }>): ReactElement => {
+}: Readonly<{
+  manifest: DeckManifest;
+  position: DeckPosition;
+  rehearsal: RehearsalStore;
+}>): ReactElement => {
   const snapshot = useSyncExternalStore(
     rehearsal.subscribe,
     rehearsal.getSnapshot,
@@ -58,6 +92,12 @@ const RehearsalPanel = ({
   const overtime = snapshot.overtimeMs ?? 0;
   const targetValue = overtime > 0 ? overtime : snapshot.remainingMs;
   const targetLabel = overtime > 0 ? "Over" : "Remaining";
+  const pace = resolveRehearsalPace(
+    manifest,
+    position,
+    snapshot.elapsedMs,
+    snapshot.targetDurationMs,
+  );
 
   return (
     <div
@@ -83,13 +123,22 @@ const RehearsalPanel = ({
       </div>
       {targetValue === undefined ? null : (
         <div
-          className="drever-speaker__metric"
+          className="drever-speaker__metric drever-speaker__metric--target"
           data-rehearsal-pace={overtime > 0 ? "over" : "remaining"}
         >
           <span>{targetLabel}</span>
           <time data-testid="rehearsal-pace" dateTime={durationDateTime(targetValue)}>
             {formatSpeakerElapsedTime(targetValue)}
           </time>
+        </div>
+      )}
+      {pace === undefined ? null : (
+        <div
+          className="drever-speaker__metric drever-speaker__metric--pace"
+          data-rehearsal-status={pace}
+        >
+          <span>Pace</span>
+          <output data-testid="rehearsal-status">{paceLabel(pace)}</output>
         </div>
       )}
       <label className="drever-speaker__target">
@@ -208,13 +257,45 @@ export const Speaker = ({
   store,
 }: SpeakerProps): ReactElement => {
   const position = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
+  const navigatorDialogRef = useRef<HTMLDialogElement>(null);
+  const navigatorSearchRef = useRef<HTMLInputElement>(null);
+  const [navigatorOpen, setNavigatorOpen] = useState(false);
+  const [navigatorQuery, setNavigatorQuery] = useState("");
+  const visibleSlides = useMemo(
+    () => filterSpeakerSlides(manifest, navigatorQuery),
+    [manifest, navigatorQuery],
+  );
   const nextPosition = nextSpeakerPosition(machine, position);
   const slide = manifest.slides[position.slideIndex] as SlideManifest;
   const previousDisabled = machine.transition(position, { type: "previous" }) === undefined;
   const nextDisabled = nextPosition === undefined;
 
+  useEffect(() => {
+    const dialog = navigatorDialogRef.current;
+    if (dialog === null) {
+      return;
+    }
+    if (navigatorOpen) {
+      if (!dialog.open) {
+        dialog.showModal();
+        navigatorSearchRef.current?.focus();
+      }
+    } else if (dialog.open) {
+      dialog.close();
+    }
+  }, [navigatorOpen]);
+
   const navigate = (command: DeckCommand): void => {
     void onNavigate(command);
+  };
+  const closeNavigator = (): void => setNavigatorOpen(false);
+  const openNavigator = (): void => {
+    setNavigatorQuery("");
+    setNavigatorOpen(true);
+  };
+  const jumpToSlide = (target: SlideManifest): void => {
+    closeNavigator();
+    navigate({ type: "goTo", slideId: target.id });
   };
 
   return (
@@ -224,7 +305,7 @@ export const Speaker = ({
           <strong>Drever</strong>
           <span>Speaker view</span>
         </div>
-        <RehearsalPanel manifest={manifest} rehearsal={rehearsal} />
+        <RehearsalPanel manifest={manifest} position={position} rehearsal={rehearsal} />
       </header>
 
       <main className="drever-speaker__workspace">
@@ -279,15 +360,27 @@ export const Speaker = ({
       </main>
 
       <footer className="drever-speaker__controls" data-drever-speaker-controls="">
-        <div
-          aria-atomic="true"
-          aria-live="polite"
-          className="drever-speaker__progress"
-          role="status"
-        >
-          <strong>{positionLabel(position)}</strong>
-          <span>
-            {position.slideIndex + 1} / {manifest.slides.length}
+        <div className="drever-speaker__progress-group">
+          <button
+            aria-controls="drever-speaker-slide-dialog"
+            aria-expanded={navigatorOpen}
+            aria-haspopup="dialog"
+            className="drever-speaker__progress"
+            onClick={openNavigator}
+            type="button"
+          >
+            <strong>{positionLabel(position)}</strong>
+            <span>
+              {position.slideIndex + 1} / {manifest.slides.length} · Browse slides
+            </span>
+          </button>
+          <span
+            aria-atomic="true"
+            aria-live="polite"
+            className="drever-visually-hidden"
+            role="status"
+          >
+            {positionLabel(position)}, {position.slideIndex + 1} of {manifest.slides.length}
           </span>
         </div>
         <div className="drever-speaker__navigation">
@@ -313,6 +406,66 @@ export const Speaker = ({
           Open audience ↗
         </button>
       </footer>
+
+      <dialog
+        aria-labelledby="drever-speaker-slide-dialog-title"
+        className="drever-speaker__slide-dialog"
+        id="drever-speaker-slide-dialog"
+        onCancel={closeNavigator}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) {
+            closeNavigator();
+          }
+        }}
+        onClose={closeNavigator}
+        ref={navigatorDialogRef}
+      >
+        <div className="drever-speaker__slide-dialog-content">
+          <header>
+            <div>
+              <span>Drever speaker</span>
+              <h2 id="drever-speaker-slide-dialog-title">Jump to a slide</h2>
+            </div>
+            <button aria-label="Close slide navigator" onClick={closeNavigator} type="button">
+              ×
+            </button>
+          </header>
+          <label className="drever-speaker__slide-search">
+            <span className="drever-visually-hidden">Find a slide</span>
+            <input
+              onChange={(event) => setNavigatorQuery(event.currentTarget.value)}
+              placeholder="Find by title or number"
+              ref={navigatorSearchRef}
+              type="search"
+              value={navigatorQuery}
+            />
+          </label>
+          <p aria-atomic="true" aria-live="polite" className="drever-visually-hidden">
+            {visibleSlides.length === 0
+              ? "No slides found."
+              : `${visibleSlides.length} ${visibleSlides.length === 1 ? "slide" : "slides"} found.`}
+          </p>
+          <ol className="drever-speaker__slide-results">
+            {visibleSlides.map((target) => (
+              <li key={target.id}>
+                <button
+                  aria-current={target.index === position.slideIndex ? "page" : undefined}
+                  aria-label={`Go to slide ${target.index + 1}: ${slideTitle(target)}`}
+                  onClick={() => jumpToSlide(target)}
+                  type="button"
+                >
+                  <span>{String(target.index + 1).padStart(2, "0")}</span>
+                  <strong>{slideTitle(target)}</strong>
+                  {target.index === position.slideIndex ? <small>Current</small> : null}
+                </button>
+              </li>
+            ))}
+            {visibleSlides.length === 0 ? (
+              <li className="drever-speaker__slide-empty">No slides match “{navigatorQuery}”.</li>
+            ) : null}
+          </ol>
+        </div>
+      </dialog>
     </div>
   );
 };

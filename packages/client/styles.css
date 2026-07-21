@@ -827,7 +827,8 @@
     text-transform: uppercase;
   }
 
-  .drever-speaker__metric time {
+  .drever-speaker__metric time,
+  .drever-speaker__metric output {
     color: #f8f9fb;
     font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
     font-size: 15px;
@@ -835,6 +836,24 @@
     font-weight: 650;
     letter-spacing: 0.025em;
     line-height: 1.1;
+  }
+
+  .drever-speaker__metric--pace output {
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: -0.01em;
+  }
+
+  .drever-speaker__metric--pace[data-rehearsal-status="ahead"] output {
+    color: #8fddbb;
+  }
+
+  .drever-speaker__metric--pace[data-rehearsal-status="on-pace"] output {
+    color: #aebeff;
+  }
+
+  .drever-speaker__metric--pace[data-rehearsal-status="behind"] output {
+    color: #ff9a91;
   }
 
   .drever-speaker__metric[data-rehearsal-pace="over"] time {
@@ -864,7 +883,8 @@
   }
 
   .drever-speaker__target input:focus-visible,
-  .drever-speaker__timings summary:focus-visible {
+  .drever-speaker__timings summary:focus-visible,
+  .drever-speaker__slide-search input:focus-visible {
     outline: 2px solid #7c9cff;
     outline-offset: 2px;
   }
@@ -1109,10 +1129,26 @@
     gap: 18px;
   }
 
-  .drever-speaker__progress {
+  .drever-speaker__progress-group {
+    min-width: 0;
+    justify-self: start;
+  }
+
+  .drever-speaker .drever-speaker__progress {
     display: grid;
+    min-width: 0;
+    min-height: 48px;
+    padding: 6px 10px;
+    border-color: transparent;
+    background: transparent;
     justify-self: start;
     gap: 3px;
+    text-align: left;
+  }
+
+  .drever-speaker .drever-speaker__progress:hover:not(:disabled) {
+    border-color: #343945;
+    background: #1b1e26;
   }
 
   .drever-speaker__progress strong {
@@ -1149,6 +1185,152 @@
     justify-self: end;
   }
 
+  .drever-speaker__slide-dialog {
+    width: min(620px, calc(100vw - 40px));
+    max-width: none;
+    max-height: min(680px, calc(100vh - 48px));
+    box-sizing: border-box;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid #343a47;
+    border-radius: 18px;
+    background: #11131a;
+    box-shadow: 0 30px 100px rgb(0 0 0 / 58%);
+    color: #f4f5f7;
+  }
+
+  .drever-speaker__slide-dialog::backdrop {
+    background: rgb(3 5 9 / 72%);
+    backdrop-filter: blur(5px);
+  }
+
+  .drever-speaker__slide-dialog-content {
+    display: grid;
+    max-height: min(680px, calc(100vh - 48px));
+    grid-template-rows: auto auto minmax(0, 1fr);
+  }
+
+  .drever-speaker__slide-dialog-content > header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 22px 15px;
+  }
+
+  .drever-speaker__slide-dialog-content > header div {
+    display: grid;
+    gap: 3px;
+  }
+
+  .drever-speaker__slide-dialog-content > header span {
+    color: #858c99;
+    font-size: 9px;
+    font-weight: 760;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .drever-speaker__slide-dialog-content > header h2 {
+    margin: 0;
+    font-size: 22px;
+    letter-spacing: -0.025em;
+  }
+
+  .drever-speaker__slide-dialog-content > header button {
+    min-width: 36px;
+    padding: 0;
+    color: #aeb5c1;
+    font-size: 23px;
+    font-weight: 320;
+  }
+
+  .drever-speaker__slide-search {
+    display: block;
+    padding: 0 22px 16px;
+  }
+
+  .drever-speaker__slide-search input {
+    width: 100%;
+    height: 42px;
+    box-sizing: border-box;
+    padding: 0 13px;
+    border: 1px solid #343b49;
+    border-radius: 10px;
+    background: #191c24;
+    color: #f4f5f7;
+    color-scheme: dark;
+    font: inherit;
+    font-size: 13px;
+  }
+
+  .drever-speaker__slide-search input::placeholder {
+    color: #737c8c;
+  }
+
+  .drever-speaker__slide-results {
+    display: grid;
+    align-content: start;
+    padding: 0 22px 22px;
+    margin: 0;
+    overflow: auto;
+    gap: 6px;
+    list-style: none;
+    overscroll-behavior: contain;
+    scrollbar-color: #424957 transparent;
+  }
+
+  .drever-speaker__slide-results li {
+    min-width: 0;
+  }
+
+  .drever-speaker__slide-results li > button {
+    display: grid;
+    width: 100%;
+    min-width: 0;
+    min-height: 52px;
+    padding: 9px 11px;
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+    align-items: center;
+    justify-items: start;
+    gap: 10px;
+    text-align: left;
+  }
+
+  .drever-speaker__slide-results li > button[aria-current="page"] {
+    border-color: #657fe7;
+    background: #1d2745;
+    box-shadow: inset 0 0 0 1px rgb(124 156 255 / 18%);
+  }
+
+  .drever-speaker__slide-results button > span {
+    color: #7f8999;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.08em;
+  }
+
+  .drever-speaker__slide-results button > strong {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .drever-speaker__slide-results button > small {
+    color: #9fb1ff;
+    font-size: 9px;
+    font-weight: 760;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .drever-speaker__slide-empty {
+    padding: 28px 12px;
+    color: #858c99;
+    font-size: 13px;
+    text-align: center;
+  }
+
   @media (max-width: 900px) {
     .drever-speaker {
       grid-template-rows: 56px minmax(0, 1fr) 68px;
@@ -1172,6 +1354,12 @@
     .drever-speaker__navigation button {
       min-width: 84px;
       padding-inline: 10px;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .drever-speaker__metric--target {
+      display: none;
     }
   }
 
@@ -1222,6 +1410,22 @@
       left: 8px;
       width: auto;
       max-height: calc(100vh - 180px);
+    }
+
+    .drever-speaker__progress span {
+      max-width: 96px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .drever-speaker__slide-dialog {
+      width: calc(100vw - 16px);
+      max-height: calc(100vh - 16px);
+    }
+
+    .drever-speaker__slide-dialog-content {
+      max-height: calc(100vh - 16px);
     }
   }
 
