@@ -160,7 +160,7 @@ test("audience controls navigate exact states with a pointer", async ({ page }) 
 
   const fullscreen = controls.getByRole("button", { name: "Enter fullscreen" });
   await expect(fullscreen).toBeEnabled();
-  await expect(fullscreen).toHaveAttribute("title", "Enter fullscreen (F)");
+  await expect(fullscreen).toHaveAttribute("data-drever-tooltip", "Enter fullscreen · F");
 
   health.expectHealthy();
 });
@@ -170,9 +170,18 @@ test("focus tools preserve marks across Steps and clear them across slides", asy
   await page.goto("/2");
 
   const controls = page.getByRole("navigation", { name: "Presentation controls" });
+  const focusLauncher = controls.getByRole("button", { name: "Open focus tools" });
+  const launcherBounds = await focusLauncher.boundingBox();
+  expect(launcherBounds).not.toBeNull();
+  if (launcherBounds === null) return;
   const openFocusTools = async (): Promise<void> => {
-    await controls.getByRole("button", { name: "Open focus tools" }).click();
+    await page.mouse.move(
+      launcherBounds.x + launcherBounds.width / 2,
+      launcherBounds.y + launcherBounds.height / 2,
+    );
+    await focusLauncher.click();
   };
+
   await openFocusTools();
   const laser = controls.getByRole("button", { name: "Use laser pointer" });
   await expect(laser).toBeFocused();
@@ -180,6 +189,26 @@ test("focus tools preserve marks across Steps and clear them across slides", asy
   const layer = page.locator("[data-drever-focus-layer]");
   await expect(page.locator("[data-drever-canvas] > [data-drever-focus-layer]")).toHaveCount(1);
   await expect(page.locator("[data-drever-deck] [data-drever-focus-layer]")).toHaveCount(0);
+  await expect(layer).not.toHaveAttribute("data-active", "");
+
+  const laserBounds = await laser.boundingBox();
+  expect(laserBounds).not.toBeNull();
+  if (laserBounds === null) return;
+  await page.mouse.move(
+    laserBounds.x + laserBounds.width / 2,
+    (laserBounds.y + laserBounds.height + launcherBounds.y) / 2,
+    { steps: 8 },
+  );
+  await expect(controls.getByRole("toolbar", { name: "Focus tools" })).toBeVisible();
+  await page.mouse.move(
+    laserBounds.x + laserBounds.width / 2,
+    laserBounds.y + laserBounds.height / 2,
+    { steps: 4 },
+  );
+  await expect(laser).toBeVisible();
+  await laser.click();
+  await expect(layer).toHaveAttribute("data-active", "");
+
   const bounds = await layer.boundingBox();
   expect(bounds).not.toBeNull();
   if (bounds === null) return;
@@ -204,6 +233,22 @@ test("focus tools preserve marks across Steps and clear them across slides", asy
     pointerType: "pen",
   });
   await expect(page.locator("[data-drever-focus-laser]")).toHaveCount(0);
+
+  await page.keyboard.press("l");
+  await expect(layer).not.toHaveAttribute("data-active", "");
+
+  for (const [key, tool] of [
+    ["l", "laser"],
+    ["i", "pen"],
+    ["h", "highlighter"],
+  ] as const) {
+    await page.keyboard.press(key);
+    await expect(layer).toHaveAttribute("data-active", "");
+    await expect(layer).toHaveAttribute("data-focus-tool", tool);
+    await page.keyboard.press(key);
+    await expect(layer).not.toHaveAttribute("data-active", "");
+  }
+
   await openFocusTools();
   await controls.getByRole("button", { name: "Use pen" }).click();
 
@@ -220,7 +265,7 @@ test("focus tools preserve marks across Steps and clear them across slides", asy
   await controls.getByRole("button", { name: "Undo focus stroke" }).click();
   await expect(page.locator("[data-drever-focus-stroke]")).toHaveCount(0);
 
-  await controls.getByRole("button", { name: "Use pen" }).click();
+  await page.keyboard.press("Escape");
   await page.mouse.move(bounds.x + 180, bounds.y + 150);
   await page.mouse.down();
   await page.mouse.move(bounds.x + 440, bounds.y + 210, { steps: 8 });
@@ -237,8 +282,7 @@ test("focus tools preserve marks across Steps and clear them across slides", asy
   await draw(100);
   await expect(page.locator("[data-drever-focus-stroke]")).toHaveCount(2);
 
-  const next = controls.getByRole("button", { name: "Next presentation state" });
-  await next.click();
+  await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/\/2\/2$/u);
   await expect(page.locator("[data-drever-focus-stroke]")).toHaveCount(2);
 
@@ -247,10 +291,10 @@ test("focus tools preserve marks across Steps and clear them across slides", asy
   await expect(page.locator("[data-drever-focus-stroke]")).toHaveCount(0);
   await controls.getByRole("button", { name: "Use pen" }).click();
   await draw(40);
-  await next.click();
+  await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/\/2\/5$/u);
   await expect(page.locator("[data-drever-focus-stroke]")).toHaveCount(1);
-  await next.click();
+  await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/\/3$/u);
   await expect(page.locator("[data-drever-focus-stroke]")).toHaveCount(0);
 

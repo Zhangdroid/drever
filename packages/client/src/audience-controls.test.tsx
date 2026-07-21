@@ -96,6 +96,8 @@ describe("audience controls", () => {
     expect(markup).toContain('aria-label="Open focus tools"');
     expect(markup).toContain('aria-pressed="false"');
     expect(markup).toContain('aria-label="Enter fullscreen"');
+    expect(markup).toContain('data-drever-tooltip="Enter fullscreen · F"');
+    expect(markup).not.toContain(" title=");
     expect(markup).toContain("Slide 1 of 3");
     expect(markup).toMatch(/aria-label="Previous presentation state"[^>]*disabled/u);
   });

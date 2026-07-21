@@ -401,6 +401,12 @@
     backdrop-filter: blur(22px) saturate(150%);
   }
 
+  .drever-audience-focus-anchor {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
   .drever-audience-focus-tools {
     position: absolute;
     bottom: calc(100% + 10px);
@@ -420,6 +426,15 @@
     backdrop-filter: blur(22px) saturate(150%);
   }
 
+  .drever-audience-focus-tools::after {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 10px;
+    content: "";
+  }
+
   .drever-audience-controls__bar .drever-audience-focus-tools button {
     display: inline-grid;
     min-width: 40px;
@@ -434,6 +449,20 @@
     font-weight: 660;
   }
 
+  .drever-audience-focus-tools button > kbd {
+    min-width: 16px;
+    padding: 2px 4px;
+    border: 1px solid rgb(255 255 255 / 13%);
+    border-radius: 5px;
+    background: rgb(255 255 255 / 7%);
+    color: #aeb6c6;
+    font:
+      620 9px/1 ui-monospace,
+      "SFMono-Regular",
+      Consolas,
+      monospace;
+  }
+
   .drever-audience-focus-tools button[aria-pressed="true"] {
     background: rgb(145 167 255 / 20%);
     color: #c8d2ff;
@@ -446,7 +475,7 @@
     opacity: 1;
   }
 
-  .drever-audience-controls[data-drever-controls-idle]
+  .drever-audience-controls[data-drever-controls-idle]:not([data-drever-controls-pinned])
     .drever-audience-controls__bar:not(:focus-within) {
     opacity: 0;
     pointer-events: none;
@@ -472,6 +501,59 @@
     color: inherit;
     font: inherit;
     cursor: pointer;
+  }
+
+  .drever-audience-controls__bar button[data-drever-tooltip] {
+    position: relative;
+  }
+
+  .drever-audience-controls__bar button[data-drever-tooltip]::after {
+    position: absolute;
+    z-index: 3;
+    bottom: calc(100% + 9px);
+    left: 50%;
+    width: max-content;
+    max-width: min(240px, calc(100vw - 24px));
+    padding: 6px 8px;
+    border: 1px solid rgb(255 255 255 / 11%);
+    border-radius: 7px;
+    visibility: hidden;
+    background: rgb(11 14 21 / 94%);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 24%);
+    color: #e8ebf2;
+    content: attr(data-drever-tooltip);
+    font-size: 10px;
+    font-weight: 620;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 4px);
+    transition:
+      opacity 80ms ease,
+      transform 100ms ease,
+      visibility 0s linear 80ms;
+    white-space: nowrap;
+  }
+
+  @media (hover: hover) {
+    .drever-audience-controls__bar button[data-drever-tooltip]:hover::after {
+      visibility: visible;
+      opacity: 1;
+      transform: translate(-50%, 0);
+      transition-delay: 320ms;
+    }
+  }
+
+  .drever-audience-controls__bar button[data-drever-tooltip]:focus-visible::after {
+    visibility: visible;
+    opacity: 1;
+    transform: translate(-50%, 0);
+    transition-delay: 80ms;
+  }
+
+  .drever-audience-controls__bar button[aria-expanded="true"]::after {
+    display: none;
   }
 
   .drever-audience-controls__bar button:hover:not(:disabled),
@@ -811,7 +893,8 @@
   }
 
   @media (max-width: 640px) {
-    .drever-audience-focus-tools button > span {
+    .drever-audience-focus-tools button > span,
+    .drever-audience-focus-tools button > kbd {
       display: none;
     }
 
@@ -825,7 +908,8 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .drever-audience-controls__bar {
+    .drever-audience-controls__bar,
+    .drever-audience-controls__bar button[data-drever-tooltip]::after {
       transition: none;
     }
   }

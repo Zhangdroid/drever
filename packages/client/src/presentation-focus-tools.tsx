@@ -32,6 +32,7 @@ export type PresentationFocusToolsProps = Readonly<{
   canvas: CanvasDefinition;
   canvasRef: RefObject<HTMLDivElement | null>;
   onInteractionChange?: (interacting: boolean) => void;
+  onPaletteOpenChange?: (open: boolean) => void;
   position: DeckPosition;
   remoteLaser: PresentationLaserStore;
 }>;
@@ -121,12 +122,26 @@ const CloseIcon = (): ReactElement => (
 const isUnmodifiedShortcut = (event: ReactKeyboardEvent): boolean =>
   !event.altKey && !event.ctrlKey && !event.metaKey && !event.nativeEvent.isComposing;
 
+const focusToolForKey = (key: string): PresentationFocusTool | undefined => {
+  switch (key.toLowerCase()) {
+    case "h":
+      return "highlighter";
+    case "i":
+      return "pen";
+    case "l":
+      return "laser";
+    default:
+      return undefined;
+  }
+};
+
 /** Owns the high-frequency focus state without reconciling the presentation or command bar. */
 export const PresentationFocusTools = ({
   appearance,
   canvas,
   canvasRef,
   onInteractionChange,
+  onPaletteOpenChange,
   position,
   remoteLaser,
 }: PresentationFocusToolsProps): ReactElement => {
@@ -169,31 +184,51 @@ export const PresentationFocusTools = ({
     dispatch({ position, type: "commitPosition" });
   }, [position]);
 
-  const selectTool = useCallback((tool: PresentationFocusTool): void => {
-    dispatch({ tool, type: "selectTool" });
-    setActive(true);
-    setPaletteOpen(false);
-  }, []);
+  const updatePalette = useCallback(
+    (open: boolean): void => {
+      setPaletteOpen(open);
+      onPaletteOpenChange?.(open);
+    },
+    [onPaletteOpenChange],
+  );
+
+  useEffect(
+    () => () => {
+      onPaletteOpenChange?.(false);
+    },
+    [onPaletteOpenChange],
+  );
+
+  const selectTool = useCallback(
+    (tool: PresentationFocusTool): void => {
+      dispatch({ tool, type: "selectTool" });
+      setActive(true);
+      updatePalette(false);
+    },
+    [updatePalette],
+  );
 
   const deactivate = useCallback((): void => {
     setActive(false);
-    setPaletteOpen(false);
+    updatePalette(false);
     dispatch({ type: "cancel" });
     onInteractionChange?.(false);
-  }, [onInteractionChange]);
+  }, [onInteractionChange, updatePalette]);
 
   const togglePalette = useCallback((): void => {
-    setActive(true);
-    setPaletteOpen((open) => !open);
-  }, []);
+    updatePalette(!paletteOpen);
+  }, [paletteOpen, updatePalette]);
 
-  const toggleLaser = useCallback((): void => {
-    if (active && state.tool === "laser") {
-      deactivate();
-    } else {
-      selectTool("laser");
-    }
-  }, [active, deactivate, selectTool, state.tool]);
+  const toggleTool = useCallback(
+    (tool: PresentationFocusTool): void => {
+      if (active && state.tool === tool) {
+        deactivate();
+      } else {
+        selectTool(tool);
+      }
+    },
+    [active, deactivate, selectTool, state.tool],
+  );
 
   useLayoutEffect(() => {
     if (paletteOpen) {
@@ -207,11 +242,11 @@ export const PresentationFocusTools = ({
   const handleInteractionChange = useCallback(
     (interacting: boolean): void => {
       if (interacting) {
-        setPaletteOpen(false);
+        updatePalette(false);
       }
       onInteractionChange?.(interacting);
     },
-    [onInteractionChange],
+    [onInteractionChange, updatePalette],
   );
 
   useEffect(() => {
@@ -225,32 +260,41 @@ export const PresentationFocusTools = ({
         Element !== undefined &&
         event.target instanceof Element &&
         event.target.closest("dialog") !== null;
+      if (event.key === "Escape" && paletteOpen && !targetsDialog) {
+        event.preventDefault();
+        updatePalette(false);
+        launcherRef.current?.focus();
+        return;
+      }
       if (event.key === "Escape" && active && !targetsDialog) {
         event.preventDefault();
         deactivate();
         return;
       }
-      if (event.key.toLowerCase() !== "l" || !acceptsPresentationShortcut(event)) {
+      const tool = focusToolForKey(event.key);
+      if (tool === undefined || event.repeat || !acceptsPresentationShortcut(event)) {
         return;
       }
       event.preventDefault();
-      toggleLaser();
+      toggleTool(tool);
     };
     document.addEventListener("keydown", listener);
     return () => document.removeEventListener("keydown", listener);
-  }, [active, canvasRef, deactivate, toggleLaser]);
+  }, [active, canvasRef, deactivate, paletteOpen, toggleTool, updatePalette]);
 
   const handleToolbarKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>): void => {
     if (event.key === "Escape") {
       event.preventDefault();
       event.stopPropagation();
-      deactivate();
+      updatePalette(false);
+      launcherRef.current?.focus();
       return;
     }
-    if (event.key.toLowerCase() === "l" && isUnmodifiedShortcut(event) && !event.repeat) {
+    const tool = focusToolForKey(event.key);
+    if (tool !== undefined && isUnmodifiedShortcut(event) && !event.repeat) {
       event.preventDefault();
       event.stopPropagation();
-      toggleLaser();
+      toggleTool(tool);
       return;
     }
     const direction = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : undefined;
@@ -284,7 +328,7 @@ export const PresentationFocusTools = ({
         ? null
         : createPortal(
             <PresentationFocusLayer
-              active={active}
+              active={active && !paletteOpen}
               {...(appearance === undefined ? {} : { appearance })}
               canvas={canvas}
               dispatch={dispatch}
@@ -295,97 +339,116 @@ export const PresentationFocusTools = ({
             />,
             canvasRef.current,
           )}
-      <button
-        aria-controls={toolbarId}
-        aria-expanded={paletteOpen}
-        aria-label={paletteOpen ? "Close focus tools" : "Open focus tools"}
-        aria-pressed={active}
-        onClick={togglePalette}
-        onKeyDown={(event) => {
-          if (event.key.toLowerCase() !== "l" || !isUnmodifiedShortcut(event) || event.repeat) {
-            return;
-          }
-          event.preventDefault();
-          event.stopPropagation();
-          toggleLaser();
-        }}
-        ref={launcherRef}
-        title="Focus tools (L for Laser)"
-        type="button"
+      <div
+        className="drever-audience-focus-anchor"
+        data-palette-open={paletteOpen ? "" : undefined}
       >
-        <FocusIcon />
-      </button>
-      {paletteOpen ? (
-        <div
-          aria-label="Focus tools"
-          className="drever-audience-focus-tools"
-          data-drever-focus-tools=""
-          id={toolbarId}
-          onKeyDown={handleToolbarKeyDown}
-          role="toolbar"
+        <button
+          aria-controls={toolbarId}
+          aria-expanded={paletteOpen}
+          aria-keyshortcuts="L I H"
+          aria-label={paletteOpen ? "Close focus tool picker" : "Open focus tools"}
+          aria-pressed={active}
+          data-drever-tooltip="Focus tools"
+          onClick={togglePalette}
+          onKeyDown={(event) => {
+            if (event.key === "Escape" && active && !paletteOpen) {
+              event.preventDefault();
+              event.stopPropagation();
+              deactivate();
+              return;
+            }
+            const tool = focusToolForKey(event.key);
+            if (tool === undefined || !isUnmodifiedShortcut(event) || event.repeat) {
+              return;
+            }
+            event.preventDefault();
+            event.stopPropagation();
+            toggleTool(tool);
+          }}
+          ref={launcherRef}
+          type="button"
         >
-          <button
-            aria-label="Use laser pointer"
-            aria-pressed={state.tool === "laser"}
-            onClick={() => selectTool("laser")}
-            ref={laserRef}
-            title="Laser pointer (L)"
-            type="button"
+          <FocusIcon />
+        </button>
+        {paletteOpen ? (
+          <div
+            aria-label="Focus tools"
+            className="drever-audience-focus-tools"
+            data-drever-focus-tools=""
+            id={toolbarId}
+            onKeyDown={handleToolbarKeyDown}
+            role="toolbar"
           >
-            <LaserIcon />
-            <span>Laser</span>
-          </button>
-          <button
-            aria-label="Use pen"
-            aria-pressed={state.tool === "pen"}
-            onClick={() => selectTool("pen")}
-            ref={penRef}
-            title="Pen"
-            type="button"
-          >
-            <PenIcon />
-            <span>Pen</span>
-          </button>
-          <button
-            aria-label="Use highlighter"
-            aria-pressed={state.tool === "highlighter"}
-            onClick={() => selectTool("highlighter")}
-            ref={highlighterRef}
-            title="Highlighter"
-            type="button"
-          >
-            <HighlighterIcon />
-            <span>Highlight</span>
-          </button>
-          <span aria-hidden="true" className="drever-audience-controls__divider" />
-          <button
-            aria-label="Undo focus stroke"
-            disabled={!canUndo}
-            onClick={() => dispatch({ type: "undo" })}
-            title="Undo"
-            type="button"
-          >
-            <UndoIcon />
-          </button>
-          <button
-            aria-label="Clear focus marks"
-            disabled={!canClear}
-            onClick={() => dispatch({ type: "clear" })}
-            title="Clear"
-            type="button"
-          >
-            <ClearIcon />
-          </button>
-          <button
-            aria-label="Close focus tools"
-            onClick={deactivate}
-            title="Close focus tools (Escape)"
-            type="button"
-          >
-            <CloseIcon />
-          </button>
-        </div>
-      ) : null}
+            <button
+              aria-keyshortcuts="L"
+              aria-label="Use laser pointer"
+              aria-pressed={active && state.tool === "laser"}
+              data-drever-tooltip="Laser · L"
+              onClick={() => toggleTool("laser")}
+              ref={laserRef}
+              type="button"
+            >
+              <LaserIcon />
+              <span>Laser</span>
+              <kbd>L</kbd>
+            </button>
+            <button
+              aria-keyshortcuts="I"
+              aria-label="Use pen"
+              aria-pressed={active && state.tool === "pen"}
+              data-drever-tooltip="Pen · I"
+              onClick={() => toggleTool("pen")}
+              ref={penRef}
+              type="button"
+            >
+              <PenIcon />
+              <span>Pen</span>
+              <kbd>I</kbd>
+            </button>
+            <button
+              aria-keyshortcuts="H"
+              aria-label="Use highlighter"
+              aria-pressed={active && state.tool === "highlighter"}
+              data-drever-tooltip="Highlighter · H"
+              onClick={() => toggleTool("highlighter")}
+              ref={highlighterRef}
+              type="button"
+            >
+              <HighlighterIcon />
+              <span>Highlight</span>
+              <kbd>H</kbd>
+            </button>
+            <span aria-hidden="true" className="drever-audience-controls__divider" />
+            <button
+              aria-label="Undo focus stroke"
+              data-drever-tooltip="Undo"
+              disabled={!canUndo}
+              onClick={() => dispatch({ type: "undo" })}
+              type="button"
+            >
+              <UndoIcon />
+            </button>
+            <button
+              aria-label="Clear focus marks"
+              data-drever-tooltip="Clear"
+              disabled={!canClear}
+              onClick={() => dispatch({ type: "clear" })}
+              type="button"
+            >
+              <ClearIcon />
+            </button>
+            <button
+              aria-label="Close focus tools"
+              data-drever-tooltip="Close · Esc"
+              onClick={deactivate}
+              type="button"
+            >
+              <CloseIcon />
+            </button>
+          </div>
+        ) : null}
+      </div>
     </>
   );
 };

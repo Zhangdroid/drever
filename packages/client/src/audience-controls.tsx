@@ -224,6 +224,8 @@ const shortcutRows = Object.freeze([
   ["Document view", "D"],
   ["Speaker view", "P"],
   ["Laser pointer", "L"],
+  ["Pen / ink", "I"],
+  ["Highlighter", "H"],
   ["Fullscreen", "F"],
   ["Pause on black / white", "B  W"],
   ["Keyboard help", "?"],
@@ -233,11 +235,16 @@ const useIdleControls = (
   hostRef: RefObject<HTMLDivElement | null>,
   barRef: RefObject<HTMLElement | null>,
   focusInteracting: boolean,
+  controlsPinned: boolean,
 ): boolean => {
   const [idle, setIdle] = useState(false);
 
   useEffect(() => {
     const window = hostRef.current?.ownerDocument.defaultView;
+    if (controlsPinned) {
+      setIdle(false);
+      return;
+    }
     if (
       focusInteracting &&
       window !== null &&
@@ -246,7 +253,7 @@ const useIdleControls = (
     ) {
       setIdle(true);
     }
-  }, [focusInteracting, hostRef]);
+  }, [controlsPinned, focusInteracting, hostRef]);
 
   useEffect(() => {
     const document = hostRef.current?.ownerDocument;
@@ -262,12 +269,17 @@ const useIdleControls = (
     const clearIdleTimer = (): void => window.clearTimeout(timeout);
     const scheduleIdle = (): void => {
       clearIdleTimer();
-      if (barRef.current?.contains(document.activeElement) === true) {
+      if (controlsPinned || barRef.current?.contains(document.activeElement) === true) {
         return;
       }
       timeout = window.setTimeout(() => setIdle(true), PRESENTATION_IDLE_DELAY_MS);
     };
     const show = (event: PointerEvent): void => {
+      if (controlsPinned) {
+        clearIdleTimer();
+        setIdle(false);
+        return;
+      }
       const target = event.target;
       const pointsAtFocusLayer =
         target instanceof window.Element &&
@@ -307,7 +319,7 @@ const useIdleControls = (
       document.removeEventListener("focusin", handleFocusIn);
       document.removeEventListener("focusout", handleFocusOut);
     };
-  }, [barRef, hostRef]);
+  }, [barRef, controlsPinned, hostRef]);
 
   return idle;
 };
@@ -333,6 +345,7 @@ export const AudienceControls = ({
   const searchRef = useRef<HTMLInputElement>(null);
   const [fullscreen, setFullscreen] = useState(false);
   const [focusInteracting, setFocusInteracting] = useState(false);
+  const [focusPaletteOpen, setFocusPaletteOpen] = useState(false);
   const [gotoBuffer, setGotoBuffer] = useState("");
   const [gotoError, setGotoError] = useState<string>();
   const [panel, setPanel] = useState<AudiencePanel>();
@@ -342,7 +355,7 @@ export const AudienceControls = ({
   const [slides, setSlides] = useState<readonly SlideNavigationItem[]>(() =>
     readSlideNavigationItems(null, manifest),
   );
-  const controlsIdle = useIdleControls(hostRef, barRef, focusInteracting);
+  const controlsIdle = useIdleControls(hostRef, barRef, focusInteracting, focusPaletteOpen);
   const progress = resolveAudienceProgress(manifest, position);
   const positionKey = `${position.slideId}:${position.step}`;
   const visibleShareResult =
@@ -548,6 +561,7 @@ export const AudienceControls = ({
       className="drever-audience-controls"
       data-drever-audience-controls=""
       data-drever-controls-idle={controlsIdle ? "" : undefined}
+      data-drever-controls-pinned={focusPaletteOpen ? "" : undefined}
       data-drever-focus-interacting={focusInteracting ? "" : undefined}
       ref={hostRef}
     >
@@ -557,19 +571,21 @@ export const AudienceControls = ({
         ref={barRef}
       >
         <button
+          aria-keyshortcuts="ArrowLeft"
           aria-label="Previous presentation state"
+          data-drever-tooltip="Previous step · ←"
           disabled={!progress.canGoPrevious}
           onClick={() => navigate({ type: "previous" })}
-          title="Previous Step (Arrow Left)"
           type="button"
         >
           <PreviousIcon />
         </button>
         <button
+          aria-keyshortcuts="O"
           aria-label="Open slide navigator"
           className="drever-audience-controls__position"
+          data-drever-tooltip="Slide navigator · O"
           onClick={() => setPanel("overview")}
-          title="Slide navigator (O)"
           type="button"
         >
           <OverviewIcon />
@@ -579,10 +595,11 @@ export const AudienceControls = ({
           </span>
         </button>
         <button
+          aria-keyshortcuts="ArrowRight"
           aria-label="Next presentation state"
+          data-drever-tooltip="Next step · →"
           disabled={!progress.canGoNext}
           onClick={() => navigate({ type: "next" })}
-          title="Next Step (Arrow Right)"
           type="button"
         >
           <NextIcon />
@@ -590,25 +607,27 @@ export const AudienceControls = ({
         <span aria-hidden="true" className="drever-audience-controls__divider" />
         <button
           aria-label="Copy link to current presentation state"
+          data-drever-tooltip="Copy link"
           data-share-result={visibleShareResult}
           onClick={copyShareURL}
-          title="Copy link"
           type="button"
         >
           <ShareIcon />
         </button>
         <button
+          aria-keyshortcuts="D"
           aria-label="Open document view"
+          data-drever-tooltip="Document view · D"
           onClick={() => run(onOpenDocument)}
-          title="Document view (D)"
           type="button"
         >
           <DocumentIcon />
         </button>
         <button
+          aria-keyshortcuts="P"
           aria-label="Open speaker view"
+          data-drever-tooltip="Speaker view · P"
           onClick={() => run(onOpenSpeaker)}
-          title="Speaker view (P)"
           type="button"
         >
           <SpeakerIcon />
@@ -618,21 +637,24 @@ export const AudienceControls = ({
           canvas={canvas}
           canvasRef={canvasRef}
           onInteractionChange={setFocusInteracting}
+          onPaletteOpenChange={setFocusPaletteOpen}
           position={position}
           remoteLaser={remoteLaser}
         />
         <button
+          aria-keyshortcuts="F"
           aria-label={fullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+          data-drever-tooltip={`${fullscreen ? "Exit" : "Enter"} fullscreen · F`}
           onClick={toggleFullscreen}
-          title={`${fullscreen ? "Exit" : "Enter"} fullscreen (F)`}
           type="button"
         >
           <FullscreenIcon active={fullscreen} />
         </button>
         <button
+          aria-keyshortcuts="?"
           aria-label="Show keyboard shortcuts"
+          data-drever-tooltip="Keyboard shortcuts · ?"
           onClick={() => setPanel("help")}
-          title="Keyboard shortcuts (?)"
           type="button"
         >
           <HelpIcon />
