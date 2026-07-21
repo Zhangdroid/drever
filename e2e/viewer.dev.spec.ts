@@ -165,6 +165,80 @@ test("audience controls navigate exact states with a pointer", async ({ page }) 
   health.expectHealthy();
 });
 
+test("focus tools preserve marks across Steps and clear them across slides", async ({ page }) => {
+  const health = monitorPageHealth(page);
+  await page.goto("/2");
+
+  const controls = page.getByRole("navigation", { name: "Presentation controls" });
+  await controls.getByRole("button", { name: "Open focus tools" }).click();
+  const laser = controls.getByRole("button", { name: "Use laser pointer" });
+  await expect(laser).toBeFocused();
+
+  const layer = page.locator("[data-drever-focus-layer]");
+  await expect(page.locator("[data-drever-canvas] > [data-drever-focus-layer]")).toHaveCount(1);
+  await expect(page.locator("[data-drever-deck] [data-drever-focus-layer]")).toHaveCount(0);
+  const bounds = await layer.boundingBox();
+  expect(bounds).not.toBeNull();
+  if (bounds === null) return;
+
+  await layer.dispatchEvent("pointermove", {
+    clientX: bounds.x + 300,
+    clientY: bounds.y + 180,
+    isPrimary: true,
+    pointerId: 11,
+    pointerType: "pen",
+  });
+  await expect(page.locator("[data-drever-focus-laser]")).toHaveCount(1);
+  await layer.dispatchEvent("pointercancel", {
+    isPrimary: true,
+    pointerId: 12,
+    pointerType: "touch",
+  });
+  await expect(page.locator("[data-drever-focus-laser]")).toHaveCount(1);
+  await layer.dispatchEvent("pointercancel", {
+    isPrimary: true,
+    pointerId: 11,
+    pointerType: "pen",
+  });
+  await expect(page.locator("[data-drever-focus-laser]")).toHaveCount(0);
+  await controls.getByRole("button", { name: "Use pen" }).click();
+
+  const draw = async (offset: number): Promise<void> => {
+    await page.mouse.move(bounds.x + 180, bounds.y + 150 + offset);
+    await page.mouse.down();
+    await page.mouse.move(bounds.x + 440, bounds.y + 210 + offset, { steps: 8 });
+    await page.mouse.up();
+  };
+
+  await draw(0);
+  await expect(page.locator("[data-drever-focus-stroke]")).toHaveCount(1);
+  await controls.getByRole("button", { name: "Undo focus stroke" }).click();
+  await expect(page.locator("[data-drever-focus-stroke]")).toHaveCount(0);
+
+  await draw(0);
+  await controls.getByRole("button", { name: "Use highlighter" }).click();
+  await draw(100);
+  await expect(page.locator("[data-drever-focus-stroke]")).toHaveCount(2);
+
+  const next = controls.getByRole("button", { name: "Next presentation state" });
+  await next.click();
+  await expect(page).toHaveURL(/\/2\/2$/u);
+  await expect(page.locator("[data-drever-focus-stroke]")).toHaveCount(2);
+
+  await controls.getByRole("button", { name: "Clear focus marks" }).click();
+  await expect(page.locator("[data-drever-focus-stroke]")).toHaveCount(0);
+  await controls.getByRole("button", { name: "Use pen" }).click();
+  await draw(40);
+  await next.click();
+  await expect(page).toHaveURL(/\/2\/5$/u);
+  await expect(page.locator("[data-drever-focus-stroke]")).toHaveCount(1);
+  await next.click();
+  await expect(page).toHaveURL(/\/3$/u);
+  await expect(page.locator("[data-drever-focus-stroke]")).toHaveCount(0);
+
+  health.expectHealthy();
+});
+
 test("audience controls leave the canvas after pointer inactivity and return on intent", async ({
   page,
 }) => {

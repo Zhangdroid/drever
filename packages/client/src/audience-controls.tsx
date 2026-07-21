@@ -1,6 +1,6 @@
 /// <reference types="react/canary" />
 
-import type { DeckManifest, SlideManifest } from "@drever/schema";
+import type { CanvasDefinition, DeckManifest, SlideManifest } from "@drever/schema";
 import {
   useCallback,
   useEffect,
@@ -16,6 +16,7 @@ import { DreverClientError } from "./client-error.ts";
 import { createFullscreenSession, PRESENTATION_IDLE_DELAY_MS } from "./fullscreen-session.ts";
 import { acceptsPresentationShortcut } from "./keyboard.ts";
 import type { DeckCommand, DeckPosition } from "./presentation-state.ts";
+import { PresentationFocusTools } from "./presentation-focus-tools.tsx";
 
 type AudiencePanel = "help" | "overview";
 type PauseScreen = "black" | "white";
@@ -27,6 +28,8 @@ type ShareFeedback = Readonly<{
 }>;
 
 export type AudienceControlsProps = Readonly<{
+  canvas: CanvasDefinition;
+  canvasRef: RefObject<HTMLDivElement | null>;
   deckRef: RefObject<HTMLDivElement | null>;
   manifest: DeckManifest;
   onCopyShareURL(position: DeckPosition): Promise<void>;
@@ -216,6 +219,7 @@ const shortcutRows = Object.freeze([
   ["Go to slide", "Number, then Enter"],
   ["Document view", "D"],
   ["Speaker view", "P"],
+  ["Laser pointer", "L"],
   ["Fullscreen", "F"],
   ["Pause on black / white", "B  W"],
   ["Keyboard help", "?"],
@@ -284,6 +288,8 @@ const useIdleControls = (
 
 /** Discoverable controls layered outside the transitioning presentation canvas. */
 export const AudienceControls = ({
+  canvas,
+  canvasRef,
   deckRef,
   manifest,
   onCopyShareURL,
@@ -496,14 +502,13 @@ export const AudienceControls = ({
   }, [gotoBuffer, onOpenDocument, pauseScreen, run, submitGoto, toggleFullscreen]);
 
   const visibleSlides = useMemo(() => {
-    const needle = query.trim().toLocaleLowerCase();
+    const needle = query.trim().toLowerCase();
     if (needle.length === 0) {
       return slides;
     }
     return slides.filter(
       (slide) =>
-        String(slide.index + 1).includes(needle) ||
-        slide.title.toLocaleLowerCase().includes(needle),
+        String(slide.index + 1).includes(needle) || slide.title.toLowerCase().includes(needle),
     );
   }, [query, slides]);
 
@@ -578,6 +583,7 @@ export const AudienceControls = ({
         >
           <SpeakerIcon />
         </button>
+        <PresentationFocusTools canvas={canvas} canvasRef={canvasRef} position={position} />
         <button
           aria-label={fullscreen ? "Exit fullscreen" : "Enter fullscreen"}
           onClick={toggleFullscreen}

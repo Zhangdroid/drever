@@ -69,12 +69,14 @@ export const Viewer = (props: ViewerProps): ReactElement => <ViewerSurface {...p
 
 type ViewerSurfaceProps = ViewerProps &
   Readonly<{
+    canvasRef?: RefObject<HTMLDivElement | null>;
     deckRef?: RefObject<HTMLDivElement | null>;
   }>;
 
 const ViewerSurface = ({
   Content,
   canvas,
+  canvasRef,
   deckRef: providedDeckRef,
   manageFocus = true,
   onPositionCommitted,
@@ -126,7 +128,7 @@ const ViewerSurface = ({
   }, [onPositionCommitted, position]);
 
   return (
-    <CanvasViewport canvas={resolvedCanvas}>
+    <CanvasViewport canvas={resolvedCanvas} {...(canvasRef === undefined ? {} : { canvasRef })}>
       <DreverRenderModeProvider mode={renderMode}>
         <PresentationStage
           canvas={resolvedCanvas}
@@ -200,6 +202,7 @@ export const ViewerHost = ({
 }: ViewerHostProps): ReactElement => {
   const [position, setPosition] = useState(store.getSnapshot);
   const reducedMotion = viewerProps.reducedMotion ?? false;
+  const canvasRef = useRef<HTMLDivElement>(null);
   const deckRef = useRef<HTMLDivElement>(null);
   const pendingRef = useRef<PendingCommit | undefined>(undefined);
 
@@ -371,12 +374,15 @@ export const ViewerHost = ({
     <>
       <ViewerSurface
         {...viewerProps}
+        canvasRef={canvasRef}
         deckRef={deckRef}
         manifest={machine.manifest}
         onPositionCommitted={completeCommit}
         position={position}
       />
       <AudienceControls
+        canvas={viewerProps.canvas ?? DEFAULT_CANVAS}
+        canvasRef={canvasRef}
         deckRef={deckRef}
         manifest={machine.manifest}
         onCopyShareURL={onCopyShareURL}

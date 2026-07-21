@@ -75,6 +75,71 @@
     pointer-events: none;
   }
 
+  .drever-presentation-focus {
+    position: absolute;
+    z-index: 4;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+    touch-action: none;
+    user-select: none;
+    view-transition-name: none;
+  }
+
+  .drever-presentation-focus[data-active] {
+    pointer-events: auto;
+  }
+
+  .drever-presentation-focus[data-active][data-focus-tool="laser"] {
+    cursor: none;
+  }
+
+  .drever-presentation-focus[data-active]:not([data-focus-tool="laser"]) {
+    cursor: crosshair;
+  }
+
+  .drever-presentation-focus__stroke {
+    fill: none;
+    pointer-events: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .drever-presentation-focus__stroke--pen {
+    stroke: var(--drever-focus-pen-color, #ff4f8b);
+    stroke-width: var(--drever-focus-pen-width, 8px);
+  }
+
+  .drever-presentation-focus__stroke--highlighter {
+    opacity: var(--drever-focus-highlighter-opacity, 0.32);
+    stroke: var(--drever-focus-highlighter-color, #d5ff3f);
+    stroke-width: var(--drever-focus-highlighter-width, 34px);
+  }
+
+  .drever-presentation-focus__laser {
+    color: var(--drever-focus-laser-color, #ff2e6f);
+    pointer-events: none;
+  }
+
+  .drever-presentation-focus__laser circle {
+    fill: currentcolor;
+  }
+
+  .drever-presentation-focus__laser circle:first-child {
+    opacity: 0.16;
+  }
+
+  .drever-presentation-focus__laser circle:nth-child(2) {
+    opacity: 0.88;
+  }
+
+  .drever-presentation-focus__laser circle:last-child {
+    fill: #fff;
+  }
+
   [data-drever-slide] {
     box-sizing: border-box;
     margin: 0;
@@ -336,6 +401,44 @@
       box-shadow 160ms ease,
       transform 220ms ease;
     backdrop-filter: blur(22px) saturate(150%);
+  }
+
+  .drever-audience-focus-tools {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 5px;
+    border: 1px solid rgb(255 255 255 / 13%);
+    border-radius: 15px;
+    background: linear-gradient(180deg, rgb(31 36 48 / 88%), rgb(11 14 21 / 84%));
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 8%),
+      0 14px 42px rgb(0 0 0 / 32%);
+    gap: 2px;
+    transform: translateX(-50%);
+    backdrop-filter: blur(22px) saturate(150%);
+  }
+
+  .drever-audience-controls__bar .drever-audience-focus-tools button {
+    display: inline-grid;
+    min-width: 40px;
+    padding: 0 8px;
+    grid-auto-flow: column;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .drever-audience-focus-tools button > span {
+    font-size: 11px;
+    font-weight: 660;
+  }
+
+  .drever-audience-focus-tools button[aria-pressed="true"] {
+    background: rgb(145 167 255 / 20%);
+    color: #c8d2ff;
   }
 
   .drever-audience-controls__bar:hover,
@@ -710,6 +813,10 @@
   }
 
   @media (max-width: 640px) {
+    .drever-audience-focus-tools button > span {
+      display: none;
+    }
+
     .drever-audience-controls__bar .drever-audience-controls__position {
       min-width: 116px;
     }

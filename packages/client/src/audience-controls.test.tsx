@@ -73,6 +73,8 @@ describe("audience controls", () => {
   it("renders a discoverable accessible command surface outside the deck", () => {
     const markup = renderToStaticMarkup(
       <AudienceControls
+        canvas={{ height: 1080, width: 1920 }}
+        canvasRef={{ current: null }}
         deckRef={{ current: null }}
         manifest={manifest}
         onCopyShareURL={vi.fn()}
@@ -89,6 +91,8 @@ describe("audience controls", () => {
     expect(markup).toContain('aria-label="Copy link to current presentation state"');
     expect(markup).toContain('aria-label="Open document view"');
     expect(markup).toContain('aria-label="Open speaker view"');
+    expect(markup).toContain('aria-label="Open focus tools"');
+    expect(markup).toContain('aria-pressed="false"');
     expect(markup).toContain('aria-label="Enter fullscreen"');
     expect(markup).toContain("Slide 1 of 3");
     expect(markup).toMatch(/aria-label="Previous presentation state"[^>]*disabled/u);

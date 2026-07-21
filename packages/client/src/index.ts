@@ -37,6 +37,23 @@ export type {
   DeckPosition,
   PresentationTransitionType,
 } from "./presentation-state.ts";
+export {
+  createPresentationFocusState,
+  normalizeCanvasPoint,
+  projectCanvasPoint,
+  reducePresentationFocus,
+} from "./presentation-focus.ts";
+export type {
+  CanvasBounds,
+  CanvasSpacePoint,
+  NormalizedCanvasPoint,
+  PresentationFocusAction,
+  PresentationFocusState,
+  PresentationFocusStroke,
+  PresentationFocusTool,
+  PresentationInkTool,
+  ViewportPoint,
+} from "./presentation-focus.ts";
 export { PresentationStage, useStage } from "./stage.tsx";
 export type {
   PresentationStageProps,
