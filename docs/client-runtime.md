@@ -243,8 +243,8 @@ cleared without resetting the clock.
 The rehearsal target supplied by `drever.config.ts` is only an initial value.
 Clock state, per-slide measurements, visits, and runtime target edits are not
 persisted or broadcast. The existing channel synchronizes committed
-presentation positions only; no audience or remote transition-readiness signal
-is claimed in this release.
+presentation positions and the speaker's transient laser; no audience or remote
+transition-readiness signal is claimed in this release.
 
 When a target exists, the workspace divides it evenly across every exact
 presentation state: Step 0 plus each authored sparse Step stop. The elapsed time
@@ -270,6 +270,16 @@ mount path. The speaker publishes its validated position; an audience joining
 later sends a ready handshake and immediately catches up. Remote positions pass
 through the same state machine and Navigation API adapter, so synchronization
 also updates the audience URL, history, accessibility state, and transition.
+
+The speaker can enable an audience laser over its current preview. Pointer
+coordinates are normalized to the canvas and sent through the existing channel
+with the current exact Slide and Step position. An audience renders the point
+only while that position matches, then clears it when pointing stops or either
+surface navigates. This signal is deliberately ephemeral: it is not persisted,
+included in the ready handshake, or retained as history. A newly joined audience
+sees it only while the presenter continues pointing. `BroadcastChannel` keeps
+this feature within same-origin browser contexts; a paired network pointer
+remains separate future work.
 
 Each successful command pushes a Navigation API history entry. Browser back and
 forward traversal use the destination entry index to select backward or forward
@@ -357,6 +367,10 @@ and highlighter strokes remain across Step changes on the current slide so a
 reveal does not erase the presenter's context; changing slides clears them.
 Undo removes the latest stroke and Clear removes every mark on that slide.
 These marks are session-local presentation state, not authored deck content.
+The speaker's audience laser can appear in the same non-transitioning overlay,
+but it remains a separate transient channel signal. It never becomes an ink
+stroke, and an audience ignores it unless its exact Slide and Step match the
+speaker's position.
 
 The SVG overlay is mounted inside `.drever-canvas`, above the Stage and outside
 `.drever-deck`. It therefore remains live and stationary while the deck owns

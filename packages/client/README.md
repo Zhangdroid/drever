@@ -48,8 +48,12 @@ resume, reset, and edit or clear an optional target. When a target exists,
 Drever assigns it across the deck's exact Slide and Step states and reports
 whether the current rehearsal is ahead, on pace, or behind that state's time
 window. Timings and target edits are not persisted or broadcast, and transition
-readiness is not yet a remote contract. The audience runtime opens the
-equivalent speaker path when the user presses `P`.
+readiness is not yet a remote contract. The speaker can also enable an audience
+laser over its current preview. That point is a transient `BroadcastChannel`
+signal: only audience windows at the same exact Slide and Step render it, and it
+is cleared when pointing stops. It is never saved as history; an audience that
+joins later sees it only while the presenter continues pointing. The audience
+runtime opens the equivalent speaker path when the user presses `P`.
 
 `createExport` renders one raw canvas-sized page per slide at its final Step by
 default. Pass `includeSteps: true` to include Step 0 and every exact authored

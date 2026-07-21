@@ -51,8 +51,12 @@ screens, numeric slide entry, Step-aware progress, keyboard help, and a compact
 control bar for pointer and touch users. Its session-local Focus Tools provide
 a transient laser plus pen and highlighter strokes with Undo and Clear. Ink
 survives Step changes on the current slide, clears on slide changes, and renders
-outside the deck View Transition. The speaker view remains the authoritative
-place for persistent progress and notes.
+outside the deck View Transition. The speaker can also send a transient laser
+from its current preview to audience windows at the same exact Slide and Step
+through the existing `BroadcastChannel`. The point is neither saved nor retained
+as history; a late joiner sees it only while the presenter continues pointing.
+The speaker view remains the authoritative place for persistent progress and
+notes.
 
 Use current platform APIs directly. Drever does not need compatibility fallbacks
 for legacy browsers.
@@ -192,7 +196,7 @@ comparison.
 
 ## P2 — optional enhancements and integrations
 
-- saved annotations and cross-device presenter pointers;
+- saved annotations and presenter pointers over a paired network transport;
 - authored timings and automatic playback for kiosks and demos;
 - microphone-powered live captions with explicit permission, privacy, and
   language errors. Google documents browser-powered captions in current Chrome,

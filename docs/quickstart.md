@@ -388,6 +388,10 @@ components are covered in [Extension authoring](./extensions.md).
   the current slide.
 - Speaker view: press `P` from the audience to open the same slide and Step in a
   new speaker window.
+- Audience laser: enable **Laser** in the speaker view and point over the current
+  preview. Audience windows at the same exact Slide and Step see the transient
+  point; it clears when pointing stops and is never saved as history. A window
+  that joins later sees it only while the presenter continues pointing.
 - Pointer and touch users can navigate, use Focus Tools, open the slide
   navigator, document or speaker view, and enter fullscreen from the compact
   audience control bar. The bar is rendered outside the slide canvas, so it is
@@ -450,8 +454,12 @@ clears the timings and begins the current slide's first visit again.
 Rehearsal state exists only for the lifetime of that speaker view. It is not
 written into the deck, persisted across reloads, or synchronized to an audience
 window. Audience windows opened before or after the speaker view synchronize
-presentation position through `BroadcastChannel`; this release does not claim
-remote transition-readiness synchronization. `drever dev` prints the speaker
+presentation position through `BroadcastChannel`. The speaker's **Laser** action
+uses the same channel for an ephemeral point over the current preview. Only an
+audience at the matching exact Slide and Step renders it; the point is cleared
+when pointing stops or navigation changes and is not included in the late-join
+position handshake. This release does not claim cross-device pointer transport
+or remote transition-readiness synchronization. `drever dev` prints the speaker
 URL; the `P` shortcut derives its path from the current audience state and
 preserves unrelated query/hash state.
 
