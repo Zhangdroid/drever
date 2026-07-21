@@ -205,6 +205,11 @@ The canonical Shift is `12px`. The canonical Signal is either a `2px` rail or a
 Signal may cross a container boundary or continue between sections, but it must
 remain horizontal and aligned to the reading direction.
 
+Across adjacent states, a recurring Signal retains its weight, opacity, color
+treatment, orientation, and cross-axis alignment. Reveal its length with an
+inner mask or translate it along the reading axis; never resize its container
+or scale it on both axes.
+
 Use the `12px` Shift on one object that changed: a heading line, active step,
 media crop, or state plane. Do not shift a whole grid, every list item, or both
 the Signal and its content. On narrow screens, preserve the meaning of the
@@ -271,7 +276,9 @@ do not add React to `@drever/brand`.
 Brand motion follows Stage / Signal / Shift: keep the Stage stable and move the
 Signal or state that changed. A horizontal Signal grows or travels inline; a
 vertical evidence sequence reveals in the block direction. Use opacity and
-short translation before scale. Avoid blur on text and controls.
+short translation before scale. One sparse, content-specific draw or shift may
+provide quiet delight, but it must yield to the primary idea. Avoid blur on text
+and controls.
 
 | Token      | Duration | Use                                               |
 | ---------- | -------: | ------------------------------------------------- |
@@ -284,12 +291,14 @@ Use `cubic-bezier(0.22, 1, 0.36, 1)` for entrances and spatial movement. Use
 standard `ease-out` for small fades. Translation should normally stay within
 `12px`; scale should stay between `0.98` and `1`.
 
-Use a named View Transition only when an object retains identity across states.
-Keep the page or Stage background stationary. Do not bounce, spin, pulse
-continuously, or animate the complete logo during navigation.
+Use a named View Transition only when an object retains identity across states;
+matching color or shape is not sufficient. Keep the page or Stage background
+stationary. Do not bounce, spin, pulse continuously, or animate the complete
+logo during navigation.
 
-When reduced motion is requested, remove spatial transforms and decorative
-delay. Apply the final state immediately; do not substitute another animation.
+When reduced motion is requested, remove spatial transforms, draw or scramble
+phases, and decorative delay. Apply the final state immediately; do not
+substitute another animation.
 Presentation `MotionGroup` intents and theme choreography remain owned by
 Drever core, client, and the selected presentation theme, not by brand tokens.
 
@@ -369,6 +378,11 @@ generic split SaaS hero or turn every section into a rounded card. Avoid
 gradients, glass effects, ornamental grids, repeated card mosaics, excessive
 rounding, and decorative animation. Do not make the two accents compete as large
 color fields.
+
+If a Signal recurs across states, keep its weight, opacity, color treatment,
+orientation, and cross-axis alignment fixed. Translate it along the reading
+axis or reveal its length with an inner mask; never stretch its box. Use at most
+one quiet, content-specific motion surprise and remove it under reduced motion.
 
 Use the 4px spacing scale. Prefer square edges; reserve 8/14px radii for
 controls and 20/32px radii for one dominant surface. Use 24px two-stroke icons,

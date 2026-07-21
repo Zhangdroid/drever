@@ -185,7 +185,10 @@ change has one of Drever's five narrative jobs:
   object on adjacent slides.
 
 Keep persistent titles outside motion groups. Never infer a shared identity,
-invent animation props, or add Step stops merely to create delay. The full
+invent animation props, or add Step stops merely to create delay. Matching
+color or shape is not identity; recurring decoration keeps stable geometry and
+paint. If semantically linked copy transforms, use one local fixed slot after
+capture rather than sharing changing glyphs through a View Transition. The full
 grammar and accessibility semantics are in [Motion choreography](./motion.md).
 
 ## Recommended loop

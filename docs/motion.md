@@ -17,15 +17,20 @@ deck, and review Skill:
    does not improve audience understanding, omit it.
 2. **Follow the content and theme.** Direction follows reading order and layout:
    vertical stacks progress on the block axis; horizontal pipelines progress
-   on the inline axis. The theme supplies the visual voice. Occasional quiet
-   surprises are welcome, but repeated generic entrances are not.
+   on the inline axis. The theme supplies the visual voice. A sparse draw-on
+   emphasis, short signal travel, or small Stage shift may add quiet contextual
+   delight, but it must reinforce the current idea and remain subordinate to
+   reading. Repeated generic entrances are not a visual voice.
 3. **Move the smallest meaningful object.** Persistent titles, layout anchors,
    Stage shells, backgrounds, page numbers, branding, dialogs, and audience
    controls stay live and stationary. Animate only the child whose narrative
    state changed.
 4. **Keep geometry deliberate.** Stable objects need stable size, aspect ratio,
-   typography, wrapping, and media crop. A transition must not create layout
-   shift, title drift, scaled glyphs, or a ghost frame.
+   typography, wrapping, and media crop. Recurring motifs retain their
+   thickness, opacity, paint, orientation, and cross-axis alignment. Animate
+   only the axis or property that changed; never stretch text, boxes, lines, or
+   shadows to fake continuity. A transition must not create layout shift, title
+   drift, scaled glyphs, or a ghost frame.
 5. **Treat painted surfaces as indivisible.** Never hard-clip a card, panel, or
    media frame when its shadow, glow, outline, or filter must remain visible.
    Clip an inner content wrapper, or use opacity with translate or scale. Shadow
@@ -206,10 +211,10 @@ Continuity is explicit shared identity. Give the same lowercase kebab-case
 
 The name becomes a framework-prefixed View Transition identity. It must start
 with a lowercase letter and contain only lowercase letters, digits, and single
-kebab separators. A continuity name must be unique on the active slide. Reuse
-it only when the object is narratively the same, and only across adjacent
-slides; Drever never infers continuity from matching titles, text, or DOM
-position.
+kebab separators. A continuity name must be unique on the active slide. Carry
+identity, not resemblance: reuse it only when the semantic or visual object is
+narratively the same, and only across adjacent slides. Matching color, shape,
+text, or DOM position is not identity, and Drever never infers it.
 
 `name` is required for `continuity` and invalid for every other intent. `flow`
 is invalid for `continuity`. A missing or unknown intent, invalid identity, or
@@ -300,6 +305,15 @@ If the text changes, treat the new copy as enter/exit content or keep it outside
 the continuity group. Matching a transition name does not make different glyph
 shapes a stable identity.
 
+When related wording is itself the narrative change, use a local text effect
+after the destination snapshot is captured instead of sharing the changing
+glyphs through a View Transition. Rotating, decrypted, mask-reveal, and draw-on
+treatments are appropriate only when the strings are semantically linked and
+the treatment clarifies that relationship. Reserve one fixed slot, keep its
+font metrics and wrapping stable, expose the final copy as accessible text, and
+use non-overlapping exit and reveal phases. Never scale or crossfade different
+glyph snapshots. Under reduced motion, render the same final copy immediately.
+
 #### Media with a deliberate crop
 
 ```mdx
@@ -362,6 +376,11 @@ continuity transition carries the idea. Read `reducedMotion` and `renderMode`
 from the layer props or `useStage()` and suppress motion in speaker, document,
 and export surfaces.
 
+A recurring line or band keeps the same thickness, opacity, color treatment,
+orientation, and cross-axis alignment. Translate it along its logical axis or
+reveal its length through an inner mask; do not resize its container or scale
+both axes. If it does not change, leave it completely still.
+
 ## Runtime and accessibility contract
 
 The audience viewer starts the native View Transition on the deck element and
@@ -408,6 +427,11 @@ does not load a JavaScript motion module and there is no separate
 - Reuse a continuity name only for the same object on adjacent slides.
 - Keep continuity geometry, text metrics, and media crop explicit at both endpoints.
 - Keep changing prose outside a shared snapshot; split independent identities into separate boundaries.
+- Keep recurring motifs geometrically and visually invariant. Translate a line
+  or reveal its length with an inner mask instead of stretching its box.
+- Use rotating, decrypted, mask-reveal, or draw-on text only for semantically
+  linked copy in one fixed local slot after capture; never share changing glyphs
+  through a View Transition.
 - Inspect intermediate frames and the finished handoff in both directions at
   every affected route; verify that toolbar hover and focus remain stable.
 - Verify reduced motion, `/speaker`, `/document`, and export after changing
@@ -432,10 +456,17 @@ motion groups. Treat cards and media frames as complete painted surfaces: keep
 shadows and glows outside clip reveals, or clip only an inner content wrapper;
 animate matching shadow geometry from transparent colors. Put persistent
 canvas decoration and page information in Stage layers; use sparse, quiet
-changes on one Stage child and let them yield to stronger content motion. Do
-not put persistent titles, backgrounds, page numbers, dialogs, or audience
-controls inside slide transitions. Do not invent animation props, hidden Step
-stops, runtime.motion, or native View Transition calls. Inspect intermediate
-frames and the finished handoff in both directions; check repeated Steps,
-pointer focus, reduced-motion, speaker, document, and export states.
+changes on one Stage child and let them yield to stronger content motion. Keep
+recurring motifs invariant in thickness, opacity, paint, orientation, and
+cross-axis alignment; translate a line or reveal it with an inner mask rather
+than stretching it. Carry identity, not resemblance. For semantically linked
+copy, use a local fixed-slot rotating, decrypted, mask-reveal, or draw-on effect
+after capture; keep text metrics stable and never View-Transition or scale
+different glyphs. Under reduced motion, commit the final state without spatial,
+draw, scramble, or decorative delay. Do not put persistent titles, backgrounds,
+page numbers, dialogs, or audience controls inside slide transitions. Do not
+invent animation props, hidden Step stops, runtime.motion, or native View
+Transition calls. Inspect intermediate frames and the finished handoff in both
+directions; check repeated Steps, pointer focus, reduced-motion, speaker,
+document, and export states.
 ```

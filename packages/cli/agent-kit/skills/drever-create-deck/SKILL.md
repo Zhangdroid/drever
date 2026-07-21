@@ -19,8 +19,11 @@ Author with these rules:
 - Prefer Markdown and documented theme layouts over custom markup.
 - Keep titles concise and remove prose that does not support the slide's claim.
 - Use static `Step` elements only for meaningful progressive disclosure. Use positive integer `at` values only for intentional sparse stops.
-- Use motion only to explain focus, order, replacement, comparison, continuity, or a real Stage state change. Match its direction to the content flow and its visual voice to the theme; avoid repeated generic entrances.
+- Use motion only to explain focus, order, replacement, comparison, continuity, or a real Stage state change. Match its direction to the content flow and its visual voice to the theme. A sparse draw-on emphasis, signal travel, or small Stage shift may add quiet contextual delight; repeated generic entrances may not.
 - Keep persistent titles, layout anchors, Stage shells, backgrounds, page numbers, branding, dialogs, and audience controls stationary. Animate the smallest child whose narrative state changed.
+- Carry identity, not resemblance. Use continuity only when the same semantic or visual object persists across adjacent slides; matching color or shape is not enough. Keep endpoint geometry and paint stable, and never stretch text, boxes, lines, or shadows to fake a handoff.
+- Keep recurring motifs invariant in thickness, opacity, paint, orientation, and cross-axis alignment. Translate a line along its logical axis or reveal its length through an inner mask instead of resizing its container or scaling both axes.
+- Use rotating, decrypted, mask-reveal, or draw-on text only when semantically linked wording is the narrative change. Run it locally in one fixed slot after capture, keep type metrics stable, expose the final accessible copy, and render that copy immediately under reduced motion; never share, scale, or crossfade changing glyph snapshots.
 - Treat cards, panels, and media frames as complete painted surfaces. Do not hard-clip their shadows, glows, outlines, or filters; clip an inner wrapper or use opacity with translate or scale. Interpolate matching shadow lists from transparent colors instead of switching from `none`.
 - Put speaker guidance in `Note`; do not duplicate visible slide text there.
 - Add alternative text to meaningful images and captions to authored video.
