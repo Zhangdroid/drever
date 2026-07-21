@@ -40,11 +40,21 @@ import { defineConfig } from "drever";
 
 export default defineConfig({
   canvas: { width: 1600, height: 900 },
+  focusTools: {
+    pen: { color: "#ff4f8b", width: 8 },
+    highlighter: { color: "#d5ff3f", opacity: 0.32, width: 34 },
+    laser: { color: "#ff2e6f" },
+  },
   rehearsal: { targetDurationMinutes: 20 },
   server: { port: 4317 },
   build: { outDir: "dist" },
 });
 ```
+
+`focusTools` configures the interactive Pen, Highlighter, and Laser appearance.
+It accepts CSS color values, positive widths, and a highlighter opacity from
+zero to one. Themes and project CSS can still supply defaults through the
+`--drever-focus-*` variables; explicit config values take precedence.
 
 `rehearsal.targetDurationMinutes` must be a positive finite number. The CLI
 converts it to the speaker runtime's millisecond target for both development and

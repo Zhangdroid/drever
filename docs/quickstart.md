@@ -255,6 +255,11 @@ import { defineConfig } from "drever";
 export default defineConfig({
   entry: "slides.mdx",
   canvas: { width: 1600, height: 900 },
+  focusTools: {
+    pen: { color: "#ff4f8b", width: 8 },
+    highlighter: { color: "#d5ff3f", opacity: 0.32, width: 34 },
+    laser: { color: "#ff2e6f" },
+  },
   stage: {
     background: "./stage-background.tsx",
     foreground: "./stage-foreground.tsx",
@@ -271,6 +276,12 @@ export default defineConfig({
   },
 });
 ```
+
+`focusTools` customizes the interactive audience and speaker overlays without
+exposing Vite. Colors accept modern CSS values, including theme variables;
+widths are positive canvas-space numbers and highlighter opacity is from zero
+to one. Omitted values keep the theme or built-in defaults. The document and
+PDF surfaces do not receive this interactive-only setting.
 
 `rehearsal.targetDurationMinutes` supplies the initial target shown in the
 speaker view. The speaker can edit or clear that target during the current

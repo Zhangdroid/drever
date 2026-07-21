@@ -19,6 +19,11 @@ const viewer = await createViewer({
   baseURL: new URL("/", document.URL), // The deck's mount, not its current deep URL.
   Content,
   container,
+  focusTools: {
+    pen: { color: "#ff4f8b", width: 8 },
+    highlighter: { color: "#d5ff3f", opacity: 0.32, width: 34 },
+    laser: { color: "#ff2e6f" },
+  },
   manifest: deckManifest,
 });
 await viewer.navigate({ type: "next" });
@@ -33,12 +38,14 @@ secure context and reports a clear error instead of using a legacy fallback.
 
 The audience command bar also opens Focus Tools for pointer, touch, and stylus
 input. Press `L` to toggle the laser, or choose Pen or Highlighter from the
-toolbar; completed ink can be undone or cleared. Ink remains visible across
-Step changes on the same slide and clears when the slide changes. The laser is
-transient. The overlay is mounted inside `.drever-canvas`, above the Stage but
-outside `.drever-deck`, so it never enters the deck-scoped View Transition. Themes can customize its
-colors, widths, and highlighter opacity with the documented
-`--drever-focus-*` CSS variables.
+toolbar; choosing a tool closes its palette, and the command bar yields while
+the presenter draws. Completed ink can be undone or cleared. Ink remains
+visible across Step changes on the same slide and clears when the slide changes.
+The laser is transient. The overlay is mounted inside `.drever-canvas`, above
+the Stage but outside `.drever-deck`, so it never enters the deck-scoped View
+Transition. `focusTools` sets per-viewer appearance, while themes and project
+styles provide fallback colors, widths, and highlighter opacity through the
+documented `--drever-focus-*` CSS variables.
 
 `createSpeaker` adds current/next previews, compiled notes, a searchable slide
 navigator, rehearsal controls, and `BroadcastChannel` position synchronization

@@ -95,6 +95,10 @@ an explicit `canvas`, external abort `signal`, and `onError` reporter.
 overrides the theme canvas. Normally the generated entry should let the viewer
 read the user's reduced-motion preference.
 
+The interactive viewer and speaker also accept `focusTools`, which controls Pen,
+Highlighter, and Laser appearance. The generated CLI entry keeps this option out
+of `createDocument` and export because it belongs to live presentation chrome.
+
 `createSpeaker` additionally accepts an optional `rehearsal.targetDurationMs`.
 When configured, the generated CLI entry passes that speaker-only option with
 `presentationOptions` after converting the author-facing
@@ -361,12 +365,15 @@ through transition snapshots.
 
 Open **Focus Tools** from the command bar or press `L` to toggle the laser.
 The toolbar provides Laser, Pen, Highlighter, Undo, Clear, and Close; `Escape`
-also closes it. Pointer Events give mouse, touch, and stylus input the same
-canvas-relative coordinate model. The laser exists only while pointing. Pen
-and highlighter strokes remain across Step changes on the current slide so a
-reveal does not erase the presenter's context; changing slides clears them.
-Undo removes the latest stroke and Clear removes every mark on that slide.
-These marks are session-local presentation state, not authored deck content.
+also closes it. Choosing a tool keeps that tool active while closing the palette,
+and the command bar fades out during an active pointer stroke so it cannot cover
+the drawing surface. Pointer Events give mouse, touch, and stylus input the same
+canvas-relative coordinate model. The laser exists only while pointing. Pen and
+highlighter strokes remain across Step changes on the current slide so a reveal
+does not erase the presenter's context; changing slides clears them. Unexpected
+pointer-capture loss commits the ink already drawn instead of discarding it.
+Undo removes the latest stroke and Clear removes every mark on that slide. These
+marks are session-local presentation state, not authored deck content.
 The speaker's audience laser can appear in the same non-transitioning overlay,
 but it remains a separate transient channel signal. It never becomes an ink
 stroke, and an audience ignores it unless its exact Slide and Step match the
@@ -374,9 +381,24 @@ speaker's position.
 
 The SVG overlay is mounted inside `.drever-canvas`, above the Stage and outside
 `.drever-deck`. It therefore remains live and stationary while the deck owns
-its scoped View Transition, like the command bar and persistent Stage layers. Themes or
-project styles can customize the overlay without replacing its interaction
-model:
+its scoped View Transition, like the command bar and persistent Stage layers.
+Configure one presentation directly in `drever.config.ts`:
+
+```ts
+import { defineConfig } from "drever";
+
+export default defineConfig({
+  focusTools: {
+    pen: { color: "var(--brand-accent)", width: 7.5 },
+    highlighter: { color: "oklch(92% 0.17 105)", opacity: 0.28, width: 30 },
+    laser: { color: "#ff4567" },
+  },
+});
+```
+
+Explicit config values become local CSS custom properties on the interactive
+overlay. Omitted values continue through the normal CSS cascade, so themes or
+project styles can provide defaults without replacing the interaction model:
 
 | CSS variable                         | Default   | Purpose             |
 | ------------------------------------ | --------- | ------------------- |
