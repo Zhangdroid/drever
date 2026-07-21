@@ -68,6 +68,7 @@ describe("speaker view state", () => {
         Content,
         machine,
         manifest,
+        onLaser: () => undefined,
         onNavigate: () => undefined,
         onOpenAudience: () => undefined,
         rehearsal,
@@ -95,6 +96,8 @@ describe("speaker view state", () => {
     expect(markup).toContain('id="drever-speaker-slide-dialog"');
     expect(markup).toContain('aria-label="Go to slide 1: Opening claim"');
     expect(markup).toContain('aria-label="Go to slide 2: Closing thought"');
+    expect(markup).toContain('aria-label="Enable audience laser"');
+    expect(markup).toContain('title="Audience laser (L)"');
     expect(markup).toContain("2 slides found.");
 
     rehearsal.destroy();

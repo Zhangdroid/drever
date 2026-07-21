@@ -1,13 +1,25 @@
 import type { DreverRenderMode, MDXComponents, MDXContent } from "@drever/core";
 import type { CanvasDefinition, DeckManifest, SlideManifest } from "@drever/schema";
 import {
+  useCallback,
   useEffect,
   useMemo,
+  useReducer,
   useRef,
   useState,
   useSyncExternalStore,
+  type Dispatch,
   type ReactElement,
 } from "react";
+import { CanvasViewport, DEFAULT_CANVAS } from "./canvas.tsx";
+import { acceptsPresentationShortcut } from "./keyboard.ts";
+import { PresentationFocusLayer } from "./presentation-focus-layer.tsx";
+import {
+  createPresentationFocusState,
+  reducePresentationFocus,
+  type NormalizedCanvasPoint,
+  type PresentationFocusAction,
+} from "./presentation-focus.ts";
 import type {
   DeckCommand,
   DeckPosition,
@@ -23,6 +35,7 @@ export type SpeakerProps = Readonly<{
   canvas?: CanvasDefinition;
   machine: PresentationStateMachine;
   manifest: DeckManifest;
+  onLaser(point?: NormalizedCanvasPoint): void;
   onNavigate(command: DeckCommand): void | Promise<void>;
   onOpenAudience(): void;
   rehearsal: RehearsalStore;
@@ -199,11 +212,110 @@ const RehearsalPanel = ({
   );
 };
 
+const LASER_HEARTBEAT_MS = 500;
+
+const SpeakerLaserLayer = ({
+  active,
+  canvas,
+  onLaser,
+  position,
+}: Readonly<{
+  active: boolean;
+  canvas: CanvasDefinition;
+  onLaser(point?: NormalizedCanvasPoint): void;
+  position: DeckPosition;
+}>): ReactElement => {
+  const [state, dispatch] = useReducer(
+    reducePresentationFocus,
+    position,
+    createPresentationFocusState,
+  );
+  const pointRef = useRef<NormalizedCanvasPoint | undefined>(undefined);
+  const viewportRef = useRef<HTMLDivElement>(null);
+
+  const clear = useCallback((): void => {
+    dispatch({ type: "cancel" });
+    if (pointRef.current !== undefined) {
+      pointRef.current = undefined;
+      onLaser();
+    }
+  }, [onLaser]);
+
+  useEffect(() => {
+    clear();
+    dispatch({ position, type: "commitPosition" });
+  }, [clear, position]);
+
+  useEffect(() => {
+    if (!active) {
+      clear();
+      return;
+    }
+    const window = viewportRef.current?.ownerDocument.defaultView;
+    if (window === null || window === undefined) {
+      return;
+    }
+    const document = window.document;
+    const clearWhenHidden = (): void => {
+      if (document.hidden) {
+        clear();
+      }
+    };
+    const heartbeat = window.setInterval(() => {
+      const point = pointRef.current;
+      if (point !== undefined) {
+        onLaser(point);
+      }
+    }, LASER_HEARTBEAT_MS);
+    window.addEventListener("blur", clear);
+    document.addEventListener("visibilitychange", clearWhenHidden);
+    return () => {
+      window.clearInterval(heartbeat);
+      window.removeEventListener("blur", clear);
+      document.removeEventListener("visibilitychange", clearWhenHidden);
+      clear();
+    };
+  }, [active, clear, onLaser]);
+
+  const handleAction = useCallback<Dispatch<PresentationFocusAction>>(
+    (action) => {
+      dispatch(action);
+      if (action.type === "begin" || action.type === "move") {
+        pointRef.current = action.point;
+        onLaser(action.point);
+      } else if (action.type === "cancel" || action.type === "end") {
+        clear();
+      }
+    },
+    [clear, onLaser],
+  );
+
+  return (
+    <div
+      className="drever-speaker__laser-viewport"
+      data-drever-speaker-laser-surface=""
+      ref={viewportRef}
+    >
+      <CanvasViewport canvas={canvas}>
+        <PresentationFocusLayer
+          active={active}
+          canvas={canvas}
+          dispatch={handleAction}
+          position={position}
+          state={state}
+        />
+      </CanvasViewport>
+    </div>
+  );
+};
+
 const Preview = ({
   Content,
   canvas,
   label,
+  laserActive,
   manifest,
+  onLaser,
   position,
   registry,
   renderMode,
@@ -213,42 +325,56 @@ const Preview = ({
   Content: MDXContent;
   canvas?: CanvasDefinition;
   label: string;
+  laserActive?: boolean;
   manifest: DeckManifest;
+  onLaser?(point?: NormalizedCanvasPoint): void;
   position: DeckPosition;
   registry?: MDXComponents;
   renderMode: DreverRenderMode;
   stage?: StageComponents;
   testId: string;
-}>): ReactElement => (
-  <section
-    aria-labelledby={`${testId}-label`}
-    className="drever-speaker__preview"
-    data-testid={testId}
-  >
-    <span className="drever-speaker__preview-label" id={`${testId}-label`}>
-      {label}
-    </span>
-    <div aria-hidden="true" className="drever-speaker__preview-surface" inert>
-      <Viewer
-        Content={Content}
-        {...(canvas === undefined ? {} : { canvas })}
-        manifest={manifest}
-        manageFocus={false}
-        position={position}
-        reducedMotion
-        {...(registry === undefined ? {} : { registry })}
-        renderMode={renderMode}
-        {...(stage === undefined ? {} : { stage })}
-      />
-    </div>
-  </section>
-);
+}>): ReactElement => {
+  const resolvedCanvas = canvas ?? DEFAULT_CANVAS;
+  return (
+    <section
+      aria-labelledby={`${testId}-label`}
+      className="drever-speaker__preview"
+      data-testid={testId}
+    >
+      <span className="drever-speaker__preview-label" id={`${testId}-label`}>
+        {label}
+      </span>
+      <div aria-hidden="true" className="drever-speaker__preview-surface" inert>
+        <Viewer
+          Content={Content}
+          {...(canvas === undefined ? {} : { canvas })}
+          manifest={manifest}
+          manageFocus={false}
+          position={position}
+          reducedMotion
+          {...(registry === undefined ? {} : { registry })}
+          renderMode={renderMode}
+          {...(stage === undefined ? {} : { stage })}
+        />
+      </div>
+      {onLaser === undefined ? null : (
+        <SpeakerLaserLayer
+          active={laserActive ?? false}
+          canvas={resolvedCanvas}
+          onLaser={onLaser}
+          position={position}
+        />
+      )}
+    </section>
+  );
+};
 
 export const Speaker = ({
   Content,
   canvas,
   machine,
   manifest,
+  onLaser,
   onNavigate,
   onOpenAudience,
   rehearsal,
@@ -261,6 +387,8 @@ export const Speaker = ({
   const navigatorSearchRef = useRef<HTMLInputElement>(null);
   const [navigatorOpen, setNavigatorOpen] = useState(false);
   const [navigatorQuery, setNavigatorQuery] = useState("");
+  const [laserActive, setLaserActive] = useState(false);
+  const speakerRef = useRef<HTMLDivElement>(null);
   const visibleSlides = useMemo(
     () => filterSpeakerSlides(manifest, navigatorQuery),
     [manifest, navigatorQuery],
@@ -285,6 +413,22 @@ export const Speaker = ({
     }
   }, [navigatorOpen]);
 
+  useEffect(() => {
+    const document = speakerRef.current?.ownerDocument;
+    if (document === undefined) {
+      return;
+    }
+    const listener = (event: KeyboardEvent): void => {
+      if (event.key.toLowerCase() !== "l" || event.repeat || !acceptsPresentationShortcut(event)) {
+        return;
+      }
+      event.preventDefault();
+      setLaserActive((current) => !current);
+    };
+    document.addEventListener("keydown", listener);
+    return () => document.removeEventListener("keydown", listener);
+  }, []);
+
   const navigate = (command: DeckCommand): void => {
     void onNavigate(command);
   };
@@ -299,7 +443,7 @@ export const Speaker = ({
   };
 
   return (
-    <div className="drever-speaker" data-drever-speaker="">
+    <div className="drever-speaker" data-drever-speaker="" ref={speakerRef}>
       <header className="drever-speaker__header">
         <div className="drever-speaker__brand">
           <strong>Drever</strong>
@@ -313,7 +457,9 @@ export const Speaker = ({
           Content={Content}
           {...(canvas === undefined ? {} : { canvas })}
           label={`Current · ${positionLabel(position)}`}
+          laserActive={laserActive}
           manifest={manifest}
+          onLaser={onLaser}
           position={position}
           {...(registry === undefined ? {} : { registry })}
           renderMode="speaker-current"
@@ -402,9 +548,27 @@ export const Speaker = ({
             Next →
           </button>
         </div>
-        <button className="drever-speaker__audience" onClick={onOpenAudience} type="button">
-          Open audience ↗
-        </button>
+        <div className="drever-speaker__actions">
+          <button
+            aria-label={laserActive ? "Disable audience laser" : "Enable audience laser"}
+            aria-pressed={laserActive}
+            className="drever-speaker__laser-toggle"
+            onClick={() => setLaserActive((current) => !current)}
+            title="Audience laser (L)"
+            type="button"
+          >
+            Laser
+          </button>
+          <button
+            aria-label="Open audience"
+            className="drever-speaker__audience"
+            onClick={onOpenAudience}
+            type="button"
+          >
+            <span>Open audience</span>
+            <span aria-hidden="true">↗</span>
+          </button>
+        </div>
       </footer>
 
       <dialog

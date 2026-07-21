@@ -227,6 +227,7 @@ export const createSpeaker = async (options: CreateSpeakerOptions): Promise<Spea
           {...(canvas === undefined ? {} : { canvas })}
           machine={machine}
           manifest={machine.manifest}
+          onLaser={(point) => sync?.publishLaser(point)}
           onMounted={mounted.resolve}
           onNavigate={navigateFromControls}
           onOpenAudience={openAudience}

@@ -484,6 +484,22 @@ test("speaker view previews sparse steps and synchronizes a late audience window
   await expect(audience).toHaveURL(/\/2\/2$/u);
   await expect(audience.getByTestId("step-2")).toHaveAttribute("data-step-state", "active");
 
+  await page.getByRole("button", { name: "Enable audience laser" }).click();
+  const laserSurface = current.locator("[data-drever-focus-layer]");
+  const laserBounds = await laserSurface.boundingBox();
+  if (laserBounds === null) {
+    throw new Error("The speaker laser surface must have visible canvas bounds.");
+  }
+  await page.mouse.move(
+    laserBounds.x + laserBounds.width * 0.62,
+    laserBounds.y + laserBounds.height * 0.38,
+  );
+  await expect(audience.locator("[data-drever-focus-laser]")).toHaveCount(1);
+  await page.evaluate(() => window.dispatchEvent(new Event("blur")));
+  await expect(audience.locator("[data-drever-focus-laser]")).toHaveCount(0);
+  await page.getByRole("button", { name: "Disable audience laser" }).click();
+  await expect(audience.locator("[data-drever-focus-laser]")).toHaveCount(0);
+
   await page.getByRole("button", { name: "Next presentation state" }).click();
   await expect(page).toHaveURL(/\/speaker\/2\/5$/u);
   await expect(audience).toHaveURL(/\/2\/5$/u);

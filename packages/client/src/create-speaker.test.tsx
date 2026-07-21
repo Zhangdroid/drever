@@ -133,7 +133,12 @@ const createHarness = ({
   };
   const syncDispose = vi.fn(() => events.push("sync:dispose"));
   const syncPublish = vi.fn();
-  const sync: SpeakerPresentationSync = { dispose: syncDispose, publish: syncPublish };
+  const syncPublishLaser = vi.fn();
+  const sync: SpeakerPresentationSync = {
+    dispose: syncDispose,
+    publish: syncPublish,
+    publishLaser: syncPublishLaser,
+  };
   const rehearsalDestroy = vi.fn();
   const rehearsalCommitPosition = vi.fn();
   const rehearsal: RehearsalStore = {
@@ -235,6 +240,7 @@ const createHarness = ({
     rootUnmount,
     syncDispose,
     syncPublish,
+    syncPublishLaser,
     get syncOptions(): CreateSpeakerSyncOptions {
       if (syncOptions === undefined) {
         throw new Error("Speaker synchronization has not been attached.");
@@ -342,6 +348,19 @@ describe("createSpeaker", () => {
     expect(harness.navigationOptions.store.getSnapshot()).toEqual(change.to);
     expect(harness.syncPublish).toHaveBeenCalledOnce();
     expect(harness.syncPublish).toHaveBeenCalledWith("drever-slide-forward");
+    await speaker.destroy();
+  });
+
+  it("connects the speaker laser surface to transient presentation sync", async () => {
+    const harness = createHarness();
+    const speaker = await createSpeaker(harness.options());
+    const point = { x: 0.25, y: 0.75 } as const;
+
+    harness.hostProps.onLaser(point);
+    harness.hostProps.onLaser();
+
+    expect(harness.syncPublishLaser).toHaveBeenNthCalledWith(1, point);
+    expect(harness.syncPublishLaser).toHaveBeenNthCalledWith(2, undefined);
     await speaker.destroy();
   });
 

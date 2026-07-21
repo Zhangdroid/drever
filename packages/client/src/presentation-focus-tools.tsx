@@ -9,6 +9,7 @@ import {
   useReducer,
   useRef,
   useState,
+  useSyncExternalStore,
   type KeyboardEvent as ReactKeyboardEvent,
   type ReactElement,
   type RefObject,
@@ -23,12 +24,16 @@ import {
   reducePresentationFocus,
   type PresentationFocusTool,
 } from "./presentation-focus.ts";
+import type { PresentationLaserStore } from "./presentation-laser.ts";
 
 export type PresentationFocusToolsProps = Readonly<{
   canvas: CanvasDefinition;
   canvasRef: RefObject<HTMLDivElement | null>;
   position: DeckPosition;
+  remoteLaser: PresentationLaserStore;
 }>;
+
+const REMOTE_LASER_EXPIRY_MS = 1_500;
 
 const Icon = ({ children, ...props }: SVGProps<SVGSVGElement>): ReactElement => (
   <svg aria-hidden="true" fill="none" height="18" viewBox="0 0 24 24" width="18" {...props}>
@@ -118,6 +123,7 @@ export const PresentationFocusTools = ({
   canvas,
   canvasRef,
   position,
+  remoteLaser,
 }: PresentationFocusToolsProps): ReactElement => {
   const toolbarId = useId();
   const launcherRef = useRef<HTMLButtonElement>(null);
@@ -130,7 +136,28 @@ export const PresentationFocusTools = ({
     position,
     createPresentationFocusState,
   );
+  const remoteLaserSignal = useSyncExternalStore(
+    remoteLaser.subscribe,
+    remoteLaser.getSnapshot,
+    remoteLaser.getSnapshot,
+  );
   const wasActiveRef = useRef(false);
+
+  useEffect(() => {
+    if (remoteLaserSignal === undefined) {
+      return;
+    }
+    const window = canvasRef.current?.ownerDocument.defaultView;
+    if (window === null || window === undefined) {
+      return;
+    }
+    const timeout = window.setTimeout(() => {
+      if (remoteLaser.getSnapshot() === remoteLaserSignal) {
+        remoteLaser.set();
+      }
+    }, REMOTE_LASER_EXPIRY_MS);
+    return () => window.clearTimeout(timeout);
+  }, [canvasRef, remoteLaser, remoteLaserSignal]);
 
   useLayoutEffect(() => {
     dispatch({ position, type: "commitPosition" });
@@ -220,6 +247,12 @@ export const PresentationFocusTools = ({
   const canClear =
     state.activeStroke !== undefined || state.laser !== undefined || state.strokes.length > 0;
   const canUndo = state.activeStroke !== undefined || state.strokes.length > 0;
+  const remoteLaserPoint =
+    remoteLaserSignal?.position.slideId === position.slideId &&
+    remoteLaserSignal.position.slideIndex === position.slideIndex &&
+    remoteLaserSignal.position.step === position.step
+      ? remoteLaserSignal.point
+      : undefined;
 
   return (
     <>
@@ -231,6 +264,7 @@ export const PresentationFocusTools = ({
               canvas={canvas}
               dispatch={dispatch}
               position={position}
+              {...(remoteLaserPoint === undefined ? {} : { remoteLaser: remoteLaserPoint })}
               state={state}
             />,
             canvasRef.current,

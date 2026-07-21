@@ -17,6 +17,7 @@ import { createFullscreenSession, PRESENTATION_IDLE_DELAY_MS } from "./fullscree
 import { acceptsPresentationShortcut } from "./keyboard.ts";
 import type { DeckCommand, DeckPosition } from "./presentation-state.ts";
 import { PresentationFocusTools } from "./presentation-focus-tools.tsx";
+import type { PresentationLaserStore } from "./presentation-laser.ts";
 
 type AudiencePanel = "help" | "overview";
 type PauseScreen = "black" | "white";
@@ -38,6 +39,7 @@ export type AudienceControlsProps = Readonly<{
   onOpenDocument(): void;
   onOpenSpeaker(): void;
   position: DeckPosition;
+  remoteLaser: PresentationLaserStore;
 }>;
 
 export type AudienceProgress = Readonly<{
@@ -298,6 +300,7 @@ export const AudienceControls = ({
   onOpenDocument,
   onOpenSpeaker,
   position,
+  remoteLaser,
 }: AudienceControlsProps): ReactElement => {
   const hostRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLElement>(null);
@@ -583,7 +586,12 @@ export const AudienceControls = ({
         >
           <SpeakerIcon />
         </button>
-        <PresentationFocusTools canvas={canvas} canvasRef={canvasRef} position={position} />
+        <PresentationFocusTools
+          canvas={canvas}
+          canvasRef={canvasRef}
+          position={position}
+          remoteLaser={remoteLaser}
+        />
         <button
           aria-label={fullscreen ? "Exit fullscreen" : "Enter fullscreen"}
           onClick={toggleFullscreen}

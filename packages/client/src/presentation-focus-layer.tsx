@@ -25,6 +25,7 @@ export type PresentationFocusLayerProps = Readonly<{
   canvas: CanvasDefinition;
   dispatch: Dispatch<PresentationFocusAction>;
   position: DeckPosition;
+  remoteLaser?: NormalizedCanvasPoint;
   state: PresentationFocusState;
 }>;
 
@@ -85,6 +86,7 @@ export const PresentationFocusLayer = ({
   canvas,
   dispatch,
   position,
+  remoteLaser,
   state,
 }: PresentationFocusLayerProps): ReactElement => {
   const pointerRef = useRef<number | undefined>(undefined);
@@ -96,7 +98,9 @@ export const PresentationFocusLayer = ({
   const strokes = showSlideMarks ? state.strokes : [];
   const activeStroke = showTransientMarks ? state.activeStroke : undefined;
   const laser = showTransientMarks ? state.laser : undefined;
-  const laserPoint = laser === undefined ? undefined : projectCanvasPoint(laser, canvas);
+  const visibleLaser = laser ?? remoteLaser;
+  const laserPoint =
+    visibleLaser === undefined ? undefined : projectCanvasPoint(visibleLaser, canvas);
 
   const cancelScheduledMove = useCallback((): void => {
     if (frameRef.current !== undefined) {

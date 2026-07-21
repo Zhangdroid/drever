@@ -1160,6 +1160,24 @@
     inset: 0;
   }
 
+  .drever-speaker__laser-viewport {
+    position: absolute;
+    z-index: 3;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .drever-speaker__laser-viewport > .drever-viewer {
+    position: absolute;
+    inset: 0;
+    background: transparent;
+  }
+
+  .drever-speaker__laser-viewport .drever-canvas {
+    background: transparent;
+    box-shadow: none;
+  }
+
   .drever-speaker__preview-surface > .drever-viewer {
     background: #08090c;
   }
@@ -1288,8 +1306,18 @@
     background: #3e65de;
   }
 
-  .drever-speaker__audience {
+  .drever-speaker__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     justify-self: end;
+  }
+
+  .drever-speaker__laser-toggle[aria-pressed="true"] {
+    border-color: #ff5d8f;
+    background: rgb(255 46 111 / 16%);
+    box-shadow: inset 0 0 0 1px rgb(255 133 171 / 12%);
+    color: #ff8fb2;
   }
 
   .drever-speaker__slide-dialog {
@@ -1477,6 +1505,33 @@
 
     .drever-speaker__header {
       padding: 8px;
+    }
+
+    .drever-speaker__controls {
+      padding-inline: 8px;
+      gap: 6px;
+    }
+
+    .drever-speaker__navigation,
+    .drever-speaker__actions {
+      gap: 4px;
+    }
+
+    .drever-speaker__navigation button {
+      min-width: 76px;
+    }
+
+    .drever-speaker__laser-toggle {
+      padding-inline: 10px;
+    }
+
+    .drever-speaker__audience {
+      width: 36px;
+      padding: 0;
+    }
+
+    .drever-speaker__audience > span:first-child {
+      display: none;
     }
 
     .drever-speaker__brand {

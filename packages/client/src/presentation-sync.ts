@@ -7,6 +7,8 @@ import type {
 } from "./presentation-state.ts";
 import { DreverClientError } from "./client-error.ts";
 import type { PresentationNavigationIntent } from "./navigation.ts";
+import type { NormalizedCanvasPoint } from "./presentation-focus.ts";
+import type { PresentationLaserSignal } from "./presentation-laser.ts";
 import { PRESENTATION_TRANSITION_TYPES } from "./view-transition.ts";
 
 export const PRESENTATION_SYNC_PROTOCOL = "drever-presentation-sync-v1";
@@ -40,12 +42,15 @@ export type SpeakerPresentationSync = PresentationSync &
   Readonly<{
     /** Publishes a live, already-committed speaker transition. */
     publish(transitionType: PresentationTransitionType): void;
+    /** Publishes or clears the speaker's transient audience laser. */
+    publishLaser(point?: NormalizedCanvasPoint): void;
   }>;
 
 export type CreateAudienceSyncOptions = Readonly<{
   channel: PresentationChannel;
   machine: PresentationStateMachine;
   navigate(command: DeckCommand, intent?: PresentationNavigationIntent): Promise<void>;
+  onLaser?(signal?: PresentationLaserSignal): void;
   onError(error: unknown): void;
 }>;
 
@@ -65,6 +70,13 @@ type PositionMessage = Readonly<{
   position: DeckPosition;
   transitionType?: PresentationTransitionType;
   type: "position";
+}>;
+
+type LaserMessage = Readonly<{
+  drever: typeof PRESENTATION_SYNC_PROTOCOL;
+  point?: NormalizedCanvasPoint;
+  position: DeckPosition;
+  type: "laser";
 }>;
 
 const TRANSITION_TYPES: ReadonlySet<PresentationTransitionType> = new Set(
@@ -95,6 +107,32 @@ const isReadyMessage = (value: unknown): value is ReadyMessage =>
 
 const positionMessage = (value: unknown): Readonly<Record<string, unknown>> | undefined =>
   hasProtocol(value) && value.type === "position" ? value : undefined;
+
+const laserMessage = (value: unknown): Readonly<Record<string, unknown>> | undefined =>
+  hasProtocol(value) && value.type === "laser" ? value : undefined;
+
+const readLaserPoint = (value: unknown): NormalizedCanvasPoint => {
+  if (
+    typeof value !== "object" ||
+    value === null ||
+    !("x" in value) ||
+    !("y" in value) ||
+    typeof value.x !== "number" ||
+    typeof value.y !== "number" ||
+    !Number.isFinite(value.x) ||
+    !Number.isFinite(value.y) ||
+    value.x < 0 ||
+    value.x > 1 ||
+    value.y < 0 ||
+    value.y > 1
+  ) {
+    throw new DreverClientError(
+      "DREVER_CLIENT_SYNC_LASER_INVALID",
+      "The speaker sent an invalid normalized laser point.",
+    );
+  }
+  return Object.freeze({ x: value.x, y: value.y });
+};
 
 const readTransitionType = (
   message: Readonly<Record<string, unknown>>,
@@ -134,6 +172,7 @@ export const createAudienceSync = ({
   channel,
   machine,
   navigate,
+  onLaser,
   onError,
 }: CreateAudienceSyncOptions): PresentationSync => {
   let disposed = false;
@@ -141,6 +180,20 @@ export const createAudienceSync = ({
 
   const listener = (event: PresentationChannelMessageEvent): void => {
     if (disposed) {
+      return;
+    }
+    const remoteLaser = laserMessage(event.data);
+    if (remoteLaser !== undefined) {
+      try {
+        const position = machine.validatePosition(remoteLaser.position as DeckPosition);
+        if (!("point" in remoteLaser)) {
+          onLaser?.();
+        } else {
+          onLaser?.(Object.freeze({ point: readLaserPoint(remoteLaser.point), position }));
+        }
+      } catch (error) {
+        onError(error);
+      }
       return;
     }
     const message = positionMessage(event.data);
@@ -157,6 +210,7 @@ export const createAudienceSync = ({
       onError(error);
       return;
     }
+    onLaser?.();
 
     pending = pending
       .then(async () => {
@@ -186,6 +240,7 @@ export const createAudienceSync = ({
         return;
       }
       disposed = true;
+      onLaser?.();
       reportFailure(onError, () => channel.removeEventListener("message", listener));
       reportFailure(onError, () => channel.close());
     },
@@ -199,6 +254,7 @@ export const createSpeakerSync = ({
   store,
 }: CreateSpeakerSyncOptions): SpeakerPresentationSync => {
   let disposed = false;
+  let laserActive = false;
 
   const publishPosition = (transitionType?: PresentationTransitionType): void => {
     if (disposed) {
@@ -229,10 +285,41 @@ export const createSpeakerSync = ({
   reportFailure(onError, () => channel.addEventListener("message", listener));
   publishPosition();
 
+  const publishLaser = (point?: NormalizedCanvasPoint): void => {
+    if (disposed) {
+      return;
+    }
+    let normalized: NormalizedCanvasPoint | undefined;
+    try {
+      normalized = point === undefined ? undefined : readLaserPoint(point);
+    } catch (error) {
+      onError(error);
+      return;
+    }
+    reportFailure(onError, () => {
+      const position = store.getSnapshot();
+      const message: LaserMessage = Object.freeze({
+        drever: PRESENTATION_SYNC_PROTOCOL,
+        ...(normalized === undefined ? {} : { point: normalized }),
+        position: Object.freeze({
+          slideId: position.slideId,
+          slideIndex: position.slideIndex,
+          step: position.step,
+        }),
+        type: "laser",
+      });
+      channel.postMessage(message);
+      laserActive = normalized !== undefined;
+    });
+  };
+
   return Object.freeze({
     dispose() {
       if (disposed) {
         return;
+      }
+      if (laserActive) {
+        publishLaser();
       }
       disposed = true;
       reportFailure(onError, () => channel.removeEventListener("message", listener));
@@ -252,7 +339,11 @@ export const createSpeakerSync = ({
         );
         return;
       }
+      if (laserActive) {
+        publishLaser();
+      }
       publishPosition(transitionType);
     },
+    publishLaser,
   });
 };

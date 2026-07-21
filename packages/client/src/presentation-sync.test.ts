@@ -231,6 +231,56 @@ describe("speaker and audience presentation sync", () => {
     expect(harness.close).toHaveBeenCalledOnce();
   });
 
+  it("validates transient laser messages and clears them at lifecycle boundaries", () => {
+    const harness = createChannelHarness();
+    const onError = vi.fn();
+    const onLaser = vi.fn();
+    const sync = createAudienceSync({
+      channel: harness.channel,
+      machine,
+      navigate: vi.fn(async () => undefined),
+      onError,
+      onLaser,
+    });
+
+    harness.dispatch({
+      drever: PRESENTATION_SYNC_PROTOCOL,
+      point: { x: 1.1, y: 0.5 },
+      position: { slideId: "intro", slideIndex: 0, step: 0 },
+      type: "laser",
+    });
+    harness.dispatch({
+      drever: PRESENTATION_SYNC_PROTOCOL,
+      point: { x: 0.25, y: 0.75 },
+      position: { slideId: "intro", slideIndex: 0, step: 2 },
+      type: "laser",
+    });
+    harness.dispatch({
+      drever: PRESENTATION_SYNC_PROTOCOL,
+      position: { slideId: "intro", slideIndex: 0, step: 2 },
+      type: "laser",
+    });
+
+    expect(onError).toHaveBeenCalledWith(
+      expect.objectContaining({ code: "DREVER_CLIENT_SYNC_LASER_INVALID" }),
+    );
+    expect(onLaser).toHaveBeenNthCalledWith(1, {
+      point: { x: 0.25, y: 0.75 },
+      position: { slideId: "intro", slideIndex: 0, step: 2 },
+    });
+    expect(onLaser).toHaveBeenNthCalledWith(2);
+
+    sync.dispose();
+    harness.dispatch({
+      drever: PRESENTATION_SYNC_PROTOCOL,
+      point: { x: 0.5, y: 0.5 },
+      position: { slideId: "intro", slideIndex: 0, step: 2 },
+      type: "laser",
+    });
+    expect(onLaser).toHaveBeenCalledTimes(3);
+    expect(onLaser).toHaveBeenNthCalledWith(3);
+  });
+
   it("publishes explicit live intent, answers ready without intent, and stops after disposal", () => {
     const harness = createChannelHarness();
     const store = createPresentationStore(machine);
@@ -291,5 +341,52 @@ describe("speaker and audience presentation sync", () => {
       expect.objectContaining({ code: "DREVER_CLIENT_SYNC_TRANSITION_INVALID" }),
     );
     sync.dispose();
+  });
+
+  it("publishes only normalized laser state and clears it across navigation and disposal", () => {
+    const harness = createChannelHarness();
+    const onError = vi.fn();
+    const sync = createSpeakerSync({
+      channel: harness.channel,
+      onError,
+      store: createPresentationStore(machine),
+    });
+
+    sync.publishLaser({ x: 0.2, y: 0.8 });
+    sync.publishLaser({ x: Number.NaN, y: 0.5 });
+
+    expect(harness.postMessage).toHaveBeenNthCalledWith(2, {
+      drever: PRESENTATION_SYNC_PROTOCOL,
+      point: { x: 0.2, y: 0.8 },
+      position: { slideId: "intro", slideIndex: 0, step: 0 },
+      type: "laser",
+    });
+    expect(harness.postMessage).toHaveBeenCalledTimes(2);
+    expect(onError).toHaveBeenCalledWith(
+      expect.objectContaining({ code: "DREVER_CLIENT_SYNC_LASER_INVALID" }),
+    );
+
+    sync.publish("drever-step-forward");
+    expect(harness.postMessage).toHaveBeenNthCalledWith(3, {
+      drever: PRESENTATION_SYNC_PROTOCOL,
+      position: { slideId: "intro", slideIndex: 0, step: 0 },
+      type: "laser",
+    });
+    expect(harness.postMessage).toHaveBeenNthCalledWith(4, {
+      drever: PRESENTATION_SYNC_PROTOCOL,
+      position: { slideId: "intro", slideIndex: 0, step: 0 },
+      transitionType: "drever-step-forward",
+      type: "position",
+    });
+
+    sync.publishLaser({ x: 0.4, y: 0.4 });
+    sync.dispose();
+    sync.publishLaser({ x: 0.6, y: 0.6 });
+    expect(harness.postMessage).toHaveBeenNthCalledWith(6, {
+      drever: PRESENTATION_SYNC_PROTOCOL,
+      position: { slideId: "intro", slideIndex: 0, step: 0 },
+      type: "laser",
+    });
+    expect(harness.postMessage).toHaveBeenCalledTimes(6);
   });
 });
