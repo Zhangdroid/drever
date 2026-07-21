@@ -124,20 +124,18 @@
     pointer-events: none;
   }
 
-  .drever-presentation-focus__laser circle {
+  .drever-presentation-focus__laser-halo,
+  .drever-presentation-focus__laser-core {
     fill: currentcolor;
   }
 
-  .drever-presentation-focus__laser circle:first-child {
-    opacity: 0.16;
+  .drever-presentation-focus__laser-halo {
+    opacity: 0.1;
   }
 
-  .drever-presentation-focus__laser circle:nth-child(2) {
-    opacity: 0.88;
-  }
-
-  .drever-presentation-focus__laser circle:last-child {
-    fill: #fff;
+  .drever-presentation-focus__laser-core {
+    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 28%));
+    opacity: 0.94;
   }
 
   [data-drever-slide] {

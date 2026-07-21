@@ -33,6 +33,11 @@ describe("resolvePrivateAppOptions", () => {
       resolvePrivateAppOptions(
         {
           canvas,
+          focusTools: {
+            highlighter: { color: "#ffe66d", opacity: 0.28, width: 30 },
+            laser: { color: "#ff4567" },
+            pen: { color: "var(--drever-theme-accent)", width: 7.5 },
+          },
           rehearsal: { targetDurationMinutes: 18.5 },
           stage: { background: "./Background.tsx", foreground: "./Chrome.tsx" },
         },
@@ -40,6 +45,11 @@ describe("resolvePrivateAppOptions", () => {
       ),
     ).toEqual({
       canvas,
+      focusTools: {
+        highlighter: { color: "#ffe66d", opacity: 0.28, width: 30 },
+        laser: { color: "#ff4567" },
+        pen: { color: "var(--drever-theme-accent)", width: 7.5 },
+      },
       rehearsal: { targetDurationMs: 1_110_000 },
       stage: {
         background: "/project/Background.tsx",

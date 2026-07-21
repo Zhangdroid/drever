@@ -1,6 +1,7 @@
 import { mkdtemp, realpath, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import type { DreverFocusToolsConfig } from "./config.ts";
 
 export type PrivateApp = Readonly<{
   dispose(): Promise<void>;
@@ -9,6 +10,7 @@ export type PrivateApp = Readonly<{
 
 export type PrivateAppOptions = Readonly<{
   canvas?: Readonly<{ height: number; width: number }>;
+  focusTools?: DreverFocusToolsConfig;
   rehearsal?: Readonly<{ targetDurationMs?: number }>;
   stage?: Readonly<{
     background?: string;
@@ -116,14 +118,14 @@ const stageModuleSource = (
 
 const viewerModuleSource = (
   entry: string,
-  { canvas, rehearsal, stage }: PrivateAppOptions,
+  { canvas, focusTools, rehearsal, stage }: PrivateAppOptions,
 ): string => {
   const stageSource = stageModuleSource(stage);
   const speakerOptions =
     rehearsal === undefined
-      ? "presentationOptions"
+      ? "interactiveOptions"
       : `{
-      ...presentationOptions,
+      ...interactiveOptions,
       rehearsal: ${JSON.stringify(rehearsal)},
     }`;
   return `import { createDocument, createSpeaker, createViewer } from "@drever/client";
@@ -155,11 +157,19 @@ const presentationOptions = {
   registry: components,
   runtime: { runSetup, theme },${canvas === undefined ? "" : `\n  canvas: ${JSON.stringify(canvas)},`}${stageSource.option}
 };
+const interactiveOptions = ${
+    focusTools === undefined
+      ? "presentationOptions"
+      : `{
+  ...presentationOptions,
+  focusTools: ${JSON.stringify(focusTools)},
+}`
+  };
 const presentation = routePath === "document"
   ? await createDocument(presentationOptions)
   : routePath === "speaker" || routePath.startsWith("speaker/")
     ? await createSpeaker(${speakerOptions})
-    : await createViewer(presentationOptions);
+    : await createViewer(interactiveOptions);
 
 if (import.meta.hot) {
   let stopPublishingCurrentPosition;

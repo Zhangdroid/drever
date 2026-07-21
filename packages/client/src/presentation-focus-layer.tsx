@@ -6,6 +6,7 @@ import {
   useCallback,
   useEffect,
   useRef,
+  type CSSProperties,
   type Dispatch,
   type PointerEvent as ReactPointerEvent,
   type ReactElement,
@@ -16,14 +17,17 @@ import {
   projectCanvasPoint,
   type NormalizedCanvasPoint,
   type PresentationFocusAction,
+  type PresentationFocusAppearance,
   type PresentationFocusState,
   type PresentationFocusStroke,
 } from "./presentation-focus.ts";
 
 export type PresentationFocusLayerProps = Readonly<{
   active: boolean;
+  appearance?: PresentationFocusAppearance;
   canvas: CanvasDefinition;
   dispatch: Dispatch<PresentationFocusAction>;
+  onInteractionChange?: (interacting: boolean) => void;
   position: DeckPosition;
   remoteLaser?: NormalizedCanvasPoint;
   state: PresentationFocusState;
@@ -36,6 +40,43 @@ const samePosition = (left: DeckPosition, right: DeckPosition): boolean =>
   sameSlide(left, right) && left.step === right.step;
 
 const formatCoordinate = (value: number): string => String(Number(value.toFixed(3)));
+
+type PresentationFocusStyle = CSSProperties & {
+  "--drever-focus-highlighter-color"?: string;
+  "--drever-focus-highlighter-opacity"?: number;
+  "--drever-focus-highlighter-width"?: string;
+  "--drever-focus-laser-color"?: string;
+  "--drever-focus-pen-color"?: string;
+  "--drever-focus-pen-width"?: string;
+};
+
+const focusStyle = (
+  appearance: PresentationFocusAppearance | undefined,
+): PresentationFocusStyle | undefined => {
+  if (appearance === undefined) {
+    return;
+  }
+  const style: PresentationFocusStyle = {};
+  if (appearance.pen?.color !== undefined) {
+    style["--drever-focus-pen-color"] = appearance.pen.color;
+  }
+  if (appearance.pen?.width !== undefined) {
+    style["--drever-focus-pen-width"] = `${appearance.pen.width}px`;
+  }
+  if (appearance.highlighter?.color !== undefined) {
+    style["--drever-focus-highlighter-color"] = appearance.highlighter.color;
+  }
+  if (appearance.highlighter?.opacity !== undefined) {
+    style["--drever-focus-highlighter-opacity"] = appearance.highlighter.opacity;
+  }
+  if (appearance.highlighter?.width !== undefined) {
+    style["--drever-focus-highlighter-width"] = `${appearance.highlighter.width}px`;
+  }
+  if (appearance.laser?.color !== undefined) {
+    style["--drever-focus-laser-color"] = appearance.laser.color;
+  }
+  return Object.keys(style).length === 0 ? undefined : style;
+};
 
 /** Creates a deterministic SVG path in the authored canvas coordinate space. */
 export const createPresentationFocusPath = (
@@ -83,13 +124,16 @@ const Stroke = memo(
 /** Pointer, touch, and stylus layer kept outside the deck View Transition boundary. */
 export const PresentationFocusLayer = ({
   active,
+  appearance,
   canvas,
   dispatch,
+  onInteractionChange,
   position,
   remoteLaser,
   state,
 }: PresentationFocusLayerProps): ReactElement => {
   const pointerRef = useRef<number | undefined>(undefined);
+  const interactionRef = useRef(false);
   const frameRef = useRef<number | undefined>(undefined);
   const frameWindowRef = useRef<Window | undefined>(undefined);
   const pendingPointRef = useRef<NormalizedCanvasPoint | undefined>(undefined);
@@ -101,6 +145,18 @@ export const PresentationFocusLayer = ({
   const visibleLaser = laser ?? remoteLaser;
   const laserPoint =
     visibleLaser === undefined ? undefined : projectCanvasPoint(visibleLaser, canvas);
+  const style = focusStyle(appearance);
+
+  const setInteracting = useCallback(
+    (interacting: boolean): void => {
+      if (interactionRef.current === interacting) {
+        return;
+      }
+      interactionRef.current = interacting;
+      onInteractionChange?.(interacting);
+    },
+    [onInteractionChange],
+  );
 
   const cancelScheduledMove = useCallback((): void => {
     if (frameRef.current !== undefined) {
@@ -131,21 +187,19 @@ export const PresentationFocusLayer = ({
     [dispatch],
   );
 
-  useEffect(() => cancelScheduledMove, [cancelScheduledMove]);
+  useEffect(
+    () => () => {
+      cancelScheduledMove();
+      setInteracting(false);
+    },
+    [cancelScheduledMove, setInteracting],
+  );
 
   useEffect(() => {
     pointerRef.current = undefined;
     cancelScheduledMove();
-  }, [active, cancelScheduledMove, state.tool]);
-
-  const releasePointer = (event: ReactPointerEvent<SVGSVGElement>): void => {
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-    if (pointerRef.current === event.pointerId) {
-      pointerRef.current = undefined;
-    }
-  };
+    setInteracting(false);
+  }, [active, cancelScheduledMove, setInteracting, state.tool]);
 
   return (
     <svg
@@ -161,14 +215,16 @@ export const PresentationFocusLayer = ({
         }
         cancelScheduledMove();
         pointerRef.current = undefined;
-        dispatch({ type: "cancel" });
+        setInteracting(false);
+        dispatch({ type: "end" });
       }}
       onPointerCancel={(event) => {
         if (pointerRef.current !== event.pointerId) {
           return;
         }
         cancelScheduledMove();
-        releasePointer(event);
+        pointerRef.current = undefined;
+        setInteracting(false);
         dispatch({ type: "cancel" });
       }}
       onPointerDown={(event) => {
@@ -188,6 +244,7 @@ export const PresentationFocusLayer = ({
         if (state.tool !== "laser") {
           event.currentTarget.setPointerCapture(event.pointerId);
         }
+        setInteracting(true);
         dispatch({ point: pointFromEvent(event), type: "begin" });
       }}
       onPointerLeave={(event) => {
@@ -199,6 +256,7 @@ export const PresentationFocusLayer = ({
         ) {
           cancelScheduledMove();
           pointerRef.current = undefined;
+          setInteracting(false);
           dispatch({ type: "end" });
         }
       }}
@@ -209,6 +267,7 @@ export const PresentationFocusLayer = ({
         if (state.tool === "laser") {
           if (pointerRef.current === undefined) {
             pointerRef.current = event.pointerId;
+            setInteracting(true);
           } else if (pointerRef.current !== event.pointerId) {
             return;
           }
@@ -227,10 +286,12 @@ export const PresentationFocusLayer = ({
         event.preventDefault();
         const point = state.tool === "laser" ? undefined : pointFromEvent(event);
         cancelScheduledMove();
-        releasePointer(event);
+        pointerRef.current = undefined;
         dispatch({ ...(point === undefined ? {} : { point }), type: "end" });
+        setInteracting(false);
       }}
       preserveAspectRatio="none"
+      {...(style === undefined ? {} : { style })}
       viewBox={`0 0 ${canvas.width} ${canvas.height}`}
     >
       {strokes.map((stroke) => (
@@ -239,9 +300,18 @@ export const PresentationFocusLayer = ({
       {activeStroke === undefined ? null : <Stroke canvas={canvas} stroke={activeStroke} />}
       {laserPoint === undefined ? null : (
         <g className="drever-presentation-focus__laser" data-drever-focus-laser="">
-          <circle cx={laserPoint.x} cy={laserPoint.y} r="26" />
-          <circle cx={laserPoint.x} cy={laserPoint.y} r="11" />
-          <circle cx={laserPoint.x} cy={laserPoint.y} r="3.5" />
+          <circle
+            className="drever-presentation-focus__laser-halo"
+            cx={laserPoint.x}
+            cy={laserPoint.y}
+            r="12"
+          />
+          <circle
+            className="drever-presentation-focus__laser-core"
+            cx={laserPoint.x}
+            cy={laserPoint.y}
+            r="4.25"
+          />
         </g>
       )}
     </svg>

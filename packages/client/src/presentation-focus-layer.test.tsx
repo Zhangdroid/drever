@@ -59,4 +59,33 @@ describe("presentation focus layer", () => {
     expect(sameSlide).toContain('data-drever-focus-stroke="focus-0"');
     expect(nextSlide).not.toContain("data-drever-focus-stroke");
   });
+
+  it("maps configured tool appearance to local CSS variables", () => {
+    let state = createPresentationFocusState(intro);
+    state = reducePresentationFocus(state, { point: { x: 0.5, y: 0.5 }, type: "begin" });
+
+    const markup = renderToStaticMarkup(
+      <PresentationFocusLayer
+        active
+        appearance={{
+          highlighter: { color: "#ffe66d", opacity: 0.28, width: 30 },
+          laser: { color: "#ff4567" },
+          pen: { color: "var(--drever-theme-accent)", width: 7.5 },
+        }}
+        canvas={canvas}
+        dispatch={vi.fn()}
+        position={intro}
+        state={state}
+      />,
+    );
+
+    expect(markup).toContain("--drever-focus-pen-color:var(--drever-theme-accent)");
+    expect(markup).toContain("--drever-focus-pen-width:7.5px");
+    expect(markup).toContain("--drever-focus-highlighter-color:#ffe66d");
+    expect(markup).toContain("--drever-focus-highlighter-opacity:0.28");
+    expect(markup).toContain("--drever-focus-highlighter-width:30px");
+    expect(markup).toContain("--drever-focus-laser-color:#ff4567");
+    expect(markup).toContain('class="drever-presentation-focus__laser-halo"');
+    expect(markup).toContain('class="drever-presentation-focus__laser-core"');
+  });
 });

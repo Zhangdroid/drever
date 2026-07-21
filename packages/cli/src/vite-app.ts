@@ -211,12 +211,13 @@ export const resolveSpeakerUrls = (resolvedUrls: ResolvedServerUrls | null): rea
 
 /** @internal Converts author-facing minutes into the speaker runtime's millisecond contract. */
 export const resolvePrivateAppOptions = (
-  config: Pick<DreverConfig, "canvas" | "rehearsal" | "stage">,
+  config: Pick<DreverConfig, "canvas" | "focusTools" | "rehearsal" | "stage">,
   root = ".",
 ): PrivateAppOptions => {
   const targetDurationMinutes = config.rehearsal?.targetDurationMinutes;
   return Object.freeze({
     ...(config.canvas === undefined ? {} : { canvas: config.canvas }),
+    ...(config.focusTools === undefined ? {} : { focusTools: config.focusTools }),
     ...(targetDurationMinutes === undefined
       ? {}
       : {

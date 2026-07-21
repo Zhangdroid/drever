@@ -48,6 +48,7 @@ export type {
   CanvasSpacePoint,
   NormalizedCanvasPoint,
   PresentationFocusAction,
+  PresentationFocusAppearance,
   PresentationFocusState,
   PresentationFocusStroke,
   PresentationFocusTool,

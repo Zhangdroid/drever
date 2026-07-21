@@ -170,7 +170,10 @@ test("focus tools preserve marks across Steps and clear them across slides", asy
   await page.goto("/2");
 
   const controls = page.getByRole("navigation", { name: "Presentation controls" });
-  await controls.getByRole("button", { name: "Open focus tools" }).click();
+  const openFocusTools = async (): Promise<void> => {
+    await controls.getByRole("button", { name: "Open focus tools" }).click();
+  };
+  await openFocusTools();
   const laser = controls.getByRole("button", { name: "Use laser pointer" });
   await expect(laser).toBeFocused();
 
@@ -201,6 +204,7 @@ test("focus tools preserve marks across Steps and clear them across slides", asy
     pointerType: "pen",
   });
   await expect(page.locator("[data-drever-focus-laser]")).toHaveCount(0);
+  await openFocusTools();
   await controls.getByRole("button", { name: "Use pen" }).click();
 
   const draw = async (offset: number): Promise<void> => {
@@ -212,10 +216,23 @@ test("focus tools preserve marks across Steps and clear them across slides", asy
 
   await draw(0);
   await expect(page.locator("[data-drever-focus-stroke]")).toHaveCount(1);
+  await openFocusTools();
   await controls.getByRole("button", { name: "Undo focus stroke" }).click();
   await expect(page.locator("[data-drever-focus-stroke]")).toHaveCount(0);
 
-  await draw(0);
+  await controls.getByRole("button", { name: "Use pen" }).click();
+  await page.mouse.move(bounds.x + 180, bounds.y + 150);
+  await page.mouse.down();
+  await page.mouse.move(bounds.x + 440, bounds.y + 210, { steps: 8 });
+  await layer.dispatchEvent("lostpointercapture", {
+    isPrimary: true,
+    pointerId: 1,
+    pointerType: "mouse",
+  });
+  await page.mouse.up();
+  await expect(page.locator("[data-drever-focus-stroke]")).toHaveCount(1);
+
+  await openFocusTools();
   await controls.getByRole("button", { name: "Use highlighter" }).click();
   await draw(100);
   await expect(page.locator("[data-drever-focus-stroke]")).toHaveCount(2);
@@ -225,6 +242,7 @@ test("focus tools preserve marks across Steps and clear them across slides", asy
   await expect(page).toHaveURL(/\/2\/2$/u);
   await expect(page.locator("[data-drever-focus-stroke]")).toHaveCount(2);
 
+  await openFocusTools();
   await controls.getByRole("button", { name: "Clear focus marks" }).click();
   await expect(page.locator("[data-drever-focus-stroke]")).toHaveCount(0);
   await controls.getByRole("button", { name: "Use pen" }).click();

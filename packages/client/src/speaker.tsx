@@ -19,6 +19,7 @@ import {
   reducePresentationFocus,
   type NormalizedCanvasPoint,
   type PresentationFocusAction,
+  type PresentationFocusAppearance,
 } from "./presentation-focus.ts";
 import type {
   DeckCommand,
@@ -33,6 +34,7 @@ import { Viewer } from "./viewer.tsx";
 export type SpeakerProps = Readonly<{
   Content: MDXContent;
   canvas?: CanvasDefinition;
+  focusTools?: PresentationFocusAppearance;
   machine: PresentationStateMachine;
   manifest: DeckManifest;
   onLaser(point?: NormalizedCanvasPoint): void;
@@ -216,11 +218,13 @@ const LASER_HEARTBEAT_MS = 500;
 
 const SpeakerLaserLayer = ({
   active,
+  appearance,
   canvas,
   onLaser,
   position,
 }: Readonly<{
   active: boolean;
+  appearance?: PresentationFocusAppearance;
   canvas: CanvasDefinition;
   onLaser(point?: NormalizedCanvasPoint): void;
   position: DeckPosition;
@@ -299,6 +303,7 @@ const SpeakerLaserLayer = ({
       <CanvasViewport canvas={canvas}>
         <PresentationFocusLayer
           active={active}
+          {...(appearance === undefined ? {} : { appearance })}
           canvas={canvas}
           dispatch={handleAction}
           position={position}
@@ -312,6 +317,7 @@ const SpeakerLaserLayer = ({
 const Preview = ({
   Content,
   canvas,
+  focusTools,
   label,
   laserActive,
   manifest,
@@ -324,6 +330,7 @@ const Preview = ({
 }: Readonly<{
   Content: MDXContent;
   canvas?: CanvasDefinition;
+  focusTools?: PresentationFocusAppearance;
   label: string;
   laserActive?: boolean;
   manifest: DeckManifest;
@@ -360,6 +367,7 @@ const Preview = ({
       {onLaser === undefined ? null : (
         <SpeakerLaserLayer
           active={laserActive ?? false}
+          {...(focusTools === undefined ? {} : { appearance: focusTools })}
           canvas={resolvedCanvas}
           onLaser={onLaser}
           position={position}
@@ -372,6 +380,7 @@ const Preview = ({
 export const Speaker = ({
   Content,
   canvas,
+  focusTools,
   machine,
   manifest,
   onLaser,
@@ -456,6 +465,7 @@ export const Speaker = ({
         <Preview
           Content={Content}
           {...(canvas === undefined ? {} : { canvas })}
+          {...(focusTools === undefined ? {} : { focusTools })}
           label={`Current · ${positionLabel(position)}`}
           laserActive={laserActive}
           manifest={manifest}

@@ -18,6 +18,7 @@ import {
 } from "./presentation-state.ts";
 import { createPresentationRouteCodec } from "./presentation-route.ts";
 import { createPresentationLaserStore } from "./presentation-laser.ts";
+import type { PresentationFocusAppearance } from "./presentation-focus.ts";
 import {
   createAudienceSync,
   createBrowserPresentationChannel,
@@ -68,6 +69,7 @@ export type CreateViewerOptions = Readonly<{
   baseURL: string | URL;
   canvas?: CanvasDefinition;
   container: Element;
+  focusTools?: PresentationFocusAppearance;
   manifest: DeckManifest;
   onError?: (error: unknown) => void;
   reducedMotion?: boolean;
@@ -323,6 +325,7 @@ export const createViewer = async (options: CreateViewerOptions): Promise<Viewer
         <ViewerHost
           Content={options.Content}
           {...(canvas === undefined ? {} : { canvas })}
+          {...(options.focusTools === undefined ? {} : { focusTools: options.focusTools })}
           machine={machine}
           onCopyShareURL={copyShareURL}
           onError={reportNavigationError}

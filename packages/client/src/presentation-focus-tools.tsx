@@ -22,13 +22,16 @@ import { PresentationFocusLayer } from "./presentation-focus-layer.tsx";
 import {
   createPresentationFocusState,
   reducePresentationFocus,
+  type PresentationFocusAppearance,
   type PresentationFocusTool,
 } from "./presentation-focus.ts";
 import type { PresentationLaserStore } from "./presentation-laser.ts";
 
 export type PresentationFocusToolsProps = Readonly<{
+  appearance?: PresentationFocusAppearance;
   canvas: CanvasDefinition;
   canvasRef: RefObject<HTMLDivElement | null>;
+  onInteractionChange?: (interacting: boolean) => void;
   position: DeckPosition;
   remoteLaser: PresentationLaserStore;
 }>;
@@ -120,8 +123,10 @@ const isUnmodifiedShortcut = (event: ReactKeyboardEvent): boolean =>
 
 /** Owns the high-frequency focus state without reconciling the presentation or command bar. */
 export const PresentationFocusTools = ({
+  appearance,
   canvas,
   canvasRef,
+  onInteractionChange,
   position,
   remoteLaser,
 }: PresentationFocusToolsProps): ReactElement => {
@@ -131,6 +136,7 @@ export const PresentationFocusTools = ({
   const penRef = useRef<HTMLButtonElement>(null);
   const highlighterRef = useRef<HTMLButtonElement>(null);
   const [active, setActive] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
   const [state, dispatch] = useReducer(
     reducePresentationFocus,
     position,
@@ -163,32 +169,50 @@ export const PresentationFocusTools = ({
     dispatch({ position, type: "commitPosition" });
   }, [position]);
 
-  const activate = useCallback((tool: PresentationFocusTool): void => {
+  const selectTool = useCallback((tool: PresentationFocusTool): void => {
     dispatch({ tool, type: "selectTool" });
     setActive(true);
+    setPaletteOpen(false);
   }, []);
 
   const deactivate = useCallback((): void => {
     setActive(false);
+    setPaletteOpen(false);
     dispatch({ type: "cancel" });
+    onInteractionChange?.(false);
+  }, [onInteractionChange]);
+
+  const togglePalette = useCallback((): void => {
+    setActive(true);
+    setPaletteOpen((open) => !open);
   }, []);
 
   const toggleLaser = useCallback((): void => {
     if (active && state.tool === "laser") {
       deactivate();
     } else {
-      activate("laser");
+      selectTool("laser");
     }
-  }, [activate, active, deactivate, state.tool]);
+  }, [active, deactivate, selectTool, state.tool]);
 
   useLayoutEffect(() => {
-    if (active) {
+    if (paletteOpen) {
       ({ highlighter: highlighterRef, laser: laserRef, pen: penRef })[state.tool].current?.focus();
-    } else if (wasActiveRef.current) {
+    } else if (!active && wasActiveRef.current) {
       launcherRef.current?.focus();
     }
     wasActiveRef.current = active;
-  }, [active, state.tool]);
+  }, [active, paletteOpen, state.tool]);
+
+  const handleInteractionChange = useCallback(
+    (interacting: boolean): void => {
+      if (interacting) {
+        setPaletteOpen(false);
+      }
+      onInteractionChange?.(interacting);
+    },
+    [onInteractionChange],
+  );
 
   useEffect(() => {
     const document = canvasRef.current?.ownerDocument;
@@ -261,8 +285,10 @@ export const PresentationFocusTools = ({
         : createPortal(
             <PresentationFocusLayer
               active={active}
+              {...(appearance === undefined ? {} : { appearance })}
               canvas={canvas}
               dispatch={dispatch}
+              onInteractionChange={handleInteractionChange}
               position={position}
               {...(remoteLaserPoint === undefined ? {} : { remoteLaser: remoteLaserPoint })}
               state={state}
@@ -271,10 +297,10 @@ export const PresentationFocusTools = ({
           )}
       <button
         aria-controls={toolbarId}
-        aria-expanded={active}
-        aria-label={active ? "Close focus tools" : "Open focus tools"}
+        aria-expanded={paletteOpen}
+        aria-label={paletteOpen ? "Close focus tools" : "Open focus tools"}
         aria-pressed={active}
-        onClick={() => (active ? deactivate() : activate(state.tool))}
+        onClick={togglePalette}
         onKeyDown={(event) => {
           if (event.key.toLowerCase() !== "l" || !isUnmodifiedShortcut(event) || event.repeat) {
             return;
@@ -289,7 +315,7 @@ export const PresentationFocusTools = ({
       >
         <FocusIcon />
       </button>
-      {active ? (
+      {paletteOpen ? (
         <div
           aria-label="Focus tools"
           className="drever-audience-focus-tools"
@@ -301,7 +327,7 @@ export const PresentationFocusTools = ({
           <button
             aria-label="Use laser pointer"
             aria-pressed={state.tool === "laser"}
-            onClick={() => activate("laser")}
+            onClick={() => selectTool("laser")}
             ref={laserRef}
             title="Laser pointer (L)"
             type="button"
@@ -312,7 +338,7 @@ export const PresentationFocusTools = ({
           <button
             aria-label="Use pen"
             aria-pressed={state.tool === "pen"}
-            onClick={() => activate("pen")}
+            onClick={() => selectTool("pen")}
             ref={penRef}
             title="Pen"
             type="button"
@@ -323,7 +349,7 @@ export const PresentationFocusTools = ({
           <button
             aria-label="Use highlighter"
             aria-pressed={state.tool === "highlighter"}
-            onClick={() => activate("highlighter")}
+            onClick={() => selectTool("highlighter")}
             ref={highlighterRef}
             title="Highlighter"
             type="button"

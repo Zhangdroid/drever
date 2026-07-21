@@ -147,9 +147,14 @@ describe("generated private application", () => {
     }
   });
 
-  it("passes rehearsal settings exclusively to the speaker surface", async () => {
+  it("separates interactive focus tools and speaker rehearsal from document options", async () => {
     const app = await createPrivateApp("/project/slides.mdx", {
       canvas: { height: 900, width: 1_600 },
+      focusTools: {
+        highlighter: { color: "#ffe66d", opacity: 0.28, width: 30 },
+        laser: { color: "#ff4567" },
+        pen: { color: "var(--drever-theme-accent)", width: 7.5 },
+      },
       rehearsal: { targetDurationMs: 1_110_000 },
       stage: {
         background: "/project/Background.tsx",
@@ -171,10 +176,16 @@ describe("generated private application", () => {
         "stage: { background: StageBackground, foreground: StageForeground }",
       );
       expect(source).toContain("? await createDocument(presentationOptions)");
+      expect(source).toContain("const interactiveOptions = {");
+      expect(source).toContain("...presentationOptions,");
       expect(source).toContain(
-        '? await createSpeaker({\n      ...presentationOptions,\n      rehearsal: {"targetDurationMs":1110000}',
+        'focusTools: {"highlighter":{"color":"#ffe66d","opacity":0.28,"width":30},"laser":{"color":"#ff4567"},"pen":{"color":"var(--drever-theme-accent)","width":7.5}}',
       );
-      expect(source).toContain(": await createViewer(presentationOptions)");
+      expect(source).toContain(
+        '? await createSpeaker({\n      ...interactiveOptions,\n      rehearsal: {"targetDurationMs":1110000}',
+      );
+      expect(source).toContain(": await createViewer(interactiveOptions)");
+      expect(source.match(/focusTools:/gu)).toHaveLength(1);
       expect(source.match(/rehearsal:/gu)).toHaveLength(1);
     } finally {
       await app.dispose();

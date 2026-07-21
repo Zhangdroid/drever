@@ -17,6 +17,7 @@ import { createFullscreenSession, PRESENTATION_IDLE_DELAY_MS } from "./fullscree
 import { acceptsPresentationShortcut } from "./keyboard.ts";
 import type { DeckCommand, DeckPosition } from "./presentation-state.ts";
 import { PresentationFocusTools } from "./presentation-focus-tools.tsx";
+import type { PresentationFocusAppearance } from "./presentation-focus.ts";
 import type { PresentationLaserStore } from "./presentation-laser.ts";
 
 type AudiencePanel = "help" | "overview";
@@ -32,6 +33,7 @@ export type AudienceControlsProps = Readonly<{
   canvas: CanvasDefinition;
   canvasRef: RefObject<HTMLDivElement | null>;
   deckRef: RefObject<HTMLDivElement | null>;
+  focusTools?: PresentationFocusAppearance;
   manifest: DeckManifest;
   onCopyShareURL(position: DeckPosition): Promise<void>;
   onError(error: unknown): void;
@@ -230,8 +232,21 @@ const shortcutRows = Object.freeze([
 const useIdleControls = (
   hostRef: RefObject<HTMLDivElement | null>,
   barRef: RefObject<HTMLElement | null>,
+  focusInteracting: boolean,
 ): boolean => {
   const [idle, setIdle] = useState(false);
+
+  useEffect(() => {
+    const window = hostRef.current?.ownerDocument.defaultView;
+    if (
+      focusInteracting &&
+      window !== null &&
+      window !== undefined &&
+      window.matchMedia("(pointer: fine)").matches
+    ) {
+      setIdle(true);
+    }
+  }, [focusInteracting, hostRef]);
 
   useEffect(() => {
     const document = hostRef.current?.ownerDocument;
@@ -252,7 +267,16 @@ const useIdleControls = (
       }
       timeout = window.setTimeout(() => setIdle(true), PRESENTATION_IDLE_DELAY_MS);
     };
-    const show = (): void => {
+    const show = (event: PointerEvent): void => {
+      const target = event.target;
+      const pointsAtFocusLayer =
+        target instanceof window.Element &&
+        target.closest("[data-drever-focus-layer][data-active]") !== null;
+      if (pointsAtFocusLayer && event.clientY < window.innerHeight - 64) {
+        clearIdleTimer();
+        setIdle(true);
+        return;
+      }
       setIdle(false);
       scheduleIdle();
     };
@@ -293,6 +317,7 @@ export const AudienceControls = ({
   canvas,
   canvasRef,
   deckRef,
+  focusTools,
   manifest,
   onCopyShareURL,
   onError,
@@ -307,6 +332,7 @@ export const AudienceControls = ({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const [fullscreen, setFullscreen] = useState(false);
+  const [focusInteracting, setFocusInteracting] = useState(false);
   const [gotoBuffer, setGotoBuffer] = useState("");
   const [gotoError, setGotoError] = useState<string>();
   const [panel, setPanel] = useState<AudiencePanel>();
@@ -316,7 +342,7 @@ export const AudienceControls = ({
   const [slides, setSlides] = useState<readonly SlideNavigationItem[]>(() =>
     readSlideNavigationItems(null, manifest),
   );
-  const controlsIdle = useIdleControls(hostRef, barRef);
+  const controlsIdle = useIdleControls(hostRef, barRef, focusInteracting);
   const progress = resolveAudienceProgress(manifest, position);
   const positionKey = `${position.slideId}:${position.step}`;
   const visibleShareResult =
@@ -522,6 +548,7 @@ export const AudienceControls = ({
       className="drever-audience-controls"
       data-drever-audience-controls=""
       data-drever-controls-idle={controlsIdle ? "" : undefined}
+      data-drever-focus-interacting={focusInteracting ? "" : undefined}
       ref={hostRef}
     >
       <nav
@@ -587,8 +614,10 @@ export const AudienceControls = ({
           <SpeakerIcon />
         </button>
         <PresentationFocusTools
+          {...(focusTools === undefined ? {} : { appearance: focusTools })}
           canvas={canvas}
           canvasRef={canvasRef}
+          onInteractionChange={setFocusInteracting}
           position={position}
           remoteLaser={remoteLaser}
         />

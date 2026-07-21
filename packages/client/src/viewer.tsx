@@ -25,6 +25,7 @@ import { CanvasViewport, DEFAULT_CANVAS } from "./canvas.tsx";
 import { DreverClientError, isAbortError } from "./client-error.ts";
 import type { PresentationCommit } from "./navigation.ts";
 import type { PresentationLaserStore } from "./presentation-laser.ts";
+import type { PresentationFocusAppearance } from "./presentation-focus.ts";
 import type {
   DeckCommand,
   DeckPosition,
@@ -160,6 +161,7 @@ export type ViewerCommitRegistrar = (commit: PresentationCommit) => () => void;
 
 export type ViewerHostProps = Omit<ViewerProps, "manifest" | "onPositionCommitted" | "position"> &
   Readonly<{
+    focusTools?: PresentationFocusAppearance;
     machine: PresentationStateMachine;
     onCopyShareURL(position: DeckPosition): Promise<void>;
     onError(error: unknown): void;
@@ -191,6 +193,7 @@ const supersededNavigation = (): DOMException =>
 
 /** @internal Owns the React state commit that unblocks Navigation interception. */
 export const ViewerHost = ({
+  focusTools,
   machine,
   onCopyShareURL,
   onError,
@@ -387,6 +390,7 @@ export const ViewerHost = ({
         canvas={viewerProps.canvas ?? DEFAULT_CANVAS}
         canvasRef={canvasRef}
         deckRef={deckRef}
+        {...(focusTools === undefined ? {} : { focusTools })}
         manifest={machine.manifest}
         onCopyShareURL={onCopyShareURL}
         onError={onError}

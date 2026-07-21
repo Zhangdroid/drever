@@ -34,6 +34,11 @@ describe("loadDreverConfig", () => {
 export default {
   entry: "talk.mdx",
   canvas: { width: 1600, height: 900 },
+  focusTools: {
+    pen: { color: "var(--drever-theme-accent)", width: 7.5 },
+    highlighter: { color: "#ffe66d", opacity: 0.28, width: 30 },
+    laser: { color: "#ff4567" },
+  },
   rehearsal: { targetDurationMinutes: 18.5 },
   stage: { background: "./Background.tsx", foreground: "./Chrome.tsx" },
   server: { port, strictPort: true },
@@ -49,6 +54,11 @@ export default {
       build: { outDir: "release", sourcemap: "hidden" },
       canvas: { height: 900, width: 1600 },
       entry: "talk.mdx",
+      focusTools: {
+        highlighter: { color: "#ffe66d", opacity: 0.28, width: 30 },
+        laser: { color: "#ff4567" },
+        pen: { color: "var(--drever-theme-accent)", width: 7.5 },
+      },
       rehearsal: { targetDurationMinutes: 18.5 },
       server: { port: 4317, strictPort: true },
       stage: { background: "./Background.tsx", foreground: "./Chrome.tsx" },
@@ -125,6 +135,40 @@ export default ({ command, mode }: Environment) => ({
       code: "DREVER_CONFIG_INVALID",
       details: { path: "rehearsal.targetMinutes" },
     });
+  });
+
+  it.each([
+    ["a non-object value", "false", "focusTools"],
+    ["an unknown tool", "{ eraser: {} }", "focusTools.eraser"],
+    ["a non-object pen", '{ pen: "#fff" }', "focusTools.pen"],
+    ["an unknown pen option", "{ pen: { opacity: 0.5 } }", "focusTools.pen.opacity"],
+    ["a blank pen color", '{ pen: { color: "   " } }', "focusTools.pen.color"],
+    ["a zero pen width", "{ pen: { width: 0 } }", "focusTools.pen.width"],
+    [
+      "a non-finite highlighter width",
+      "{ highlighter: { width: Number.POSITIVE_INFINITY } }",
+      "focusTools.highlighter.width",
+    ],
+    [
+      "an out-of-range highlighter opacity",
+      "{ highlighter: { opacity: 1.1 } }",
+      "focusTools.highlighter.opacity",
+    ],
+    ["an unknown laser option", "{ laser: { width: 4 } }", "focusTools.laser.width"],
+    ["a blank laser color", '{ laser: { color: "" } }', "focusTools.laser.color"],
+  ])("rejects focusTools with %s", async (_label, focusTools, path) => {
+    const root = await project();
+    await writeFile(
+      join(root, "drever.config.ts"),
+      `export default { focusTools: ${focusTools} };\n`,
+    );
+
+    const failure = await loadDreverConfig({ command: "serve", root }).catch(
+      (error: unknown) => error,
+    );
+
+    expect(failure).toBeInstanceOf(DreverCliError);
+    expect(failure).toMatchObject({ code: "DREVER_CONFIG_INVALID", details: { path } });
   });
 
   it.each([

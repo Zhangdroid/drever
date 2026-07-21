@@ -255,6 +255,16 @@ beforeEach(() => {
 });
 
 describe("createSpeaker", () => {
+  it("forwards focus-tool appearance to the speaker laser", async () => {
+    const harness = createHarness();
+    const focusTools = { laser: { color: "#ff4567" } } as const;
+
+    const speaker = await createSpeaker(harness.options({ focusTools }));
+
+    expect(harness.hostProps.focusTools).toBe(focusTools);
+    await speaker.destroy();
+  });
+
   it("waits for the mounted speaker UI before owning navigation and sync", async () => {
     const harness = createHarness({ autoMount: false });
     const runSetup = vi.fn(() => undefined);

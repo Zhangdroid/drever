@@ -27,6 +27,21 @@ export type ViewportPoint = Readonly<{
 export type PresentationFocusTool = "highlighter" | "laser" | "pen";
 export type PresentationInkTool = Exclude<PresentationFocusTool, "laser">;
 
+export type PresentationFocusAppearance = Readonly<{
+  highlighter?: Readonly<{
+    color?: string;
+    opacity?: number;
+    width?: number;
+  }>;
+  laser?: Readonly<{
+    color?: string;
+  }>;
+  pen?: Readonly<{
+    color?: string;
+    width?: number;
+  }>;
+}>;
+
 export type PresentationFocusStroke = Readonly<{
   id: string;
   points: readonly NormalizedCanvasPoint[];

@@ -269,6 +269,20 @@ beforeEach(() => {
 });
 
 describe("createViewer lifecycle", () => {
+  it("forwards focus-tool appearance to the audience host", async () => {
+    const harness = createHarness();
+    const focusTools = {
+      highlighter: { color: "#ffe66d", opacity: 0.28, width: 30 },
+      laser: { color: "#ff4567" },
+      pen: { color: "#8b5cf6", width: 7.5 },
+    } as const;
+
+    const viewer = await createViewer(harness.options({ focusTools }));
+
+    expect(harness.hostProps.focusTools).toBe(focusTools);
+    await viewer.destroy();
+  });
+
   it("waits for the stable StrictMode mount before acquiring browser listeners", async () => {
     const harness = createHarness({ autoMount: false });
     const runSetup = vi.fn(() => undefined);

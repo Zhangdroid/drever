@@ -25,6 +25,27 @@ export type DreverRehearsalConfig = Readonly<{
   targetDurationMinutes?: number;
 }>;
 
+export type DreverFocusPenConfig = Readonly<{
+  color?: string;
+  width?: number;
+}>;
+
+export type DreverFocusHighlighterConfig = Readonly<{
+  color?: string;
+  opacity?: number;
+  width?: number;
+}>;
+
+export type DreverFocusLaserConfig = Readonly<{
+  color?: string;
+}>;
+
+export type DreverFocusToolsConfig = Readonly<{
+  highlighter?: DreverFocusHighlighterConfig;
+  laser?: DreverFocusLaserConfig;
+  pen?: DreverFocusPenConfig;
+}>;
+
 export type DreverStageConfig = Readonly<{
   background?: string;
   foreground?: string;
@@ -40,6 +61,7 @@ export type DreverConfig = Readonly<{
   build?: DreverBuildConfig;
   canvas?: DreverCanvasConfig;
   entry?: string;
+  focusTools?: DreverFocusToolsConfig;
   plugins?: readonly (DreverPlugin | DreverPluginUse)[];
   rehearsal?: DreverRehearsalConfig;
   server?: DreverServerConfig;
@@ -67,6 +89,7 @@ const CONFIG_KEYS = new Set([
   "build",
   "canvas",
   "entry",
+  "focusTools",
   "plugins",
   "rehearsal",
   "server",
@@ -75,6 +98,10 @@ const CONFIG_KEYS = new Set([
 ]);
 const BUILD_KEYS = new Set(["outDir", "sourcemap"]);
 const CANVAS_KEYS = new Set(["height", "width"]);
+const FOCUS_TOOLS_KEYS = new Set(["highlighter", "laser", "pen"]);
+const FOCUS_INK_KEYS = new Set(["color", "width"]);
+const FOCUS_HIGHLIGHTER_KEYS = new Set(["color", "opacity", "width"]);
+const FOCUS_LASER_KEYS = new Set(["color"]);
 const REHEARSAL_KEYS = new Set(["targetDurationMinutes"]);
 const SERVER_KEYS = new Set(["host", "open", "port", "strictPort"]);
 const STAGE_KEYS = new Set(["background", "foreground"]);
@@ -203,6 +230,75 @@ const validateRehearsal = (value: unknown): void => {
   }
 };
 
+const validateFocusColor = (value: unknown, path: string): void => {
+  if (value !== undefined && (typeof value !== "string" || value.trim().length === 0)) {
+    invalidConfig(`${path} must be a non-empty CSS color value.`, path, value);
+  }
+};
+
+const validateFocusWidth = (value: unknown, path: string): void => {
+  if (value !== undefined && !isPositiveFiniteNumber(value)) {
+    invalidConfig(`${path} must be a finite number greater than zero.`, path, value);
+  }
+};
+
+const validateFocusInk = (
+  value: unknown,
+  path: "focusTools.highlighter" | "focusTools.pen",
+): void => {
+  const ink = requireRecord(value, `${path} must be an object.`, path);
+  const keys = path === "focusTools.highlighter" ? FOCUS_HIGHLIGHTER_KEYS : FOCUS_INK_KEYS;
+  const extra = unknownKey(ink, keys);
+  if (extra !== undefined) {
+    invalidConfig(`${path}.${extra} is not a supported option.`, `${path}.${extra}`);
+  }
+  validateFocusColor(ink.color, `${path}.color`);
+  validateFocusWidth(ink.width, `${path}.width`);
+  if (
+    path === "focusTools.highlighter" &&
+    ink.opacity !== undefined &&
+    (typeof ink.opacity !== "number" ||
+      !Number.isFinite(ink.opacity) ||
+      ink.opacity < 0 ||
+      ink.opacity > 1)
+  ) {
+    invalidConfig(
+      "focusTools.highlighter.opacity must be a finite number from zero to one.",
+      "focusTools.highlighter.opacity",
+      ink.opacity,
+    );
+  }
+};
+
+const validateFocusTools = (value: unknown): void => {
+  const tools = requireRecord(value, "focusTools must be an object.", "focusTools");
+  const extra = unknownKey(tools, FOCUS_TOOLS_KEYS);
+  if (extra !== undefined) {
+    invalidConfig(`focusTools.${extra} is not a supported option.`, `focusTools.${extra}`);
+  }
+  if (tools.pen !== undefined) {
+    validateFocusInk(tools.pen, "focusTools.pen");
+  }
+  if (tools.highlighter !== undefined) {
+    validateFocusInk(tools.highlighter, "focusTools.highlighter");
+  }
+  if (tools.laser !== undefined) {
+    const laser = requireRecord(
+      tools.laser,
+      "focusTools.laser must be an object.",
+      "focusTools.laser",
+    );
+    const laserExtra = unknownKey(laser, FOCUS_LASER_KEYS);
+    if (laserExtra !== undefined) {
+      invalidConfig(
+        `focusTools.laser.${laserExtra} is not a supported option.`,
+        `focusTools.laser.${laserExtra}`,
+      );
+    }
+    validateFocusColor(laser.color, "focusTools.laser.color");
+  }
+};
+
 const validateStage = (value: unknown): void => {
   const stage = requireRecord(value, "stage must be an object.", "stage");
   const extra = unknownKey(stage, STAGE_KEYS);
@@ -237,6 +333,9 @@ const validateConfig = (value: unknown): DreverConfig => {
   }
   if (config.build !== undefined) {
     validateBuild(config.build);
+  }
+  if (config.focusTools !== undefined) {
+    validateFocusTools(config.focusTools);
   }
   if (config.rehearsal !== undefined) {
     validateRehearsal(config.rehearsal);
