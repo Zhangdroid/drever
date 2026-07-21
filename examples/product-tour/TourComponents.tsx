@@ -2,22 +2,22 @@ import { useId, useState, type ReactElement } from "react";
 
 const SIGNALS = [
   {
-    id: "example",
-    label: "Show an example",
-    response: "Make it concrete.",
-    guidance: "Reveal one example, right when it can make the idea click.",
+    id: "risk",
+    label: "Show the risk",
+    response: "Name the concern.",
+    guidance: "Start with what could stop the launch before asking for approval.",
   },
   {
     id: "evidence",
     label: "Show the evidence",
     response: "Bring in the proof.",
-    guidance: "Move from claim to evidence without leaving the story.",
+    guidance: "Reveal the pilot result without leaving the decision in front of the room.",
   },
   {
     id: "explore",
     label: "Let me try",
     response: "Hand over control.",
-    guidance: "Let people explore the idea for themselves instead of adding another bullet.",
+    guidance: "Let people inspect the launch experience instead of adding another claim.",
   },
 ] as const;
 
@@ -60,16 +60,16 @@ export const AudienceSignal = (): ReactElement => {
 
 const MOMENTS = [
   {
-    label: "Assumption",
-    detail: "A presentation explains the idea.",
+    label: "Question",
+    detail: "What would make this launch feel safe?",
   },
   {
     label: "Evidence",
-    detail: "This presentation lets the room try it.",
+    detail: "96% of pilot teams completed setup without support.",
   },
   {
     label: "Decision",
-    detail: "The experience becomes the proof.",
+    detail: "Approve the launch pilot for all three teams.",
   },
 ] as const;
 
@@ -91,9 +91,11 @@ export const MotionBoundary = (): ReactElement => {
           aria-atomic="true"
           aria-live="polite"
         >
-          <span className="tour-kicker">Only the changed idea</span>
-          <strong>{activeMoment.label}</strong>
-          <p>{activeMoment.detail}</p>
+          <div className="tour-motion__thought" key={activeMoment.label}>
+            <span className="tour-kicker">Only the changed idea</span>
+            <strong>{activeMoment.label}</strong>
+            <p>{activeMoment.detail}</p>
+          </div>
           <div className="tour-motion__progress" aria-hidden="true">
             {MOMENTS.map((candidate, index) => (
               <span key={candidate.label} data-active={index === moment} />
@@ -107,7 +109,7 @@ export const MotionBoundary = (): ReactElement => {
         onClick={() => setMoment((current) => (current + 1) % MOMENTS.length)}
         type="button"
       >
-        Change the idea
+        Show next moment
       </button>
     </section>
   );

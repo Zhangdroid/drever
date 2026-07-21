@@ -1,21 +1,19 @@
 # Drever product tour
 
-A fourteen-slide, network-free product story for people meeting Drever for the first
-time. It begins with the room, turns one idea into an interactive sequence, and follows
-that story through live delivery, post-talk reading, AI-assisted authoring, and a static
-artifact.
+An eleven-slide, network-free product story for people meeting Drever for the first
+time. It follows one launch decision from an AI-assisted brief through live interaction,
+speaker context, exact-state sharing, and post-meeting reading.
 
 The deck demonstrates:
 
 - the official Editorial theme through its `Masthead` and `Feature` layouts;
-- the MDX, `---`, `Step`, and `Note` authoring contract;
-- default build-time Shiki highlighting and reset-free Tailwind utilities;
-- accumulated Step states, clean path URLs, and canonical link copying;
+- the MDX, `---`, `Step`, and `Note` authoring contract behind a user-facing story;
+- accumulated Step states, clean path URLs, and exact-moment link copying;
 - React interaction whose state survives inactive slides;
-- React-owned motion with a stable stage boundary;
+- content-driven local motion with a stable stage boundary;
 - the searchable, fully revealed `/document` reading view;
-- speaker notes and the `/speaker` rehearsal view with a 20-minute target;
-- the AI-first write, inspect, test, build, and deploy loop.
+- speaker notes, focus tools, and the `/speaker` rehearsal view with a 20-minute target;
+- one editable project projected into audience, speaker, and document surfaces.
 
 All visuals are CSS and local React components. There are no fonts, images,
 analytics, or network requests.
@@ -47,10 +45,11 @@ accessibility report without starting the presentation server.
 
 ## Delivery notes
 
-The story has three acts: the room, the system, and the proof. The third slide contains
-the main audience interaction; change its signal, navigate away, and return to show
-preserved React state. On the seventh slide, use the local control before advancing to
-show motion following the changing idea while the global stage remains calm. Press `D`
-on the ninth slide to turn the post-talk promise into a real document, and press `P` on
-the eighth to open the synchronized speaker surface. Speaker guidance for every slide
-is authored in `<Note>` and intentionally absent from the audience DOM.
+The third slide contains the main audience interaction; change its signal, navigate away,
+and return to show preserved React state. The fourth slide reveals three addressable
+Steps. On the fifth, use the local control to show motion following a changing idea while
+the global stage remains calm. Press `P` on the sixth slide to open the speaker surface,
+or `D` on the eighth to turn the post-meeting promise into a real document. Slides nine
+and ten deliberately spend their entire motion budget on one related headline change;
+the shared project card and brand decoration remain still. Speaker guidance for every
+slide is authored in `<Note>` and intentionally absent from the audience DOM.

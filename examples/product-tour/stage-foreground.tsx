@@ -4,10 +4,10 @@ import type { ReactElement } from "react";
 const page = (value: number): string => String(value).padStart(2, "0");
 
 const chapter = (slideIndex: number): string => {
-  if (slideIndex < 3) return "01 · The room";
-  if (slideIndex < 7) return "02 · The story";
-  if (slideIndex < 10) return "03 · After the room";
-  if (slideIndex < 13) return "04 · One story";
+  if (slideIndex < 2) return "01 · Start";
+  if (slideIndex < 5) return "02 · Direct";
+  if (slideIndex < 8) return "03 · Present & share";
+  if (slideIndex < 10) return "04 · One story";
   return "05 · Begin";
 };
 
@@ -18,7 +18,7 @@ export default function ProductTourForeground({
   const edgeSignal =
     position.slideIndex === 0 || position.slideIndex === manifest.slides.length - 1;
   const storyState =
-    position.slideIndex === 11 ? "source" : position.slideIndex === 12 ? "result" : undefined;
+    position.slideIndex === 8 ? "source" : position.slideIndex === 9 ? "result" : undefined;
 
   return (
     <div
