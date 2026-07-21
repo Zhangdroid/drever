@@ -15,27 +15,32 @@ deck, and review Skill:
 1. **Explain, do not decorate.** Motion must clarify focus, order,
    replacement, comparison, continuity, or a real Stage state change. If it
    does not improve audience understanding, omit it.
-2. **Follow the content and theme.** Direction follows reading order and layout:
+2. **Budget attention, not effects.** Give each moment one primary motion. Add
+   at most one quieter supporting cue, and only when it belongs to the same
+   causal chain. If a headline or core object already carries the change, keep
+   Stage decoration and neighboring cards still. A recurring decorative object
+   does not earn motion merely by recurring.
+3. **Follow the content and theme.** Direction follows reading order and layout:
    vertical stacks progress on the block axis; horizontal pipelines progress
    on the inline axis. The theme supplies the visual voice. A sparse draw-on
    emphasis, short signal travel, or small Stage shift may add quiet contextual
    delight, but it must reinforce the current idea and remain subordinate to
    reading. Repeated generic entrances are not a visual voice.
-3. **Move the smallest meaningful object.** Persistent titles, layout anchors,
+4. **Move the smallest meaningful object.** Persistent titles, layout anchors,
    Stage shells, backgrounds, page numbers, branding, dialogs, and audience
    controls stay live and stationary. Animate only the child whose narrative
    state changed.
-4. **Keep geometry deliberate.** Stable objects need stable size, aspect ratio,
+5. **Keep geometry deliberate.** Stable objects need stable size, aspect ratio,
    typography, wrapping, and media crop. Recurring motifs retain their
    thickness, opacity, paint, orientation, and cross-axis alignment. Animate
    only the axis or property that changed; never stretch text, boxes, lines, or
    shadows to fake continuity. A transition must not create layout shift, title
    drift, scaled glyphs, or a ghost frame.
-5. **Treat painted surfaces as indivisible.** Never hard-clip a card, panel, or
+6. **Treat painted surfaces as indivisible.** Never hard-clip a card, panel, or
    media frame when its shadow, glow, outline, or filter must remain visible.
    Clip an inner content wrapper, or use opacity with translate or scale. Shadow
    endpoints use matching lists and transparent colors, never `none` to opaque.
-6. **Review the journey, not only the endpoints.** Inspect intermediate frames,
+7. **Review the journey, not only the endpoints.** Inspect intermediate frames,
    transition completion, forward and backward navigation, repeated Step
    changes, pointer focus, reduced motion, speaker, document, and export modes.
 
@@ -410,6 +415,8 @@ does not load a JavaScript motion module and there is no separate
 ## Author checklist
 
 - Start with ordinary Steps; add a MotionGroup only for a clear narrative job.
+- Ask: What single object should the audience follow? If the answer names two,
+  remove or sequence one.
 - Keep persistent headings and context outside Step-oriented MotionGroups.
 - Keep shadows, glows, and other overflow effects outside hard clip reveals;
   interpolate matching transparent and opaque shadow lists.
@@ -449,7 +456,11 @@ flow identifies the logical progression axis; the theme owns the visual voice. U
 flow="block" for vertical reading order and flow="inline" for a horizontal
 pipeline or comparison; omit it when the theme default fits. Use continuity
 only for the same object on adjacent slides, give both groups the same unique
-lowercase kebab-case name, and never give continuity a flow. Keep its endpoint
+lowercase kebab-case name, and never give continuity a flow. Give each moment
+one primary motion and at most one quieter supporting cue in the same causal
+chain. When a headline or core object changes, keep Stage decoration and
+neighboring cards still; recurring decoration does not earn motion by recurring.
+Keep its endpoint
 size, aspect ratio, typography, wrapping, and media crop explicit; keep
 changing copy outside the shared snapshot. Keep persistent titles outside Step
 motion groups. Treat cards and media frames as complete painted surfaces: keep

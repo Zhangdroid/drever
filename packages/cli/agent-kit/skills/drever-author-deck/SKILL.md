@@ -13,6 +13,7 @@ description: Author or edit an existing Drever presentation. Use when asked to r
 4. Keep one dominant idea, clear hierarchy, and a unique title on every slide. Prefer semantic Markdown and theme layouts over one-off containers.
 5. Use `Step` for an intentional change in audience understanding, not decoration. Preserve meaningful sparse stops.
 6. Express motion with the `MotionGroup` intents `focus`, `replace`, `compare`, `stagger`, and `continuity`. Motion must explain a narrative state change, follow the content flow, and use the theme's visual voice. A sparse, content-specific draw, signal travel, or Stage shift may add quiet delight; repeated generic entrances may not.
+   Budget one primary motion per moment. Add at most one quieter supporting cue in the same causal chain. If a headline or core object already changes, keep Stage decoration and neighboring cards still; recurring decoration does not earn motion merely by recurring. Ask: What single object should the audience follow? If the answer names two, remove or sequence one.
 7. Keep speaker-only explanation in `Note` and preserve headings, alternatives, captions, focus behavior, and reduced-motion behavior.
 8. Never edit generated files in `dist/` or `.drever/`.
 

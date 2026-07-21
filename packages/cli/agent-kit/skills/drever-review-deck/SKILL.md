@@ -21,6 +21,7 @@ Review for:
 - Stable alignment, deliberate spacing, readable type, sufficient contrast, and no clipping or overflow.
 - Step changes that reveal meaning without moving persistent content.
 - Motion that has a clear narrative job, follows the content flow, fits the theme, uses quiet contextual delight sparingly, avoids repeated generic entrances, and respects reduced motion.
+- One primary motion per moment, with at most one quieter supporting cue in the same causal chain. If a headline or core object changes, Stage decoration and neighboring cards stay still; recurring decoration does not earn motion merely by recurring. Ask: What single object should the audience follow? If the answer names two, remove or sequence one.
 - Stage backgrounds, page information, persistent titles, audience controls, dialogs, and foreground chrome that remain stationary across slide transitions; animate only the smallest changed sub-element.
 - Recurring motifs whose thickness, opacity, paint, orientation, and cross-axis alignment remain invariant; lines and bands should translate along their logical axis or reveal through an inner mask instead of stretching.
 - Cards, panels, and media frames whose required shadows, glows, outlines, and filters are never hard-clipped; shadow endpoints must use matching lists with transparent colors instead of `none`.

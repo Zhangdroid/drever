@@ -280,6 +280,13 @@ short translation before scale. One sparse, content-specific draw or shift may
 provide quiet delight, but it must yield to the primary idea. Avoid blur on text
 and controls.
 
+Budget one primary motion per moment. Add at most one quieter supporting cue,
+and only when it belongs to the same causal chain. If a headline or core object
+already moves, keep Stage decoration and neighboring cards still. A recurring
+decorative object does not earn motion merely by recurring. Ask: What single
+object should the audience follow? If the answer names two, remove or sequence
+one.
+
 | Token      | Duration | Use                                               |
 | ---------- | -------: | ------------------------------------------------- |
 | Instant    |  `120ms` | Hover, press, and small color changes             |
@@ -382,7 +389,9 @@ color fields.
 If a Signal recurs across states, keep its weight, opacity, color treatment,
 orientation, and cross-axis alignment fixed. Translate it along the reading
 axis or reveal its length with an inner mask; never stretch its box. Use at most
-one quiet, content-specific motion surprise and remove it under reduced motion.
+one primary motion per moment and at most one quieter cue in the same causal
+chain. If the headline or core object moves, keep Stage decoration and
+neighboring cards still. Remove all spatial motion under reduced motion.
 
 Use the 4px spacing scale. Prefer square edges; reserve 8/14px radii for
 controls and 20/32px radii for one dominant surface. Use 24px two-stroke icons,
