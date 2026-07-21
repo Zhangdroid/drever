@@ -48,8 +48,11 @@ presentation in [Google Slides][google-present], [PowerPoint Presenter View][pow
 
 The audience surface now includes native fullscreen, black and white pause
 screens, numeric slide entry, Step-aware progress, keyboard help, and a compact
-control bar for pointer and touch users. The speaker view remains the
-authoritative place for persistent progress and notes.
+control bar for pointer and touch users. Its session-local Focus Tools provide
+a transient laser plus pen and highlighter strokes with Undo and Clear. Ink
+survives Step changes on the current slide, clears on slide changes, and renders
+outside the deck View Transition. The speaker view remains the authoritative
+place for persistent progress and notes.
 
 Use current platform APIs directly. Drever does not need compatibility fallbacks
 for legacy browsers.
@@ -189,7 +192,7 @@ comparison.
 
 ## P2 — optional enhancements and integrations
 
-- ephemeral laser pointer, pen, and highlighter, with opt-in persistence;
+- saved annotations and cross-device presenter pointers;
 - authored timings and automatic playback for kiosks and demos;
 - microphone-powered live captions with explicit permission, privacy, and
   language errors. Google documents browser-powered captions in current Chrome,

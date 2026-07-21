@@ -31,13 +31,25 @@ Its Copy link control writes the canonical URL for the committed slide and Step
 while preserving query and hash state. It requires the Clipboard API in a
 secure context and reports a clear error instead of using a legacy fallback.
 
-`createSpeaker` adds current/next previews, compiled notes, rehearsal controls,
-and `BroadcastChannel` position synchronization with audience windows. Its
-session-local clock reports total and current-slide time plus accumulated time
-and visit counts per slide. The speaker can pause, resume, reset, and edit or
-clear an optional target. Timings and target edits are not persisted or
-broadcast, and transition readiness is not yet a remote contract. The audience
-runtime opens the equivalent speaker path when the user presses `P`.
+The audience command bar also opens Focus Tools for pointer, touch, and stylus
+input. Press `L` to toggle the laser, or choose Pen or Highlighter from the
+toolbar; completed ink can be undone or cleared. Ink remains visible across
+Step changes on the same slide and clears when the slide changes. The laser is
+transient. The overlay is mounted inside `.drever-canvas`, above the Stage but
+outside `.drever-deck`, so it never enters the deck-scoped View Transition. Themes can customize its
+colors, widths, and highlighter opacity with the documented
+`--drever-focus-*` CSS variables.
+
+`createSpeaker` adds current/next previews, compiled notes, a searchable slide
+navigator, rehearsal controls, and `BroadcastChannel` position synchronization
+with audience windows. Its session-local clock reports total and current-slide
+time plus accumulated time and visit counts per slide. The speaker can pause,
+resume, reset, and edit or clear an optional target. When a target exists,
+Drever assigns it across the deck's exact Slide and Step states and reports
+whether the current rehearsal is ahead, on pace, or behind that state's time
+window. Timings and target edits are not persisted or broadcast, and transition
+readiness is not yet a remote contract. The audience runtime opens the
+equivalent speaker path when the user presses `P`.
 
 `createExport` renders one raw canvas-sized page per slide at its final Step by
 default. Pass `includeSteps: true` to include Step 0 and every exact authored

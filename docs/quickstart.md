@@ -376,6 +376,11 @@ components are covered in [Extension authoring](./extensions.md).
 - Direct slide jump: type a slide number, then press `Enter`.
 - Fullscreen: `F`. Pause on a blank black or white screen with `B` or `W`;
   press the same key, `Escape`, or select the screen to return.
+- Focus Tools: press `L` to toggle the laser, or open the toolbar to select Pen
+  or Highlighter, undo the latest stroke, or clear every mark. Mouse, touch,
+  and stylus input use the same canvas overlay. Ink survives Step changes on
+  the current slide and clears when the slide changes; the laser is transient.
+  Press `Escape` to close the tools.
 - Keyboard help: `?`.
 - Copy link: use the audience command bar to copy the canonical URL for the
   current slide and exact Step.
@@ -383,10 +388,11 @@ components are covered in [Extension authoring](./extensions.md).
   the current slide.
 - Speaker view: press `P` from the audience to open the same slide and Step in a
   new speaker window.
-- Pointer and touch users can navigate, open the slide navigator, document or
-  speaker view, and enter fullscreen from the compact audience control bar. The
-  bar is rendered outside the slide canvas, so it is never captured by slide
-  View Transitions.
+- Pointer and touch users can navigate, use Focus Tools, open the slide
+  navigator, document or speaker view, and enter fullscreen from the compact
+  audience control bar. The bar is rendered outside the slide canvas, so it is
+  never captured by slide View Transitions. The Focus Tools overlay is inside
+  the canvas but outside the transitioning deck.
 - Audience navigation does not capture input or interactive controls. In speaker
   chrome, Arrow/Page/Home/End continue to work after a control receives focus;
   Space and Enter retain the focused button's native behavior, and the focused

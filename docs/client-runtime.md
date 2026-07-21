@@ -224,8 +224,10 @@ audience and speaker entries.
 ## Speaker surface and synchronization
 
 The speaker view shows the current state, the exact state reached by the next
-navigation command, compiled speaker notes, a rehearsal workspace, and
-previous/next controls. “Next” is manifest-driven: for sparse stops
+navigation command, compiled speaker notes, a searchable slide navigator, a
+rehearsal workspace, and previous/next controls. The navigator uses compiled
+titles and numbers and sends its selection through the same `goTo` command as
+every other presentation control. “Next” is manifest-driven: for sparse stops
 `0 -> 2 -> 5`, the preview advances through 2 and 5 rather than guessing
 consecutive numbers.
 
@@ -243,6 +245,14 @@ Clock state, per-slide measurements, visits, and runtime target edits are not
 persisted or broadcast. The existing channel synchronizes committed
 presentation positions only; no audience or remote transition-readiness signal
 is claimed in this release.
+
+When a target exists, the workspace divides it evenly across every exact
+presentation state: Step 0 plus each authored sparse Step stop. The elapsed time
+is ahead before the current state's window, on pace within that window, and
+behind after it. A two-percent tolerance capped at 30 seconds prevents a status
+from oscillating at a boundary. This is a simple rehearsal guide rather than an
+authored per-slide timing model; moving backward naturally makes the status
+reflect the time already spent.
 
 Current and next previews are separate MDX render trees. Interactive components
 can call `useDreverRenderMode()` from `@drever/core`; it returns `audience`,
@@ -314,6 +324,7 @@ components.
 | Copy current-state URL | Audience command bar                     |
 | Document view          | `D` from the audience                    |
 | Speaker view           | `P` from the audience                    |
+| Toggle laser pointer   | `L`                                      |
 | Fullscreen             | `F`                                      |
 | Black / white pause    | `B` / `W`; repeat or `Escape` to dismiss |
 | Keyboard help          | `?`                                      |
@@ -335,6 +346,32 @@ views, fullscreen, and keyboard help to pointer and touch users. It is a live
 sibling of the canvas rather than slide content. The element-scoped transition
 captures only the deck, so command-bar hover, focus, and state never hand off
 through transition snapshots.
+
+### Audience Focus Tools
+
+Open **Focus Tools** from the command bar or press `L` to toggle the laser.
+The toolbar provides Laser, Pen, Highlighter, Undo, Clear, and Close; `Escape`
+also closes it. Pointer Events give mouse, touch, and stylus input the same
+canvas-relative coordinate model. The laser exists only while pointing. Pen
+and highlighter strokes remain across Step changes on the current slide so a
+reveal does not erase the presenter's context; changing slides clears them.
+Undo removes the latest stroke and Clear removes every mark on that slide.
+These marks are session-local presentation state, not authored deck content.
+
+The SVG overlay is mounted inside `.drever-canvas`, above the Stage and outside
+`.drever-deck`. It therefore remains live and stationary while the deck owns
+its scoped View Transition, like the command bar and persistent Stage layers. Themes or
+project styles can customize the overlay without replacing its interaction
+model:
+
+| CSS variable                         | Default   | Purpose             |
+| ------------------------------------ | --------- | ------------------- |
+| `--drever-focus-pen-color`           | `#ff4f8b` | Pen color           |
+| `--drever-focus-pen-width`           | `8px`     | Pen width           |
+| `--drever-focus-highlighter-color`   | `#d5ff3f` | Highlighter color   |
+| `--drever-focus-highlighter-width`   | `34px`    | Highlighter width   |
+| `--drever-focus-highlighter-opacity` | `0.32`    | Highlighter opacity |
+| `--drever-focus-laser-color`         | `#ff2e6f` | Laser color         |
 
 On fine-pointer displays, the command bar leaves the interaction surface after
 1.8 seconds without pointer activity and returns on movement or focus. Coarse

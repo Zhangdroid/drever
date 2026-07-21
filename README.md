@@ -69,7 +69,8 @@ The runnable vertical slice includes:
   branding, and page information outside per-slide transition snapshots;
 - an accessible audience command bar with progress, fullscreen, searchable
   slide navigation, direct jumps, canonical link copying, and black/white pause
-  screens;
+  screens, plus laser, pen, and highlighter Focus Tools outside slide
+  transitions;
 - a searchable `/document` reading surface with every Step revealed, a table of
   contents, and one named landmark per slide;
 - a speaker view with current/next previews, notes, a session-local rehearsal
