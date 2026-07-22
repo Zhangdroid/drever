@@ -1,0 +1,19 @@
+{
+  "name": "drever",
+  "owner": {
+    "name": "DREVER"
+  },
+  "plugins": [
+    {
+      "name": "drever",
+      "source": "./plugins/drever",
+      "description": "Create, refine, validate, and deliver AI-first Drever presentations.",
+      "version": "0.0.0",
+      "author": {
+        "name": "DREVER"
+      },
+      "category": "Productivity",
+      "tags": ["ai", "mdx", "presentations", "slides"]
+    }
+  ]
+}

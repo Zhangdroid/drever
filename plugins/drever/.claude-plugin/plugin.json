@@ -1,0 +1,16 @@
+{
+  "name": "drever",
+  "version": "0.0.0",
+  "description": "Create, refine, validate, and deliver AI-first Drever presentations.",
+  "author": {
+    "name": "DREVER"
+  },
+  "license": "MIT",
+  "keywords": [
+    "ai",
+    "mdx",
+    "presentations",
+    "slides"
+  ],
+  "skills": "./skills/"
+}

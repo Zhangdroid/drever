@@ -1,0 +1,34 @@
+{
+  "name": "drever",
+  "version": "0.0.0",
+  "description": "Create, refine, validate, and deliver AI-first Drever presentations.",
+  "author": {
+    "name": "DREVER"
+  },
+  "license": "MIT",
+  "keywords": [
+    "ai",
+    "mdx",
+    "presentations",
+    "slides"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Drever",
+    "shortDescription": "Create and deliver AI-first presentations",
+    "longDescription": "Turn a brief into a clear, visual Drever presentation, review every addressable state, and deliver a verified website or PDF.",
+    "developerName": "DREVER",
+    "category": "Productivity",
+    "capabilities": [
+      "Create",
+      "Review",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Create a presentation from this brief and deliver a PDF.",
+      "Turn these notes into a clear, visual Drever deck.",
+      "Review this presentation and make it ready to present."
+    ],
+    "brandColor": "#5B45D8"
+  }
+}

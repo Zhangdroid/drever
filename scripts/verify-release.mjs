@@ -7,22 +7,27 @@ import { promisify } from "node:util";
 
 const execute = promisify(execFile);
 const root = fileURLToPath(new URL("../", import.meta.url));
-const packagesRoot = join(root, "packages");
+const packageRoots = [join(root, "packages"), join(root, "plugins")];
 
 const fail = (message) => {
   throw new Error(`Release verification failed: ${message}`);
 };
 
 const readJson = async (path) => JSON.parse(await readFile(path, "utf8"));
-const directories = await readdir(packagesRoot, { withFileTypes: true });
-const packages = await Promise.all(
-  directories
-    .filter((entry) => entry.isDirectory())
-    .map(async (entry) => ({
-      directory: join(packagesRoot, entry.name),
-      manifest: await readJson(join(packagesRoot, entry.name, "package.json")),
-    })),
-);
+const packages = (
+  await Promise.all(
+    packageRoots.map(async (packageRoot) =>
+      Promise.all(
+        (await readdir(packageRoot, { withFileTypes: true }))
+          .filter((entry) => entry.isDirectory())
+          .map(async (entry) => ({
+            directory: join(packageRoot, entry.name),
+            manifest: await readJson(join(packageRoot, entry.name, "package.json")),
+          })),
+      ),
+    ),
+  )
+).flat();
 const publicPackages = packages.filter(({ manifest }) => manifest.private !== true);
 const versions = new Set(publicPackages.map(({ manifest }) => manifest.version));
 
@@ -47,6 +52,23 @@ const packageByName = (name) => {
   }
   return value;
 };
+
+const agentPackage = packageByName("@drever/agent");
+const [codexPlugin, claudePlugin, claudeMarketplace] = await Promise.all([
+  readJson(join(agentPackage.directory, ".codex-plugin", "plugin.json")),
+  readJson(join(agentPackage.directory, ".claude-plugin", "plugin.json")),
+  readJson(join(root, ".claude-plugin", "marketplace.json")),
+]);
+const claudeMarketplacePlugin = claudeMarketplace.plugins?.find(({ name }) => name === "drever");
+for (const [label, manifest] of [
+  ["Codex plugin", codexPlugin],
+  ["Claude plugin", claudePlugin],
+  ["Claude marketplace", claudeMarketplacePlugin],
+]) {
+  if (manifest?.version !== agentPackage.manifest.version) {
+    fail(`${label} version must match @drever/agent.`);
+  }
+}
 
 const npmCache = await mkdtemp(join(tmpdir(), "drever-npm-cache-"));
 const verifyPackedFiles = async (name, requiredFiles) => {
@@ -73,6 +95,14 @@ try {
     "dist/create.mjs",
   ]);
   await verifyPackedFiles("create-drever", ["README.md", "dist/bin.mjs"]);
+  await verifyPackedFiles("@drever/agent", [
+    ".claude-plugin/plugin.json",
+    ".codex-plugin/plugin.json",
+    "skills/drever-author-deck/SKILL.md",
+    "skills/drever-create-deck/SKILL.md",
+    "skills/drever-deliver-deck/SKILL.md",
+    "skills/drever-review-deck/SKILL.md",
+  ]);
 } finally {
   await rm(npmCache, { force: true, recursive: true });
 }

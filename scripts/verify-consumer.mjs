@@ -7,7 +7,7 @@ import { promisify } from "node:util";
 
 const execute = promisify(execFile);
 const root = fileURLToPath(new URL("../", import.meta.url));
-const packagesRoot = join(root, "packages");
+const packageRoots = [join(root, "packages"), join(root, "plugins")];
 const temporaryRoot = await realpath(await mkdtemp(join(tmpdir(), "drever-consumer-")));
 const packsRoot = join(temporaryRoot, "packs");
 const consumerRoot = join(temporaryRoot, "consumer");
@@ -24,16 +24,20 @@ const run = (command, arguments_, cwd, timeout = 120_000) =>
 const readJson = async (path) => JSON.parse(await readFile(path, "utf8"));
 const publicPackages = (
   await Promise.all(
-    (
-      await readdir(packagesRoot, { withFileTypes: true })
-    )
-      .filter((entry) => entry.isDirectory())
-      .map(async (entry) => ({
-        directory: join(packagesRoot, entry.name),
-        manifest: await readJson(join(packagesRoot, entry.name, "package.json")),
-      })),
+    packageRoots.map(async (packageRoot) =>
+      Promise.all(
+        (await readdir(packageRoot, { withFileTypes: true }))
+          .filter((entry) => entry.isDirectory())
+          .map(async (entry) => ({
+            directory: join(packageRoot, entry.name),
+            manifest: await readJson(join(packageRoot, entry.name, "package.json")),
+          })),
+      ),
+    ),
   )
-).filter(({ manifest }) => manifest.private !== true);
+)
+  .flat()
+  .filter(({ manifest }) => manifest.private !== true);
 
 try {
   await mkdir(packsRoot, { recursive: true });
@@ -60,6 +64,7 @@ try {
         version: "0.0.0",
         type: "module",
         dependencies: {
+          "@drever/agent": overrides["@drever/agent"],
           "create-drever": overrides["create-drever"],
           drever: overrides.drever,
         },
@@ -87,6 +92,24 @@ try {
 
   const createCli = join(consumerRoot, "node_modules", "create-drever", "dist", "bin.mjs");
   const dreverCli = join(consumerRoot, "node_modules", "drever", "dist", "bin.mjs");
+  const agentPlugin = join(consumerRoot, "node_modules", "@drever", "agent");
+  const [codexPlugin, claudePlugin, canonicalSkill, packagedSkill] = await Promise.all([
+    readJson(join(agentPlugin, ".codex-plugin", "plugin.json")),
+    readJson(join(agentPlugin, ".claude-plugin", "plugin.json")),
+    readFile(
+      join(root, "packages", "cli", "agent-kit", "skills", "drever-create-deck", "SKILL.md"),
+      "utf8",
+    ),
+    readFile(join(agentPlugin, "skills", "drever-create-deck", "SKILL.md"), "utf8"),
+  ]);
+  if (
+    codexPlugin.name !== "drever" ||
+    claudePlugin.name !== "drever" ||
+    codexPlugin.version !== claudePlugin.version ||
+    canonicalSkill !== packagedSkill
+  ) {
+    throw new Error("The packed @drever/agent plugin is incomplete or out of sync.");
+  }
   const created = await run(
     process.execPath,
     [createCli, "customer-story", "--no-install", "--json"],

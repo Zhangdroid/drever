@@ -1,0 +1,27 @@
+{
+  "name": "@drever/agent",
+  "version": "0.0.0",
+  "description": "Installable Drever presentation workflows for Codex and Claude Code.",
+  "license": "MIT",
+  "files": [
+    ".claude-plugin",
+    ".codex-plugin",
+    "README.md",
+    "skills"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "node scripts/sync-plugin.mjs --check",
+    "check": "node scripts/sync-plugin.mjs --check",
+    "prepack": "node scripts/sync-plugin.mjs --check",
+    "sync": "node scripts/sync-plugin.mjs --write",
+    "test": "node --test scripts/sync-plugin.test.mjs"
+  },
+  "engines": {
+    "node": ">=24.18.0"
+  }
+}
