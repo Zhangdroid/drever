@@ -1,0 +1,268 @@
+import { FeatureLab, ShowcaseNav } from "./FeatureLab.tsx";
+import "@drever/brand/fonts.css";
+import "@drever/brand/tokens.css";
+import "./gallery.css";
+
+<Statement
+  eyebrow="Drever / feature gallery"
+  index="01"
+  title="Use the right medium for every idea."
+  supporting="Readable writing, live interfaces, precise motion, and durable delivery—inside one presentation project."
+  tone="signal"
+/>
+
+<Note>
+  This gallery is executable documentation. Every capability shown here is rendered by the same
+  public plugins, components, and runtime that a Drever project uses.
+</Note>
+
+---
+
+## Write the story. Keep the behavior.
+
+<p>MDX stays readable while React handles the moments that need to respond.</p>
+
+<div className="gallery-source-grid">
+  <section className="gallery-code-panel" aria-label="Readable MDX source">
+    <span>slides.mdx</span>
+
+```mdx
+## Ask the room.
+
+Choose what would help you decide.
+
+<AudienceSignal />
+
+<Step>Reveal the proof.</Step>
+```
+
+  </section>
+  <section className="gallery-rendered-card" aria-label="Rendered presentation result">
+    <span>Rendered output</span>
+    <strong>Ask the room.</strong>
+    <p>Choose what would help you decide.</p>
+    <span className="gallery-rendered-action">Show the evidence</span>
+  </section>
+</div>
+
+<Note>
+  The source remains useful to a person, an AI authoring agent, code review, and version control.
+  Components appear only where prose is no longer the best medium.
+</Note>
+
+---
+
+## A formula should remain a formula.
+
+<p>LaTeX is opt-in, compiled to accessible HTML and MathML, and ships no KaTeX JavaScript.</p>
+
+$$
+A_t = S_t \div (N_t + 1)
+$$
+
+<dl className="gallery-math-details" aria-label="Build-time LaTeX pipeline">
+  <div>
+    <dt>Author</dt>
+    <dd>Readable LaTeX</dd>
+  </div>
+  <div>
+    <dt>Build</dt>
+    <dd>HTML + MathML</dd>
+  </div>
+  <div>
+    <dt>Runtime</dt>
+    <dd>Zero math JavaScript</dd>
+  </div>
+</dl>
+
+<Note>
+  This equation is real output from the official Math plugin. The browser receives semantic markup,
+  not a screenshot and not a client-side typesetting task.
+</Note>
+
+---
+
+## Code arrives ready to discuss.
+
+<p>Shiki runs during compilation, keeps language semantics, and emits no highlighter runtime.</p>
+
+<div className="gallery-shiki">
+  <div className="gallery-shiki__code">
+
+```ts
+export default defineConfig({
+  plugins: [math()],
+  theme: studioTheme,
+  rehearsal: { targetDurationMinutes: 12 },
+});
+```
+
+  </div>
+  <ol aria-label="Syntax highlighting contract">
+    <li><span>01</span><strong>Build-time tokens</strong></li>
+    <li><span>02</span><strong>Dual-theme output</strong></li>
+    <li><span>03</span><strong>No client runtime</strong></li>
+  </ol>
+</div>
+
+<Note>
+  The code is intentionally large enough to discuss. Highlighting is evidence, not decoration, and
+  the slide does not imitate an editor chrome it does not need.
+</Note>
+
+---
+
+## Compose quickly without surrendering the theme.
+
+<p>
+  Tailwind v4 is available by default. Utilities compose the artifact; Drever keeps typography and
+  reset ownership.
+</p>
+
+<div className="grid grid-cols-3 gap-5" data-testid="tailwind-gallery">
+  <article className="min-h-64 rounded-2xl border border-white/15 bg-white/5 p-7">
+    <span className="text-sm font-bold tracking-widest text-lime-300 uppercase">Signal</span>
+    <h3 className="mt-16 text-3xl font-semibold text-white">Current decision</h3>
+    <p className="mt-3 text-lg text-white/65">
+      Use utilities where they make the composition clearer.
+    </p>
+  </article>
+  <article className="min-h-64 rounded-2xl border border-white/15 bg-white/5 p-7">
+    <span className="text-sm font-bold tracking-widest text-teal-200 uppercase">Theme</span>
+    <h3 className="mt-16 text-3xl font-semibold text-white">Visual baseline</h3>
+    <p className="mt-3 text-lg text-white/65">No Preflight replaces the deck's design language.</p>
+  </article>
+  <article className="min-h-64 rounded-2xl border border-white/15 bg-white/5 p-7">
+    <span className="text-sm font-bold tracking-widest text-violet-300 uppercase">Source</span>
+    <h3 className="mt-16 text-3xl font-semibold text-white">Detected locally</h3>
+    <p className="mt-3 text-lg text-white/65">The generated stylesheet scans only this project.</p>
+  </article>
+</div>
+
+<Note>
+  These cards use real Tailwind utilities. Drever deliberately omits Preflight so enabling a plugin
+  cannot silently replace the selected theme's typography or semantic defaults.
+</Note>
+
+---
+
+## Let the audience change what matters.
+
+<p>
+  Ordinary React state can direct a local moment without turning every slide into an application.
+</p>
+
+<FeatureLab />
+
+<Note>
+  Select each direction. The stable frame stays still while only the result changes. This is the
+  boundary Drever encourages: interaction where it improves the conversation, prose everywhere else.
+</Note>
+
+---
+
+## Every reveal is a real presentation state.
+
+<p>
+  Steps are deliberate, addressable, reversible, and available to speaker, document, and export
+  surfaces.
+</p>
+
+<MotionGroup className="gallery-step-flow" flow="inline" intent="stagger">
+  <Step at={1}>
+    <article>
+      <span>01</span>
+      <strong>Frame the question</strong>
+      <code>/7/1</code>
+    </article>
+  </Step>
+  <Step at={2}>
+    <article>
+      <span>02</span>
+      <strong>Reveal the evidence</strong>
+      <code>/7/2</code>
+    </article>
+  </Step>
+  <Step at={3}>
+    <article>
+      <span>03</span>
+      <strong>Make the decision</strong>
+      <code>/7/3</code>
+    </article>
+  </Step>
+</MotionGroup>
+
+<Note>
+  Advance three times and then navigate backward. Each stop has a canonical path, so the presenter
+  can rehearse it, share it, restore it, and test it without replaying a timer.
+</Note>
+
+---
+
+## One story. Every useful surface.
+
+<p>The authored project remains useful before, during, and after the room meets.</p>
+
+<section className="gallery-surfaces" aria-label="Drever presentation surfaces">
+  <article>
+    <span>Audience</span>
+    <strong>Present live</strong>
+    <p>Exact routes, Steps, interaction, and focus tools.</p>
+  </article>
+  <article>
+    <span>Speaker</span>
+    <strong>Direct privately</strong>
+    <p>Next view, notes, timing, Laser, Pen, and Highlighter.</p>
+  </article>
+  <article>
+    <span>Document</span>
+    <strong>Read and search</strong>
+    <p>Every reveal in order without replaying the talk.</p>
+  </article>
+  <article>
+    <span>Delivery</span>
+    <strong>Build and export</strong>
+    <p>Static hosting and deterministic PDF output.</p>
+  </article>
+</section>
+
+<Note>
+  Press P to open Speaker View or D to open Document View. The same source powers every surface,
+  which keeps the presentation deliverable, testable, and deployable.
+</Note>
+
+---
+
+## Start complete. Extend on purpose.
+
+<p>Popular capabilities are ready by default; specialized behavior stays explicit and typed.</p>
+
+<section className="gallery-capabilities" aria-label="Plugin and extension model">
+  <div>
+    <span>Default</span>
+    <strong>Shiki · Tailwind CSS</strong>
+    <small>Build-time, configurable, removable</small>
+  </div>
+  <div>
+    <span>Opt in</span>
+    <strong>LaTeX / KaTeX</strong>
+    <small>Semantic math with no runtime script</small>
+  </div>
+  <div>
+    <span>Author</span>
+    <strong>React components</strong>
+    <small>Local interaction and custom media</small>
+  </div>
+  <div>
+    <span>Extend</span>
+    <strong>Your plugin</strong>
+    <small>Vite, Remark, Rehype, and MDX components</small>
+  </div>
+</section>
+
+<ShowcaseNav />
+
+<Note>
+  Close by making the boundary clear: Drever includes the common authoring path, keeps specialized
+  plugins explicit, and exposes a typed extension API instead of making users configure Vite.
+</Note>

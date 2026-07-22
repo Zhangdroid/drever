@@ -99,15 +99,19 @@ build, and PDF export are usable now. See the
 
 ## Explore the repository demos
 
-The repository includes four complete Drever projects. Three showcase decks are
+The repository includes five complete Drever projects. Four showcase decks are
 also reference consumers for the official Editorial and Studio themes.
 
-| Demo             | Story                                                     | Theme     | Command                    |
-| ---------------- | --------------------------------------------------------- | --------- | -------------------------- |
-| `basic`          | Compact authoring and runtime contract                    | Default   | `vp run demo`              |
-| `product-tour`   | Product story, interaction showcase, and motion reference | Editorial | `vp run demo:product`      |
-| `architecture`   | Deck IR, compilation, routing, extensions, and delivery   | Studio    | `vp run demo:architecture` |
-| `motion-recipes` | Stable shared-shell, text, and media geometry recipes     | Editorial | `vp run demo:motion`       |
+| Demo              | Story                                                     | Theme     | Command                    |
+| ----------------- | --------------------------------------------------------- | --------- | -------------------------- |
+| `basic`           | Compact authoring and runtime contract                    | Default   | `vp run demo`              |
+| `product-tour`    | Product story, interaction showcase, and motion reference | Editorial | `vp run demo:product`      |
+| `architecture`    | Deck IR, compilation, routing, extensions, and delivery   | Studio    | `vp run demo:architecture` |
+| `motion-recipes`  | Stable shared-shell, text, and media geometry recipes     | Editorial | `vp run demo:motion`       |
+| `feature-gallery` | Live MDX, React, plugin, Step, and delivery capabilities  | Studio    | `vp run demo:features`     |
+
+Run `vp run demo:showcases` to keep Product Tour, Feature Gallery, and Motion Recipes
+available together so their cross-deck links stay live.
 
 ```bash
 vp install
@@ -135,10 +139,11 @@ Open <http://localhost:4317/document> for a scrollable, browser-searchable
 reading view with every Step revealed. Press `D` from the audience to open it at
 the current slide.
 
-The showcase decks run on ports `4320`, `4321`, and `4322`. Their document and
-speaker views are available at `/document` and `/speaker`, and all are exercised
-by the production Chromium suite. See the [example catalog](./examples/README.md)
-for the complete commands.
+The showcase decks run on ports `4320`, `4321`, `4322`, and `4324`. Their document and
+speaker views are available at `/document` and `/speaker`. Core interaction and motion
+paths are exercised by the production Chromium suite, while every deck owns independent
+preflight and build commands. See the [example catalog](./examples/README.md) for the
+complete commands.
 
 ## Official themes
 

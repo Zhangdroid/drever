@@ -1,11 +1,13 @@
 import coastline from "./assets/coastline.svg";
+import "@drever/brand/fonts.css";
+import "@drever/brand/tokens.css";
 import "./motion.css";
 
 <Masthead
   kicker="Drever / motion field notes"
   title="Stable motion starts before the animation."
-  deck="Three small geometry contracts for shared shells, persistent text, and responsive media."
-  meta="Forward, backward, and reduced-motion by design"
+  deck="Geometry makes continuity stable. Intent makes every other movement worth the attention."
+  meta="Continuity · focus · replace · compare · stagger"
   tone="ink"
 />
 
@@ -294,6 +296,277 @@ import "./motion.css";
 </div>
 
 <Note>
-  Close by separating continuity from spectacle. A stable shared element has one identity and two
-  well-defined endpoint boxes. Everything else can arrive as ordinary content.
+  Close the continuity chapter by separating identity from spectacle. A stable shared element has
+  one identity and two well-defined endpoint boxes. The next chapter chooses motion from narrative
+  intent rather than visual novelty.
+</Note>
+
+---
+
+<section className="intent-map" aria-label="Motion has five jobs.">
+  <header className="recipe-heading">
+    <span>Semantic motion</span>
+    <h2>Motion has five jobs.</h2>
+    <p>Choose the audience relationship first. The theme can then choreograph it consistently.</p>
+  </header>
+
+  <div className="intent-map__grid" aria-label="Drever motion intents">
+    <article>
+      <span>Continuity</span>
+      <strong>Carry identity</strong>
+      <p>The same object changes place.</p>
+    </article>
+    <article>
+      <span>Focus</span>
+      <strong>Guide attention</strong>
+      <p>Context remains; priority changes.</p>
+    </article>
+    <article>
+      <span>Replace</span>
+      <strong>Revise one frame</strong>
+      <p>One thought becomes another.</p>
+    </article>
+    <article>
+      <span>Compare</span>
+      <strong>Keep both visible</strong>
+      <p>New evidence joins its peer.</p>
+    </article>
+    <article>
+      <span>Stagger</span>
+      <strong>Explain one chain</strong>
+      <p>Related parts follow reading order.</p>
+    </article>
+  </div>
+</section>
+
+<Note>
+  This is the decision table for the remaining recipes. MotionGroup does not name visual effects; it
+  names the relationship the audience needs to understand. Use ordinary content when none of these
+  jobs applies.
+</Note>
+
+---
+
+<section className="intent-recipe intent-recipe--focus" aria-label="Keep the argument. Move the attention.">
+  <header className="recipe-heading">
+    <span>Recipe 04 · focus</span>
+    <h2>Keep the argument. Move the attention.</h2>
+    <p>Advance through the stack. Earlier decisions remain readable while the current one becomes unmistakable.</p>
+  </header>
+
+  <MotionGroup className="focus-stack" flow="block" intent="focus">
+    <Step at={1}>
+      <article>
+        <span>01 · Frame</span>
+        <strong>Name the decision.</strong>
+        <p>Give the room one question to resolve.</p>
+      </article>
+    </Step>
+    <Step at={2}>
+      <article>
+        <span>02 · Ask</span>
+        <strong>Hear the concern.</strong>
+        <p>Keep the first point while priority moves.</p>
+      </article>
+    </Step>
+    <Step at={3}>
+      <article>
+        <span>03 · Decide</span>
+        <strong>Commit the next move.</strong>
+        <p>Accumulated context supports the conclusion.</p>
+      </article>
+    </Step>
+  </MotionGroup>
+</section>
+
+<Note>
+  Advance three times. Focus is not a carousel: completed points stay visible and in reading order.
+  Use it for a live argument whose context still matters, not for unrelated cards entering one by
+  one.
+</Note>
+
+---
+
+<section className="intent-recipe intent-recipe--replace" aria-label="Let one thought change in place.">
+  <header className="recipe-heading">
+    <span>Recipe 05 · replace</span>
+    <h2>Let one thought change in place.</h2>
+    <p>Three addressable states share one fixed frame. The audience follows the revision, not the layout.</p>
+  </header>
+
+  <div className="replace-stage">
+    <MotionGroup className="replace-frame" flow="inline" intent="replace">
+      <Step at={1}>
+        <article data-moment="question">
+          <span>Question</span>
+          <strong>What would make this launch feel safe?</strong>
+          <p>Begin with the uncertainty already in the room.</p>
+        </article>
+      </Step>
+      <Step at={2}>
+        <article data-moment="evidence">
+          <span>Evidence</span>
+          <strong>96% completed setup without support.</strong>
+          <p>Replace the question only when proof can change the decision.</p>
+        </article>
+      </Step>
+      <Step at={3}>
+        <article data-moment="decision">
+          <span>Decision</span>
+          <strong>Approve the three-team pilot.</strong>
+          <p>The same frame now holds the conclusion.</p>
+        </article>
+      </Step>
+    </MotionGroup>
+    <footer>
+      <span>One frame</span>
+      <span>Three exact URLs</span>
+      <span>No layout shift</span>
+    </footer>
+  </div>
+</section>
+
+<Note>
+  Advance through question, evidence, and decision. Replace reserves the largest authored state, so
+  the frame does not jump as the copy changes. Document View expands all three states in order.
+</Note>
+
+---
+
+<section className="intent-recipe intent-recipe--compare" aria-label="Add evidence without erasing its contrast.">
+  <header className="recipe-heading">
+    <span>Recipe 06 · compare</span>
+    <h2>Add evidence without erasing its contrast.</h2>
+    <p>Advance twice. The second artifact joins the first because the relationship requires both.</p>
+  </header>
+
+  <MotionGroup className="compare-pair" flow="inline" intent="compare">
+    <Step at={1}>
+      <article>
+        <span>Frozen export</span>
+        <strong>A page remembers only its pixels.</strong>
+        <p>The reveal, interaction, and exact audience moment disappear.</p>
+        <small>Snapshot</small>
+      </article>
+    </Step>
+    <Step at={2}>
+      <article>
+        <span>Addressable story</span>
+        <strong>A state can be reopened.</strong>
+        <p>The URL returns to the slide and reveal that changed the room.</p>
+        <small>Live state</small>
+      </article>
+    </Step>
+  </MotionGroup>
+</section>
+
+<Note>
+  Compare keeps both artifacts visible and accessible. If the old state should disappear, use
+  replace instead. Direction follows the inline reading order because the evidence belongs
+  side-by-side.
+</Note>
+
+---
+
+<section className="intent-recipe intent-recipe--stagger" aria-label="One beat can still have an order.">
+  <header className="recipe-heading">
+    <span>Recipe 07 · stagger</span>
+    <h2>One beat can still have an order.</h2>
+    <p>Advance once. Four connected parts arrive as one idea, following the direction in which they are read.</p>
+  </header>
+
+  <Step at={1}>
+    <MotionGroup className="stagger-pipeline" flow="inline" intent="stagger">
+      <article>
+        <span>01</span>
+        <strong>Brief</strong>
+        <p>Name the audience and decision.</p>
+      </article>
+      <article>
+        <span>02</span>
+        <strong>Draft</strong>
+        <p>Shape one coherent story.</p>
+      </article>
+      <article>
+        <span>03</span>
+        <strong>Rehearse</strong>
+        <p>Test every meaningful state.</p>
+      </article>
+      <article>
+        <span>04</span>
+        <strong>Deliver</strong>
+        <p>Ship the artifact you reviewed.</p>
+      </article>
+    </MotionGroup>
+  </Step>
+</section>
+
+<Note>
+  Stagger is one navigation stop, not four decorative Steps. The short delay communicates the
+  pipeline's reading order. If any stage needs discussion on its own, give it a separate Step and
+  choose focus instead.
+</Note>
+
+---
+
+<section className="micro-recipe" aria-label="Wait until the room can notice.">
+  <header className="recipe-heading">
+    <span>Recipe 08 · local emphasis</span>
+    <h2>Wait until the room can notice.</h2>
+    <p>The page settles first. Then one quiet cue marks the phrase that changes the next action.</p>
+  </header>
+
+  <div className="micro-emphasis" aria-label="A delayed marker emphasizes the phrase ask the room">
+    <span>One idea · one cue</span>
+    <p>The next move is to <mark>ask the room.</mark></p>
+    <footer>
+      <span>Hold · 900 ms</span>
+      <span>Draw · 720 ms</span>
+      <span>Text · unchanged</span>
+    </footer>
+  </div>
+</section>
+
+<Note>
+  The marker waits long enough to be perceived, then draws behind the exact phrase that deserves
+  emphasis. The text never changes color, moves, or becomes a shared bitmap. Reduced motion and all
+  non-audience surfaces show the same final emphasis immediately.
+</Note>
+
+---
+
+<section className="attention-recipe" aria-label="Stillness is part of the choreography.">
+  <header className="recipe-heading">
+    <span>Recipe 09 · attention budget</span>
+    <h2>Stillness is part of the choreography.</h2>
+    <p>When the audience already knows where to look, movement spends attention without returning meaning.</p>
+  </header>
+
+<div
+  className="attention-budget"
+  aria-label="One primary motion, one optional supporting cue, and everything else still"
+>
+  <article data-role="primary">
+    <span>1</span>
+    <strong>Primary motion</strong>
+    <p>The single object whose meaning changed.</p>
+  </article>
+  <article data-role="support">
+    <span>+1</span>
+    <strong>Supporting cue</strong>
+    <p>Optional, quiet, and in the same causal chain.</p>
+  </article>
+  <article data-role="still">
+    <span>∞</span>
+    <strong>Everything else</strong>
+    <p>Stage, title, controls, and neighboring evidence stay still.</p>
+  </article>
+</div>
+
+</section>
+
+<Note>
+  End without an authored reveal. One primary motion plus at most one supporting cue is a ceiling,
+  not a target. If two objects compete for attention, remove one movement or sequence the ideas into
+  separate moments.
 </Note>

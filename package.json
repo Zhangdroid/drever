@@ -9,8 +9,10 @@
     "demo": "vp run -F @drever/example-basic dev",
     "demo:architecture": "vp run -F @drever/example-architecture dev",
     "demo:brand": "vp run -F @drever/example-brand dev",
+    "demo:features": "vp run -F @drever/example-feature-gallery dev",
     "demo:motion": "vp run -F @drever/example-motion-recipes dev",
     "demo:product": "vp run -F @drever/example-product-tour dev",
+    "demo:showcases": "vp run --parallel -F @drever/example-product-tour -F @drever/example-motion-recipes -F @drever/example-feature-gallery dev",
     "ready": "vp check && vp exec tsc -p packages/vite/type-tests/tsconfig.json && vp run -r test && vp run -r build && vp exec playwright test",
     "test": "vp run -r test",
     "test:e2e": "playwright test"

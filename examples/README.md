@@ -5,12 +5,17 @@ uses the public `drever` CLI, clean URL state, a speaker view, and a static
 production build. The basic example also serves as the final-state and
 sparse-Step PDF export fixture.
 
-| Example          | Purpose                                                                                      | Development URL         | Command                    |
-| ---------------- | -------------------------------------------------------------------------------------------- | ----------------------- | -------------------------- |
-| `basic`          | Small regression deck for the complete authoring and runtime contract.                       | `http://localhost:4317` | `vp run demo`              |
-| `product-tour`   | Audience-facing story about what Drever enables and why it exists.                           | `http://localhost:4320` | `vp run demo:product`      |
-| `architecture`   | Interactive walkthrough of Deck IR, compilation, extension ownership, routing, and delivery. | `http://localhost:4321` | `vp run demo:architecture` |
-| `motion-recipes` | Focused geometry contracts for stable shared shells, text, and media.                        | `http://localhost:4322` | `vp run demo:motion`       |
+| Example           | Purpose                                                                                      | Development URL         | Command                    |
+| ----------------- | -------------------------------------------------------------------------------------------- | ----------------------- | -------------------------- |
+| `basic`           | Small regression deck for the complete authoring and runtime contract.                       | `http://localhost:4317` | `vp run demo`              |
+| `product-tour`    | Audience-facing story about what Drever enables and why it exists.                           | `http://localhost:4320` | `vp run demo:product`      |
+| `architecture`    | Interactive walkthrough of Deck IR, compilation, extension ownership, routing, and delivery. | `http://localhost:4321` | `vp run demo:architecture` |
+| `motion-recipes`  | Focused geometry contracts for stable shared shells, text, and media.                        | `http://localhost:4322` | `vp run demo:motion`       |
+| `feature-gallery` | Executable gallery of MDX, React, official plugins, Steps, and delivery surfaces.            | `http://localhost:4324` | `vp run demo:features`     |
+
+Use `vp run demo:showcases` to start Product Tour, Motion Recipes, and Feature Gallery
+together. Their local links use the same hostname with ports `4320`, `4322`, and `4324`;
+sibling `dist` builds also link to one another when opened from the filesystem.
 
 Build the workspace packages once before starting an example:
 

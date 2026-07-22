@@ -1,5 +1,5 @@
 {
-  "name": "@drever/example-motion-recipes",
+  "name": "@drever/example-feature-gallery",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -10,7 +10,8 @@
   },
   "devDependencies": {
     "@drever/brand": "workspace:*",
-    "@drever/theme-editorial": "workspace:*",
+    "@drever/plugin-math": "workspace:*",
+    "@drever/theme-studio": "workspace:*",
     "@types/react": "catalog:",
     "drever": "workspace:*",
     "react": "catalog:"
