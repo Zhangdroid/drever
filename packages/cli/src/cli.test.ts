@@ -1,4 +1,4 @@
-import { mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Readable } from "node:stream";
@@ -47,6 +47,7 @@ describe("parseCommand", () => {
       name: "context",
     });
     expect(parseCommand(["current", "--json"])).toEqual({ json: true, name: "current" });
+    expect(parseCommand(["doctor", "--json"])).toEqual({ json: true, name: "doctor" });
     expect(parseCommand(["mcp", "decks/keynote.mdx"])).toEqual({
       entry: "decks/keynote.mdx",
       name: "mcp",
@@ -137,6 +138,8 @@ describe("parseCommand", () => {
     [["context", "one.mdx", "two.mdx"], "context accepts at most one deck entry path."],
     [["current", "--json", "--json"], "--json can be specified only once."],
     [["current", "slides.mdx"], "Unknown current argument: slides.mdx"],
+    [["doctor", "--json", "--json"], "--json can be specified only once."],
+    [["doctor", "--fix"], "Unknown doctor argument: --fix"],
     [["mcp", "one.mdx", "two.mdx"], "mcp accepts at most one deck entry path."],
     [["mcp", "--port"], "mcp accepts at most one deck entry path."],
   ])("rejects invalid agent and context arguments: %j", (arguments_, message) => {
@@ -189,6 +192,21 @@ describe("parseCommand", () => {
     expect(() => parseCommand(["preview"])).toThrowError(
       expect.objectContaining({ code: "DREVER_COMMAND_UNKNOWN" }),
     );
+  });
+});
+
+describe("runCli metadata", () => {
+  it("reports the installed package version", async () => {
+    const metadata = JSON.parse(
+      await readFile(new URL("../package.json", import.meta.url), "utf8"),
+    ) as { version: string };
+    let output = "";
+
+    await runCli(["--version"], {
+      stdout: { write: (chunk) => ((output += String(chunk)), true) },
+    });
+
+    expect(output).toBe(`${metadata.version}\n`);
   });
 });
 
@@ -256,6 +274,21 @@ describe("runCli create", () => {
       expect.objectContaining({ agent: "all", install: false, quiet: true, root: projectRoot }),
     );
     expect(JSON.parse(output)).toMatchObject({ root: projectRoot, version: 1 });
+  });
+});
+
+describe("runCli doctor", () => {
+  it("inspects the environment without loading project config in the command dispatcher", async () => {
+    const root = await mkdtemp(join(tmpdir(), "drever-doctor-cli-test-"));
+    directories.push(root);
+    await writeFile(join(root, "drever.config.ts"), "export default {");
+    const runDoctor = vi.fn(async () => 1 as const);
+    const stdout = { write: vi.fn(() => true) };
+
+    const result = await runCli(["doctor", "--json"], { cwd: root, runDoctor, stdout });
+
+    expect(result).toBe(1);
+    expect(runDoctor).toHaveBeenCalledWith({ json: true, root, stdout });
   });
 });
 

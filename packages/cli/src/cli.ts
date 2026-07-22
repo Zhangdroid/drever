@@ -22,6 +22,8 @@ import type { WriteAuthoringContextRequest } from "./context.ts";
 import type { WriteCurrentPositionRequest } from "./current-position.ts";
 import type { RunMcpServerRequest } from "./mcp-server.ts";
 import { createArtifactReceipt, writeArtifactReceipt } from "./artifact-receipt.ts";
+import { DREVER_VERSION } from "./package-version.ts";
+import type { RunDoctorRequest } from "./doctor.ts";
 
 export type AgentCommand = Readonly<{
   action: "sync";
@@ -57,6 +59,11 @@ export type CurrentCommand = Readonly<{
   name: "current";
 }>;
 
+export type DoctorCommand = Readonly<{
+  json: boolean;
+  name: "doctor";
+}>;
+
 export type McpCommand = Readonly<{
   entry?: string;
   name: "mcp";
@@ -84,6 +91,7 @@ export type DreverCommand =
   | ContextCommand
   | CreateCommand
   | CurrentCommand
+  | DoctorCommand
   | ExportPdfCommand
   | McpCommand
   | DevCommand;
@@ -101,6 +109,7 @@ const BUILD_USAGE = "Usage: drever build [entry] [--json]";
 const CHECK_USAGE = "Usage: drever check [entry] [--json]";
 const CONTEXT_USAGE = "Usage: drever context [entry] [--json]";
 const CURRENT_USAGE = "Usage: drever current [--json]";
+const DOCTOR_USAGE = "Usage: drever doctor [--json]";
 const MCP_USAGE = "Usage: drever mcp [entry]";
 const AGENT_SYNC_USAGE = "Usage: drever agent sync [--target <all|auto|codex|claude>]";
 const CONFIG_COMMAND = {
@@ -112,7 +121,7 @@ const CONFIG_COMMAND = {
   mcp: "check",
 } as const satisfies Readonly<
   Record<
-    Exclude<DreverCommand, AgentCommand | CreateCommand | CurrentCommand>["name"],
+    Exclude<DreverCommand, AgentCommand | CreateCommand | CurrentCommand | DoctorCommand>["name"],
     LoadDreverConfigOptions["command"]
   >
 >;
@@ -324,6 +333,21 @@ const parseCurrent = (arguments_: readonly string[]): CurrentCommand => {
   return Object.freeze({ json, name: "current" });
 };
 
+const parseDoctor = (arguments_: readonly string[]): DoctorCommand => {
+  if (arguments_.length === 0) {
+    return Object.freeze({ json: false, name: "doctor" });
+  }
+  if (arguments_.length === 1 && arguments_[0] === "--json") {
+    return Object.freeze({ json: true, name: "doctor" });
+  }
+  return invalidArgument(
+    arguments_.filter((argument) => argument === "--json").length > 1
+      ? "--json can be specified only once."
+      : `Unknown doctor argument: ${String(arguments_[0])}`,
+    DOCTOR_USAGE,
+  );
+};
+
 const parseAgent = (arguments_: readonly string[]): AgentCommand => {
   const [action, ...rest] = arguments_;
   if (action !== "sync") {
@@ -372,6 +396,7 @@ Usage:
   drever check [entry] [--json]
   drever context [entry] [--json]
   drever current [--json]
+  drever doctor [--json]
   drever mcp [entry]
   drever export pdf [entry] [--steps] [--slides <range>] [-o|--output <path>] [--json]
   drever agent sync [--target <all|auto|codex|claude>]
@@ -395,6 +420,9 @@ export const parseCommand = (arguments_: readonly string[]): DreverCommand | "he
   }
   if (command === "current") {
     return parseCurrent(rest);
+  }
+  if (command === "doctor") {
+    return parseDoctor(rest);
   }
   if (command === "mcp") {
     return parseMcp(rest);
@@ -442,6 +470,7 @@ export type RunCliOptions = Readonly<{
   cwd?: string;
   environment?: NodeJS.ProcessEnv;
   exportPdf?: (request: PdfExportRequest) => Promise<void>;
+  runDoctor?: (request: RunDoctorRequest) => Promise<CheckExitCode>;
   syncAgentKit?: (options: SyncAgentKitOptions) => Promise<AgentSyncResult>;
   serveMcp?: (request: RunMcpServerRequest) => Promise<void>;
   stdin?: NodeJS.ReadableStream;
@@ -483,7 +512,7 @@ export const runCli = async (
     return;
   }
   if (command === "version") {
-    output.write("0.0.0\n");
+    output.write(`${DREVER_VERSION}\n`);
     return;
   }
 
@@ -496,6 +525,15 @@ export const runCli = async (
       stdout: output,
     });
     return;
+  }
+  if (command.name === "doctor") {
+    const runDoctor =
+      options.runDoctor ??
+      (async (request: RunDoctorRequest): Promise<CheckExitCode> => {
+        const doctor = await import("./doctor.ts");
+        return doctor.runDoctor(request);
+      });
+    return runDoctor({ json: command.json, root, stdout: output });
   }
   if (command.name === "agent") {
     const syncAgentKit =

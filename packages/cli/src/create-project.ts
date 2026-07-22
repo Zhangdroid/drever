@@ -9,6 +9,7 @@ import {
   type SyncAgentKitOptions,
 } from "./agent-sync.ts";
 import { DreverCliError } from "./errors.ts";
+import { DREVER_VERSION } from "./package-version.ts";
 
 export type CreateAgentTarget = AgentSyncTarget | "none";
 export type CreateOpenTarget = "claude" | "codex";
@@ -224,27 +225,6 @@ const templateRootPath = (templateRoot: string | URL | undefined): string =>
     ? templateRoot
     : fileURLToPath(templateRoot ?? new URL("../create-template/", import.meta.url));
 
-const readDreverVersion = async (): Promise<string> => {
-  const path = fileURLToPath(new URL("../package.json", import.meta.url));
-  try {
-    const value = JSON.parse(await readFile(path, "utf8")) as { version?: unknown };
-    if (typeof value.version === "string" && value.version.length > 0) {
-      return value.version;
-    }
-  } catch (cause) {
-    throw new DreverCliError(
-      "DREVER_CREATE_TEMPLATE_INVALID",
-      "Could not read the installed Drever version.",
-      { cause, details: { path } },
-    );
-  }
-  throw new DreverCliError(
-    "DREVER_CREATE_TEMPLATE_INVALID",
-    "The installed Drever package does not declare a valid version.",
-    { details: { path } },
-  );
-};
-
 const readTemplates = async (templateRoot: string): Promise<ReadonlyMap<string, string>> => {
   try {
     return new Map(
@@ -385,7 +365,7 @@ export const createDreverProject = async ({
   const sourceRoot = templateRootPath(templateRoot);
   const [templates, version] = await Promise.all([
     readTemplates(sourceRoot),
-    dreverVersion === undefined ? readDreverVersion() : Promise.resolve(dreverVersion),
+    Promise.resolve(dreverVersion ?? DREVER_VERSION),
   ]);
   const conflicts = (
     await Promise.all(

@@ -9,6 +9,7 @@ import { createAuthoringContext } from "./context.ts";
 import { DreverCliError } from "./errors.ts";
 import { readCurrentPosition } from "./current-position.ts";
 import type { ResolvedDreverPlan } from "./project.ts";
+import { DREVER_VERSION } from "./package-version.ts";
 
 export const MCP_PROTOCOL_VERSION = "2025-11-25";
 
@@ -293,7 +294,7 @@ const createProtocol = (dependencies: ToolDependencies) => {
         serverInfo: {
           name: "drever",
           title: "Drever",
-          version: "0.0.0",
+          version: DREVER_VERSION,
           description: "Read-only authoring context for one Drever presentation.",
         },
         instructions:

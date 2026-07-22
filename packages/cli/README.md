@@ -25,6 +25,7 @@ Run it with:
 
 ```sh
 drever agent sync --target all
+drever doctor --json
 drever context slides.mdx --json
 drever dev slides.mdx
 drever current --json
@@ -40,6 +41,8 @@ includes every incremental reveal for each selected slide. The CLI owns its Vite
 application entry; deck authors configure only Drever's stable surface:
 
 `build --json` and `export pdf --json` return a versioned artifact receipt with absolute source and output paths. Without `--json`, both commands keep their concise human-readable output.
+
+`drever doctor --json` checks the required Node version and deck entry, then reports project-local installation and PDF-browser readiness as non-blocking warnings. It never installs software or starts a browser.
 
 PDF export uses Playwright's Chromium runtime without loading it for `dev` or
 `build`. Install the browser once with `npx playwright install chromium` (or
