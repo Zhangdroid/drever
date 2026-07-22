@@ -8,6 +8,6 @@
 - Prefer semantic Markdown and documented theme layouts over one-off containers. Use React components only when interaction materially improves the explanation.
 - Never edit `dist/`, `.drever/`, `__DreverSlide`, or `__DreverStep`.
 - Run `drever check --json` and `drever build` after authored changes. Inspect affected exact slide and Step routes when browser tooling is available.
-- Use the project skills under `.agents/skills` for creation, focused authoring, and presentation-readiness review.
+- Use the project-local Drever skills for creation, focused authoring, presentation-readiness review, and delivery.
 
 <!-- drever-agent-kit:end -->
