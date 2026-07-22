@@ -14,6 +14,7 @@
     "demo:product": "vp run -F @drever/example-product-tour dev",
     "demo:showcases": "vp run --parallel -F @drever/example-product-tour -F @drever/example-motion-recipes -F @drever/example-feature-gallery dev",
     "ready": "vp check && vp exec tsc -p packages/vite/type-tests/tsconfig.json && vp run -r test && vp run -r build && vp exec playwright test",
+    "release:check": "vp run -r build && node scripts/verify-release.mjs && node scripts/verify-consumer.mjs",
     "test": "vp run -r test",
     "test:e2e": "playwright test"
   },
