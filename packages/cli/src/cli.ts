@@ -21,6 +21,7 @@ import {
 import type { WriteAuthoringContextRequest } from "./context.ts";
 import type { WriteCurrentPositionRequest } from "./current-position.ts";
 import type { RunMcpServerRequest } from "./mcp-server.ts";
+import { createArtifactReceipt, writeArtifactReceipt } from "./artifact-receipt.ts";
 
 export type AgentCommand = Readonly<{
   action: "sync";
@@ -28,9 +29,15 @@ export type AgentCommand = Readonly<{
   target?: AgentSyncTarget;
 }>;
 
-type ProjectCommand = Readonly<{
+export type BuildCommand = Readonly<{
   entry?: string;
-  name: "build" | "dev";
+  json: boolean;
+  name: "build";
+}>;
+
+type DevCommand = Readonly<{
+  entry?: string;
+  name: "dev";
 }>;
 
 export type CheckCommand = Readonly<{
@@ -63,6 +70,7 @@ export type PdfSlideRange = Readonly<{
 export type ExportPdfCommand = Readonly<{
   entry?: string;
   format: "pdf";
+  json: boolean;
   name: "export";
   output?: string;
   slides?: readonly PdfSlideRange[];
@@ -71,13 +79,14 @@ export type ExportPdfCommand = Readonly<{
 
 export type DreverCommand =
   | AgentCommand
+  | BuildCommand
   | CheckCommand
   | ContextCommand
   | CreateCommand
   | CurrentCommand
   | ExportPdfCommand
   | McpCommand
-  | ProjectCommand;
+  | DevCommand;
 
 export type PdfExportRequest = Readonly<{
   output: string;
@@ -87,7 +96,8 @@ export type PdfExportRequest = Readonly<{
 }>;
 
 const EXPORT_PDF_USAGE =
-  "Usage: drever export pdf [entry] [--steps] [--slides <range>] [-o|--output <path>]";
+  "Usage: drever export pdf [entry] [--steps] [--slides <range>] [-o|--output <path>] [--json]";
+const BUILD_USAGE = "Usage: drever build [entry] [--json]";
 const CHECK_USAGE = "Usage: drever check [entry] [--json]";
 const CONTEXT_USAGE = "Usage: drever context [entry] [--json]";
 const CURRENT_USAGE = "Usage: drever current [--json]";
@@ -142,12 +152,20 @@ const parsePdfSlideRanges = (source: string): readonly PdfSlideRange[] =>
 
 const parsePdfExport = (arguments_: readonly string[]): ExportPdfCommand => {
   let entry: string | undefined;
+  let json = false;
   let output: string | undefined;
   let slides: readonly PdfSlideRange[] | undefined;
   let steps = false;
 
   for (let index = 0; index < arguments_.length; index += 1) {
     const argument = arguments_[index] as string;
+    if (argument === "--json") {
+      if (json) {
+        invalidArgument("--json can be specified only once.", EXPORT_PDF_USAGE);
+      }
+      json = true;
+      continue;
+    }
     if (argument === "--steps") {
       if (steps) {
         invalidArgument("--steps can be specified only once.", EXPORT_PDF_USAGE);
@@ -196,11 +214,40 @@ const parsePdfExport = (arguments_: readonly string[]): ExportPdfCommand => {
 
   return Object.freeze({
     format: "pdf",
+    json,
     name: "export",
     steps,
     ...(entry === undefined ? {} : { entry }),
     ...(output === undefined ? {} : { output }),
     ...(slides === undefined ? {} : { slides }),
+  });
+};
+
+const parseBuild = (arguments_: readonly string[]): BuildCommand => {
+  let entry: string | undefined;
+  let json = false;
+
+  for (const argument of arguments_) {
+    if (argument === "--json") {
+      if (json) {
+        invalidArgument("--json can be specified only once.", BUILD_USAGE);
+      }
+      json = true;
+      continue;
+    }
+    if (argument.startsWith("-")) {
+      invalidArgument(`Unknown build flag: ${argument}`, BUILD_USAGE);
+    }
+    if (entry !== undefined) {
+      invalidArgument("build accepts at most one deck entry path.", BUILD_USAGE);
+    }
+    entry = argument;
+  }
+
+  return Object.freeze({
+    json,
+    name: "build",
+    ...(entry === undefined ? {} : { entry }),
   });
 };
 
@@ -321,12 +368,12 @@ export const HELP = `Drever — AI-first MDX presentations
 Usage:
   drever create [directory] [options]
   drever dev [entry]
-  drever build [entry]
+  drever build [entry] [--json]
   drever check [entry] [--json]
   drever context [entry] [--json]
   drever current [--json]
   drever mcp [entry]
-  drever export pdf [entry] [--steps] [--slides <range>] [-o|--output <path>]
+  drever export pdf [entry] [--steps] [--slides <range>] [-o|--output <path>] [--json]
   drever agent sync [--target <all|auto|codex|claude>]
 
 The default entry is slides.mdx. Project settings live in drever.config.ts.
@@ -358,6 +405,9 @@ export const parseCommand = (arguments_: readonly string[]): DreverCommand | "he
   if (command === "create") {
     return parseCreateArguments(rest);
   }
+  if (command === "build") {
+    return parseBuild(rest);
+  }
   if (command === "export") {
     const [format, ...exportArguments] = rest;
     if (format !== "pdf") {
@@ -368,7 +418,7 @@ export const parseCommand = (arguments_: readonly string[]): DreverCommand | "he
     }
     return parsePdfExport(exportArguments);
   }
-  if (command !== "dev" && command !== "build") {
+  if (command !== "dev") {
     throw new DreverCliError("DREVER_COMMAND_UNKNOWN", `Unknown command: ${command}`, {
       hint: "Run drever --help to see the available commands.",
     });
@@ -542,12 +592,35 @@ export const runCli = async (
         await exporter.exportPdf(value);
       });
     await exportPdf(request);
-    output.write(`Exported ${project.entry} to ${request.output}\n`);
+    if (command.json) {
+      writeArtifactReceipt(
+        createArtifactReceipt("export", project.entry, [
+          {
+            kind: "pdf",
+            path: request.output,
+            steps: request.steps,
+            ...(request.slides === undefined ? {} : { slides: request.slides }),
+          },
+        ]),
+        output,
+      );
+    } else {
+      output.write(`Exported ${project.entry} to ${request.output}\n`);
+    }
     return;
   }
   if (command.name === "build") {
-    await buildDreverProject(project);
-    output.write(`Built ${project.entry} to ${project.outDir}\n`);
+    await buildDreverProject(project, { quiet: command.json });
+    if (command.json) {
+      writeArtifactReceipt(
+        createArtifactReceipt("build", project.entry, [
+          { entry: resolve(project.outDir, "index.html"), kind: "website", path: project.outDir },
+        ]),
+        output,
+      );
+    } else {
+      output.write(`Built ${project.entry} to ${project.outDir}\n`);
+    }
     return;
   }
   return serveDreverProject(project);

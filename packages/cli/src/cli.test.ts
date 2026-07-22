@@ -27,8 +27,10 @@ describe("parseCommand", () => {
     expect(parseCommand(["dev"])).toEqual({ name: "dev" });
     expect(parseCommand(["build", "decks/keynote.mdx"])).toEqual({
       entry: "decks/keynote.mdx",
+      json: false,
       name: "build",
     });
+    expect(parseCommand(["build", "--json"])).toEqual({ json: true, name: "build" });
   });
 
   it("models the agent setup and authoring context workflows", () => {
@@ -54,6 +56,7 @@ describe("parseCommand", () => {
   it("models PDF export flags independently of their position", () => {
     expect(parseCommand(["export", "pdf"])).toEqual({
       format: "pdf",
+      json: false,
       name: "export",
       steps: false,
     });
@@ -71,6 +74,7 @@ describe("parseCommand", () => {
     ).toEqual({
       entry: "decks/keynote.mdx",
       format: "pdf",
+      json: false,
       name: "export",
       output: "release/talk.pdf",
       slides: [
@@ -82,6 +86,7 @@ describe("parseCommand", () => {
     expect(parseCommand(["export", "pdf", "-o", "talk.pdf", "slides.mdx"])).toEqual({
       entry: "slides.mdx",
       format: "pdf",
+      json: false,
       name: "export",
       output: "talk.pdf",
       steps: false,
@@ -103,6 +108,9 @@ describe("parseCommand", () => {
   });
 
   it.each([
+    [["build", "--json", "--json"], "--json can be specified only once."],
+    [["build", "--watch"], "Unknown build flag: --watch"],
+    [["build", "one.mdx", "two.mdx"], "build accepts at most one deck entry path."],
     [["check", "--json", "--json"], "--json can be specified only once."],
     [["check", "--fix"], "Unknown check flag: --fix"],
     [["check", "one.mdx", "two.mdx"], "check accepts at most one deck entry path."],
@@ -142,6 +150,7 @@ describe("parseCommand", () => {
     [["export", "pptx"], "Unknown export format: pptx"],
     [["export", "pdf", "--paper"], "Unknown export flag: --paper"],
     [["export", "pdf", "--steps", "--steps"], "--steps can be specified only once."],
+    [["export", "pdf", "--json", "--json"], "--json can be specified only once."],
     [["export", "pdf", "--slides", "2", "--slides", "3"], "--slides can be specified only once."],
     [
       ["export", "pdf", "--slides", "--steps"],
@@ -442,5 +451,34 @@ describe("runCli export", () => {
         steps: false,
       }),
     );
+  });
+
+  it("returns an exact PDF artifact receipt for agent callers", async () => {
+    const root = await mkdtemp(join(tmpdir(), "drever-export-cli-test-"));
+    directories.push(root);
+    await writeFile(join(root, "slides.mdx"), "# Export receipt\n");
+    const exportPdf = vi.fn(async () => {});
+    let output = "";
+
+    await runCli(["export", "pdf", "--json", "--steps", "--slides", "2-3"], {
+      cwd: root,
+      exportPdf,
+      stdout: { write: (chunk) => ((output += String(chunk)), true) },
+    });
+
+    expect(JSON.parse(output)).toEqual({
+      artifacts: [
+        {
+          kind: "pdf",
+          path: join(root, "slides-export.pdf"),
+          slides: [{ first: 2, last: 3 }],
+          steps: true,
+        },
+      ],
+      command: "export",
+      ok: true,
+      sourcePath: join(root, "slides.mdx"),
+      version: 1,
+    });
   });
 });

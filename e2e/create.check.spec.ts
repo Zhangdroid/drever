@@ -51,8 +51,20 @@ test("a clean consumer can create, validate, and build a presentation", async ()
       summary: { errors: 0, warnings: 0 },
     });
 
-    const built = await run(root, dreverCli, "build");
-    expect(built.stdout).toContain(`Built ${join(root, "slides.mdx")} to ${join(root, "dist")}`);
+    const built = await run(root, dreverCli, "build", "--json");
+    expect(JSON.parse(built.stdout)).toEqual({
+      artifacts: [
+        {
+          entry: join(root, "dist", "index.html"),
+          kind: "website",
+          path: join(root, "dist"),
+        },
+      ],
+      command: "build",
+      ok: true,
+      sourcePath: join(root, "slides.mdx"),
+      version: 1,
+    });
     await expect(stat(join(root, "dist", "index.html"))).resolves.toMatchObject({
       size: expect.any(Number),
     });

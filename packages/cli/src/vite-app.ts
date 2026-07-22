@@ -238,7 +238,10 @@ export const resolvePrivateAppOptions = (
   });
 };
 
-export const buildDreverProject = async (project: ResolvedDreverProject): Promise<void> => {
+export const buildDreverProject = async (
+  project: ResolvedDreverProject,
+  options: Readonly<{ quiet?: boolean }> = {},
+): Promise<void> => {
   const app = await createPrivateApp(
     project.entry,
     resolvePrivateAppOptions(project.config, project.root),
@@ -249,6 +252,7 @@ export const buildDreverProject = async (project: ResolvedDreverProject): Promis
       app.root,
       project.outDir,
       project.config.build?.sourcemap ?? false,
+      options.quiet === true ? "silent" : undefined,
     );
     await writeStaticDeckRoutes(project.outDir, manifest);
   } catch (cause) {

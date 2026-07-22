@@ -12,8 +12,8 @@ Translate the requested outcome into Drever's deterministic checks, build, and e
 1. Inspect `drever.config.ts`, `package.json`, and the configured MDX entry. Use `drever_get_context` and `drever_check` when the read-only Drever MCP is connected; otherwise run `drever context --json` and `drever check --json`.
 2. Fix proven source errors only when the user asked for a finished deliverable. Preserve unrelated work and never edit generated files in `dist/` or `.drever/`.
 3. Run `drever check --json` and inspect its report even when it exits nonzero. Do not deliver while errors remain.
-4. Run `drever build` for a website deliverable or before final browser inspection. Verify the built entry, exact slide routes, assets, reload behavior, and `/document`.
-5. Run `drever export pdf [entry] --output <path>` when a PDF is requested. Add `--steps` only when the user wants every reveal state, and use `--slides` only for an explicit selection. Choose an intentional output path so the artifact is easy to find.
+4. Run `drever build --json` for a website deliverable or before final browser inspection. Use the returned artifact receipt rather than guessing the output path. Verify the built entry, exact slide routes, assets, reload behavior, and `/document`.
+5. Run `drever export pdf [entry] --output <path> --json` when a PDF is requested. Add `--steps` only when the user wants every reveal state, and use `--slides` only for an explicit selection. Choose an intentional output path so the artifact is easy to find.
 6. If Playwright Chromium is missing, obtain the required permission to run `npx playwright install chromium`, then retry the export. Do not claim that a PDF exists before the retry succeeds.
 7. Stop temporary servers unless the user asked to keep a preview running.
 
