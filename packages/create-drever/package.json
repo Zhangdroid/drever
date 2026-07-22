@@ -1,0 +1,39 @@
+{
+  "name": "create-drever",
+  "version": "0.0.0",
+  "description": "Create an AI-ready Drever presentation in one command.",
+  "keywords": [
+    "ai",
+    "mdx",
+    "presentation",
+    "slides"
+  ],
+  "license": "MIT",
+  "bin": {
+    "create-drever": "./dist/bin.mjs"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "check": "vp check"
+  },
+  "dependencies": {
+    "drever": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "engines": {
+    "node": ">=24.18.0"
+  }
+}

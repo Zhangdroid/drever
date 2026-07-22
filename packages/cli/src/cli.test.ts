@@ -16,6 +16,14 @@ afterEach(async () => {
 describe("parseCommand", () => {
   it("models project workflows and their optional entry", () => {
     expect(parseCommand([])).toBe("help");
+    expect(parseCommand(["create", "product-story", "--no-install"])).toEqual({
+      agent: "all",
+      directory: "product-story",
+      help: false,
+      install: false,
+      json: false,
+      name: "create",
+    });
     expect(parseCommand(["dev"])).toEqual({ name: "dev" });
     expect(parseCommand(["build", "decks/keynote.mdx"])).toEqual({
       entry: "decks/keynote.mdx",
@@ -25,6 +33,11 @@ describe("parseCommand", () => {
 
   it("models the agent setup and authoring context workflows", () => {
     expect(parseCommand(["agent", "sync"])).toEqual({ action: "sync", name: "agent" });
+    expect(parseCommand(["agent", "sync", "--target", "claude"])).toEqual({
+      action: "sync",
+      name: "agent",
+      target: "claude",
+    });
     expect(parseCommand(["context"])).toEqual({ json: false, name: "context" });
     expect(parseCommand(["context", "--json", "decks/keynote.mdx"])).toEqual({
       entry: "decks/keynote.mdx",
@@ -102,7 +115,15 @@ describe("parseCommand", () => {
   it.each([
     [["agent"], "Agent action is required."],
     [["agent", "install"], "Unknown agent action: install"],
-    [["agent", "sync", "extra"], "agent sync does not accept arguments."],
+    [["agent", "sync", "extra"], "Unknown agent sync argument: extra"],
+    [
+      ["agent", "sync", "--target", "cursor"],
+      "--target requires one of: all, auto, claude, codex.",
+    ],
+    [
+      ["agent", "sync", "--target", "codex", "--target", "claude"],
+      "--target can be specified only once.",
+    ],
     [["context", "--json", "--json"], "--json can be specified only once."],
     [["context", "--write"], "Unknown context flag: --write"],
     [["context", "one.mdx", "two.mdx"], "context accepts at most one deck entry path."],
@@ -183,6 +204,49 @@ describe("runCli agent", () => {
 
     expect(syncAgentKit).toHaveBeenCalledWith({ root });
     expect(output).toBe("Synced Drever agent kit: 1 created, 0 updated, 1 unchanged.\n");
+  });
+
+  it("passes an explicit platform target to the sync engine", async () => {
+    const root = await mkdtemp(join(tmpdir(), "drever-agent-cli-test-"));
+    directories.push(root);
+    const syncAgentKit = vi.fn(async () => ({ files: [] }));
+
+    await runCli(["agent", "sync", "--target", "all"], {
+      cwd: root,
+      stdout: { write: () => true },
+      syncAgentKit,
+    });
+
+    expect(syncAgentKit).toHaveBeenCalledWith({ root, target: "all" });
+  });
+});
+
+describe("runCli create", () => {
+  it("creates before loading project config and returns a machine-readable receipt", async () => {
+    const root = await mkdtemp(join(tmpdir(), "drever-create-cli-test-"));
+    directories.push(root);
+    await writeFile(join(root, "drever.config.ts"), "export default { invalid: true };\n");
+    const projectRoot = join(root, "new-deck");
+    const createProject = vi.fn(async () => ({
+      agentFiles: [],
+      files: ["package.json", "slides.mdx"],
+      installed: false,
+      packageManager: "npm" as const,
+      root: projectRoot,
+      version: 1 as const,
+    }));
+    let output = "";
+
+    await runCli(["create", "new-deck", "--no-install", "--json"], {
+      createProject,
+      cwd: root,
+      stdout: { write: (chunk) => ((output += String(chunk)), true) },
+    });
+
+    expect(createProject).toHaveBeenCalledWith(
+      expect.objectContaining({ agent: "all", install: false, quiet: true, root: projectRoot }),
+    );
+    expect(JSON.parse(output)).toMatchObject({ root: projectRoot, version: 1 });
   });
 });
 

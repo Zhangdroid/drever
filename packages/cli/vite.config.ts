@@ -7,7 +7,7 @@ export default defineConfig({
   pack: {
     deps: { onlyBundle: [] },
     dts: true,
-    entry: { bin: "src/bin.ts", index: "src/index.ts" },
+    entry: { bin: "src/bin.ts", create: "src/create.ts", index: "src/index.ts" },
     exports: false,
     tsconfig: "tsconfig.build.json",
   },

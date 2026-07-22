@@ -1,6 +1,14 @@
 # drever
 
-The unscoped Drever command line package. A project needs only an MDX deck:
+The unscoped Drever command line package. Create an AI-ready project in one command:
+
+```sh
+drever create my-deck
+```
+
+The command creates a zero-config MDX deck, a presentation brief, and project-local skills for Codex and Claude Code. It installs dependencies by default; use `--no-install` for automation or `--open codex` / `--open claude` to open the project with a prepared task.
+
+A project needs only an MDX deck:
 
 ```mdx
 # Opening
@@ -16,7 +24,7 @@ The unscoped Drever command line package. A project needs only an MDX deck:
 Run it with:
 
 ```sh
-drever agent sync
+drever agent sync --target all
 drever context slides.mdx --json
 drever dev slides.mdx
 drever current --json
@@ -94,7 +102,14 @@ AGENTS.md
 .agents/skills/drever-create-deck/
 .agents/skills/drever-author-deck/
 .agents/skills/drever-review-deck/
+.agents/skills/drever-deliver-deck/
+.claude/skills/drever-create-deck/
+.claude/skills/drever-author-deck/
+.claude/skills/drever-review-deck/
+.claude/skills/drever-deliver-deck/
 ```
+
+Use `--target codex`, `--target claude`, `--target all`, or `--target auto` to choose the project adapter. Omitting the target preserves the Codex-only compatibility behavior.
 
 Each skill contains `SKILL.md` plus optional agent metadata. The command runs
 before deck or config resolution, so it also works while a new project is still

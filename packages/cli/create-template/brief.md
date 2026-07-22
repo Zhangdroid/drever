@@ -1,0 +1,22 @@
+# Presentation brief
+
+Describe the presentation in your own words. Your AI agent can turn this brief into a complete Drever deck.
+
+## Goal
+
+What should change after the presentation?
+
+## Audience
+
+Who will see it, and what do they already know?
+
+## Content
+
+Add the facts, source material, and ideas that must be included.
+
+## Direction
+
+- Duration:
+- Language:
+- Visual voice:
+- Deliverables: live presentation, website, PDF

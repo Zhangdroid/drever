@@ -10,7 +10,14 @@ import {
 } from "./project.ts";
 import { buildDreverProject, serveDreverProject } from "./vite-app.ts";
 import type { CheckDeckRequest, CheckExitCode } from "./check.ts";
-import type { AgentSyncResult, SyncAgentKitOptions } from "./agent-sync.ts";
+import type { AgentSyncResult, AgentSyncTarget, SyncAgentKitOptions } from "./agent-sync.ts";
+import {
+  parseCreateArguments,
+  runCreateCommand,
+  type CreateCommand,
+  type CreateProjectOptions,
+  type CreateProjectResult,
+} from "./create-project.ts";
 import type { WriteAuthoringContextRequest } from "./context.ts";
 import type { WriteCurrentPositionRequest } from "./current-position.ts";
 import type { RunMcpServerRequest } from "./mcp-server.ts";
@@ -18,6 +25,7 @@ import type { RunMcpServerRequest } from "./mcp-server.ts";
 export type AgentCommand = Readonly<{
   action: "sync";
   name: "agent";
+  target?: AgentSyncTarget;
 }>;
 
 type ProjectCommand = Readonly<{
@@ -65,6 +73,7 @@ export type DreverCommand =
   | AgentCommand
   | CheckCommand
   | ContextCommand
+  | CreateCommand
   | CurrentCommand
   | ExportPdfCommand
   | McpCommand
@@ -83,7 +92,7 @@ const CHECK_USAGE = "Usage: drever check [entry] [--json]";
 const CONTEXT_USAGE = "Usage: drever context [entry] [--json]";
 const CURRENT_USAGE = "Usage: drever current [--json]";
 const MCP_USAGE = "Usage: drever mcp [entry]";
-const AGENT_SYNC_USAGE = "Usage: drever agent sync";
+const AGENT_SYNC_USAGE = "Usage: drever agent sync [--target <all|auto|codex|claude>]";
 const CONFIG_COMMAND = {
   build: "build",
   check: "check",
@@ -93,7 +102,7 @@ const CONFIG_COMMAND = {
   mcp: "check",
 } as const satisfies Readonly<
   Record<
-    Exclude<DreverCommand, AgentCommand | CurrentCommand>["name"],
+    Exclude<DreverCommand, AgentCommand | CreateCommand | CurrentCommand>["name"],
     LoadDreverConfigOptions["command"]
   >
 >;
@@ -276,10 +285,27 @@ const parseAgent = (arguments_: readonly string[]): AgentCommand => {
       AGENT_SYNC_USAGE,
     );
   }
-  if (rest.length > 0) {
-    invalidArgument("agent sync does not accept arguments.", AGENT_SYNC_USAGE);
+  let target: AgentSyncTarget | undefined;
+  for (let index = 0; index < rest.length; index += 1) {
+    const argument = rest[index] as string;
+    if (argument !== "--target") {
+      invalidArgument(`Unknown agent sync argument: ${argument}`, AGENT_SYNC_USAGE);
+    }
+    if (target !== undefined) {
+      invalidArgument("--target can be specified only once.", AGENT_SYNC_USAGE);
+    }
+    const value = rest[index + 1];
+    if (value !== "all" && value !== "auto" && value !== "claude" && value !== "codex") {
+      invalidArgument("--target requires one of: all, auto, claude, codex.", AGENT_SYNC_USAGE);
+    }
+    target = value as AgentSyncTarget;
+    index += 1;
   }
-  return Object.freeze({ action: "sync", name: "agent" });
+  return Object.freeze({
+    action: "sync",
+    name: "agent",
+    ...(target === undefined ? {} : { target }),
+  });
 };
 
 const parseMcp = (arguments_: readonly string[]): McpCommand => {
@@ -293,6 +319,7 @@ const parseMcp = (arguments_: readonly string[]): McpCommand => {
 export const HELP = `Drever — AI-first MDX presentations
 
 Usage:
+  drever create [directory] [options]
   drever dev [entry]
   drever build [entry]
   drever check [entry] [--json]
@@ -300,7 +327,7 @@ Usage:
   drever current [--json]
   drever mcp [entry]
   drever export pdf [entry] [--steps] [--slides <range>] [-o|--output <path>]
-  drever agent sync
+  drever agent sync [--target <all|auto|codex|claude>]
 
 The default entry is slides.mdx. Project settings live in drever.config.ts.
 `;
@@ -327,6 +354,9 @@ export const parseCommand = (arguments_: readonly string[]): DreverCommand | "he
   }
   if (command === "agent") {
     return parseAgent(rest);
+  }
+  if (command === "create") {
+    return parseCreateArguments(rest);
   }
   if (command === "export") {
     const [format, ...exportArguments] = rest;
@@ -358,7 +388,9 @@ export const parseCommand = (arguments_: readonly string[]): DreverCommand | "he
 
 export type RunCliOptions = Readonly<{
   checkDeck?: (request: CheckDeckRequest) => Promise<CheckExitCode>;
+  createProject?: (options: CreateProjectOptions) => Promise<CreateProjectResult>;
   cwd?: string;
+  environment?: NodeJS.ProcessEnv;
   exportPdf?: (request: PdfExportRequest) => Promise<void>;
   syncAgentKit?: (options: SyncAgentKitOptions) => Promise<AgentSyncResult>;
   serveMcp?: (request: RunMcpServerRequest) => Promise<void>;
@@ -406,6 +438,15 @@ export const runCli = async (
   }
 
   const root = options.cwd ?? process.cwd();
+  if (command.name === "create") {
+    await runCreateCommand(command, {
+      ...(options.createProject === undefined ? {} : { createProject: options.createProject }),
+      cwd: root,
+      ...(options.environment === undefined ? {} : { environment: options.environment }),
+      stdout: output,
+    });
+    return;
+  }
   if (command.name === "agent") {
     const syncAgentKit =
       options.syncAgentKit ??
@@ -413,7 +454,14 @@ export const runCli = async (
         const agent = await import("./agent-sync.ts");
         return agent.syncAgentKit(request);
       });
-    output.write(formatAgentSyncResult(await syncAgentKit({ root })));
+    output.write(
+      formatAgentSyncResult(
+        await syncAgentKit({
+          root,
+          ...(command.target === undefined ? {} : { target: command.target }),
+        }),
+      ),
+    );
     return;
   }
 
