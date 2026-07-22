@@ -90,21 +90,33 @@ test("the narrative connects an editable brief, exact routes, and local story mo
   await expect(feature).toBeVisible();
   await expect(feature.locator("figure")).toHaveCSS("margin-left", "0px");
   await expect(feature.locator("figure")).toHaveCSS("margin-right", "0px");
-  await expect(
-    page.locator(activeSlide).getByText("your-deck.com/4/2", { exact: true }),
-  ).toBeVisible();
+  const stateLink = page.getByRole("link", { name: "Open the shared slide state in a new tab" });
+  await expect(stateLink).toHaveAttribute("href", "4/2");
+  const statePopupPromise = page.waitForEvent("popup");
+  await stateLink.click();
+  const statePopup = await statePopupPromise;
+  await expect(statePopup).toHaveURL(/\/4\/2$/u);
+  await expect(statePopup.locator(`${activeSlide} [data-drever-step="2"]`)).toHaveAttribute(
+    "data-step-state",
+    "active",
+  );
+  await statePopup.reload();
+  await expect(statePopup).toHaveURL(/\/4\/2$/u);
+  await expect(statePopup.locator(`${activeSlide} [data-drever-step="2"]`)).toHaveAttribute(
+    "data-step-state",
+    "active",
+  );
+  await statePopup.close();
 
-  await page.goto("/4/2");
-  await expect(page.locator(`${activeSlide} [data-drever-step="2"]`)).toHaveAttribute(
-    "data-step-state",
-    "active",
-  );
-  await page.reload();
-  await expect(page).toHaveURL(/\/4\/2$/u);
-  await expect(page.locator(`${activeSlide} [data-drever-step="2"]`)).toHaveAttribute(
-    "data-step-state",
-    "active",
-  );
+  await page.goto("/8");
+  const documentLink = page.getByRole("link", { name: "Open Document View in a new tab" });
+  await expect(documentLink).toHaveAttribute("href", "document");
+  const documentPopupPromise = page.waitForEvent("popup");
+  await documentLink.click();
+  const documentPopup = await documentPopupPromise;
+  await expect(documentPopup).toHaveURL(/\/document$/u);
+  await expect(documentPopup.locator("[data-drever-document]")).toBeVisible();
+  await documentPopup.close();
 
   await page.goto("/5");
   const canvasModel = page.locator(".tour-motion__canvas");

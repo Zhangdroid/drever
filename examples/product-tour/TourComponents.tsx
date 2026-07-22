@@ -1,4 +1,42 @@
-import { useId, useState, type ReactElement } from "react";
+import { useId, useState, type ReactElement, type ReactNode } from "react";
+
+const SHOWCASE_ROUTES = {
+  features: {
+    filePath: "../../feature-gallery/dist/index.html",
+    localPort: 4324,
+    publishedPath: "/demos/features/",
+  },
+  motion: {
+    filePath: "../../motion-recipes/dist/index.html",
+    localPort: 4322,
+    publishedPath: "/demos/motion/",
+  },
+} as const;
+
+export type ShowcaseLinkProps = Readonly<{
+  children: ReactNode;
+  showcase: keyof typeof SHOWCASE_ROUTES;
+}>;
+
+const showcaseURL = (showcase: ShowcaseLinkProps["showcase"]): string => {
+  const route = SHOWCASE_ROUTES[showcase];
+  if (typeof window === "undefined") return route.publishedPath;
+  if (window.location.protocol === "file:") {
+    return new URL(route.filePath, window.location.href).href;
+  }
+  if (window.location.port === "4320") {
+    return `${window.location.protocol}//${window.location.hostname}:${route.localPort}/`;
+  }
+  return new URL(route.publishedPath, window.location.origin).href;
+};
+
+/** Keeps showcase links useful in both local development and published demo routes. */
+export const ShowcaseLink = ({ children, showcase }: ShowcaseLinkProps): ReactElement => (
+  <a className="tour-showcase-link" href={showcaseURL(showcase)} rel="noopener" target="_blank">
+    <span>{children}</span>
+    <span aria-hidden="true">↗</span>
+  </a>
+);
 
 const SIGNALS = [
   {

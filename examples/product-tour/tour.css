@@ -309,7 +309,7 @@
   .tour-cover
   .drever-editorial-masthead__title
   mark::before {
-  animation: tour-cover-mark-draw 520ms var(--drever-brand-motion-easing-standard) both;
+  animation: tour-cover-mark-draw 820ms var(--drever-brand-motion-easing-standard) 1s both;
 }
 
 .tour-cover__shift {
@@ -863,11 +863,35 @@
   font-size: 17px;
 }
 
-.tour-share-card code {
+.tour-route-link {
+  color: var(--tour-signal);
+  font-family: var(--drever-brand-font-family-mono);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.tour-route-link:focus-visible {
+  border-radius: 2px;
+  outline: 2px solid var(--tour-signal);
+  outline-offset: 3px;
+}
+
+.tour-share-card .tour-route-link--state {
+  display: flex;
   padding: 13px 15px;
-  border: 1px solid color-mix(in srgb, var(--tour-paper), transparent 78%);
-  color: var(--tour-paper);
+  border: 1px solid color-mix(in srgb, var(--tour-paper), transparent 68%);
+  align-items: center;
+  justify-content: space-between;
+  background: color-mix(in srgb, var(--tour-paper), transparent 94%);
   font-size: 16px;
+  transition:
+    border-color var(--drever-brand-motion-duration-quick) ease,
+    background var(--drever-brand-motion-duration-quick) ease;
+}
+
+.tour-share-card .tour-route-link--state:hover {
+  border-color: var(--tour-signal);
+  background: color-mix(in srgb, var(--tour-signal), transparent 90%);
 }
 
 .tour-share-card footer {
@@ -911,11 +935,24 @@
   text-transform: uppercase;
 }
 
-.tour-document-preview header code {
-  color: var(--tour-paper);
+.tour-document-preview .tour-route-link--document {
+  display: inline-flex;
+  min-height: 44px;
+  padding-inline: 8px;
+  align-items: center;
   font-size: 15px;
   letter-spacing: 0;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentcolor, transparent 46%);
+  text-underline-offset: 0.22em;
   text-transform: none;
+  gap: 8px;
+  transition: color var(--drever-brand-motion-duration-quick) ease;
+}
+
+.tour-document-preview .tour-route-link--document:hover {
+  color: var(--tour-paper);
+  text-decoration-color: currentcolor;
 }
 
 .tour-document-preview__search {
@@ -1149,6 +1186,41 @@
   border: 0;
   margin: -1px;
   white-space: nowrap;
+}
+
+.tour-cover--closing .drever-editorial-masthead__meta {
+  opacity: 1;
+}
+
+.tour-cover__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.tour-cover__links .tour-showcase-link {
+  display: inline-flex;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid color-mix(in srgb, var(--tour-paper), transparent 64%);
+  border-radius: var(--drever-brand-radius-small);
+  align-items: center;
+  color: var(--tour-paper);
+  gap: 9px;
+  text-decoration: none;
+  transition:
+    border-color var(--drever-brand-motion-duration-quick) ease,
+    background var(--drever-brand-motion-duration-quick) ease;
+}
+
+.tour-cover__links .tour-showcase-link:hover {
+  border-color: var(--tour-signal);
+  background: color-mix(in srgb, var(--tour-signal), transparent 88%);
+}
+
+.tour-cover__links .tour-showcase-link:focus-visible {
+  outline: 2px solid var(--tour-signal);
+  outline-offset: 3px;
 }
 
 /* These moments are carried by the persistent Stage, so the root slide stays visually still. */

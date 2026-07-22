@@ -13,6 +13,7 @@ The deck demonstrates:
 - content-driven local motion with a stable stage boundary;
 - the searchable, fully revealed `/document` reading view;
 - speaker notes, focus tools, and the `/speaker` rehearsal view with a 20-minute target;
+- direct links to exact slide state, Document View, and the standalone feature and motion galleries;
 - one editable project projected into audience, speaker, and document surfaces.
 
 All visuals are CSS and local React components. There are no fonts, images,
@@ -26,6 +27,9 @@ From the repository root, build workspace packages once and start this deck:
 vp run -r build
 vp run -F @drever/example-product-tour dev
 ```
+
+Use `vp run demo:showcases` instead when presenting the closing links to the
+Feature Gallery and Motion Recipes decks.
 
 Open <http://localhost:4320>. Press `P` at any point to open the synchronized
 speaker view, or visit <http://localhost:4320/speaker> directly. Press `D`, or
@@ -49,7 +53,9 @@ The third slide contains the main audience interaction; change its signal, navig
 and return to show preserved React state. The fourth slide reveals three addressable
 Steps. On the fifth, use the local control to show motion following a changing idea while
 the global stage remains calm. Press `P` on the sixth slide to open the speaker surface,
-or `D` on the eighth to turn the post-meeting promise into a real document. Slides nine
-and ten deliberately spend their entire motion budget on one related headline change;
-the shared project card and brand decoration remain still. Speaker guidance for every
-slide is authored in `<Note>` and intentionally absent from the audience DOM.
+open the exact-state link on the seventh, or follow `/document` on the eighth to turn the
+post-meeting promise into a real reading surface. Slides nine and ten deliberately spend
+their entire motion budget on one related headline change; the shared project card and
+brand decoration remain still. The final slide links to the standalone Feature Gallery
+and Motion Recipes decks. Speaker guidance for every slide is authored in `<Note>` and
+intentionally absent from the audience DOM.
