@@ -56,6 +56,10 @@
   --drever-brand-radius-full: 999px;
   --drever-brand-stroke-hairline: 1px;
   --drever-brand-stroke-strong: 2px;
+  --drever-brand-material-iris-glass-blur: 1.125rem;
+  --drever-brand-material-iris-glass-saturation: 1.35;
+  --drever-brand-material-iris-glass-surface-opacity: 0.72;
+  --drever-brand-material-iris-glass-overlay-opacity: 0.88;
   --drever-brand-motion-duration-instant: 120ms;
   --drever-brand-motion-duration-quick: 180ms;
   --drever-brand-motion-duration-standard: 320ms;

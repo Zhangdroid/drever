@@ -27,8 +27,9 @@ into the **Stage / Signal / Shift** layout grammar:
 The Signal and Shift are scarce devices. Keep surrounding geometry aligned so
 the exception has a reason to exist. Prefer rectilinear planes and edge-to-edge
 relationships to floating rounded cards. Avoid generic split SaaS heroes,
-gradients, glass effects, ornamental grids, repeated card mosaics, and two large
-accent fields competing for attention.
+decorative gradients, ornamental grids, repeated card mosaics, generic glass
+effects, and two large accent fields competing for attention. The only branded
+glass treatment is the scoped **Iris Glass** recipe for floating product chrome.
 
 ## Ownership
 
@@ -251,6 +252,113 @@ use rounded rectangles for every piece of content. Presentation themes retain
 their own shape language; Editorial may remain nearly square while Studio may
 use tighter technical radii.
 
+## Iris Glass
+
+Iris Glass is Drever's material for product chrome floating above content. It is
+not a general surface style. The underlying page or presentation remains the
+stable Stage; the glass plane keeps controls legible without adopting the
+selected theme. A Citron Signal may identify one current action inside it, and
+one disclosed child may use the canonical Shift. The material itself does not
+move for decoration.
+
+Approved uses are audience toolbars and their popovers, floating or sticky
+headers, tooltips, dialog panels, and compact overlay panels. A dialog scrim is
+separate from Iris Glass. Do not use the material for content cards, slide
+canvases, document sections, hero artwork, media frames, repeated grids, or
+ordinary buttons. Controls sit on the material; each control does not become a
+separate glass pane.
+
+### Construction
+
+Iris Glass uses one fixed `180deg` two-stop gradient, a `1px` border, the
+material blur and saturation tokens, and exactly two shadow layers. The
+reference values are `18px` blur and `1.35` saturation. Do not add radial
+highlights, noise, animated gradient stops, colored glows, or additional shadow
+layers. Use Medium radius for a toolbar, popover, or compact overlay and Small
+radius for a tooltip or nested control.
+
+Map the following semantic roles locally. The nested `color-mix()` calls add
+transparency after tinting the surface.
+
+```css
+.iris-glass {
+  --iris-glass-base: var(--drever-brand-color-night, #111018);
+  --iris-glass-surface: var(--drever-brand-color-night-surface, #1d1a2a);
+  --iris-glass-tint: var(--drever-brand-color-continuity, #5b45d8);
+  --iris-glass-text: var(--drever-brand-color-night-text, #f6f3e9);
+  --iris-glass-line: var(--drever-brand-color-night-line, #3a3549);
+  --iris-glass-opacity: var(--drever-brand-material-iris-glass-surface-opacity, 0.72);
+  --iris-glass-top: color-mix(in srgb, var(--iris-glass-surface) 90%, var(--iris-glass-tint));
+  --iris-glass-bottom: color-mix(in srgb, var(--iris-glass-base) 96%, var(--iris-glass-tint));
+  --iris-glass-specular: rgb(from var(--iris-glass-text) r g b / 0.1);
+
+  border: var(--drever-brand-stroke-hairline) solid
+    color-mix(in srgb, var(--iris-glass-line) 84%, transparent);
+  border-radius: var(--drever-brand-radius-medium);
+  background: linear-gradient(
+    180deg,
+    rgb(from var(--iris-glass-top) r g b / var(--iris-glass-opacity)),
+    rgb(from var(--iris-glass-bottom) r g b / var(--iris-glass-opacity))
+  );
+  box-shadow:
+    inset 0 1px 0 var(--iris-glass-specular),
+    0 12px 36px rgb(0 0 0 / 32%);
+  color: var(--iris-glass-text);
+  backdrop-filter: blur(var(--drever-brand-material-iris-glass-blur, 1.125rem))
+    saturate(var(--drever-brand-material-iris-glass-saturation, 1.35));
+}
+
+.iris-glass[data-elevation="overlay"] {
+  --iris-glass-opacity: var(--drever-brand-material-iris-glass-overlay-opacity, 0.88);
+}
+```
+
+Choose one tone at the product boundary and keep it stable across states. Light
+Iris Glass changes only the semantic inputs; its geometry remains identical.
+Drever's compact audience controls use the light tone to stay airy over a
+presentation, while dense or explicitly dark product shells may use the dark
+tone. Never switch tone per slide:
+
+```css
+.iris-glass[data-tone="light"] {
+  --iris-glass-base: var(--drever-brand-color-paper);
+  --iris-glass-surface: var(--drever-brand-color-white);
+  --iris-glass-tint: var(--drever-brand-color-continuity-soft);
+  --iris-glass-text: var(--drever-brand-color-ink);
+  --iris-glass-line: var(--drever-brand-color-line);
+  --iris-glass-top: color-mix(in srgb, var(--iris-glass-surface) 92%, var(--iris-glass-tint));
+  --iris-glass-bottom: var(--iris-glass-base);
+  --iris-glass-specular: rgb(255 255 255 / 64%);
+}
+```
+
+Use Instrument Sans for labels and controls. A selected or primary action uses
+Signal with Ink text; Continuity is not a valid essential foreground on dark
+Iris Glass. Focus follows the normal scheme rule: Continuity on light glass and
+Signal on dark glass. Borders and blur are never evidence of state.
+
+Test text, icons, and focus indicators against both gradient endpoints and the
+most disruptive expected backdrop. Do not count blur or shadow toward contrast.
+Use the `0.88` overlay opacity for small text and dense popovers. If contrast is
+still insufficient, use the opaque safety variant by setting
+`--iris-glass-opacity` to `1`; do not invent another tint or add a glow.
+Preserve the documented `44px` targets, visible `2px` focus ring, and non-color
+state cues. In forced colors, remove the gradient, blur, and shadow, then use
+`Canvas`, `CanvasText`, and `Highlight`.
+
+### Motion
+
+Keep the gradient angle, stops, blur, border, and shadow geometry unchanged
+across states. Never animate `backdrop-filter` or transition between `none` and
+the shadow list. Show or hide the whole plane with opacity and at most `8px` of
+translation; do not scale it. Use Quick motion for selection, Standard motion
+for disclosure, and the standard easing for spatial changes. Iris Glass remains
+outside slide View Transitions.
+
+Under reduced motion, apply the final position and visibility immediately.
+Color feedback may remain Instant, but no replacement spatial animation is
+introduced.
+
 ## Icons
 
 Brand marks and UI icons are separate systems. Product icons use:
@@ -382,9 +490,18 @@ Never place Paper text on Signal or Continuity text on Ink for essential content
 Create one stable rectilinear Stage, at most one horizontal Citron Signal, and at
 most one object shifted by 12px. Keep surrounding geometry aligned. Do not use a
 generic split SaaS hero or turn every section into a rounded card. Avoid
-gradients, glass effects, ornamental grids, repeated card mosaics, excessive
-rounding, and decorative animation. Do not make the two accents compete as large
-color fields.
+decorative gradients, ornamental grids, repeated card mosaics, excessive
+rounding, generic glass effects, and decorative animation. Do not make the two
+accents compete as large color fields.
+
+Iris Glass is the sole exception for floating product chrome: toolbars,
+popovers, floating or sticky headers, tooltips, dialogs, and compact overlays.
+Use the documented dark or light semantic mapping, fixed 180-degree two-stop
+gradient, 1px border, material blur and saturation tokens, and two-layer shadow
+without changing their geometry. Never apply Iris Glass to content cards, slide
+canvases, media, or repeated grids. Keep it outside slide transitions; animate
+only opacity and up to 8px of translation, and remove spatial motion under
+reduced motion.
 
 If a Signal recurs across states, keep its weight, opacity, color treatment,
 orientation, and cross-axis alignment fixed. Translate it along the reading

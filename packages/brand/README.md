@@ -27,8 +27,15 @@ The JavaScript export contains the same CSS-ready values as the custom propertie
 brandTokens.color.ink; // "#19172B"
 brandTokens.color.signal; // "#C7F03A"
 brandTokens.color.continuity; // "#5B45D8"
+brandTokens.material.irisGlass.blur; // "1.125rem"
+brandTokens.material.irisGlass.surfaceOpacity; // "0.72"
 brandTokens.motion.duration.standard; // "320ms"
 ```
+
+The Iris Glass material tokens define blur, saturation, and opacity tiers for
+floating product chrome. Each product maps those primitives to its own light or
+dark semantic gradient; the brand package does not install global surface
+styles.
 
 `tokens.json` follows the stable Design Tokens Community Group 2025.10 format. It is the source of truth for `tokens.css` and `src/generated-tokens.ts`.
 

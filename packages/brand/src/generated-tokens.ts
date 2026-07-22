@@ -76,6 +76,14 @@ export const brandTokens = {
     hairline: "1px",
     strong: "2px",
   },
+  material: {
+    irisGlass: {
+      blur: "1.125rem",
+      saturation: "1.35",
+      surfaceOpacity: "0.72",
+      overlayOpacity: "0.88",
+    },
+  },
   motion: {
     duration: {
       instant: "120ms",
@@ -144,6 +152,10 @@ export const brandTokenValues = {
   "radius.full": brandTokens.radius.full,
   "stroke.hairline": brandTokens.stroke.hairline,
   "stroke.strong": brandTokens.stroke.strong,
+  "material.irisGlass.blur": brandTokens.material.irisGlass.blur,
+  "material.irisGlass.saturation": brandTokens.material.irisGlass.saturation,
+  "material.irisGlass.surfaceOpacity": brandTokens.material.irisGlass.surfaceOpacity,
+  "material.irisGlass.overlayOpacity": brandTokens.material.irisGlass.overlayOpacity,
   "motion.duration.instant": brandTokens.motion.duration.instant,
   "motion.duration.quick": brandTokens.motion.duration.quick,
   "motion.duration.standard": brandTokens.motion.duration.standard,

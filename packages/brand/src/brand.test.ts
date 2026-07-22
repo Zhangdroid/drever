@@ -45,6 +45,7 @@ describe("@drever/brand", () => {
     expect(Object.keys(brandTokenValues)).toHaveLength(tokens.length);
     expect(brandTokens.motion.duration.standard).toBe("320ms");
     expect(brandTokens.geometry.shift).toBe("0.75rem");
+    expect(brandTokens.material.irisGlass.blur).toBe("1.125rem");
     expect(brandTokens.font.family.display).toContain('"Bricolage Grotesque"');
   });
 
