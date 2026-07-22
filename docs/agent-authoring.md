@@ -1,9 +1,11 @@
 # Agent authoring
 
 Drever treats AI authoring as a framework contract, not a prompt copied between
-projects. The contract has two parts:
+projects. The contract has five surfaces:
 
-- `drever agent sync` installs concise, project-local working instructions.
+- `npm create drever@latest` creates an AI-ready project from an empty directory.
+- `drever agent sync` installs concise, project-local working instructions for
+  Codex, Claude Code, or both.
 - `drever context [entry] --json` reports the resolved deck and design system in
   a stable, machine-readable form.
 - `drever current --json` identifies the state currently visible in a local
@@ -16,16 +18,18 @@ browser surfaces a person uses.
 
 ## Install the project agent kit
 
-Run this command at the project root:
+New projects receive both adapters automatically. To refresh an existing
+project, run this command at its root:
 
 ```bash
-drever agent sync
+drever agent sync --target all
 ```
 
 It creates or updates:
 
 ```text
 AGENTS.md
+CLAUDE.md
 .agents/
   skills/
     drever-create-deck/
@@ -37,17 +41,54 @@ AGENTS.md
     drever-review-deck/
       SKILL.md
       agents/openai.yaml
+    drever-deliver-deck/
+      SKILL.md
+      agents/openai.yaml
+.claude/
+  skills/
+    drever-create-deck/SKILL.md
+    drever-author-deck/SKILL.md
+    drever-review-deck/SKILL.md
+    drever-deliver-deck/SKILL.md
 ```
 
-The three skills cover starting a deck, making focused source changes, and
-reviewing presentation readiness. They instruct an agent to use semantic MDX,
-preserve exact Step routes, prefer the active theme's layouts and components,
-and verify the affected audience, document, and speaker states.
+The four skills cover starting a deck, making focused source changes, reviewing
+presentation readiness, and delivering verified web or PDF artifacts. They
+instruct an agent to use semantic MDX, preserve exact Step routes, prefer the
+active theme's layouts and components, and verify the affected audience,
+document, speaker, and export states.
 
-The kit uses `.agents/skills` as a vendor-neutral project location. Agent-specific
-metadata is additive; it does not change the content contract in `SKILL.md`.
-Teams should commit these files so every authoring session starts from the same
-instructions.
+The `SKILL.md` content is canonical across hosts. Codex-specific UI metadata is
+additive and is omitted from Claude's adapter. Teams should commit both adapters
+so every authoring session starts from the same version-matched instructions.
+
+Use `--target auto` to update adapters already present in a project, or
+`--target codex` and `--target claude` to install one explicitly. Omitting
+`--target` preserves the Codex-only compatibility behavior; the project creator
+uses `all` by default.
+
+## Install the global agent plugin
+
+`@drever/agent` packages the same canonical skills as one plugin directory with
+separate Codex and Claude manifests. Its global responsibility is intentionally
+small: recognize an empty workspace, invoke `npm create drever@latest`, then
+defer to the version-matched project kit. It has no model SDK, MCP server, hooks,
+or runtime dependency.
+
+This repository includes marketplace catalogs at
+`.agents/plugins/marketplace.json` and `.claude-plugin/marketplace.json`. For
+local plugin development, add the repository root as a marketplace:
+
+```bash
+codex plugin marketplace add .
+claude plugin marketplace add .
+claude plugin install drever@drever --scope user
+```
+
+After adding the Codex marketplace, restart the ChatGPT desktop app and install
+Drever from its Plugins Directory. The publishable plugin payload is the
+`@drever/agent` package; the website can later link to the public marketplace
+without changing the skill contract.
 
 ### Ownership and conflicts
 
@@ -195,8 +236,8 @@ grammar and accessibility semantics are in [Motion choreography](./motion.md).
 
 For a new project:
 
-1. Run `drever agent sync` and commit the installed contract.
-2. Create the configured MDX entry and select a theme from the brief.
+1. Run `npm create drever@latest <directory>` or let the global plugin invoke it.
+2. Complete `brief.md`, then create the configured MDX entry and select a theme.
 3. Run `drever context --json` to inspect the exact result and available design
    vocabulary.
 4. Run `drever check --json` and fix proven source defects.

@@ -48,11 +48,19 @@ heuristic diagnostics.
 The check path resolves configuration and the deck entry without creating a
 CompilePlan, running build-module factories, or materializing build caches.
 
-Agent authoring is a separate CLI boundary. `drever agent sync` runs before
-project resolution and installs only a marked block in `AGENTS.md` plus
-marker-owned files under `.agents/skills`. Existing user instructions remain
-outside Drever's ownership; any malformed or user-owned target makes the sync
-fail before planned writes begin.
+Agent authoring is a separate distribution and CLI boundary. `create-drever`
+bootstraps an empty workspace, pins its compatible local `drever`, and installs
+both project adapters. `drever agent sync` runs before project resolution and
+installs only marked blocks in `AGENTS.md` and `CLAUDE.md`, plus marker-owned
+files under `.agents/skills` and `.claude/skills`. Existing user instructions
+remain outside Drever's ownership; any malformed or user-owned target makes the
+sync fail before planned writes begin.
+
+The public `@drever/agent` package wraps the same canonical skills in separate
+Codex and Claude plugin manifests. The global plugin only discovers or creates
+a project; established projects defer to their version-matched local skills and
+binary. A deterministic packaging check keeps both host adapters byte-identical
+without symlinks, hooks, a model SDK, or a required MCP server.
 
 `drever context [entry] --json` resolves the production CompilePlan but does not
 create the full Vite adapter or render a deck. It loads only configured Remark
@@ -147,9 +155,10 @@ API. The canonical adapter imports its non-configurable grammar and finalizers
 from the explicit `@drever/compiler/internal` subpath; that subpath is not a
 plugin-author extension surface.
 
-The current delivery slice exposes agent synchronization and authoring context,
-accessibility analysis, and audience, document, speaker, and export surfaces
-through the public `drever agent sync`, `drever context`, `drever check`,
+The current delivery slice exposes project creation, environment diagnosis,
+agent synchronization, authoring context, accessibility analysis, and audience,
+document, speaker, and export surfaces through the public `drever create`,
+`drever doctor`, `drever agent sync`, `drever context`, `drever check`,
 `drever dev`, `drever current`, `drever mcp`, `drever build`, and
 `drever export pdf` flows.
 `<Note>` is captured into the compiler-owned manifest and removed from audience,

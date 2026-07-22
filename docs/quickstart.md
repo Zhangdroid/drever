@@ -19,25 +19,36 @@ unsupported-platform diagnostic when a required browser API is missing.
 
 ## Create a deck
 
-Install `drever` as a project dependency and add scripts for its local binary:
+Create a complete project with one command:
 
-```json
-{
-  "scripts": {
-    "check": "drever check",
-    "dev": "drever dev",
-    "build": "drever build",
-    "export": "drever export pdf"
-  },
-  "devDependencies": {
-    "drever": "latest"
-  }
-}
+```bash
+npm create drever@latest my-deck
 ```
 
-Create `slides.mdx`. A root-level line containing exactly `---` starts a new
-slide. Leave a blank line before it so Markdown cannot interpret the preceding
-text as a Setext heading.
+The creator writes `brief.md`, `slides.mdx`, package scripts, and project-local
+skills for Codex and Claude Code, then installs a Drever version compatible with
+the creator. It fails rather than overwriting starter files in a non-empty
+target. Use `--no-install` only when another process will install dependencies,
+or open the finished project directly in an agent:
+
+```bash
+npm create drever@latest my-deck -- --open codex
+npm create drever@latest my-deck -- --open claude
+```
+
+From there, ask for the deliverable in natural language:
+
+> Turn brief.md into a concise presentation for this audience, inspect every
+> reveal, and deliver the website and PDF.
+
+An installed global Drever plugin can handle the same request from an empty
+directory. It invokes the creator once, then delegates to the project-local
+skills and local Drever binary. Existing projects never substitute
+`drever@latest`.
+
+The authored source stays readable. A root-level line containing exactly `---`
+starts a new slide. Leave a blank line before it so Markdown cannot interpret
+the preceding text as a Setext heading.
 
 ```mdx
 # The first slide
@@ -83,16 +94,19 @@ accessibility, continuity identity, deck-scoped capture, and reduced-motion beha
 
 ## Set up agent authoring
 
-Install Drever's project-local authoring instructions and skills:
+`npm create drever` installs both project adapters by default. In an existing
+project, install or refresh them explicitly:
 
 ```bash
-drever agent sync
+drever agent sync --target all
 ```
 
-The command creates a managed block in `AGENTS.md` and three skills under
-`.agents/skills` for deck creation, focused authoring, and presentation review.
-It preserves instructions outside its marked block and never replaces an
-unmarked, user-owned skill file. If any target conflicts, sync reports every
+The command creates managed blocks in `AGENTS.md` and `CLAUDE.md`, plus four
+skills for creation, focused authoring, presentation review, and artifact
+delivery. Codex receives `.agents/skills` and its UI metadata; Claude receives
+`.claude/skills`. `--target auto`, `codex`, or `claude` can narrow that output.
+Sync preserves instructions outside its marked block and never replaces an
+unmarked, user-owned skill file. If any target conflicts, it reports every
 conflict before writing planned files. It can run before the deck or config is
 valid and is safe to repeat after upgrading Drever.
 

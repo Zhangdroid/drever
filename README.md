@@ -13,7 +13,27 @@ It is intentionally opinionated:
 
 ## Quick start
 
-With `drever` installed in a project, create `slides.mdx`:
+Create an AI-ready project with one command:
+
+```bash
+npm create drever@latest my-deck
+```
+
+The creator installs Drever, a high-quality starter brief and deck, and
+project-local skills for both Codex and Claude Code. Open the directory in an
+agent and ask for the outcome instead of the internal commands:
+
+> Turn brief.md into a clear 10-minute presentation, inspect every state, and
+> deliver a PDF.
+
+Use `--open codex` or `--open claude` to open the new project with that workflow
+already prepared:
+
+```bash
+npm create drever@latest my-deck -- --open codex
+```
+
+The authored source remains ordinary, readable MDX:
 
 ```mdx
 # A presentation is a sequence of states
@@ -30,28 +50,24 @@ Not a pile of pages.
 <Note>This is visible to the speaker, not the audience.</Note>
 ```
 
-Then use the public CLI:
+Use the public CLI directly when you want explicit control:
 
 ```bash
-drever agent sync
+drever doctor --json
 drever context --json
-drever check
+drever check --json
 drever dev
 drever current --json
 drever mcp
-drever build
-drever export pdf
+drever build --json
+drever export pdf --json
 ```
 
-`agent sync` installs project-local authoring guidance, and `context --json`
-describes the resolved deck and design system as a versioned, machine-readable
-contract. `check` runs the source-based accessibility preflight, `dev` starts
-the interactive viewer, and `current --json` reports the most recently updated
-open audience or speaker state. `mcp` exposes the same authoring evidence as
-read-only structured tools over stdio. `build` writes a standalone site to `dist/`.
-`export pdf` writes `slides-export.pdf`; pass `--slides 2-5,8` to select
-one-based slide ranges and `--steps` to emit each authored reveal state for the
-selected slides. The default entry is `slides.mdx`; project settings live in
+`doctor` reports actionable environment state. `context`, `check`, `build`, and
+`export` expose stable JSON contracts for agents and CI. `dev` starts the
+interactive viewer, `current` resolves the most recently updated audience or
+speaker state, and the optional read-only MCP server exposes the same evidence
+over stdio. The default entry is `slides.mdx`; project settings live in
 `drever.config.ts`. See the [Quick start](./docs/quickstart.md) for installation,
 configuration, keyboard controls, and browser requirements.
 

@@ -108,9 +108,16 @@ every prompt to rediscover it.
 
 ### P1-A — agent authoring foundation: delivered
 
-`drever agent sync` installs versioned project-local skills for creating,
-authoring, and reviewing a deck. Its ownership markers preserve user
-instructions and stop on conflicts instead of silently replacing them.
+`npm create drever@latest` now bootstraps an installable deck and both project
+agent adapters from one command. `drever agent sync` installs versioned
+project-local skills for creating, authoring, reviewing, and delivering a deck
+to Codex, Claude Code, or both. Its ownership markers preserve user instructions
+and stop on conflicts instead of silently replacing them.
+
+The publishable `@drever/agent` package wraps the same canonical skills in
+separate Codex and Claude plugin manifests. Repository marketplace catalogs make
+the plugin locally installable, while drift tests and clean-consumer release
+verification keep every distributed copy and manifest version synchronized.
 
 `drever context [entry] --json` exposes the resolved canvas, exact static slide
 and sparse Step manifest, source fragments and ranges, theme tokens and
