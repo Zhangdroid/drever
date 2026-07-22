@@ -13,19 +13,28 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   type ReactElement,
   type RefObject,
-  type SVGProps,
 } from "react";
 import { createPortal } from "react-dom";
 import { acceptsPresentationShortcut } from "./keyboard.ts";
+import {
+  ClearIcon,
+  CloseIcon,
+  FocusIcon,
+  HighlighterIcon,
+  LaserIcon,
+  PenIcon,
+  UndoIcon,
+} from "./presentation-icons.tsx";
 import type { DeckPosition } from "./presentation-state.ts";
 import { PresentationFocusLayer } from "./presentation-focus-layer.tsx";
 import {
   createPresentationFocusState,
+  focusToolForKey,
   reducePresentationFocus,
   type PresentationFocusAppearance,
   type PresentationFocusTool,
 } from "./presentation-focus.ts";
-import type { PresentationLaserStore } from "./presentation-laser.ts";
+import type { PresentationFocusStore } from "./presentation-focus-store.ts";
 
 export type PresentationFocusToolsProps = Readonly<{
   appearance?: PresentationFocusAppearance;
@@ -34,106 +43,13 @@ export type PresentationFocusToolsProps = Readonly<{
   onInteractionChange?: (interacting: boolean) => void;
   onPaletteOpenChange?: (open: boolean) => void;
   position: DeckPosition;
-  remoteLaser: PresentationLaserStore;
+  remoteFocus: PresentationFocusStore;
 }>;
 
 const REMOTE_LASER_EXPIRY_MS = 1_500;
 
-const Icon = ({ children, ...props }: SVGProps<SVGSVGElement>): ReactElement => (
-  <svg aria-hidden="true" fill="none" height="18" viewBox="0 0 24 24" width="18" {...props}>
-    {children}
-  </svg>
-);
-
-const FocusIcon = (): ReactElement => (
-  <Icon>
-    <circle cx="12" cy="12" r="2.6" fill="currentColor" />
-    <circle cx="12" cy="12" r="7.5" stroke="currentColor" strokeWidth="1.6" />
-    <path
-      d="M12 2v3M12 19v3M2 12h3M19 12h3"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeWidth="1.6"
-    />
-  </Icon>
-);
-
-const LaserIcon = (): ReactElement => (
-  <Icon>
-    <circle cx="12" cy="12" r="3" fill="currentColor" />
-    <circle cx="12" cy="12" r="7" stroke="currentColor" strokeWidth="1.5" />
-  </Icon>
-);
-
-const PenIcon = (): ReactElement => (
-  <Icon>
-    <path
-      d="m5 19 1.2-4.4L15.8 5a2.1 2.1 0 0 1 3 3l-9.6 9.6L5 19Z"
-      stroke="currentColor"
-      strokeLinejoin="round"
-      strokeWidth="1.6"
-    />
-    <path d="m14.4 6.4 3.2 3.2" stroke="currentColor" strokeWidth="1.6" />
-  </Icon>
-);
-
-const HighlighterIcon = (): ReactElement => (
-  <Icon>
-    <path
-      d="m7 15 8.8-10 3.2 3.2L9 17H7v-2Z"
-      stroke="currentColor"
-      strokeLinejoin="round"
-      strokeWidth="1.6"
-    />
-    <path d="M5 20h14M11 13l3 3" stroke="currentColor" strokeWidth="1.6" />
-  </Icon>
-);
-
-const UndoIcon = (): ReactElement => (
-  <Icon>
-    <path
-      d="M9 7 5 11l4 4M6 11h7a5 5 0 0 1 5 5v1"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.7"
-    />
-  </Icon>
-);
-
-const ClearIcon = (): ReactElement => (
-  <Icon>
-    <path
-      d="M5 7h14M9 7V4h6v3m2 0-1 13H8L7 7m3 4v5m4-5v5"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.6"
-    />
-  </Icon>
-);
-
-const CloseIcon = (): ReactElement => (
-  <Icon>
-    <path d="m7 7 10 10M17 7 7 17" stroke="currentColor" strokeLinecap="round" strokeWidth="1.8" />
-  </Icon>
-);
-
 const isUnmodifiedShortcut = (event: ReactKeyboardEvent): boolean =>
   !event.altKey && !event.ctrlKey && !event.metaKey && !event.nativeEvent.isComposing;
-
-const focusToolForKey = (key: string): PresentationFocusTool | undefined => {
-  switch (key.toLowerCase()) {
-    case "h":
-      return "highlighter";
-    case "i":
-      return "pen";
-    case "l":
-      return "laser";
-    default:
-      return undefined;
-  }
-};
 
 /** Owns the high-frequency focus state without reconciling the presentation or command bar. */
 export const PresentationFocusTools = ({
@@ -143,7 +59,7 @@ export const PresentationFocusTools = ({
   onInteractionChange,
   onPaletteOpenChange,
   position,
-  remoteLaser,
+  remoteFocus,
 }: PresentationFocusToolsProps): ReactElement => {
   const toolbarId = useId();
   const launcherRef = useRef<HTMLButtonElement>(null);
@@ -157,15 +73,15 @@ export const PresentationFocusTools = ({
     position,
     createPresentationFocusState,
   );
-  const remoteLaserSignal = useSyncExternalStore(
-    remoteLaser.subscribe,
-    remoteLaser.getSnapshot,
-    remoteLaser.getSnapshot,
+  const remoteFocusState = useSyncExternalStore(
+    remoteFocus.subscribe,
+    remoteFocus.getSnapshot,
+    remoteFocus.getSnapshot,
   );
   const wasActiveRef = useRef(false);
 
   useEffect(() => {
-    if (remoteLaserSignal === undefined) {
+    if (remoteFocusState.laser === undefined) {
       return;
     }
     const window = canvasRef.current?.ownerDocument.defaultView;
@@ -173,12 +89,12 @@ export const PresentationFocusTools = ({
       return;
     }
     const timeout = window.setTimeout(() => {
-      if (remoteLaser.getSnapshot() === remoteLaserSignal) {
-        remoteLaser.set();
+      if (remoteFocus.getSnapshot() === remoteFocusState) {
+        remoteFocus.dispatch({ type: "cancel" });
       }
     }, REMOTE_LASER_EXPIRY_MS);
     return () => window.clearTimeout(timeout);
-  }, [canvasRef, remoteLaser, remoteLaserSignal]);
+  }, [canvasRef, remoteFocus, remoteFocusState]);
 
   useLayoutEffect(() => {
     dispatch({ position, type: "commitPosition" });
@@ -315,13 +231,6 @@ export const PresentationFocusTools = ({
   const canClear =
     state.activeStroke !== undefined || state.laser !== undefined || state.strokes.length > 0;
   const canUndo = state.activeStroke !== undefined || state.strokes.length > 0;
-  const remoteLaserPoint =
-    remoteLaserSignal?.position.slideId === position.slideId &&
-    remoteLaserSignal.position.slideIndex === position.slideIndex &&
-    remoteLaserSignal.position.step === position.step
-      ? remoteLaserSignal.point
-      : undefined;
-
   return (
     <>
       {canvasRef.current === null
@@ -334,7 +243,7 @@ export const PresentationFocusTools = ({
               dispatch={dispatch}
               onInteractionChange={handleInteractionChange}
               position={position}
-              {...(remoteLaserPoint === undefined ? {} : { remoteLaser: remoteLaserPoint })}
+              remoteState={remoteFocusState}
               state={state}
             />,
             canvasRef.current,
@@ -390,8 +299,6 @@ export const PresentationFocusTools = ({
               type="button"
             >
               <LaserIcon />
-              <span>Laser</span>
-              <kbd>L</kbd>
             </button>
             <button
               aria-keyshortcuts="I"
@@ -403,8 +310,6 @@ export const PresentationFocusTools = ({
               type="button"
             >
               <PenIcon />
-              <span>Pen</span>
-              <kbd>I</kbd>
             </button>
             <button
               aria-keyshortcuts="H"
@@ -416,8 +321,6 @@ export const PresentationFocusTools = ({
               type="button"
             >
               <HighlighterIcon />
-              <span>Highlight</span>
-              <kbd>H</kbd>
             </button>
             <span aria-hidden="true" className="drever-audience-controls__divider" />
             <button

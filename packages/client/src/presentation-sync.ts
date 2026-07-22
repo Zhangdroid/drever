@@ -7,11 +7,15 @@ import type {
 } from "./presentation-state.ts";
 import { DreverClientError } from "./client-error.ts";
 import type { PresentationNavigationIntent } from "./navigation.ts";
-import type { NormalizedCanvasPoint } from "./presentation-focus.ts";
-import type { PresentationLaserSignal } from "./presentation-laser.ts";
+import {
+  snapshotPresentationFocusAction,
+  snapshotPresentationFocusState,
+  type PresentationFocusAction,
+} from "./presentation-focus.ts";
+import type { PresentationFocusStore } from "./presentation-focus-store.ts";
 import { PRESENTATION_TRANSITION_TYPES } from "./view-transition.ts";
 
-export const PRESENTATION_SYNC_PROTOCOL = "drever-presentation-sync-v1";
+export const PRESENTATION_SYNC_PROTOCOL = "drever-presentation-sync-v2";
 
 export type PresentationChannelMessageEvent = Readonly<{
   data: unknown;
@@ -42,20 +46,21 @@ export type SpeakerPresentationSync = PresentationSync &
   Readonly<{
     /** Publishes a live, already-committed speaker transition. */
     publish(transitionType: PresentationTransitionType): void;
-    /** Publishes or clears the speaker's transient audience laser. */
-    publishLaser(point?: NormalizedCanvasPoint): void;
+    /** Publishes one already-committed speaker focus-tools action. */
+    publishFocus(action: PresentationFocusAction): void;
   }>;
 
 export type CreateAudienceSyncOptions = Readonly<{
   channel: PresentationChannel;
+  focus?: PresentationFocusStore;
   machine: PresentationStateMachine;
   navigate(command: DeckCommand, intent?: PresentationNavigationIntent): Promise<void>;
-  onLaser?(signal?: PresentationLaserSignal): void;
   onError(error: unknown): void;
 }>;
 
 export type CreateSpeakerSyncOptions = Readonly<{
   channel: PresentationChannel;
+  focus: PresentationFocusStore;
   onError(error: unknown): void;
   store: Pick<PresentationStore, "getSnapshot">;
 }>;
@@ -72,11 +77,16 @@ type PositionMessage = Readonly<{
   type: "position";
 }>;
 
-type LaserMessage = Readonly<{
+type FocusActionMessage = Readonly<{
+  action: PresentationFocusAction;
   drever: typeof PRESENTATION_SYNC_PROTOCOL;
-  point?: NormalizedCanvasPoint;
-  position: DeckPosition;
-  type: "laser";
+  type: "focus-action";
+}>;
+
+type FocusSnapshotMessage = Readonly<{
+  drever: typeof PRESENTATION_SYNC_PROTOCOL;
+  state: ReturnType<PresentationFocusStore["getSnapshot"]>;
+  type: "focus-snapshot";
 }>;
 
 const TRANSITION_TYPES: ReadonlySet<PresentationTransitionType> = new Set(
@@ -108,31 +118,11 @@ const isReadyMessage = (value: unknown): value is ReadyMessage =>
 const positionMessage = (value: unknown): Readonly<Record<string, unknown>> | undefined =>
   hasProtocol(value) && value.type === "position" ? value : undefined;
 
-const laserMessage = (value: unknown): Readonly<Record<string, unknown>> | undefined =>
-  hasProtocol(value) && value.type === "laser" ? value : undefined;
+const focusActionMessage = (value: unknown): Readonly<Record<string, unknown>> | undefined =>
+  hasProtocol(value) && value.type === "focus-action" ? value : undefined;
 
-const readLaserPoint = (value: unknown): NormalizedCanvasPoint => {
-  if (
-    typeof value !== "object" ||
-    value === null ||
-    !("x" in value) ||
-    !("y" in value) ||
-    typeof value.x !== "number" ||
-    typeof value.y !== "number" ||
-    !Number.isFinite(value.x) ||
-    !Number.isFinite(value.y) ||
-    value.x < 0 ||
-    value.x > 1 ||
-    value.y < 0 ||
-    value.y > 1
-  ) {
-    throw new DreverClientError(
-      "DREVER_CLIENT_SYNC_LASER_INVALID",
-      "The speaker sent an invalid normalized laser point.",
-    );
-  }
-  return Object.freeze({ x: value.x, y: value.y });
-};
+const focusSnapshotMessage = (value: unknown): Readonly<Record<string, unknown>> | undefined =>
+  hasProtocol(value) && value.type === "focus-snapshot" ? value : undefined;
 
 const readTransitionType = (
   message: Readonly<Record<string, unknown>>,
@@ -170,9 +160,9 @@ export const createBrowserPresentationChannel = (
 /** Follows speaker positions while keeping remote data behind the deck state machine. */
 export const createAudienceSync = ({
   channel,
+  focus,
   machine,
   navigate,
-  onLaser,
   onError,
 }: CreateAudienceSyncOptions): PresentationSync => {
   let disposed = false;
@@ -182,15 +172,40 @@ export const createAudienceSync = ({
     if (disposed) {
       return;
     }
-    const remoteLaser = laserMessage(event.data);
-    if (remoteLaser !== undefined) {
+    const remoteFocusAction = focusActionMessage(event.data);
+    if (remoteFocusAction !== undefined) {
       try {
-        const position = machine.validatePosition(remoteLaser.position as DeckPosition);
-        if (!("point" in remoteLaser)) {
-          onLaser?.();
-        } else {
-          onLaser?.(Object.freeze({ point: readLaserPoint(remoteLaser.point), position }));
+        if (!("action" in remoteFocusAction)) {
+          throw new DreverClientError(
+            "DREVER_CLIENT_SYNC_FOCUS_INVALID",
+            "The speaker sent a focus update without an action.",
+          );
         }
+        const action = snapshotPresentationFocusAction(remoteFocusAction.action);
+        if (action.type === "commitPosition") {
+          throw new DreverClientError(
+            "DREVER_CLIENT_SYNC_FOCUS_INVALID",
+            "Focus updates cannot change the presentation position.",
+          );
+        }
+        focus?.dispatch(action);
+      } catch (error) {
+        onError(error);
+      }
+      return;
+    }
+    const remoteFocusSnapshot = focusSnapshotMessage(event.data);
+    if (remoteFocusSnapshot !== undefined) {
+      try {
+        if (!("state" in remoteFocusSnapshot)) {
+          throw new DreverClientError(
+            "DREVER_CLIENT_SYNC_FOCUS_INVALID",
+            "The speaker sent an empty focus snapshot.",
+          );
+        }
+        const state = snapshotPresentationFocusState(remoteFocusSnapshot.state);
+        const position = machine.validatePosition(state.position);
+        focus?.replace({ ...state, position });
       } catch (error) {
         onError(error);
       }
@@ -210,7 +225,7 @@ export const createAudienceSync = ({
       onError(error);
       return;
     }
-    onLaser?.();
+    focus?.dispatch({ position, type: "commitPosition" });
 
     pending = pending
       .then(async () => {
@@ -240,7 +255,7 @@ export const createAudienceSync = ({
         return;
       }
       disposed = true;
-      onLaser?.();
+      focus?.dispatch({ type: "clear" });
       reportFailure(onError, () => channel.removeEventListener("message", listener));
       reportFailure(onError, () => channel.close());
     },
@@ -250,11 +265,11 @@ export const createAudienceSync = ({
 /** Publishes the speaker position initially, after changes, and to newly ready audiences. */
 export const createSpeakerSync = ({
   channel,
+  focus,
   onError,
   store,
 }: CreateSpeakerSyncOptions): SpeakerPresentationSync => {
   let disposed = false;
-  let laserActive = false;
 
   const publishPosition = (transitionType?: PresentationTransitionType): void => {
     if (disposed) {
@@ -276,40 +291,54 @@ export const createSpeakerSync = ({
     });
   };
 
+  const publishFocusSnapshot = (): void => {
+    if (disposed) {
+      return;
+    }
+    reportFailure(onError, () => {
+      const message: FocusSnapshotMessage = Object.freeze({
+        drever: PRESENTATION_SYNC_PROTOCOL,
+        state: focus.getSnapshot(),
+        type: "focus-snapshot",
+      });
+      channel.postMessage(message);
+    });
+  };
+
   const listener = (event: PresentationChannelMessageEvent): void => {
     if (!disposed && isReadyMessage(event.data)) {
       publishPosition();
+      publishFocusSnapshot();
     }
   };
 
   reportFailure(onError, () => channel.addEventListener("message", listener));
   publishPosition();
 
-  const publishLaser = (point?: NormalizedCanvasPoint): void => {
+  const publishFocus = (input: PresentationFocusAction): void => {
     if (disposed) {
       return;
     }
-    let normalized: NormalizedCanvasPoint | undefined;
+    let action: PresentationFocusAction;
     try {
-      normalized = point === undefined ? undefined : readLaserPoint(point);
+      action = snapshotPresentationFocusAction(input);
+      if (action.type === "commitPosition") {
+        throw new DreverClientError(
+          "DREVER_CLIENT_SYNC_FOCUS_INVALID",
+          "Focus updates cannot publish a presentation position.",
+        );
+      }
     } catch (error) {
       onError(error);
       return;
     }
     reportFailure(onError, () => {
-      const position = store.getSnapshot();
-      const message: LaserMessage = Object.freeze({
+      const message: FocusActionMessage = Object.freeze({
+        action,
         drever: PRESENTATION_SYNC_PROTOCOL,
-        ...(normalized === undefined ? {} : { point: normalized }),
-        position: Object.freeze({
-          slideId: position.slideId,
-          slideIndex: position.slideIndex,
-          step: position.step,
-        }),
-        type: "laser",
+        type: "focus-action",
       });
       channel.postMessage(message);
-      laserActive = normalized !== undefined;
     });
   };
 
@@ -318,8 +347,13 @@ export const createSpeakerSync = ({
       if (disposed) {
         return;
       }
-      if (laserActive) {
-        publishLaser();
+      const focusState = focus.getSnapshot();
+      if (
+        focusState.activeStroke !== undefined ||
+        focusState.laser !== undefined ||
+        focusState.strokes.length > 0
+      ) {
+        publishFocus({ type: "clear" });
       }
       disposed = true;
       reportFailure(onError, () => channel.removeEventListener("message", listener));
@@ -339,11 +373,8 @@ export const createSpeakerSync = ({
         );
         return;
       }
-      if (laserActive) {
-        publishLaser();
-      }
       publishPosition(transitionType);
     },
-    publishLaser,
+    publishFocus,
   });
 };

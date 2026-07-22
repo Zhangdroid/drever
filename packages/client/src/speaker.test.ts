@@ -3,6 +3,7 @@ import { DECK_MANIFEST_VERSION, type DeckManifest } from "@drever/schema";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vite-plus/test";
+import { createPresentationFocusStore } from "./presentation-focus-store.ts";
 import { createPresentationStateMachine, createPresentationStore } from "./presentation-state.ts";
 import { createRehearsalStore } from "./rehearsal.ts";
 import {
@@ -54,6 +55,7 @@ describe("speaker view state", () => {
   it("renders accessible rehearsal status, timing details, and quick slide navigation", () => {
     const machine = createPresentationStateMachine(manifest);
     const store = createPresentationStore(machine);
+    const focus = createPresentationFocusStore(store.getSnapshot());
     const rehearsal = createRehearsalStore({
       initialPosition: store.getSnapshot(),
       manifest,
@@ -66,9 +68,10 @@ describe("speaker view state", () => {
     const markup = renderToStaticMarkup(
       createElement(Speaker, {
         Content,
+        focus,
         machine,
         manifest,
-        onLaser: () => undefined,
+        onFocus: focus.dispatch,
         onNavigate: () => undefined,
         onOpenAudience: () => undefined,
         rehearsal,
@@ -96,8 +99,21 @@ describe("speaker view state", () => {
     expect(markup).toContain('id="drever-speaker-slide-dialog"');
     expect(markup).toContain('aria-label="Go to slide 1: Opening claim"');
     expect(markup).toContain('aria-label="Go to slide 2: Closing thought"');
-    expect(markup).toContain('aria-label="Enable audience laser"');
-    expect(markup).toContain('title="Audience laser (L)"');
+    expect(markup).toContain('aria-label="Use audience laser pointer"');
+    expect(markup).toContain('aria-keyshortcuts="L"');
+    expect(markup).toContain('data-drever-tooltip="Laser · L"');
+    expect(markup).toContain('aria-label="Use audience pen"');
+    expect(markup).toContain('aria-keyshortcuts="I"');
+    expect(markup).toContain('data-drever-tooltip="Pen · I"');
+    expect(markup).toContain('aria-label="Use audience highlighter"');
+    expect(markup).toContain('aria-keyshortcuts="H"');
+    expect(markup).toContain('data-drever-tooltip="Highlighter · H"');
+    expect(markup).toContain('aria-label="Undo audience focus stroke"');
+    expect(markup).toContain('aria-label="Clear audience focus marks"');
+    expect(markup).not.toContain('title="');
+    expect(markup).not.toContain(">Laser<");
+    expect(markup).not.toContain(">Pen<");
+    expect(markup).not.toContain(">Highlighter<");
     expect(markup).toContain("2 slides found.");
 
     rehearsal.destroy();

@@ -56,11 +56,11 @@ resume, reset, and edit or clear an optional target. When a target exists,
 Drever assigns it across the deck's exact Slide and Step states and reports
 whether the current rehearsal is ahead, on pace, or behind that state's time
 window. Timings and target edits are not persisted or broadcast, and transition
-readiness is not yet a remote contract. The speaker can also enable an audience
-laser over its current preview. That point is a transient `BroadcastChannel`
-signal: only audience windows at the same exact Slide and Step render it, and it
-is cleared when pointing stops. It is never saved as history; an audience that
-joins later sees it only while the presenter continues pointing. The audience
+readiness is not yet a remote contract. The speaker also provides Laser, Pen,
+Highlighter, Undo, and Clear controls over its current preview. Their actions
+synchronize through `BroadcastChannel`: persistent ink remains across Steps on
+the current slide and is included in a late-audience snapshot, while Laser stays
+transient and visible only at the matching exact Slide and Step. The audience
 runtime opens the equivalent speaker path when the user presses `P`.
 
 `createExport` renders one raw canvas-sized page per slide at its final Step by

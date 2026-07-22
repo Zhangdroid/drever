@@ -247,7 +247,7 @@ cleared without resetting the clock.
 The rehearsal target supplied by `drever.config.ts` is only an initial value.
 Clock state, per-slide measurements, visits, and runtime target edits are not
 persisted or broadcast. The existing channel synchronizes committed
-presentation positions and the speaker's transient laser; no audience or remote
+presentation positions and the speaker's Focus Tools; no remote
 transition-readiness signal is claimed in this release.
 
 When a target exists, the workspace divides it evenly across every exact
@@ -275,15 +275,15 @@ later sends a ready handshake and immediately catches up. Remote positions pass
 through the same state machine and Navigation API adapter, so synchronization
 also updates the audience URL, history, accessibility state, and transition.
 
-The speaker can enable an audience laser over its current preview. Pointer
-coordinates are normalized to the canvas and sent through the existing channel
-with the current exact Slide and Step position. An audience renders the point
-only while that position matches, then clears it when pointing stops or either
-surface navigates. This signal is deliberately ephemeral: it is not persisted,
-included in the ready handshake, or retained as history. A newly joined audience
-sees it only while the presenter continues pointing. `BroadcastChannel` keeps
-this feature within same-origin browser contexts; a paired network pointer
-remains separate future work.
+The speaker can use Laser, Pen, or Highlighter over its current preview. Pointer
+coordinates are normalized to the authored canvas and focus actions travel over
+the existing channel. Pen and Highlighter strokes survive Step changes on the
+current slide, support Undo and Clear, and are included in the ready handshake;
+changing slides clears them. Laser is deliberately ephemeral: an audience
+renders it only while the exact Slide and Step match, then clears it when
+pointing stops or either surface navigates. `BroadcastChannel` keeps these tools
+within same-origin browser contexts; paired network transport remains separate
+future work.
 
 Each successful command pushes a Navigation API history entry. Browser back and
 forward traversal use the destination entry index to select backward or forward
@@ -378,10 +378,12 @@ does not erase the presenter's context; changing slides clears them. Unexpected
 pointer-capture loss commits the ink already drawn instead of discarding it.
 Undo removes the latest stroke and Clear removes every mark on that slide. These
 marks are session-local presentation state, not authored deck content.
-The speaker's audience laser can appear in the same non-transitioning overlay,
-but it remains a separate transient channel signal. It never becomes an ink
-stroke, and an audience ignores it unless its exact Slide and Step match the
-speaker's position.
+Speaker Focus Tools use the same non-transitioning overlay and interaction model.
+Pen and Highlighter strokes synchronize to audience windows, remain across Steps
+on the current slide, and participate in Undo and Clear. Laser synchronizes as a
+transient point and an audience ignores it unless its exact Slide and Step match
+the speaker's position. A newly opened audience receives the speaker's current
+persistent focus snapshot.
 
 The SVG overlay is mounted inside `.drever-canvas`, above the Stage and outside
 `.drever-deck`. It therefore remains live and stationary while the deck owns
@@ -404,14 +406,14 @@ Explicit config values become local CSS custom properties on the interactive
 overlay. Omitted values continue through the normal CSS cascade, so themes or
 project styles can provide defaults without replacing the interaction model:
 
-| CSS variable                         | Default   | Purpose             |
-| ------------------------------------ | --------- | ------------------- |
-| `--drever-focus-pen-color`           | `#ff4f8b` | Pen color           |
-| `--drever-focus-pen-width`           | `8px`     | Pen width           |
-| `--drever-focus-highlighter-color`   | `#d5ff3f` | Highlighter color   |
-| `--drever-focus-highlighter-width`   | `34px`    | Highlighter width   |
-| `--drever-focus-highlighter-opacity` | `0.32`    | Highlighter opacity |
-| `--drever-focus-laser-color`         | `#ff2e6f` | Laser color         |
+| CSS variable                         | Default    | Purpose             |
+| ------------------------------------ | ---------- | ------------------- |
+| `--drever-focus-pen-color`           | Continuity | Pen color           |
+| `--drever-focus-pen-width`           | `8px`      | Pen width           |
+| `--drever-focus-highlighter-color`   | Signal     | Highlighter color   |
+| `--drever-focus-highlighter-width`   | `34px`     | Highlighter width   |
+| `--drever-focus-highlighter-opacity` | `0.32`     | Highlighter opacity |
+| `--drever-focus-laser-color`         | Continuity | Laser color         |
 
 On fine-pointer displays, the command bar leaves the interaction surface after
 1.8 seconds without pointer activity and returns on movement or focus. Coarse

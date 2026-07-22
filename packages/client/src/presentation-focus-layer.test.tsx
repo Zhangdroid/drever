@@ -88,4 +88,55 @@ describe("presentation focus layer", () => {
     expect(markup).toContain('class="drever-presentation-focus__laser-halo"');
     expect(markup).toContain('class="drever-presentation-focus__laser-core"');
   });
+
+  it("renders speaker marks beside local marks and follows their slide and Step scope", () => {
+    let local = createPresentationFocusState(intro, "pen");
+    local = reducePresentationFocus(local, { point: { x: 0.1, y: 0.2 }, type: "begin" });
+    local = reducePresentationFocus(local, { point: { x: 0.3, y: 0.4 }, type: "end" });
+
+    let remote = createPresentationFocusState(intro, "highlighter");
+    remote = reducePresentationFocus(remote, { point: { x: 0.4, y: 0.5 }, type: "begin" });
+    remote = reducePresentationFocus(remote, { point: { x: 0.7, y: 0.5 }, type: "end" });
+    remote = reducePresentationFocus(remote, { tool: "laser", type: "selectTool" });
+    remote = reducePresentationFocus(remote, { point: { x: 0.8, y: 0.25 }, type: "move" });
+
+    const samePosition = renderToStaticMarkup(
+      <PresentationFocusLayer
+        active={false}
+        canvas={canvas}
+        dispatch={vi.fn()}
+        position={intro}
+        remoteState={remote}
+        state={local}
+      />,
+    );
+    const nextStep = renderToStaticMarkup(
+      <PresentationFocusLayer
+        active={false}
+        canvas={canvas}
+        dispatch={vi.fn()}
+        position={{ ...intro, step: 1 }}
+        remoteState={remote}
+        state={local}
+      />,
+    );
+    const nextSlide = renderToStaticMarkup(
+      <PresentationFocusLayer
+        active={false}
+        canvas={canvas}
+        dispatch={vi.fn()}
+        position={{ slideId: "details", slideIndex: 1, step: 0 }}
+        remoteState={remote}
+        state={local}
+      />,
+    );
+
+    expect(samePosition).toContain('data-focus-source="speaker"');
+    expect(samePosition).toContain('data-focus-source="local"');
+    expect(samePosition).toContain("data-drever-focus-laser");
+    expect(nextStep).toContain('data-focus-source="speaker"');
+    expect(nextStep).toContain('data-focus-source="local"');
+    expect(nextStep).not.toContain("data-drever-focus-laser");
+    expect(nextSlide).not.toContain("data-focus-source");
+  });
 });

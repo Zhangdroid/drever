@@ -24,8 +24,8 @@ import { AudienceControls } from "./audience-controls.tsx";
 import { CanvasViewport, DEFAULT_CANVAS } from "./canvas.tsx";
 import { DreverClientError, isAbortError } from "./client-error.ts";
 import type { PresentationCommit } from "./navigation.ts";
-import type { PresentationLaserStore } from "./presentation-laser.ts";
 import type { PresentationFocusAppearance } from "./presentation-focus.ts";
+import type { PresentationFocusStore } from "./presentation-focus-store.ts";
 import type {
   DeckCommand,
   DeckPosition,
@@ -170,7 +170,7 @@ export type ViewerHostProps = Omit<ViewerProps, "manifest" | "onPositionCommitte
     onOpenDocument(): void;
     onOpenSpeaker(): void;
     registerCommit: ViewerCommitRegistrar;
-    remoteLaser: PresentationLaserStore;
+    remoteFocus: PresentationFocusStore;
     store: PresentationStore;
   }>;
 
@@ -202,7 +202,7 @@ export const ViewerHost = ({
   onOpenDocument,
   onOpenSpeaker,
   registerCommit,
-  remoteLaser,
+  remoteFocus,
   store,
   ...viewerProps
 }: ViewerHostProps): ReactElement => {
@@ -398,7 +398,7 @@ export const ViewerHost = ({
         onOpenDocument={onOpenDocument}
         onOpenSpeaker={onOpenSpeaker}
         position={position}
-        remoteLaser={remoteLaser}
+        remoteFocus={remoteFocus}
       />
     </>
   );

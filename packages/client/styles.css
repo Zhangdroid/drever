@@ -109,18 +109,18 @@
   }
 
   .drever-presentation-focus__stroke--pen {
-    stroke: var(--drever-focus-pen-color, #ff4f8b);
+    stroke: var(--drever-focus-pen-color, var(--drever-brand-color-continuity, #5b45d8));
     stroke-width: var(--drever-focus-pen-width, 8px);
   }
 
   .drever-presentation-focus__stroke--highlighter {
     opacity: var(--drever-focus-highlighter-opacity, 0.32);
-    stroke: var(--drever-focus-highlighter-color, #d5ff3f);
+    stroke: var(--drever-focus-highlighter-color, var(--drever-brand-color-signal, #c7f03a));
     stroke-width: var(--drever-focus-highlighter-width, 34px);
   }
 
   .drever-presentation-focus__laser {
-    color: var(--drever-focus-laser-color, #ff2e6f);
+    color: var(--drever-focus-laser-color, var(--drever-brand-color-continuity, #5b45d8));
     pointer-events: none;
   }
 
@@ -134,7 +134,7 @@
   }
 
   .drever-presentation-focus__laser-core {
-    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 28%));
+    filter: drop-shadow(0 1px 2px rgb(from var(--drever-brand-color-ink, #19172b) r g b / 28%));
     opacity: 0.94;
   }
 
@@ -362,15 +362,75 @@
   }
 
   .drever-audience-controls {
+    --drever-controls-ink: var(--drever-brand-color-ink, #19172b);
+    --drever-controls-paper: var(--drever-brand-color-paper, #f6f3e9);
+    --drever-controls-white: var(--drever-brand-color-white, #fff);
+    --drever-controls-line: var(--drever-brand-color-line, #d9d4e1);
+    --drever-controls-text: var(--drever-brand-color-ink, #19172b);
+    --drever-controls-muted: var(--drever-brand-color-graphite, #686474);
+    --drever-controls-danger: #9f2345;
+    --drever-controls-signal: var(--drever-brand-color-signal, #c7f03a);
+    --drever-controls-continuity: var(--drever-brand-color-continuity, #5b45d8);
+    --drever-controls-continuity-soft: var(--drever-brand-color-continuity-soft, #e9e4ff);
+    --drever-controls-glass-blur: var(--drever-brand-material-iris-glass-blur, 1.125rem);
+    --drever-controls-glass-saturation: var(--drever-brand-material-iris-glass-saturation, 1.35);
+    --drever-controls-glass-surface-opacity: var(
+      --drever-brand-material-iris-glass-surface-opacity,
+      0.72
+    );
+    --drever-controls-glass-overlay-opacity: var(
+      --drever-brand-material-iris-glass-overlay-opacity,
+      0.88
+    );
+    --drever-controls-glass-top: color-mix(
+      in srgb,
+      var(--drever-controls-white) 92%,
+      var(--drever-controls-continuity-soft)
+    );
+    --drever-controls-glass-bottom: color-mix(
+      in srgb,
+      var(--drever-controls-paper) 96%,
+      var(--drever-controls-continuity-soft)
+    );
+    --drever-controls-glass-filter: blur(var(--drever-controls-glass-blur))
+      saturate(var(--drever-controls-glass-saturation));
+    --drever-controls-glass-specular: rgb(from var(--drever-controls-white) r g b / 64%);
+    --drever-controls-shadow: rgb(from var(--drever-controls-ink) r g b / 18%);
+    --drever-controls-shadow-strong: rgb(from var(--drever-controls-ink) r g b / 24%);
+    --drever-controls-stage: linear-gradient(
+      180deg,
+      rgb(
+        from var(--drever-controls-glass-top) r g b / var(--drever-controls-glass-surface-opacity)
+      ),
+      rgb(
+        from var(--drever-controls-glass-bottom) r g b /
+          var(--drever-controls-glass-surface-opacity)
+      )
+    );
+    --drever-controls-surface: linear-gradient(
+      180deg,
+      rgb(
+        from var(--drever-controls-glass-top) r g b / var(--drever-controls-glass-overlay-opacity)
+      ),
+      rgb(
+        from var(--drever-controls-glass-bottom) r g b /
+          var(--drever-controls-glass-overlay-opacity)
+      )
+    );
     position: fixed;
     z-index: 20;
     inset: 0;
     pointer-events: none;
-    color: #f7f8fb;
-    color-scheme: dark;
-    font-family:
-      Inter, Aptos, "SF Pro Display", "Segoe UI Variable Display", ui-sans-serif, system-ui,
-      sans-serif;
+    color: var(--drever-controls-text);
+    color-scheme: light;
+    font-family: var(
+      --drever-brand-font-family-sans,
+      "Instrument Sans",
+      "PingFang SC",
+      "Segoe UI",
+      system-ui,
+      sans-serif
+    );
     font-synthesis: none;
     view-transition-name: none;
   }
@@ -382,23 +442,22 @@
     display: flex;
     align-items: center;
     box-sizing: border-box;
-    min-height: 48px;
+    min-height: 56px;
     padding: 5px;
-    border: 1px solid rgb(255 255 255 / 13%);
-    border-radius: 15px;
-    background: linear-gradient(180deg, rgb(26 30 40 / 72%), rgb(9 12 18 / 64%));
+    border: 1px solid color-mix(in srgb, var(--drever-controls-line) 76%, transparent);
+    border-radius: 14px;
+    background: var(--drever-controls-stage);
     box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 8%),
-      0 14px 42px rgb(0 0 0 / 28%);
-    opacity: 0.86;
+      inset 0 1px 0 var(--drever-controls-glass-specular),
+      0 10px 28px var(--drever-controls-shadow);
+    opacity: 1;
     pointer-events: auto;
     transform: translateX(-50%);
     transition:
-      opacity 160ms ease,
-      background 160ms ease,
-      box-shadow 160ms ease,
-      transform 220ms ease;
-    backdrop-filter: blur(22px) saturate(150%);
+      opacity 180ms ease-out,
+      transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+    backdrop-filter: var(--drever-controls-glass-filter);
+    -webkit-backdrop-filter: var(--drever-controls-glass-filter);
   }
 
   .drever-audience-focus-anchor {
@@ -409,21 +468,23 @@
 
   .drever-audience-focus-tools {
     position: absolute;
-    bottom: calc(100% + 10px);
+    bottom: calc(100% + 8px);
     left: 50%;
     display: flex;
     align-items: center;
     box-sizing: border-box;
     padding: 5px;
-    border: 1px solid rgb(255 255 255 / 13%);
-    border-radius: 15px;
-    background: linear-gradient(180deg, rgb(31 36 48 / 88%), rgb(11 14 21 / 84%));
+    border: 1px solid color-mix(in srgb, var(--drever-controls-line) 76%, transparent);
+    border-radius: 14px;
+    background: var(--drever-controls-surface);
     box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 8%),
-      0 14px 42px rgb(0 0 0 / 32%);
+      inset 0 1px 0 var(--drever-controls-glass-specular),
+      0 14px 34px var(--drever-controls-shadow);
     gap: 2px;
     transform: translateX(-50%);
-    backdrop-filter: blur(22px) saturate(150%);
+    animation: drever-audience-focus-tools-in 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    backdrop-filter: var(--drever-controls-glass-filter);
+    -webkit-backdrop-filter: var(--drever-controls-glass-filter);
   }
 
   .drever-audience-focus-tools::after {
@@ -431,47 +492,17 @@
     top: 100%;
     left: 0;
     width: 100%;
-    height: 10px;
+    height: 8px;
     content: "";
   }
 
   .drever-audience-controls__bar .drever-audience-focus-tools button {
-    display: inline-grid;
-    min-width: 40px;
-    padding: 0 8px;
-    grid-auto-flow: column;
-    gap: 6px;
-    white-space: nowrap;
-  }
-
-  .drever-audience-focus-tools button > span {
-    font-size: 11px;
-    font-weight: 660;
-  }
-
-  .drever-audience-focus-tools button > kbd {
-    min-width: 16px;
-    padding: 2px 4px;
-    border: 1px solid rgb(255 255 255 / 13%);
-    border-radius: 5px;
-    background: rgb(255 255 255 / 7%);
-    color: #aeb6c6;
-    font:
-      620 9px/1 ui-monospace,
-      "SFMono-Regular",
-      Consolas,
-      monospace;
-  }
-
-  .drever-audience-focus-tools button[aria-pressed="true"] {
-    background: rgb(145 167 255 / 20%);
-    color: #c8d2ff;
+    min-width: 44px;
+    padding: 0;
   }
 
   .drever-audience-controls__bar:hover,
   .drever-audience-controls__bar:focus-within {
-    background: linear-gradient(180deg, rgb(31 36 48 / 84%), rgb(11 14 21 / 78%));
-    box-shadow: 0 16px 48px rgb(0 0 0 / 38%);
     opacity: 1;
   }
 
@@ -479,7 +510,7 @@
     .drever-audience-controls__bar:not(:focus-within) {
     opacity: 0;
     pointer-events: none;
-    transform: translate(-50%, 10px) scale(0.98);
+    transform: translate(-50%, 8px);
   }
 
   :root[data-drever-cursor-hidden],
@@ -507,6 +538,23 @@
     position: relative;
   }
 
+  .drever-audience-controls__bar button {
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 8px;
+    color: var(--drever-controls-muted);
+    transition:
+      color 120ms ease-out,
+      background-color 120ms ease-out,
+      transform 120ms ease-out;
+  }
+
+  .drever-audience-controls__bar button svg [stroke] {
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+  }
+
   .drever-audience-controls__bar button[data-drever-tooltip]::after {
     position: absolute;
     z-index: 3;
@@ -514,16 +562,18 @@
     left: 50%;
     width: max-content;
     max-width: min(240px, calc(100vw - 24px));
-    padding: 6px 8px;
-    border: 1px solid rgb(255 255 255 / 11%);
-    border-radius: 7px;
+    padding: 7px 9px;
+    border: 1px solid color-mix(in srgb, var(--drever-controls-ink) 14%, transparent);
+    border-radius: 8px;
     visibility: hidden;
-    background: rgb(11 14 21 / 94%);
-    box-shadow: 0 8px 24px rgb(0 0 0 / 24%);
-    color: #e8ebf2;
+    background: var(--drever-controls-surface);
+    box-shadow:
+      inset 0 1px 0 var(--drever-controls-glass-specular),
+      0 8px 22px var(--drever-controls-shadow-strong);
+    color: var(--drever-controls-ink);
     content: attr(data-drever-tooltip);
-    font-size: 10px;
-    font-weight: 620;
+    font-size: 11px;
+    font-weight: 650;
     letter-spacing: 0.01em;
     line-height: 1.2;
     opacity: 0;
@@ -534,6 +584,19 @@
       transform 100ms ease,
       visibility 0s linear 80ms;
     white-space: nowrap;
+    backdrop-filter: var(--drever-controls-glass-filter);
+    -webkit-backdrop-filter: var(--drever-controls-glass-filter);
+  }
+
+  .drever-audience-controls__bar > button:first-child[data-drever-tooltip]::after {
+    left: 0;
+    transform: translateY(4px);
+  }
+
+  .drever-audience-controls__bar > button:last-child[data-drever-tooltip]::after {
+    right: 0;
+    left: auto;
+    transform: translateY(4px);
   }
 
   @media (hover: hover) {
@@ -542,6 +605,11 @@
       opacity: 1;
       transform: translate(-50%, 0);
       transition-delay: 320ms;
+    }
+
+    .drever-audience-controls__bar > button:first-child[data-drever-tooltip]:hover::after,
+    .drever-audience-controls__bar > button:last-child[data-drever-tooltip]:hover::after {
+      transform: translateY(0);
     }
   }
 
@@ -552,20 +620,59 @@
     transition-delay: 80ms;
   }
 
+  .drever-audience-controls__bar > button:first-child[data-drever-tooltip]:focus-visible::after,
+  .drever-audience-controls__bar > button:last-child[data-drever-tooltip]:focus-visible::after {
+    transform: translateY(0);
+  }
+
   .drever-audience-controls__bar button[aria-expanded="true"]::after {
     display: none;
   }
 
-  .drever-audience-controls__bar button:hover:not(:disabled),
-  .drever-audience-dialog button:hover:not(:disabled) {
-    background: rgb(255 255 255 / 10%);
+  .drever-audience-controls__bar button:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--drever-controls-text) 10%, transparent);
+    color: var(--drever-controls-text);
   }
 
-  .drever-audience-controls__bar button:focus-visible,
+  .drever-audience-controls__bar button:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  .drever-audience-dialog button:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--drever-controls-ink) 8%, transparent);
+  }
+
+  .drever-audience-controls__bar button:focus-visible {
+    outline: 2px solid var(--drever-controls-continuity);
+    outline-offset: 2px;
+  }
+
   .drever-audience-dialog button:focus-visible,
   .drever-audience-dialog input:focus-visible {
-    outline: 2px solid #91a7ff;
+    outline: 2px solid var(--drever-controls-continuity);
     outline-offset: 2px;
+  }
+
+  .drever-audience-focus-anchor > button[aria-pressed="true"],
+  .drever-audience-focus-tools button[aria-pressed="true"] {
+    background: var(--drever-controls-signal);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--drever-controls-ink) 38%, transparent),
+      inset 0 -2px 0 var(--drever-controls-ink);
+    color: var(--drever-controls-ink);
+  }
+
+  .drever-audience-focus-anchor[data-palette-open] > button[aria-pressed="true"] {
+    background: color-mix(in srgb, var(--drever-controls-ink) 8%, transparent);
+    box-shadow: none;
+    color: var(--drever-controls-ink);
+  }
+
+  .drever-audience-focus-anchor:not([data-palette-open])
+    > button[aria-pressed="true"]:focus-visible,
+  .drever-audience-focus-tools button[aria-pressed="true"]:focus-visible {
+    outline-color: var(--drever-controls-ink);
+    outline-offset: -4px;
   }
 
   .drever-audience-controls__bar button:disabled {
@@ -575,11 +682,14 @@
 
   .drever-audience-controls__bar .drever-audience-controls__position {
     display: grid;
-    min-width: 164px;
-    padding: 0 10px 0 7px;
-    grid-template-columns: 22px auto;
+    min-width: 156px;
+    padding: 0 10px 0 8px;
+    grid-template-columns: 20px auto;
     justify-content: start;
     gap: 8px;
+    background: transparent;
+    box-shadow: none;
+    color: var(--drever-controls-text);
     text-align: left;
   }
 
@@ -598,23 +708,32 @@
 
   .drever-audience-controls__position strong {
     font-size: 12px;
-    font-weight: 690;
-    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+    font-weight: 650;
+    letter-spacing: 0;
   }
 
   .drever-audience-controls__position small {
-    color: #9ba2b0;
+    color: var(--drever-controls-muted);
+    font-family: var(
+      --drever-brand-font-family-mono,
+      "SFMono-Regular",
+      "Cascadia Code",
+      ui-monospace,
+      monospace
+    );
     font-size: 9px;
-    font-weight: 680;
-    letter-spacing: 0.05em;
+    font-variant-numeric: tabular-nums;
+    font-weight: 650;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
   }
 
   .drever-audience-controls__divider {
     width: 1px;
-    height: 24px;
+    height: 20px;
     margin: 0 4px;
-    background: rgb(255 255 255 / 13%);
+    background: var(--drever-controls-line);
   }
 
   .drever-audience-share-status {
@@ -622,18 +741,22 @@
     bottom: max(78px, calc(62px + env(safe-area-inset-bottom)));
     left: 50%;
     padding: 8px 12px;
-    border: 1px solid rgb(255 255 255 / 14%);
-    border-radius: 10px;
-    background: rgb(12 15 21 / 92%);
-    box-shadow: 0 10px 32px rgb(0 0 0 / 28%);
+    border: 1px solid color-mix(in srgb, var(--drever-controls-line) 76%, transparent);
+    border-radius: 8px;
+    background: var(--drever-controls-surface);
+    box-shadow:
+      inset 0 1px 0 var(--drever-controls-glass-specular),
+      0 10px 28px var(--drever-controls-shadow);
     font-size: 12px;
     font-weight: 650;
     pointer-events: none;
     transform: translateX(-50%);
+    backdrop-filter: var(--drever-controls-glass-filter);
+    -webkit-backdrop-filter: var(--drever-controls-glass-filter);
   }
 
   .drever-audience-share-status[data-share-result="failed"] {
-    color: #ffb4ad;
+    color: var(--drever-controls-danger);
   }
 
   .drever-audience-goto {
@@ -643,20 +766,23 @@
     display: grid;
     min-width: 180px;
     padding: 15px 18px;
-    border: 1px solid rgb(255 255 255 / 14%);
+    border: 1px solid color-mix(in srgb, var(--drever-controls-line) 76%, transparent);
     border-radius: 14px;
-    background: rgb(12 15 21 / 92%);
-    box-shadow: 0 18px 54px rgb(0 0 0 / 34%);
+    background: var(--drever-controls-surface);
+    box-shadow:
+      inset 0 1px 0 var(--drever-controls-glass-specular),
+      0 16px 42px var(--drever-controls-shadow-strong);
     gap: 2px;
     pointer-events: auto;
     transform: translateX(-50%);
     text-align: center;
-    backdrop-filter: blur(18px);
+    backdrop-filter: var(--drever-controls-glass-filter);
+    -webkit-backdrop-filter: var(--drever-controls-glass-filter);
   }
 
   .drever-audience-goto span,
   .drever-audience-goto small {
-    color: #9ba2b0;
+    color: var(--drever-controls-muted);
     font-size: 10px;
     font-weight: 690;
     letter-spacing: 0.07em;
@@ -697,17 +823,22 @@
     box-sizing: border-box;
     padding: 0;
     overflow: hidden;
-    border: 1px solid #333a48;
-    border-radius: 20px;
-    background: #11151d;
-    box-shadow: 0 30px 100px rgb(0 0 0 / 58%);
-    color: #f7f8fb;
+    border: 1px solid color-mix(in srgb, var(--drever-controls-line) 76%, transparent);
+    border-radius: var(--drever-brand-radius-large, 1.25rem);
+    background: var(--drever-controls-surface);
+    box-shadow:
+      inset 0 1px 0 var(--drever-controls-glass-specular),
+      0 30px 100px rgb(from var(--drever-controls-ink) r g b / 36%);
+    color: var(--drever-controls-text);
     pointer-events: auto;
+    backdrop-filter: var(--drever-controls-glass-filter);
+    -webkit-backdrop-filter: var(--drever-controls-glass-filter);
   }
 
   .drever-audience-dialog::backdrop {
-    background: rgb(3 5 9 / 72%);
-    backdrop-filter: blur(5px);
+    background: rgb(from var(--drever-brand-color-ink, #19172b) r g b / 42%);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
   }
 
   .drever-audience-dialog__content {
@@ -729,9 +860,9 @@
   }
 
   .drever-audience-dialog__content > header span {
-    color: #8e97a8;
+    color: var(--drever-controls-muted);
     font-size: 10px;
-    font-weight: 760;
+    font-weight: var(--drever-brand-font-weight-bold, 700);
     letter-spacing: 0.12em;
     text-transform: uppercase;
   }
@@ -739,14 +870,14 @@
   .drever-audience-dialog__content > header h2 {
     margin: 0;
     font-size: 23px;
-    font-weight: 720;
+    font-weight: var(--drever-brand-font-weight-bold, 700);
     letter-spacing: -0.025em;
   }
 
   .drever-audience-dialog__content > header button {
-    color: #aeb5c1;
+    color: var(--drever-controls-muted);
     font-size: 25px;
-    font-weight: 320;
+    font-weight: var(--drever-brand-font-weight-regular, 400);
   }
 
   .drever-audience-dialog__search {
@@ -759,16 +890,16 @@
     height: 42px;
     box-sizing: border-box;
     padding: 0 13px;
-    border: 1px solid #343b49;
-    border-radius: 11px;
-    background: #191e28;
-    color: #f7f8fb;
+    border: 1px solid color-mix(in srgb, var(--drever-controls-line) 88%, transparent);
+    border-radius: var(--drever-brand-radius-small, 0.5rem);
+    background: rgb(from var(--drever-controls-white) r g b / 58%);
+    color: var(--drever-controls-text);
     font: inherit;
     font-size: 13px;
   }
 
   .drever-audience-dialog__search input::placeholder {
-    color: #737c8c;
+    color: var(--drever-controls-muted);
   }
 
   .drever-audience-dialog__slides {
@@ -786,9 +917,9 @@
     min-width: 0;
     min-height: 64px;
     padding: 11px 13px;
-    border: 1px solid #2d3441;
-    border-radius: 12px;
-    background: #171c25;
+    border: 1px solid color-mix(in srgb, var(--drever-controls-line) 82%, transparent);
+    border-radius: var(--drever-brand-radius-medium, 0.875rem);
+    background: rgb(from var(--drever-controls-white) r g b / 38%);
     grid-template-columns: 30px minmax(0, 1fr) auto;
     justify-items: start;
     align-items: center;
@@ -797,20 +928,25 @@
   }
 
   .drever-audience-slide-link:hover {
-    border-color: #485367;
+    border-color: color-mix(
+      in srgb,
+      var(--drever-controls-continuity) 42%,
+      var(--drever-controls-line)
+    );
   }
 
   .drever-audience-slide-link[aria-current="page"] {
-    border-color: #657fe7;
-    background: #1d2745;
-    box-shadow: inset 0 0 0 1px rgb(124 156 255 / 18%);
+    border-color: var(--drever-controls-continuity);
+    background: color-mix(in srgb, var(--drever-controls-continuity-soft) 72%, transparent);
+    box-shadow: inset 0 0 0 1px
+      color-mix(in srgb, var(--drever-controls-continuity) 16%, transparent);
   }
 
   .drever-audience-slide-link > span {
-    color: #7f8999;
+    color: var(--drever-controls-muted);
     font-size: 11px;
     font-variant-numeric: tabular-nums;
-    font-weight: 720;
+    font-weight: var(--drever-brand-font-weight-bold, 700);
     letter-spacing: 0.08em;
   }
 
@@ -818,22 +954,22 @@
     min-width: 0;
     overflow: hidden;
     font-size: 13px;
-    font-weight: 650;
+    font-weight: var(--drever-brand-font-weight-semibold, 650);
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   .drever-audience-slide-link > small {
-    color: #9fb1ff;
+    color: var(--drever-controls-continuity);
     font-size: 9px;
-    font-weight: 760;
+    font-weight: var(--drever-brand-font-weight-bold, 700);
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
   .drever-audience-dialog__slides > p {
     margin: 22px 0;
-    color: #8e97a8;
+    color: var(--drever-controls-muted);
     font-size: 13px;
     grid-column: 1 / -1;
     text-align: center;
@@ -853,7 +989,7 @@
   .drever-audience-dialog__content--help dl > div {
     display: grid;
     padding: 12px 0;
-    border-top: 1px solid #292f3a;
+    border-top: 1px solid var(--drever-controls-line);
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 24px;
   }
@@ -865,13 +1001,19 @@
   }
 
   .drever-audience-dialog__content--help dt {
-    color: #d9dde5;
-    font-weight: 630;
+    color: var(--drever-controls-text);
+    font-weight: var(--drever-brand-font-weight-semibold, 650);
   }
 
   .drever-audience-dialog__content--help dd {
-    color: #929baa;
-    font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+    color: var(--drever-controls-muted);
+    font-family: var(
+      --drever-brand-font-family-mono,
+      "SFMono-Regular",
+      "Cascadia Code",
+      ui-monospace,
+      monospace
+    );
     text-align: right;
   }
 
@@ -886,16 +1028,23 @@
     white-space: nowrap;
   }
 
-  @media (pointer: coarse) {
-    .drever-audience-controls__bar {
-      opacity: 0.82;
+  @keyframes drever-audience-focus-tools-in {
+    from {
+      opacity: 0;
+      translate: 0 8px;
+    }
+
+    to {
+      opacity: 1;
+      translate: 0 0;
     }
   }
 
   @media (max-width: 640px) {
-    .drever-audience-focus-tools button > span,
-    .drever-audience-focus-tools button > kbd {
-      display: none;
+    .drever-audience-focus-tools {
+      right: -12px;
+      left: auto;
+      transform: none;
     }
 
     .drever-audience-controls__bar .drever-audience-controls__position {
@@ -909,23 +1058,113 @@
 
   @media (prefers-reduced-motion: reduce) {
     .drever-audience-controls__bar,
+    .drever-audience-controls__bar button,
     .drever-audience-controls__bar button[data-drever-tooltip]::after {
       transition: none;
+    }
+
+    .drever-audience-focus-tools {
+      animation: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .drever-audience-controls__bar,
+    .drever-audience-focus-tools,
+    .drever-audience-share-status,
+    .drever-audience-goto,
+    .drever-audience-dialog,
+    .drever-audience-dialog__search input,
+    .drever-audience-slide-link,
+    .drever-audience-controls__bar button[data-drever-tooltip]::after {
+      border: 1px solid CanvasText;
+      background: Canvas;
+      box-shadow: none;
+      color: CanvasText;
+      backdrop-filter: none;
+    }
+
+    .drever-audience-focus-anchor > button[aria-pressed="true"],
+    .drever-audience-focus-tools button[aria-pressed="true"] {
+      outline: 2px solid Highlight;
+      background: Highlight;
+      color: HighlightText;
     }
   }
 
   .drever-speaker {
+    --drever-speaker-ink: var(--drever-brand-color-ink, #19172b);
+    --drever-speaker-white: var(--drever-brand-color-white, #fff);
+    --drever-speaker-signal: var(--drever-brand-color-signal, #c7f03a);
+    --drever-speaker-continuity: var(--drever-brand-color-continuity, #5b45d8);
+    --drever-speaker-canvas: var(--drever-brand-color-night, #111018);
+    --drever-speaker-surface: var(--drever-brand-color-night-surface, #1d1a2a);
+    --drever-speaker-line: var(--drever-brand-color-night-line, #3a3549);
+    --drever-speaker-text: var(--drever-brand-color-night-text, #f6f3e9);
+    --drever-speaker-muted: var(--drever-brand-color-night-muted, #b9b3c7);
+    --drever-speaker-hover: color-mix(
+      in srgb,
+      var(--drever-speaker-surface) 78%,
+      var(--drever-speaker-text)
+    );
+    --drever-speaker-subtle-line: color-mix(in srgb, var(--drever-speaker-line) 72%, transparent);
+    --drever-speaker-focus: var(--drever-speaker-signal);
+    --drever-speaker-status-ahead: #8fddbb;
+    --drever-speaker-status-behind: #ff9a91;
+    --drever-speaker-glass-blur: var(--drever-brand-material-iris-glass-blur, 1.125rem);
+    --drever-speaker-glass-saturation: var(--drever-brand-material-iris-glass-saturation, 1.35);
+    --drever-speaker-glass-surface-opacity: var(
+      --drever-brand-material-iris-glass-surface-opacity,
+      0.72
+    );
+    --drever-speaker-glass-overlay-opacity: var(
+      --drever-brand-material-iris-glass-overlay-opacity,
+      0.88
+    );
+    --drever-speaker-glass-top: color-mix(
+      in srgb,
+      var(--drever-speaker-surface) 90%,
+      var(--drever-speaker-continuity)
+    );
+    --drever-speaker-glass-bottom: color-mix(
+      in srgb,
+      var(--drever-speaker-canvas) 96%,
+      var(--drever-speaker-continuity)
+    );
+    --drever-speaker-glass-surface: linear-gradient(
+      180deg,
+      rgb(from var(--drever-speaker-glass-top) r g b / var(--drever-speaker-glass-surface-opacity)),
+      rgb(
+        from var(--drever-speaker-glass-bottom) r g b / var(--drever-speaker-glass-surface-opacity)
+      )
+    );
+    --drever-speaker-glass-overlay: linear-gradient(
+      180deg,
+      rgb(from var(--drever-speaker-glass-top) r g b / var(--drever-speaker-glass-overlay-opacity)),
+      rgb(
+        from var(--drever-speaker-glass-bottom) r g b / var(--drever-speaker-glass-overlay-opacity)
+      )
+    );
+    --drever-speaker-glass-filter: blur(var(--drever-speaker-glass-blur))
+      saturate(var(--drever-speaker-glass-saturation));
+    --drever-speaker-glass-specular: rgb(from var(--drever-speaker-text) r g b / 0.1);
     position: fixed;
     inset: 0;
     display: grid;
     box-sizing: border-box;
     grid-template-rows: 64px minmax(0, 1fr) 76px;
     overflow: hidden;
-    background: #0b0d12;
-    color: #f4f5f7;
-    font-family:
-      Inter, Aptos, "SF Pro Display", "Segoe UI Variable Display", ui-sans-serif, system-ui,
-      sans-serif;
+    background: var(--drever-speaker-canvas);
+    color: var(--drever-speaker-text);
+    color-scheme: dark;
+    font-family: var(
+      --drever-brand-font-family-sans,
+      "Instrument Sans",
+      "PingFang SC",
+      "Segoe UI",
+      system-ui,
+      sans-serif
+    );
     font-synthesis: none;
   }
 
@@ -933,23 +1172,34 @@
     min-height: 36px;
     box-sizing: border-box;
     padding: 0 15px;
-    border: 1px solid #343945;
-    border-radius: 10px;
-    background: #1b1e26;
-    color: #f4f5f7;
+    border: var(--drever-brand-stroke-hairline, 1px) solid var(--drever-speaker-line);
+    border-radius: var(--drever-brand-radius-small, 0.5rem);
+    background: var(--drever-speaker-surface);
+    color: var(--drever-speaker-text);
     font: inherit;
     font-size: 13px;
-    font-weight: 680;
+    font-weight: var(--drever-brand-font-weight-semibold, 650);
     cursor: pointer;
+    transition:
+      border-color var(--drever-brand-motion-duration-instant, 120ms) ease-out,
+      background-color var(--drever-brand-motion-duration-instant, 120ms) ease-out,
+      color var(--drever-brand-motion-duration-instant, 120ms) ease-out;
+  }
+
+  .drever-speaker button > svg,
+  .drever-speaker__timings summary > svg {
+    width: 18px;
+    height: 18px;
+    flex: none;
   }
 
   .drever-speaker button:hover:not(:disabled) {
-    border-color: #555d6e;
-    background: #252a35;
+    border-color: color-mix(in srgb, var(--drever-speaker-line) 68%, var(--drever-speaker-text));
+    background: var(--drever-speaker-hover);
   }
 
   .drever-speaker button:focus-visible {
-    outline: 2px solid #7c9cff;
+    outline: var(--drever-brand-stroke-strong, 2px) solid var(--drever-speaker-focus);
     outline-offset: 2px;
   }
 
@@ -963,15 +1213,15 @@
     display: flex;
     align-items: center;
     padding: 0 22px;
-    border-color: #252933;
-    background: #101218;
+    border-color: var(--drever-speaker-subtle-line);
+    background: var(--drever-speaker-canvas);
   }
 
   .drever-speaker__header {
     position: relative;
     z-index: 10;
     justify-content: space-between;
-    border-bottom: 1px solid #252933;
+    border-bottom: var(--drever-brand-stroke-hairline, 1px) solid var(--drever-speaker-subtle-line);
   }
 
   .drever-speaker__brand {
@@ -986,9 +1236,9 @@
   }
 
   .drever-speaker__brand > span {
-    color: #969daa;
+    color: var(--drever-speaker-muted);
     font-size: 12px;
-    font-weight: 650;
+    font-weight: var(--drever-brand-font-weight-semibold, 650);
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
@@ -1008,9 +1258,9 @@
 
   .drever-speaker__metric > span,
   .drever-speaker__target > span {
-    color: #858c99;
+    color: var(--drever-speaker-muted);
     font-size: 9px;
-    font-weight: 720;
+    font-weight: var(--drever-brand-font-weight-bold, 700);
     letter-spacing: 0.075em;
     line-height: 1;
     text-transform: uppercase;
@@ -1018,11 +1268,17 @@
 
   .drever-speaker__metric time,
   .drever-speaker__metric output {
-    color: #f8f9fb;
-    font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+    color: var(--drever-speaker-text);
+    font-family: var(
+      --drever-brand-font-family-mono,
+      "SFMono-Regular",
+      "Cascadia Code",
+      ui-monospace,
+      monospace
+    );
     font-size: 15px;
     font-variant-numeric: tabular-nums;
-    font-weight: 650;
+    font-weight: var(--drever-brand-font-weight-semibold, 650);
     letter-spacing: 0.025em;
     line-height: 1.1;
   }
@@ -1034,19 +1290,19 @@
   }
 
   .drever-speaker__metric--pace[data-rehearsal-status="ahead"] output {
-    color: #8fddbb;
+    color: var(--drever-speaker-status-ahead);
   }
 
   .drever-speaker__metric--pace[data-rehearsal-status="on-pace"] output {
-    color: #aebeff;
+    color: var(--drever-speaker-signal);
   }
 
   .drever-speaker__metric--pace[data-rehearsal-status="behind"] output {
-    color: #ff9a91;
+    color: var(--drever-speaker-status-behind);
   }
 
   .drever-speaker__metric[data-rehearsal-pace="over"] time {
-    color: #ff9a91;
+    color: var(--drever-speaker-status-behind);
   }
 
   .drever-speaker__target {
@@ -1058,23 +1314,26 @@
     height: 26px;
     box-sizing: border-box;
     padding: 0 7px;
-    border: 1px solid #343945;
-    border-radius: 7px;
-    background: #171a21;
-    color: #f4f5f7;
+    border: var(--drever-brand-stroke-hairline, 1px) solid var(--drever-speaker-line);
+    border-radius: var(--drever-brand-radius-small, 0.5rem);
+    background: var(--drever-speaker-surface);
+    color: var(--drever-speaker-text);
     color-scheme: dark;
-    font:
-      650 12px/1 ui-monospace,
-      "SFMono-Regular",
-      Consolas,
-      monospace;
+    font: var(--drever-brand-font-weight-semibold, 650) 12px/1
+      var(
+        --drever-brand-font-family-mono,
+        "SFMono-Regular",
+        "Cascadia Code",
+        ui-monospace,
+        monospace
+      );
     font-variant-numeric: tabular-nums;
   }
 
   .drever-speaker__target input:focus-visible,
   .drever-speaker__timings summary:focus-visible,
   .drever-speaker__slide-search input:focus-visible {
-    outline: 2px solid #7c9cff;
+    outline: var(--drever-brand-stroke-strong, 2px) solid var(--drever-speaker-focus);
     outline-offset: 2px;
   }
 
@@ -1083,18 +1342,20 @@
   }
 
   .drever-speaker__timings summary {
-    display: grid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     min-height: 30px;
     padding: 0 11px;
-    border: 1px solid #343945;
-    border-radius: 9px;
-    background: #1b1e26;
-    color: #f4f5f7;
+    border: var(--drever-brand-stroke-hairline, 1px) solid var(--drever-speaker-line);
+    border-radius: var(--drever-brand-radius-small, 0.5rem);
+    background: var(--drever-speaker-surface);
+    color: var(--drever-speaker-text);
     cursor: pointer;
     font-size: 11px;
-    font-weight: 680;
+    font-weight: var(--drever-brand-font-weight-semibold, 650);
+    gap: 7px;
     list-style: none;
-    place-items: center;
   }
 
   .drever-speaker__timings summary::-webkit-details-marker {
@@ -1103,8 +1364,8 @@
 
   .drever-speaker__timings[open] summary,
   .drever-speaker__timings summary:hover {
-    border-color: #555d6e;
-    background: #252a35;
+    border-color: color-mix(in srgb, var(--drever-speaker-line) 68%, var(--drever-speaker-text));
+    background: var(--drever-speaker-hover);
   }
 
   .drever-speaker__timings-popover {
@@ -1116,11 +1377,16 @@
     box-sizing: border-box;
     padding: 15px;
     overflow: auto;
-    border: 1px solid #343a47;
-    border-radius: 13px;
-    background: rgb(17 19 26 / 98%);
-    box-shadow: 0 20px 58px rgb(0 0 0 / 48%);
-    scrollbar-color: #424957 transparent;
+    border: var(--drever-brand-stroke-hairline, 1px) solid
+      color-mix(in srgb, var(--drever-speaker-line) 84%, transparent);
+    border-radius: var(--drever-brand-radius-medium, 0.875rem);
+    background: var(--drever-speaker-glass-overlay);
+    box-shadow:
+      inset 0 1px 0 var(--drever-speaker-glass-specular),
+      0 12px 36px rgb(0 0 0 / 32%);
+    scrollbar-color: var(--drever-speaker-line) transparent;
+    backdrop-filter: var(--drever-speaker-glass-filter);
+    -webkit-backdrop-filter: var(--drever-speaker-glass-filter);
   }
 
   .drever-speaker__timings-popover > strong {
@@ -1151,8 +1417,8 @@
   }
 
   .drever-speaker__timings-popover li[data-current] {
-    border-color: rgb(113 144 255 / 32%);
-    background: rgb(70 99 199 / 16%);
+    border-color: color-mix(in srgb, var(--drever-speaker-signal) 36%, transparent);
+    background: color-mix(in srgb, var(--drever-speaker-signal) 12%, transparent);
   }
 
   .drever-speaker__timings-popover li > span {
@@ -1173,24 +1439,35 @@
   }
 
   .drever-speaker__timings-popover li small {
-    color: #858c99;
+    color: var(--drever-speaker-muted);
     font-size: 10px;
   }
 
   .drever-speaker__timings-popover li time {
-    color: #d9dce3;
-    font:
-      620 12px/1 ui-monospace,
-      "SFMono-Regular",
-      Consolas,
-      monospace;
+    color: var(--drever-speaker-text);
+    font: var(--drever-brand-font-weight-semibold, 650) 12px/1
+      var(
+        --drever-brand-font-family-mono,
+        "SFMono-Regular",
+        "Cascadia Code",
+        ui-monospace,
+        monospace
+      );
     font-variant-numeric: tabular-nums;
   }
 
   .drever-speaker__timer button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     min-height: 30px;
     padding-inline: 11px;
     font-size: 11px;
+    gap: 7px;
+  }
+
+  .drever-speaker__rehearsal-reset {
+    color: var(--drever-speaker-muted);
   }
 
   .drever-speaker__workspace {
@@ -1209,9 +1486,9 @@
     min-width: 0;
     min-height: 0;
     overflow: hidden;
-    border: 1px solid #2b303b;
-    border-radius: 14px;
-    background: #151820;
+    border: var(--drever-brand-stroke-hairline, 1px) solid var(--drever-speaker-subtle-line);
+    border-radius: var(--drever-brand-radius-medium, 0.875rem);
+    background: var(--drever-speaker-surface);
   }
 
   .drever-speaker__preview:first-child {
@@ -1224,16 +1501,20 @@
     left: 10px;
     z-index: 4;
     padding: 5px 8px;
-    border: 1px solid rgb(255 255 255 / 12%);
-    border-radius: 7px;
-    background: rgb(8 10 15 / 78%);
-    box-shadow: 0 4px 14px rgb(0 0 0 / 24%);
-    color: #d8dce4;
+    border: var(--drever-brand-stroke-hairline, 1px) solid
+      color-mix(in srgb, var(--drever-speaker-line) 84%, transparent);
+    border-radius: var(--drever-brand-radius-small, 0.5rem);
+    background: var(--drever-speaker-glass-surface);
+    box-shadow:
+      inset 0 1px 0 var(--drever-speaker-glass-specular),
+      0 8px 24px rgb(0 0 0 / 24%);
+    color: var(--drever-speaker-text);
     font-size: 10px;
-    font-weight: 720;
+    font-weight: var(--drever-brand-font-weight-bold, 700);
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    backdrop-filter: blur(10px);
+    backdrop-filter: var(--drever-speaker-glass-filter);
+    -webkit-backdrop-filter: var(--drever-speaker-glass-filter);
   }
 
   .drever-speaker__preview-surface,
@@ -1242,26 +1523,26 @@
     inset: 0;
   }
 
-  .drever-speaker__laser-viewport {
+  .drever-speaker__focus-viewport {
     position: absolute;
     z-index: 3;
     inset: 0;
     overflow: hidden;
   }
 
-  .drever-speaker__laser-viewport > .drever-viewer {
+  .drever-speaker__focus-viewport > .drever-viewer {
     position: absolute;
     inset: 0;
     background: transparent;
   }
 
-  .drever-speaker__laser-viewport .drever-canvas {
+  .drever-speaker__focus-viewport .drever-canvas {
     background: transparent;
     box-shadow: none;
   }
 
   .drever-speaker__preview-surface > .drever-viewer {
-    background: #08090c;
+    background: color-mix(in srgb, var(--drever-speaker-canvas) 84%, black);
   }
 
   .drever-speaker__preview .drever-canvas {
@@ -1274,7 +1555,7 @@
   }
 
   .drever-speaker__preview--end p {
-    color: #7e8592;
+    color: var(--drever-speaker-muted);
     font-size: 14px;
   }
 
@@ -1288,18 +1569,18 @@
     align-items: center;
     justify-content: space-between;
     padding: 0 16px;
-    border-bottom: 1px solid #2b303b;
+    border-bottom: var(--drever-brand-stroke-hairline, 1px) solid var(--drever-speaker-subtle-line);
   }
 
   .drever-speaker__notes-heading span {
     font-size: 12px;
-    font-weight: 760;
+    font-weight: var(--drever-brand-font-weight-bold, 700);
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
   .drever-speaker__notes-heading small {
-    color: #8d94a1;
+    color: var(--drever-speaker-muted);
     font-size: 11px;
   }
 
@@ -1307,17 +1588,17 @@
     padding: 5px 18px 24px;
     overflow: auto;
     overscroll-behavior: contain;
-    scrollbar-color: #424957 transparent;
+    scrollbar-color: var(--drever-speaker-line) transparent;
   }
 
   .drever-speaker__notes-body:focus-visible {
-    outline: 2px solid #7c9cff;
+    outline: var(--drever-brand-stroke-strong, 2px) solid var(--drever-speaker-focus);
     outline-offset: -3px;
   }
 
   .drever-speaker__notes-body p {
     margin: 16px 0 0;
-    color: #e5e7eb;
+    color: var(--drever-speaker-text);
     font-size: clamp(14px, 1.35vw, 21px);
     letter-spacing: -0.012em;
     line-height: 1.52;
@@ -1325,13 +1606,13 @@
   }
 
   .drever-speaker__notes-body .drever-speaker__notes-empty {
-    color: #737b89;
+    color: var(--drever-speaker-muted);
     font-size: 14px;
   }
 
   .drever-speaker__controls {
     display: grid;
-    border-top: 1px solid #252933;
+    border-top: var(--drever-brand-stroke-hairline, 1px) solid var(--drever-speaker-subtle-line);
     grid-template-columns: 1fr auto 1fr;
     gap: 18px;
   }
@@ -1348,14 +1629,20 @@
     padding: 6px 10px;
     border-color: transparent;
     background: transparent;
+    grid-template-columns: 20px minmax(0, 1fr);
     justify-self: start;
     gap: 3px;
     text-align: left;
   }
 
+  .drever-speaker__progress > svg {
+    align-self: center;
+    grid-row: 1 / span 2;
+  }
+
   .drever-speaker .drever-speaker__progress:hover:not(:disabled) {
-    border-color: #343945;
-    background: #1b1e26;
+    border-color: var(--drever-speaker-line);
+    background: var(--drever-speaker-surface);
   }
 
   .drever-speaker__progress strong {
@@ -1363,7 +1650,7 @@
   }
 
   .drever-speaker__progress span {
-    color: #858c99;
+    color: var(--drever-speaker-muted);
     font-size: 11px;
     font-variant-numeric: tabular-nums;
   }
@@ -1375,17 +1662,22 @@
   }
 
   .drever-speaker__navigation button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     min-width: 108px;
+    gap: 7px;
   }
 
   .drever-speaker__navigation .drever-speaker__next {
-    border-color: #5677e8;
-    background: #3158d6;
+    border-color: color-mix(in srgb, var(--drever-speaker-signal) 78%, var(--drever-speaker-ink));
+    background: var(--drever-speaker-signal);
+    color: var(--drever-speaker-ink);
   }
 
   .drever-speaker__navigation .drever-speaker__next:hover:not(:disabled) {
-    border-color: #7793ee;
-    background: #3e65de;
+    border-color: var(--drever-speaker-signal);
+    background: color-mix(in srgb, var(--drever-speaker-signal) 86%, var(--drever-speaker-white));
   }
 
   .drever-speaker__actions {
@@ -1395,11 +1687,104 @@
     justify-self: end;
   }
 
-  .drever-speaker__laser-toggle[aria-pressed="true"] {
-    border-color: #ff5d8f;
-    background: rgb(255 46 111 / 16%);
-    box-shadow: inset 0 0 0 1px rgb(255 133 171 / 12%);
-    color: #ff8fb2;
+  .drever-speaker__focus-tools {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px;
+    border: var(--drever-brand-stroke-hairline, 1px) solid var(--drever-speaker-subtle-line);
+    border-radius: var(--drever-brand-radius-medium, 0.875rem);
+    background: color-mix(in srgb, var(--drever-speaker-surface) 72%, transparent);
+    gap: 2px;
+  }
+
+  .drever-speaker .drever-speaker__focus-tools button {
+    position: relative;
+    width: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    border-color: transparent;
+    background: transparent;
+    color: var(--drever-speaker-muted);
+  }
+
+  .drever-speaker .drever-speaker__focus-tools button:hover:not(:disabled) {
+    border-color: transparent;
+    background: var(--drever-speaker-hover);
+    color: var(--drever-speaker-text);
+  }
+
+  .drever-speaker .drever-speaker__focus-tools button[aria-pressed="true"] {
+    border-color: color-mix(in srgb, var(--drever-speaker-signal) 78%, var(--drever-speaker-ink));
+    background: var(--drever-speaker-signal);
+    color: var(--drever-speaker-ink);
+  }
+
+  .drever-speaker .drever-speaker__focus-tools button[aria-pressed="true"]:focus-visible {
+    outline-color: var(--drever-speaker-ink);
+    outline-offset: -4px;
+  }
+
+  .drever-speaker__focus-divider {
+    width: var(--drever-brand-stroke-hairline, 1px);
+    height: 18px;
+    margin-inline: 2px;
+    background: var(--drever-speaker-subtle-line);
+  }
+
+  .drever-speaker__focus-tools button[data-drever-tooltip]::after {
+    position: absolute;
+    z-index: 20;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    visibility: hidden;
+    padding: 6px 8px;
+    border: var(--drever-brand-stroke-hairline, 1px) solid
+      color-mix(in srgb, var(--drever-speaker-line) 84%, transparent);
+    border-radius: var(--drever-brand-radius-small, 0.5rem);
+    background: var(--drever-speaker-glass-overlay);
+    box-shadow:
+      inset 0 1px 0 var(--drever-speaker-glass-specular),
+      0 8px 22px rgb(0 0 0 / 28%);
+    color: var(--drever-speaker-text);
+    content: attr(data-drever-tooltip);
+    font-size: 11px;
+    font-weight: var(--drever-brand-font-weight-semibold, 650);
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 4px);
+    transition:
+      opacity var(--drever-brand-motion-duration-instant, 120ms) ease-out,
+      transform var(--drever-brand-motion-duration-instant, 120ms) ease-out,
+      visibility 0s linear var(--drever-brand-motion-duration-instant, 120ms);
+    white-space: nowrap;
+    backdrop-filter: var(--drever-speaker-glass-filter);
+    -webkit-backdrop-filter: var(--drever-speaker-glass-filter);
+  }
+
+  @media (hover: hover) {
+    .drever-speaker__focus-tools button[data-drever-tooltip]:hover::after {
+      visibility: visible;
+      opacity: 1;
+      transform: translate(-50%, 0);
+      transition-delay: 320ms;
+    }
+  }
+
+  .drever-speaker__focus-tools button[data-drever-tooltip]:focus-visible::after {
+    visibility: visible;
+    opacity: 1;
+    transform: translate(-50%, 0);
+    transition-delay: 80ms;
+  }
+
+  .drever-speaker__audience {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
   }
 
   .drever-speaker__slide-dialog {
@@ -1409,16 +1794,22 @@
     box-sizing: border-box;
     padding: 0;
     overflow: hidden;
-    border: 1px solid #343a47;
-    border-radius: 18px;
-    background: #11131a;
-    box-shadow: 0 30px 100px rgb(0 0 0 / 58%);
-    color: #f4f5f7;
+    border: var(--drever-brand-stroke-hairline, 1px) solid
+      color-mix(in srgb, var(--drever-speaker-line) 84%, transparent);
+    border-radius: var(--drever-brand-radius-large, 1.25rem);
+    background: var(--drever-speaker-glass-overlay);
+    box-shadow:
+      inset 0 1px 0 var(--drever-speaker-glass-specular),
+      0 12px 36px rgb(0 0 0 / 32%);
+    color: var(--drever-speaker-text);
+    backdrop-filter: var(--drever-speaker-glass-filter);
+    -webkit-backdrop-filter: var(--drever-speaker-glass-filter);
   }
 
   .drever-speaker__slide-dialog::backdrop {
-    background: rgb(3 5 9 / 72%);
+    background: rgb(17 16 24 / 72%);
     backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
   }
 
   .drever-speaker__slide-dialog-content {
@@ -1440,9 +1831,9 @@
   }
 
   .drever-speaker__slide-dialog-content > header span {
-    color: #858c99;
+    color: var(--drever-speaker-muted);
     font-size: 9px;
-    font-weight: 760;
+    font-weight: var(--drever-brand-font-weight-bold, 700);
     letter-spacing: 0.12em;
     text-transform: uppercase;
   }
@@ -1456,7 +1847,7 @@
   .drever-speaker__slide-dialog-content > header button {
     min-width: 36px;
     padding: 0;
-    color: #aeb5c1;
+    color: var(--drever-speaker-muted);
     font-size: 23px;
     font-weight: 320;
   }
@@ -1471,17 +1862,17 @@
     height: 42px;
     box-sizing: border-box;
     padding: 0 13px;
-    border: 1px solid #343b49;
-    border-radius: 10px;
-    background: #191c24;
-    color: #f4f5f7;
+    border: var(--drever-brand-stroke-hairline, 1px) solid var(--drever-speaker-line);
+    border-radius: var(--drever-brand-radius-small, 0.5rem);
+    background: var(--drever-speaker-surface);
+    color: var(--drever-speaker-text);
     color-scheme: dark;
     font: inherit;
     font-size: 13px;
   }
 
   .drever-speaker__slide-search input::placeholder {
-    color: #737c8c;
+    color: var(--drever-speaker-muted);
   }
 
   .drever-speaker__slide-results {
@@ -1493,7 +1884,7 @@
     gap: 6px;
     list-style: none;
     overscroll-behavior: contain;
-    scrollbar-color: #424957 transparent;
+    scrollbar-color: var(--drever-speaker-line) transparent;
   }
 
   .drever-speaker__slide-results li {
@@ -1514,13 +1905,19 @@
   }
 
   .drever-speaker__slide-results li > button[aria-current="page"] {
-    border-color: #657fe7;
-    background: #1d2745;
-    box-shadow: inset 0 0 0 1px rgb(124 156 255 / 18%);
+    border-color: color-mix(in srgb, var(--drever-speaker-signal) 72%, var(--drever-speaker-line));
+    background: color-mix(in srgb, var(--drever-speaker-signal) 12%, transparent);
+    box-shadow: inset 0 0 0 var(--drever-brand-stroke-hairline, 1px)
+      color-mix(in srgb, var(--drever-speaker-signal) 18%, transparent);
+  }
+
+  .drever-speaker__slide-results li > button[aria-current="page"]:hover:not(:disabled) {
+    border-color: var(--drever-speaker-signal);
+    background: color-mix(in srgb, var(--drever-speaker-signal) 18%, transparent);
   }
 
   .drever-speaker__slide-results button > span {
-    color: #7f8999;
+    color: var(--drever-speaker-muted);
     font-size: 11px;
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.08em;
@@ -1534,18 +1931,52 @@
   }
 
   .drever-speaker__slide-results button > small {
-    color: #9fb1ff;
+    color: var(--drever-speaker-signal);
     font-size: 9px;
-    font-weight: 760;
+    font-weight: var(--drever-brand-font-weight-bold, 700);
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
   .drever-speaker__slide-empty {
     padding: 28px 12px;
-    color: #858c99;
+    color: var(--drever-speaker-muted);
     font-size: 13px;
     text-align: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .drever-speaker button,
+    .drever-speaker__focus-tools button[data-drever-tooltip]::after {
+      transition: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .drever-speaker {
+      background: Canvas;
+      color: CanvasText;
+    }
+
+    .drever-speaker__timings-popover,
+    .drever-speaker__preview-label,
+    .drever-speaker__slide-dialog,
+    .drever-speaker__focus-tools button[data-drever-tooltip]::after {
+      border-color: CanvasText;
+      background: Canvas;
+      box-shadow: none;
+      color: CanvasText;
+      backdrop-filter: none;
+    }
+
+    .drever-speaker__navigation .drever-speaker__next,
+    .drever-speaker__focus-tools button[aria-pressed="true"],
+    .drever-speaker__slide-results li > button[aria-current="page"] {
+      border-color: Highlight;
+      background: Highlight;
+      box-shadow: none;
+      color: HighlightText;
+    }
   }
 
   @media (max-width: 900px) {
@@ -1574,13 +2005,7 @@
     }
   }
 
-  @media (max-width: 620px) {
-    .drever-speaker__metric--target {
-      display: none;
-    }
-  }
-
-  @media (max-width: 520px) {
+  @media (max-width: 700px) {
     .drever-speaker {
       grid-template-rows: 96px minmax(0, 1fr) 68px;
     }
@@ -1590,8 +2015,30 @@
     }
 
     .drever-speaker__controls {
+      grid-template-columns: auto minmax(0, 1fr) auto;
       padding-inline: 8px;
       gap: 6px;
+    }
+
+    .drever-speaker .drever-speaker__progress {
+      width: 44px;
+      min-width: 44px;
+      padding: 0;
+      grid-template-columns: 1fr;
+      place-items: center;
+    }
+
+    .drever-speaker__progress > svg {
+      grid-row: auto;
+    }
+
+    .drever-speaker__progress > strong,
+    .drever-speaker__progress > span {
+      display: none;
+    }
+
+    .drever-speaker__navigation {
+      justify-self: center;
     }
 
     .drever-speaker__navigation,
@@ -1600,11 +2047,13 @@
     }
 
     .drever-speaker__navigation button {
-      min-width: 76px;
+      width: 36px;
+      min-width: 36px;
+      padding: 0;
     }
 
-    .drever-speaker__laser-toggle {
-      padding-inline: 10px;
+    .drever-speaker__navigation button > span {
+      display: none;
     }
 
     .drever-speaker__audience {
@@ -1612,11 +2061,15 @@
       padding: 0;
     }
 
-    .drever-speaker__audience > span:first-child {
+    .drever-speaker__audience > span {
       display: none;
     }
 
     .drever-speaker__brand {
+      display: none;
+    }
+
+    .drever-speaker__metric--target {
       display: none;
     }
 

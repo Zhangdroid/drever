@@ -51,10 +51,10 @@ screens, numeric slide entry, Step-aware progress, keyboard help, and a compact
 control bar for pointer and touch users. Its session-local Focus Tools provide
 a transient laser plus pen and highlighter strokes with Undo and Clear. Ink
 survives Step changes on the current slide, clears on slide changes, and renders
-outside the deck View Transition. The speaker can also send a transient laser
-from its current preview to audience windows at the same exact Slide and Step
-through the existing `BroadcastChannel`. The point is neither saved nor retained
-as history; a late joiner sees it only while the presenter continues pointing.
+outside the deck View Transition. The speaker exposes the same three tools over
+its current preview and synchronizes their actions through the existing
+`BroadcastChannel`. A late audience receives persistent Pen and Highlighter ink;
+Laser remains transient and exact-Position scoped.
 The speaker view remains the authoritative place for persistent progress and
 notes.
 

@@ -17,8 +17,8 @@ import {
   type DeckPosition,
 } from "./presentation-state.ts";
 import { createPresentationRouteCodec } from "./presentation-route.ts";
-import { createPresentationLaserStore } from "./presentation-laser.ts";
 import type { PresentationFocusAppearance } from "./presentation-focus.ts";
+import { createPresentationFocusStore } from "./presentation-focus-store.ts";
 import {
   createAudienceSync,
   createBrowserPresentationChannel,
@@ -107,7 +107,7 @@ export const createViewer = async (options: CreateViewerOptions): Promise<Viewer
   const route = createPresentationRouteCodec({ baseURL, machine });
   const speakerRoute = createPresentationRouteCodec({ baseURL, machine, surface: "speaker" });
   const store = createPresentationStore(machine, route.decodeURL(currentURL));
-  const remoteLaser = createPresentationLaserStore();
+  const remoteFocus = createPresentationFocusStore(store.getSnapshot());
   const lifetime = new AbortController();
   const subscriptions = new Set<() => void>();
   let viewerCommit: PresentationCommit | undefined;
@@ -333,7 +333,7 @@ export const createViewer = async (options: CreateViewerOptions): Promise<Viewer
           onNavigate={navigateFromControls}
           onOpenDocument={openDocument}
           onOpenSpeaker={openSpeaker}
-          remoteLaser={remoteLaser}
+          remoteFocus={remoteFocus}
           reducedMotion={reducedMotion}
           registerCommit={registerCommit}
           {...(options.registry === undefined ? {} : { registry: options.registry })}
@@ -364,9 +364,9 @@ export const createViewer = async (options: CreateViewerOptions): Promise<Viewer
     };
     sync = createAudienceSync({
       channel: createBrowserPresentationChannel(platform.channelView, baseURL),
+      focus: remoteFocus,
       machine,
       navigate: activeNavigation.navigate,
-      onLaser: remoteLaser.set,
       onError: reportNavigationError,
     });
     keyboardDisposer = attachKeyboardNavigation({

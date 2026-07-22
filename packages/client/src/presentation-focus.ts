@@ -67,6 +67,19 @@ export type PresentationFocusAction =
   | Readonly<{ tool: PresentationFocusTool; type: "selectTool" }>
   | Readonly<{ type: "undo" }>;
 
+export const focusToolForKey = (key: string): PresentationFocusTool | undefined => {
+  switch (key.toLowerCase()) {
+    case "h":
+      return "highlighter";
+    case "i":
+      return "pen";
+    case "l":
+      return "laser";
+    default:
+      return undefined;
+  }
+};
+
 type FocusStateInput = Readonly<{
   activeStroke: PresentationFocusStroke | undefined;
   laser: NormalizedCanvasPoint | undefined;
@@ -82,12 +95,19 @@ const fail = (code: string, message: string): never => {
   throw new DreverClientError(code, message);
 };
 
-const snapshotPosition = (position: DeckPosition): DeckPosition => {
+const snapshotPosition = (position: unknown): DeckPosition => {
   if (
+    typeof position !== "object" ||
+    position === null ||
+    !("slideId" in position) ||
+    !("slideIndex" in position) ||
+    !("step" in position) ||
     typeof position.slideId !== "string" ||
     position.slideId.length === 0 ||
+    typeof position.slideIndex !== "number" ||
     !Number.isSafeInteger(position.slideIndex) ||
     position.slideIndex < 0 ||
+    typeof position.step !== "number" ||
     !Number.isSafeInteger(position.step) ||
     position.step < 0
   ) {
@@ -103,7 +123,7 @@ const snapshotPosition = (position: DeckPosition): DeckPosition => {
   });
 };
 
-const snapshotTool = (tool: PresentationFocusTool): PresentationFocusTool => {
+const snapshotTool = (tool: unknown): PresentationFocusTool => {
   if (tool !== "laser" && tool !== "pen" && tool !== "highlighter") {
     return fail(
       "DREVER_CLIENT_FOCUS_TOOL_INVALID",
@@ -113,8 +133,14 @@ const snapshotTool = (tool: PresentationFocusTool): PresentationFocusTool => {
   return tool;
 };
 
-const snapshotPoint = (point: NormalizedCanvasPoint): NormalizedCanvasPoint => {
+const snapshotPoint = (point: unknown): NormalizedCanvasPoint => {
   if (
+    typeof point !== "object" ||
+    point === null ||
+    !("x" in point) ||
+    !("y" in point) ||
+    typeof point.x !== "number" ||
+    typeof point.y !== "number" ||
     !Number.isFinite(point.x) ||
     !Number.isFinite(point.y) ||
     point.x < 0 ||
@@ -128,6 +154,31 @@ const snapshotPoint = (point: NormalizedCanvasPoint): NormalizedCanvasPoint => {
     );
   }
   return Object.freeze({ x: point.x, y: point.y });
+};
+
+const snapshotStroke = (stroke: unknown): PresentationFocusStroke => {
+  if (
+    typeof stroke !== "object" ||
+    stroke === null ||
+    !("id" in stroke) ||
+    !("points" in stroke) ||
+    !("tool" in stroke) ||
+    typeof stroke.id !== "string" ||
+    !/^focus-(?:0|[1-9]\d*)$/u.test(stroke.id) ||
+    !Array.isArray(stroke.points) ||
+    stroke.points.length === 0 ||
+    (stroke.tool !== "pen" && stroke.tool !== "highlighter")
+  ) {
+    return fail(
+      "DREVER_CLIENT_FOCUS_STROKE_INVALID",
+      "A focus stroke must contain a generated id, at least one normalized point, and an ink tool.",
+    );
+  }
+  return Object.freeze({
+    id: stroke.id,
+    points: Object.freeze(stroke.points.map(snapshotPoint)),
+    tool: stroke.tool,
+  });
 };
 
 const snapshotState = ({
@@ -146,6 +197,131 @@ const snapshotState = ({
     strokes,
     tool,
   });
+
+/** Validates and deeply snapshots focus state received across an external boundary. */
+export const snapshotPresentationFocusState = (input: unknown): PresentationFocusState => {
+  if (
+    typeof input !== "object" ||
+    input === null ||
+    !("nextStrokeId" in input) ||
+    !("position" in input) ||
+    !("strokes" in input) ||
+    !("tool" in input) ||
+    !Number.isSafeInteger(input.nextStrokeId) ||
+    (input.nextStrokeId as number) < 0 ||
+    !Array.isArray(input.strokes)
+  ) {
+    return fail(
+      "DREVER_CLIENT_FOCUS_STATE_INVALID",
+      "Focus state must contain a position, tool, stroke list, and non-negative next stroke id.",
+    );
+  }
+
+  const tool = snapshotTool(input.tool);
+  const strokes = input.strokes.map(snapshotStroke);
+  const activeStroke =
+    "activeStroke" in input && input.activeStroke !== undefined
+      ? snapshotStroke(input.activeStroke)
+      : undefined;
+  const laser =
+    "laser" in input && input.laser !== undefined ? snapshotPoint(input.laser) : undefined;
+  const ids = new Set(strokes.map(({ id }) => id));
+  if (activeStroke !== undefined && ids.has(activeStroke.id)) {
+    return fail(
+      "DREVER_CLIENT_FOCUS_STATE_INVALID",
+      "Active and completed focus strokes must have distinct ids.",
+    );
+  }
+  if (ids.size !== strokes.length) {
+    return fail(
+      "DREVER_CLIENT_FOCUS_STATE_INVALID",
+      "Completed focus strokes must have distinct ids.",
+    );
+  }
+  const nextStrokeId = input.nextStrokeId as number;
+  const allocatedStrokes = activeStroke === undefined ? strokes : [...strokes, activeStroke];
+  if (
+    allocatedStrokes.some(
+      ({ id }) => Number.parseInt(id.slice("focus-".length), 10) >= nextStrokeId,
+    )
+  ) {
+    return fail(
+      "DREVER_CLIENT_FOCUS_STATE_INVALID",
+      "Every allocated focus stroke id must precede the next stroke id.",
+    );
+  }
+  if (activeStroke !== undefined && (tool === "laser" || activeStroke.tool !== tool)) {
+    return fail(
+      "DREVER_CLIENT_FOCUS_STATE_INVALID",
+      "An active focus stroke must use the selected ink tool.",
+    );
+  }
+  if (laser !== undefined && tool !== "laser") {
+    return fail(
+      "DREVER_CLIENT_FOCUS_STATE_INVALID",
+      "A transient laser point requires the Laser tool to be selected.",
+    );
+  }
+
+  return snapshotState({
+    activeStroke,
+    laser,
+    nextStrokeId,
+    position: snapshotPosition(input.position),
+    strokes: Object.freeze(strokes),
+    tool,
+  });
+};
+
+/** Validates and snapshots one reducer action received across an external boundary. */
+export const snapshotPresentationFocusAction = (input: unknown): PresentationFocusAction => {
+  if (typeof input !== "object" || input === null || !("type" in input)) {
+    return fail("DREVER_CLIENT_FOCUS_ACTION_INVALID", "A focus action must contain a type.");
+  }
+  switch (input.type) {
+    case "begin":
+    case "move":
+      if (!("point" in input)) {
+        return fail(
+          "DREVER_CLIENT_FOCUS_ACTION_INVALID",
+          `The ${input.type} focus action requires a normalized point.`,
+        );
+      }
+      return Object.freeze({ point: snapshotPoint(input.point), type: input.type });
+    case "cancel":
+    case "clear":
+    case "undo":
+      return Object.freeze({ type: input.type });
+    case "commitPosition":
+      if (!("position" in input)) {
+        return fail(
+          "DREVER_CLIENT_FOCUS_ACTION_INVALID",
+          "The commitPosition focus action requires a position.",
+        );
+      }
+      return Object.freeze({ position: snapshotPosition(input.position), type: input.type });
+    case "end":
+      return Object.freeze({
+        ...(!("point" in input) || input.point === undefined
+          ? {}
+          : { point: snapshotPoint(input.point) }),
+        type: input.type,
+      });
+    case "selectTool":
+      if (!("tool" in input)) {
+        return fail(
+          "DREVER_CLIENT_FOCUS_ACTION_INVALID",
+          "The selectTool focus action requires a tool.",
+        );
+      }
+      return Object.freeze({ tool: snapshotTool(input.tool), type: input.type });
+    default:
+      return fail(
+        "DREVER_CLIENT_FOCUS_ACTION_INVALID",
+        `Unknown focus action type ${String(input.type)}.`,
+      );
+  }
+};
 
 const samePoint = (left: NormalizedCanvasPoint, right: NormalizedCanvasPoint): boolean =>
   left.x === right.x && left.y === right.y;

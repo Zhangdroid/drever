@@ -400,10 +400,11 @@ components are covered in [Extension authoring](./extensions.md).
   the current slide.
 - Speaker view: press `P` from the audience to open the same slide and Step in a
   new speaker window.
-- Audience laser: enable **Laser** in the speaker view and point over the current
-  preview. Audience windows at the same exact Slide and Step see the transient
-  point; it clears when pointing stops and is never saved as history. A window
-  that joins later sees it only while the presenter continues pointing.
+- Speaker Focus Tools: use **Laser**, **Pen**, or **Highlighter** over the current
+  preview, or press `L`, `I`, or `H`. Audience windows render the same marks on
+  the matching slide. Ink remains across Step changes, supports Undo and Clear,
+  and clears when the slide changes; Laser remains transient and expires when
+  pointing stops. A late audience receives the current persistent ink snapshot.
 - Pointer and touch users can navigate, use Focus Tools, open the slide
   navigator, document or speaker view, and enter fullscreen from the compact
   audience control bar. The bar is rendered outside the slide canvas, so it is
@@ -466,14 +467,14 @@ clears the timings and begins the current slide's first visit again.
 Rehearsal state exists only for the lifetime of that speaker view. It is not
 written into the deck, persisted across reloads, or synchronized to an audience
 window. Audience windows opened before or after the speaker view synchronize
-presentation position through `BroadcastChannel`. The speaker's **Laser** action
-uses the same channel for an ephemeral point over the current preview. Only an
-audience at the matching exact Slide and Step renders it; the point is cleared
-when pointing stops or navigation changes and is not included in the late-join
-position handshake. This release does not claim cross-device pointer transport
-or remote transition-readiness synchronization. `drever dev` prints the speaker
-URL; the `P` shortcut derives its path from the current audience state and
-preserves unrelated query/hash state.
+presentation position and Focus Tools through `BroadcastChannel`. Pen and
+Highlighter actions are session-local and persistent on the current slide, so a
+late audience receives their current snapshot. Laser uses the same protocol but
+remains transient: only an audience at the matching exact Slide and Step renders
+it, and it clears when pointing stops or navigation changes. This release does
+not claim cross-device transport or remote transition-readiness synchronization.
+`drever dev` prints the speaker URL; the `P` shortcut derives its path from the
+current audience state and preserves unrelated query/hash state.
 
 Inactive audience slides leave the accessibility tree while React preserves
 their local component state.

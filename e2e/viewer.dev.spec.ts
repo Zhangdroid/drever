@@ -540,37 +540,61 @@ test("speaker view previews sparse steps and synchronizes a late audience window
   await expect(current.getByTestId("step-2")).toHaveAttribute("data-step-state", "active");
   await expect(next.getByTestId("step-5")).toHaveAttribute("data-step-state", "active");
 
+  const focusSurface = current.locator("[data-drever-focus-layer]");
+  await expect(page.getByRole("button", { name: "Use audience laser pointer" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Use audience pen" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Use audience highlighter" })).toBeVisible();
+  await page.getByRole("button", { name: "Use audience pen" }).click();
+  const focusBounds = await focusSurface.boundingBox();
+  if (focusBounds === null) {
+    throw new Error("The speaker focus surface must have visible canvas bounds.");
+  }
+  await page.mouse.move(
+    focusBounds.x + focusBounds.width * 0.3,
+    focusBounds.y + focusBounds.height * 0.35,
+  );
+  await page.mouse.down();
+  await page.mouse.move(
+    focusBounds.x + focusBounds.width * 0.62,
+    focusBounds.y + focusBounds.height * 0.48,
+  );
+  await page.mouse.up();
+  await expect(current.locator('[data-focus-source="local"][data-focus-tool="pen"]')).toHaveCount(
+    1,
+  );
+
   const audience = await context.newPage();
   const audienceHealth = monitorPageHealth(audience);
   await audience.goto("/");
   await expect(audience).toHaveURL(/\/2\/2$/u);
   await expect(audience.getByTestId("step-2")).toHaveAttribute("data-step-state", "active");
+  const speakerPen = audience.locator('[data-focus-source="speaker"][data-focus-tool="pen"]');
+  await expect(speakerPen).toHaveCount(1);
 
-  await page.getByRole("button", { name: "Enable audience laser" }).click();
-  const laserSurface = current.locator("[data-drever-focus-layer]");
-  const laserBounds = await laserSurface.boundingBox();
-  if (laserBounds === null) {
-    throw new Error("The speaker laser surface must have visible canvas bounds.");
-  }
+  await page.getByRole("button", { name: "Use audience laser pointer" }).click();
   await page.mouse.move(
-    laserBounds.x + laserBounds.width * 0.62,
-    laserBounds.y + laserBounds.height * 0.38,
+    focusBounds.x + focusBounds.width * 0.68,
+    focusBounds.y + focusBounds.height * 0.38,
   );
   await expect(audience.locator("[data-drever-focus-laser]")).toHaveCount(1);
   await page.evaluate(() => window.dispatchEvent(new Event("blur")));
   await expect(audience.locator("[data-drever-focus-laser]")).toHaveCount(0);
-  await page.getByRole("button", { name: "Disable audience laser" }).click();
+  await page.getByRole("button", { name: "Use audience laser pointer" }).click();
   await expect(audience.locator("[data-drever-focus-laser]")).toHaveCount(0);
 
   await page.getByRole("button", { name: "Next presentation state" }).click();
   await expect(page).toHaveURL(/\/speaker\/2\/5$/u);
   await expect(audience).toHaveURL(/\/2\/5$/u);
   await expect(audience.getByTestId("step-5")).toHaveAttribute("data-step-state", "active");
+  await expect(speakerPen).toHaveCount(1);
 
   const popupPromise = page.waitForEvent("popup");
   await page.getByRole("button", { name: "Open audience" }).click();
   const popup = await popupPromise;
   await expect(popup).toHaveURL(/\/2\/5$/u);
+  await expect(popup.locator('[data-focus-source="speaker"][data-focus-tool="pen"]')).toHaveCount(
+    1,
+  );
   await popup.close();
 
   await page.getByRole("button", { name: /Browse slides/u }).click();
@@ -581,6 +605,7 @@ test("speaker view previews sparse steps and synchronizes a late audience window
   await navigator.getByRole("button", { name: "Go to slide 4: Interfaces remember." }).click();
   await expect(page).toHaveURL(/\/speaker\/4$/u);
   await expect(audience).toHaveURL(/\/4$/u);
+  await expect(speakerPen).toHaveCount(0);
   await expect(navigator).not.toBeVisible();
 
   speakerHealth.expectHealthy();
@@ -715,6 +740,16 @@ test("speaker chrome keeps remote keys while buttons and notes retain native key
   await timerToggle.press("Enter");
   await expect(timerToggle).toHaveText("Resume");
   await expect(page).toHaveURL(/\/speaker\/2\/5$/u);
+
+  const pen = page.getByRole("button", { name: "Use audience pen" });
+  const highlighter = page.getByRole("button", { name: "Use audience highlighter" });
+  await pen.click();
+  await expect(pen).toBeFocused();
+  await expect(pen).toHaveAttribute("aria-pressed", "true");
+  await page.keyboard.press("h");
+  await expect(highlighter).toHaveAttribute("aria-pressed", "true");
+  await page.keyboard.press("h");
+  await expect(highlighter).toHaveAttribute("aria-pressed", "false");
 
   const notes = page.getByTestId("speaker-notes");
   await notes.focus();

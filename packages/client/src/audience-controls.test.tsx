@@ -6,7 +6,7 @@ import {
   readSlideNavigationItems,
   resolveAudienceProgress,
 } from "./audience-controls.tsx";
-import { createPresentationLaserStore } from "./presentation-laser.ts";
+import { createPresentationFocusStore } from "./presentation-focus-store.ts";
 
 const manifest = {
   version: DECK_MANIFEST_VERSION,
@@ -84,7 +84,7 @@ describe("audience controls", () => {
         onOpenDocument={vi.fn()}
         onOpenSpeaker={vi.fn()}
         position={{ slideId: "intro", slideIndex: 0, step: 0 }}
-        remoteLaser={createPresentationLaserStore()}
+        remoteFocus={createPresentationFocusStore({ slideId: "intro", slideIndex: 0, step: 0 })}
       />,
     );
 

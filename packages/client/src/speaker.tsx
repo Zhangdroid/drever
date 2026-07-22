@@ -4,23 +4,38 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useReducer,
   useRef,
   useState,
   useSyncExternalStore,
-  type Dispatch,
+  type KeyboardEvent as ReactKeyboardEvent,
   type ReactElement,
 } from "react";
 import { CanvasViewport, DEFAULT_CANVAS } from "./canvas.tsx";
 import { acceptsPresentationShortcut } from "./keyboard.ts";
 import { PresentationFocusLayer } from "./presentation-focus-layer.tsx";
 import {
-  createPresentationFocusState,
-  reducePresentationFocus,
-  type NormalizedCanvasPoint,
+  focusToolForKey,
   type PresentationFocusAction,
   type PresentationFocusAppearance,
+  type PresentationFocusTool,
 } from "./presentation-focus.ts";
+import type { PresentationFocusStore } from "./presentation-focus-store.ts";
+import {
+  AudienceIcon,
+  ClearIcon,
+  CloseIcon,
+  ClockIcon,
+  HighlighterIcon,
+  LaserIcon,
+  NextIcon,
+  OverviewIcon,
+  PauseIcon,
+  PenIcon,
+  PlayIcon,
+  PreviousIcon,
+  ResetIcon,
+  UndoIcon,
+} from "./presentation-icons.tsx";
 import type {
   DeckCommand,
   DeckPosition,
@@ -34,10 +49,11 @@ import { Viewer } from "./viewer.tsx";
 export type SpeakerProps = Readonly<{
   Content: MDXContent;
   canvas?: CanvasDefinition;
+  focus: PresentationFocusStore;
   focusTools?: PresentationFocusAppearance;
   machine: PresentationStateMachine;
   manifest: DeckManifest;
-  onLaser(point?: NormalizedCanvasPoint): void;
+  onFocus(action: PresentationFocusAction): void;
   onNavigate(command: DeckCommand): void | Promise<void>;
   onOpenAudience(): void;
   rehearsal: RehearsalStore;
@@ -175,7 +191,10 @@ const RehearsalPanel = ({
         />
       </label>
       <details className="drever-speaker__timings" data-drever-keyboard="ignore">
-        <summary aria-label="Open per-slide timing summary">Timings</summary>
+        <summary aria-label="Open per-slide timing summary">
+          <ClockIcon />
+          <span>Timings</span>
+        </summary>
         <div className="drever-speaker__timings-popover" data-testid="rehearsal-timings">
           <strong>Per-slide timing</strong>
           <ol>
@@ -204,11 +223,13 @@ const RehearsalPanel = ({
           </ol>
         </div>
       </details>
-      <button onClick={rehearsal.toggle} type="button">
-        {snapshot.running ? "Pause" : "Resume"}
+      <button className="drever-speaker__rehearsal-toggle" onClick={rehearsal.toggle} type="button">
+        {snapshot.running ? <PauseIcon /> : <PlayIcon />}
+        <span>{snapshot.running ? "Pause" : "Resume"}</span>
       </button>
-      <button onClick={rehearsal.reset} type="button">
-        Reset
+      <button className="drever-speaker__rehearsal-reset" onClick={rehearsal.reset} type="button">
+        <ResetIcon />
+        <span>Reset</span>
       </button>
     </div>
   );
@@ -216,42 +237,37 @@ const RehearsalPanel = ({
 
 const LASER_HEARTBEAT_MS = 500;
 
-const SpeakerLaserLayer = ({
+const SpeakerFocusLayer = ({
   active,
   appearance,
   canvas,
-  onLaser,
+  focus,
+  onFocus,
   position,
 }: Readonly<{
   active: boolean;
   appearance?: PresentationFocusAppearance;
   canvas: CanvasDefinition;
-  onLaser(point?: NormalizedCanvasPoint): void;
+  focus: PresentationFocusStore;
+  onFocus(action: PresentationFocusAction): void;
   position: DeckPosition;
 }>): ReactElement => {
-  const [state, dispatch] = useReducer(
-    reducePresentationFocus,
-    position,
-    createPresentationFocusState,
-  );
-  const pointRef = useRef<NormalizedCanvasPoint | undefined>(undefined);
+  const state = useSyncExternalStore(focus.subscribe, focus.getSnapshot, focus.getSnapshot);
   const viewportRef = useRef<HTMLDivElement>(null);
 
   const clear = useCallback((): void => {
-    dispatch({ type: "cancel" });
-    if (pointRef.current !== undefined) {
-      pointRef.current = undefined;
-      onLaser();
+    const current = focus.getSnapshot();
+    if (current.activeStroke !== undefined || current.laser !== undefined) {
+      onFocus({ type: "cancel" });
     }
-  }, [onLaser]);
+  }, [focus, onFocus]);
 
   useEffect(() => {
-    clear();
-    dispatch({ position, type: "commitPosition" });
-  }, [clear, position]);
+    focus.dispatch({ position, type: "commitPosition" });
+  }, [focus, position]);
 
   useEffect(() => {
-    if (!active) {
+    if (!active || state.tool !== "laser") {
       clear();
       return;
     }
@@ -266,9 +282,9 @@ const SpeakerLaserLayer = ({
       }
     };
     const heartbeat = window.setInterval(() => {
-      const point = pointRef.current;
+      const point = focus.getSnapshot().laser;
       if (point !== undefined) {
-        onLaser(point);
+        onFocus({ point, type: "move" });
       }
     }, LASER_HEARTBEAT_MS);
     window.addEventListener("blur", clear);
@@ -279,25 +295,12 @@ const SpeakerLaserLayer = ({
       document.removeEventListener("visibilitychange", clearWhenHidden);
       clear();
     };
-  }, [active, clear, onLaser]);
-
-  const handleAction = useCallback<Dispatch<PresentationFocusAction>>(
-    (action) => {
-      dispatch(action);
-      if (action.type === "begin" || action.type === "move") {
-        pointRef.current = action.point;
-        onLaser(action.point);
-      } else if (action.type === "cancel" || action.type === "end") {
-        clear();
-      }
-    },
-    [clear, onLaser],
-  );
+  }, [active, clear, focus, onFocus, state.tool]);
 
   return (
     <div
-      className="drever-speaker__laser-viewport"
-      data-drever-speaker-laser-surface=""
+      className="drever-speaker__focus-viewport"
+      data-drever-speaker-focus-surface=""
       ref={viewportRef}
     >
       <CanvasViewport canvas={canvas}>
@@ -305,7 +308,7 @@ const SpeakerLaserLayer = ({
           active={active}
           {...(appearance === undefined ? {} : { appearance })}
           canvas={canvas}
-          dispatch={handleAction}
+          dispatch={onFocus}
           position={position}
           state={state}
         />
@@ -317,11 +320,12 @@ const SpeakerLaserLayer = ({
 const Preview = ({
   Content,
   canvas,
+  focus,
+  focusActive,
   focusTools,
   label,
-  laserActive,
   manifest,
-  onLaser,
+  onFocus,
   position,
   registry,
   renderMode,
@@ -330,11 +334,12 @@ const Preview = ({
 }: Readonly<{
   Content: MDXContent;
   canvas?: CanvasDefinition;
+  focus?: PresentationFocusStore;
+  focusActive?: boolean;
   focusTools?: PresentationFocusAppearance;
   label: string;
-  laserActive?: boolean;
   manifest: DeckManifest;
-  onLaser?(point?: NormalizedCanvasPoint): void;
+  onFocus?(action: PresentationFocusAction): void;
   position: DeckPosition;
   registry?: MDXComponents;
   renderMode: DreverRenderMode;
@@ -364,12 +369,13 @@ const Preview = ({
           {...(stage === undefined ? {} : { stage })}
         />
       </div>
-      {onLaser === undefined ? null : (
-        <SpeakerLaserLayer
-          active={laserActive ?? false}
+      {focus === undefined || onFocus === undefined ? null : (
+        <SpeakerFocusLayer
+          active={focusActive ?? false}
           {...(focusTools === undefined ? {} : { appearance: focusTools })}
           canvas={resolvedCanvas}
-          onLaser={onLaser}
+          focus={focus}
+          onFocus={onFocus}
           position={position}
         />
       )}
@@ -380,10 +386,11 @@ const Preview = ({
 export const Speaker = ({
   Content,
   canvas,
+  focus,
   focusTools,
   machine,
   manifest,
-  onLaser,
+  onFocus,
   onNavigate,
   onOpenAudience,
   rehearsal,
@@ -392,11 +399,12 @@ export const Speaker = ({
   store,
 }: SpeakerProps): ReactElement => {
   const position = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
+  const focusState = useSyncExternalStore(focus.subscribe, focus.getSnapshot, focus.getSnapshot);
   const navigatorDialogRef = useRef<HTMLDialogElement>(null);
   const navigatorSearchRef = useRef<HTMLInputElement>(null);
   const [navigatorOpen, setNavigatorOpen] = useState(false);
   const [navigatorQuery, setNavigatorQuery] = useState("");
-  const [laserActive, setLaserActive] = useState(false);
+  const [focusActive, setFocusActive] = useState(false);
   const speakerRef = useRef<HTMLDivElement>(null);
   const visibleSlides = useMemo(
     () => filterSpeakerSlides(manifest, navigatorQuery),
@@ -406,6 +414,46 @@ export const Speaker = ({
   const slide = manifest.slides[position.slideIndex] as SlideManifest;
   const previousDisabled = machine.transition(position, { type: "previous" }) === undefined;
   const nextDisabled = nextPosition === undefined;
+  const canClear =
+    focusState.activeStroke !== undefined ||
+    focusState.laser !== undefined ||
+    focusState.strokes.length > 0;
+  const canUndo = focusState.activeStroke !== undefined || focusState.strokes.length > 0;
+
+  const deactivateFocus = useCallback((): void => {
+    setFocusActive(false);
+    onFocus({ type: "cancel" });
+  }, [onFocus]);
+
+  const toggleFocusTool = useCallback(
+    (tool: PresentationFocusTool): void => {
+      if (focusActive && focus.getSnapshot().tool === tool) {
+        deactivateFocus();
+        return;
+      }
+      onFocus({ tool, type: "selectTool" });
+      setFocusActive(true);
+    },
+    [deactivateFocus, focus, focusActive, onFocus],
+  );
+
+  const handleFocusToolsKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>): void => {
+    const tool = focusToolForKey(event.key);
+    if (
+      tool === undefined ||
+      event.repeat ||
+      event.defaultPrevented ||
+      event.nativeEvent.isComposing ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey
+    ) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    toggleFocusTool(tool);
+  };
 
   useEffect(() => {
     const dialog = navigatorDialogRef.current;
@@ -428,15 +476,26 @@ export const Speaker = ({
       return;
     }
     const listener = (event: KeyboardEvent): void => {
-      if (event.key.toLowerCase() !== "l" || event.repeat || !acceptsPresentationShortcut(event)) {
+      const Element = document.defaultView?.Element;
+      const targetsDialog =
+        Element !== undefined &&
+        event.target instanceof Element &&
+        event.target.closest("dialog") !== null;
+      if (event.key === "Escape" && focusActive && !targetsDialog) {
+        event.preventDefault();
+        deactivateFocus();
+        return;
+      }
+      const tool = focusToolForKey(event.key);
+      if (tool === undefined || event.repeat || !acceptsPresentationShortcut(event)) {
         return;
       }
       event.preventDefault();
-      setLaserActive((current) => !current);
+      toggleFocusTool(tool);
     };
     document.addEventListener("keydown", listener);
     return () => document.removeEventListener("keydown", listener);
-  }, []);
+  }, [deactivateFocus, focusActive, toggleFocusTool]);
 
   const navigate = (command: DeckCommand): void => {
     void onNavigate(command);
@@ -465,11 +524,12 @@ export const Speaker = ({
         <Preview
           Content={Content}
           {...(canvas === undefined ? {} : { canvas })}
+          focus={focus}
+          focusActive={focusActive}
           {...(focusTools === undefined ? {} : { focusTools })}
           label={`Current · ${positionLabel(position)}`}
-          laserActive={laserActive}
           manifest={manifest}
-          onLaser={onLaser}
+          onFocus={onFocus}
           position={position}
           {...(registry === undefined ? {} : { registry })}
           renderMode="speaker-current"
@@ -521,10 +581,12 @@ export const Speaker = ({
             aria-controls="drever-speaker-slide-dialog"
             aria-expanded={navigatorOpen}
             aria-haspopup="dialog"
+            aria-label={`Browse slides, ${positionLabel(position)}, ${position.slideIndex + 1} of ${manifest.slides.length}`}
             className="drever-speaker__progress"
             onClick={openNavigator}
             type="button"
           >
+            <OverviewIcon />
             <strong>{positionLabel(position)}</strong>
             <span>
               {position.slideIndex + 1} / {manifest.slides.length} · Browse slides
@@ -546,7 +608,8 @@ export const Speaker = ({
             onClick={() => navigate({ type: "previous" })}
             type="button"
           >
-            ← Previous
+            <PreviousIcon />
+            <span>Previous</span>
           </button>
           <button
             aria-label="Next presentation state"
@@ -555,28 +618,75 @@ export const Speaker = ({
             onClick={() => navigate({ type: "next" })}
             type="button"
           >
-            Next →
+            <span>Next</span>
+            <NextIcon />
           </button>
         </div>
         <div className="drever-speaker__actions">
-          <button
-            aria-label={laserActive ? "Disable audience laser" : "Enable audience laser"}
-            aria-pressed={laserActive}
-            className="drever-speaker__laser-toggle"
-            onClick={() => setLaserActive((current) => !current)}
-            title="Audience laser (L)"
-            type="button"
+          <div
+            aria-label="Audience focus tools"
+            className="drever-speaker__focus-tools"
+            onKeyDown={handleFocusToolsKeyDown}
+            role="toolbar"
           >
-            Laser
-          </button>
+            <button
+              aria-keyshortcuts="L"
+              aria-label="Use audience laser pointer"
+              aria-pressed={focusActive && focusState.tool === "laser"}
+              data-drever-tooltip="Laser · L"
+              onClick={() => toggleFocusTool("laser")}
+              type="button"
+            >
+              <LaserIcon />
+            </button>
+            <button
+              aria-keyshortcuts="I"
+              aria-label="Use audience pen"
+              aria-pressed={focusActive && focusState.tool === "pen"}
+              data-drever-tooltip="Pen · I"
+              onClick={() => toggleFocusTool("pen")}
+              type="button"
+            >
+              <PenIcon />
+            </button>
+            <button
+              aria-keyshortcuts="H"
+              aria-label="Use audience highlighter"
+              aria-pressed={focusActive && focusState.tool === "highlighter"}
+              data-drever-tooltip="Highlighter · H"
+              onClick={() => toggleFocusTool("highlighter")}
+              type="button"
+            >
+              <HighlighterIcon />
+            </button>
+            <span aria-hidden="true" className="drever-speaker__focus-divider" />
+            <button
+              aria-label="Undo audience focus stroke"
+              data-drever-tooltip="Undo"
+              disabled={!canUndo}
+              onClick={() => onFocus({ type: "undo" })}
+              type="button"
+            >
+              <UndoIcon />
+            </button>
+            <button
+              aria-label="Clear audience focus marks"
+              data-drever-tooltip="Clear"
+              disabled={!canClear}
+              onClick={() => onFocus({ type: "clear" })}
+              type="button"
+            >
+              <ClearIcon />
+            </button>
+          </div>
           <button
             aria-label="Open audience"
             className="drever-speaker__audience"
             onClick={onOpenAudience}
             type="button"
           >
+            <AudienceIcon />
             <span>Open audience</span>
-            <span aria-hidden="true">↗</span>
           </button>
         </div>
       </footer>
@@ -601,7 +711,7 @@ export const Speaker = ({
               <h2 id="drever-speaker-slide-dialog-title">Jump to a slide</h2>
             </div>
             <button aria-label="Close slide navigator" onClick={closeNavigator} type="button">
-              ×
+              <CloseIcon />
             </button>
           </header>
           <label className="drever-speaker__slide-search">

@@ -29,7 +29,7 @@ export type PresentationFocusLayerProps = Readonly<{
   dispatch: Dispatch<PresentationFocusAction>;
   onInteractionChange?: (interacting: boolean) => void;
   position: DeckPosition;
-  remoteLaser?: NormalizedCanvasPoint;
+  remoteState?: PresentationFocusState;
   state: PresentationFocusState;
 }>;
 
@@ -107,15 +107,18 @@ const pointFromEvent = (
 const Stroke = memo(
   ({
     canvas,
+    source,
     stroke,
   }: Readonly<{
     canvas: CanvasDefinition;
+    source: "local" | "speaker";
     stroke: PresentationFocusStroke;
   }>): ReactElement => (
     <path
       className={`drever-presentation-focus__stroke drever-presentation-focus__stroke--${stroke.tool}`}
       d={createPresentationFocusPath(stroke, canvas)}
       data-drever-focus-stroke={stroke.id}
+      data-focus-source={source}
       data-focus-tool={stroke.tool}
     />
   ),
@@ -129,7 +132,7 @@ export const PresentationFocusLayer = ({
   dispatch,
   onInteractionChange,
   position,
-  remoteLaser,
+  remoteState,
   state,
 }: PresentationFocusLayerProps): ReactElement => {
   const pointerRef = useRef<number | undefined>(undefined);
@@ -142,7 +145,13 @@ export const PresentationFocusLayer = ({
   const strokes = showSlideMarks ? state.strokes : [];
   const activeStroke = showTransientMarks ? state.activeStroke : undefined;
   const laser = showTransientMarks ? state.laser : undefined;
-  const visibleLaser = laser ?? remoteLaser;
+  const showRemoteSlideMarks =
+    remoteState !== undefined && sameSlide(remoteState.position, position);
+  const showRemoteTransientMarks =
+    remoteState !== undefined && samePosition(remoteState.position, position);
+  const remoteStrokes = showRemoteSlideMarks ? remoteState.strokes : [];
+  const remoteActiveStroke = showRemoteTransientMarks ? remoteState.activeStroke : undefined;
+  const visibleLaser = laser ?? (showRemoteTransientMarks ? remoteState.laser : undefined);
   const laserPoint =
     visibleLaser === undefined ? undefined : projectCanvasPoint(visibleLaser, canvas);
   const style = focusStyle(appearance);
@@ -294,10 +303,18 @@ export const PresentationFocusLayer = ({
       {...(style === undefined ? {} : { style })}
       viewBox={`0 0 ${canvas.width} ${canvas.height}`}
     >
-      {strokes.map((stroke) => (
-        <Stroke canvas={canvas} key={stroke.id} stroke={stroke} />
+      {remoteStrokes.map((stroke) => (
+        <Stroke canvas={canvas} key={`speaker-${stroke.id}`} source="speaker" stroke={stroke} />
       ))}
-      {activeStroke === undefined ? null : <Stroke canvas={canvas} stroke={activeStroke} />}
+      {remoteActiveStroke === undefined ? null : (
+        <Stroke canvas={canvas} source="speaker" stroke={remoteActiveStroke} />
+      )}
+      {strokes.map((stroke) => (
+        <Stroke canvas={canvas} key={stroke.id} source="local" stroke={stroke} />
+      ))}
+      {activeStroke === undefined ? null : (
+        <Stroke canvas={canvas} source="local" stroke={activeStroke} />
+      )}
       {laserPoint === undefined ? null : (
         <g className="drever-presentation-focus__laser" data-drever-focus-laser="">
           <circle

@@ -10,19 +10,31 @@ import {
   useState,
   type ReactElement,
   type RefObject,
-  type SVGProps,
 } from "react";
 import { DreverClientError } from "./client-error.ts";
 import { createFullscreenSession, PRESENTATION_IDLE_DELAY_MS } from "./fullscreen-session.ts";
 import { acceptsPresentationShortcut } from "./keyboard.ts";
+import {
+  CloseIcon,
+  DocumentIcon,
+  FullscreenIcon,
+  HelpIcon,
+  NextIcon,
+  OverviewIcon,
+  PreviousIcon,
+  ShareIcon,
+  SpeakerIcon,
+} from "./presentation-icons.tsx";
 import type { DeckCommand, DeckPosition } from "./presentation-state.ts";
 import { PresentationFocusTools } from "./presentation-focus-tools.tsx";
 import type { PresentationFocusAppearance } from "./presentation-focus.ts";
-import type { PresentationLaserStore } from "./presentation-laser.ts";
+import type { PresentationFocusStore } from "./presentation-focus-store.ts";
 
 type AudiencePanel = "help" | "overview";
 type PauseScreen = "black" | "white";
 type ShareResult = "copied" | "failed";
+
+const PRESENTATION_CONTROLS_REVEAL_ZONE_PX = 80;
 
 type ShareFeedback = Readonly<{
   positionKey: string;
@@ -41,7 +53,7 @@ export type AudienceControlsProps = Readonly<{
   onOpenDocument(): void;
   onOpenSpeaker(): void;
   position: DeckPosition;
-  remoteLaser: PresentationLaserStore;
+  remoteFocus: PresentationFocusStore;
 }>;
 
 export type AudienceProgress = Readonly<{
@@ -102,117 +114,6 @@ export const resolveAudienceProgress = (
       : { stepLabel: `Step ${stepIndex} of ${slide.stepStops.length}` }),
   });
 };
-
-const Icon = ({ children, ...props }: SVGProps<SVGSVGElement>): ReactElement => (
-  <svg aria-hidden="true" fill="none" height="18" viewBox="0 0 24 24" width="18" {...props}>
-    {children}
-  </svg>
-);
-
-const PreviousIcon = (): ReactElement => (
-  <Icon>
-    <path
-      d="m15 18-6-6 6-6"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.8"
-    />
-  </Icon>
-);
-
-const NextIcon = (): ReactElement => (
-  <Icon>
-    <path
-      d="m9 6 6 6-6 6"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.8"
-    />
-  </Icon>
-);
-
-const OverviewIcon = (): ReactElement => (
-  <Icon>
-    <rect height="5" rx="1" stroke="currentColor" strokeWidth="1.6" width="7" x="3" y="4" />
-    <rect height="5" rx="1" stroke="currentColor" strokeWidth="1.6" width="7" x="14" y="4" />
-    <rect height="5" rx="1" stroke="currentColor" strokeWidth="1.6" width="7" x="3" y="15" />
-    <rect height="5" rx="1" stroke="currentColor" strokeWidth="1.6" width="7" x="14" y="15" />
-  </Icon>
-);
-
-const SpeakerIcon = (): ReactElement => (
-  <Icon>
-    <path
-      d="M5 19h14M8 19v-4h8v4M6 5h12v10H6z"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.6"
-    />
-    <path d="m10 8 4 2-4 2z" fill="currentColor" />
-  </Icon>
-);
-
-const DocumentIcon = (): ReactElement => (
-  <Icon>
-    <path
-      d="M6 3h9l3 3v15H6zM15 3v4h3M9 11h6M9 15h6"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.6"
-    />
-  </Icon>
-);
-
-const ShareIcon = (): ReactElement => (
-  <Icon>
-    <rect height="11" rx="2" stroke="currentColor" strokeWidth="1.6" width="11" x="9" y="4" />
-    <path
-      d="M15 15v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeWidth="1.6"
-    />
-  </Icon>
-);
-
-const FullscreenIcon = ({ active }: Readonly<{ active: boolean }>): ReactElement => (
-  <Icon>
-    {active ? (
-      <path
-        d="M9 4v5H4m11-5v5h5M9 20v-5H4m11 5v-5h5"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.7"
-      />
-    ) : (
-      <path
-        d="M9 4H4v5m11-5h5v5M9 20H4v-5m11 5h5v-5"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.7"
-      />
-    )}
-  </Icon>
-);
-
-const HelpIcon = (): ReactElement => (
-  <Icon>
-    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" />
-    <path
-      d="M9.8 9.2a2.35 2.35 0 1 1 3.04 2.24c-.84.3-.84.9-.84 1.56"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeWidth="1.7"
-    />
-    <circle cx="12" cy="16.5" fill="currentColor" r="1" />
-  </Icon>
-);
 
 const shortcutRows = Object.freeze([
   ["Next Step", "→  Space  Page Down"],
@@ -284,7 +185,10 @@ const useIdleControls = (
       const pointsAtFocusLayer =
         target instanceof window.Element &&
         target.closest("[data-drever-focus-layer][data-active]") !== null;
-      if (pointsAtFocusLayer && event.clientY < window.innerHeight - 64) {
+      if (
+        pointsAtFocusLayer &&
+        event.clientY < window.innerHeight - PRESENTATION_CONTROLS_REVEAL_ZONE_PX
+      ) {
         clearIdleTimer();
         setIdle(true);
         return;
@@ -337,7 +241,7 @@ export const AudienceControls = ({
   onOpenDocument,
   onOpenSpeaker,
   position,
-  remoteLaser,
+  remoteFocus,
 }: AudienceControlsProps): ReactElement => {
   const hostRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLElement>(null);
@@ -639,7 +543,7 @@ export const AudienceControls = ({
           onInteractionChange={setFocusInteracting}
           onPaletteOpenChange={setFocusPaletteOpen}
           position={position}
-          remoteLaser={remoteLaser}
+          remoteFocus={remoteFocus}
         />
         <button
           aria-keyshortcuts="F"
@@ -711,7 +615,7 @@ export const AudienceControls = ({
                 <h2 id="drever-audience-dialog-title">Slide navigator</h2>
               </div>
               <button aria-label="Close slide navigator" onClick={closePanel} type="button">
-                ×
+                <CloseIcon />
               </button>
             </header>
             <label className="drever-audience-dialog__search">
@@ -749,7 +653,7 @@ export const AudienceControls = ({
                 <h2 id="drever-audience-dialog-title">Keyboard shortcuts</h2>
               </div>
               <button aria-label="Close keyboard shortcuts" onClick={closePanel} type="button">
-                ×
+                <CloseIcon />
               </button>
             </header>
             <dl>

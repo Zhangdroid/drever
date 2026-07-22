@@ -122,7 +122,8 @@ default-theme layouts, speaker notes, and React state preservation.
 Open <http://localhost:4317/speaker> for the speaker view. It shows the current
 and next navigation states, compiled `<Note>` content, total and current-slide
 rehearsal time, per-slide timing and visit counts, and can open and synchronize
-an audience window. `drever dev` prints this speaker URL; from any audience
+an audience window. Its Laser, Pen, and Highlighter tools annotate that audience
+from the current preview. `drever dev` prints this speaker URL; from any audience
 state, press `P` to open the matching speaker path in a new window.
 
 The audience command bar can copy the canonical URL for its exact slide and

@@ -133,11 +133,11 @@ const createHarness = ({
   };
   const syncDispose = vi.fn(() => events.push("sync:dispose"));
   const syncPublish = vi.fn();
-  const syncPublishLaser = vi.fn();
+  const syncPublishFocus = vi.fn();
   const sync: SpeakerPresentationSync = {
     dispose: syncDispose,
     publish: syncPublish,
-    publishLaser: syncPublishLaser,
+    publishFocus: syncPublishFocus,
   };
   const rehearsalDestroy = vi.fn();
   const rehearsalCommitPosition = vi.fn();
@@ -240,7 +240,7 @@ const createHarness = ({
     rootUnmount,
     syncDispose,
     syncPublish,
-    syncPublishLaser,
+    syncPublishFocus,
     get syncOptions(): CreateSpeakerSyncOptions {
       if (syncOptions === undefined) {
         throw new Error("Speaker synchronization has not been attached.");
@@ -255,7 +255,7 @@ beforeEach(() => {
 });
 
 describe("createSpeaker", () => {
-  it("forwards focus-tool appearance to the speaker laser", async () => {
+  it("forwards focus-tool appearance to the speaker controls", async () => {
     const harness = createHarness();
     const focusTools = { laser: { color: "#ff4567" } } as const;
 
@@ -303,6 +303,7 @@ describe("createSpeaker", () => {
     expect(harness.navigationOptions.surface).toBe("speaker");
     expect(harness.navigationOptions.baseURL.href).toBe("https://slides.test/talk/");
     expect(harness.syncOptions.store).toBe(harness.navigationOptions.store);
+    expect(harness.syncOptions.focus).toBe(harness.hostProps.focus);
     expect(harness.keyboardOptions.surface).toBe("speaker");
     expect(harness.events).toEqual([
       "root:render",
@@ -356,21 +357,32 @@ describe("createSpeaker", () => {
     expect(harness.rehearsalCommitPosition).toHaveBeenCalledOnce();
     expect(harness.rehearsalCommitPosition).toHaveBeenCalledWith(change.to);
     expect(harness.navigationOptions.store.getSnapshot()).toEqual(change.to);
+    expect(harness.hostProps.focus.getSnapshot().position).toEqual(change.to);
     expect(harness.syncPublish).toHaveBeenCalledOnce();
     expect(harness.syncPublish).toHaveBeenCalledWith("drever-slide-forward");
     await speaker.destroy();
   });
 
-  it("connects the speaker laser surface to transient presentation sync", async () => {
+  it("applies speaker focus actions locally and forwards them to presentation sync", async () => {
     const harness = createHarness();
     const speaker = await createSpeaker(harness.options());
-    const point = { x: 0.25, y: 0.75 } as const;
+    const start = { x: 0.25, y: 0.75 } as const;
+    const end = { x: 0.5, y: 0.4 } as const;
 
-    harness.hostProps.onLaser(point);
-    harness.hostProps.onLaser();
+    harness.hostProps.onFocus({ tool: "pen", type: "selectTool" });
+    harness.hostProps.onFocus({ point: start, type: "begin" });
+    harness.hostProps.onFocus({ point: end, type: "end" });
 
-    expect(harness.syncPublishLaser).toHaveBeenNthCalledWith(1, point);
-    expect(harness.syncPublishLaser).toHaveBeenNthCalledWith(2, undefined);
+    expect(harness.hostProps.focus.getSnapshot()).toMatchObject({
+      strokes: [{ id: "focus-0", points: [start, end], tool: "pen" }],
+      tool: "pen",
+    });
+    expect(harness.syncPublishFocus).toHaveBeenNthCalledWith(1, {
+      tool: "pen",
+      type: "selectTool",
+    });
+    expect(harness.syncPublishFocus).toHaveBeenNthCalledWith(2, { point: start, type: "begin" });
+    expect(harness.syncPublishFocus).toHaveBeenNthCalledWith(3, { point: end, type: "end" });
     await speaker.destroy();
   });
 

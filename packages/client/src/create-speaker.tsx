@@ -16,6 +16,8 @@ import {
   type DeckCommand,
 } from "./presentation-state.ts";
 import { createPresentationRouteCodec } from "./presentation-route.ts";
+import type { PresentationFocusAction } from "./presentation-focus.ts";
+import { createPresentationFocusStore } from "./presentation-focus-store.ts";
 import {
   createBrowserPresentationChannel,
   createSpeakerSync,
@@ -61,6 +63,7 @@ export const createSpeaker = async (options: CreateSpeakerOptions): Promise<Spea
   const speakerRoute = createPresentationRouteCodec({ baseURL, machine, surface: "speaker" });
   const audienceRoute = createPresentationRouteCodec({ baseURL, machine });
   const store = createPresentationStore(machine, speakerRoute.decodeURL(currentURL));
+  const focus = createPresentationFocusStore(store.getSnapshot());
   const rehearsal = createRehearsalStore({
     initialPosition: store.getSnapshot(),
     manifest: machine.manifest,
@@ -208,6 +211,10 @@ export const createSpeaker = async (options: CreateSpeakerOptions): Promise<Spea
     const audienceURL = audienceRoute.encodeURL(store.getSnapshot(), sourceURL);
     platform.view.open(audienceURL.href, "_blank", "noopener");
   };
+  const publishFocus = (action: PresentationFocusAction): void => {
+    focus.dispatch(action);
+    sync?.publishFocus(action);
+  };
 
   try {
     reactRoot = createRoot(options.container, {
@@ -225,10 +232,11 @@ export const createSpeaker = async (options: CreateSpeakerOptions): Promise<Spea
         <SpeakerHost
           Content={options.Content}
           {...(canvas === undefined ? {} : { canvas })}
+          focus={focus}
           {...(options.focusTools === undefined ? {} : { focusTools: options.focusTools })}
           machine={machine}
           manifest={machine.manifest}
-          onLaser={(point) => sync?.publishLaser(point)}
+          onFocus={publishFocus}
           onMounted={mounted.resolve}
           onNavigate={navigateFromControls}
           onOpenAudience={openAudience}
@@ -252,6 +260,7 @@ export const createSpeaker = async (options: CreateSpeakerOptions): Promise<Spea
         }
         rehearsal.commitPosition(change.to);
         store.commit(change.to);
+        focus.dispatch({ position: change.to, type: "commitPosition" });
         sync?.publish(change.transitionType);
       },
       machine,
@@ -269,6 +278,7 @@ export const createSpeaker = async (options: CreateSpeakerOptions): Promise<Spea
     };
     sync = createSpeakerSync({
       channel: createBrowserPresentationChannel(platform.channelView, baseURL),
+      focus,
       onError: report,
       store,
     });
