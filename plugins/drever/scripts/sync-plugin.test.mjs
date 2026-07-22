@@ -54,30 +54,37 @@ test("writes a byte-identical plugin and validates it", async () => {
   );
 });
 
-for (const [label, failure, mutate] of [
-  [
-    "a changed",
-    "changed",
-    (root) => writeFile(join(root, "skills/drever-create-deck/SKILL.md"), "changed\n", "utf8"),
-  ],
-  ["a missing", "missing", (root) => rm(join(root, "skills/drever-create-deck/SKILL.md"))],
-  [
-    "an extra",
-    "extra",
-    async (root) => {
+const driftCases = [
+  {
+    label: "a changed",
+    marker: "changed",
+    mutate: (root) =>
+      writeFile(join(root, "skills/drever-create-deck/SKILL.md"), "changed\n", "utf8"),
+  },
+  {
+    label: "a missing",
+    marker: "missing",
+    mutate: (root) => rm(join(root, "skills/drever-create-deck/SKILL.md")),
+  },
+  {
+    label: "an extra",
+    marker: "extra",
+    mutate: async (root) => {
       const path = join(root, "skills/unowned/SKILL.md");
       await mkdir(dirname(path), { recursive: true });
       await writeFile(path, "extra\n", "utf8");
     },
-  ],
-]) {
+  },
+];
+
+for (const { label, marker, mutate } of driftCases) {
   test(`rejects ${label} generated file`, async () => {
     const { pluginRoot, sourceRoot } = await fixture();
     await mutate(pluginRoot);
 
     await assert.rejects(
       synchronizePlugin({ mode: "check", pluginRoot, sourceRoot }),
-      new RegExp(`${failure}: skills/`, "u"),
+      new RegExp(`${marker}: skills/`, "u"),
     );
   });
 }
