@@ -12,7 +12,7 @@ export const meta: MetaFunction = () => [
 
 export default function HomePage() {
   return (
-    <main className="placeholder">
+    <main className="placeholder" data-preview-verification="cloudflare-workers-builds">
       <img className="placeholder__logo" src={lockupHref} alt="Drever" />
 
       <div className="placeholder__message">
