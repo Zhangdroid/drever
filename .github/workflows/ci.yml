@@ -46,9 +46,6 @@ jobs:
       - name: Install Chromium
         run: vp exec playwright install --with-deps chromium
 
-      - name: Refresh workspace executables
-        run: vp install --frozen-lockfile
-
       - name: Run core end-to-end tests
         run: vp run test:e2e:core
 

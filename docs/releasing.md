@@ -58,12 +58,14 @@ The workflow verifies the unmodified source revision first. It then applies an
 ephemeral lockstep version, rebuilds, and first packs with pnpm through Vite+.
 pnpm converts `workspace:` and `catalog:` references to registry-safe versions.
 Drever then orders dependency maps and repacks the result with npm so the same
-source produces the same tarball. npm also performs the Trusted Publishing OIDC
-exchange.
+source produces the same tarball. During bootstrap, npm authenticates with the
+temporary `NPM_TOKEN`. After each package has a trusted publisher, npm uses the
+workflow's OIDC identity instead.
 
 Trusted Publishing automatically adds provenance when the source repository
 and package are public; the publish command must not pass `--provenance`
-explicitly. npm does not support provenance for private source repositories.
+explicitly. A private source repository can still publish with either a token
+or Trusted Publishing, but npm does not generate provenance for that release.
 
 The release receipt records the Git commit, package order, tarball sizes, and
 SHA-512 integrity values. Publication is dependency-ordered and retryable. A
@@ -80,53 +82,58 @@ Claude plugin versions.
 
 npm Trusted Publishing can only be configured after a package exists. The
 existing `drever@0.0.0` is a placeholder, while the other public packages need
-their first publication.
+their first publication. Repository visibility does not block npm publication:
+a private repository can complete this bootstrap and use Trusted Publishing.
+Keeping it private only removes npm provenance and, depending on the GitHub
+plan, some environment protection rules.
 
-1. Make `Zhangdroid/drever` public. This project is intended to be open source,
-   and a public repository enables npm provenance and GitHub environment
-   protection on the current account plan.
-2. Enable 2FA on the npm maintainer account.
-3. Create a GitHub environment named `npm`. Add a required reviewer, then add
-   `main` as a deployment branch rule and `v*` as a separate deployment tag
-   rule. Add a GitHub tag ruleset for `v*` before the first stable release so
-   only maintainers can create release tags.
-4. Create a granular npm access token with the minimum one-day expiry. Select
+1. Enable 2FA on the npm maintainer account.
+2. Create a GitHub environment named `npm`. A private bootstrap may use the
+   environment without protection and a repository-level secret. Before the
+   first stable release, make the repository public and add a required reviewer,
+   a `main` deployment branch rule, a separate `v*` deployment tag rule, and a
+   GitHub tag ruleset for `v*`.
+3. Create a granular npm access token with the minimum one-day expiry. Select
    **Packages and scopes: Read and write**, **All Packages**, and **Bypass 2FA**.
    `All Packages` is temporarily necessary because most packages, including
-   the unscoped `create-drever`, do not exist yet. Store it as the `NPM_TOKEN`
-   secret on the `npm` environment.
-5. Run the `Publish` workflow manually on `main`. It publishes a
+   the unscoped `create-drever`, do not exist yet. Store it as a repository or
+   `npm` environment secret named `NPM_TOKEN`. Never commit the token.
+4. Run the `Publish` workflow manually on `main`. It publishes a
    `0.0.0-commit.g<sha>` test release under the `commit` dist-tag.
-6. Configure every package to trust `Zhangdroid/drever`, workflow
-   `publish.yml`, environment `npm`, with `npm publish` permission. After
-   logging in to npm, the package list is available with:
-
-   ```sh
-   node scripts/release.mjs packages
-   ```
-
-   Do not reuse the automation token for this step. Sign in interactively with
-   2FA from a neutral directory, because the repository enforces pnpm through
-   `devEngines`, then configure each package with npm 11.16 or newer:
+5. Configure every package to trust `Zhangdroid/drever`, workflow
+   `publish.yml`, environment `npm`, with `npm publish` permission. A granular
+   access token, including one with Bypass 2FA, cannot access npm's trust
+   endpoints. Sign in interactively from a neutral directory instead:
 
    ```sh
    cd /tmp
-   npm login
-   npm trust github <package> \
-     --repo Zhangdroid/drever \
-     --file publish.yml \
-     --env npm \
-     --allow-publish \
-     --yes
+   npm login --auth-type=web --registry=https://registry.npmjs.org
    ```
 
-7. Delete the GitHub `NPM_TOKEN` secret and revoke the token immediately.
-8. Set each package's publishing access to **Require two-factor authentication
+   Then return to the repository and run the idempotent bulk configurator with
+   npm 11.15 or newer:
+
+   ```sh
+   node scripts/configure-trusted-publishing.mjs
+   ```
+
+   The first trust request opens npm's 2FA flow. Select the option to skip
+   additional 2FA checks for five minutes; the script spaces requests by two
+   seconds as npm recommends. It first inspects all 16 packages, skips exact
+   matches, refuses to replace a conflicting policy, creates missing policies,
+   and then reads all policies back from npm. A partial network failure is safe
+   to resume by running the same command again. To perform a read-only audit,
+   pass `--verify-only`.
+
+6. Delete the GitHub `NPM_TOKEN` secret and revoke the token immediately.
+7. Set each package's publishing access to **Require two-factor authentication
    and disallow tokens**.
-9. Push or merge a new commit to `main`, dispatch that new SHA as a second
-   commit test, and confirm that npm shows provenance from the GitHub workflow.
-   Do not rerun the first SHA: it has the same immutable version and would only
-   verify and skip existing packages without exercising OIDC publication.
+8. Push or merge a new commit to `main` and dispatch that new SHA as a second
+   commit test. Confirm that it publishes through OIDC without `NPM_TOKEN`. If
+   the repository is public, also confirm that npm shows provenance from the
+   GitHub workflow. Do not rerun the first SHA: it has the same immutable
+   version and would only verify and skip existing packages without exercising
+   OIDC publication.
 
 Trusted Publishing requires the repository URL in each package manifest to
 match the GitHub repository. The workflow filename and environment name are
