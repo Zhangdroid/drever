@@ -32,9 +32,9 @@ export const demoMounts = [
   },
   {
     description:
-      "Practical recipes for continuity, focus, replacement, comparison, and stable geometry.",
+      "Story-led motion for evidence, context, semantic change, causality, data, and spatial ideas.",
     id: "motion",
-    label: "Motion field notes",
+    label: "Motion stories",
     slug: "motion",
     source: "motion-recipes",
   },

@@ -1,5 +1,5 @@
 {
-  "name": "@drever/example-motion-recipes",
+  "name": "@drever/example-motion-contracts",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -13,7 +13,6 @@
     "@drever/theme-editorial": "workspace:*",
     "@types/react": "catalog:",
     "drever": "workspace:*",
-    "motion": "catalog:",
     "react": "catalog:"
   }
 }

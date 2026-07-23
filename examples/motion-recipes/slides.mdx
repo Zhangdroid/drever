@@ -1,572 +1,402 @@
-import coastline from "./assets/coastline.svg";
+import {
+  BrowserFrame,
+  EvidenceReveal,
+  MotionEvidence,
+  SemanticCorrection,
+  SpatialModel,
+} from "./MotionArtifacts.tsx";
 import "@drever/brand/fonts.css";
 import "@drever/brand/tokens.css";
 import "./motion.css";
 
 <Masthead
-  kicker="Drever / motion field notes"
-  title="Stable motion starts before the animation."
-  deck="Geometry makes continuity stable. Intent makes every other movement worth the attention."
-  meta="Continuity · focus · replace · compare · stagger"
+  aria-label="Move the idea, not the slide."
+  className="motion-cover"
+  kicker="Drever / motion recipes"
+  title={
+    <>
+      <span>Move the idea.</span>
+      <span className="motion-cover__answer">Not the slide.</span>
+    </>
+  }
+  deck="Motion earns attention when it introduces evidence, preserves context, or makes a change easier to understand."
+  meta="A story-led motion study"
   tone="ink"
 />
 
 <Note>
-  Frame View Transitions as captured pixels moving between two layout states. Most visual artifacts
-  begin when those endpoint states are underspecified, not when the easing curve is wrong.
+  Wait for the underline. It is the only movement because it establishes the rule the rest of the
+  deck will follow: movement must help the audience understand what changed.
 </Note>
 
 ---
 
-<div
-  aria-label="Share the frame, not its changing prose."
-  className="recipe recipe--shell recipe--source"
-  data-recipe="shell-source"
->
-  <header className="recipe__copy">
-    <span>Recipe 01 · fixed shell</span>
-    <h2>Share the frame, not its changing prose.</h2>
-    <p>The named snapshot has one explicit size. Volatile copy stays outside its raster.</p>
+<div className="browser-story browser-story--peek">
+  <header className="browser-story__copy">
+    <span className="motion-kicker">01 · Anticipation</span>
+    <h2>A screenshot can show the interface.</h2>
+    <p>It cannot show the moment the product changes someone’s mind.</p>
   </header>
 
-<MotionGroup
-  aria-label="Fixed-size interface shell"
-  className="recipe-shell"
-  data-testid="shared-shell"
-  intent="continuity"
-  name="stable-shell"
-  role="img"
->
-  <div className="recipe-shell__bar" aria-hidden="true">
-    <i />
-    <i />
-    <i />
-  </div>
-  <div className="recipe-shell__body" aria-hidden="true">
-    <div className="recipe-shell__rail">
-      <i />
-      <i />
-      <i />
-    </div>
-    <div className="recipe-shell__content">
-      <b />
-      <span />
-      <span />
-      <div>
-        <i />
-        <i />
-      </div>
-    </div>
-  </div>
-</MotionGroup>
-
-  <aside className="recipe__contract" data-testid="shell-copy">
-    <strong>440 × 270</strong>
-    <span>absolute endpoint</span>
-  </aside>
-</div>
-
-<Note>
-  Advance, then move backward. The shell translates without resizing, while the explanatory copy
-  cuts independently. Under reduced motion, Drever skips the capture and commits the destination.
-</Note>
-
----
-
-<div
-  aria-label="Changing words no longer leave a double image."
-  className="recipe recipe--shell recipe--result"
-  data-recipe="shell-result"
->
-  <header className="recipe__copy">
-    <span>Recipe 01 · fixed shell</span>
-    <h2>Changing words no longer leave a double image.</h2>
-    <p>Only the stable visual frame owns continuity; new meaning renders as ordinary slide content.</p>
-  </header>
-
-<MotionGroup
-  aria-label="Fixed-size interface shell"
-  className="recipe-shell"
-  data-testid="shared-shell"
-  intent="continuity"
-  name="stable-shell"
-  role="img"
->
-  <div className="recipe-shell__bar" aria-hidden="true">
-    <i />
-    <i />
-    <i />
-  </div>
-  <div className="recipe-shell__body" aria-hidden="true">
-    <div className="recipe-shell__rail">
-      <i />
-      <i />
-      <i />
-    </div>
-    <div className="recipe-shell__content">
-      <b />
-      <span />
-      <span />
-      <div>
-        <i />
-        <i />
-      </div>
-    </div>
-  </div>
-</MotionGroup>
-
-  <aside className="recipe__contract" data-testid="shell-copy">
-    <strong>same raster</strong>
-    <span>new copy outside</span>
-  </aside>
-</div>
-
-<Note>
-  Reverse to verify the same identity and dimensions in both directions. If text inside the shared
-  shell must change, give that text a separate transition identity or leave it unshared.
-</Note>
-
----
-
-<div
-  aria-label="Keep the glyph raster invariant."
-  className="recipe recipe--text recipe--source"
-  data-recipe="text-source"
->
-  <header className="recipe__copy">
-    <span>Recipe 02 · persistent text</span>
-    <h2>Keep the glyph raster invariant.</h2>
-    <p>Movement is safe when measure, font, weight, line-height, and wrapping remain identical.</p>
-  </header>
-
-<MotionGroup
-  className="recipe-text"
-  data-testid="shared-text"
-  intent="continuity"
-  name="stable-text"
->
-  <p data-testid="persistent-copy">Motion preserves context across a changing frame.</p>
-</MotionGroup>
-
-  <aside className="recipe__contract">
-    <strong>600 × 124</strong>
-    <span>43px / 56px · fixed wrap</span>
-  </aside>
-</div>
-
-<Note>
-  Advance and reverse. The sentence moves diagonally but never scales or reflows. Reduced motion
-  presents the same endpoint immediately, preserving reading order without an intermediate raster.
-</Note>
-
----
-
-<div
-  aria-label="Translation stays crisp when type does not reflow."
-  className="recipe recipe--text recipe--result"
-  data-recipe="text-result"
->
-  <header className="recipe__copy">
-    <span>Recipe 02 · persistent text</span>
-    <h2>Translation stays crisp when type does not reflow.</h2>
-    <p>The destination changes placement, not typography or line breaks.</p>
-  </header>
-
-<MotionGroup
-  className="recipe-text"
-  data-testid="shared-text"
-  intent="continuity"
-  name="stable-text"
->
-  <p data-testid="persistent-copy">Motion preserves context across a changing frame.</p>
-</MotionGroup>
-
-  <aside className="recipe__contract">
-    <strong>same line boxes</strong>
-    <span>position may change</span>
-  </aside>
-</div>
-
-<Note>
-  Move backward once. A shared heading that changes width, font metrics, or wrapping is two
-  incompatible rasters; either hold those metrics constant or let the new heading render normally.
-</Note>
-
----
-
-<div
-  aria-label="Give media a box before asking it to move."
-  className="recipe recipe--media recipe--source"
-  data-recipe="media-source"
->
-  <header className="recipe__copy">
-    <span>Recipe 03 · media continuity</span>
-    <h2>Give media a box before asking it to move.</h2>
-    <p>Explicit endpoints and one crop policy prevent late layout and stretched imagery.</p>
-  </header>
-
-<MotionGroup
-  className="recipe-media"
-  data-testid="shared-media"
-  intent="continuity"
-  name="stable-media"
->
-  <img
-    alt="Abstract coastline at dusk"
-    data-testid="stable-media-image"
-    height="900"
-    src={coastline}
-    width="1600"
-  />
-</MotionGroup>
-
-  <aside className="recipe__contract">
-    <strong>640 × 360</strong>
-    <span>16:9 · cover · 50% 48%</span>
-  </aside>
-</div>
-
-<Note>
-  Advance to resize, then reverse. The frame declares both dimensions and the image fills it with
-  the same object-fit and object-position at either endpoint. Reduced motion performs no capture.
-</Note>
-
----
-
-<div
-  aria-label="The crop remains intentional while the frame changes scale."
-  className="recipe recipe--media recipe--result"
-  data-recipe="media-result"
->
-  <header className="recipe__copy">
-    <span>Recipe 03 · media continuity</span>
-    <h2>The crop remains intentional while the frame changes scale.</h2>
-    <p>Width and height interpolate; aspect ratio and focal point stay stable.</p>
-  </header>
-
-<MotionGroup
-  className="recipe-media"
-  data-testid="shared-media"
-  intent="continuity"
-  name="stable-media"
->
-  <img
-    alt="Abstract coastline at dusk"
-    data-testid="stable-media-image"
-    height="900"
-    src={coastline}
-    width="1600"
-  />
-</MotionGroup>
-
-  <aside className="recipe__contract">
-    <strong>480 × 270</strong>
-    <span>same ratio · same focal point</span>
-  </aside>
-</div>
-
-<Note>
-  Reverse once more. Intrinsic width and height reserve space before decode, while CSS defines the
-  rendered frame. For a different crop, use a deliberate cut instead of hiding it inside continuity.
-</Note>
-
----
-
-<div aria-label="Stability is a geometry contract." className="recipe-summary">
-  <span>Endpoint checklist</span>
-  <h2>Stability is a geometry contract.</h2>
-  <div>
-    <article>
-      <strong>01</strong>
-      <p>Share the smallest stable visual identity.</p>
-    </article>
-    <article>
-      <strong>02</strong>
-      <p>Freeze text metrics and wrapping across endpoints.</p>
-    </article>
-    <article>
-      <strong>03</strong>
-      <p>Declare media size, ratio, fit, and focal point.</p>
-    </article>
-    <article>
-      <strong>00</strong>
-      <p>Reduced motion skips capture and commits meaning.</p>
-    </article>
-  </div>
-</div>
-
-<Note>
-  Close the continuity chapter by separating identity from spectacle. A stable shared element has
-  one identity and two well-defined endpoint boxes. The next chapter chooses motion from narrative
-  intent rather than visual novelty.
-</Note>
-
----
-
-<section className="intent-map" aria-label="Motion has five jobs.">
-  <header className="recipe-heading">
-    <span>Semantic motion</span>
-    <h2>Motion has five jobs.</h2>
-    <p>Choose the audience relationship first. The theme can then choreograph it consistently.</p>
-  </header>
-
-  <div className="intent-map__grid" aria-label="Drever motion intents">
-    <article>
-      <span>Continuity</span>
-      <strong>Carry identity</strong>
-      <p>The same object changes place.</p>
-    </article>
-    <article>
-      <span>Focus</span>
-      <strong>Guide attention</strong>
-      <p>Context remains; priority changes.</p>
-    </article>
-    <article>
-      <span>Replace</span>
-      <strong>Revise one frame</strong>
-      <p>One thought becomes another.</p>
-    </article>
-    <article>
-      <span>Compare</span>
-      <strong>Keep both visible</strong>
-      <p>New evidence joins its peer.</p>
-    </article>
-    <article>
-      <span>Stagger</span>
-      <strong>Explain one chain</strong>
-      <p>Related parts follow reading order.</p>
-    </article>
-  </div>
-</section>
-
-<Note>
-  This is the decision table for the remaining recipes. MotionGroup does not name visual effects; it
-  names the relationship the audience needs to understand. Use ordinary content when none of these
-  jobs applies.
-</Note>
-
----
-
-<section className="intent-recipe intent-recipe--focus" aria-label="Keep the argument. Move the attention.">
-  <header className="recipe-heading">
-    <span>Recipe 04 · focus</span>
-    <h2>Keep the argument. Move the attention.</h2>
-    <p>Advance through the stack. Earlier decisions remain readable while the current one becomes unmistakable.</p>
-  </header>
-
-  <MotionGroup className="focus-stack" flow="block" intent="focus">
-    <Step at={1}>
-      <article>
-        <span>01 · Frame</span>
-        <strong>Name the decision.</strong>
-        <p>Give the room one question to resolve.</p>
-      </article>
-    </Step>
-    <Step at={2}>
-      <article>
-        <span>02 · Ask</span>
-        <strong>Hear the concern.</strong>
-        <p>Keep the first point while priority moves.</p>
-      </article>
-    </Step>
-    <Step at={3}>
-      <article>
-        <span>03 · Decide</span>
-        <strong>Commit the next move.</strong>
-        <p>Accumulated context supports the conclusion.</p>
-      </article>
-    </Step>
+  <MotionGroup
+    aria-label="A product browser waiting below the stage"
+    className="story-browser"
+    intent="continuity"
+    name="story-browser"
+  >
+    <BrowserFrame />
   </MotionGroup>
-</section>
+</div>
 
 <Note>
-  Advance three times. Focus is not a carousel: completed points stay visible and in reading order.
-  Use it for a live argument whose context still matters, not for unrelated cards entering one by
-  one.
+  The browser already exists, but only its edge is visible. That quiet anticipation supports the
+  sentence without competing with it. Nothing else moves.
 </Note>
 
 ---
 
-<section className="intent-recipe intent-recipe--replace" aria-label="Let one thought change in place.">
-  <header className="recipe-heading">
-    <span>Recipe 05 · replace</span>
-    <h2>Let one thought change in place.</h2>
-    <p>Three addressable states share one fixed frame. The audience follows the revision, not the layout.</p>
+<div className="browser-story browser-story--arrive">
+  <header className="browser-story__copy">
+    <span className="motion-kicker">02 · Introduction</span>
+    <h2>Bring the evidence into the room.</h2>
+    <p>The same object rises into view because it has become the subject.</p>
   </header>
 
-  <div className="replace-stage">
-    <MotionGroup className="replace-frame" flow="inline" intent="replace">
-      <Step at={1}>
-        <article data-moment="question">
-          <span>Question</span>
-          <strong>What would make this launch feel safe?</strong>
-          <p>Begin with the uncertainty already in the room.</p>
-        </article>
-      </Step>
-      <Step at={2}>
-        <article data-moment="evidence">
-          <span>Evidence</span>
-          <strong>96% completed setup without support.</strong>
-          <p>Replace the question only when proof can change the decision.</p>
-        </article>
-      </Step>
-      <Step at={3}>
-        <article data-moment="decision">
-          <span>Decision</span>
-          <strong>Approve the three-team pilot.</strong>
-          <p>The same frame now holds the conclusion.</p>
-        </article>
-      </Step>
-    </MotionGroup>
-    <footer>
-      <span>One frame</span>
-      <span>Three exact URLs</span>
-      <span>No layout shift</span>
-    </footer>
-  </div>
-</section>
+  <MotionGroup
+    aria-label="The product browser becomes the central evidence"
+    className="story-browser"
+    intent="continuity"
+    name="story-browser"
+  >
+    <BrowserFrame />
+  </MotionGroup>
+</div>
 
 <Note>
-  Advance through question, evidence, and decision. Replace reserves the largest authored state, so
-  the frame does not jump as the copy changes. Document View expands all three states in order.
+  The browser is not an entrance effect chosen from a menu. It moves because the story has shifted
+  from a claim to its evidence. Its geometry stays fixed while only its position changes.
 </Note>
 
 ---
 
-<section className="intent-recipe intent-recipe--compare" aria-label="Add evidence without erasing its contrast.">
-  <header className="recipe-heading">
-    <span>Recipe 06 · compare</span>
-    <h2>Add evidence without erasing its contrast.</h2>
-    <p>Advance twice. The second artifact joins the first because the relationship requires both.</p>
+<div className="browser-story browser-story--inspect">
+  <header className="browser-story__copy">
+    <span className="motion-kicker">03 · Local state</span>
+    <h2>Let the interaction answer.</h2>
+    <p>Switch the evidence. The frame stays still while the answer changes inside it.</p>
   </header>
 
-  <MotionGroup className="compare-pair" flow="inline" intent="compare">
+  <MotionGroup
+    aria-label="An interactive product browser"
+    className="story-browser"
+    intent="continuity"
+    name="story-browser"
+  >
+    <BrowserFrame interactive />
+  </MotionGroup>
+</div>
+
+<Note>
+  Click Setup completion and Support pattern. The browser has already earned the floor, so moving
+  the whole frame again would distract from the result changing inside it.
+</Note>
+
+---
+
+<div className="browser-story browser-story--context">
+  <header className="browser-story__copy">
+    <span className="motion-kicker">04 · Recontextualization</span>
+    <h2>Keep the evidence. Return the focus.</h2>
+    <p>The browser moves to the edge and becomes quiet context while the explanation takes over.</p>
+    <ul>
+      <li>Same object</li>
+      <li>Different narrative job</li>
+      <li>No repeated entrance</li>
+    </ul>
+  </header>
+
+  <MotionGroup
+    aria-label="The product browser retained as quiet background context"
+    className="story-browser"
+    intent="continuity"
+    name="story-browser"
+  >
+    <BrowserFrame />
+  </MotionGroup>
+</div>
+
+<Note>
+  This completes one object lifecycle: hint, arrive, demonstrate, then dock. The browser keeps its
+  dimensions and shadow structure; position and visual priority are the only changes.
+</Note>
+
+---
+
+<div className="semantic-scene">
+  <span className="motion-kicker">05 · Semantic correction</span>
+  <h2>Change the words only when the thought changes.</h2>
+  <SemanticCorrection />
+  <p className="motion-caption">
+    A fixed text slot can borrow the vocabulary of rotating text without becoming a slogan carousel.
+  </p>
+</div>
+
+<Note>
+  The replacement corrects a misconception in place. This is an original dependency-free treatment
+  inspired by kinetic text patterns, not copied source from a showcase library.
+</Note>
+
+---
+
+<div className="reveal-scene">
+  <header>
+    <span className="motion-kicker">06 · Genuine reveal</span>
+    <h2>Reveal only what was truly hidden.</h2>
+    <p>A decrypted treatment makes sense when the audience is uncovering a real finding.</p>
+  </header>
+  <EvidenceReveal />
+</div>
+
+<Note>
+  Use the button to uncover the interview finding. Decorative scrambling on already-known copy
+  would imply mystery without delivering information, so it does not belong here.
+</Note>
+
+---
+
+<div className="compare-scene">
+  <header>
+    <span className="motion-kicker">07 · Comparison</span>
+    <h2>Keep both sides when the difference is the point.</h2>
+  </header>
+
+  <MotionGroup className="motion-comparison" intent="compare" flow="inline">
     <Step at={1}>
       <article>
         <span>Frozen export</span>
-        <strong>A page remembers only its pixels.</strong>
-        <p>The reveal, interaction, and exact audience moment disappear.</p>
-        <small>Snapshot</small>
+        <strong>One final frame</strong>
+        <p>The audience can see the answer, but not revisit how the room reached it.</p>
       </article>
     </Step>
     <Step at={2}>
-      <article>
-        <span>Addressable story</span>
-        <strong>A state can be reopened.</strong>
-        <p>The URL returns to the slide and reveal that changed the room.</p>
-        <small>Live state</small>
+      <article data-current="">
+        <span>Live deck</span>
+        <strong>Every meaningful state</strong>
+        <p>The question, evidence, decision, and shareable moment remain addressable.</p>
       </article>
     </Step>
   </MotionGroup>
-</section>
+</div>
 
 <Note>
-  Compare keeps both artifacts visible and accessible. If the old state should disappear, use
-  replace instead. Direction follows the inline reading order because the evidence belongs
-  side-by-side.
+  Advance twice. The first state remains readable because the comparison—not the newest card—is the
+  idea. Replacing it would destroy the evidence needed for the conclusion.
 </Note>
 
 ---
 
-<section className="intent-recipe intent-recipe--stagger" aria-label="One beat can still have an order.">
-  <header className="recipe-heading">
-    <span>Recipe 07 · stagger</span>
-    <h2>One beat can still have an order.</h2>
-    <p>Advance once. Four connected parts arrive as one idea, following the direction in which they are read.</p>
+<div className="causality-scene">
+  <header>
+    <span className="motion-kicker">08 · Causality</span>
+    <h2>Sequence should carry a decision forward.</h2>
+    <p>One advance reveals a connected chain, not four unrelated cards.</p>
   </header>
 
   <Step at={1}>
-    <MotionGroup className="stagger-pipeline" flow="inline" intent="stagger">
-      <article>
-        <span>01</span>
-        <strong>Brief</strong>
-        <p>Name the audience and decision.</p>
-      </article>
-      <article>
-        <span>02</span>
-        <strong>Draft</strong>
-        <p>Shape one coherent story.</p>
-      </article>
-      <article>
-        <span>03</span>
-        <strong>Rehearse</strong>
-        <p>Test every meaningful state.</p>
-      </article>
-      <article>
-        <span>04</span>
-        <strong>Deliver</strong>
-        <p>Ship the artifact you reviewed.</p>
-      </article>
+    <MotionGroup
+      aria-label="A brief becomes a decision through four connected stages"
+      className="causality-path"
+      intent="stagger"
+      flow="inline"
+    >
+      <article><span>01</span><strong>Brief</strong><small>Name the room</small></article>
+      <article><span>02</span><strong>Question</strong><small>Expose the risk</small></article>
+      <article><span>03</span><strong>Evidence</strong><small>Answer it</small></article>
+      <article><span>04</span><strong>Decision</strong><small>Leave a move</small></article>
     </MotionGroup>
   </Step>
-</section>
-
-<Note>
-  Stagger is one navigation stop, not four decorative Steps. The short delay communicates the
-  pipeline's reading order. If any stage needs discussion on its own, give it a separate Step and
-  choose focus instead.
-</Note>
-
----
-
-<section className="micro-recipe" aria-label="Wait until the room can notice.">
-  <header className="recipe-heading">
-    <span>Recipe 08 · local emphasis</span>
-    <h2>Wait until the room can notice.</h2>
-    <p>The page settles first. Then one quiet cue marks the phrase that changes the next action.</p>
-  </header>
-
-  <div className="micro-emphasis" aria-label="A delayed marker emphasizes the phrase ask the room">
-    <span>One idea · one cue</span>
-    <p>The next move is to <mark>ask the room.</mark></p>
-    <footer>
-      <span>Hold · 900 ms</span>
-      <span>Draw · 720 ms</span>
-      <span>Text · unchanged</span>
-    </footer>
-  </div>
-</section>
-
-<Note>
-  The marker waits long enough to be perceived, then draws behind the exact phrase that deserves
-  emphasis. The text never changes color, moves, or becomes a shared bitmap. Reduced motion and all
-  non-audience surfaces show the same final emphasis immediately.
-</Note>
-
----
-
-<section className="attention-recipe" aria-label="Stillness is part of the choreography.">
-  <header className="recipe-heading">
-    <span>Recipe 09 · attention budget</span>
-    <h2>Stillness is part of the choreography.</h2>
-    <p>When the audience already knows where to look, movement spends attention without returning meaning.</p>
-  </header>
-
-<div
-  className="attention-budget"
-  aria-label="One primary motion, one optional supporting cue, and everything else still"
->
-  <article data-role="primary">
-    <span>1</span>
-    <strong>Primary motion</strong>
-    <p>The single object whose meaning changed.</p>
-  </article>
-  <article data-role="support">
-    <span>+1</span>
-    <strong>Supporting cue</strong>
-    <p>Optional, quiet, and in the same causal chain.</p>
-  </article>
-  <article data-role="still">
-    <span>∞</span>
-    <strong>Everything else</strong>
-    <p>Stage, title, controls, and neighboring evidence stay still.</p>
-  </article>
 </div>
 
-</section>
+<Note>
+  Advance once. The stagger follows the causal reading direction and completes as one thought. If
+  the room needed to discuss each stage independently, they would become separate Steps instead.
+</Note>
+
+---
+
+<div className="data-scene">
+  <header>
+    <span className="motion-kicker">09 · Measured change</span>
+    <h2>Numbers move when the evidence changes.</h2>
+    <p>The animation is local to the metric and responds to a deliberate state change.</p>
+  </header>
+  <MotionEvidence />
+</div>
 
 <Note>
-  End without an authored reveal. One primary motion plus at most one supporting cue is a ceiling,
-  not a target. If two objects compete for attention, remove one movement or sequence the ideas into
-  separate moments.
+  Toggle the guided run. This is a real Motion for React integration inside ordinary MDX. It owns
+  the local bars only; Drever continues to own navigation, history, notes, and export.
+</Note>
+
+---
+
+<div className="subject-scene">
+  <div className="subject-scene__field" aria-hidden="true">
+    <i /><i /><i /><i /><i /><i />
+  </div>
+  <header>
+    <span className="motion-kicker">10 · Subject-led background</span>
+    <h2>When the subject is a network, the background can behave like one.</h2>
+    <p>Ambient motion supports the model, then slows beneath dense reading.</p>
+  </header>
+  <aside>
+    <strong>Use a background system when it carries subject matter.</strong>
+    <span>Flow · connection · continuity</span>
+  </aside>
+</div>
+
+<Note>
+  The moving field is the primary motion on this page. A React Bits-style background can provide a
+  richer vocabulary, but it should follow the same contrast, attention, and reduced-motion rules.
+</Note>
+
+---
+
+<div className="spatial-scene">
+  <header>
+    <span className="motion-kicker">11 · Spatial explanation</span>
+    <h2>Depth earns its cost when structure is the subject.</h2>
+    <p>Reveal one hidden layer instead of continuously orbiting a decorative object.</p>
+  </header>
+  <SpatialModel />
+</div>
+
+<Note>
+  Toggle the model. This lightweight proxy defines the same presentation boundary a Spline or Rive
+  scene should respect: one persistent scene, meaningful states, keyboard access, and a static end
+  state for export.
+</Note>
+
+---
+
+<div className="ecosystem-scene">
+  <header>
+    <span className="motion-kicker">12 · React ecosystem</span>
+    <h2>Drever does not need to own every animation.</h2>
+    <p>Bring in a specialized tool at the smallest boundary where its capability matters.</p>
+  </header>
+
+  <div className="ecosystem-scene__grid">
+    <pre><code>{`import { motion } from "motion/react"
+import Spline from "@splinetool/react-spline"
+
+<MotionEvidence />
+<SplineScene fallback={<Poster />} />`}</code></pre>
+    <nav aria-label="Animation references">
+      <a href="https://reactbits.dev/" rel="noreferrer" target="_blank">
+        <strong>React Bits</strong><span>Kinetic text and background references ↗</span>
+      </a>
+      <a href="https://spline.design/" rel="noreferrer" target="_blank">
+        <strong>Spline</strong><span>Authored interactive 3D ↗</span>
+      </a>
+      <a href="https://motion.dev/docs/react" rel="noreferrer" target="_blank">
+        <strong>Motion</strong><span>Local React choreography ↗</span>
+      </a>
+      <a href="https://rive.app/" rel="noreferrer" target="_blank">
+        <strong>Rive</strong><span>State-driven interactive graphics ↗</span>
+      </a>
+    </nav>
+  </div>
+</div>
+
+<Note>
+  These are capabilities, not a style catalog. Research current official documentation and
+  licensing, then choose the smallest tool that improves the explanation. Never let it own deck
+  navigation or introduce another competing slide transition.
+</Note>
+
+---
+
+<div className="timing-scene">
+  <span className="motion-kicker">13 · Timing</span>
+  <h2>
+    Wait until the room can notice{" "}
+    <mark>the point that matters.</mark>
+  </h2>
+  <p>A delayed local emphasis can arrive after reading begins—without moving the whole layout.</p>
+</div>
+
+<Note>
+  The marker waits long enough for the audience to begin reading, then points to the exact phrase
+  the presenter wants to hold. Delay is useful only because it improves notice.
+</Note>
+
+---
+
+<div className="budget-scene">
+  <header>
+    <span className="motion-kicker">14 · Attention budget</span>
+    <h2>Every animation system spends the same attention.</h2>
+    <p>View Transitions, Steps, kinetic type, video, backgrounds, and 3D are not separate budgets.</p>
+  </header>
+  <div className="budget-scene__ledger">
+    <article data-level="primary">
+      <span>Primary</span><strong>One idea changes</strong><small>Use the clearest motion.</small>
+    </article>
+    <article data-level="support">
+      <span>Optional support</span><strong>One quieter cue</strong><small>Only in the same causal chain.</small>
+    </article>
+    <article data-level="still">
+      <span>Everything else</span><strong>Hold still</strong><small>Make the hierarchy obvious.</small>
+    </article>
+  </div>
+</div>
+
+<Note>
+  A moving 3D scene already counts as the primary motion. Adding a title morph, card stagger, and
+  animated decoration at the same time would split attention rather than add richness.
+</Note>
+
+---
+
+<div className="endpoint-scene">
+  <header>
+    <span className="motion-kicker">15 · Accessible endpoint</span>
+    <h2>The motion may disappear. The meaning may not.</h2>
+    <p>Reduced motion, document view, and PDF need the same conclusion in a deliberate static state.</p>
+  </header>
+  <div className="endpoint-scene__states">
+    <article>
+      <span>Live</span>
+      <i aria-hidden="true" />
+      <strong>Question → evidence → decision</strong>
+      <small>Movement clarifies the path.</small>
+    </article>
+    <article>
+      <span>Static</span>
+      <strong>Question → evidence → decision</strong>
+      <small>The complete path remains readable.</small>
+    </article>
+  </div>
+</div>
+
+<Note>
+  The export is not a screenshot taken at an arbitrary animation frame. It is an authored endpoint
+  that preserves content, order, contrast, and the final decision.
+</Note>
+
+---
+
+<div className="motion-close">
+  <span className="motion-kicker">The recipe</span>
+  <h1>Move what changed. Keep the rest still.</h1>
+  <p>Design the object’s job across the story. Then choose the smallest motion that makes that job clear.</p>
+  <div className="motion-close__rule" aria-hidden="true">
+    <span>hint</span><i /><span>arrive</span><i /><span>explain</span><i /><span>recede</span>
+  </div>
+</div>
+
+<Note>
+  End on the transferable method: identify what changed, design its lifecycle, protect one attention
+  budget, and preserve the same meaning when motion is unavailable.
 </Note>

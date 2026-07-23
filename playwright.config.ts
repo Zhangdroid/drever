@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 const demoRoot = fileURLToPath(new URL("./examples/basic", import.meta.url));
 const architectureDemoRoot = fileURLToPath(new URL("./examples/architecture", import.meta.url));
 const brandDemoRoot = fileURLToPath(new URL("./examples/brand", import.meta.url));
-const motionRecipesRoot = fileURLToPath(new URL("./examples/motion-recipes", import.meta.url));
+const motionContractsRoot = fileURLToPath(new URL("./examples/motion-contracts", import.meta.url));
 const productTourRoot = fileURLToPath(new URL("./examples/product-tour", import.meta.url));
 const workspaceCli = "node ../../packages/cli/dist/bin.mjs";
 const ci = process.env.CI !== undefined;
@@ -105,18 +105,18 @@ const projectDefinitions = [
     },
   },
   {
-    name: "motion-recipes-chromium",
-    testMatch: "**/*.motion-recipes.spec.ts",
+    name: "motion-contracts-chromium",
+    testMatch: "**/*.motion-contracts.spec.ts",
     use: {
-      baseURL: "http://127.0.0.1:4322",
+      baseURL: "http://127.0.0.1:4328",
       contextOptions: { reducedMotion: "no-preference" },
     },
     webServer: {
       command: `${workspaceCli} dev`,
-      cwd: motionRecipesRoot,
+      cwd: motionContractsRoot,
       reuseExistingServer: false,
       timeout: 60_000,
-      url: "http://127.0.0.1:4322",
+      url: "http://127.0.0.1:4328",
     },
   },
   {

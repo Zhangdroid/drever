@@ -65,12 +65,12 @@ function SurfaceVisual() {
 
 const capabilities = [
   {
-    body: "Focus, replace, compare, stagger, and continuity are chosen by meaning—not presets.",
+    body: "Objects enter, answer, recede, or hold still because the story gives them a new job.",
     guide: "/docs/motion",
-    label: "Motion",
-    live: "/demos/motion/9/",
-    liveLabel: "See the five intents",
-    title: "Motion has five jobs.",
+    label: "Meaningful motion",
+    live: "/demos/motion/2/",
+    liveLabel: "Follow one object",
+    title: "Motion carries the idea.",
     visual: <MotionVisual />,
   },
   {
@@ -136,34 +136,34 @@ export function DocsCapabilityGallery() {
 
 const motionRecipes = [
   {
-    description: "Keep context. Move attention.",
-    href: "/demos/motion/10/",
-    intent: "focus",
-    label: "Focus",
-  },
-  {
-    description: "Let one thought change in place.",
-    href: "/demos/motion/11/",
-    intent: "replace",
-    label: "Replace",
-  },
-  {
-    description: "Add evidence without erasing contrast.",
-    href: "/demos/motion/12/",
-    intent: "compare",
-    label: "Compare",
-  },
-  {
-    description: "Give one beat a readable order.",
-    href: "/demos/motion/13/",
-    intent: "stagger",
-    label: "Stagger",
-  },
-  {
-    description: "Carry the same object across a change.",
+    description: "Hint, arrive, demonstrate, then recede.",
     href: "/demos/motion/2/",
     intent: "continuity",
-    label: "Continuity",
+    label: "Object lifecycle",
+  },
+  {
+    description: "Correct one thought in a fixed text slot.",
+    href: "/demos/motion/6/",
+    intent: "replace",
+    label: "Semantic change",
+  },
+  {
+    description: "Uncover information that was genuinely hidden.",
+    href: "/demos/motion/7/",
+    intent: "focus",
+    label: "Genuine reveal",
+  },
+  {
+    description: "Make reading order carry cause and effect.",
+    href: "/demos/motion/9/",
+    intent: "stagger",
+    label: "Causality",
+  },
+  {
+    description: "Use depth only when structure is the subject.",
+    href: "/demos/motion/12/",
+    intent: "compare",
+    label: "Spatial state",
   },
 ] as const;
 
@@ -190,7 +190,7 @@ export function MotionRecipeGallery() {
         ))}
       </div>
       <a className="doc-visual-intro__more" href="/demos/motion/">
-        View all 15 motion field notes <ArrowUpRightIcon />
+        View all 17 motion stories <ArrowUpRightIcon />
       </a>
     </section>
   );

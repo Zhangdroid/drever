@@ -241,6 +241,9 @@ catalogs:
     katex:
       specifier: 0.18.1
       version: 0.18.1
+    motion:
+      specifier: 12.42.2
+      version: 12.42.2
     playwright:
       specifier: 1.61.1
       version: 1.61.1
@@ -355,6 +358,24 @@ importers:
         specifier: 19.3.0-canary-83840902-20260719
         version: 19.3.0-canary-83840902-20260719
 
+  examples/motion-contracts:
+    devDependencies:
+      '@drever/brand':
+        specifier: workspace:*
+        version: link:../../packages/brand
+      '@drever/theme-editorial':
+        specifier: workspace:*
+        version: link:../../packages/theme-editorial
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.17
+      drever:
+        specifier: workspace:*
+        version: link:../../packages/cli
+      react:
+        specifier: 19.3.0-canary-83840902-20260719
+        version: 19.3.0-canary-83840902-20260719
+
   examples/motion-recipes:
     devDependencies:
       '@drever/brand':
@@ -369,6 +390,9 @@ importers:
       drever:
         specifier: workspace:*
         version: link:../../packages/cli
+      motion:
+        specifier: 'catalog:'
+        version: 12.42.2(react-dom@19.3.0-canary-83840902-20260719(react@19.3.0-canary-83840902-20260719))(react@19.3.0-canary-83840902-20260719)
       react:
         specifier: 19.3.0-canary-83840902-20260719
         version: 19.3.0-canary-83840902-20260719
@@ -2950,6 +2974,20 @@ packages:
   fetchdts@0.1.7:
     resolution: {integrity: sha512-YoZjBdafyLIop9lSxXVI33oLD5kN31q4Td+CasofLLYeLXRFeOsuOw0Uo+XNRi9PZlbfdlN2GmRtm4tCEQ9/KA==}
 
+  framer-motion@12.42.2:
+    resolution: {integrity: sha512-5XY9luDiu0oHfHBjpDthFMh0ES+122w6p/papSJBweMkO8Sn+PW2QaEgRblQBpWFnuvZS5qvarpt/hO2pjGmnw==}
+    peerDependencies:
+      '@emotion/is-prop-valid': '*'
+      react: 19.3.0-canary-83840902-20260719
+      react-dom: 19.3.0-canary-83840902-20260719
+    peerDependenciesMeta:
+      '@emotion/is-prop-valid':
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
+
   fsevents@2.3.2:
     resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
@@ -3287,6 +3325,26 @@ packages:
     resolution: {integrity: sha512-fBLaCxZ2i/nPH8iyLzvza0C8/sSF4sjD1ma1Skf+pkZVK0TlaW5ujHJlUHwcwR66v2JZt+Q28d4DCX/oaLG0cA==}
     engines: {node: '>=22.0.0'}
     hasBin: true
+
+  motion-dom@12.42.2:
+    resolution: {integrity: sha512-5gIMWLp/PycBtJRJWRgjxke5n8dlvkSn2DrYW+tr3XcqAZY1xZh6BJyooJXCM8wdfM7wfMjkBJNLge1CKPUIRA==}
+
+  motion-utils@12.39.0:
+    resolution: {integrity: sha512-8nadJAJjTtqRkmRF36FoJTrywK9nnFmnPwnSMyxaOCU7GDjN9RTMJIxx9De8ErM+vpPhMccr/6fo5WciyQLnMQ==}
+
+  motion@12.42.2:
+    resolution: {integrity: sha512-Atvv11yUKIid41cVrRBDVX5m8tF8kNpExRSlbpt6APClhDjtwQssgFHhQzejxw7/7YYbjHSPKBVbHo05BuJT5Q==}
+    peerDependencies:
+      '@emotion/is-prop-valid': '*'
+      react: 19.3.0-canary-83840902-20260719
+      react-dom: 19.3.0-canary-83840902-20260719
+    peerDependenciesMeta:
+      '@emotion/is-prop-valid':
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
 
   mrmime@2.0.1:
     resolution: {integrity: sha512-Y3wQdFg2Va6etvQ5I82yUhGdsKrcYox6p7FfL1LbK2J4V01F9TGlepTIhnK24t7koZibmg82KGglhA1XK5IsLQ==}
@@ -5362,6 +5420,15 @@ snapshots:
 
   fetchdts@0.1.7: {}
 
+  framer-motion@12.42.2(react-dom@19.3.0-canary-83840902-20260719(react@19.3.0-canary-83840902-20260719))(react@19.3.0-canary-83840902-20260719):
+    dependencies:
+      motion-dom: 12.42.2
+      motion-utils: 12.39.0
+      tslib: 2.8.1
+    optionalDependencies:
+      react: 19.3.0-canary-83840902-20260719
+      react-dom: 19.3.0-canary-83840902-20260719(react@19.3.0-canary-83840902-20260719)
+
   fsevents@2.3.2:
     optional: true
 
@@ -5939,6 +6006,20 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
+  motion-dom@12.42.2:
+    dependencies:
+      motion-utils: 12.39.0
+
+  motion-utils@12.39.0: {}
+
+  motion@12.42.2(react-dom@19.3.0-canary-83840902-20260719(react@19.3.0-canary-83840902-20260719))(react@19.3.0-canary-83840902-20260719):
+    dependencies:
+      framer-motion: 12.42.2(react-dom@19.3.0-canary-83840902-20260719(react@19.3.0-canary-83840902-20260719))(react@19.3.0-canary-83840902-20260719)
+      tslib: 2.8.1
+    optionalDependencies:
+      react: 19.3.0-canary-83840902-20260719
+      react-dom: 19.3.0-canary-83840902-20260719(react@19.3.0-canary-83840902-20260719)
+
   mrmime@2.0.1: {}
 
   ms@2.1.3: {}
@@ -6407,8 +6488,7 @@ snapshots:
 
   trough@2.2.0: {}
 
-  tslib@2.8.1:
-    optional: true
+  tslib@2.8.1: {}
 
   typescript@7.0.2:
     optionalDependencies:

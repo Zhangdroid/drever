@@ -7,12 +7,12 @@ export default defineConfig({
     width: 1280,
   },
   rehearsal: {
-    targetDurationMinutes: 10,
+    targetDurationMinutes: 8,
   },
   theme: editorialTheme,
   server: {
     host: "127.0.0.1",
-    port: 4322,
+    port: 4328,
     strictPort: true,
   },
 });

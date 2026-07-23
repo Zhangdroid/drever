@@ -44,7 +44,7 @@ const demoContent = {
     meta: "Studio · 9 slides",
   },
   motion: {
-    meta: "Editorial · 15 slides",
+    meta: "Editorial · 17 slides",
   },
   architecture: {
     meta: "Studio · 11 slides",
