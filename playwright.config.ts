@@ -6,6 +6,7 @@ const architectureDemoRoot = fileURLToPath(new URL("./examples/architecture", im
 const brandDemoRoot = fileURLToPath(new URL("./examples/brand", import.meta.url));
 const motionRecipesRoot = fileURLToPath(new URL("./examples/motion-recipes", import.meta.url));
 const productTourRoot = fileURLToPath(new URL("./examples/product-tour", import.meta.url));
+const workspaceCli = "node ../../packages/cli/dist/bin.mjs";
 const ci = process.env.CI !== undefined;
 
 function readProjectFilters(args: readonly string[]): string[] {
@@ -51,7 +52,7 @@ const projectDefinitions = [
       contextOptions: { reducedMotion: "no-preference" },
     },
     webServer: {
-      command: "vp exec drever dev",
+      command: `${workspaceCli} dev`,
       cwd: demoRoot,
       reuseExistingServer: false,
       timeout: 60_000,
@@ -66,7 +67,7 @@ const projectDefinitions = [
       contextOptions: { reducedMotion: "reduce" },
     },
     webServer: {
-      command: "vp exec drever build && node ../../e2e/support/static-server.mjs dist 4318 /talk",
+      command: `${workspaceCli} build && node ../../e2e/support/static-server.mjs dist 4318 /talk`,
       cwd: demoRoot,
       reuseExistingServer: false,
       timeout: 60_000,
@@ -81,7 +82,7 @@ const projectDefinitions = [
       contextOptions: { reducedMotion: "no-preference" },
     },
     webServer: {
-      command: "vp exec drever dev",
+      command: `${workspaceCli} dev`,
       cwd: productTourRoot,
       reuseExistingServer: false,
       timeout: 60_000,
@@ -96,7 +97,7 @@ const projectDefinitions = [
       contextOptions: { reducedMotion: "no-preference" },
     },
     webServer: {
-      command: "vp exec drever build && node ../../e2e/support/static-server.mjs dist 4321",
+      command: `${workspaceCli} build && node ../../e2e/support/static-server.mjs dist 4321`,
       cwd: architectureDemoRoot,
       reuseExistingServer: false,
       timeout: 60_000,
@@ -111,7 +112,7 @@ const projectDefinitions = [
       contextOptions: { reducedMotion: "no-preference" },
     },
     webServer: {
-      command: "vp exec drever dev",
+      command: `${workspaceCli} dev`,
       cwd: motionRecipesRoot,
       reuseExistingServer: false,
       timeout: 60_000,

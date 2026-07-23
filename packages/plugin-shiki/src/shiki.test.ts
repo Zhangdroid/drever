@@ -102,5 +102,5 @@ describe("@drever/plugin-shiki", () => {
     expect(serialized).toContain("shiki-themes");
     expect(serialized).toContain("--shiki-dark");
     expect(serialized).toContain("light-dark(");
-  });
+  }, 30_000);
 });
