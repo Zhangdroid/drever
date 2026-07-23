@@ -38,7 +38,9 @@ A Spotify or Apple Music URL has a different contract:
 
 The official provider player loads on demand and the background uses a quiet
 ambient animation. Provider iframes do not expose raw audio to Web Audio, so
-this mode never claims to be frequency-reactive.
+this mode never claims to be frequency-reactive. Leaving the slide disconnects
+local audio and unloads the provider frame; the first version does not create a
+deck-wide music service.
 
 ## Render surfaces
 

@@ -69,9 +69,11 @@ export function Soundtrack({
   const renderMode = useDreverRenderMode();
   const interactive = renderMode === "audience";
   const embed = playlistUrl === undefined ? undefined : resolveMusicEmbed(playlistUrl);
+  const embedUrl = embed?.embedUrl;
   const provider = explicitProvider ?? embed?.provider ?? "other";
   const audioRef = useRef<HTMLAudioElement>(null);
   const graphRef = useRef<AudioGraph | undefined>(undefined);
+  const playerRef = useRef<HTMLIFrameElement>(null);
   const rootRef = useRef<HTMLElement>(null);
   const [error, setError] = useState<string>();
   const [playerLoaded, setPlayerLoaded] = useState(false);
@@ -170,6 +172,16 @@ export function Soundtrack({
     [],
   );
 
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!playerLoaded || player === null || embedUrl === undefined) return;
+
+    player.src = embedUrl;
+    return () => {
+      player.src = "about:blank";
+    };
+  }, [embedUrl, playerLoaded]);
+
   const staticSurface = !interactive;
   const sourceMode = src === undefined ? "ambient" : "audio-reactive";
   const rootStyle = {
@@ -259,6 +271,7 @@ export function Soundtrack({
           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
           className="drever-soundtrack__embed"
           loading="lazy"
+          ref={playerRef}
           src={embed.embedUrl}
           title={`${providerLabel(provider)} player for ${title}`}
         />
