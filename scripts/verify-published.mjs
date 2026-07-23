@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, realpath, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
@@ -17,7 +17,7 @@ const packageNames = (await readPublicPackages())
   .map(({ manifest }) => manifest.name)
   .sort((left, right) => (left < right ? -1 : left > right ? 1 : 0));
 
-const root = await mkdtemp(join(tmpdir(), "drever-registry-consumer-"));
+const root = await realpath(await mkdtemp(join(tmpdir(), "drever-registry-consumer-")));
 const deckRoot = join(root, "registry-deck");
 const run = (command, arguments_, cwd = root, timeout = 240_000) =>
   execute(command, arguments_, {
