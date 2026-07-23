@@ -45,10 +45,9 @@ const exportPdf = async (
   { slides, steps = false }: ExportPdfOptions = {},
 ): Promise<string> => {
   const { stdout } = await execute(
-    "vp",
+    process.execPath,
     [
-      "exec",
-      "drever",
+      cli,
       "export",
       "pdf",
       ...(steps ? ["--steps"] : []),
