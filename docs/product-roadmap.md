@@ -186,6 +186,33 @@ same evidence as a reviewer, make a focused source change, and rerun the checks.
 This remains a local, repository-native loop: no hosted editor, hidden prompt
 state, or runtime agent dependency is required.
 
+### P1-E — presentation-native scenes: prototype
+
+`@drever/scenes` prototypes reusable moments that belong to a live presentation
+but not to a generic UI kit. The first slice provides:
+
+- `Soundtrack`, with an explicit presenter gesture, true Web Audio response for
+  local or CORS-enabled audio, and on-demand Spotify or Apple Music embeds;
+- `RoomCountdown`, which updates only for the audience and keeps authored,
+  deterministic copy on every other render surface;
+- `AmbientStage`, a persistent field with a small narrative-state vocabulary
+  instead of a new background entrance on every page.
+
+Provider playback and signal analysis remain separate contracts. A protected
+cross-origin iframe can expose its own player but not raw audio samples to the
+deck. Link-only scenes therefore use ambient motion and never describe it as a
+live frequency response. Audible autoplay is not a product capability.
+
+The package remains private while its API and visual language are incubating.
+The `room-scenes` example is the executable design study. Strong follow-up
+scenes include `BrowserJourney`, `DataStory`, `CompareLens`, `TimelinePath`, and
+`MediaCue`. Microphone input, spatial runtimes, and audience responses require
+explicit permission, privacy, network, or export design and remain later work.
+
+Every Scene must have one narrative job, a stable reduced-motion and export
+state, keyboard and semantic behavior, bounded continuous motion, and no
+ownership of the presentation router or slide transition.
+
 ### Existing common delivery foundations
 
 - **Rehearsal:** the speaker view tracks total and current-slide time,

@@ -415,6 +415,27 @@ importers:
         specifier: 19.3.0-canary-83840902-20260719
         version: 19.3.0-canary-83840902-20260719
 
+  examples/room-scenes:
+    devDependencies:
+      '@drever/brand':
+        specifier: workspace:*
+        version: link:../../packages/brand
+      '@drever/scenes':
+        specifier: workspace:*
+        version: link:../../packages/scenes
+      '@drever/theme-cinema':
+        specifier: workspace:*
+        version: link:../../packages/theme-cinema
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.17
+      drever:
+        specifier: workspace:*
+        version: link:../../packages/cli
+      react:
+        specifier: 19.3.0-canary-83840902-20260719
+        version: 19.3.0-canary-83840902-20260719
+
   examples/theme-showcase:
     devDependencies:
       '@drever/theme-atlas':

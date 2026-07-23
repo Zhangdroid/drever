@@ -1,0 +1,324 @@
+[data-drever-slide] {
+  align-content: stretch;
+  font-family: var(--drever-brand-font-family-sans);
+}
+
+.scene-kicker {
+  display: block;
+  color: var(--drever-cinema-cue);
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: 0.16em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.room-opening {
+  display: grid;
+  height: 100%;
+  align-items: center;
+  grid-template-columns: minmax(0, 0.84fr) minmax(560px, 1.16fr);
+  gap: 76px;
+}
+
+.room-opening__intro {
+  position: relative;
+  z-index: 2;
+}
+
+.room-opening__intro h1 {
+  max-width: 8ch;
+  margin-top: 24px;
+  font-family: var(--drever-brand-font-family-display);
+  font-size: 90px;
+  font-weight: 560;
+  letter-spacing: -0.055em;
+}
+
+.room-opening__intro h1 em {
+  position: relative;
+  display: inline-block;
+  color: inherit;
+  font-style: normal;
+}
+
+.room-opening__intro h1 em::after {
+  position: absolute;
+  right: -0.04em;
+  bottom: -0.04em;
+  left: -0.06em;
+  height: 0.12em;
+  border-radius: 99px;
+  background: var(--drever-cinema-cue);
+  content: "";
+  opacity: 0.86;
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: room-underline 760ms 900ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.room-opening__intro > p {
+  max-width: 29ch;
+  margin-top: 28px;
+  color: var(--drever-cinema-muted);
+  font-size: 23px;
+}
+
+.room-opening__countdown {
+  display: flex;
+  align-items: baseline;
+  margin-top: 52px;
+  gap: 16px;
+}
+
+.room-opening__countdown > span {
+  color: var(--drever-cinema-muted);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.room-opening__countdown .drever-room-countdown {
+  font-size: 31px;
+  font-weight: 620;
+}
+
+.room-opening__soundtrack {
+  min-height: 490px;
+}
+
+.provider-scene {
+  display: grid;
+  height: 100%;
+  align-items: center;
+  grid-template-columns: minmax(0, 0.82fr) minmax(590px, 1.18fr);
+  gap: 80px;
+}
+
+.provider-scene > header h2,
+.stage-story > header h2,
+.scene-board > header h2,
+.scene-ending h2 {
+  max-width: 12ch;
+  margin-top: 24px;
+  font-family: var(--drever-brand-font-family-display);
+  font-weight: 560;
+  letter-spacing: -0.052em;
+}
+
+.provider-scene > header p,
+.stage-story > header p,
+.scene-ending > p {
+  max-width: 34ch;
+  margin-top: 28px;
+  color: var(--drever-cinema-muted);
+  font-size: 22px;
+}
+
+.provider-scene__player {
+  min-height: 480px;
+}
+
+.stage-story {
+  display: grid;
+  height: 100%;
+  align-items: center;
+  grid-template-columns: minmax(0, 0.82fr) minmax(620px, 1.18fr);
+  gap: 86px;
+}
+
+.stage-story__model {
+  position: relative;
+  display: grid;
+  height: 470px;
+  box-sizing: border-box;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--drever-cinema-cue), transparent 52%);
+  background: color-mix(in srgb, var(--drever-cinema-surface), transparent 30%);
+  box-shadow:
+    0 30px 82px rgb(0 0 0 / 14%),
+    inset 0 0 0 1px rgb(255 255 255 / 3%);
+}
+
+.stage-story__model > span,
+.stage-story__model > i {
+  position: absolute;
+  top: 22px;
+  left: 24px;
+  color: var(--drever-cinema-cue);
+  font-size: 13px;
+  font-style: normal;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.stage-story__model > i {
+  top: auto;
+  right: 24px;
+  bottom: 22px;
+  left: auto;
+  color: var(--drever-cinema-muted);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.stage-story__model > div {
+  display: grid;
+  width: 68%;
+  min-height: 220px;
+  box-sizing: border-box;
+  align-content: center;
+  padding: 36px;
+  border: 1px solid var(--drever-cinema-border);
+  background: var(--drever-cinema-canvas);
+  box-shadow:
+    0 22px 58px rgb(0 0 0 / 20%),
+    inset 0 1px rgb(255 255 255 / 4%);
+}
+
+.stage-story__model small {
+  color: var(--drever-cinema-muted);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.stage-story__model strong {
+  max-width: 14ch;
+  margin-top: 14px;
+  font-family: var(--drever-brand-font-family-display);
+  font-size: 34px;
+  font-weight: 560;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.scene-board {
+  display: grid;
+  height: 100%;
+  align-content: center;
+  gap: 42px;
+}
+
+.scene-board > header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+.scene-board > header h2 {
+  max-width: 14ch;
+  margin: 0;
+  font-size: 58px;
+  text-align: right;
+}
+
+.scene-board__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.scene-board__grid article {
+  min-height: 174px;
+  padding: 24px;
+  border: 1px solid var(--drever-cinema-border);
+  background: color-mix(in srgb, var(--drever-cinema-surface), transparent 16%);
+}
+
+.scene-board__grid article[data-state="ready"] {
+  border-color: color-mix(in srgb, var(--drever-cinema-cue), transparent 54%);
+  background: color-mix(in srgb, var(--drever-cinema-cue-soft), transparent 38%);
+}
+
+.scene-board__grid article > span {
+  color: var(--drever-cinema-muted);
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.scene-board__grid article[data-state="ready"] > span {
+  color: var(--drever-cinema-cue);
+}
+
+.scene-board__grid article > strong {
+  display: block;
+  margin-top: 18px;
+  font-family: var(--drever-brand-font-family-display);
+  font-size: 27px;
+  font-weight: 570;
+  letter-spacing: -0.035em;
+}
+
+.scene-board__grid article > p {
+  max-width: 31ch;
+  margin-top: 10px;
+  color: var(--drever-cinema-muted);
+  font-size: 15px;
+  line-height: 1.42;
+}
+
+.scene-ending {
+  position: relative;
+  display: grid;
+  height: 100%;
+  align-content: center;
+}
+
+.scene-ending h2 {
+  max-width: 11ch;
+  margin-top: 28px;
+  font-size: 92px;
+}
+
+.scene-ending__signal {
+  position: absolute;
+  right: 3%;
+  bottom: 12%;
+  display: grid;
+  width: 240px;
+  height: 132px;
+  align-items: end;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  opacity: 0.64;
+}
+
+.scene-ending__signal i {
+  display: block;
+  height: 42%;
+  margin: 0;
+  border-radius: 80px 80px 14px 14px;
+  background: var(--drever-cinema-cue);
+}
+
+.scene-ending__signal i:nth-child(2) {
+  height: 92%;
+  background: color-mix(in srgb, var(--drever-cinema-cue), #8e7dff 58%);
+}
+
+.scene-ending__signal i:nth-child(3) {
+  height: 64%;
+  background: #8e7dff;
+}
+
+@keyframes room-underline {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .room-opening__intro h1 em::after {
+    animation: none;
+    transform: scaleX(1);
+  }
+}
+
+[data-drever-reduced-motion] .room-opening__intro h1 em::after {
+  animation: none;
+  transform: scaleX(1);
+}

@@ -1,0 +1,133 @@
+import { Soundtrack } from "@drever/scenes";
+import { OpeningRoom } from "./OpeningRoom.tsx";
+import "@drever/brand/fonts.css";
+import "@drever/brand/tokens.css";
+import "@drever/scenes/styles.css";
+import "./room-scenes.css";
+
+<OpeningRoom />
+
+<Note>
+  Press Start room. This local, original audio loop is routed through Web Audio, so the light
+  responds to the signal. The presenter gesture is intentional: browsers should never be asked to
+  guess whether audible autoplay is welcome.
+</Note>
+
+---
+
+<div className="provider-scene">
+  <header>
+    <span className="scene-kicker">One link / two honest capabilities</span>
+    <h2>A playlist can play. It cannot expose its waveform.</h2>
+    <p>
+      Provider links get an official player and a restrained ambient field. Local or CORS-enabled
+      audio gets the real frequency response.
+    </p>
+  </header>
+
+  <Soundtrack
+    className="provider-scene__player"
+    playlistUrl="https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M"
+    title="Paste a Spotify or Apple Music link"
+  />
+</div>
+
+<Note>
+  Load the player only if the network is available. The background begins a deterministic ambient
+  pulse, but never claims to follow protected iframe audio. Export and speaker surfaces keep this
+  as a static card.
+</Note>
+
+---
+
+<div className="stage-story">
+  <header>
+    <span className="scene-kicker">Persistent atmosphere</span>
+    <h2>The background has its own job.</h2>
+    <p>
+      The glow behind this deck is a Stage scene. It stays mounted while the slide content changes,
+      then shifts only when the story gives it a reason.
+    </p>
+  </header>
+
+  <div className="stage-story__model" aria-label="A persistent Stage surrounding changing slides">
+    <span>Stage · persistent</span>
+    <div>
+      <small>Slide · changing</small>
+      <strong>Content keeps the attention.</strong>
+    </div>
+    <i>quiet signal</i>
+  </div>
+</div>
+
+<Note>
+  The global field has moved from gathering around the opening to a quieter focus state. It is not
+  part of the slide View Transition, so unchanged pixels do not flash or leave captured ghosts.
+</Note>
+
+---
+
+<div className="scene-board">
+  <header>
+    <span className="scene-kicker">Not a component zoo</span>
+    <h2>Every Scene needs a narrative job.</h2>
+  </header>
+
+  <div className="scene-board__grid">
+    <article data-state="ready">
+      <span>Available</span>
+      <strong>Soundtrack</strong>
+      <p>Turn the pre-show wait into an intentional opening ritual.</p>
+    </article>
+    <article data-state="ready">
+      <span>Available</span>
+      <strong>AmbientStage</strong>
+      <p>Carry one visual atmosphere across the deck without moving every page.</p>
+    </article>
+    <article data-state="ready">
+      <span>Available</span>
+      <strong>RoomCountdown</strong>
+      <p>Give a live room a clear start while exports remain deterministic.</p>
+    </article>
+    <article>
+      <span>Next</span>
+      <strong>BrowserJourney</strong>
+      <p>Introduce evidence, inspect it, then dock the same object as context.</p>
+    </article>
+    <article>
+      <span>Next</span>
+      <strong>CompareLens</strong>
+      <p>Reveal one meaningful before-and-after without competing motion.</p>
+    </article>
+    <article>
+      <span>Later</span>
+      <strong>AudiencePulse</strong>
+      <p>Bring a room’s response into the story with explicit privacy.</p>
+    </article>
+  </div>
+</div>
+
+<Note>
+  The package stays deliberately narrow. BrowserJourney, CompareLens, DataStory, MediaCue, and an
+  opt-in microphone source are stronger next candidates than generic cards or buttons.
+</Note>
+
+---
+
+<div className="scene-ending">
+  <span className="scene-kicker">Drever / presentation-native scenes</span>
+  <h2>The room is part of the story.</h2>
+  <p>
+    Slides carry the argument. Scenes shape the moments around it—only when those moments matter.
+  </p>
+  <div className="scene-ending__signal" aria-hidden="true">
+    <i />
+    <i />
+    <i />
+  </div>
+</div>
+
+<Note>
+  The opening signal returns in a smaller, quieter form to close the loop. One visual callback is
+  enough; the final page does not introduce another effect.
+</Note>
