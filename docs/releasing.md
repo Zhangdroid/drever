@@ -58,9 +58,8 @@ The workflow verifies the unmodified source revision first. It then applies an
 ephemeral lockstep version, rebuilds, and first packs with pnpm through Vite+.
 pnpm converts `workspace:` and `catalog:` references to registry-safe versions.
 Drever then orders dependency maps and repacks the result with npm so the same
-source produces the same tarball. During bootstrap, npm authenticates with the
-temporary `NPM_TOKEN`. After each package has a trusted publisher, npm uses the
-workflow's OIDC identity instead.
+source produces the same tarball. npm authenticates exclusively through the
+workflow's short-lived OIDC identity; the publish job has no registry token.
 
 Trusted Publishing automatically adds provenance when the source repository
 and package are public; the publish command must not pass `--provenance`
@@ -93,12 +92,13 @@ plan, some environment protection rules.
    first stable release, make the repository public and add a required reviewer,
    a `main` deployment branch rule, a separate `v*` deployment tag rule, and a
    GitHub tag ruleset for `v*`.
-3. Create a granular npm access token with the minimum one-day expiry. Select
-   **Packages and scopes: Read and write**, **All Packages**, and **Bypass 2FA**.
-   `All Packages` is temporarily necessary because most packages, including
-   the unscoped `create-drever`, do not exist yet. Store it as a repository or
-   `npm` environment secret named `NPM_TOKEN`. Never commit the token.
-4. Run the `Publish` workflow manually on `main`. It publishes a
+3. Create a short-lived granular npm access token for the one-time bootstrap.
+   Select **Packages and scopes: Read and write**, **All Packages**, and
+   **Bypass 2FA**. `All Packages` is temporarily necessary because most
+   packages, including the unscoped `create-drever`, do not exist yet. Store it
+   as an `npm` environment secret named `NPM_TOKEN`. Never commit the token.
+4. Temporarily add `NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}` to the publish
+   step, then run the `Publish` workflow manually on `main`. It publishes a
    `0.0.0-commit.g<sha>` test release under the `commit` dist-tag.
 5. Configure every package to trust `Zhangdroid/drever`, workflow
    `publish.yml`, environment `npm`, with `npm publish` permission. A granular
@@ -125,7 +125,9 @@ plan, some environment protection rules.
    to resume by running the same command again. To perform a read-only audit,
    pass `--verify-only`.
 
-6. Delete the GitHub `NPM_TOKEN` secret and revoke the token immediately.
+6. Remove `NODE_AUTH_TOKEN` from the workflow, delete the GitHub `NPM_TOKEN`
+   secret, and revoke the token immediately. The committed workflow must use
+   only OIDC.
 7. Set each package's publishing access to **Require two-factor authentication
    and disallow tokens**.
 8. Push or merge a new commit to `main` and dispatch that new SHA as a second

@@ -137,7 +137,6 @@ jobs:
 
       - name: Publish the audited tarballs
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           RELEASE_TAG: ${{ needs.audit.outputs.tag }}
         run: node scripts/release.mjs publish "$RUNNER_TEMP/drever-release/release.json" "$RELEASE_TAG"
 

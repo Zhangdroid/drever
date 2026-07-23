@@ -158,7 +158,6 @@ export async function main(arguments_ = process.argv.slice(2)) {
   const environment = {
     ...process.env,
     FORCE_COLOR: "0",
-    npm_config_cache: join(temporaryRoot, "npm-cache"),
   };
   try {
     const version = await execute("npm", ["--version"], { cwd: temporaryRoot, env: environment });
