@@ -4,28 +4,28 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "react-router build",
-    "deploy": "wrangler deploy",
-    "deploy:dry-run": "wrangler deploy --dry-run",
-    "deploy:preview": "wrangler versions upload",
-    "dev": "react-router dev",
-    "typecheck": "react-router typegen && tsc"
+    "build": "vp build && tsc --noEmit",
+    "deploy": "pnpm run build && wrangler pages deploy dist/client --project-name drever-website --branch main",
+    "dev": "vp dev",
+    "preview": "vp preview",
+    "preview:pages": "pnpm run build && wrangler pages dev dist/client --port 4318 --compatibility-date 2026-07-22",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@drever/brand": "workspace:*",
-    "@react-router/node": "catalog:",
-    "isbot": "catalog:",
+    "@tanstack/react-router": "catalog:",
+    "@tanstack/react-start": "catalog:",
     "react": "catalog:",
-    "react-dom": "catalog:",
-    "react-router": "catalog:"
+    "react-dom": "catalog:"
   },
   "devDependencies": {
-    "@react-router/dev": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
+    "vite-plus": "catalog:",
     "wrangler": "catalog:"
   },
   "engines": {

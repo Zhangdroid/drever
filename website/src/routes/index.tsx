@@ -1,16 +1,21 @@
 import lockupHref from "@drever/brand/assets/drever-lockup.svg";
-import type { MetaFunction } from "react-router";
+import { createFileRoute } from "@tanstack/react-router";
 
-export const meta: MetaFunction = () => [
-  { title: "Drever — Under development" },
-  {
-    name: "description",
-    content: "Drever is an AI-first framework for expressive, interactive presentations.",
-  },
-  { name: "robots", content: "noindex, nofollow" },
-];
+export const Route = createFileRoute("/")({
+  component: HomePage,
+  head: () => ({
+    meta: [
+      { title: "Drever — Under development" },
+      {
+        name: "description",
+        content: "Drever is an AI-first framework for expressive, interactive presentations.",
+      },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+});
 
-export default function HomePage() {
+function HomePage() {
   return (
     <main className="placeholder">
       <img className="placeholder__logo" src={lockupHref} alt="Drever" />

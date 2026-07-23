@@ -1,9 +1,10 @@
 {
   "extends": "../tsconfig.json",
-  "include": [".react-router/types/**/*", "**/*"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts"],
   "compilerOptions": {
     "module": "esnext",
     "moduleResolution": "bundler",
-    "rootDirs": [".", "./.react-router/types"]
+    "types": ["vite/client"],
+    "verbatimModuleSyntax": false
   }
 }
