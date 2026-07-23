@@ -1,0 +1,91 @@
+import { DreverRenderModeProvider } from "@drever/core";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { describe, expect, it } from "vite-plus/test";
+import { resolveMusicEmbed, RoomCountdown, Soundtrack } from "./index.ts";
+
+describe("music links", () => {
+  it("turns supported provider links into official embed URLs without preserving trackers", () => {
+    expect(
+      resolveMusicEmbed(
+        "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M?si=tracking-value",
+      ),
+    ).toEqual({
+      embedUrl: "https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M",
+      openUrl: "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M",
+      provider: "spotify",
+    });
+    expect(
+      resolveMusicEmbed(
+        "https://music.apple.com/us/album/example/123456789?i=987654321&uo=4",
+      ),
+    ).toEqual({
+      embedUrl:
+        "https://embed.music.apple.com/us/album/example/123456789?i=987654321",
+      openUrl: "https://music.apple.com/us/album/example/123456789?i=987654321",
+      provider: "apple-music",
+    });
+  });
+
+  it("does not turn arbitrary or insecure URLs into provider embeds", () => {
+    expect(resolveMusicEmbed("http://open.spotify.com/playlist/example")).toBeUndefined();
+    expect(resolveMusicEmbed("https://example.com/playlist/example")).toBeUndefined();
+    expect(resolveMusicEmbed("not a URL")).toBeUndefined();
+  });
+});
+
+describe("scene render surfaces", () => {
+  it("renders an audience audio control without autoplay", () => {
+    const markup = renderToStaticMarkup(
+      createElement(Soundtrack, {
+        artist: "Drever studio",
+        src: "/opening-loop.wav",
+        title: "Before the room speaks",
+      }),
+    );
+
+    expect(markup).toContain('data-source-mode="audio-reactive"');
+    expect(markup).toContain("<audio");
+    expect(markup).not.toContain("autoplay");
+    expect(markup).toContain("Start room");
+  });
+
+  it.each(["document", "export", "speaker-current", "speaker-next"] as const)(
+    "keeps %s deterministic and free of media elements",
+    (mode) => {
+      const markup = renderToStaticMarkup(
+        createElement(
+          DreverRenderModeProvider,
+          { mode },
+          createElement(Soundtrack, {
+            playlistUrl: "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M",
+            src: "/opening-loop.wav",
+            title: "Before the room speaks",
+          }),
+        ),
+      );
+
+      expect(markup).toContain("Playback available in audience view");
+      expect(markup).toContain("Open in Spotify");
+      expect(markup).not.toContain("<audio");
+      expect(markup).not.toContain("<iframe");
+      expect(markup).not.toContain("<button");
+    },
+  );
+
+  it("uses authored countdown copy on non-audience surfaces", () => {
+    const markup = renderToStaticMarkup(
+      createElement(
+        DreverRenderModeProvider,
+        { mode: "export" },
+        createElement(RoomCountdown, {
+          fallbackLabel: "Doors open shortly",
+          target: "2027-01-01T09:00:00Z",
+        }),
+      ),
+    );
+
+    expect(markup).toContain("Doors open shortly");
+    expect(markup).toContain('datetime="2027-01-01T09:00:00Z"');
+  });
+});

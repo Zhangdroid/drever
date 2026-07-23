@@ -1,0 +1,402 @@
+.drever-ambient-stage {
+  --drever-scene-accent: var(--drever-theme-accent, #c7f03a);
+  --drever-scene-accent-alt: var(--drever-theme-accent-strong, #5b45d8);
+  --drever-scene-energy: 0.36;
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: clip;
+  pointer-events: none;
+}
+
+.drever-ambient-stage > * {
+  position: absolute;
+  display: block;
+  margin: 0;
+  transition:
+    translate 920ms cubic-bezier(0.16, 1, 0.3, 1),
+    scale 920ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 520ms ease;
+}
+
+.drever-ambient-stage [data-orbit] {
+  border: 1px solid color-mix(in srgb, var(--drever-scene-accent), transparent 70%);
+  border-radius: 50%;
+}
+
+.drever-ambient-stage [data-orbit="near"] {
+  top: -24%;
+  left: 54%;
+  width: 52%;
+  aspect-ratio: 1;
+}
+
+.drever-ambient-stage [data-orbit="far"] {
+  right: -16%;
+  bottom: -48%;
+  width: 72%;
+  aspect-ratio: 1;
+  border-color: color-mix(in srgb, var(--drever-scene-accent-alt), transparent 78%);
+}
+
+.drever-ambient-stage [data-signal] {
+  width: 42%;
+  aspect-ratio: 1.2;
+  border-radius: 50%;
+  filter: blur(72px);
+  opacity: calc(0.08 + var(--drever-scene-energy) * 0.2);
+}
+
+.drever-ambient-stage [data-signal="primary"] {
+  top: -18%;
+  right: -7%;
+  background: var(--drever-scene-accent);
+}
+
+.drever-ambient-stage [data-signal="secondary"] {
+  bottom: -32%;
+  left: 15%;
+  background: var(--drever-scene-accent-alt);
+  opacity: calc(0.05 + var(--drever-scene-energy) * 0.12);
+}
+
+.drever-ambient-stage[data-state="gather"] [data-orbit="near"] {
+  translate: -18% 11%;
+  scale: 0.82;
+}
+
+.drever-ambient-stage[data-state="gather"] [data-signal="primary"] {
+  translate: -17% 24%;
+  scale: 0.88;
+}
+
+.drever-ambient-stage[data-state="focus"] [data-orbit="near"] {
+  translate: -48% 34%;
+  scale: 0.56;
+}
+
+.drever-ambient-stage[data-state="focus"] [data-orbit="far"] {
+  translate: 7% -20%;
+  scale: 0.76;
+}
+
+.drever-ambient-stage[data-state="focus"] [data-signal="primary"] {
+  translate: -48% 35%;
+  scale: 0.62;
+}
+
+.drever-ambient-stage[data-state="resolve"] [data-orbit="near"] {
+  translate: -12% 46%;
+  scale: 1.08;
+}
+
+.drever-ambient-stage[data-state="resolve"] [data-orbit="far"] {
+  translate: -16% -36%;
+  scale: 0.64;
+}
+
+.drever-ambient-stage[data-state="resolve"] [data-signal="secondary"] {
+  translate: 36% -20%;
+  scale: 0.72;
+}
+
+.drever-room-countdown {
+  display: inline-block;
+  color: inherit;
+  font: inherit;
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.035em;
+}
+
+.drever-soundtrack {
+  --drever-audio-high: 0.2;
+  --drever-audio-level: 0.22;
+  --drever-audio-low: 0.28;
+  --drever-audio-mid: 0.18;
+  position: relative;
+  display: grid;
+  box-sizing: border-box;
+  min-height: 370px;
+  padding: 34px;
+  overflow: clip;
+  isolation: isolate;
+  border: 1px solid color-mix(in srgb, var(--drever-theme-border, currentColor), transparent 34%);
+  border-radius: max(var(--drever-theme-radius, 18px), 18px);
+  background:
+    linear-gradient(
+      138deg,
+      color-mix(in srgb, var(--drever-theme-surface, #171719), transparent 5%),
+      color-mix(in srgb, var(--drever-theme-surface, #171719), var(--drever-theme-accent, #c7f03a) 7%)
+    );
+  box-shadow:
+    0 24px 70px rgb(0 0 0 / 12%),
+    inset 0 1px rgb(255 255 255 / 8%);
+  color: var(--drever-theme-ink, #f6f3e9);
+}
+
+.drever-soundtrack__visual {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  overflow: clip;
+  pointer-events: none;
+}
+
+.drever-soundtrack__visual [data-band] {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  filter: blur(54px);
+  opacity: 0.28;
+  will-change: transform;
+}
+
+.drever-soundtrack__visual [data-band="low"] {
+  right: -9%;
+  bottom: -38%;
+  width: 55%;
+  aspect-ratio: 1;
+  background: var(--drever-theme-accent, #c7f03a);
+  transform: scale(calc(0.82 + var(--drever-audio-low) * 0.42));
+}
+
+.drever-soundtrack__visual [data-band="mid"] {
+  top: 7%;
+  right: 22%;
+  width: 30%;
+  aspect-ratio: 1.2;
+  background: var(--drever-theme-accent-strong, #5b45d8);
+  opacity: 0.2;
+  transform: translateY(calc(var(--drever-audio-mid) * -16%))
+    scale(calc(0.82 + var(--drever-audio-mid) * 0.36));
+}
+
+.drever-soundtrack__visual [data-band="high"] {
+  top: -22%;
+  left: 12%;
+  width: 22%;
+  aspect-ratio: 0.74;
+  background: color-mix(
+    in srgb,
+    var(--drever-theme-accent, #c7f03a),
+    var(--drever-theme-ink, #f6f3e9) 46%
+  );
+  opacity: 0.12;
+  transform: translateX(calc(var(--drever-audio-high) * 18%))
+    rotate(calc(-16deg + var(--drever-audio-high) * 12deg));
+}
+
+.drever-soundtrack__visual > i {
+  position: absolute;
+  right: 34px;
+  bottom: 28px;
+  left: 34px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  background: color-mix(in srgb, currentColor, transparent 84%);
+}
+
+.drever-soundtrack__visual > i::after {
+  position: absolute;
+  width: calc(8% + var(--drever-audio-level) * 48%);
+  height: 100%;
+  background: var(--drever-theme-accent, #c7f03a);
+  content: "";
+  transition: width 80ms linear;
+}
+
+.drever-soundtrack[data-source-mode="ambient"][data-active] .drever-soundtrack__visual [data-band] {
+  animation: drever-scene-breathe 6.8s ease-in-out infinite alternate;
+}
+
+.drever-soundtrack[data-visual="spectrum"] .drever-soundtrack__visual [data-band] {
+  border-radius: 10% 62% 22% 68%;
+}
+
+.drever-soundtrack__content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  align-self: end;
+  align-items: center;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 24px;
+}
+
+.drever-soundtrack__artwork,
+.drever-soundtrack__artwork-placeholder {
+  display: grid;
+  width: 116px;
+  aspect-ratio: 1;
+  box-sizing: border-box;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, currentColor, transparent 76%);
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--drever-theme-surface, #171719), transparent 28%);
+  box-shadow: 0 18px 44px rgb(0 0 0 / 18%);
+}
+
+.drever-soundtrack__artwork {
+  object-fit: cover;
+}
+
+.drever-soundtrack__artwork-placeholder {
+  place-content: center;
+  gap: 5px;
+}
+
+.drever-soundtrack__artwork-placeholder > i {
+  display: block;
+  width: 44px;
+  height: 3px;
+  margin: 0;
+  border-radius: 99px;
+  background: color-mix(in srgb, currentColor, transparent 32%);
+  transform-origin: left center;
+}
+
+.drever-soundtrack__artwork-placeholder > i:first-child {
+  scale: 0.52 1;
+}
+
+.drever-soundtrack__artwork-placeholder > i:last-child {
+  scale: 0.76 1;
+}
+
+.drever-soundtrack__meta {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.drever-soundtrack__meta small {
+  color: var(--drever-theme-accent, #c7f03a);
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.drever-soundtrack__meta strong {
+  overflow: hidden;
+  font-size: clamp(24px, 3vw, 42px);
+  font-weight: 620;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drever-soundtrack__meta span {
+  overflow: hidden;
+  color: color-mix(in srgb, currentColor, transparent 34%);
+  font-size: 18px;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drever-soundtrack__control {
+  min-width: 132px;
+  padding: 12px 18px;
+  border: 1px solid color-mix(in srgb, currentColor, transparent 68%);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--drever-theme-surface, #171719), transparent 24%);
+  box-shadow:
+    0 8px 24px rgb(0 0 0 / 8%),
+    inset 0 1px rgb(255 255 255 / 7%);
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+  backdrop-filter: blur(16px) saturate(1.2);
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    translate 180ms ease;
+}
+
+.drever-soundtrack__control:hover {
+  border-color: color-mix(in srgb, var(--drever-theme-accent, #c7f03a), transparent 38%);
+  background: color-mix(
+    in srgb,
+    var(--drever-theme-surface, #171719),
+    var(--drever-theme-accent, #c7f03a) 10%
+  );
+  translate: 0 -1px;
+}
+
+.drever-soundtrack__control:focus-visible,
+.drever-soundtrack__link:focus-visible {
+  outline: 2px solid var(--drever-theme-accent, #c7f03a);
+  outline-offset: 4px;
+}
+
+.drever-soundtrack__status {
+  max-width: 18ch;
+  color: color-mix(in srgb, currentColor, transparent 46%);
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: right;
+}
+
+.drever-soundtrack__embed {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 152px;
+  margin-top: 24px;
+  border: 0;
+  border-radius: 16px;
+}
+
+.drever-soundtrack__link {
+  position: absolute;
+  z-index: 2;
+  top: 28px;
+  right: 30px;
+  color: color-mix(in srgb, currentColor, transparent 38%);
+  font-size: 13px;
+  line-height: 1;
+  text-underline-offset: 4px;
+}
+
+.drever-soundtrack__error {
+  position: relative;
+  z-index: 1;
+  margin: 20px 0 0;
+  color: #ff9a8f;
+  font-size: 14px;
+}
+
+@keyframes drever-scene-breathe {
+  from {
+    translate: -2% 1%;
+    scale: 0.94;
+  }
+  to {
+    translate: 3% -2%;
+    scale: 1.08;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drever-ambient-stage > *,
+  .drever-soundtrack__visual [data-band],
+  .drever-soundtrack__visual > i::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.drever-ambient-stage[data-reduced-motion] > *,
+[data-drever-reduced-motion] .drever-ambient-stage > *,
+[data-drever-reduced-motion] .drever-soundtrack__visual [data-band],
+[data-drever-reduced-motion] .drever-soundtrack__visual > i::after {
+  animation: none !important;
+  transition: none !important;
+}

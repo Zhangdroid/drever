@@ -25,6 +25,7 @@
       "@drever/plugin-math": ["./packages/plugin-math/src/index.ts"],
       "@drever/plugin-shiki": ["./packages/plugin-shiki/src/index.ts"],
       "@drever/plugin-tailwindcss": ["./packages/plugin-tailwindcss/src/index.ts"],
+      "@drever/scenes": ["./packages/scenes/src/index.ts"],
       "@drever/schema": ["./packages/schema/src/index.ts"],
       "@drever/theme-atlas": ["./packages/theme-atlas/src/index.ts"],
       "@drever/theme-atlas/layouts": ["./packages/theme-atlas/src/layouts.tsx"],
