@@ -1,0 +1,89 @@
+<Metric
+  label="Activation rate"
+  value="68.4"
+  unit="%"
+  period="Q2 · New team accounts"
+  change="+7.2 pp vs Q1"
+  context="Guided setup moved more teams to their first shared result within 24 hours."
+  benchmark="Decision line 65%"
+  tone="positive"
+/>
+
+<Note>
+  Lead with the one measure that changes the decision. Read the period and comparison aloud; the
+  context explains the consequence instead of repeating the number.
+</Note>
+
+---
+
+<Evidence
+  label="Cohort audit / 02"
+  claim="The gain comes from guided setup—not easier traffic."
+  interpretation={
+    <p>
+      Guided accounts improved across every acquisition source while the control remained inside its
+      historical range.
+    </p>
+  }
+  evidence={
+    <table aria-label="Activation rate by acquisition source and setup experience">
+      <thead>
+        <tr>
+          <th>Source</th>
+          <th>Control</th>
+          <th>Guided</th>
+          <th>Difference</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Invited teams</td>
+          <td>63.8%</td>
+          <td>72.1%</td>
+          <td>+8.3 pp</td>
+        </tr>
+        <tr>
+          <td>Organic</td>
+          <td>57.4%</td>
+          <td>65.0%</td>
+          <td>+7.6 pp</td>
+        </tr>
+        <tr>
+          <td>Partner</td>
+          <td>60.1%</td>
+          <td>66.9%</td>
+          <td>+6.8 pp</td>
+        </tr>
+      </tbody>
+    </table>
+  }
+  source="Experiment events · 1 Apr–30 Jun 2026 · 12,480 eligible accounts"
+  balance="evidence-led"
+/>
+
+<Note>
+  Let the audience inspect the cohort table. The source provides time window and sample size, and
+  the claim stays narrower than the evidence.
+</Note>
+
+---
+
+## Decision: make guided setup the default.
+
+<MotionGroup flow="block" intent="focus">
+  <Step at={1}>
+    <strong>Ship</strong> to new team accounts on 5 August.
+  </Step>
+  <Step at={2}>
+    <strong>Guard</strong> completion time and seven-day retention.
+  </Step>
+  <Step at={3}>
+    <strong>Review</strong> after 20,000 additional eligible accounts.
+  </Step>
+</MotionGroup>
+
+> The metric authorizes the rollout; the guardrails decide whether it remains.
+
+<Note>
+  Close the audit trail with owner-ready actions. This is a decision slide, not a dashboard summary.
+</Note>

@@ -66,10 +66,13 @@ appropriate.
 `continuity` rejects `flow` because shared-object motion comes from the two
 authored layouts instead of a reveal direction.
 
-Official themes have distinct motion voices: Default favors unadorned fades
-and short travel, Editorial uncovers content from its reading edge, and Studio
-uses a brief scale-lock to make system states feel precise. These mappings stay
-theme-owned; authors never select the underlying effect.
+Official themes have distinct motion voices. Default favors unadorned fades and
+short travel; Editorial uncovers content from its reading edge; Studio uses a
+brief scale-lock for precise system states; Fieldnote follows writing order;
+Atlas advances along a declared route; Ledger preserves row and column
+alignment; Cinema uses stable cuts and restrained dissolves; Construct adds one
+meaningful part at a time. These mappings stay theme-owned; authors never
+select the underlying effect.
 
 Use motion only when it explains a state change. Ordinary `Step` elements are
 the right default for progressive disclosure.
@@ -113,9 +116,11 @@ be unmistakable:
 </MotionGroup>
 ```
 
-Completed Steps stay visible and accessible. The theme reduces their emphasis
-while the active Step receives focus. Pending Steps retain layout space but are
-hidden and removed from interaction and the accessibility tree.
+Completed Steps stay visible and accessible. The theme gives the active Step a
+non-destructive marker or surface treatment; it must not lower the opacity of a
+whole completed Step because that can make nested text, links, and controls fail
+contrast. Pending Steps retain layout space but are hidden and removed from
+interaction and the accessibility tree.
 
 ### Replace
 
@@ -167,7 +172,8 @@ Use `compare` when each revealed item must remain readable as a peer:
 ```
 
 Completed Steps stay visible and accessible. The theme distinguishes the newest
-evidence without changing the comparison's meaning. `MotionGroup` does not
+evidence without changing the comparison's meaning or reducing peer evidence
+below its normal readable contrast. `MotionGroup` does not
 choose columns or another composition; use a theme layout or a small authored
 class for that visual relationship.
 

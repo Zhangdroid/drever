@@ -39,7 +39,7 @@ export const theme = defineTheme({
       borderWidth: 2,
     },
     motion: {
-      duration: 460,
+      duration: 380,
       easing: "cubic-bezier(0.22, 1, 0.36, 1)",
     },
   },
@@ -128,10 +128,9 @@ export const theme = defineTheme({
   ],
   manifest: {
     title: "Drever Default",
-    summary:
-      "A crisp editorial theme with generous space, decisive typography, and focused motion.",
+    summary: "A neutral visual baseline with generous space, clear typography, and focused motion.",
     artDirection: {
-      keywords: ["editorial", "confident", "precise", "modern"],
+      keywords: ["neutral", "clear", "versatile", "calm"],
       principles: [
         "Give every slide one dominant idea",
         "Use scale and space before decoration",

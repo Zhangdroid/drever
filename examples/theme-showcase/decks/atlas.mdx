@@ -1,0 +1,119 @@
+<Route
+  label="Alder River / Restoration plan"
+  title="Give the salmon a continuous cold-water path."
+  origin="Tidal reach"
+  waypoints={["Remove Mill Road culvert", "Replant the exposed bend", "Reconnect North Marsh"]}
+  destination="Granite spawning beds"
+  caption="Four interventions follow the river upstream; each unlocks the next habitat."
+  tone="terrain"
+/>
+
+<Note>
+  This is a real spatial sequence, not a feature list. Follow the route from the estuary to the
+  spawning beds and explain why the order matters.
+</Note>
+
+---
+
+<Survey
+  label="Thermal survey / August"
+  title="One exposed bend breaks the cold corridor."
+  finding={
+    <p>Water warms 3.8 °C between stations B and C, where the channel loses canopy for 1.2 km.</p>
+  }
+  visual={
+    <svg aria-labelledby="alder-map-title alder-map-description" role="img" viewBox="0 0 720 390">
+      <title id="alder-map-title">Alder River temperature survey</title>
+      <desc id="alder-map-description">
+        A river runs from the lower left to the upper right through four monitoring stations. The
+        segment between stations B and C is highlighted as the warm exposed bend.
+      </desc>
+      <path
+        d="M42 318 C150 298 176 228 270 238 S392 282 454 202 S566 86 680 70"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="18"
+      />
+      <path
+        d="M270 238 C342 236 392 282 454 202"
+        fill="none"
+        stroke="var(--drever-theme-accent)"
+        strokeLinecap="round"
+        strokeWidth="18"
+      />
+      <g fill="var(--drever-theme-surface)" stroke="currentColor" strokeWidth="4">
+        <circle cx="128" cy="282" r="13" />
+        <circle cx="270" cy="238" r="13" />
+        <circle cx="454" cy="202" r="13" />
+        <circle cx="594" cy="102" r="13" />
+      </g>
+      <g fill="currentColor" fontFamily="system-ui, sans-serif" fontSize="23" fontWeight="700">
+        <text x="102" y="254">
+          A · 13.1°
+        </text>
+        <text x="244" y="178">
+          B · 13.4°
+        </text>
+        <text x="430" y="140">
+          C · 17.2°
+        </text>
+        <text x="500" y="40">
+          D · 14.0°
+        </text>
+      </g>
+    </svg>
+  }
+  legend={
+    <ul>
+      <li>Dark channel — shaded reach</li>
+      <li>Accent channel — exposed bend</li>
+      <li>Circles — temperature stations</li>
+    </ul>
+  }
+  caption="Seven-day afternoon mean · calibrated loggers · 4–10 Aug 2026"
+  balance="visual-led"
+/>
+
+<Note>
+  The map carries one finding and includes a text alternative. The legend explains only marks needed
+  to inspect the claim.
+</Note>
+
+---
+
+## Restore continuity, then measure passage.
+
+<table aria-label="Restoration evidence gates">
+  <thead>
+    <tr>
+      <th>Gate</th>
+      <th>Evidence needed</th>
+      <th>Decision</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Culvert</td>
+      <td>Spring flow remains below 0.8 m/s</td>
+      <td>Open upstream works</td>
+    </tr>
+    <tr>
+      <td>Canopy</td>
+      <td>Bend stays below 15 °C in August</td>
+      <td>Reconnect marsh</td>
+    </tr>
+    <tr>
+      <td>Passage</td>
+      <td>Tagged adults reach Granite beds</td>
+      <td>Maintain full corridor</td>
+    </tr>
+  </tbody>
+</table>
+
+**The route is complete only when the fish complete it.**
+
+<Note>
+  End with the evidence gates rather than an ornamental map. The table turns the geographic story
+  into an accountable restoration sequence.
+</Note>

@@ -454,16 +454,20 @@ Keep documentation components inside the documentation application. Do not
 publish a shared UI package until another product needs the same component
 contract.
 
-### Official presentation themes
+### Official design studies and theme contracts
 
-A presentation theme remains a complete, standalone art direction. It owns its
+A presentation theme remains a complete, standalone, deterministic art
+direction. It owns its
 Markdown styling, layouts, canvas scale, semantic `--drever-theme-*` variables,
 and motion profile.
 
-Default may map closely to the Drever brand. Editorial and Studio may reuse the
-font or selected primitives without adopting the brand palette or product type
-scale. Themes must not extend one another, import another theme's CSS, or place
-product UI rules inside a slide stylesheet.
+The eight official packages are design studies, few-shot references, and
+fallbacks—not a preset-first product workflow. Default is the neutral fallback
+when a brief does not justify a stronger direction. Editorial, Studio,
+Fieldnote, Atlas, Ledger, Cinema, and Construct may reuse a font or selected
+primitive without adopting the brand palette or product type scale. Themes must not
+extend one another, import another theme's CSS, or place product UI rules
+inside a slide stylesheet.
 
 Theme metadata should expose resolved literal values for people and AI. Theme
 CSS may map those values to brand custom properties, but authoring context must
@@ -508,7 +512,10 @@ orientation, and cross-axis alignment fixed. Translate it along the reading
 axis or reveal its length with an inner mask; never stretch its box. Use at most
 one primary motion per moment and at most one quieter cue in the same causal
 chain. If the headline or core object moves, keep Stage decoration and
-neighboring cards still. Remove all spatial motion under reduced motion.
+neighboring cards still. Mark an active Step with a rule, outline, or
+contrast-safe surface; never dim a whole completed Step with opacity because
+nested text and controls must retain their authored contrast. Remove all spatial
+motion under reduced motion.
 
 Use the 4px spacing scale. Prefer square edges; reserve 8/14px radii for
 controls and 20/32px radii for one dominant surface. Use 24px two-stroke icons,

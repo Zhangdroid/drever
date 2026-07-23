@@ -4,6 +4,12 @@ A warm, publication-led official theme for Drever. Editorial is made for
 narrative talks, product stories, essays, research, and any deck where a clear
 point of view matters more than a grid of cards.
 
+Treat it as one of Drever's eight official design studies and as a deterministic
+Theme contract. The primary authoring workflow derives art direction from the
+subject, audience, venue, and source material, then persists that result
+locally; use Editorial as a reference or foundation only when its publication
+premise genuinely fits the story.
+
 It uses system fonts and has no font, image, animation, or component-library
 dependency. React is only needed when a deck uses a layout component.
 

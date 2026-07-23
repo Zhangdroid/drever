@@ -40,6 +40,8 @@ describe("@drever/theme-default", () => {
         module: { specifier: "@drever/theme-default/layouts", exportName: "TwoColumn" },
       },
     ]);
+    expect(theme.manifest?.artDirection.keywords).toContain("neutral");
+    expect(theme.manifest?.artDirection.keywords).not.toContain("editorial");
   });
 
   it("renders the documented layout regions as semantic public markup", () => {
@@ -87,12 +89,22 @@ describe("@drever/theme-default", () => {
       "--drever-recipe-step-inline-from-translate",
     ]);
     expect(css).toContain("grid-area: 1 / 1;");
-    expect(css.match(/:not\(\[data-drever-render-mode="document"\]\)/gu)).toHaveLength(3);
+    expect(css).toMatch(
+      /\[data-drever-deck\]:not\(\[data-drever-render-mode="document"\]\)\s+\[data-drever-motion-group=""\]\[data-motion-intent="replace"\]\s*\{/u,
+    );
     expect(css).toContain(":root:has(.drever-viewer),");
     expect(css).toContain("--drever-motion-slide-offset: 2.4%;");
     expect(css).toContain("--drever-recipe-stagger-gap: 40ms;");
     expect(css).toContain("--drever-recipe-step-block-from-translate: 0 12px;");
     expect(css).toContain("--drever-recipe-step-inline-from-translate: 12px 0;");
+    expect(css).toContain(`--drever-motion-duration: ${theme.tokens.motion.duration}ms;`);
+    expect(css).toContain('data-step-state="active"]::before');
+    expect(css).toMatch(
+      /data-step-state="active"\]::before \{[^}]*position: absolute;[^}]*content: "";/su,
+    );
+    expect(css).not.toMatch(/data-step-state="complete"\]\s*\{\s*opacity: 0\./u);
+    expect(css).toContain("[data-drever-slide] ::selection");
+    expect(css).not.toMatch(/^::selection/mu);
     expect(css).not.toContain("--drever-recipe-step-from-transform");
     expect(css).toContain("[data-drever-reduced-motion]");
     expect(theme.motion?.guidance?.every((entry) => entry.trim().length > 20)).toBe(true);

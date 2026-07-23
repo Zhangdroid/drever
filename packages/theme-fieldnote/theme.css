@@ -1,0 +1,540 @@
+@font-face {
+  font-family: Caveat;
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("./fonts/Caveat[wght].ttf") format("truetype");
+}
+
+:root:has(.drever-viewer),
+.drever-viewer {
+  --drever-stage-background: #e5ddc8;
+  --drever-stage-color: #26231e;
+  --drever-canvas-background: #f7f1dd;
+  --drever-canvas-color: #26231e;
+  --drever-canvas-color-scheme: light;
+  --drever-motion-duration: 420ms;
+  --drever-motion-easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --drever-motion-slide-offset: 1.8%;
+  --drever-recipe-enter-duration: 300ms;
+  --drever-recipe-stagger-duration: 280ms;
+  --drever-recipe-stagger-gap: 44ms;
+  --drever-recipe-step-from-translate: 0 10px;
+  --drever-recipe-replace-from-translate: 8px 0;
+  --drever-recipe-stagger-from-translate: 0 8px;
+  --drever-recipe-step-block-from-translate: 0 10px;
+  --drever-recipe-step-inline-from-translate: 10px 0;
+  --drever-recipe-replace-block-from-translate: 0 8px;
+  --drever-recipe-replace-inline-from-translate: 8px 0;
+  --drever-recipe-stagger-block-from-translate: 0 8px;
+  --drever-recipe-stagger-inline-from-translate: 8px 0;
+  --drever-fieldnote-paper: #f7f1dd;
+  --drever-fieldnote-ink: #26231e;
+  --drever-fieldnote-muted: #696153;
+  --drever-fieldnote-blue: #275f96;
+  --drever-fieldnote-blue-strong: #184875;
+  --drever-fieldnote-blue-soft: #dce8ef;
+  --drever-fieldnote-red: #9e3b32;
+  --drever-fieldnote-surface: #fffdf7;
+  --drever-fieldnote-line: #cec4a7;
+  --drever-fieldnote-code: #24323a;
+  --drever-fieldnote-code-ink: #f8f4e8;
+  --drever-theme-ink: var(--drever-fieldnote-ink);
+  --drever-theme-muted: var(--drever-fieldnote-muted);
+  --drever-theme-accent: var(--drever-fieldnote-blue);
+  --drever-theme-accent-strong: var(--drever-fieldnote-blue-strong);
+  --drever-theme-accent-soft: var(--drever-fieldnote-blue-soft);
+  --drever-theme-surface: var(--drever-fieldnote-surface);
+  --drever-theme-border: var(--drever-fieldnote-line);
+  --drever-theme-code-canvas: var(--drever-fieldnote-code);
+  --drever-theme-code-ink: var(--drever-fieldnote-code-ink);
+  --drever-theme-radius: 5px;
+  font-family: "Avenir Next", Aptos, "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+.drever-canvas {
+  border: 1px solid rgb(63 54 40 / 16%);
+  box-shadow:
+    0 46px 120px rgb(47 38 25 / 30%),
+    0 8px 30px rgb(47 38 25 / 18%);
+}
+
+[data-drever-render-mode^="speaker"] {
+  --drever-motion-duration: 1ms;
+}
+
+.drever-viewer:has([data-drever-render-mode^="speaker"]) .drever-canvas {
+  box-shadow: 0 16px 44px rgb(47 38 25 / 20%);
+}
+
+[data-drever-stage-layer="background"] {
+  background:
+    linear-gradient(90deg, transparent 0 112px, rgb(158 59 50 / 52%) 112px 114px, transparent 114px)
+      0 0 / 100% 100% no-repeat,
+    repeating-linear-gradient(to bottom, transparent 0 31px, rgb(39 95 150 / 12%) 31px 32px),
+    var(--drever-fieldnote-paper);
+}
+
+[data-drever-stage-layer="background"]::after {
+  position: absolute;
+  right: 44px;
+  bottom: 32px;
+  color: var(--drever-fieldnote-muted);
+  content: "FIELD / NOTES";
+  font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  opacity: 0.58;
+}
+
+[data-drever-slide] {
+  position: relative;
+  display: grid;
+  box-sizing: border-box;
+  align-content: center;
+  padding: 82px 108px 76px 148px;
+  overflow: clip;
+  isolation: isolate;
+  background: transparent;
+  color: var(--drever-fieldnote-ink);
+}
+
+[data-drever-slide] :where(h1, h2, h3, h4, h5, h6, p, ul, ol, blockquote, pre, table, figure) {
+  margin-block: 0;
+}
+
+[data-drever-slide] figure {
+  margin-inline: 0;
+}
+
+[data-drever-slide] :where(h1, h2, h3, h4, h5, h6) {
+  max-width: 17ch;
+  color: var(--drever-fieldnote-ink);
+  font-family: Caveat, "Kaiti SC", STKaiti, KaiTi, "Bradley Hand", "Segoe Print", cursive;
+  font-weight: 650;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+[data-drever-slide] h1 {
+  max-width: 13ch;
+  font-size: 88px;
+  line-height: 0.94;
+}
+
+[data-drever-slide] h2 {
+  font-size: 62px;
+  line-height: 0.98;
+}
+
+[data-drever-slide] h3 {
+  font-size: 44px;
+  line-height: 1.02;
+}
+
+[data-drever-slide] :where(h4, h5, h6) {
+  font-size: 32px;
+  line-height: 1.08;
+}
+
+[data-drever-slide] :where(p, li) {
+  font-size: 27px;
+  letter-spacing: -0.012em;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+[data-drever-slide] p {
+  max-width: 48ch;
+}
+
+[data-drever-slide] > :where(h1, h2, h3) + :where(p, ul, ol, blockquote, pre, table) {
+  margin-top: 30px;
+}
+
+[data-drever-slide]
+  > :where(p, ul, ol, blockquote, pre, table)
+  + :where(p, ul, ol, blockquote, pre, table) {
+  margin-top: 22px;
+}
+
+[data-drever-slide] :where(ul, ol) {
+  display: grid;
+  max-width: 45ch;
+  padding-inline-start: 0;
+  gap: 13px;
+  list-style: none;
+  counter-reset: fieldnote-list;
+}
+
+[data-drever-slide] :where(ul, ol) > li {
+  position: relative;
+  padding-inline-start: 42px;
+  counter-increment: fieldnote-list;
+}
+
+[data-drever-slide] ul > li::before {
+  position: absolute;
+  top: 0.48em;
+  left: 4px;
+  width: 13px;
+  height: 13px;
+  border: 2px solid var(--drever-fieldnote-blue);
+  content: "";
+}
+
+[data-drever-slide] ol > li::before {
+  position: absolute;
+  top: -0.05em;
+  left: 0;
+  color: var(--drever-fieldnote-blue-strong);
+  content: counter(fieldnote-list) ".";
+  font-family: Caveat, "Kaiti SC", STKaiti, KaiTi, "Bradley Hand", "Segoe Print", cursive;
+  font-size: 1.25em;
+  font-weight: 650;
+}
+
+[data-drever-slide] strong {
+  color: var(--drever-fieldnote-blue-strong);
+  font-weight: 760;
+}
+
+[data-drever-slide] em {
+  color: inherit;
+  font-style: normal;
+  text-decoration: underline;
+  text-decoration-color: rgb(158 59 50 / 72%);
+  text-decoration-thickness: 0.16em;
+  text-underline-offset: 0.11em;
+}
+
+[data-drever-slide] a {
+  color: var(--drever-fieldnote-blue-strong);
+  font-weight: 680;
+  text-decoration-color: rgb(39 95 150 / 42%);
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.16em;
+}
+
+[data-drever-slide] a:hover {
+  text-decoration-color: currentcolor;
+}
+
+[data-drever-slide] blockquote {
+  position: relative;
+  max-width: 31ch;
+  padding: 14px 22px 14px 36px;
+  color: var(--drever-fieldnote-ink);
+  font-family: Caveat, "Kaiti SC", STKaiti, KaiTi, "Bradley Hand", "Segoe Print", cursive;
+  font-size: 43px;
+  font-weight: 570;
+  letter-spacing: -0.025em;
+  line-height: 1.14;
+  text-wrap: balance;
+}
+
+[data-drever-slide] blockquote::before {
+  position: absolute;
+  inset-block: 6px;
+  left: 0;
+  width: 14px;
+  border: 3px solid var(--drever-fieldnote-red);
+  border-right: 0;
+  content: "";
+}
+
+[data-drever-slide] blockquote p {
+  font: inherit;
+}
+
+[data-drever-slide] :not(pre) > code {
+  padding: 0.08em 0.28em;
+  border: 1px solid var(--drever-fieldnote-line);
+  border-radius: 3px;
+  background: rgb(255 253 247 / 76%);
+  color: var(--drever-fieldnote-blue-strong);
+  font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
+  font-size: 0.86em;
+}
+
+[data-drever-slide] pre {
+  box-sizing: border-box;
+  max-width: 100%;
+  padding: 30px 34px;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: var(--drever-theme-radius);
+  background:
+    linear-gradient(rgb(255 255 255 / 3%) 1px, transparent 1px) 0 0 / 100% 30px,
+    var(--drever-fieldnote-code);
+  box-shadow: 0 16px 42px rgb(47 38 25 / 18%);
+  color: var(--drever-fieldnote-code-ink);
+  font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
+  font-size: 21px;
+  line-height: 1.55;
+  tab-size: 2;
+}
+
+[data-drever-slide] pre code {
+  font: inherit;
+}
+
+[data-drever-slide] img {
+  display: block;
+  max-width: 100%;
+  max-height: 590px;
+  border: 1px solid var(--drever-fieldnote-line);
+  border-radius: 2px;
+  box-shadow: 5px 7px 0 rgb(105 97 83 / 13%);
+  object-fit: contain;
+}
+
+[data-drever-slide] hr {
+  width: 118px;
+  height: 7px;
+  margin: 28px 0;
+  border: 0;
+  background: var(--drever-fieldnote-blue);
+  transform: rotate(-1deg);
+}
+
+[data-drever-slide] table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgb(255 253 247 / 52%);
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.35;
+}
+
+[data-drever-slide] :where(th, td) {
+  padding: 14px 16px;
+  border: 1px solid var(--drever-fieldnote-line);
+  text-align: start;
+}
+
+[data-drever-slide] th {
+  color: var(--drever-fieldnote-blue-strong);
+  font-size: 0.84em;
+  font-weight: 760;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+[data-drever-motion-group=""][data-motion-intent="focus"]
+  > [data-drever-step][data-step-state="complete"] {
+  opacity: 1;
+}
+
+[data-drever-motion-group=""][data-motion-intent="focus"]
+  > [data-drever-step][data-step-state="active"] {
+  opacity: 1;
+}
+
+[data-drever-motion-group=""][data-motion-intent="compare"]
+  > [data-drever-step][data-step-state="complete"] {
+  opacity: 1;
+}
+
+[data-drever-motion-group=""][data-motion-intent="compare"]
+  > [data-drever-step][data-step-state="active"] {
+  opacity: 1;
+}
+
+[data-drever-deck]:not([data-drever-render-mode="document"])
+  [data-drever-motion-group=""]:is([data-motion-intent="focus"], [data-motion-intent="compare"])
+  > [data-drever-step] {
+  position: relative;
+}
+
+[data-drever-deck]:not([data-drever-render-mode="document"])
+  [data-drever-motion-group=""]:is([data-motion-intent="focus"], [data-motion-intent="compare"])
+  > [data-drever-step][data-step-state="active"]::before {
+  position: absolute;
+  inset-block-start: 0.72em;
+  inset-inline-start: -19px;
+  width: 13px;
+  height: 3px;
+  background: var(--drever-fieldnote-blue);
+  content: "";
+  transform: rotate(-4deg);
+}
+
+[data-drever-deck]:not([data-drever-render-mode="document"])
+  [data-drever-motion-group=""][data-motion-intent="replace"] {
+  display: grid;
+}
+
+[data-drever-deck]:not([data-drever-render-mode="document"])
+  [data-drever-motion-group=""][data-motion-intent="replace"]
+  > [data-drever-step] {
+  min-width: 0;
+  grid-area: 1 / 1;
+}
+
+[data-drever-deck]:not([data-drever-render-mode="document"])
+  [data-drever-motion-group=""][data-motion-intent="replace"]
+  > [data-drever-step][data-step-state="complete"] {
+  visibility: hidden;
+}
+
+[data-drever-deck]:is(
+    [data-drever-reduced-motion],
+    [data-drever-render-mode="document"],
+    [data-drever-render-mode="export"],
+    [data-drever-render-mode^="speaker"]
+  )
+  :is([data-drever-step], [data-drever-motion-group]) {
+  animation: none !important;
+  transition: none !important;
+}
+
+.drever-fieldnote-notebook {
+  display: grid;
+  min-height: 630px;
+  align-content: space-between;
+  gap: 46px;
+}
+
+.drever-fieldnote-notebook__main {
+  display: grid;
+  align-self: center;
+  gap: 20px;
+}
+
+.drever-fieldnote-notebook__eyebrow,
+.drever-fieldnote-notebook__footer {
+  color: var(--drever-fieldnote-muted);
+  font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
+  font-size: 17px;
+  font-weight: 720;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+[data-drever-slide] .drever-fieldnote-notebook__title {
+  position: relative;
+  width: fit-content;
+  max-width: 13ch;
+  font-size: 104px;
+}
+
+.drever-fieldnote-notebook__title::after {
+  position: absolute;
+  right: 0;
+  bottom: -7px;
+  left: 0.08em;
+  height: 8px;
+  background: var(--drever-fieldnote-blue);
+  content: "";
+  opacity: 0.76;
+  transform: rotate(-0.8deg);
+  transform-origin: left;
+}
+
+.drever-fieldnote-notebook__note {
+  max-width: 36ch;
+  color: var(--drever-fieldnote-muted);
+  font-size: 29px;
+  line-height: 1.42;
+}
+
+.drever-fieldnote-notebook[data-tone="blue"] {
+  margin: -20px -16px;
+  padding: 46px 54px;
+  background: var(--drever-fieldnote-blue);
+  box-shadow: 8px 10px 0 rgb(24 72 117 / 18%);
+}
+
+.drever-fieldnote-notebook[data-tone="blue"]
+  :where(
+    .drever-fieldnote-notebook__title,
+    .drever-fieldnote-notebook__note,
+    .drever-fieldnote-notebook__eyebrow,
+    .drever-fieldnote-notebook__footer
+  ) {
+  color: var(--drever-fieldnote-surface);
+}
+
+.drever-fieldnote-notebook[data-tone="blue"] .drever-fieldnote-notebook__title::after {
+  background: var(--drever-fieldnote-surface);
+  opacity: 0.48;
+}
+
+.drever-fieldnote-annotated {
+  display: grid;
+  min-height: 650px;
+  grid-template:
+    "heading heading" auto
+    "evidence notes" minmax(0, 1fr) /
+    minmax(0, 1.35fr) minmax(250px, 0.65fr);
+  gap: 26px 44px;
+}
+
+.drever-fieldnote-annotated[data-balance="balanced"] {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+[data-drever-slide] .drever-fieldnote-annotated__heading {
+  max-width: 17ch;
+  grid-area: heading;
+  font-size: 52px;
+}
+
+.drever-fieldnote-annotated__evidence {
+  display: grid;
+  min-width: 0;
+  align-content: center;
+  grid-area: evidence;
+  gap: 12px;
+}
+
+.drever-fieldnote-annotated__evidence > :first-child {
+  min-width: 0;
+}
+
+.drever-fieldnote-annotated__evidence figcaption {
+  color: var(--drever-fieldnote-muted);
+  font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
+  font-size: 15px;
+  letter-spacing: 0.035em;
+}
+
+.drever-fieldnote-annotated__notes {
+  display: grid;
+  min-width: 0;
+  align-content: center;
+  padding-inline-start: 28px;
+  border-inline-start: 2px solid rgb(158 59 50 / 58%);
+  grid-area: notes;
+}
+
+.drever-fieldnote-annotated__notes :where(ol, ul) {
+  gap: 18px;
+}
+
+.drever-fieldnote-annotated__notes :where(li, p) {
+  font-family: Caveat, "Kaiti SC", STKaiti, KaiTi, "Bradley Hand", "Segoe Print", cursive;
+  font-size: 31px;
+  line-height: 1.18;
+}
+
+[data-drever-slide] :where(:lang(zh), :lang(ja), :lang(ko)) {
+  letter-spacing: normal;
+}
+
+[data-drever-slide] ::selection {
+  background: var(--drever-fieldnote-blue-soft);
+  color: var(--drever-fieldnote-blue-strong);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-drever-step],
+  [data-drever-motion-group] {
+    animation: none !important;
+    transition: none !important;
+  }
+}

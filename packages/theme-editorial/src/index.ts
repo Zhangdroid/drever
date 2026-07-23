@@ -63,7 +63,7 @@ export const theme = defineTheme({
     },
     space: { slideX: 108, slideY: 82, rhythm: 24 },
     shape: { radius: 2, borderWidth: 1 },
-    motion: { duration: 520, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+    motion: { duration: 420, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
   },
   styles: [{ specifier: `${PACKAGE}/theme.css`, layer: "theme" }],
   motion: {

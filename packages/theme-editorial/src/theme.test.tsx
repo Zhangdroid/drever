@@ -112,6 +112,20 @@ describe("@drever/theme-editorial", () => {
     expect(css).toContain(`--drever-editorial-paper: ${colorTokens.canvas}`);
     expect(css).toContain(`--drever-editorial-ink: ${colorTokens.ink}`);
     expect(css).toContain(`--drever-editorial-accent: ${colorTokens.accent}`);
+    for (const alias of [
+      "ink",
+      "muted",
+      "accent",
+      "accent-strong",
+      "accent-soft",
+      "surface",
+      "border",
+      "code-canvas",
+      "code-ink",
+      "radius",
+    ]) {
+      expect(css).toContain(`--drever-theme-${alias}:`);
+    }
     expect(css).toMatch(/\[data-drever-stage-layer="background"\] \{[^}]*background:/su);
     expect(css).toMatch(/\[data-drever-slide\] \{[^}]*background: transparent;/su);
     for (const selector of [
@@ -148,12 +162,22 @@ describe("@drever/theme-editorial", () => {
       "--drever-recipe-step-inline-from-translate",
     ]);
     expect(css).toContain("grid-area: 1 / 1;");
-    expect(css.match(/:not\(\[data-drever-render-mode="document"\]\)/gu)).toHaveLength(3);
+    expect(css).toMatch(
+      /\[data-drever-deck\]:not\(\[data-drever-render-mode="document"\]\)\s+\[data-drever-motion-group=""\]\[data-motion-intent="replace"\]\s*\{/u,
+    );
     expect(css).toContain(":root:has(.drever-viewer),");
     expect(css).toContain("--drever-motion-slide-offset: 1.8%;");
     expect(css).toContain("--drever-recipe-stagger-gap: 44ms;");
     expect(css).toContain("--drever-recipe-replace-block-from-translate: 0 8px;");
     expect(css).toContain("--drever-recipe-replace-inline-from-translate: 10px 0;");
+    expect(css).toContain(`--drever-motion-duration: ${theme.tokens.motion.duration}ms;`);
+    expect(css).toContain('data-step-state="active"]::before');
+    expect(css).toMatch(
+      /data-step-state="active"\]::before \{[^}]*position: absolute;[^}]*content: "";/su,
+    );
+    expect(css).not.toMatch(/data-step-state="complete"\]\s*\{\s*opacity: 0\./u);
+    expect(css).toContain("[data-drever-slide] ::selection");
+    expect(css).not.toMatch(/^::selection/mu);
     expect(css).toContain("@keyframes drever-editorial-stagger-block-enter");
     expect(css).toContain("clip-path: inset(0 12% 0 0);");
     expect(css).not.toContain("--drever-recipe-step-from-transform");

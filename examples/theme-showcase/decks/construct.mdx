@@ -1,0 +1,81 @@
+import "../components/construct-routine.css";
+
+<Prompt
+  aria-label="Handoff workshop: could the next person act without asking you?"
+  eyebrow="Handoff workshop / 01"
+  question="Could the next person act without asking you?"
+  context="Choose one real task that changes owner this week."
+  cue="Write the first missing fact."
+  footer="Two minutes · work independently"
+  tone="yellow"
+  align="left"
+/>
+
+<Note>
+  Pause here. The question is concrete and answerable; participants should use a real handoff rather
+  than discuss collaboration in general.
+</Note>
+
+---
+
+<Assembly
+  label="Reliable handoff"
+  title="Three named parts create one actionable transfer."
+  parts={[
+    <span>
+      <strong>Owner</strong>
+      <br />
+      Who decides next?
+    </span>,
+    <span>
+      <strong>Context</strong>
+      <br />
+      What changed and why?
+    </span>,
+    <span>
+      <strong>Acceptance</strong>
+      <br />
+      How will done be recognized?
+    </span>,
+  ]}
+  result={<strong>The next person can continue without reconstructing intent.</strong>}
+  caption="Each part is independently checkable before the task changes hands."
+  tone="green"
+/>
+
+<Note>
+  These are peer parts of one mechanism, not unrelated cards. Assemble them in order and read the
+  result only after all three are visible.
+</Note>
+
+---
+
+## Test the handoff before sending it.
+
+<MotionGroup className="theme-showcase-construct-routine" flow="inline" intent="stagger">
+  <Step at={1}>
+    <section>
+      <h3>Point</h3>
+      <p>Ask the recipient to name the next decision.</p>
+    </section>
+  </Step>
+  <Step at={2}>
+    <section>
+      <h3>Probe</h3>
+      <p>Remove one detail and see whether action stops.</p>
+    </section>
+  </Step>
+  <Step at={3}>
+    <section>
+      <h3>Patch</h3>
+      <p>Add only the context that unblocks the task.</p>
+    </section>
+  </Step>
+</MotionGroup>
+
+**A good handoff transfers momentum, not just information.**
+
+<Note>
+  Close with a repeatable facilitation routine. The blocks represent explicit steps, so the modular
+  visual language carries real instructional structure.
+</Note>

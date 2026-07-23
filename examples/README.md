@@ -12,10 +12,16 @@ sparse-Step PDF export fixture.
 | `architecture`    | Interactive walkthrough of Deck IR, compilation, extension ownership, routing, and delivery. | `http://localhost:4321` | `vp run demo:architecture` |
 | `motion-recipes`  | Focused geometry contracts for stable shared shells, text, and media.                        | `http://localhost:4322` | `vp run demo:motion`       |
 | `feature-gallery` | Executable gallery of MDX, React, official plugins, Steps, and delivery surfaces.            | `http://localhost:4324` | `vp run demo:features`     |
+| `theme-showcase`  | Five new design studies complementing the three systems exercised by established demos.      | `http://localhost:4326` | See its local README       |
 
 Use `vp run demo:showcases` to start Product Tour, Motion Recipes, and Feature Gallery
 together. Their local links use the same hostname with ports `4320`, `4322`, and `4324`;
 sibling `dist` builds also link to one another when opened from the filesystem.
+
+The theme showcase concentrates five new design studies in one project while
+Default, Editorial, and Studio remain exercised by the established demos. Run
+`vp run -F @drever/example-theme-showcase check:all` or `build:all` to validate
+every new subject-led deck.
 
 Build the workspace packages once before starting an example:
 

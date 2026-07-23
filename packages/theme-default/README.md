@@ -5,6 +5,12 @@ not a reset stylesheet. It combines decisive typography, a restrained blue
 accent, generous spacing, semantic layouts, and motion tuned for Drever's View
 Transition navigation.
 
+Treat it as the neutral fallback among Drever's eight official design studies
+and as a deterministic Theme contract. The primary authoring workflow derives
+art direction from the subject, audience, venue, and source material, then
+persists that result locally; Default is appropriate only when the brief does
+not justify a more specific visual premise.
+
 It has no font, image, or component-library dependency. The only browser
 runtime dependency is React when a deck uses one of its two layouts.
 

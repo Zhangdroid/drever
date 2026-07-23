@@ -30,6 +30,16 @@
   --drever-studio-border: #343b35;
   --drever-studio-code: #080a09;
   --drever-studio-code-ink: #e8ece5;
+  --drever-theme-ink: var(--drever-studio-ink);
+  --drever-theme-muted: var(--drever-studio-muted);
+  --drever-theme-accent: var(--drever-studio-signal);
+  --drever-theme-accent-strong: var(--drever-studio-signal);
+  --drever-theme-accent-soft: color-mix(in srgb, var(--drever-studio-signal), transparent 84%);
+  --drever-theme-surface: var(--drever-studio-surface);
+  --drever-theme-border: var(--drever-studio-border);
+  --drever-theme-code-canvas: var(--drever-studio-code);
+  --drever-theme-code-ink: var(--drever-studio-code-ink);
+  --drever-theme-radius: 10px;
   font-family: Aptos, Inter, "Helvetica Neue", ui-sans-serif, system-ui, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -340,7 +350,7 @@
 
 [data-drever-motion-group=""][data-motion-intent="focus"]
   > [data-drever-step][data-step-state="complete"] {
-  opacity: 0.44;
+  opacity: 1;
 }
 
 [data-drever-motion-group=""][data-motion-intent="focus"]
@@ -350,12 +360,30 @@
 
 [data-drever-motion-group=""][data-motion-intent="compare"]
   > [data-drever-step][data-step-state="complete"] {
-  opacity: 0.66;
+  opacity: 1;
 }
 
 [data-drever-motion-group=""][data-motion-intent="compare"]
   > [data-drever-step][data-step-state="active"] {
   opacity: 1;
+}
+
+[data-drever-deck]:not([data-drever-render-mode="document"])
+  [data-drever-motion-group=""]:is([data-motion-intent="focus"], [data-motion-intent="compare"])
+  > [data-drever-step] {
+  position: relative;
+}
+
+[data-drever-deck]:not([data-drever-render-mode="document"])
+  [data-drever-motion-group=""]:is([data-motion-intent="focus"], [data-motion-intent="compare"])
+  > [data-drever-step][data-step-state="active"]::before {
+  position: absolute;
+  inset-block-start: 0.62em;
+  inset-inline-start: -19px;
+  width: 8px;
+  height: 8px;
+  background: var(--drever-studio-signal);
+  content: "";
 }
 
 [data-drever-render-mode="audience"] [data-drever-motion-group=""] > [data-drever-step] {
@@ -575,7 +603,7 @@
   font-size: 19px;
 }
 
-::selection {
+[data-drever-slide] ::selection {
   background: var(--drever-studio-signal);
   color: var(--drever-studio-signal-ink);
 }

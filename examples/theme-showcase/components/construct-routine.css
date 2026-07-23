@@ -1,0 +1,29 @@
+.theme-showcase-construct-routine {
+  display: grid;
+  margin-block: 42px 34px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.theme-showcase-construct-routine > [data-drever-step] {
+  min-width: 0;
+}
+
+.theme-showcase-construct-routine > [data-drever-step] > section {
+  min-height: 176px;
+  box-sizing: border-box;
+  padding: 28px 30px;
+  border: 2px solid var(--drever-theme-ink);
+  background: var(--drever-theme-surface);
+  box-shadow: 8px 8px 0 var(--drever-theme-ink);
+}
+
+.theme-showcase-construct-routine h3 {
+  margin-bottom: 14px;
+  color: var(--drever-theme-accent-strong);
+}
+
+.theme-showcase-construct-routine p {
+  font-size: 23px;
+  line-height: 1.28;
+}

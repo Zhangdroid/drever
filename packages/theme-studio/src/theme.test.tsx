@@ -104,6 +104,20 @@ describe("@drever/theme-studio", () => {
     expect(css).toContain(`--drever-studio-canvas: ${colorTokens.canvas}`);
     expect(css).toContain(`--drever-studio-ink: ${colorTokens.ink}`);
     expect(css).toContain(`--drever-studio-signal: ${colorTokens.signal}`);
+    for (const alias of [
+      "ink",
+      "muted",
+      "accent",
+      "accent-strong",
+      "accent-soft",
+      "surface",
+      "border",
+      "code-canvas",
+      "code-ink",
+      "radius",
+    ]) {
+      expect(css).toContain(`--drever-theme-${alias}:`);
+    }
     expect(css).toMatch(/\[data-drever-stage-layer="background"\] \{[^}]*background:/su);
     expect(css).toMatch(/\[data-drever-slide\] \{[^}]*background: transparent;/su);
     for (const selector of [
@@ -140,12 +154,22 @@ describe("@drever/theme-studio", () => {
       "--drever-recipe-step-inline-from-translate",
     ]);
     expect(css).toContain("grid-area: 1 / 1;");
-    expect(css.match(/:not\(\[data-drever-render-mode="document"\]\)/gu)).toHaveLength(3);
+    expect(css).toMatch(
+      /\[data-drever-deck\]:not\(\[data-drever-render-mode="document"\]\)\s+\[data-drever-motion-group=""\]\[data-motion-intent="replace"\]\s*\{/u,
+    );
     expect(css).toContain(":root:has(.drever-viewer),");
     expect(css).toContain("--drever-motion-slide-offset: 2.8%;");
     expect(css).toContain("--drever-recipe-stagger-gap: 32ms;");
     expect(css).toContain("--drever-recipe-step-block-from-translate: 0 10px;");
     expect(css).toContain("--drever-recipe-step-inline-from-translate: 10px 0;");
+    expect(css).toContain(`--drever-motion-duration: ${theme.tokens.motion.duration}ms;`);
+    expect(css).toContain('data-step-state="active"]::before');
+    expect(css).toMatch(
+      /data-step-state="active"\]::before \{[^}]*position: absolute;[^}]*content: "";/su,
+    );
+    expect(css).not.toMatch(/data-step-state="complete"\]\s*\{\s*opacity: 0\./u);
+    expect(css).toContain("[data-drever-slide] ::selection");
+    expect(css).not.toMatch(/^::selection/mu);
     expect(css).toContain("@keyframes drever-studio-stagger-enter");
     expect(css).toContain("scale: 0.985;");
     expect(css).not.toContain("--drever-recipe-step-from-transform");

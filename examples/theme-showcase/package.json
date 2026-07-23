@@ -1,0 +1,27 @@
+{
+  "name": "@drever/example-theme-showcase",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node ./scripts/run.mjs build",
+    "build:all": "node ./scripts/run.mjs build --all",
+    "check": "node ./scripts/run.mjs check",
+    "check:all": "node ./scripts/run.mjs check --all",
+    "dev": "node ./scripts/run.mjs dev"
+  },
+  "devDependencies": {
+    "@drever/theme-atlas": "workspace:*",
+    "@drever/theme-cinema": "workspace:*",
+    "@drever/theme-construct": "workspace:*",
+    "@drever/theme-fieldnote": "workspace:*",
+    "@drever/theme-ledger": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "drever": "workspace:*",
+    "react": "catalog:"
+  },
+  "engines": {
+    "node": ">=24.18.0"
+  }
+}

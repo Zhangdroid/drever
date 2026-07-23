@@ -29,6 +29,16 @@
   --drever-editorial-border: #cfc7b8;
   --drever-editorial-code: #25231f;
   --drever-editorial-code-ink: #f7f0e3;
+  --drever-theme-ink: var(--drever-editorial-ink);
+  --drever-theme-muted: var(--drever-editorial-muted);
+  --drever-theme-accent: var(--drever-editorial-accent);
+  --drever-theme-accent-strong: var(--drever-editorial-accent);
+  --drever-theme-accent-soft: var(--drever-editorial-accent-soft);
+  --drever-theme-surface: var(--drever-editorial-surface);
+  --drever-theme-border: var(--drever-editorial-border);
+  --drever-theme-code-canvas: var(--drever-editorial-code);
+  --drever-theme-code-ink: var(--drever-editorial-code-ink);
+  --drever-theme-radius: 2px;
   font-family: Aptos, Inter, "Segoe UI Variable", ui-sans-serif, system-ui, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -307,7 +317,7 @@
 
 [data-drever-motion-group=""][data-motion-intent="focus"]
   > [data-drever-step][data-step-state="complete"] {
-  opacity: 0.56;
+  opacity: 1;
 }
 
 [data-drever-motion-group=""][data-motion-intent="focus"]
@@ -317,12 +327,30 @@
 
 [data-drever-motion-group=""][data-motion-intent="compare"]
   > [data-drever-step][data-step-state="complete"] {
-  opacity: 0.74;
+  opacity: 1;
 }
 
 [data-drever-motion-group=""][data-motion-intent="compare"]
   > [data-drever-step][data-step-state="active"] {
   opacity: 1;
+}
+
+[data-drever-deck]:not([data-drever-render-mode="document"])
+  [data-drever-motion-group=""]:is([data-motion-intent="focus"], [data-motion-intent="compare"])
+  > [data-drever-step] {
+  position: relative;
+}
+
+[data-drever-deck]:not([data-drever-render-mode="document"])
+  [data-drever-motion-group=""]:is([data-motion-intent="focus"], [data-motion-intent="compare"])
+  > [data-drever-step][data-step-state="active"]::before {
+  position: absolute;
+  inset-block-start: 0.26em;
+  inset-inline-start: -18px;
+  width: 3px;
+  height: 1.25em;
+  background: var(--drever-editorial-accent);
+  content: "";
 }
 
 [data-drever-render-mode="audience"]
@@ -602,7 +630,7 @@
   line-height: 1.4;
 }
 
-::selection {
+[data-drever-slide] ::selection {
   background: var(--drever-editorial-accent-soft);
   color: var(--drever-editorial-ink);
 }

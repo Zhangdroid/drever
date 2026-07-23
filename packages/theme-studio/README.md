@@ -4,6 +4,12 @@ A focused dark official theme for technical narratives, product launches,
 creative tooling, live artifacts, and interaction-led talks. Studio uses one
 signal color deliberately; it is not a neon dashboard skin.
 
+Treat it as one of Drever's eight official design studies and as a deterministic
+Theme contract. The primary authoring workflow derives art direction from the
+subject, audience, venue, and source material, then persists that result
+locally; use Studio as a reference or foundation only when its artifact-led
+technical premise genuinely fits the story.
+
 It has no font, image, animation, or component-library dependency. React is
 only needed when a deck uses a layout component.
 
