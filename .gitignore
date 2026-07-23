@@ -13,8 +13,8 @@ dist
 dist-ssr
 apps/*/build/
 apps/*/.react-router/
-**/.drever/cache/
-**/.drever/e2e/
+**/.drever/
+test-results/
 *.local
 
 # dotenv environment variable files
