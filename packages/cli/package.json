@@ -3,6 +3,11 @@
   "version": "0.0.0",
   "description": "The AI-first MDX presentation command line for Drever.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zhangdroid/drever.git",
+    "directory": "packages/cli"
+  },
   "bin": {
     "drever": "./dist/bin.mjs"
   },

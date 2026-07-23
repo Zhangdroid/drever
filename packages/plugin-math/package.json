@@ -3,6 +3,11 @@
   "version": "0.0.0",
   "description": "Build-time LaTeX math rendering for Drever with KaTeX.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zhangdroid/drever.git",
+    "directory": "packages/plugin-math"
+  },
   "files": [
     "dist",
     "styles.css"

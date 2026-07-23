@@ -3,6 +3,11 @@
   "version": "0.0.0",
   "description": "Modern-browser viewer runtime for Drever presentations.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zhangdroid/drever.git",
+    "directory": "packages/client"
+  },
   "files": [
     "dist",
     "styles.css"

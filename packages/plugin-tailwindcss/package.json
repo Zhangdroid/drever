@@ -3,6 +3,11 @@
   "version": "0.0.0",
   "description": "Tailwind CSS v4 integration for Drever.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zhangdroid/drever.git",
+    "directory": "packages/plugin-tailwindcss"
+  },
   "files": [
     "dist"
   ],

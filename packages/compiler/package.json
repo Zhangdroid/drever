@@ -3,6 +3,11 @@
   "version": "0.0.0",
   "description": "Compile MDX presentation sources into Drever artifacts.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zhangdroid/drever.git",
+    "directory": "packages/compiler"
+  },
   "files": [
     "dist"
   ],

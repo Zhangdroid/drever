@@ -4,7 +4,9 @@ import { defineConfig } from "vite-plus";
 const source = (path: string): string => fileURLToPath(new URL(path, import.meta.url));
 
 export default defineConfig({
-  fmt: {},
+  fmt: {
+    ignorePatterns: ["plugins/drever/.claude-plugin/**", "plugins/drever/.codex-plugin/**"],
+  },
   lint: {
     jsPlugins: [{ name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
     options: {

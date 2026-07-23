@@ -1,0 +1,148 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-publish
+  queue: max
+
+jobs:
+  audit:
+    name: Audit release
+    if: github.event_name == 'release' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    outputs:
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
+      source-commit: ${{ steps.source.outputs.commit }}
+      tag: ${{ steps.release.outputs.tag }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - name: Check out the release source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.event_name == 'release' && github.event.release.tag_name || github.sha }}
+
+      - name: Record the release source
+        id: source
+        run: echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Vite+
+        uses: voidzero-dev/setup-vp@250f29ce396baf5e8f24498e17c0dfdebabc26eb # v1
+        with:
+          node-version: 24.18.0
+          cache: false
+          run-install: false
+
+      - name: Install dependencies
+        run: vp install --frozen-lockfile
+
+      - name: Plan the release
+        id: release
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          RELEASE_PRERELEASE: ${{ github.event.release.prerelease }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            version="$(node scripts/release.mjs commit-version "$GITHUB_SHA")"
+            tag="commit"
+          else
+            if [[ "$RELEASE_TAG" != v* ]]; then
+              echo "GitHub release tags must start with v." >&2
+              exit 1
+            fi
+            version="${RELEASE_TAG#v}"
+            if [[ "$RELEASE_PRERELEASE" == "true" ]]; then
+              tag="next"
+            else
+              tag="latest"
+            fi
+            if [[ "$version" == *-* && "$tag" != "next" ]]; then
+              echo "A prerelease version must be published as a GitHub prerelease." >&2
+              exit 1
+            fi
+            if [[ "$version" != *-* && "$tag" == "next" ]]; then
+              echo "A GitHub prerelease tag must contain a SemVer prerelease identifier." >&2
+              exit 1
+            fi
+          fi
+          node scripts/release.mjs validate-version "$version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Install Chromium
+        run: vp exec playwright install --with-deps chromium
+
+      - name: Verify the source revision
+        run: vp run ready
+
+      - name: Apply the ephemeral release version
+        env:
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+        run: node scripts/release.mjs prepare "$RELEASE_VERSION"
+
+      - name: Verify the versioned release
+        run: vp run release:check
+
+      - name: Pack the release
+        run: node scripts/release.mjs pack "$RUNNER_TEMP/drever-release"
+
+      - name: Verify npm publication locally
+        env:
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+        run: node scripts/release.mjs publish "$RUNNER_TEMP/drever-release/release.json" "$RELEASE_TAG" --dry-run
+
+      - name: Retain the audited tarballs
+        id: upload
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: drever-${{ steps.release.outputs.version }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/drever-release
+          retention-days: 30
+
+  publish:
+    name: Publish to npm
+    needs: audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out the audited source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ needs.audit.outputs.source-commit }}
+
+      - name: Configure npm for trusted publishing
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24.18.0
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Download the audited tarballs
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          artifact-ids: ${{ needs.audit.outputs.artifact-id }}
+          path: ${{ runner.temp }}/drever-release
+
+      - name: Publish the audited tarballs
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          RELEASE_TAG: ${{ needs.audit.outputs.tag }}
+        run: node scripts/release.mjs publish "$RUNNER_TEMP/drever-release/release.json" "$RELEASE_TAG"
+
+      - name: Verify the public registry release
+        env:
+          RELEASE_TAG: ${{ needs.audit.outputs.tag }}
+          RELEASE_VERSION: ${{ needs.audit.outputs.version }}
+        run: node scripts/verify-published.mjs "$RELEASE_VERSION" "$RELEASE_TAG"

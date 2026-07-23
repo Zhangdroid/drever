@@ -9,6 +9,11 @@
     "slides"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zhangdroid/drever.git",
+    "directory": "packages/create-drever"
+  },
   "bin": {
     "create-drever": "./dist/bin.mjs"
   },

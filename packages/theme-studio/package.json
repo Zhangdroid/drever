@@ -3,6 +3,11 @@
   "version": "0.0.0",
   "description": "A focused dark studio theme for technical and product presentations in Drever.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zhangdroid/drever.git",
+    "directory": "packages/theme-studio"
+  },
   "files": [
     "dist",
     "theme.css"

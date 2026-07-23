@@ -3,6 +3,11 @@
   "version": "0.0.0",
   "description": "Build and runtime extension APIs for Drever plugin authors.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zhangdroid/drever.git",
+    "directory": "packages/plugin"
+  },
   "files": [
     "dist"
   ],

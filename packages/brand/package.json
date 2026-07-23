@@ -3,6 +3,11 @@
   "version": "0.0.0",
   "description": "Canonical Drever brand tokens, typography, and vector assets.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zhangdroid/drever.git",
+    "directory": "packages/brand"
+  },
   "files": [
     "assets",
     "dist",

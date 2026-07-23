@@ -3,6 +3,11 @@
   "version": "0.0.0",
   "description": "Canonical Vite and MDX adapter for Drever.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zhangdroid/drever.git",
+    "directory": "packages/vite"
+  },
   "files": [
     "dist",
     "virtual-modules.d.ts"

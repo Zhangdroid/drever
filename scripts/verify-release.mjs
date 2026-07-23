@@ -1,9 +1,10 @@
 import { execFile } from "node:child_process";
 import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { repositoryUrl, runtimeVersionFiles } from "./release.mjs";
 
 const execute = promisify(execFile);
 const root = fileURLToPath(new URL("../", import.meta.url));
@@ -36,6 +37,7 @@ if (versions.size !== 1) {
     `public packages must use one lockstep version, found ${[...versions].sort((left, right) => left.localeCompare(right)).join(", ")}.`,
   );
 }
+const [version] = versions;
 for (const { directory, manifest } of publicPackages) {
   if (typeof manifest.description !== "string" || manifest.description.length === 0) {
     fail(`${manifest.name ?? directory} needs a package description.`);
@@ -43,6 +45,19 @@ for (const { directory, manifest } of publicPackages) {
   if (manifest.license !== "MIT") {
     fail(`${manifest.name ?? directory} must declare the MIT license.`);
   }
+  const packageDirectory = relative(root, directory).split(sep).join("/");
+  if (
+    manifest.repository?.url !== repositoryUrl ||
+    manifest.repository?.directory !== packageDirectory
+  ) {
+    fail(`${manifest.name ?? directory} must link to its directory in the Drever repository.`);
+  }
+}
+
+for (const path of runtimeVersionFiles) {
+  const source = await readFile(join(root, path), "utf8");
+  const runtimeVersion = source.match(/\n\s*version:\s*"([^"]+)"/u)?.[1];
+  if (runtimeVersion !== version) fail(`${path} must declare release version ${version}.`);
 }
 
 const packageByName = (name) => {
@@ -107,6 +122,4 @@ try {
   await rm(npmCache, { force: true, recursive: true });
 }
 
-process.stdout.write(
-  `Verified ${publicPackages.length} public packages at version ${[...versions][0]}.\n`,
-);
+process.stdout.write(`Verified ${publicPackages.length} public packages at version ${version}.\n`);

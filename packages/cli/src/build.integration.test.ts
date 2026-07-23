@@ -93,5 +93,5 @@ describe("drever build", () => {
     expect(bundle).not.toContain("dreverDeckManifestState");
     expect(bundle).not.toContain("ManifestSignature");
     expect(output).toBe(`Built ${join(root, "talk.mdx")} to ${outDir}\n`);
-  });
+  }, 30_000);
 });

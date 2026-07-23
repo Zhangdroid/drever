@@ -3,6 +3,11 @@
   "version": "0.0.0",
   "description": "Installable Drever presentation workflows for Codex and Claude Code.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zhangdroid/drever.git",
+    "directory": "plugins/drever"
+  },
   "files": [
     ".claude-plugin",
     ".codex-plugin",

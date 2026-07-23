@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build:packages": "vp run -F './packages/**' -F './plugins/**' --fail-if-no-match build",
     "build": "vp run -r build",
     "check": "vp check",
     "demo": "vp run -F @drever/example-basic dev",
@@ -13,10 +14,12 @@
     "demo:motion": "vp run -F @drever/example-motion-recipes dev",
     "demo:product": "vp run -F @drever/example-product-tour dev",
     "demo:showcases": "vp run --parallel -F @drever/example-product-tour -F @drever/example-motion-recipes -F @drever/example-feature-gallery dev",
-    "ready": "vp check && vp exec tsc -p packages/vite/type-tests/tsconfig.json && vp run -r test && vp run -r build && vp exec playwright test",
-    "release:check": "vp run -r build && node scripts/verify-release.mjs && node scripts/verify-consumer.mjs",
-    "test": "vp run -r test",
-    "test:e2e": "playwright test"
+    "ready": "vp check && vp exec tsc -p packages/vite/type-tests/tsconfig.json && vp run test && vp install --frozen-lockfile && vp exec playwright test",
+    "release:check": "node scripts/release.mjs clean && vp run build:packages && node scripts/verify-release.mjs && node scripts/verify-consumer.mjs",
+    "test": "vp run build:packages && vp run test:release && vp run -r test",
+    "test:e2e": "playwright test",
+    "test:e2e:core": "playwright test --project=dev-chromium --project=build-chromium --project=export-chromium --project=check-cli",
+    "test:release": "node --test scripts/release.test.mjs"
   },
   "devDependencies": {
     "@playwright/test": "catalog:",
