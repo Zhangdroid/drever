@@ -31,6 +31,15 @@ jobs:
       - name: Install dependencies
         run: vp install --frozen-lockfile
 
+      - name: Restore Vite Task cache
+        id: vite-task-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: node_modules/.vite/task-cache
+          key: vite-task-${{ runner.os }}-${{ runner.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            vite-task-${{ runner.os }}-${{ runner.arch }}-
+
       - name: Check source
         run: vp check
 
@@ -43,8 +52,14 @@ jobs:
       - name: Verify release tarballs and a clean consumer
         run: vp run release:check
 
+      - name: Save Vite Task cache
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: node_modules/.vite/task-cache
+          key: ${{ steps.vite-task-cache.outputs.cache-primary-key }}
+
       - name: Install Chromium
-        run: vp exec playwright install --with-deps chromium
+        run: vp exec playwright install --with-deps --no-shell chromium
 
       - name: Run core end-to-end tests
         run: vp run test:e2e:core

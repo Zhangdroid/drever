@@ -18,12 +18,13 @@
     "deploy:website": "pnpm --dir website run deploy",
     "dev:website": "pnpm --dir website run dev",
     "preview:website": "pnpm --dir website run preview:pages",
-    "ready": "vp check && vp exec tsc -p packages/vite/type-tests/tsconfig.json && vp run test && vp exec playwright test",
+    "ready": "vp check && vp exec tsc -p packages/vite/type-tests/tsconfig.json && vp run test && vp run build:packages && vp exec playwright test",
     "release:check": "node scripts/release.mjs clean && vp run build:packages && node scripts/verify-release.mjs && node scripts/verify-consumer.mjs",
-    "test": "vp run build:packages && vp run test:release && vp run -r test",
+    "test": "vp run test:unit && vp run test:release",
     "test:e2e": "playwright test",
     "test:e2e:core": "playwright test --project=dev-chromium --project=build-chromium --project=export-chromium --project=check-cli",
-    "test:release": "node --test scripts/release.test.mjs scripts/configure-trusted-publishing.test.mjs"
+    "test:release": "node --test scripts/release.test.mjs scripts/configure-trusted-publishing.test.mjs",
+    "test:unit": "vp run --parallel --concurrency-limit 4 -F './packages/**' -F './plugins/**' --fail-if-no-match test"
   },
   "devDependencies": {
     "@playwright/test": "catalog:",

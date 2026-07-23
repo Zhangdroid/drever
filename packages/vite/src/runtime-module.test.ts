@@ -73,6 +73,7 @@ const loadLifecycleRuntime = async (
     resolve: {
       alias: {
         "@drever/core": fileURLToPath(new URL("../../core/src/index.ts", import.meta.url)),
+        "@drever/schema": fileURLToPath(new URL("../../schema/src/index.ts", import.meta.url)),
       },
     },
     server: { middlewareMode: true },

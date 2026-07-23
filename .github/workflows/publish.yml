@@ -78,7 +78,7 @@ jobs:
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
       - name: Install Chromium
-        run: vp exec playwright install --with-deps chromium
+        run: vp exec playwright install --with-deps --no-shell chromium
 
       - name: Verify the source revision
         run: vp run ready
