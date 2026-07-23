@@ -87,7 +87,7 @@ function DemosPage() {
           ))}
         </section>
 
-        <section className="catalog-proof">
+        <section className="catalog-proof" data-header-tone="dark">
           <div>
             <span>No capture tricks</span>
             <h2>These are static production builds.</h2>
@@ -105,14 +105,14 @@ function DemosPage() {
         <section className="catalog-next">
           <div>
             <span>Build your own</span>
-            <h2>Begin with the story. Choose its visual voice next.</h2>
+            <h2>Begin with the story. Derive its visual voice next.</h2>
           </div>
           <div>
             <Link className="button button--primary" to="/docs/getting-started">
               Getting started <ArrowIcon />
             </Link>
             <Link className="button button--quiet" to="/themes">
-              Explore themes <ArrowIcon />
+              Explore design studies <ArrowIcon />
             </Link>
           </div>
         </section>

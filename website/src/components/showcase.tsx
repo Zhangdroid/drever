@@ -1,69 +1,125 @@
-import { useEffect, useRef, useState } from "react";
-
-import { CheckIcon, CopyIcon } from "./icons";
-
-const heroMoments = [
-  {
-    detail: "Agree on the one decision this presentation must help people make.",
-    index: "01",
-    label: "Frame the question",
-    signal: "What must the room decide?",
-  },
-  {
-    detail: "Let the audience reveal which concern deserves the next piece of evidence.",
-    index: "02",
-    label: "Hear the room",
-    signal: "What would help you decide?",
-  },
-  {
-    detail: "Bring in the proof at the moment it can change the conversation.",
-    index: "03",
-    label: "Reveal the proof",
-    signal: "96% completed setup unaided.",
-  },
-] as const;
+import type { ThemeId } from "../site-data";
+import { CopyButton } from "./copy-button";
 
 export function HeroStage() {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const activeMoment = heroMoments[activeIndex] ?? heroMoments[0];
-
   return (
-    <section className="hero-stage" aria-label="Interactive Drever presentation preview">
-      <div className="hero-stage__canvas">
-        <span className="hero-stage__kicker">Launch review · live</span>
-        <h2>
-          Make the next
-          <br />
-          <mark>decision clear.</mark>
-        </h2>
-        <div className="hero-stage__moment" key={activeMoment.index}>
-          <span>{activeMoment.index}</span>
-          <div>
-            <strong>{activeMoment.signal}</strong>
-            <p>{activeMoment.detail}</p>
-          </div>
+    <figure
+      className="hero-stage"
+      aria-label="One idea becoming a coherent visual system across a presentation"
+    >
+      <div className="hero-stage__halo" aria-hidden="true" />
+      <div className="hero-stage__plane hero-stage__plane--back" aria-hidden="true" />
+      <div className="hero-stage__plane hero-stage__plane--middle" aria-hidden="true" />
+      <div className="hero-stage__canvas" aria-hidden="true">
+        <div className="hero-stage__rail">
+          <i />
+          <i />
+          <i />
         </div>
-        <span className="hero-stage__page">04 / 12</span>
+        <div className="hero-stage__orbit hero-stage__orbit--wide">
+          <i />
+        </div>
+        <div className="hero-stage__orbit hero-stage__orbit--tall">
+          <i />
+        </div>
+        <div className="hero-stage__core">
+          <span />
+          <span />
+          <i />
+        </div>
+        <div className="hero-stage__frame">
+          <i />
+          <i />
+        </div>
       </div>
-
-      <div className="hero-stage__controls" aria-label="Choose a presentation moment" role="group">
-        {heroMoments.map((moment, index) => (
-          <button
-            aria-pressed={activeIndex === index}
-            key={moment.index}
-            onClick={() => setActiveIndex(index)}
-            type="button"
-          >
-            <span>{moment.index}</span>
-            <strong>{moment.label}</strong>
-          </button>
-        ))}
-      </div>
-    </section>
+      <figcaption>Intent becomes visual direction, motion, and a complete deck.</figcaption>
+    </figure>
   );
 }
 
-export function ThemePreview({ theme }: { theme: "default" | "editorial" | "studio" }) {
+export function ThemePreview({ theme }: { theme: ThemeId }) {
+  if (theme === "fieldnote") {
+    return (
+      <div className="theme-preview theme-preview--fieldnote" aria-hidden="true">
+        <span>Workshop · 02</span>
+        <strong>
+          Start with
+          <br />
+          what changed.
+        </strong>
+        <i />
+        <small>note → name the turning point</small>
+      </div>
+    );
+  }
+
+  if (theme === "atlas") {
+    return (
+      <div className="theme-preview theme-preview--atlas" aria-hidden="true">
+        <span>37.8° N / 122.4° W</span>
+        <strong>
+          Find the route
+          <br />
+          through change.
+        </strong>
+        <div>
+          <i />
+          <i />
+          <i />
+        </div>
+        <small>03 / 05 · CURRENT WAYPOINT</small>
+      </div>
+    );
+  }
+
+  if (theme === "ledger") {
+    return (
+      <div className="theme-preview theme-preview--ledger" aria-hidden="true">
+        <span>OPERATING REVIEW / Q3</span>
+        <strong>18.4%</strong>
+        <div>
+          <i />
+          <b>+3.2 pts</b>
+        </div>
+        <small>Source · verified close</small>
+      </div>
+    );
+  }
+
+  if (theme === "cinema") {
+    return (
+      <div className="theme-preview theme-preview--cinema" aria-hidden="true">
+        <span>SCENE 04</span>
+        <strong>
+          The quiet
+          <br />
+          turning point.
+        </strong>
+        <i />
+        <small>00:42:18 · CASE STUDY</small>
+      </div>
+    );
+  }
+
+  if (theme === "construct") {
+    return (
+      <div className="theme-preview theme-preview--construct" aria-hidden="true">
+        <span>ASSEMBLY · 03</span>
+        <strong>
+          Build the answer
+          <br />
+          together.
+        </strong>
+        <div>
+          <i />
+          <i />
+          <i />
+        </div>
+        <small>01 + 02 → 03</small>
+      </div>
+    );
+  }
+
   if (theme === "editorial") {
     return (
       <div className="theme-preview theme-preview--editorial" aria-hidden="true">
@@ -136,37 +192,5 @@ export function CodeBlock({ children, label }: { children: string; label?: strin
         <code>{children}</code>
       </pre>
     </div>
-  );
-}
-
-function CopyButton({ label, value }: { label: string; value: string }) {
-  const [status, setStatus] = useState<"idle" | "copied" | "failed">("idle");
-  const resetTimer = useRef<number | undefined>(undefined);
-
-  useEffect(
-    () => () => {
-      window.clearTimeout(resetTimer.current);
-    },
-    [],
-  );
-
-  const copy = async () => {
-    window.clearTimeout(resetTimer.current);
-    try {
-      await navigator.clipboard.writeText(value);
-      setStatus("copied");
-    } catch {
-      setStatus("failed");
-    }
-    resetTimer.current = window.setTimeout(() => setStatus("idle"), 1600);
-  };
-
-  const text = status === "copied" ? "Copied" : status === "failed" ? "Copy failed" : "Copy";
-
-  return (
-    <button aria-label={`${text} ${label}`} onClick={copy} type="button">
-      {status === "copied" ? <CheckIcon /> : <CopyIcon />}
-      <span aria-live="polite">{text}</span>
-    </button>
   );
 }

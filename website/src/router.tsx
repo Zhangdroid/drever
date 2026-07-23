@@ -5,6 +5,9 @@ import { routeTree } from "./routeTree.gen";
 export const getRouter = () =>
   createRouter({
     defaultPreload: "intent",
+    defaultViewTransition: {
+      types: ({ pathChanged }) => (pathChanged ? ["site-page"] : false),
+    },
     routeTree,
     scrollRestoration: true,
   });

@@ -17,9 +17,9 @@ function Page() {
     <DocArticle description={description} eyebrow="Deliver" title="Build and export">
       <DocMdx content={Content} />
       <DocNext
-        description="Give Codex or Claude exact, versioned context for creation and review."
-        href="/docs/ai"
-        label="AI workflows"
+        description="Meet the people, projects, and open-source foundations behind Drever."
+        href="/docs/credits"
+        label="Credits"
       />
     </DocArticle>
   );

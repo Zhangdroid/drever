@@ -1,14 +1,33 @@
+<h2 id="public-handoff">Start from any coding agent</h2>
+
+The public [`prompt.md`](/prompt.md) is a small bootstrap for an empty workspace. Give it a brief in
+ordinary language:
+
+> Follow https://drever.dev/prompt.md and create a 10-minute presentation that helps frontend teams
+> decide which React 19 features to adopt now.
+
+The bootstrap checks the workspace, creates a safe project, and then hands control to the
+version-matched instructions installed inside that project. It does not duplicate the full
+authoring contract or silently change an existing Drever version.
+
 <h2 id="agent-first">Agent-first, not agent-only</h2>
 
 Drever makes AI authoring a versioned project contract. It does not hide the source behind a hosted
 editor or a private prompt. The same MDX remains readable, reviewable, and editable by a person.
 
-New projects contain four local workflows for Codex and Claude Code:
+New projects contain five local workflows for Codex and Claude Code:
 
 1. Create a deck from a brief.
-2. Make focused authoring changes.
-3. Review presentation readiness.
-4. Deliver verified web and PDF artifacts.
+2. Derive a subject-led, version-controlled visual system.
+3. Make focused authoring changes.
+4. Review presentation readiness.
+5. Deliver verified web and PDF artifacts.
+
+The design workflow derives its direction from the subject, audience, venue, source material, and
+purpose. When research is allowed, it can use current primary official sources as evidence for
+palette, typography, imagery, and motion while respecting asset and font licenses. It studies all
+eight official designs as equal references, uses Default only as the neutral fallback, and persists
+the result locally so every build is deterministic.
 
 Refresh them after upgrading:
 

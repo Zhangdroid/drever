@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import Content from "../../content/docs/motion.mdx";
+import { MotionRecipeGallery } from "../components/doc-showcase";
 import { DocArticle, DocMdx, DocNext } from "../components/docs-shell";
 import { pageHead } from "../seo";
 
@@ -14,12 +15,19 @@ export const Route = createFileRoute("/docs/motion")({
 
 function Page() {
   return (
-    <DocArticle description={description} eyebrow="Create" title="Motion with a reason">
+    <DocArticle
+      compact
+      description={description}
+      eyebrow="Create"
+      title="Motion with a reason"
+      wide
+    >
+      <MotionRecipeGallery />
       <DocMdx content={Content} />
       <DocNext
-        description="Choose a complete visual voice and its semantic layout recipes."
+        description="Derive a visual voice from the subject and persist it as a Theme contract."
         href="/docs/themes"
-        label="Themes"
+        label="Art direction"
       />
     </DocArticle>
   );

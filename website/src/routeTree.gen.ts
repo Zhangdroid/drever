@@ -17,6 +17,7 @@ import { Route as DocsIndexRouteImport } from "./routes/docs.index";
 import { Route as DocsAiRouteImport } from "./routes/docs.ai";
 import { Route as DocsAuthoringRouteImport } from "./routes/docs.authoring";
 import { Route as DocsConfigurationRouteImport } from "./routes/docs.configuration";
+import { Route as DocsCreditsRouteImport } from "./routes/docs.credits";
 import { Route as DocsDeliveryRouteImport } from "./routes/docs.delivery";
 import { Route as DocsGettingStartedRouteImport } from "./routes/docs.getting-started";
 import { Route as DocsMotionRouteImport } from "./routes/docs.motion";
@@ -64,6 +65,11 @@ const DocsConfigurationRoute = DocsConfigurationRouteImport.update({
   path: "/configuration",
   getParentRoute: () => DocsRoute,
 } as any);
+const DocsCreditsRoute = DocsCreditsRouteImport.update({
+  id: "/credits",
+  path: "/credits",
+  getParentRoute: () => DocsRoute,
+} as any);
 const DocsDeliveryRoute = DocsDeliveryRouteImport.update({
   id: "/delivery",
   path: "/delivery",
@@ -103,6 +109,7 @@ export interface FileRoutesByFullPath {
   "/docs/ai": typeof DocsAiRoute;
   "/docs/authoring": typeof DocsAuthoringRoute;
   "/docs/configuration": typeof DocsConfigurationRoute;
+  "/docs/credits": typeof DocsCreditsRoute;
   "/docs/delivery": typeof DocsDeliveryRoute;
   "/docs/getting-started": typeof DocsGettingStartedRoute;
   "/docs/motion": typeof DocsMotionRoute;
@@ -118,6 +125,7 @@ export interface FileRoutesByTo {
   "/docs/ai": typeof DocsAiRoute;
   "/docs/authoring": typeof DocsAuthoringRoute;
   "/docs/configuration": typeof DocsConfigurationRoute;
+  "/docs/credits": typeof DocsCreditsRoute;
   "/docs/delivery": typeof DocsDeliveryRoute;
   "/docs/getting-started": typeof DocsGettingStartedRoute;
   "/docs/motion": typeof DocsMotionRoute;
@@ -135,6 +143,7 @@ export interface FileRoutesById {
   "/docs/ai": typeof DocsAiRoute;
   "/docs/authoring": typeof DocsAuthoringRoute;
   "/docs/configuration": typeof DocsConfigurationRoute;
+  "/docs/credits": typeof DocsCreditsRoute;
   "/docs/delivery": typeof DocsDeliveryRoute;
   "/docs/getting-started": typeof DocsGettingStartedRoute;
   "/docs/motion": typeof DocsMotionRoute;
@@ -153,6 +162,7 @@ export interface FileRouteTypes {
     | "/docs/ai"
     | "/docs/authoring"
     | "/docs/configuration"
+    | "/docs/credits"
     | "/docs/delivery"
     | "/docs/getting-started"
     | "/docs/motion"
@@ -168,6 +178,7 @@ export interface FileRouteTypes {
     | "/docs/ai"
     | "/docs/authoring"
     | "/docs/configuration"
+    | "/docs/credits"
     | "/docs/delivery"
     | "/docs/getting-started"
     | "/docs/motion"
@@ -184,6 +195,7 @@ export interface FileRouteTypes {
     | "/docs/ai"
     | "/docs/authoring"
     | "/docs/configuration"
+    | "/docs/credits"
     | "/docs/delivery"
     | "/docs/getting-started"
     | "/docs/motion"
@@ -258,6 +270,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DocsConfigurationRouteImport;
       parentRoute: typeof DocsRoute;
     };
+    "/docs/credits": {
+      id: "/docs/credits";
+      path: "/credits";
+      fullPath: "/docs/credits";
+      preLoaderRoute: typeof DocsCreditsRouteImport;
+      parentRoute: typeof DocsRoute;
+    };
     "/docs/delivery": {
       id: "/docs/delivery";
       path: "/delivery";
@@ -307,6 +326,7 @@ interface DocsRouteChildren {
   DocsAiRoute: typeof DocsAiRoute;
   DocsAuthoringRoute: typeof DocsAuthoringRoute;
   DocsConfigurationRoute: typeof DocsConfigurationRoute;
+  DocsCreditsRoute: typeof DocsCreditsRoute;
   DocsDeliveryRoute: typeof DocsDeliveryRoute;
   DocsGettingStartedRoute: typeof DocsGettingStartedRoute;
   DocsMotionRoute: typeof DocsMotionRoute;
@@ -320,6 +340,7 @@ const DocsRouteChildren: DocsRouteChildren = {
   DocsAiRoute: DocsAiRoute,
   DocsAuthoringRoute: DocsAuthoringRoute,
   DocsConfigurationRoute: DocsConfigurationRoute,
+  DocsCreditsRoute: DocsCreditsRoute,
   DocsDeliveryRoute: DocsDeliveryRoute,
   DocsGettingStartedRoute: DocsGettingStartedRoute,
   DocsMotionRoute: DocsMotionRoute,

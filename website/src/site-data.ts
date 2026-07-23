@@ -1,7 +1,7 @@
 export const primaryNavigation = [
   { href: "/docs", label: "Docs" },
   { href: "/demos", label: "Demos" },
-  { href: "/themes", label: "Themes" },
+  { href: "/themes", label: "Design" },
 ] as const;
 
 export const documentationNavigation = [
@@ -19,7 +19,7 @@ export const documentationNavigation = [
     pages: [
       { href: "/docs/authoring", label: "Authoring slides" },
       { href: "/docs/motion", label: "Motion" },
-      { href: "/docs/themes", label: "Themes" },
+      { href: "/docs/themes", label: "Art direction" },
       { href: "/docs/plugins", label: "Plugins" },
     ],
   },
@@ -29,6 +29,10 @@ export const documentationNavigation = [
       { href: "/docs/presenting", label: "Presenting" },
       { href: "/docs/delivery", label: "Build and export" },
     ],
+  },
+  {
+    label: "About",
+    pages: [{ href: "/docs/credits", label: "Credits" }],
   },
 ] as const;
 
@@ -83,7 +87,49 @@ export const themes = [
     packageName: "@drever/theme-studio",
     voice: "Technical · focused · exact",
   },
+  {
+    description:
+      "Ruled-paper structure and restrained handwriting for workshops, lessons, tutorials, and reflection.",
+    id: "fieldnote",
+    label: "Fieldnote",
+    packageName: "@drever/theme-fieldnote",
+    voice: "Warm · handwritten · instructional",
+  },
+  {
+    description:
+      "Routes, coordinates, and evidence frames for strategy, history, travel, systems, and change over time.",
+    id: "atlas",
+    label: "Atlas",
+    packageName: "@drever/theme-atlas",
+    voice: "Spatial · exploratory · grounded",
+  },
+  {
+    description:
+      "A rigorous grid for metrics, policy, financial results, research findings, and traceable decisions.",
+    id: "ledger",
+    label: "Ledger",
+    packageName: "@drever/theme-ledger",
+    voice: "Analytical · sober · accountable",
+  },
+  {
+    description:
+      "A dark, media-led canvas for photography, portfolios, case studies, and visual product stories.",
+    id: "cinema",
+    label: "Cinema",
+    packageName: "@drever/theme-cinema",
+    voice: "Immersive · restrained · narrative",
+  },
+  {
+    description:
+      "Purposeful building blocks for teaching, collaborative prompts, product concepts, and clear explanations.",
+    id: "construct",
+    label: "Construct",
+    packageName: "@drever/theme-construct",
+    voice: "Modular · lively · explanatory",
+  },
 ] as const;
+
+export type ThemeId = (typeof themes)[number]["id"];
 
 export const githubURL = "https://github.com/Zhangdroid/drever";
 import { demoMounts } from "../site-manifest";

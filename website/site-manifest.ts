@@ -9,6 +9,7 @@ export const documentationRoutes = [
   "/docs/presenting",
   "/docs/delivery",
   "/docs/ai",
+  "/docs/credits",
 ] as const;
 
 export const siteRoutes = ["/", ...documentationRoutes, "/demos", "/themes"] as const;

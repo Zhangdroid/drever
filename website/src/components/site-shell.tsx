@@ -1,19 +1,58 @@
 import lockupDarkHref from "@drever/brand/assets/drever-lockup-dark.svg";
 import lockupHref from "@drever/brand/assets/drever-lockup.svg";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { githubURL, primaryNavigation } from "../site-data";
 import { ArrowUpRightIcon, GithubIcon } from "./icons";
 
 export function SiteHeader() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const headerRef = useRef<HTMLElement>(null);
+  const [tone, setTone] = useState<"dark" | "light">("light");
+
+  useEffect(() => {
+    let frame = 0;
+    const updateTone = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const header = headerRef.current;
+        if (header === null) return;
+
+        const bounds = header.getBoundingClientRect();
+        const elements = document.elementsFromPoint(
+          bounds.left + bounds.width / 2,
+          bounds.top + bounds.height / 2,
+        );
+        const surface = elements
+          .filter((element) => !header.contains(element))
+          .map((element) => element.closest<HTMLElement>("[data-header-tone]"))
+          .find((element) => element !== null);
+        setTone(surface?.dataset.headerTone === "dark" ? "dark" : "light");
+      });
+    };
+
+    updateTone();
+    window.addEventListener("resize", updateTone);
+    window.addEventListener("scroll", updateTone, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", updateTone);
+      window.removeEventListener("scroll", updateTone);
+    };
+  }, [pathname]);
+
+  useEffect(() => {
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute("content", tone === "dark" ? "#111018" : "#f6f3e9");
+  }, [tone]);
 
   return (
-    <header className="site-header">
+    <header className="site-header" data-tone={tone} ref={headerRef}>
       <div className="site-header__inner">
         <Link aria-label="Drever home" className="site-header__brand" to="/">
-          <img alt="" src={lockupHref} />
+          <img alt="" src={tone === "dark" ? lockupDarkHref : lockupHref} />
         </Link>
 
         <nav aria-label="Primary navigation" className="site-header__nav">
@@ -51,7 +90,7 @@ export function SiteHeader() {
 
 export function SiteFooter() {
   return (
-    <footer className="site-footer">
+    <footer className="site-footer" data-header-tone="dark">
       <div className="site-footer__lead">
         <img alt="Drever" src={lockupDarkHref} />
         <p>Clear ideas. Expressive slides. One editable source.</p>
@@ -67,7 +106,7 @@ export function SiteFooter() {
             Demos
           </Link>
           <Link activeOptions={{ exact: true }} to="/themes">
-            Themes
+            Design studies
           </Link>
         </div>
         <div>
@@ -78,7 +117,11 @@ export function SiteFooter() {
           <a href="https://www.npmjs.com/package/create-drever" rel="noreferrer" target="_blank">
             npm <ArrowUpRightIcon />
           </a>
+          <a href="/prompt.md">prompt.md</a>
           <a href="/llms.txt">llms.txt</a>
+          <Link activeOptions={{ exact: true }} to="/docs/credits">
+            Credits
+          </Link>
         </div>
       </div>
 

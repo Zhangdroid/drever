@@ -1,8 +1,9 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 
+import { AIHandoff, CopyAIHandoff } from "../components/ai-handoff";
 import { ArrowIcon, ArrowUpRightIcon, PlayIcon } from "../components/icons";
 import { SiteShell } from "../components/site-shell";
-import { CopyCommand, HeroStage, ThemePreview } from "../components/showcase";
+import { HeroStage, ThemePreview } from "../components/showcase";
 import { demos, themes } from "../site-data";
 
 const title = "Drever — Slides that move with your ideas";
@@ -39,18 +40,18 @@ function HomePage() {
               with your ideas.
             </h1>
             <p>
-              Start with a brief. Use the AI you already trust to shape a clear story. Present it
-              live, share it on the web, or deliver a PDF—from one editable source.
+              Tell your AI what the room should understand. Drever shapes the story, design, and
+              motion—ready for the room, web, or PDF.
             </p>
             <div className="home-hero__actions">
-              <Link className="button button--primary" to="/docs/getting-started">
-                Create your first slides <ArrowIcon />
-              </Link>
+              <CopyAIHandoff className="button button--primary" />
               <a className="button button--quiet" href="/demos/product/">
                 <PlayIcon /> Watch the product tour
               </a>
             </div>
-            <CopyCommand command="npm create drever@latest my-slides" />
+            <Link className="home-hero__manual" to="/docs/getting-started">
+              See how the handoff works <ArrowIcon />
+            </Link>
           </div>
 
           <div className="home-hero__visual">
@@ -61,9 +62,9 @@ function HomePage() {
         <section className="home-contract" aria-label="Drever product contract">
           <div>
             <span>01</span>
-            <strong>Readable to begin with.</strong>
+            <strong>Designed from the subject.</strong>
             <p>
-              Write the story in plain language. Add interaction only when it helps the audience.
+              Topic, audience, and real visual references shape the type, color, motif, and motion.
             </p>
           </div>
           <div>
@@ -80,7 +81,7 @@ function HomePage() {
           </div>
         </section>
 
-        <section className="home-story">
+        <section className="home-story" data-header-tone="dark">
           <header className="home-story__heading">
             <span>A presentation is a conversation</span>
             <h2>A good slide knows what the room needs next.</h2>
@@ -200,11 +201,11 @@ What does the room need next?
         <section className="home-themes">
           <header className="section-heading">
             <div>
-              <span>Visual voices</span>
-              <h2>Choose a point of view, not a coat of paint.</h2>
+              <span>Eight design studies</span>
+              <h2>Start from the subject, not a preset.</h2>
             </div>
             <Link className="text-link" to="/themes">
-              Explore themes <ArrowIcon />
+              Explore design studies <ArrowIcon />
             </Link>
           </header>
 
@@ -222,26 +223,19 @@ What does the room need next?
           </div>
         </section>
 
-        <section className="home-ai">
+        <section className="home-ai" data-header-tone="dark">
           <div className="home-ai__copy">
-            <span>AI-ready from the first file</span>
-            <h2>Start with the outcome, not the commands.</h2>
+            <span>One brief · a complete handoff</span>
+            <h2>Tell AI what the room should change.</h2>
             <p>
-              Every new project includes working instructions for Codex and Claude Code. Ask for a
-              presentation in plain language; Drever gives the agent the structure and checks to
-              deliver it.
+              The public prompt handles setup. Version-matched project skills shape the story,
+              derive a visual language from the subject, and check the finished deck.
             </p>
             <Link className="button button--light" to="/docs/ai">
               Explore AI workflows <ArrowIcon />
             </Link>
           </div>
-          <blockquote>
-            <span>You</span>
-            <p>
-              Turn <code>brief.md</code> into a clear 10-minute presentation. Inspect every reveal,
-              then deliver the website and PDF.
-            </p>
-          </blockquote>
+          <AIHandoff defaultBrief="A 10-minute React 19 update for frontend teams. Draw its visual language from current official React sources, then deliver a live deck and PDF." />
         </section>
       </main>
     </SiteShell>

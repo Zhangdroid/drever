@@ -1,7 +1,39 @@
-<h2 id="choose-a-theme">Choose a visual voice</h2>
+<h2 id="art-direction-first">Generate art direction, then persist it</h2>
 
-A theme owns the presentation's global visual language: semantic MDX elements, canvas defaults,
-layout recipes, the visual treatment of Step states, and the visual treatment of motion intents.
+The primary workflow is not to choose a preset. Give AI the subject, audience, source material,
+venue, desired outcome, and any real brand constraints. It should derive a visual brief, explain
+why its choices fit the story, and then save the result as a local Theme.
+
+Generate that design once and version it with the deck. Do not ask AI to invent a new visual system
+on every build. A persisted Theme makes preview, speaker, document, website, and PDF output
+deterministic while remaining editable.
+
+A Theme is therefore an execution contract, not the user-facing creative starting point. It owns
+semantic MDX elements, canvas defaults, layout recipes, Step-state treatment, and motion voice.
+
+<h2 id="design-studies">Learn from the official design studies</h2>
+
+Drever ships eight official packages as few-shot references, quality benchmarks, and reliable
+fallbacks:
+
+- **Default** — the neutral fallback when the brief does not justify a stronger direction, with
+  `Cover` and `TwoColumn`.
+- **Editorial** — typographic storytelling, with `Masthead` and `Feature`.
+- **Studio** — a restrained technical canvas, with `Statement` and `Workbench`.
+- **Fieldnote** — workshops, lessons, and annotated thinking, with `Notebook` and `Annotated`.
+- **Atlas** — routes, systems, and change over time, with `Route` and `Survey`.
+- **Ledger** — metrics, research, policy, and accountable evidence, with `Metric` and `Evidence`.
+- **Cinema** — image-led narratives and case studies, with `TitleCard` and `Frame`.
+- **Construct** — collaborative prompts and explanations assembled from real parts, with `Prompt`
+  and `Assembly`.
+
+See the [design-study gallery](/themes) for representative previews. Reuse a study when it already
+fits; adapt its reasoning when it is close; generate a local design when the subject asks for
+something specific.
+
+<h2 id="manual-package">Use a packaged study directly</h2>
+
+The manual fallback remains one package install:
 
 Install the theme you want to use:
 
@@ -18,13 +50,8 @@ export default defineConfig({
 });
 ```
 
-Drever currently ships three official themes:
-
-- **Default** — clear, neutral, and adaptable, with `Cover` and `TwoColumn`.
-- **Editorial** — typographic storytelling, with `Masthead` and `Feature`.
-- **Studio** — a restrained technical canvas, with `Statement` and `Workbench`.
-
-See the [theme gallery](/themes) for representative previews and links to live extended demos.
+Packaged studies still follow the same rule: choose by the relationship the presentation explains,
+not by color alone.
 
 <h2 id="layout-recipes">Use layouts for semantic composition</h2>
 

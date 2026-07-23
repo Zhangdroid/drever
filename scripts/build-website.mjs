@@ -116,6 +116,7 @@ const requiredFiles = [
   "favicon.svg",
   "robots.txt",
   "llms.txt",
+  "prompt.md",
   "sitemap.xml",
   ...siteEntryFiles,
   ...demoMounts.map((demo) => `demos/${demo.slug}/index.html`),

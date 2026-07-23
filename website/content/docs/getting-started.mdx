@@ -1,79 +1,24 @@
-<h2 id="requirements">Requirements</h2>
+<h2 id="what-the-agent-does">What the handoff completes</h2>
 
-Drever targets current tools on purpose:
+1. **Prepare** — creates a safe project and installs its version-matched Codex and Claude Code
+   workflows.
+2. **Create** — turns the brief into readable MDX, speaker notes, a topic-specific visual system,
+   and intentional motion.
+3. **Review** — checks the source, builds the static presentation, and inspects the rendered states
+   when browser tools are available.
 
-- Node.js 24.18 or newer.
-- A current Chromium-family browser.
-- Playwright Chromium only when exporting PDF.
+The public [`prompt.md`](/prompt.md) only starts the work. Once the project exists, its local
+instructions and skills take over so the agent always follows the contract for the installed Drever
+version.
 
-There is no legacy router or animation fallback. Drever respects `prefers-reduced-motion` while
-keeping the same presentation-state model.
+<h2 id="write-a-useful-brief">Give the agent a useful outcome</h2>
 
-<h2 id="create-a-project">Create a project</h2>
+A single sentence is enough to begin. Include the audience, the change you want, and any required
+source material when you know them:
 
-```bash
-npm create drever@latest my-slides
-cd my-slides
-npm run dev
-```
+> Create a 10-minute update for frontend teams about React 19. Help them decide which features to
+> adopt now. Use current official React sources for the facts and visual direction, then deliver a
+> live deck and PDF.
 
-The creator writes a complete starter: `brief.md`, `slides.mdx`, package scripts, and project-local
-skills for Codex and Claude Code. Add `drever.config.ts` only when the zero-config defaults no longer
-fit the presentation.
-
-To open the finished project directly in an agent:
-
-```bash
-npm create drever@latest my-slides -- --open codex
-npm create drever@latest my-slides -- --open claude
-```
-
-Then ask for the outcome in ordinary language:
-
-> Turn brief.md into a clear 10-minute presentation for this audience. Inspect every reveal, then
-> deliver the website and PDF.
-
-<h2 id="write-the-first-slides">Write the first slides</h2>
-
-A root-level `---` line begins a new slide. `Step` and `Note` are built in, so they do not need
-imports.
-
-```mdx
-# The decision
-
-One clear idea is enough.
-
----
-
-## Reveal only what matters
-
-<Step>Frame the question.</Step>
-<Step>Reveal the evidence.</Step>
-
-<Note>Pause before showing the result.</Note>
-```
-
-The source remains readable Markdown until the idea needs interaction. At that point, import an
-ordinary React component into the MDX.
-
-<h2 id="inspect-and-deliver">Inspect and deliver</h2>
-
-```bash
-npm run check
-npm run build
-npx playwright install chromium
-npm run export
-```
-
-`check` reports source diagnostics with exact locations. `build` creates a static website.
-Playwright Chromium is a one-time installation for PDF capture. `export` creates a PDF at each
-slide's final state.
-
-During development, open:
-
-- `/` for the audience view.
-- `/speaker` for notes, next-state preview, and rehearsal timing.
-- `/document` for the complete searchable reading view.
-
-Every slide and exact Step has a stable path such as `/4/2`, so reload, history, and shared links
-return to the same moment.
+The agent can infer ordinary details and state its assumptions. It should ask only when missing
+facts or a real decision would materially change the result.

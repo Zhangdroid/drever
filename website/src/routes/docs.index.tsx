@@ -1,10 +1,12 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 
+import { AIHandoff } from "../components/ai-handoff";
+import { DocsCapabilityGallery } from "../components/doc-showcase";
 import { ArrowIcon } from "../components/icons";
 import { pageHead } from "../seo";
 
 const description =
-  "Learn how to create, direct, and deliver expressive Drever presentations with people and AI.";
+  "Open real examples of motion, art direction, plugins, and presentation surfaces. Read the detailed contract when you need it.";
 
 export const Route = createFileRoute("/docs/")({
   component: DocsOverview,
@@ -16,28 +18,32 @@ function DocsOverview() {
     <article className="docs-overview">
       <header>
         <span>Documentation</span>
-        <h1>From an idea to a presentation you can keep.</h1>
+        <h1>See it before you study it.</h1>
         <p>{description}</p>
       </header>
 
+      <DocsCapabilityGallery />
+
       <section className="docs-overview__start">
         <div>
-          <span>Start here</span>
-          <h2>Create a complete project in one command.</h2>
+          <span>Start with AI</span>
+          <h2>Tell your agent what the presentation must achieve.</h2>
           <p>
-            Begin with a brief and readable MDX. Drever installs the project, theme, checks, and
-            local AI workflows together.
+            One handoff gives Codex or Claude Code the setup instructions and a clear definition of
+            done. The generated project supplies the version-matched contract.
           </p>
           <Link className="button button--primary" to="/docs/getting-started">
-            Getting started <ArrowIcon />
+            See the one-step workflow <ArrowIcon />
           </Link>
         </div>
-        <pre>
-          <code>{`npm create drever@latest my-slides
-cd my-slides
-npm run dev`}</code>
-        </pre>
+        <AIHandoff defaultBrief="A concise proposal that helps our leadership team decide whether to fund the next phase." />
       </section>
+
+      <header className="docs-overview__reference">
+        <span>Reference</span>
+        <h2>Use the guide when you need the contract.</h2>
+        <p>The detailed paths stay available for people and agents who need precise behavior.</p>
+      </header>
 
       <section className="docs-overview__paths">
         <Link to="/docs/authoring">
@@ -66,9 +72,9 @@ npm run dev`}</code>
         </Link>
       </section>
 
-      <section className="docs-overview__ai">
+      <section className="docs-overview__ai" data-header-tone="dark">
         <span>Working with AI</span>
-        <h2>The agent receives a contract, not a giant prompt.</h2>
+        <h2>One prompt starts the work. Project-local skills carry the contract.</h2>
         <p>
           Versioned project skills, exact source context, stable JSON diagnostics, and optional
           read-only MCP keep every change visible in normal files and Git.

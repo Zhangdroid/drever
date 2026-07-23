@@ -69,17 +69,29 @@ export function DocsShell() {
 
 export function DocArticle({
   children,
+  compact = false,
   description,
   eyebrow,
   title,
+  wide = false,
 }: {
   children: ReactNode;
+  compact?: boolean;
   description: string;
   eyebrow?: string;
   title: string;
+  wide?: boolean;
 }) {
+  const className = [
+    "doc-article",
+    wide ? "doc-article--wide" : "",
+    compact ? "doc-article--compact" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <article className="doc-article">
+    <article className={className}>
       <header className="doc-article__header">
         {eyebrow ? <span>{eyebrow}</span> : null}
         <h1>{title}</h1>
@@ -107,6 +119,50 @@ export function DocCallout({
   );
 }
 
+export function ManualSetup() {
+  return (
+    <details className="manual-setup">
+      <summary>
+        <strong>Set up manually</strong>
+        <span>For people who prefer to control every command.</span>
+      </summary>
+      <div>
+        <h2 id="requirements">Requirements</h2>
+        <p>Drever targets current tools on purpose:</p>
+        <ul>
+          <li>Node.js 24.18 or newer.</li>
+          <li>A current Chromium-family browser.</li>
+          <li>Playwright Chromium only when exporting PDF.</li>
+        </ul>
+        <p>
+          There is no legacy router or animation fallback. Drever respects{" "}
+          <code>prefers-reduced-motion</code> while keeping the same presentation-state model.
+        </p>
+
+        <h2 id="create-a-project">Create a project</h2>
+        <CodeBlock label="Shell">{`npm create drever@latest my-slides
+cd my-slides
+npm run dev`}</CodeBlock>
+        <p>
+          The creator writes <code>brief.md</code>, <code>slides.mdx</code>, package scripts, and
+          project-local skills for Codex and Claude Code.
+        </p>
+
+        <h2 id="inspect-and-deliver">Inspect and deliver</h2>
+        <CodeBlock label="Shell">{`npm run check
+npm run build
+npx playwright install chromium
+npm run export`}</CodeBlock>
+        <p>
+          Install Playwright Chromium only when a PDF is required. Read the{" "}
+          <Link to="/docs/authoring">authoring guide</Link> for MDX and the{" "}
+          <Link to="/docs/delivery">delivery guide</Link> for build and export behavior.
+        </p>
+      </div>
+    </details>
+  );
+}
+
 export function DocNext({
   description,
   href,
@@ -117,6 +173,7 @@ export function DocNext({
     | "/docs/ai"
     | "/docs/authoring"
     | "/docs/configuration"
+    | "/docs/credits"
     | "/docs/delivery"
     | "/docs/getting-started"
     | "/docs/motion"
@@ -161,5 +218,9 @@ export function DocMdx({
     components?: Record<string, ComponentType<Record<string, unknown>>>;
   }>;
 }) {
-  return <Content components={{ pre: MdxPre as ComponentType<Record<string, unknown>> }} />;
+  return (
+    <div className="doc-mdx">
+      <Content components={{ pre: MdxPre as ComponentType<Record<string, unknown>> }} />
+    </div>
+  );
 }

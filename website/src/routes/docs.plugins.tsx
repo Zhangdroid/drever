@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import Content from "../../content/docs/plugins.mdx";
+import { PluginGallery } from "../components/doc-showcase";
 import { DocArticle, DocMdx, DocNext } from "../components/docs-shell";
 import { pageHead } from "../seo";
 
@@ -14,7 +15,8 @@ export const Route = createFileRoute("/docs/plugins")({
 
 function Page() {
   return (
-    <DocArticle description={description} eyebrow="Create" title="Plugins">
+    <DocArticle compact description={description} eyebrow="Create" title="Plugins" wide>
+      <PluginGallery />
       <DocMdx content={Content} />
       <DocNext
         description="Navigate, annotate, rehearse, and share the exact moment."

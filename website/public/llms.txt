@@ -16,20 +16,26 @@ One project produces:
 
 ## Start
 
+- One-step AI bootstrap: https://drever.dev/prompt.md
 - Documentation: https://drever.dev/docs
 - Getting started: https://drever.dev/docs/getting-started
 - Configuration: https://drever.dev/docs/configuration
 - Authoring: https://drever.dev/docs/authoring
 - Motion: https://drever.dev/docs/motion
-- Theme guide: https://drever.dev/docs/themes
+- Art direction and Theme contract guide: https://drever.dev/docs/themes
 - Plugin guide: https://drever.dev/docs/plugins
 - Presenting: https://drever.dev/docs/presenting
 - Build and export: https://drever.dev/docs/delivery
 - AI workflows: https://drever.dev/docs/ai
-- Theme gallery: https://drever.dev/themes
+- Design-study gallery: https://drever.dev/themes
 - GitHub: https://github.com/Zhangdroid/drever
 
-Create a project:
+For an AI agent, start with:
+
+> Follow https://drever.dev/prompt.md and create a Drever presentation for this brief: [describe
+> the audience, desired outcome, source material, visual direction, and requested outputs].
+
+Manual project creation:
 
 ```sh
 npm create drever@latest my-slides
@@ -41,10 +47,6 @@ Open directly in an agent:
 npm create drever@latest my-slides -- --open codex
 npm create drever@latest my-slides -- --open claude
 ```
-
-Recommended natural-language request:
-
-> Turn brief.md into a clear presentation for this audience. Inspect every reveal, then deliver the website and PDF.
 
 ## Live demos
 
@@ -72,7 +74,8 @@ Document View. Audience paths such as `/4/2` select an exact slide and sparse St
 - Optional dependency-free, read-only MCP server.
 - Default build-time Shiki and reset-free Tailwind CSS.
 - Opt-in build-time LaTeX through KaTeX.
-- Default, Editorial, and Studio themes.
+- Eight official design studies, implemented as deterministic Theme contracts: Default, Editorial,
+  Studio, Fieldnote, Atlas, Ledger, Cinema, and Construct.
 
 ## Important boundaries
 

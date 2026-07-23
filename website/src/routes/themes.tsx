@@ -8,7 +8,7 @@ import { themes } from "../site-data";
 import { pageHead } from "../seo";
 
 const description =
-  "Explore Drever's three official visual systems: Default, Editorial, and Studio, each with its own typography, layouts, and motion voice.";
+  "Eight design studies show how subject, audience, evidence, and motion become a reproducible Drever Theme contract.";
 
 const themeDetails = {
   default: {
@@ -29,11 +29,41 @@ const themeDetails = {
     liveLabel: "Open customized demo",
     statement: "Let the artifact take the stage.",
   },
+  fieldnote: {
+    layouts: ["Notebook", "Annotated"],
+    liveHref: undefined,
+    liveLabel: undefined,
+    statement: "Think in ink, explain in plain language.",
+  },
+  atlas: {
+    layouts: ["Route", "Survey"],
+    liveHref: undefined,
+    liveLabel: undefined,
+    statement: "Show where the story is going.",
+  },
+  ledger: {
+    layouts: ["Metric", "Evidence"],
+    liveHref: undefined,
+    liveLabel: undefined,
+    statement: "Make the number answerable.",
+  },
+  cinema: {
+    layouts: ["TitleCard", "Frame"],
+    liveHref: undefined,
+    liveLabel: undefined,
+    statement: "Let one image carry the moment.",
+  },
+  construct: {
+    layouts: ["Prompt", "Assembly"],
+    liveHref: undefined,
+    liveLabel: undefined,
+    statement: "Build the explanation from real parts.",
+  },
 } as const;
 
 export const Route = createFileRoute("/themes")({
   component: ThemesPage,
-  head: () => pageHead("Themes", description, "/themes"),
+  head: () => pageHead("Design studies", description, "/themes"),
 });
 
 function ThemesPage() {
@@ -42,14 +72,14 @@ function ThemesPage() {
       <main className="catalog-page" id="main">
         <PageHero
           description={description}
-          eyebrow="Three visual voices"
-          title="Design is part of the argument."
+          eyebrow="Eight design studies"
+          title="Design for the story. Keep it reproducible."
         >
           <div className="page-hero__aside">
-            <strong>Content keeps its contract.</strong>
+            <strong>AI starts from the brief.</strong>
             <p>
-              Change the theme without changing slide boundaries, Steps, notes, routes, or delivery
-              surfaces.
+              It can generate a local visual system for one story, then save the result as a stable,
+              testable Theme.
             </p>
           </div>
         </PageHero>
@@ -64,14 +94,14 @@ function ThemesPage() {
                 </div>
                 <div className="theme-detail__copy">
                   <span>
-                    0{index + 1} · {theme.voice}
+                    Study 0{index + 1} · {theme.voice}
                   </span>
                   <h2>{theme.label}</h2>
                   <strong>{details.statement}</strong>
                   <p>{theme.description}</p>
                   <dl>
                     <div>
-                      <dt>Package</dt>
+                      <dt>Reference contract</dt>
                       <dd>
                         <code>{theme.packageName}</code>
                       </dd>
@@ -82,14 +112,16 @@ function ThemesPage() {
                     </div>
                   </dl>
                   <div className="theme-detail__actions">
-                    <a className="button button--primary" href={details.liveHref}>
-                      {details.liveLabel} <ArrowUpRightIcon />
-                    </a>
+                    {details.liveHref === undefined ? null : (
+                      <a className="button button--primary" href={details.liveHref}>
+                        {details.liveLabel} <ArrowUpRightIcon />
+                      </a>
+                    )}
                     <Link className="button button--quiet" to="/docs/themes">
-                      Theme guide <ArrowIcon />
+                      Art direction guide <ArrowIcon />
                     </Link>
                   </div>
-                  {theme.id === "default" ? null : (
+                  {details.liveHref === undefined || theme.id === "default" ? null : (
                     <small>
                       The linked showcase extends the stock theme with project-specific typography
                       and components.
@@ -102,20 +134,20 @@ function ThemesPage() {
         </section>
 
         <section className="theme-principle">
-          <span>Theme contract</span>
-          <h2>Visual voice belongs to the theme. Narrative state belongs to Drever.</h2>
+          <span>Generated direction · deterministic contract</span>
+          <h2>Art direction is made for the story. Theme is the artifact Drever executes.</h2>
           <div>
             <p>
-              Themes own semantic elements, layout recipes, canvas defaults, and how each motion
-              intent feels.
+              AI derives type, color, layout, components, and motion from the subject instead of
+              selecting a random attractive skin.
             </p>
             <p>
-              Drever owns compilation, navigation, accessibility state, exact URLs, and every
-              delivery surface.
+              The result is persisted locally or packaged so builds, URLs, accessibility state,
+              exports, and every delivery surface remain reproducible.
             </p>
           </div>
           <Link className="text-link" to="/docs/themes">
-            Read the theme guide <ArrowIcon />
+            Read the art direction guide <ArrowIcon />
           </Link>
         </section>
       </main>
