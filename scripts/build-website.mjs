@@ -76,7 +76,7 @@ const decorateDemo = async (demo, destination) => {
 };
 
 const build = async () => {
-  await run("pnpm", ["run", "build:packages"]);
+  await run("vp", ["run", "build:packages"]);
   await Promise.all([
     rm(join(root, "website", "dist"), { force: true, recursive: true }),
     ...demoMounts.map((demo) =>
@@ -85,10 +85,8 @@ const build = async () => {
   ]);
 
   await Promise.all([
-    run("pnpm", ["--dir", "website", "run", "build"]),
-    run("pnpm", [
-      "exec",
-      "vp",
+    run("vp", ["run", "-F", "@drever/website", "build"]),
+    run("vp", [
       "run",
       "--parallel",
       "-F",

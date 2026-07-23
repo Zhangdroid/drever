@@ -62,7 +62,7 @@ jobs:
         run: vp install --frozen-lockfile
 
       - name: Build and verify the website
-        run: pnpm run build:website
+        run: vp exec pnpm run build:website
 
   e2e:
     name: Core end-to-end tests
