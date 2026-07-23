@@ -31,7 +31,7 @@ import "./motion.css";
 
 ---
 
-<div className="browser-story browser-story--peek">
+<div aria-label="A screenshot cannot show the moment of change" className="browser-story browser-story--peek">
   <header className="browser-story__copy">
     <span className="motion-kicker">01 · Anticipation</span>
     <h2>A screenshot can show the interface.</h2>
@@ -55,7 +55,7 @@ import "./motion.css";
 
 ---
 
-<div className="browser-story browser-story--arrive">
+<div aria-label="Bring the evidence into the room" className="browser-story browser-story--arrive">
   <header className="browser-story__copy">
     <span className="motion-kicker">02 · Introduction</span>
     <h2>Bring the evidence into the room.</h2>
@@ -79,7 +79,7 @@ import "./motion.css";
 
 ---
 
-<div className="browser-story browser-story--inspect">
+<div aria-label="Let the interaction answer" className="browser-story browser-story--inspect">
   <header className="browser-story__copy">
     <span className="motion-kicker">03 · Local state</span>
     <h2>Let the interaction answer.</h2>
@@ -103,7 +103,7 @@ import "./motion.css";
 
 ---
 
-<div className="browser-story browser-story--context">
+<div aria-label="Keep the evidence and return the focus" className="browser-story browser-story--context">
   <header className="browser-story__copy">
     <span className="motion-kicker">04 · Recontextualization</span>
     <h2>Keep the evidence. Return the focus.</h2>
@@ -132,12 +132,14 @@ import "./motion.css";
 
 ---
 
-<div className="semantic-scene">
+<div aria-label="Change the words only when the thought changes" className="semantic-scene">
   <span className="motion-kicker">05 · Semantic correction</span>
   <h2>Change the words only when the thought changes.</h2>
   <SemanticCorrection />
   <p className="motion-caption">
-    A fixed text slot can borrow the vocabulary of rotating text without becoming a slogan carousel.
+    {
+      "A fixed text slot can borrow the vocabulary of rotating text without becoming a slogan carousel."
+    }
   </p>
 </div>
 
@@ -148,7 +150,7 @@ import "./motion.css";
 
 ---
 
-<div className="reveal-scene">
+<div aria-label="Reveal only what was truly hidden" className="reveal-scene">
   <header>
     <span className="motion-kicker">06 · Genuine reveal</span>
     <h2>Reveal only what was truly hidden.</h2>
@@ -158,13 +160,13 @@ import "./motion.css";
 </div>
 
 <Note>
-  Use the button to uncover the interview finding. Decorative scrambling on already-known copy
-  would imply mystery without delivering information, so it does not belong here.
+  Use the button to uncover the interview finding. Decorative scrambling on already-known copy would
+  imply mystery without delivering information, so it does not belong here.
 </Note>
 
 ---
 
-<div className="compare-scene">
+<div aria-label="Keep both sides when the difference is the point" className="compare-scene">
   <header>
     <span className="motion-kicker">07 · Comparison</span>
     <h2>Keep both sides when the difference is the point.</h2>
@@ -195,7 +197,7 @@ import "./motion.css";
 
 ---
 
-<div className="causality-scene">
+<div aria-label="Sequence should carry a decision forward" className="causality-scene">
   <header>
     <span className="motion-kicker">08 · Causality</span>
     <h2>Sequence should carry a decision forward.</h2>
@@ -224,7 +226,7 @@ import "./motion.css";
 
 ---
 
-<div className="data-scene">
+<div aria-label="Numbers move when the evidence changes" className="data-scene">
   <header>
     <span className="motion-kicker">09 · Measured change</span>
     <h2>Numbers move when the evidence changes.</h2>
@@ -240,14 +242,19 @@ import "./motion.css";
 
 ---
 
-<div className="subject-scene">
+<div aria-label="A subject-led background behaves like a network" className="subject-scene">
   <div className="subject-scene__field" aria-hidden="true">
-    <i /><i /><i /><i /><i /><i />
+    <i />
+    <i />
+    <i />
+    <i />
+    <i />
+    <i />
   </div>
   <header>
     <span className="motion-kicker">10 · Subject-led background</span>
     <h2>When the subject is a network, the background can behave like one.</h2>
-    <p>Ambient motion supports the model, then slows beneath dense reading.</p>
+    <p>Ambient motion mirrors the model without competing with the reading.</p>
   </header>
   <aside>
     <strong>Use a background system when it carries subject matter.</strong>
@@ -262,7 +269,7 @@ import "./motion.css";
 
 ---
 
-<div className="spatial-scene">
+<div aria-label="Depth earns its cost when structure is the subject" className="spatial-scene">
   <header>
     <span className="motion-kicker">11 · Spatial explanation</span>
     <h2>Depth earns its cost when structure is the subject.</h2>
@@ -279,7 +286,7 @@ import "./motion.css";
 
 ---
 
-<div className="ecosystem-scene">
+<div aria-label="Bring specialized animation tools to a focused boundary" className="ecosystem-scene">
   <header>
     <span className="motion-kicker">12 · React ecosystem</span>
     <h2>Drever does not need to own every animation.</h2>
@@ -317,10 +324,10 @@ import Spline from "@splinetool/react-spline"
 
 ---
 
-<div className="timing-scene">
+<div aria-label="Wait until the room can notice the point that matters" className="timing-scene">
   <span className="motion-kicker">13 · Timing</span>
   <h2>
-    Wait until the room can notice{" "}
+    {"Wait until the room can notice "}
     <mark>the point that matters.</mark>
   </h2>
   <p>A delayed local emphasis can arrive after reading begins—without moving the whole layout.</p>
@@ -333,21 +340,31 @@ import Spline from "@splinetool/react-spline"
 
 ---
 
-<div className="budget-scene">
+<div aria-label="Every animation system spends the same attention" className="budget-scene">
   <header>
     <span className="motion-kicker">14 · Attention budget</span>
     <h2>Every animation system spends the same attention.</h2>
-    <p>View Transitions, Steps, kinetic type, video, backgrounds, and 3D are not separate budgets.</p>
+    <p>
+      {
+        "View Transitions, Steps, kinetic type, video, backgrounds, and 3D are not separate budgets."
+      }
+    </p>
   </header>
   <div className="budget-scene__ledger">
     <article data-level="primary">
-      <span>Primary</span><strong>One idea changes</strong><small>Use the clearest motion.</small>
+      <span>Primary</span>
+      <strong>One idea changes</strong>
+      <small>Use the clearest motion.</small>
     </article>
     <article data-level="support">
-      <span>Optional support</span><strong>One quieter cue</strong><small>Only in the same causal chain.</small>
+      <span>Optional support</span>
+      <strong>One quieter cue</strong>
+      <small>Only in the same causal chain.</small>
     </article>
     <article data-level="still">
-      <span>Everything else</span><strong>Hold still</strong><small>Make the hierarchy obvious.</small>
+      <span>Everything else</span>
+      <strong>Hold still</strong>
+      <small>Make the hierarchy obvious.</small>
     </article>
   </div>
 </div>
@@ -359,16 +376,24 @@ import Spline from "@splinetool/react-spline"
 
 ---
 
-<div className="endpoint-scene">
+<div aria-label="The meaning survives when motion disappears" className="endpoint-scene">
   <header>
     <span className="motion-kicker">15 · Accessible endpoint</span>
     <h2>The motion may disappear. The meaning may not.</h2>
-    <p>Reduced motion, document view, and PDF need the same conclusion in a deliberate static state.</p>
+    <p>
+      {
+        "Reduced motion, document view, and PDF need the same conclusion in a deliberate static state."
+      }
+    </p>
   </header>
   <div className="endpoint-scene__states">
     <article>
       <span>Live</span>
-      <i aria-hidden="true" />
+      <div aria-hidden="true" className="endpoint-scene__route">
+        <i />
+        <i />
+        <i />
+      </div>
       <strong>Question → evidence → decision</strong>
       <small>Movement clarifies the path.</small>
     </article>
@@ -387,12 +412,22 @@ import Spline from "@splinetool/react-spline"
 
 ---
 
-<div className="motion-close">
+<div aria-label="Move what changed and keep the rest still" className="motion-close">
   <span className="motion-kicker">The recipe</span>
   <h1>Move what changed. Keep the rest still.</h1>
-  <p>Design the object’s job across the story. Then choose the smallest motion that makes that job clear.</p>
+  <p>
+    {
+      "Design the object’s job across the story. Then choose the smallest motion that makes that job clear."
+    }
+  </p>
   <div className="motion-close__rule" aria-hidden="true">
-    <span>hint</span><i /><span>arrive</span><i /><span>explain</span><i /><span>recede</span>
+    <span>hint</span>
+    <i />
+    <span>arrive</span>
+    <i />
+    <span>explain</span>
+    <i />
+    <span>recede</span>
   </div>
 </div>
 

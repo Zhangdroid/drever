@@ -87,7 +87,7 @@ export function EvidenceReveal(): ReactElement {
       <span className="motion-kicker">Interview 12 · recurring signal</span>
       <blockquote>
         “Teams did not need more features. They needed{" "}
-        <span>
+        <span className="evidence-reveal__finding">
           <span aria-hidden={!revealed}>a first decision they could trust.</span>
           <i aria-hidden="true">████ █████ ████████ ████ █████ █████</i>
         </span>
@@ -168,7 +168,9 @@ export function SpatialModel(): ReactElement {
       </div>
       <div className="spatial-model__copy">
         <span>Spatial explanation</span>
-        <strong>{open ? "The hidden dependency is now visible." : "Start with the whole system."}</strong>
+        <strong>
+          {open ? "The hidden dependency is now visible." : "Start with the whole system."}
+        </strong>
         <p id={descriptionId}>
           {open
             ? "Separate only the layer the audience needs to inspect."
