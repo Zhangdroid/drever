@@ -419,6 +419,7 @@ test("audience sharing copies the canonical visible slide and Step URL", async (
 
 test("audience shortcuts skip Steps, search slides, and jump by number", async ({ page }) => {
   const health = monitorPageHealth(page);
+  await monitorViewTransitions(page);
   await page.goto("/2/2");
 
   await page.keyboard.press("ArrowDown");
@@ -432,8 +433,11 @@ test("audience shortcuts skip Steps, search slides, and jump by number", async (
   const navigator = page.getByRole("dialog", { name: "Slide navigator" });
   await expect(navigator).toBeVisible();
   await navigator.getByRole("searchbox", { name: "Find a slide" }).fill("static output");
-  await navigator.getByRole("button", { name: /Static output/u }).click();
+  const transition = await captureNextViewTransition(page, () =>
+    navigator.getByRole("button", { name: /Static output/u }).click(),
+  );
   await expect(page).toHaveURL(/\/3$/u);
+  await waitForViewTransition(page, transition, "finished");
 
   await page.keyboard.press("g");
   await expect(navigator).toBeVisible();
