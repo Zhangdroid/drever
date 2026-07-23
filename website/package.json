@@ -6,6 +6,7 @@
   "scripts": {
     "build": "react-router build",
     "deploy": "wrangler deploy",
+    "deploy:dry-run": "wrangler deploy --dry-run",
     "deploy:preview": "wrangler versions upload",
     "dev": "react-router dev",
     "typecheck": "react-router typegen && tsc"

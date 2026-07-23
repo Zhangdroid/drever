@@ -10,6 +10,13 @@ From the repository root:
 vp run -F @drever/website dev
 ```
 
+Verify the production build and deployment bundle locally without uploading it:
+
+```sh
+vp run build:website
+vp run deploy:website:dry-run
+```
+
 ## Cloudflare deployment
 
 The site deploys as static assets on Cloudflare Workers. Deployment automation uses Workers Builds rather than a GitHub Actions deployment workflow, so Cloudflare owns the build credentials and posts preview URLs directly to pull requests.
@@ -23,9 +30,9 @@ Current settings:
 - Worker name: `drever-website`
 - Root directory: `/`
 - Production branch: `main`
-- Build command: `vp run -F @drever/website build`
-- Production deploy command: `vp run -F @drever/website deploy`
-- Non-production deploy command: `vp run -F @drever/website deploy:preview`
+- Build command: `pnpm run build:website`
+- Production deploy command: `pnpm run deploy:website`
+- Non-production deploy command: `pnpm run deploy:website:preview`
 - Build variable: `PNPM_VERSION=11.15.1`
 - Non-production branch builds: enabled
 
