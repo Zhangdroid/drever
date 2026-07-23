@@ -6,6 +6,7 @@ import { demoMounts, documentationRoutes, siteRoutes } from "../website/site-man
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const websiteOutput = join(root, "website", "dist", "client");
+const dreverBin = join(root, "packages", "cli", "dist", "bin.mjs");
 
 const run = (command, args, cwd = root) =>
   new Promise((resolveRun, rejectRun) => {
@@ -86,21 +87,9 @@ const build = async () => {
 
   await Promise.all([
     run("vp", ["run", "-F", "@drever/website", "build"]),
-    run("vp", [
-      "run",
-      "--parallel",
-      "-F",
-      "@drever/example-basic",
-      "-F",
-      "@drever/example-product-tour",
-      "-F",
-      "@drever/example-feature-gallery",
-      "-F",
-      "@drever/example-motion-recipes",
-      "-F",
-      "@drever/example-architecture",
-      "build",
-    ]),
+    ...demoMounts.map((demo) =>
+      run(process.execPath, [dreverBin, "build"], join(root, "examples", demo.source)),
+    ),
   ]);
 };
 
