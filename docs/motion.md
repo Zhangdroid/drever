@@ -17,9 +17,11 @@ deck, and review Skill:
    does not improve audience understanding, omit it.
 2. **Budget attention, not effects.** Give each moment one primary motion. Add
    at most one quieter supporting cue, and only when it belongs to the same
-   causal chain. If a headline or core object already carries the change, keep
-   Stage decoration and neighboring cards still. A recurring decorative object
-   does not earn motion merely by recurring.
+   causal chain. Native transitions, Steps, kinetic type, video, 3D, and
+   third-party animation all spend the same budget. If a headline or core
+   object already carries the change, keep Stage decoration and neighboring
+   cards still. A recurring decorative object does not earn motion merely by
+   recurring.
 3. **Follow the content and theme.** Direction follows reading order and layout:
    vertical stacks progress on the block axis; horizontal pipelines progress
    on the inline axis. The theme supplies the visual voice. A sparse draw-on
@@ -76,6 +78,64 @@ select the underlying effect.
 
 Use motion only when it explains a state change. Ordinary `Step` elements are
 the right default for progressive disclosure.
+
+## Plan an object's narrative lifecycle
+
+Design a key object's complete role in the story instead of assigning an
+entrance effect independently on every slide. A useful lifecycle may be:
+
+1. **Hint:** keep a small part of the object just off-stage when anticipation
+   helps the audience form a question.
+2. **Enter as evidence:** bring the complete object into a stable, readable
+   position when the presentation needs to inspect or interact with it.
+3. **Recontextualize:** move the same object to a quiet edge or corner, reduce
+   its contrast, and retain it as spatial context while the explanation takes
+   focus.
+4. **Retire:** remove it once it no longer helps the audience understand the
+   next claim.
+
+This is not a required four-effect sequence. Author only the beats that advance
+the argument. For example, a browser frame can peek from below the canvas,
+enter to demonstrate a workflow, then dock at low contrast while the next slide
+explains the decision revealed by that workflow. The movement explains the
+object's changing narrative role; it is not decoration.
+
+Keep the object recognizable throughout the lifecycle. Give it stable internal
+geometry and one motion owner. Use native View Transition continuity for
+navigation between authored layouts; use local live-DOM motion for interaction
+inside one slide. Do not make both systems transform the same element at the
+same time.
+
+## External motion and spatial tools
+
+React components can integrate focused motion capabilities without turning
+Drever into an effect catalog. For example,
+[React Bits](https://reactbits.dev/) can be a reference for kinetic-type or
+background techniques, while [Spline](https://docs.spline.design/exporting-your-scene/web/exporting-as-code)
+can supply an interactive spatial model when depth materially improves the
+explanation. Neither is a required Drever dependency or a default visual style.
+Other tools are valid when they solve the narrative problem more clearly.
+
+Prefer native CSS, Drever primitives, and small local React components for
+simple reveals and transitions. Add an external dependency only when its
+capability is disproportionately useful. Before copying code, importing an
+asset, or shipping a runtime, inspect the current official documentation,
+source, license, bundle behavior, and export constraints. Treat outside work as
+evidence and capability, not a style catalog: adapt the technique to the
+deck's subject-led visual system instead of copying a demo unchanged.
+
+Every integration must be presentation-safe:
+
+- expose the final meaning as accessible text or semantics, with keyboard
+  operation for interaction;
+- commit the same understandable final state immediately under reduced motion;
+- load deterministically and participate in export readiness;
+- provide a stable poster, still, or authored fallback for document and export
+  surfaces when live rendering is inappropriate;
+- bound continuously animated backgrounds and 3D scenes so they remain
+  subordinate to the current claim;
+- avoid nested slide-navigation transitions and never hide required content
+  behind animation completion.
 
 ## Step choreography
 
@@ -366,8 +426,10 @@ These rules follow the browser's snapshot model described by the
 the [Chrome same-document guide](https://developer.chrome.com/docs/web-platform/view-transitions/same-document),
 and the detailed
 [aspect-ratio walkthrough](https://jakearchibald.com/2024/view-transitions-handling-aspect-ratio-changes/).
-The complete runnable versions are in the
-[`motion-recipes` example](../examples/motion-recipes/README.md).
+The complete geometry fixtures are in the
+[`motion-contracts` example](../examples/motion-contracts/README.md). The
+story-led [`motion-recipes` example](../examples/motion-recipes/README.md)
+shows how those contracts support meaningful choreography.
 
 ## Stage motion
 
@@ -423,6 +485,11 @@ does not load a JavaScript motion module and there is no separate
 - Start with ordinary Steps; add a MotionGroup only for a clear narrative job.
 - Ask: What single object should the audience follow? If the answer names two,
   remove or sequence one.
+- Plan that object's lifecycle across the story: hint it only when anticipation
+  helps, enter it as evidence, dock it at low contrast when it becomes context,
+  and retire it when it stops explaining the claim.
+- Count native transitions, Steps, kinetic type, video, 3D, and third-party
+  animation against one attention budget.
 - Keep persistent headings and context outside Step-oriented MotionGroups.
 - Keep shadows, glows, and other overflow effects outside hard clip reveals;
   interpolate matching transparent and opaque shadow lists.
@@ -445,6 +512,12 @@ does not load a JavaScript motion module and there is no separate
 - Use rotating, decrypted, mask-reveal, or draw-on text only for semantically
   linked copy in one fixed local slot after capture; never share changing glyphs
   through a View Transition.
+- Use external tools only for a capability the story needs. Verify current
+  official docs and licenses, adapt references such as React Bits or Spline to
+  the subject-led design, and avoid copying a showcase as the deck's style.
+- Give every live integration accessible final semantics, keyboard behavior,
+  reduced-motion output, deterministic loading and export readiness, plus a
+  stable document/export fallback when needed.
 - Inspect intermediate frames and the finished handoff in both directions at
   every affected route; verify that toolbar hover and focus remain stable.
 - Verify reduced motion, `/speaker`, `/document`, and export after changing
@@ -453,7 +526,8 @@ does not load a JavaScript motion module and there is no separate
 ## Compact AI prompt
 
 ```text
-Use Drever motion semantically. Prefer ordinary Step for disclosure. Use a
+Use Drever motion semantically. Motion must explain a change; if removing it
+does not reduce understanding, remove it. Prefer ordinary Step for disclosure. Use a
 MotionGroup with direct Step children for focus (retain context), replace (one
 accessible state in a stable presentation frame; the document view expands all
 states), or compare (retain readable peers). Put a stagger MotionGroup inside
@@ -464,7 +538,12 @@ pipeline or comparison; omit it when the theme default fits. Use continuity
 only for the same object on adjacent slides, give both groups the same unique
 lowercase kebab-case name, and never give continuity a flow. Give each moment
 one primary motion and at most one quieter supporting cue in the same causal
-chain. When a headline or core object changes, keep Stage decoration and
+chain. Count native transitions, Steps, kinetic type, video, 3D, and
+third-party animation against that one budget. Plan a key object's lifecycle
+instead of isolated entrances: it may hint off-stage, enter as evidence, dock
+at low contrast as context, then retire when it no longer explains the claim.
+Author only the beats the story needs. When a headline or core object changes,
+keep Stage decoration and
 neighboring cards still; recurring decoration does not earn motion by recurring.
 Keep its endpoint
 size, aspect ratio, typography, wrapping, and media crop explicit; keep
@@ -479,7 +558,15 @@ cross-axis alignment; translate a line or reveal it with an inner mask rather
 than stretching it. Carry identity, not resemblance. For semantically linked
 copy, use a local fixed-slot rotating, decrypted, mask-reveal, or draw-on effect
 after capture; keep text metrics stable and never View-Transition or scale
-different glyphs. Under reduced motion, commit the final state without spatial,
+different glyphs. Treat React Bits, Spline, and other external work as optional
+references or capabilities, never required dependencies or a style catalog.
+Prefer native CSS and small local React for simple motion; before copying code,
+assets, or runtimes, inspect current official docs, source, license, bundle
+behavior, and export constraints. Give integrations accessible final semantics,
+keyboard behavior, deterministic loading and export readiness, and a stable
+document/export fallback when live rendering is inappropriate. Never let native
+and local motion transform the same element at once. Under reduced motion,
+commit the final state without spatial,
 draw, scramble, or decorative delay. Do not put persistent titles, backgrounds,
 page numbers, dialogs, or audience controls inside slide transitions. Do not
 invent animation props, hidden Step stops, runtime.motion, or native View

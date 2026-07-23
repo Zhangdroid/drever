@@ -60,7 +60,8 @@ usually belongs outside the shared bitmap.
 <h2 id="principles">The non-negotiable principles</h2>
 
 1. Motion explains focus, order, replacement, comparison, or continuity. Otherwise omit it.
-2. Give each moment one primary motion and at most one quieter supporting cue.
+2. Give each moment one primary motion and at most one quieter supporting cue. Steps, native
+   transitions, kinetic type, video, 3D, and third-party animation share that budget.
 3. Move the smallest meaningful object. Background, title, controls, and page chrome stay put.
 4. Keep recurring geometry, wrapping, paint, and shadow lists stable.
 5. Never clip a surface whose shadow or glow must remain visible.
@@ -70,3 +71,26 @@ usually belongs outside the shared bitmap.
 The eight official design studies deliberately use different motion voices. The same intent can feel
 calm in Default, editorial in Editorial, precise in Studio, handwritten in Fieldnote, directional
 in Atlas, accountable in Ledger, cinematic in Cinema, or assembled in Construct.
+
+<h2 id="object-lifecycle">Plan a role, not an entrance</h2>
+
+A key object can hint just below the canvas, enter when it becomes evidence, dock at a quiet edge
+while the explanation takes focus, and retire when it stops helping. Use only the beats the story
+needs. A browser frame that moves from demonstration to low-contrast context explains a changing
+narrative role; four unrelated entrance effects do not.
+
+Keep one motion owner per element. Use native continuity between slides or local live-DOM motion
+inside one slide, never both at once.
+
+<h2 id="external-tools">Bring focused capabilities</h2>
+
+[React Bits](https://reactbits.dev/) can inspire a kinetic-type or background technique, and
+[Spline](https://docs.spline.design/exporting-your-scene/web/exporting-as-code) can supply a spatial
+model when depth improves the explanation. They are examples, not Drever dependencies or visual
+presets. Prefer native CSS and small local React for simple motion. Before copying code, assets, or
+runtimes, inspect current official documentation, source, license, bundle behavior, and export
+constraints, then adapt the technique to the deck's subject-led design.
+
+Every live integration needs accessible final meaning, keyboard behavior, deterministic loading
+and export readiness, reduced-motion output, and a stable poster or authored fallback when document
+or export surfaces should not run it. Keep continuous backgrounds and 3D subordinate to the claim.

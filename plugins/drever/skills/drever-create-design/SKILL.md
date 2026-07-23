@@ -78,12 +78,15 @@ Use local components for recurring presentation semantics, not one-off decoratio
 
 ## Design motion with meaning
 
-- Give each moment one primary motion and at most one quieter cue in the same causal chain.
+- Give each moment one primary motion and at most one quieter cue in the same causal chain. Count native transitions, Steps, kinetic type, video, 3D, and third-party animation against that one budget.
+- Plan a key object's narrative lifecycle instead of a series of entrances. Hint it off-stage only when anticipation helps, enter it as evidence, dock it at lower contrast when it becomes context, and retire it when it stops supporting the claim. Author only the beats that improve understanding.
 - Animate the smallest object whose meaning changed. Keep the Stage shell, controls, page information, backgrounds, and persistent anchors stationary.
 - Match direction, timing, and gesture to reading order, spatial structure, or narrative causality.
 - Use continuity only for the same semantic object. Keep endpoint geometry, type metrics, wrapping, paint, shadows, and media crop explicit.
 - Never stretch text or boxes, hard-clip painted shadows, switch a shadow from `none`, or animate a recurring motif merely because it exists.
 - Add quiet delight only when it emphasizes the slide's claim. Respect reduced motion and deterministic export.
+- Treat React Bits, Spline, and other outside work as optional references or focused capabilities, not a style catalog. Prefer native CSS, Drever primitives, and small local React for simple motion. Verify current official documentation, source, license, bundle behavior, and export constraints before copying code, assets, or runtimes, then adapt the technique to the subject-led system.
+- Give every live motion or spatial integration accessible final semantics, keyboard behavior, deterministic loading and export readiness, reduced-motion output, and a stable poster or authored fallback when live rendering is inappropriate. Keep continuous backgrounds and 3D subordinate to the claim, and never let navigation continuity and local motion transform the same element at once.
 
 ## Validate the result
 
