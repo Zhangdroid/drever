@@ -14,7 +14,10 @@ vp run -F @drever/website dev
 
 The site deploys as static assets on Cloudflare Workers. Deployment automation uses Workers Builds rather than a GitHub Actions deployment workflow, so Cloudflare owns the build credentials and posts preview URLs directly to pull requests.
 
-One-time Workers Builds settings:
+Workers Builds is connected to `Zhangdroid/drever`. Pushes to `main` deploy to
+production, while other branches upload isolated preview versions.
+
+Current settings:
 
 - Repository: `Zhangdroid/drever`
 - Worker name: `drever-website`
