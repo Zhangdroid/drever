@@ -54,6 +54,7 @@ npm create drever@latest my-slides -- --open claude
 - Product tour: https://drever.dev/demos/product/
 - Feature gallery: https://drever.dev/demos/features/
 - Motion stories: https://drever.dev/demos/motion/
+- Room scenes: https://drever.dev/demos/scenes/
 - Architecture: https://drever.dev/demos/architecture/
 - Minimal reference: https://drever.dev/demos/basic/
 

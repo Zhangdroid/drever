@@ -40,6 +40,14 @@ export const demoMounts = [
   },
   {
     description:
+      "A live room study with a reactive soundtrack, provider embeds, a countdown, and persistent atmosphere.",
+    id: "scenes",
+    label: "Room scenes",
+    slug: "scenes",
+    source: "room-scenes",
+  },
+  {
+    description:
       "A technical tour through compilation, routing, extensions, runtime surfaces, and delivery.",
     id: "architecture",
     label: "Architecture",
