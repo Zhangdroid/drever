@@ -615,7 +615,7 @@
   inset-inline-end: 18px;
   color: var(--drever-atlas-route-tone);
   font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 720;
   letter-spacing: 0.04em;
 }
@@ -713,7 +713,7 @@
 
 .drever-atlas-survey__visual figcaption {
   color: var(--drever-atlas-muted);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 620;
   letter-spacing: 0.02em;
   line-height: 1.42;

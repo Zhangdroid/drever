@@ -553,7 +553,7 @@
 
 .drever-cinema-frame__media {
   display: grid;
-  width: min(100%, 1080px);
+  width: min(100%, 1040px);
   aspect-ratio: 16 / 9;
   box-sizing: border-box;
   place-items: center;
@@ -584,7 +584,7 @@
 
 .drever-cinema-frame__caption {
   display: grid;
-  width: min(100%, 1080px);
+  width: min(100%, 1040px);
   min-width: 0;
   grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr) auto;
   align-items: baseline;
@@ -608,14 +608,14 @@
 }
 
 .drever-cinema-frame__copy {
-  font-size: 16px;
+  font-size: 18px;
   line-height: 1.42;
 }
 
 .drever-cinema-frame__credit {
   color: var(--drever-cinema-cue);
   font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 650;
   letter-spacing: 0.09em;
   line-height: 1.35;
