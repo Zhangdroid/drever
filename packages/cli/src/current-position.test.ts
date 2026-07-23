@@ -60,6 +60,24 @@ const closeSession = async (plugin: Plugin): Promise<void> => {
 };
 
 describe("live current position", () => {
+  it("keeps generated position files outside the Vite watch graph", async () => {
+    const root = await mkdtemp(join(tmpdir(), "drever-current-position-test-"));
+    directories.push(root);
+    const plugin = createCurrentPositionPlugin({ root, sourcePath: join(root, "slides.mdx") });
+    const config = plugin.config;
+    if (typeof config !== "function") {
+      throw new TypeError("The current-position plugin is missing its config hook.");
+    }
+
+    expect(config.call({} as never, {} as never, {} as never)).toEqual({
+      server: {
+        watch: {
+          ignored: [`${currentPositionDirectory(root).replaceAll("\\", "/")}/**`],
+        },
+      },
+    });
+  });
+
   it("tracks the latest open client and removes session state on shutdown", async () => {
     const root = await mkdtemp(join(tmpdir(), "drever-current-position-test-"));
     directories.push(root);

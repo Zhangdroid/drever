@@ -7,7 +7,7 @@ import { randomUUID } from "node:crypto";
 import { mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { performance } from "node:perf_hooks";
-import type { Plugin, ViteDevServer, WebSocketClient } from "vite";
+import { normalizePath, type Plugin, type ViteDevServer, type WebSocketClient } from "vite";
 import { DreverCliError } from "./errors.ts";
 
 export const CURRENT_POSITION_EVENT = "drever:current-position";
@@ -182,6 +182,7 @@ export const createCurrentPositionPlugin = ({
   sourcePath,
 }: CurrentPositionPluginOptions): Plugin => {
   const path = join(currentPositionDirectory(root), `${randomUUID()}.json`);
+  const watchPattern = `${normalizePath(currentPositionDirectory(root))}/**`;
   const clients = new Map<WebSocketClient, ActiveClientPosition>();
   let writes = Promise.resolve();
   let revision = 0;
@@ -190,6 +191,7 @@ export const createCurrentPositionPlugin = ({
   return {
     apply: "serve",
     name: "drever:current-position",
+    config: () => ({ server: { watch: { ignored: [watchPattern] } } }),
     configureServer(server: ViteDevServer) {
       const enqueue = (operation: () => Promise<void>): void => {
         writes = writes.then(operation).catch((error: unknown) => {
