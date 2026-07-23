@@ -1,17 +1,17 @@
 # Releasing Drever
 
-Drever publishes 16 public packages with one lockstep version. In particular,
+Drever publishes 21 public packages with one lockstep version. In particular,
 `drever`, `create-drever`, and `@drever/agent` must always share the same
 version so project creation, the runtime, and agent workflows remain
 compatible.
 
 ## Release channels
 
-| Channel     | Version                            | npm dist-tag | Trigger                             |
-| ----------- | ---------------------------------- | ------------ | ----------------------------------- |
-| Commit test | `0.0.0-commit.g<12-character-sha>` | `commit`     | Manual `Publish` workflow on `main` |
-| Prerelease  | `0.1.0-next.0` or `0.1.0-rc.1`     | `next`       | Published GitHub prerelease         |
-| Stable      | `0.1.0`                            | `latest`     | Published GitHub release            |
+| Channel     | Version                            | npm dist-tag | Trigger                                          |
+| ----------- | ---------------------------------- | ------------ | ------------------------------------------------ |
+| Commit test | `0.0.0-commit.g<12-character-sha>` | `commit`     | Manual `Publish npm packages` workflow on `main` |
+| Prerelease  | `0.1.0-next.0` or `0.1.0-rc.1`     | `next`       | Published GitHub prerelease                      |
+| Stable      | `0.1.0`                            | `latest`     | Published GitHub release                         |
 
 Every publish passes an explicit dist-tag. A commit test must never update
 `latest`. npm package versions are immutable, so a commit build cannot later
@@ -61,6 +61,13 @@ Drever then orders dependency maps and repacks the result with npm so the same
 source produces the same tarball. npm authenticates exclusively through the
 workflow's short-lived OIDC identity; the publish job has no registry token.
 
+The `npm` environment is a publishing security boundary, not a deployment
+target. The publish job keeps its environment protections and trusted
+publishing identity but disables GitHub Deployment records. Published GitHub
+releases and prereleases remain the canonical history for named product
+versions. A manual workflow dispatch publishes only an ephemeral commit test
+and intentionally creates neither a GitHub Release nor a Deployment.
+
 Trusted Publishing automatically adds provenance when the source repository
 and package are public; the publish command must not pass `--provenance`
 explicitly. A private source repository can still publish with either a token
@@ -86,6 +93,13 @@ a private repository can complete this bootstrap and use Trusted Publishing.
 Keeping it private only removes npm provenance and, depending on the GitHub
 plan, some environment protection rules.
 
+The same bootstrap rule applies whenever a later change adds a public package.
+Create every new package name with one temporary-token commit release,
+configure and verify its Trusted Publisher, remove the token, and only then
+publish a named GitHub prerelease or release. Do not start a lockstep named
+release while one package is still absent from npm: multi-package publication
+is retryable, but it is not transactional.
+
 1. Enable 2FA on the npm maintainer account.
 2. Create a GitHub environment named `npm`. A private bootstrap may use the
    environment without protection and a repository-level secret. Before the
@@ -98,7 +112,7 @@ plan, some environment protection rules.
    packages, including the unscoped `create-drever`, do not exist yet. Store it
    as an `npm` environment secret named `NPM_TOKEN`. Never commit the token.
 4. Temporarily add `NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}` to the publish
-   step, then run the `Publish` workflow manually on `main`. It publishes a
+   step, then run the `Publish npm packages` workflow manually on `main`. It publishes a
    `0.0.0-commit.g<sha>` test release under the `commit` dist-tag.
 5. Configure every package to trust `Zhangdroid/drever`, workflow
    `publish.yml`, environment `npm`, with `npm publish` permission. A granular
@@ -119,7 +133,7 @@ plan, some environment protection rules.
 
    The first trust request opens npm's 2FA flow. Select the option to skip
    additional 2FA checks for five minutes; the script spaces requests by two
-   seconds as npm recommends. It first inspects all 16 packages, skips exact
+   seconds as npm recommends. It first inspects all 21 packages, skips exact
    matches, refuses to replace a conflicting policy, creates missing policies,
    and then reads all policies back from npm. A partial network failure is safe
    to resume by running the same command again. To perform a read-only audit,

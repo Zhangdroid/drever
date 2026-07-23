@@ -21,8 +21,13 @@ export const runtimeVersionFiles = [
   "packages/plugin-math/src/index.ts",
   "packages/plugin-shiki/src/index.ts",
   "packages/plugin-tailwindcss/src/index.ts",
+  "packages/theme-atlas/src/index.ts",
+  "packages/theme-cinema/src/index.ts",
+  "packages/theme-construct/src/index.ts",
   "packages/theme-default/src/index.ts",
   "packages/theme-editorial/src/index.ts",
+  "packages/theme-fieldnote/src/index.ts",
+  "packages/theme-ledger/src/index.ts",
   "packages/theme-studio/src/index.ts",
 ];
 

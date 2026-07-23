@@ -1,4 +1,4 @@
-name: Publish
+name: Publish npm packages
 
 on:
   workflow_dispatch:
@@ -112,7 +112,9 @@ jobs:
     needs: audit
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    environment: npm
+    environment:
+      name: npm
+      deployment: false
     permissions:
       contents: read
       id-token: write
