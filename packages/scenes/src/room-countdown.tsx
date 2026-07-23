@@ -1,10 +1,5 @@
 import { useDreverRenderMode } from "@drever/core";
-import {
-  useEffect,
-  useState,
-  type ComponentPropsWithoutRef,
-  type ReactElement,
-} from "react";
+import { useEffect, useState, type ComponentPropsWithoutRef, type ReactElement } from "react";
 
 export type RoomCountdownProps = Omit<ComponentPropsWithoutRef<"time">, "dateTime"> &
   Readonly<{

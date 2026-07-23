@@ -16,12 +16,9 @@ describe("music links", () => {
       provider: "spotify",
     });
     expect(
-      resolveMusicEmbed(
-        "https://music.apple.com/us/album/example/123456789?i=987654321&uo=4",
-      ),
+      resolveMusicEmbed("https://music.apple.com/us/album/example/123456789?i=987654321&uo=4"),
     ).toEqual({
-      embedUrl:
-        "https://embed.music.apple.com/us/album/example/123456789?i=987654321",
+      embedUrl: "https://embed.music.apple.com/us/album/example/123456789?i=987654321",
       openUrl: "https://music.apple.com/us/album/example/123456789?i=987654321",
       provider: "apple-music",
     });
@@ -86,6 +83,6 @@ describe("scene render surfaces", () => {
     );
 
     expect(markup).toContain("Doors open shortly");
-    expect(markup).toContain('datetime="2027-01-01T09:00:00Z"');
+    expect(markup).toMatch(/datetime="2027-01-01T09:00:00Z"/iu);
   });
 });

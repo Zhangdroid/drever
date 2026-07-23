@@ -30,10 +30,7 @@ autoplay is deliberately unsupported.
 A Spotify or Apple Music URL has a different contract:
 
 ```tsx
-<Soundtrack
-  playlistUrl="https://open.spotify.com/playlist/..."
-  title="Doors open playlist"
-/>
+<Soundtrack playlistUrl="https://open.spotify.com/playlist/..." title="Doors open playlist" />
 ```
 
 The official provider player loads on demand and the background uses a quiet
@@ -44,13 +41,13 @@ deck-wide music service.
 
 ## Render surfaces
 
-| Surface | Behavior |
-| --- | --- |
-| Audience | Explicit playback or provider-player control |
-| Reduced-motion audience | Audio may play; the visual stays still |
-| Speaker current / next | Deterministic metadata card |
-| Document | Deterministic metadata card and source link |
-| Export | Deterministic metadata card and source link |
+| Surface                 | Behavior                                     |
+| ----------------------- | -------------------------------------------- |
+| Audience                | Explicit playback or provider-player control |
+| Reduced-motion audience | Audio may play; the visual stays still       |
+| Speaker current / next  | Deterministic metadata card                  |
+| Document                | Deterministic metadata card and source link  |
+| Export                  | Deterministic metadata card and source link  |
 
 `AmbientStage` is a decorative persistent background for a project Stage. Give
 it one of four narrative states (`quiet`, `gather`, `focus`, `resolve`) rather

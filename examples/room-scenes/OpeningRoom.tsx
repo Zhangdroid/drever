@@ -2,11 +2,15 @@ import { RoomCountdown, Soundtrack } from "@drever/scenes";
 import { useMemo, type ReactElement } from "react";
 import openingLoop from "./assets/opening-loop.wav";
 
-export function OpeningRoom(): ReactElement {
+export type OpeningRoomProps = Readonly<{
+  "aria-label"?: string;
+}>;
+
+export function OpeningRoom({ "aria-label": ariaLabel }: OpeningRoomProps): ReactElement {
   const target = useMemo(() => new Date(Date.now() + 5 * 60_000).toISOString(), []);
 
   return (
-    <div className="room-opening">
+    <div aria-label={ariaLabel} className="room-opening">
       <header className="room-opening__intro">
         <span className="scene-kicker">Drever scenes / doors open</span>
         <h1>

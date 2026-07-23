@@ -123,12 +123,11 @@
   isolation: isolate;
   border: 1px solid color-mix(in srgb, var(--drever-theme-border, currentColor), transparent 34%);
   border-radius: max(var(--drever-theme-radius, 18px), 18px);
-  background:
-    linear-gradient(
-      138deg,
-      color-mix(in srgb, var(--drever-theme-surface, #171719), transparent 5%),
-      color-mix(in srgb, var(--drever-theme-surface, #171719), var(--drever-theme-accent, #c7f03a) 7%)
-    );
+  background: linear-gradient(
+    138deg,
+    color-mix(in srgb, var(--drever-theme-surface, #171719), transparent 5%),
+    color-mix(in srgb, var(--drever-theme-surface, #171719), var(--drever-theme-accent, #c7f03a) 7%)
+  );
   box-shadow:
     0 24px 70px rgb(0 0 0 / 12%),
     inset 0 1px rgb(255 255 255 / 8%);
@@ -359,8 +358,9 @@
   z-index: 2;
   top: 28px;
   right: 30px;
-  color: color-mix(in srgb, currentColor, transparent 38%);
-  font-size: 13px;
+  color: color-mix(in srgb, currentColor, transparent 20%);
+  font-size: 14px;
+  font-weight: 600;
   line-height: 1;
   text-underline-offset: 4px;
 }

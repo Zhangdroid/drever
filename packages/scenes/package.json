@@ -1,8 +1,8 @@
 {
   "name": "@drever/scenes",
   "version": "0.0.0",
-  "description": "Presentation-native scenes for live Drever rooms.",
   "private": true,
+  "description": "Presentation-native scenes for live Drever rooms.",
   "license": "MIT",
   "repository": {
     "type": "git",

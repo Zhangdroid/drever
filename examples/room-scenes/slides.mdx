@@ -5,7 +5,7 @@ import "@drever/brand/tokens.css";
 import "@drever/scenes/styles.css";
 import "./room-scenes.css";
 
-<OpeningRoom />
+<OpeningRoom aria-label="Before the room speaks" />
 
 <Note>
   Press Start room. This local, original audio loop is routed through Web Audio, so the light
@@ -15,39 +15,33 @@ import "./room-scenes.css";
 
 ---
 
-<div className="provider-scene">
+<div aria-label="A playlist can play, but it cannot expose its waveform" className="provider-scene">
   <header>
     <span className="scene-kicker">One link / two honest capabilities</span>
     <h2>A playlist can play. It cannot expose its waveform.</h2>
-    <p>
-      Provider links get an official player and a restrained ambient field. Local or CORS-enabled
-      audio gets the real frequency response.
-    </p>
+    <p>Provider links get an official player and a restrained ambient field. Local or CORS-enabled audio gets the real frequency response.</p>
   </header>
 
   <Soundtrack
     className="provider-scene__player"
     playlistUrl="https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M"
-    title="Paste a Spotify or Apple Music link"
+    title="Doors-open playlist"
   />
 </div>
 
 <Note>
   Load the player only if the network is available. The background begins a deterministic ambient
-  pulse, but never claims to follow protected iframe audio. Export and speaker surfaces keep this
-  as a static card.
+  pulse, but never claims to follow protected iframe audio. Export and speaker surfaces keep this as
+  a static card.
 </Note>
 
 ---
 
-<div className="stage-story">
+<div aria-label="The background has its own job" className="stage-story">
   <header>
     <span className="scene-kicker">Persistent atmosphere</span>
     <h2>The background has its own job.</h2>
-    <p>
-      The glow behind this deck is a Stage scene. It stays mounted while the slide content changes,
-      then shifts only when the story gives it a reason.
-    </p>
+    <p>The glow behind this deck is a Stage scene. It stays mounted while the slide content changes, then shifts only when the story gives it a reason.</p>
   </header>
 
   <div className="stage-story__model" aria-label="A persistent Stage surrounding changing slides">
@@ -67,7 +61,7 @@ import "./room-scenes.css";
 
 ---
 
-<div className="scene-board">
+<div aria-label="Every Scene needs a narrative job" className="scene-board">
   <header>
     <span className="scene-kicker">Not a component zoo</span>
     <h2>Every Scene needs a narrative job.</h2>
@@ -114,11 +108,13 @@ import "./room-scenes.css";
 
 ---
 
-<div className="scene-ending">
+<div aria-label="The room is part of the story" className="scene-ending">
   <span className="scene-kicker">Drever / presentation-native scenes</span>
   <h2>The room is part of the story.</h2>
   <p>
-    Slides carry the argument. Scenes shape the moments around it—only when those moments matter.
+    {
+      "Slides carry the argument. Scenes shape the moments around it—only when those moments matter."
+    }
   </p>
   <div className="scene-ending__signal" aria-hidden="true">
     <i />

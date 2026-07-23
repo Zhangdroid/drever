@@ -29,7 +29,7 @@ export type SoundtrackProps = Omit<ComponentPropsWithoutRef<"section">, "title">
 type AudioGraph = {
   analyser: AnalyserNode;
   context: AudioContext;
-  data: Uint8Array;
+  data: Uint8Array<ArrayBuffer>;
   frame: number | undefined;
   source: MediaElementAudioSourceNode;
 };

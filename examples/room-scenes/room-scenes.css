@@ -40,6 +40,7 @@
   display: inline-block;
   color: inherit;
   font-style: normal;
+  text-decoration: none;
 }
 
 .room-opening__intro h1 em::after {
@@ -248,7 +249,7 @@
   display: block;
   margin-top: 18px;
   font-family: var(--drever-brand-font-family-display);
-  font-size: 27px;
+  font-size: 30px;
   font-weight: 570;
   letter-spacing: -0.035em;
 }
@@ -256,8 +257,8 @@
 .scene-board__grid article > p {
   max-width: 31ch;
   margin-top: 10px;
-  color: var(--drever-cinema-muted);
-  font-size: 15px;
+  color: color-mix(in srgb, var(--drever-cinema-ink), transparent 28%);
+  font-size: 18px;
   line-height: 1.42;
 }
 
