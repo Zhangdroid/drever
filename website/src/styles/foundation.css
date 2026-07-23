@@ -39,11 +39,11 @@ html:active-view-transition-type(site-page)::view-transition-new(root) {
 }
 
 html:active-view-transition-type(site-page)::view-transition-old(root) {
-  animation: site-page-out 140ms var(--drever-brand-motion-easing-exit) both;
+  animation: site-page-out 100ms var(--drever-brand-motion-easing-exit) both;
 }
 
 html:active-view-transition-type(site-page)::view-transition-new(root) {
-  animation: site-page-in 280ms var(--drever-brand-motion-easing-emphasized) both;
+  animation: site-page-in 190ms 90ms var(--drever-brand-motion-easing-emphasized) both;
 }
 
 ::view-transition-group(site-header),
@@ -101,6 +101,37 @@ svg {
 
 main h1[tabindex="-1"]:focus {
   outline: none;
+}
+
+.not-found {
+  display: grid;
+  min-height: 100svh;
+  padding: 10rem var(--site-gutter) 6rem;
+  place-content: center;
+  justify-items: start;
+}
+
+.not-found > span {
+  color: var(--site-continuity);
+  font-size: 0.72rem;
+  font-weight: 680;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.not-found h1 {
+  max-width: 9ch;
+  margin: 1rem 0 0;
+  font-family: var(--drever-brand-font-family-display);
+  font-size: clamp(3.6rem, 9vw, 8rem);
+  font-weight: 610;
+  letter-spacing: -0.06em;
+  line-height: 0.88;
+}
+
+.not-found p {
+  margin: 1.5rem 0 2rem;
+  color: var(--site-muted);
 }
 
 .skip-link {

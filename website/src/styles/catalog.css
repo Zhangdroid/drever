@@ -268,6 +268,10 @@
   text-transform: uppercase;
 }
 
+.catalog-next > div > span {
+  color: var(--site-continuity);
+}
+
 .catalog-proof h2,
 .catalog-next h2,
 .theme-principle h2 {
@@ -497,6 +501,15 @@
   .catalog-demo {
     grid-template-columns: 1fr;
     gap: 0;
+  }
+
+  .featured-demo__visual {
+    min-height: 22rem;
+    aspect-ratio: 1;
+  }
+
+  .featured-demo__visual > i {
+    display: none;
   }
 
   .theme-detail dl,

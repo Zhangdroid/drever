@@ -1,7 +1,8 @@
 import faviconHref from "@drever/brand/assets/favicon.svg";
-import { HeadContent, Outlet, Scripts, createRootRoute } from "@tanstack/react-router";
+import { HeadContent, Link, Outlet, Scripts, createRootRoute } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
+import { SiteShell } from "../components/site-shell";
 import siteStylesHref from "../site.css?url";
 
 export const Route = createRootRoute({
@@ -19,11 +20,27 @@ export const Route = createRootRoute({
       { property: "og:site_name", content: "Drever" },
     ],
   }),
+  notFoundComponent: NotFoundPage,
   shellComponent: RootDocument,
 });
 
 function RootComponent() {
   return <Outlet />;
+}
+
+function NotFoundPage() {
+  return (
+    <SiteShell>
+      <main className="not-found" id="main">
+        <span>404 / wrong room</span>
+        <h1>This slide does not exist.</h1>
+        <p>The story continues from the Drever home page.</p>
+        <Link className="button button--primary" to="/">
+          Return home
+        </Link>
+      </main>
+    </SiteShell>
+  );
 }
 
 function RootDocument({ children }: { children: ReactNode }) {

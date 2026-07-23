@@ -14,6 +14,13 @@
   top: 6.2rem;
   display: flex;
   max-height: calc(100svh - 7.5rem);
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.docs-nav__scroll {
+  display: flex;
+  min-height: 0;
   overflow-y: auto;
   flex-direction: column;
   scrollbar-width: thin;
@@ -311,7 +318,7 @@
   padding-block-start: 0.85rem;
   border-top: 1px solid var(--drever-brand-color-night-line);
   color: color-mix(in srgb, var(--site-night-muted), transparent 18%);
-  font-size: 0.65rem;
+  font-size: 0.72rem;
   line-height: 1.5;
 }
 
@@ -358,14 +365,14 @@
 .credits-groups p {
   margin: 0;
   color: var(--site-muted);
-  font-size: 0.78rem;
+  font-size: 0.84rem;
   line-height: 1.65;
 }
 
 .credits-typefaces {
   margin-block-start: 1.2rem !important;
   color: var(--site-muted) !important;
-  font-size: 0.69rem !important;
+  font-size: 0.76rem !important;
   line-height: 1.65 !important;
 }
 
@@ -735,6 +742,7 @@
 
 .plugin-gallery__visual strong {
   position: relative;
+  color: inherit;
   font-family: var(--drever-brand-font-family-mono);
   font-size: clamp(1.5rem, 4vw, 2.8rem);
   font-weight: 520;
@@ -1333,29 +1341,52 @@
 
 @media (max-width: 62rem) {
   .docs {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 3rem;
   }
 
   .docs-nav {
     position: static;
     display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
     max-height: none;
-    padding-block-end: 1rem;
+    overflow: visible;
+  }
+
+  .docs-nav__home {
+    display: none;
+  }
+
+  .docs-nav__scroll {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    padding: 0.2rem 1.2rem 1rem 0;
     overflow-x: auto;
+    overflow-y: hidden;
+    mask-image: linear-gradient(
+      90deg,
+      transparent 0,
+      black 1rem,
+      black calc(100% - 1.5rem),
+      transparent
+    );
+    scrollbar-width: none;
     white-space: nowrap;
   }
 
-  .docs-nav__home,
+  .docs-nav__scroll::-webkit-scrollbar {
+    display: none;
+  }
+
   .docs-nav section,
   .docs-nav nav,
   .docs-nav nav a {
     display: inline-flex;
     width: auto;
-  }
-
-  .docs-nav__home {
-    margin: 0 1.5rem 0 0;
   }
 
   .docs-nav section,
@@ -1394,8 +1425,19 @@
 
   .doc-prose table {
     display: block;
+    padding-block-end: 0.35rem;
     overflow-x: auto;
+    scrollbar-color: var(--site-continuity) transparent;
+    scrollbar-width: thin;
     white-space: nowrap;
+  }
+
+  .doc-prose table::-webkit-scrollbar {
+    height: 3px;
+  }
+
+  .doc-prose table::-webkit-scrollbar-thumb {
+    background: var(--site-continuity);
   }
 
   .docs-overview__start,

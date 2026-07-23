@@ -15,7 +15,7 @@ import { SiteShell } from "./site-shell";
 
 export function DocsShell() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const navigationRef = useRef<HTMLElement>(null);
+  const navigationRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
@@ -29,35 +29,37 @@ export function DocsShell() {
   return (
     <SiteShell>
       <main className="docs" id="main">
-        <aside className="docs-nav" ref={navigationRef}>
+        <aside className="docs-nav">
           <Link activeOptions={{ exact: true }} className="docs-nav__home" to="/docs">
             Documentation
           </Link>
-          {documentationNavigation.map((section) => (
-            <section key={section.label}>
-              <h2>{section.label}</h2>
-              <nav aria-label={`${section.label} documentation`}>
-                {section.pages.map((page) => (
-                  <Link
-                    activeOptions={{ exact: true }}
-                    activeProps={{ "aria-current": "page", className: "is-active" }}
-                    key={page.href}
-                    to={page.href}
-                  >
-                    {page.label}
-                  </Link>
-                ))}
-              </nav>
-            </section>
-          ))}
-          <a
-            className="docs-nav__source"
-            href="https://github.com/Zhangdroid/drever/tree/main/website/content/docs"
-            rel="noreferrer"
-            target="_blank"
-          >
-            Source on GitHub <ArrowUpRightIcon />
-          </a>
+          <div className="docs-nav__scroll" ref={navigationRef}>
+            {documentationNavigation.map((section) => (
+              <section key={section.label}>
+                <h2>{section.label}</h2>
+                <nav aria-label={`${section.label} documentation`}>
+                  {section.pages.map((page) => (
+                    <Link
+                      activeOptions={{ exact: true }}
+                      activeProps={{ "aria-current": "page", className: "is-active" }}
+                      key={page.href}
+                      to={page.href}
+                    >
+                      {page.label}
+                    </Link>
+                  ))}
+                </nav>
+              </section>
+            ))}
+            <a
+              className="docs-nav__source"
+              href="https://github.com/Zhangdroid/drever/tree/main/website/content/docs"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Source on GitHub <ArrowUpRightIcon />
+            </a>
+          </div>
         </aside>
         <div className="docs-content">
           <Outlet />
