@@ -1,11 +1,11 @@
 import { afterEach, describe, expect, it } from "vite-plus/test";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, realpath, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineRecmaPlugin, defineRehypePlugin } from "@drever/plugin";
 import type { Plugin as UnifiedPlugin } from "unified";
-import { build, type Plugin } from "vite";
+import { build, createServer, type Plugin } from "vite";
 import { createDreverVitePlugins } from "./create-vite-plugins.ts";
 import { createTestPlan } from "./test/plan.ts";
 
@@ -462,8 +462,96 @@ describe("createDreverVitePlugins", () => {
 
     const plugins = result.value as unknown as readonly Plugin[];
     expect(plugins[0]).toMatchObject({ name: "drever:runtime-modules", enforce: "pre" });
-    expect(plugins[1]).toMatchObject({ name: "@mdx-js/rollup", enforce: "pre" });
+    expect(plugins[1]).toMatchObject({
+      name: "@mdx-js/rollup",
+      apply: "build",
+      enforce: "pre",
+    });
+    expect(plugins[2]).toMatchObject({
+      name: "@mdx-js/rollup",
+      apply: "serve",
+      enforce: "pre",
+    });
     expect(plugins.some(({ name }) => name === "vite:react-babel")).toBe(true);
+  });
+
+  it("emits exact static-element source markers only in the dev transform", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "drever-vite-dev-selection-"));
+    temporaryDirectories.push(directory);
+    const entryPath = join(directory, "entry.js");
+    const deckPath = join(directory, "deck.mdx");
+    await writeFile(entryPath, 'export { default } from "./deck.mdx";\n');
+    await writeFile(
+      deckPath,
+      "# Hello\n\nParagraph.\n\n<div>Native</div>\n\n<Card>Opaque</Card>\n",
+    );
+
+    const adapter = await createDreverVitePlugins(createTestPlan());
+    expect(adapter.ok).toBe(true);
+    if (!adapter.ok) {
+      return;
+    }
+
+    const server = await createServer({
+      appType: "custom",
+      configFile: false,
+      logLevel: "silent",
+      plugins: [...adapter.value],
+      resolve: {
+        alias: [
+          {
+            find: "@drever/schema",
+            replacement: fileURLToPath(new URL("../../schema/src/index.ts", import.meta.url)),
+          },
+          {
+            find: "@drever/core",
+            replacement: fileURLToPath(new URL("../../core/src/index.ts", import.meta.url)),
+          },
+          {
+            find: "react/jsx-dev-runtime",
+            replacement: fileURLToPath(
+              new URL("../../core/node_modules/react/jsx-dev-runtime.js", import.meta.url),
+            ),
+          },
+          {
+            find: "react/jsx-runtime",
+            replacement: fileURLToPath(
+              new URL("../../core/node_modules/react/jsx-runtime.js", import.meta.url),
+            ),
+          },
+          {
+            find: "react",
+            replacement: fileURLToPath(
+              new URL("../../core/node_modules/react/index.js", import.meta.url),
+            ),
+          },
+        ],
+      },
+      root: await realpath(directory),
+      server: { hmr: false, middlewareMode: true, watch: null },
+    });
+    let devCode: string;
+    try {
+      const transformed = await server.transformRequest(`/@fs${await realpath(deckPath)}`);
+      if (transformed === null) {
+        throw new TypeError("Expected the dev server to transform the MDX deck.");
+      }
+      devCode = transformed.code;
+      await server.environments.client.waitForRequestsIdle();
+    } finally {
+      await server.close();
+    }
+
+    expect(devCode).toContain('"data-drever-dev-source-range": "1:1:0:1:8:7"');
+    expect(devCode).toContain('"data-drever-dev-source-range": "3:1:9:3:11:19"');
+    expect(devCode).toContain('"data-drever-dev-source-range": "5:1:21:5:18:38"');
+    expect(devCode).toContain(
+      `"data-drever-dev-source-path": ${JSON.stringify(await realpath(deckPath))}`,
+    );
+    expect(devCode.match(/data-drever-dev-source-range/gu)).toHaveLength(3);
+
+    const buildOutput = await buildCode(directory, entryPath, adapter.value as readonly Plugin[]);
+    expect(buildOutput).not.toContain("data-drever-dev-source");
   });
 
   it("builds MDX against the generated Drever component provider", async () => {

@@ -180,19 +180,141 @@ if (import.meta.hot) {
     const surface = routePath === "speaker" || routePath.startsWith("speaker/")
       ? "speaker"
       : "audience";
+    const selectedAttribute = "data-drever-dev-selected";
+    let selectedElement;
+    const selectionStyle = document.createElement("style");
+    selectionStyle.textContent = \`
+      [\${selectedAttribute}] {
+        outline: 2px solid color-mix(in oklab, Highlight 72%, transparent);
+        outline-offset: 3px;
+      }
+    \`;
+    document.head.append(selectionStyle);
+    const readSourceRange = (element) => {
+      const encoded = element.getAttribute("data-drever-dev-source-range");
+      const path = element.getAttribute("data-drever-dev-source-path");
+      if (encoded === null || path === null || path.length === 0) return;
+      const coordinates = encoded.split(":").map(Number);
+      if (
+        coordinates.length !== 6 ||
+        !coordinates.every(Number.isSafeInteger) ||
+        coordinates[0] < 1 ||
+        coordinates[1] < 1 ||
+        coordinates[2] < 0 ||
+        coordinates[3] < 1 ||
+        coordinates[4] < 1 ||
+        coordinates[5] < coordinates[2] ||
+        coordinates[3] < coordinates[0] ||
+        (coordinates[3] === coordinates[0] && coordinates[4] < coordinates[1])
+      ) {
+        return;
+      }
+      return {
+        path,
+        start: { line: coordinates[0], column: coordinates[1], offset: coordinates[2] },
+        end: { line: coordinates[3], column: coordinates[4], offset: coordinates[5] },
+      };
+    };
+    const readElementSelection = (element) => {
+      const sourceRange = readSourceRange(element);
+      const tag = element.getAttribute("data-drever-dev-source-tag");
+      if (sourceRange === undefined || tag === null || tag.length === 0) return;
+      const text = (
+        element.getAttribute("alt") ??
+        element.getAttribute("aria-label") ??
+        element.textContent ??
+        ""
+      ).replace(/\\s+/gu, " ").trim();
+      return { sourceRange, tag, text };
+    };
+    const updateSelectedElement = (element) => {
+      selectedElement?.removeAttribute(selectedAttribute);
+      selectedElement = element;
+      selectedElement?.setAttribute(selectedAttribute, "");
+    };
+    const currentSelection = (position) => {
+      if (selectedElement === undefined) return;
+      const slide = selectedElement.closest("[data-drever-slide]");
+      if (
+        !selectedElement.isConnected ||
+        slide?.getAttribute("data-slide-index") !== String(position.slideIndex)
+      ) {
+        updateSelectedElement(undefined);
+        return;
+      }
+      const selection = readElementSelection(selectedElement);
+      if (selection === undefined) {
+        updateSelectedElement(undefined);
+      }
+      return selection;
+    };
     const publishCurrentPosition = () => {
       const url = new URL(document.URL);
+      const position = presentation.getPosition();
+      const selection = currentSelection(position);
       import.meta.hot.send("drever:current-position", {
-        position: presentation.getPosition(),
+        position,
         route: url.pathname + url.search + url.hash,
+        ...(selection === undefined ? {} : { selection }),
         surface,
       });
     };
+    const selectElement = (event) => {
+      if (!event.altKey) return;
+      const target = event.target instanceof Element ? event.target : undefined;
+      const element = target?.closest("[data-drever-dev-source-range]");
+      const slide = element?.closest("[data-drever-slide]");
+      const position = presentation.getPosition();
+      const selection =
+        element !== undefined &&
+        element !== null &&
+        container.contains(element) &&
+        slide?.getAttribute("data-slide-index") === String(position.slideIndex) &&
+        readElementSelection(element) !== undefined
+          ? element
+          : undefined;
+      if (selection === undefined) return;
+      event.preventDefault();
+      event.stopPropagation();
+      updateSelectedElement(selection);
+      publishCurrentPosition();
+    };
+    const clearSelection = (event) => {
+      if (event.key !== "Escape" || selectedElement === undefined) return;
+      updateSelectedElement(undefined);
+      publishCurrentPosition();
+    };
+    const selectionObserver = new MutationObserver((mutations) => {
+      if (
+        selectedElement !== undefined &&
+        mutations.some(
+          (mutation) =>
+            (mutation.type !== "attributes" || mutation.attributeName !== selectedAttribute) &&
+            (!selectedElement.isConnected ||
+              mutation.target === selectedElement ||
+              selectedElement.contains(mutation.target)),
+        )
+      ) {
+        publishCurrentPosition();
+      }
+    });
     const stopPositionSubscription = presentation.subscribe(publishCurrentPosition);
     globalThis.navigation.addEventListener("currententrychange", publishCurrentPosition);
+    globalThis.addEventListener("click", selectElement, true);
+    globalThis.addEventListener("keydown", clearSelection, true);
+    selectionObserver.observe(container, {
+      attributes: true,
+      characterData: true,
+      childList: true,
+      subtree: true,
+    });
     stopPublishingCurrentPosition = () => {
       stopPositionSubscription();
       globalThis.navigation.removeEventListener("currententrychange", publishCurrentPosition);
+      globalThis.removeEventListener("click", selectElement, true);
+      globalThis.removeEventListener("keydown", clearSelection, true);
+      selectionObserver.disconnect();
+      selectionStyle.remove();
     };
     publishCurrentPosition();
   }

@@ -1,11 +1,15 @@
 import {
   DREVER_CURRENT_POSITION_VERSION,
   type DreverCurrentPosition,
+  type DreverCurrentSelection,
   type DreverCurrentSurface,
+  type SourcePoint,
+  type SourceRange,
 } from "@drever/schema";
 import { randomUUID } from "node:crypto";
+import { realpathSync } from "node:fs";
 import { mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { dirname, extname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { performance } from "node:perf_hooks";
 import { normalizePath, type Plugin, type ViteDevServer, type WebSocketClient } from "vite";
 import { DreverCliError } from "./errors.ts";
@@ -15,6 +19,7 @@ export const CURRENT_POSITION_EVENT = "drever:current-position";
 type PublishedCurrentPosition = Readonly<{
   position: DreverCurrentPosition["position"];
   route: string;
+  selection?: DreverCurrentSelection;
   surface: DreverCurrentSurface;
 }>;
 
@@ -35,11 +40,64 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 const isNonNegativeInteger = (value: unknown): value is number =>
   typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
 
+const isPositiveInteger = (value: unknown): value is number =>
+  typeof value === "number" && Number.isSafeInteger(value) && value > 0;
+
 const isNonNegativeNumber = (value: unknown): value is number =>
   typeof value === "number" && Number.isFinite(value) && value >= 0;
 
 const isSurface = (value: unknown): value is DreverCurrentSurface =>
   value === "audience" || value === "speaker";
+
+const decodeSourcePoint = (value: unknown): SourcePoint | undefined => {
+  if (
+    !isRecord(value) ||
+    !isPositiveInteger(value.line) ||
+    !isPositiveInteger(value.column) ||
+    !isNonNegativeInteger(value.offset)
+  ) {
+    return;
+  }
+  return Object.freeze({
+    line: value.line,
+    column: value.column,
+    offset: value.offset,
+  });
+};
+
+const decodeSourceRange = (value: unknown): SourceRange | undefined => {
+  if (!isRecord(value) || typeof value.path !== "string" || value.path.length === 0) return;
+  const start = decodeSourcePoint(value.start);
+  const end = decodeSourcePoint(value.end);
+  if (
+    start === undefined ||
+    end === undefined ||
+    end.offset < start.offset ||
+    end.line < start.line ||
+    (end.line === start.line && end.column < start.column)
+  ) {
+    return;
+  }
+  return Object.freeze({ path: value.path, start, end });
+};
+
+const decodeSelection = (value: unknown): DreverCurrentSelection | undefined => {
+  if (
+    !isRecord(value) ||
+    typeof value.tag !== "string" ||
+    value.tag.length === 0 ||
+    typeof value.text !== "string"
+  ) {
+    return;
+  }
+  const sourceRange = decodeSourceRange(value.sourceRange);
+  if (sourceRange === undefined) return;
+  return Object.freeze({
+    sourceRange,
+    tag: value.tag,
+    text: value.text,
+  });
+};
 
 const decodePublishedPosition = (value: unknown): PublishedCurrentPosition | undefined => {
   if (!isRecord(value) || !isRecord(value.position)) return;
@@ -55,6 +113,8 @@ const decodePublishedPosition = (value: unknown): PublishedCurrentPosition | und
   ) {
     return;
   }
+  const selection = value.selection === undefined ? undefined : decodeSelection(value.selection);
+  if (value.selection !== undefined && selection === undefined) return;
   return Object.freeze({
     position: Object.freeze({
       slideId: position.slideId,
@@ -62,6 +122,7 @@ const decodePublishedPosition = (value: unknown): PublishedCurrentPosition | und
       step: position.step,
     }),
     route: value.route,
+    ...(selection === undefined ? {} : { selection }),
     surface: value.surface,
   });
 };
@@ -80,6 +141,57 @@ const decodeCurrentPosition = (value: unknown): DreverCurrentPosition | undefine
     version: DREVER_CURRENT_POSITION_VERSION,
     sourcePath: value.sourcePath,
     ...published,
+  });
+};
+
+const selectionInProject = (
+  selection: DreverCurrentSelection,
+  root: string,
+  realRoot = realpathSync(resolve(root)),
+): DreverCurrentSelection | undefined => {
+  const projectRoot = resolve(root);
+  const path = resolve(projectRoot, selection.sourceRange.path);
+  let realPath: string;
+  try {
+    realPath = realpathSync(path);
+  } catch {
+    return;
+  }
+  const projectPath = relative(realRoot, realPath);
+  const extension = extname(realPath).toLowerCase();
+  if (
+    projectPath === ".." ||
+    projectPath.startsWith(`..${sep}`) ||
+    isAbsolute(projectPath) ||
+    (extension !== ".md" && extension !== ".mdx")
+  ) {
+    return;
+  }
+  return Object.freeze({
+    ...selection,
+    sourceRange: Object.freeze({
+      ...selection.sourceRange,
+      path: realPath,
+    }),
+  });
+};
+
+const currentPositionInProject = (
+  current: DreverCurrentPosition,
+  root: string,
+  realRoot: string,
+): DreverCurrentPosition => {
+  const selection =
+    current.selection === undefined
+      ? undefined
+      : selectionInProject(current.selection, root, realRoot);
+  return Object.freeze({
+    version: current.version,
+    sourcePath: current.sourcePath,
+    surface: current.surface,
+    route: current.route,
+    position: current.position,
+    ...(selection === undefined ? {} : { selection }),
   });
 };
 
@@ -107,6 +219,7 @@ export const readCurrentPosition = async (root: string): Promise<DreverCurrentPo
   const directory = currentPositionDirectory(root);
   let candidates: readonly (StoredCurrentPosition | undefined)[];
   try {
+    const realRoot = realpathSync(resolve(root));
     const entries = await readdir(directory, { withFileTypes: true });
     candidates = await Promise.all(
       entries
@@ -114,7 +227,13 @@ export const readCurrentPosition = async (root: string): Promise<DreverCurrentPo
         .map(async (entry): Promise<StoredCurrentPosition | undefined> => {
           try {
             const value: unknown = JSON.parse(await readFile(join(directory, entry.name), "utf8"));
-            return decodeStoredPosition(value);
+            const stored = decodeStoredPosition(value);
+            return stored === undefined
+              ? undefined
+              : {
+                  current: currentPositionInProject(stored.current, root, realRoot),
+                  updatedAt: stored.updatedAt,
+                };
           } catch (cause) {
             if ((cause as NodeJS.ErrnoException).code === "ENOENT") return;
             throw cause;
@@ -181,6 +300,7 @@ export const createCurrentPositionPlugin = ({
   root,
   sourcePath,
 }: CurrentPositionPluginOptions): Plugin => {
+  const realRoot = realpathSync(resolve(root));
   const path = join(currentPositionDirectory(root), `${randomUUID()}.json`);
   const watchPattern = `${normalizePath(currentPositionDirectory(root))}/**`;
   const clients = new Map<WebSocketClient, ActiveClientPosition>();
@@ -219,10 +339,17 @@ export const createCurrentPositionPlugin = ({
         if (closing) return;
         const published = decodePublishedPosition(value);
         if (published === undefined) return;
+        const selection =
+          published.selection === undefined
+            ? undefined
+            : selectionInProject(published.selection, root, realRoot);
         const current: DreverCurrentPosition = Object.freeze({
           version: DREVER_CURRENT_POSITION_VERSION,
           sourcePath,
-          ...published,
+          position: published.position,
+          route: published.route,
+          ...(selection === undefined ? {} : { selection }),
+          surface: published.surface,
         });
         if (!clients.has(client)) {
           client.socket.once("close", () => closeClient(client));

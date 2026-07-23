@@ -92,6 +92,8 @@ describe("drever build", () => {
     expect(bundle).not.toContain("react-refresh");
     expect(bundle).not.toContain("dreverDeckManifestState");
     expect(bundle).not.toContain("ManifestSignature");
+    expect(bundle).not.toContain("data-drever-dev-source");
+    expect(bundle).not.toContain("drever:current-position");
     expect(output).toBe(`Built ${join(root, "talk.mdx")} to ${outDir}\n`);
   }, 30_000);
 });

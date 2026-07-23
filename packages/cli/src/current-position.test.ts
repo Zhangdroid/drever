@@ -1,4 +1,13 @@
-import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
+import {
+  mkdir,
+  mkdtemp,
+  readFile,
+  readdir,
+  realpath,
+  rm,
+  symlink,
+  writeFile,
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
@@ -8,6 +17,7 @@ import {
   createCurrentPositionPlugin,
   currentPositionDirectory,
   formatCurrentPositionHuman,
+  formatCurrentPositionJson,
   readCurrentPosition,
 } from "./current-position.ts";
 
@@ -80,7 +90,18 @@ describe("live current position", () => {
 
   it("tracks the latest open client and removes session state on shutdown", async () => {
     const root = await mkdtemp(join(tmpdir(), "drever-current-position-test-"));
-    directories.push(root);
+    const outsideRoot = await mkdtemp(join(tmpdir(), "drever-current-position-outside-"));
+    directories.push(root, outsideRoot);
+    const detailPath = join(root, "fragments", "detail.mdx");
+    const outsidePath = join(outsideRoot, "outside.mdx");
+    const linkedPath = join(root, "linked.mdx");
+    await mkdir(join(root, "fragments"), { recursive: true });
+    await Promise.all([
+      writeFile(detailPath, "Current claim.\n"),
+      writeFile(outsidePath, "Outside project.\n"),
+    ]);
+    await symlink(outsidePath, linkedPath);
+    const realDetailPath = await realpath(detailPath);
     const session = await startSession(root);
 
     let closeFirst: (() => void) | undefined;
@@ -97,6 +118,15 @@ describe("live current position", () => {
       {
         position: { slideId: "slide-2", slideIndex: 1, step: 3 },
         route: "/2/3?review=true",
+        selection: {
+          sourceRange: {
+            path: detailPath,
+            start: { line: 8, column: 3, offset: 72 },
+            end: { line: 8, column: 17, offset: 86 },
+          },
+          tag: "strong",
+          text: "Current claim",
+        },
         surface: "audience",
       },
       firstClient,
@@ -106,17 +136,108 @@ describe("live current position", () => {
       await expect(readCurrentPosition(root)).resolves.toMatchObject({
         position: { slideId: "slide-2", slideIndex: 1, step: 3 },
         route: "/2/3?review=true",
+        selection: {
+          sourceRange: {
+            path: realDetailPath,
+            start: { line: 8, column: 3, offset: 72 },
+            end: { line: 8, column: 17, offset: 86 },
+          },
+          tag: "strong",
+          text: "Current claim",
+        },
         sourcePath: join(root, "slides.mdx"),
         surface: "audience",
-        version: 1,
+        version: 2,
       });
     });
+    session.publish(
+      {
+        position: { slideId: "slide-2", slideIndex: 1, step: 3 },
+        route: "/invalid-selection",
+        selection: {
+          sourceRange: {
+            path: "/forged/path.mdx",
+            start: { line: 8, column: 3, offset: 86 },
+            end: { line: 8, column: 17, offset: 72 },
+          },
+          tag: "strong",
+          text: "Backwards range",
+        },
+        surface: "audience",
+      },
+      firstClient,
+    );
+    await expect(readCurrentPosition(root)).resolves.toMatchObject({
+      route: "/2/3?review=true",
+      selection: { text: "Current claim" },
+    });
+
+    session.publish(
+      {
+        position: { slideId: "slide-2", slideIndex: 1, step: 3 },
+        route: "/outside-selection",
+        selection: {
+          sourceRange: {
+            path: outsidePath,
+            start: { line: 8, column: 3, offset: 72 },
+            end: { line: 8, column: 17, offset: 86 },
+          },
+          tag: "strong",
+          text: "Outside project",
+        },
+        surface: "audience",
+      },
+      firstClient,
+    );
+    await vi.waitFor(async () => {
+      const current = await readCurrentPosition(root);
+      expect(current.route).toBe("/outside-selection");
+      expect(current.selection).toBeUndefined();
+    });
+
+    session.publish(
+      {
+        position: { slideId: "slide-2", slideIndex: 1, step: 3 },
+        route: "/symlink-selection",
+        selection: {
+          sourceRange: {
+            path: linkedPath,
+            start: { line: 1, column: 1, offset: 0 },
+            end: { line: 1, column: 17, offset: 16 },
+          },
+          tag: "p",
+          text: "Symlink escape",
+        },
+        surface: "audience",
+      },
+      firstClient,
+    );
+    await vi.waitFor(async () => {
+      const current = await readCurrentPosition(root);
+      expect(current.route).toBe("/symlink-selection");
+      expect(current.selection).toBeUndefined();
+    });
+
+    session.publish(
+      {
+        position: { slideId: "slide-2", slideIndex: 1, step: 3 },
+        route: "/2/3?review=true",
+        surface: "audience",
+      },
+      firstClient,
+    );
+    await vi.waitFor(async () => {
+      const current = await readCurrentPosition(root);
+      expect(current.route).toBe("/2/3?review=true");
+      expect(current.selection).toBeUndefined();
+    });
+
     const directory = currentPositionDirectory(root);
     const [sessionFile] = await readdir(directory);
     if (sessionFile === undefined) {
       throw new TypeError("The current-position session file was not created.");
     }
-    expect(await readFile(join(directory, sessionFile), "utf8")).toMatch(/^\{\n  "version": 1,/u);
+    expect(await readFile(join(directory, sessionFile), "utf8")).toMatch(/^\{\n  "version": 2,/u);
     expect(session.logger.error).not.toHaveBeenCalled();
 
     let closeSecond: (() => void) | undefined;
@@ -254,6 +375,44 @@ describe("live current position", () => {
     });
   });
 
+  it("revalidates a cached selection against the real project boundary", async () => {
+    const root = await mkdtemp(join(tmpdir(), "drever-current-position-test-"));
+    const outsideRoot = await mkdtemp(join(tmpdir(), "drever-current-position-outside-"));
+    directories.push(root, outsideRoot);
+    const outsidePath = join(outsideRoot, "outside.mdx");
+    const linkedPath = join(root, "linked.mdx");
+    await writeFile(outsidePath, "Outside project.\n");
+    await symlink(outsidePath, linkedPath);
+    const directory = currentPositionDirectory(root);
+    await mkdir(directory, { recursive: true });
+    await writeFile(
+      join(directory, "forged.json"),
+      JSON.stringify({
+        version: 2,
+        sourcePath: join(root, "slides.mdx"),
+        surface: "audience",
+        route: "/2",
+        position: { slideId: "slide-2", slideIndex: 1, step: 0 },
+        selection: {
+          sourceRange: {
+            path: linkedPath,
+            start: { line: 1, column: 1, offset: 0 },
+            end: { line: 1, column: 17, offset: 16 },
+          },
+          tag: "p",
+          text: "Forged cached selection",
+        },
+        updatedAt: Date.now(),
+      }),
+    );
+
+    await expect(readCurrentPosition(root)).resolves.toMatchObject({
+      route: "/2",
+      sourcePath: join(root, "slides.mdx"),
+    });
+    expect((await readCurrentPosition(root)).selection).toBeUndefined();
+  });
+
   it("formats a compact human position without hiding the exact route", () => {
     expect(
       formatCurrentPositionHuman({
@@ -261,8 +420,29 @@ describe("live current position", () => {
         route: "/4/2",
         sourcePath: "/project/slides.mdx",
         surface: "speaker",
-        version: 1,
+        version: 2,
       }),
     ).toBe("Current Drever position: slide 4, Step 2 (speaker) at /4/2.\n");
+  });
+
+  it("formats the optional selected element in exact current-position v2 JSON", () => {
+    const current = {
+      position: { slideId: "slide-4", slideIndex: 3, step: 2 },
+      route: "/4/2",
+      selection: {
+        sourceRange: {
+          path: "/project/slides.mdx",
+          start: { line: 18, column: 3, offset: 220 },
+          end: { line: 18, column: 19, offset: 236 },
+        },
+        tag: "p",
+        text: "Selected premise",
+      },
+      sourcePath: "/project/slides.mdx",
+      surface: "audience",
+      version: 2,
+    } as const;
+
+    expect(JSON.parse(formatCurrentPositionJson(current))).toEqual(current);
   });
 });

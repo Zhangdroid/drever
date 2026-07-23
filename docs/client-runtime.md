@@ -176,6 +176,15 @@ committed position through Vite's development channel. The CLI validates and
 atomically stores the latest event for `drever current --json`; the mechanism is
 absent from production builds and does not add code to the deployed viewer.
 
+Option-click on macOS or Alt-click on another platform selects a statically
+authored MDX element for focused review. Drever prevents that modified click
+from activating the element, draws a subtle development-only outline, and adds
+the element's source range, tag, and rendered text to the current-position
+snapshot. Press Escape to clear it. Ordinary clicks retain their normal
+behavior and do not change the selection. A development-only DOM observer
+refreshes the snapshot after React commits an edit; custom component roots are
+excluded when their rendered element cannot be inferred statically.
+
 ## URL and navigation contract
 
 The browser URL is the source of truth. Navigation API history-entry state is a

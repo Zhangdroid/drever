@@ -3,6 +3,7 @@ import {
   recmaDreverDeckManifest,
   recmaDreverDeckSeal,
   rehypeDreverDeckManifest,
+  remarkDreverDevSelection,
   remarkDreverDeckManifest,
   remarkDreverSlideGrammar,
 } from "@drever/compiler/internal";
@@ -89,40 +90,49 @@ export const createDreverVitePlugins = async (
     return loaded;
   }
 
-  const mdxPlugin = mdx({
-    providerImportSource: DREVER_MDX_COMPONENTS_MODULE_ID,
-    jsxImportSource: "react",
-    remarkPlugins: [
-      remarkDreverSlideGrammar,
-      ...loaded.value.remark,
-      remarkDreverDeckManifest,
-      ...(options.onDeckManifest === undefined
-        ? []
-        : [captureDeckManifest(options.onDeckManifest)]),
-    ],
-    rehypePlugins: [...loaded.value.rehype, rehypeDreverDeckManifest],
-    recmaPlugins: [recmaDreverDeckSeal, ...loaded.value.recma, recmaDreverDeckManifest],
-    ...(options.include === undefined ? {} : { include: options.include }),
-    ...(options.exclude === undefined ? {} : { exclude: options.exclude }),
-  }) as unknown as Plugin;
-  const descriptors = Object.getOwnPropertyDescriptors(mdxPlugin);
-  descriptors.enforce = {
-    configurable: true,
-    enumerable: true,
-    value: "pre",
-    writable: true,
+  const createCanonicalMdxPlugin = (apply: "build" | "serve", devSelection: boolean): Plugin => {
+    const mdxPlugin = mdx({
+      providerImportSource: DREVER_MDX_COMPONENTS_MODULE_ID,
+      jsxImportSource: "react",
+      remarkPlugins: [
+        remarkDreverSlideGrammar,
+        ...loaded.value.remark,
+        ...(devSelection ? [remarkDreverDevSelection] : []),
+        remarkDreverDeckManifest,
+        ...(options.onDeckManifest === undefined
+          ? []
+          : [captureDeckManifest(options.onDeckManifest)]),
+      ],
+      rehypePlugins: [...loaded.value.rehype, rehypeDreverDeckManifest],
+      recmaPlugins: [recmaDreverDeckSeal, ...loaded.value.recma, recmaDreverDeckManifest],
+      ...(options.include === undefined ? {} : { include: options.include }),
+      ...(options.exclude === undefined ? {} : { exclude: options.exclude }),
+    }) as unknown as Plugin;
+    const descriptors = Object.getOwnPropertyDescriptors(mdxPlugin);
+    descriptors.apply = {
+      configurable: true,
+      enumerable: true,
+      value: apply,
+      writable: true,
+    };
+    descriptors.enforce = {
+      configurable: true,
+      enumerable: true,
+      value: "pre",
+      writable: true,
+    };
+    return Object.create(Object.getPrototypeOf(mdxPlugin) as object | null, descriptors) as Plugin;
   };
-  const canonicalMdxPlugin = Object.create(
-    Object.getPrototypeOf(mdxPlugin) as object | null,
-    descriptors,
-  ) as Plugin;
+  const buildMdxPlugin = createCanonicalMdxPlugin("build", false);
+  const devMdxPlugin = createCanonicalMdxPlugin("serve", true);
   const reactPlugins = react({ include: /\.(?:md|mdx|[jt]sx?)$/u });
 
   return {
     ok: true,
     value: Object.freeze([
       createRuntimeModulePlugin(plan),
-      canonicalMdxPlugin,
+      buildMdxPlugin,
+      devMdxPlugin,
       ...loaded.value.vite,
       ...reactPlugins,
     ]),

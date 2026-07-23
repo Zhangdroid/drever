@@ -298,7 +298,7 @@ describe("runCli current", () => {
     directories.push(root);
     await writeFile(join(root, "drever.config.ts"), "export default { invalid: true };\n");
     const stdout = { write: vi.fn(() => true) };
-    const writeCurrentPosition = vi.fn(async () => ({ version: 1 as const }));
+    const writeCurrentPosition = vi.fn(async () => ({ version: 2 as const }));
 
     await runCli(["current", "--json"], { cwd: root, stdout, writeCurrentPosition });
 

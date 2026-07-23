@@ -104,7 +104,7 @@ export const MCP_TOOLS: readonly McpToolDefinition[] = Object.freeze([
     name: "drever_get_current",
     title: "Get current Drever position",
     description:
-      "Return the most recently updated open audience or speaker route from drever dev, or available=false when none is connected.",
+      "Return the most recently updated open audience or speaker route and optional dev-selected static MDX element from drever dev, or available=false when none is connected.",
     inputSchema: EMPTY_INPUT,
     annotations: READ_ONLY_ANNOTATIONS,
   },

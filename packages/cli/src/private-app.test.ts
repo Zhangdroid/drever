@@ -28,16 +28,122 @@ describe("generated private application", () => {
       let publish: (() => void) | undefined;
       let dispose: (() => void) | undefined;
       let routeChanged: (() => void) | undefined;
+      let selectElement:
+        | ((event: {
+            altKey: boolean;
+            preventDefault(): void;
+            stopPropagation(): void;
+            target: unknown;
+          }) => void)
+        | undefined;
+      let clearSelection: ((event: { key: string }) => void) | undefined;
+      let publishAfterMutation:
+        | ((
+            mutations: readonly {
+              attributeName?: string;
+              target: unknown;
+              type: string;
+            }[],
+          ) => void)
+        | undefined;
+      const selectionStyle = { remove: vi.fn(), textContent: "" };
       const documentState = {
         URL: "http://127.0.0.1:4317/speaker/2/3?theme=dark#notes",
+        createElement(tag: string) {
+          expect(tag).toBe("style");
+          return selectionStyle;
+        },
+        head: { append: vi.fn() },
       };
       const unsubscribe = vi.fn();
       const destroy = vi.fn(() => Promise.resolve());
       const removeEventListener = vi.fn();
+      const removeGlobalEventListener = vi.fn();
+      const disconnectSelectionObserver = vi.fn();
+      const observeSelection = vi.fn();
       const send = vi.fn();
 
+      class TestElement {
+        isConnected = true;
+        textContent: string | null;
+        readonly attributes: Map<string, string>;
+        readonly parent: TestElement | undefined;
+
+        constructor(
+          attributes: Readonly<Record<string, string>> = {},
+          parent?: TestElement,
+          textContent: string | null = null,
+        ) {
+          this.attributes = new Map(Object.entries(attributes));
+          this.parent = parent;
+          this.textContent = textContent;
+        }
+
+        closest(selector: string): TestElement | null {
+          const attribute = selector.slice(1, -1);
+          return this.attributes.has(attribute) ? this : (this.parent?.closest(selector) ?? null);
+        }
+
+        contains(element: unknown): boolean {
+          let candidate = element instanceof TestElement ? element : undefined;
+          while (candidate !== undefined) {
+            if (candidate === this) return true;
+            candidate = candidate.parent;
+          }
+          return false;
+        }
+
+        getAttribute(name: string): string | null {
+          return this.attributes.get(name) ?? null;
+        }
+
+        removeAttribute(name: string): void {
+          this.attributes.delete(name);
+        }
+
+        setAttribute(name: string, value: string): void {
+          this.attributes.set(name, value);
+        }
+      }
+
+      class TestMutationObserver {
+        constructor(callback: NonNullable<typeof publishAfterMutation>) {
+          publishAfterMutation = callback;
+        }
+
+        disconnect = disconnectSelectionObserver;
+        observe = observeSelection;
+      }
+
+      const container = new TestElement();
+      const slide = new TestElement(
+        { "data-drever-slide": "", "data-slide-index": "1" },
+        container,
+      );
+      const heading = new TestElement(
+        {
+          "data-drever-dev-source-path": "/project/slides.mdx",
+          "data-drever-dev-source-range": "5:1:40:5:18:57",
+          "data-drever-dev-source-tag": "h2",
+        },
+        slide,
+        "  Exact   selection  ",
+      );
+
       runInNewContext(hotProgram, {
+        addEventListener(event: string, callback: unknown, capture: boolean) {
+          expect(capture).toBe(true);
+          if (event === "click") {
+            selectElement = callback as NonNullable<typeof selectElement>;
+          } else {
+            expect(event).toBe("keydown");
+            clearSelection = callback as NonNullable<typeof clearSelection>;
+          }
+        },
+        Element: TestElement,
+        MutationObserver: TestMutationObserver,
         URL,
+        container,
         document: documentState,
         hot: {
           dispose(callback: () => void) {
@@ -61,6 +167,7 @@ describe("generated private application", () => {
           },
         },
         reportPresentationError: vi.fn(),
+        removeEventListener: removeGlobalEventListener,
         routePath: "speaker/2/3",
       });
 
@@ -73,6 +180,94 @@ describe("generated private application", () => {
           surface: "speaker",
         },
       ]);
+      expect(documentState.head.append).toHaveBeenCalledWith(selectionStyle);
+      expect(selectionStyle.textContent).toContain("[data-drever-dev-selected]");
+      expect(observeSelection).toHaveBeenCalledWith(container, {
+        attributes: true,
+        characterData: true,
+        childList: true,
+        subtree: true,
+      });
+
+      const ordinaryPreventDefault = vi.fn();
+      const ordinaryStopPropagation = vi.fn();
+      selectElement?.({
+        altKey: false,
+        preventDefault: ordinaryPreventDefault,
+        stopPropagation: ordinaryStopPropagation,
+        target: heading,
+      });
+      expect(send).toHaveBeenCalledTimes(1);
+      expect(ordinaryPreventDefault).not.toHaveBeenCalled();
+      expect(ordinaryStopPropagation).not.toHaveBeenCalled();
+      expect(heading.getAttribute("data-drever-dev-selected")).toBeNull();
+
+      const selectionPreventDefault = vi.fn();
+      const selectionStopPropagation = vi.fn();
+      selectElement?.({
+        altKey: true,
+        preventDefault: selectionPreventDefault,
+        stopPropagation: selectionStopPropagation,
+        target: heading,
+      });
+      expect(selectionPreventDefault).toHaveBeenCalledOnce();
+      expect(selectionStopPropagation).toHaveBeenCalledOnce();
+      expect(heading.getAttribute("data-drever-dev-selected")).toBe("");
+      expect(send.mock.calls.at(-1)?.[1]).toMatchObject({
+        position: { slideId: "slide-2", slideIndex: 1, step: 3 },
+        selection: {
+          sourceRange: {
+            path: "/project/slides.mdx",
+            start: { line: 5, column: 1, offset: 40 },
+            end: { line: 5, column: 18, offset: 57 },
+          },
+          tag: "h2",
+          text: "Exact selection",
+        },
+      });
+
+      const callsBeforeOutlineMutation = send.mock.calls.length;
+      publishAfterMutation?.([
+        {
+          attributeName: "data-drever-dev-selected",
+          target: heading,
+          type: "attributes",
+        },
+      ]);
+      expect(send).toHaveBeenCalledTimes(callsBeforeOutlineMutation);
+
+      clearSelection?.({ key: "Escape" });
+      expect(heading.getAttribute("data-drever-dev-selected")).toBeNull();
+      expect(send.mock.calls.at(-1)?.[1]).not.toHaveProperty("selection");
+
+      selectElement?.({
+        altKey: true,
+        preventDefault: vi.fn(),
+        stopPropagation: vi.fn(),
+        target: heading,
+      });
+      heading.attributes.set("data-drever-dev-source-range", "6:3:62:6:21:80");
+      heading.textContent = "Selection after HMR";
+      publishAfterMutation?.([
+        {
+          attributeName: "data-drever-dev-source-range",
+          target: heading,
+          type: "attributes",
+        },
+      ]);
+      expect(send.mock.calls.at(-1)?.[1]).toMatchObject({
+        selection: {
+          sourceRange: {
+            start: { line: 6, column: 3, offset: 62 },
+            end: { line: 6, column: 21, offset: 80 },
+          },
+          text: "Selection after HMR",
+        },
+      });
+
+      heading.isConnected = false;
+      publishAfterMutation?.([{ target: slide, type: "childList" }]);
+      expect(send.mock.calls.at(-1)?.[1]).not.toHaveProperty("selection");
 
       position = { slideId: "slide-4", slideIndex: 3, step: 0 };
       publish?.();
@@ -93,6 +288,10 @@ describe("generated private application", () => {
       dispose?.();
       expect(unsubscribe).toHaveBeenCalledOnce();
       expect(removeEventListener).toHaveBeenCalledWith("currententrychange", expect.any(Function));
+      expect(removeGlobalEventListener).toHaveBeenCalledWith("click", expect.any(Function), true);
+      expect(removeGlobalEventListener).toHaveBeenCalledWith("keydown", expect.any(Function), true);
+      expect(disconnectSelectionObserver).toHaveBeenCalledOnce();
+      expect(selectionStyle.remove).toHaveBeenCalledOnce();
       expect(destroy).toHaveBeenCalledOnce();
     } finally {
       await app.dispose();
@@ -211,6 +410,7 @@ describe("generated private application", () => {
       expect(source).not.toContain("createViewer");
       expect(source).not.toContain("createSpeaker");
       expect(source).not.toContain('from "virtual:drever/runtime"');
+      expect(source).not.toContain("data-drever-dev-source");
     } finally {
       await app.dispose();
     }

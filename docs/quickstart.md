@@ -101,10 +101,11 @@ project, install or refresh them explicitly:
 drever agent sync --target all
 ```
 
-The command creates managed blocks in `AGENTS.md` and `CLAUDE.md`, plus four
-skills for creation, focused authoring, presentation review, and artifact
-delivery. Codex receives `.agents/skills` and its UI metadata; Claude receives
-`.claude/skills`. `--target auto`, `codex`, or `claude` can narrow that output.
+The command creates managed blocks in `AGENTS.md` and `CLAUDE.md`, plus five
+skills for deck creation, subject-led art direction, focused authoring,
+presentation review, and artifact delivery. Codex receives `.agents/skills`
+and its UI metadata; Claude receives `.claude/skills`. `--target auto`, `codex`,
+or `claude` can narrow that output.
 Sync preserves instructions outside its marked block and never replaces an
 unmarked, user-owned skill file. If any target conflicts, it reports every
 conflict before writing planned files. It can run before the deck or config is
@@ -215,11 +216,15 @@ drever current --json
 ```
 
 The JSON form reports the exact route, surface, source path, slide id,
-zero-based slide index, and sparse Step. It is intended for local AI and editor
-workflows. The underlying `.drever/cache/current/` snapshots are ignored by
-Git and removed when the last interactive window disconnects or `drever dev`
-stops. With multiple windows, the most recently updated open audience or speaker
-surface wins. Document and export surfaces do not publish a live position.
+zero-based slide index, and sparse Step. Option/Alt-click a static MDX element
+to add its exact source range, tag, and rendered text; the development viewer
+outlines it, and Escape clears it. Ordinary clicks keep their normal behavior
+and do not alter that selection. The snapshot is intended for local AI and
+editor workflows. The underlying `.drever/cache/current/` snapshots are
+ignored by Git and removed when the last interactive window disconnects or
+`drever dev` stops. With multiple windows, the most recently updated open
+audience or speaker surface wins. Document and export surfaces do not publish a
+live position.
 
 ## Export a PDF
 

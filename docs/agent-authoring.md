@@ -35,6 +35,9 @@ CLAUDE.md
     drever-create-deck/
       SKILL.md
       agents/openai.yaml
+    drever-create-design/
+      SKILL.md
+      agents/openai.yaml
     drever-author-deck/
       SKILL.md
       agents/openai.yaml
@@ -47,16 +50,20 @@ CLAUDE.md
 .claude/
   skills/
     drever-create-deck/SKILL.md
+    drever-create-design/SKILL.md
     drever-author-deck/SKILL.md
     drever-review-deck/SKILL.md
     drever-deliver-deck/SKILL.md
 ```
 
-The four skills cover starting a deck, making focused source changes, reviewing
-presentation readiness, and delivering verified web or PDF artifacts. They
-instruct an agent to use semantic MDX, preserve exact Step routes, prefer the
-active theme's layouts and components, and verify the affected audience,
-document, speaker, and export states.
+The five skills cover starting a deck, deriving subject-led art direction,
+making focused source changes, reviewing presentation readiness, and delivering
+verified web or PDF artifacts. They instruct an agent to use semantic MDX,
+persist the generated visual system as a deterministic Theme contract, preserve
+exact Step routes, and verify the affected audience, document, speaker, and
+export states. The eight official Theme packages are equal design studies and
+quality references; Default is only the neutral fallback when the brief does
+not justify a stronger direction.
 
 The `SKILL.md` content is canonical across hosts. Codex-specific UI metadata is
 additive and is omitted from Claude's adapter. Teams should commit both adapters
@@ -174,10 +181,13 @@ drever current --json
 
 The versioned JSON contains the resolved `sourcePath`, `surface`, exact `route`,
 and compiler-owned `slideId`, zero-based `slideIndex`, and sparse `step`. Query
-parameters and the fragment remain part of the route. The most recently updated
-open audience or speaker window is authoritative; if it closes, Drever falls
-back to the previous open window. Document and export surfaces never publish a
-cursor.
+parameters and the fragment remain part of the route. Option-click on macOS or
+Alt-click on another platform to attach an exact static MDX element as
+`selection`, including its project-contained source range, tag, and rendered
+text. The development viewer outlines that element; Escape clears it, and
+ordinary clicks do not replace it. The most recently updated open audience or
+speaker window is authoritative; if it closes, Drever falls back to the
+previous open window. Document and export surfaces never publish a cursor.
 
 The snapshot is local, ephemeral development state. Drever clears it when the
 last interactive window disconnects or the development server closes. A missing
@@ -237,7 +247,9 @@ grammar and accessibility semantics are in [Motion choreography](./motion.md).
 For a new project:
 
 1. Run `npm create drever@latest <directory>` or let the global plugin invoke it.
-2. Complete `brief.md`, then create the configured MDX entry and select a theme.
+2. Complete `brief.md`, derive a subject-led visual system, then create the
+   configured MDX entry. Use an official design study only as a reference or
+   documented fallback.
 3. Run `drever context --json` to inspect the exact result and available design
    vocabulary.
 4. Run `drever check --json` and fix proven source defects.
@@ -249,9 +261,10 @@ For a new project:
 For an existing deck, start with `context --json`, read the complete affected
 source and local imports, and preserve unrelated slide boundaries and Step
 stops. When the user refers to “this slide,” use `current --json` to resolve the
-live route first. A route such as `/4/7` is public presentation state, not
-incidental markup. After editing, regenerate the context and repeat the relevant
-checks.
+live route first. When the user refers to one visible element, use its explicit
+Option/Alt-click `selection` when present instead of guessing from the whole
+slide. A route such as `/4/7` is public presentation state, not incidental
+markup. After editing, regenerate the context and repeat the relevant checks.
 
 This foundation is deliberately file- and CLI-based. It makes agent changes
 reviewable in Git and usable across local and hosted coding agents without

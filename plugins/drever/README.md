@@ -1,7 +1,8 @@
 # @drever/agent
 
-The installable Drever agent plugin for Codex and Claude Code. It provides four
-workflows that create, author, review, and deliver AI-first MDX presentations.
+The installable Drever agent plugin for Codex and Claude Code. It provides five
+workflows that create a deck, derive subject-led art direction, author focused
+changes, review presentation readiness, and deliver AI-first MDX presentations.
 
 The global plugin can start from an empty directory with
 `npm create drever@latest`. After creation it delegates to the project-local

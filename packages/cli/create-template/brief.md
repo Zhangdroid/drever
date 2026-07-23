@@ -19,4 +19,6 @@ Add the facts, source material, and ideas that must be included.
 - Duration:
 - Language:
 - Visual voice:
+- Visual references or official sources:
+- Provided or permitted assets:
 - Deliverables: live presentation, website, PDF

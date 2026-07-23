@@ -105,10 +105,12 @@ authoring kit:
 ```text
 AGENTS.md
 .agents/skills/drever-create-deck/
+.agents/skills/drever-create-design/
 .agents/skills/drever-author-deck/
 .agents/skills/drever-review-deck/
 .agents/skills/drever-deliver-deck/
 .claude/skills/drever-create-deck/
+.claude/skills/drever-create-design/
 .claude/skills/drever-author-deck/
 .claude/skills/drever-review-deck/
 .claude/skills/drever-deliver-deck/

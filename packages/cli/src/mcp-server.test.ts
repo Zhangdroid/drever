@@ -66,11 +66,20 @@ const context = {
 } as unknown as DreverAuthoringContext;
 
 const current: DreverCurrentPosition = {
-  version: 1,
+  version: 2,
   sourcePath: project.entry,
   surface: "speaker",
   route: "/speaker/2/5",
   position: { slideId: "slide-2", slideIndex: 1, step: 5 },
+  selection: {
+    sourceRange: {
+      path: project.entry,
+      start: { line: 7, column: 1, offset: 62 },
+      end: { line: 7, column: 18, offset: 79 },
+    },
+    tag: "p",
+    text: "Choose one route.",
+  },
 };
 
 const initialize = {
@@ -194,7 +203,21 @@ describe("read-only MCP server", () => {
     expect(responses[6]).toMatchObject({
       id: 7,
       result: {
-        structuredContent: { available: true, route: "/speaker/2/5", slideNumber: 2 },
+        structuredContent: {
+          available: true,
+          route: "/speaker/2/5",
+          selection: {
+            sourceRange: {
+              path: project.entry,
+              start: { line: 7, column: 1, offset: 62 },
+              end: { line: 7, column: 18, offset: 79 },
+            },
+            tag: "p",
+            text: "Choose one route.",
+          },
+          slideNumber: 2,
+          version: 2,
+        },
       },
     });
     expect(responses[7]).toEqual({ jsonrpc: "2.0", id: 8, result: {} });

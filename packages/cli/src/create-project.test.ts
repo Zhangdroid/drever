@@ -127,8 +127,14 @@ describe("project creation", () => {
       readFile(join(root, ".agents/skills/drever-deliver-deck/SKILL.md"), "utf8"),
     ).resolves.toContain("name: drever-deliver-deck");
     await expect(
+      readFile(join(root, ".agents/skills/drever-create-design/SKILL.md"), "utf8"),
+    ).resolves.toContain("name: drever-create-design");
+    await expect(
       readFile(join(root, ".claude/skills/drever-deliver-deck/SKILL.md"), "utf8"),
     ).resolves.toContain("name: drever-deliver-deck");
+    await expect(
+      readFile(join(root, ".claude/skills/drever-create-design/SKILL.md"), "utf8"),
+    ).resolves.toContain("name: drever-create-design");
   });
 
   it("reports all project-file conflicts before installing agent files", async () => {
