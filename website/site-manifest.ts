@@ -55,3 +55,53 @@ export const demoMounts = [
     source: "basic",
   },
 ] as const;
+
+export const designStudyMounts = [
+  {
+    description:
+      "A research debrief that turns observed hesitation into a precise, annotated recommendation.",
+    id: "fieldnote",
+    label: "Fieldnote design study",
+    output: "dist/fieldnote",
+    slug: "design/fieldnote",
+    source: "theme-showcase",
+  },
+  {
+    description:
+      "A spatial restoration story that connects river evidence, interventions, and progression.",
+    id: "atlas",
+    label: "Atlas design study",
+    output: "dist/atlas",
+    slug: "design/atlas",
+    source: "theme-showcase",
+  },
+  {
+    description:
+      "An accountable product review that traces one metric from evidence to a bounded decision.",
+    id: "ledger",
+    label: "Ledger design study",
+    output: "dist/ledger",
+    slug: "design/ledger",
+    source: "theme-showcase",
+  },
+  {
+    description:
+      "A restrained, media-led service story about restoring the final hour of a city bus route.",
+    id: "cinema",
+    label: "Cinema design study",
+    output: "dist/cinema",
+    slug: "design/cinema",
+    source: "theme-showcase",
+  },
+  {
+    description:
+      "A modular workshop that assembles a reliable handoff from concrete, testable parts.",
+    id: "construct",
+    label: "Construct design study",
+    output: "dist/construct",
+    slug: "design/construct",
+    source: "theme-showcase",
+  },
+] as const;
+
+export const publicPresentationMounts = [...demoMounts, ...designStudyMounts] as const;

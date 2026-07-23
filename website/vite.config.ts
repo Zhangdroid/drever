@@ -3,7 +3,7 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import react from "@vitejs/plugin-react";
 // oxlint-disable-next-line vite-plus/prefer-vite-plus-imports -- TanStack Start uses Vite's config contract.
 import { defineConfig } from "vite";
-import { demoMounts, siteRoutes } from "./site-manifest";
+import { publicPresentationMounts, siteRoutes } from "./site-manifest";
 
 export default defineConfig({
   plugins: [
@@ -11,7 +11,7 @@ export default defineConfig({
     tanstackStart({
       pages: [
         ...siteRoutes.map((path) => ({ path })),
-        ...demoMounts.map(({ slug }) => ({
+        ...publicPresentationMounts.map(({ slug }) => ({
           path: `/demos/${slug}/`,
           prerender: { enabled: false },
         })),

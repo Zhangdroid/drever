@@ -27,6 +27,7 @@ One project produces:
 - Presenting: https://drever.dev/docs/presenting
 - Build and export: https://drever.dev/docs/delivery
 - AI workflows: https://drever.dev/docs/ai
+- Credits: https://drever.dev/docs/credits
 - Design-study gallery: https://drever.dev/themes
 - GitHub: https://github.com/Zhangdroid/drever
 
@@ -52,9 +53,17 @@ npm create drever@latest my-slides -- --open claude
 
 - Product tour: https://drever.dev/demos/product/
 - Feature gallery: https://drever.dev/demos/features/
-- Motion field notes: https://drever.dev/demos/motion/
+- Motion stories: https://drever.dev/demos/motion/
 - Architecture: https://drever.dev/demos/architecture/
 - Minimal reference: https://drever.dev/demos/basic/
+
+## Live design studies
+
+- Fieldnote: https://drever.dev/demos/design/fieldnote/
+- Atlas: https://drever.dev/demos/design/atlas/
+- Ledger: https://drever.dev/demos/design/ledger/
+- Cinema: https://drever.dev/demos/design/cinema/
+- Construct: https://drever.dev/demos/design/construct/
 
 Each demo is a complete static Drever build. Append `/speaker` for Speaker View or `/document` for
 Document View. Audience paths such as `/4/2` select an exact slide and sparse Step.

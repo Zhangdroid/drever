@@ -12,7 +12,7 @@ The site has four primary surfaces:
 - `/` contains the product website.
 - `/docs/*` contains prerendered documentation routes.
 - `/demos/*` hosts real Drever builds selected from `examples/`.
-- `/themes` presents representative theme previews and links to live extended demos.
+- `/themes` presents representative design previews and links to live studies.
 
 TanStack Start owns the website, documentation, demo catalog, and theme catalog
 routes. The root build compiles each curated example in its own project and
@@ -27,6 +27,18 @@ The curated set is:
 - `examples/motion-recipes` at `/demos/motion/`
 - `examples/architecture` at `/demos/architecture/`
 - `examples/basic` at `/demos/basic/`
+
+Five focused decks from `examples/theme-showcase` extend the design catalog:
+
+- Fieldnote at `/demos/design/fieldnote/`
+- Atlas at `/demos/design/atlas/`
+- Ledger at `/demos/design/ledger/`
+- Cinema at `/demos/design/cinema/`
+- Construct at `/demos/design/construct/`
+
+The theme-showcase project builds all five studies once and keeps their output
+isolated under `dist/<study>`. The website mounts those outputs independently
+without adding them to the main demo catalog.
 
 ## Local development
 

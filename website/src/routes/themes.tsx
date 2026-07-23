@@ -14,49 +14,41 @@ const themeDetails = {
   default: {
     layouts: ["Cover", "TwoColumn"],
     liveHref: "/demos/basic/",
-    liveLabel: "Open Default demo",
     statement: "Clear, spacious, ready for almost any story.",
   },
   editorial: {
     layouts: ["Masthead", "Feature"],
     liveHref: "/demos/product/",
-    liveLabel: "Open customized demo",
     statement: "A point of view, set in type.",
   },
   studio: {
     layouts: ["Statement", "Workbench"],
     liveHref: "/demos/features/",
-    liveLabel: "Open customized demo",
     statement: "Let the artifact take the stage.",
   },
   fieldnote: {
     layouts: ["Notebook", "Annotated"],
-    liveHref: undefined,
-    liveLabel: undefined,
+    liveHref: "/demos/design/fieldnote/",
     statement: "Think in ink, explain in plain language.",
   },
   atlas: {
     layouts: ["Route", "Survey"],
-    liveHref: undefined,
-    liveLabel: undefined,
+    liveHref: "/demos/design/atlas/",
     statement: "Show where the story is going.",
   },
   ledger: {
     layouts: ["Metric", "Evidence"],
-    liveHref: undefined,
-    liveLabel: undefined,
+    liveHref: "/demos/design/ledger/",
     statement: "Make the number answerable.",
   },
   cinema: {
     layouts: ["TitleCard", "Frame"],
-    liveHref: undefined,
-    liveLabel: undefined,
+    liveHref: "/demos/design/cinema/",
     statement: "Let one image carry the moment.",
   },
   construct: {
     layouts: ["Prompt", "Assembly"],
-    liveHref: undefined,
-    liveLabel: undefined,
+    liveHref: "/demos/design/construct/",
     statement: "Build the explanation from real parts.",
   },
 } as const;
@@ -112,21 +104,13 @@ function ThemesPage() {
                     </div>
                   </dl>
                   <div className="theme-detail__actions">
-                    {details.liveHref === undefined ? null : (
-                      <a className="button button--primary" href={details.liveHref}>
-                        {details.liveLabel} <ArrowUpRightIcon />
-                      </a>
-                    )}
+                    <a className="button button--primary" href={details.liveHref}>
+                      Open live study <ArrowUpRightIcon />
+                    </a>
                     <Link className="button button--quiet" to="/docs/themes">
                       Art direction guide <ArrowIcon />
                     </Link>
                   </div>
-                  {details.liveHref === undefined || theme.id === "default" ? null : (
-                    <small>
-                      The linked showcase extends the stock theme with project-specific typography
-                      and components.
-                    </small>
-                  )}
                 </div>
               </article>
             );

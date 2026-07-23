@@ -259,43 +259,43 @@ export function PluginGallery() {
 
 const themeDemos = {
   default: {
-    action: "Open demo",
+    action: "Open live study",
     href: "/demos/basic/",
     statement: "Clear, spacious, ready for almost any story.",
   },
   editorial: {
-    action: "Open demo",
+    action: "Open live study",
     href: "/demos/product/",
     statement: "A point of view, set in type.",
   },
   studio: {
-    action: "Open demo",
+    action: "Open live study",
     href: "/demos/features/",
     statement: "Let the artifact take the stage.",
   },
   fieldnote: {
-    action: "View study",
-    href: "/themes#fieldnote",
+    action: "Open live study",
+    href: "/demos/design/fieldnote/",
     statement: "Think in ink, explain in plain language.",
   },
   atlas: {
-    action: "View study",
-    href: "/themes#atlas",
+    action: "Open live study",
+    href: "/demos/design/atlas/",
     statement: "Show where the story is going.",
   },
   ledger: {
-    action: "View study",
-    href: "/themes#ledger",
+    action: "Open live study",
+    href: "/demos/design/ledger/",
     statement: "Make the number answerable.",
   },
   cinema: {
-    action: "View study",
-    href: "/themes#cinema",
+    action: "Open live study",
+    href: "/demos/design/cinema/",
     statement: "Let one image carry the moment.",
   },
   construct: {
-    action: "View study",
-    href: "/themes#construct",
+    action: "Open live study",
+    href: "/demos/design/construct/",
     statement: "Build the explanation from real parts.",
   },
 } as const;
