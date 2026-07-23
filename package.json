@@ -19,7 +19,7 @@
     "test": "vp run build:packages && vp run test:release && vp run -r test",
     "test:e2e": "playwright test",
     "test:e2e:core": "playwright test --project=dev-chromium --project=build-chromium --project=export-chromium --project=check-cli",
-    "test:release": "node --test scripts/release.test.mjs"
+    "test:release": "node --test scripts/release.test.mjs scripts/configure-trusted-publishing.test.mjs"
   },
   "devDependencies": {
     "@playwright/test": "catalog:",

@@ -101,27 +101,29 @@ plan, some environment protection rules.
 4. Run the `Publish` workflow manually on `main`. It publishes a
    `0.0.0-commit.g<sha>` test release under the `commit` dist-tag.
 5. Configure every package to trust `Zhangdroid/drever`, workflow
-   `publish.yml`, environment `npm`, with `npm publish` permission. After
-   logging in to npm, the package list is available with:
-
-   ```sh
-   node scripts/release.mjs packages
-   ```
-
-   Do not reuse the automation token for this step. Sign in interactively with
-   2FA from a neutral directory, because the repository enforces pnpm through
-   `devEngines`, then configure each package with npm 11.16 or newer:
+   `publish.yml`, environment `npm`, with `npm publish` permission. A granular
+   access token, including one with Bypass 2FA, cannot access npm's trust
+   endpoints. Sign in interactively from a neutral directory instead:
 
    ```sh
    cd /tmp
-   npm login
-   npm trust github <package> \
-     --repo Zhangdroid/drever \
-     --file publish.yml \
-     --env npm \
-     --allow-publish \
-     --yes
+   npm login --auth-type=web --registry=https://registry.npmjs.org
    ```
+
+   Then return to the repository and run the idempotent bulk configurator with
+   npm 11.15 or newer:
+
+   ```sh
+   node scripts/configure-trusted-publishing.mjs
+   ```
+
+   The first trust request opens npm's 2FA flow. Select the option to skip
+   additional 2FA checks for five minutes; the script spaces requests by two
+   seconds as npm recommends. It first inspects all 16 packages, skips exact
+   matches, refuses to replace a conflicting policy, creates missing policies,
+   and then reads all policies back from npm. A partial network failure is safe
+   to resume by running the same command again. To perform a read-only audit,
+   pass `--verify-only`.
 
 6. Delete the GitHub `NPM_TOKEN` secret and revoke the token immediately.
 7. Set each package's publishing access to **Require two-factor authentication
