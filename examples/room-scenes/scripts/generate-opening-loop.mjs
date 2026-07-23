@@ -10,7 +10,7 @@ const output = fileURLToPath(new URL("../assets/opening-loop.wav", import.meta.u
 const buffer = Buffer.alloc(44 + sampleCount * bytesPerSample);
 
 const pulse = (time, beat, decay) => {
-  const phase = ((time - beat) % 2 + 2) % 2;
+  const phase = (((time - beat) % 2) + 2) % 2;
   return phase < 0.3 ? Math.exp(-phase * decay) : 0;
 };
 

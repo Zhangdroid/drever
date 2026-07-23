@@ -91,9 +91,11 @@ const build = async () => {
   );
   await Promise.all([
     rm(join(root, "website", "dist"), { force: true, recursive: true }),
-    ...presentationSources.values().map((source) =>
-      rm(join(root, "examples", source, "dist"), { force: true, recursive: true }),
-    ),
+    ...presentationSources
+      .values()
+      .map((source) =>
+        rm(join(root, "examples", source, "dist"), { force: true, recursive: true }),
+      ),
   ]);
 
   await Promise.all([
@@ -131,9 +133,7 @@ const requiredFiles = [
   "prompt.md",
   "sitemap.xml",
   ...siteEntryFiles,
-  ...publicPresentationMounts.map(
-    (presentation) => `demos/${presentation.slug}/index.html`,
-  ),
+  ...publicPresentationMounts.map((presentation) => `demos/${presentation.slug}/index.html`),
   ...publicPresentationMounts.map(
     (presentation) => `demos/${presentation.slug}/document/index.html`,
   ),
@@ -158,9 +158,7 @@ const verifyOutput = async () => {
   }
 
   for (const presentation of publicPresentationMounts) {
-    const assets = await readdir(
-      join(websiteOutput, "demos", presentation.slug, "assets"),
-    );
+    const assets = await readdir(join(websiteOutput, "demos", presentation.slug, "assets"));
     if (assets.length === 0) {
       throw new Error(`Presentation has no built assets: ${presentation.slug}`);
     }
@@ -175,9 +173,7 @@ const verifyOutput = async () => {
     );
     if (
       !rootHtml.includes(`<title>${presentation.label} — Drever</title>`) ||
-      !rootHtml.includes(
-        `rel="canonical" href="https://drever.dev/demos/${presentation.slug}/"`,
-      ) ||
+      !rootHtml.includes(`rel="canonical" href="https://drever.dev/demos/${presentation.slug}/"`) ||
       rootHtml.includes('name="robots" content="noindex')
     ) {
       throw new Error(`Presentation root metadata is incomplete: ${presentation.slug}`);

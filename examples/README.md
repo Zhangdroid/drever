@@ -5,15 +5,15 @@ uses the public `drever` CLI, clean URL state, a speaker view, and a static
 production build. The basic example also serves as the final-state and
 sparse-Step PDF export fixture.
 
-| Example           | Purpose                                                                                      | Development URL         | Command                    |
-| ----------------- | -------------------------------------------------------------------------------------------- | ----------------------- | -------------------------- |
-| `basic`           | Small regression deck for the complete authoring and runtime contract.                       | `http://localhost:4317` | `vp run demo`              |
-| `product-tour`    | Audience-facing story about what Drever enables and why it exists.                           | `http://localhost:4320` | `vp run demo:product`      |
-| `architecture`    | Interactive walkthrough of Deck IR, compilation, extension ownership, routing, and delivery. | `http://localhost:4321` | `vp run demo:architecture` |
-| `motion-recipes`  | Story-led examples of meaningful object lifecycles, local motion, data, and spatial ideas.    | `http://localhost:4322` | `vp run demo:motion`       |
-| `feature-gallery` | Executable gallery of MDX, React, official plugins, Steps, and delivery surfaces.            | `http://localhost:4324` | `vp run demo:features`     |
-| `room-scenes`     | Pre-show audio, provider embeds, countdowns, and a persistent ambient Stage.                  | `http://localhost:4325` | `vp run demo:scenes`       |
-| `theme-showcase`  | Five new design studies complementing the three systems exercised by established demos.      | `http://localhost:4326` | See its local README       |
+| Example            | Purpose                                                                                      | Development URL         | Command                    |
+| ------------------ | -------------------------------------------------------------------------------------------- | ----------------------- | -------------------------- |
+| `basic`            | Small regression deck for the complete authoring and runtime contract.                       | `http://localhost:4317` | `vp run demo`              |
+| `product-tour`     | Audience-facing story about what Drever enables and why it exists.                           | `http://localhost:4320` | `vp run demo:product`      |
+| `architecture`     | Interactive walkthrough of Deck IR, compilation, extension ownership, routing, and delivery. | `http://localhost:4321` | `vp run demo:architecture` |
+| `motion-recipes`   | Story-led examples of meaningful object lifecycles, local motion, data, and spatial ideas.   | `http://localhost:4322` | `vp run demo:motion`       |
+| `feature-gallery`  | Executable gallery of MDX, React, official plugins, Steps, and delivery surfaces.            | `http://localhost:4324` | `vp run demo:features`     |
+| `room-scenes`      | Pre-show audio, provider embeds, countdowns, and a persistent ambient Stage.                 | `http://localhost:4325` | `vp run demo:scenes`       |
+| `theme-showcase`   | Five new design studies complementing the three systems exercised by established demos.      | `http://localhost:4326` | See its local README       |
 | `motion-contracts` | Internal geometry fixtures for shared shells, text, media, and motion intents.               | `http://localhost:4328` | See its local README       |
 
 Use `vp run demo:showcases` to start Product Tour, Motion Recipes, and Feature Gallery
