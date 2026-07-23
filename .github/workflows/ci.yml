@@ -43,6 +43,27 @@ jobs:
       - name: Verify release tarballs and a clean consumer
         run: vp run release:check
 
+  website:
+    name: Build public website
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Vite+
+        uses: voidzero-dev/setup-vp@250f29ce396baf5e8f24498e17c0dfdebabc26eb # v1
+        with:
+          node-version: 24.18.0
+          cache: true
+          run-install: false
+
+      - name: Install dependencies
+        run: vp install --frozen-lockfile
+
+      - name: Build and verify the website
+        run: pnpm run build:website
+
   e2e:
     name: Core end-to-end tests
     runs-on: ubuntu-latest

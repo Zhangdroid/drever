@@ -1,0 +1,79 @@
+<h2 id="why-mdx">Why MDX</h2>
+
+Drever is AI-first, but its source is still designed for people. MDX keeps the outline, hierarchy,
+and prose visible without hiding behavior:
+
+- Markdown is the default for headings, lists, quotes, images, and code.
+- JSX appears only where an idea benefits from interaction or a reusable visual.
+- Git shows meaningful text changes instead of a generated scene graph.
+- An AI agent can revise the same file a person can review.
+
+Pure HTML is more verbose for ordinary writing. Pure React is powerful, but makes every sentence
+look like implementation. MDX keeps those two modes in proportion.
+
+<h2 id="slide-boundaries">Slide boundaries</h2>
+
+Put a root-level thematic break between slides, with blank lines around it:
+
+```mdx
+# Opening idea
+
+The premise in one sentence.
+
+---
+
+## The next decision
+
+Supporting evidence belongs here.
+```
+
+The boundary is protected Drever grammar, not an optional plugin. Remark and Rehype plugins cannot
+silently change pagination.
+
+<h2 id="steps">Progressive disclosure with Step</h2>
+
+An omitted `at` is assigned in document order. Explicit values are positive static integers, and
+intentional gaps remain part of the route contract.
+
+```mdx
+## Three deliberate moments
+
+<Step>Shown at stop 1.</Step>
+<Step at={3}>Shown at stop 3.</Step>
+```
+
+This slide navigates through `0 → 1 → 3`; Drever never invents stop 2. A Step is presentation state,
+not a timer. It can be rehearsed, linked, restored, tested, and exported.
+
+<h2 id="speaker-notes">Speaker notes</h2>
+
+```mdx
+<Note>Ask the room for its concern before advancing.</Note>
+```
+
+Notes appear in Speaker View. They are not mounted for the audience, included in Document View, or
+printed into the PDF. A public static build still contains the authored note source, so never put
+secrets or confidential information in `<Note>`.
+
+<h2 id="react-components">React when the idea needs behavior</h2>
+
+```mdx
+import { AudienceSignal } from "./AudienceSignal.tsx";
+
+## Ask the room
+
+What would help you decide?
+
+<AudienceSignal />
+```
+
+Use normal React state, events, and composition. Inactive audience slides preserve local state
+through React Activity while leaving the accessibility tree. Components with media, global
+listeners, or network work must be reviewed in Audience, Speaker, Document, and PDF surfaces
+because the same authored component participates in each.
+
+<h2 id="authoring-principles">A useful default</h2>
+
+Give each slide one dominant idea. Prefer prose until behavior improves understanding. Use Steps
+for meaningful pacing, not to make the slide look busy. Put the title and persistent context
+outside motion groups so navigation cannot make them drift.

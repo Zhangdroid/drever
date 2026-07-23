@@ -1,36 +1,47 @@
 # Drever website
 
-The public website is intentionally a placeholder while the product and documentation experience are being redesigned.
+The public website combines the Drever product story, curated documentation,
+official theme previews, and complete executable example builds.
 
 It uses TanStack Start for file-based routing and build-time prerendering. Only the generated files in `dist/client` are deployed. There is no production server, server function, Pages Function, or Worker runtime.
 
 ## Site boundaries
 
-The finished site has three surfaces:
+The site has four primary surfaces:
 
 - `/` contains the product website.
 - `/docs/*` contains prerendered documentation routes.
 - `/demos/*` hosts real Drever builds selected from `examples/`.
+- `/themes` presents representative theme previews and links to live extended demos.
 
-TanStack Start owns the website and documentation routes. A future build assembly step will build each curated example in its own project and copy its complete output to `dist/client/demos/<slug>`. The website must not duplicate a demo's MDX or React components. This keeps every published demo executable with the same Drever code users receive.
+TanStack Start owns the website, documentation, demo catalog, and theme catalog
+routes. The root build compiles each curated example in its own project and
+copies its complete output to `dist/client/demos/<slug>`. The website does not
+duplicate a demo's MDX or React components. Every published demo is executable
+with the same Drever code users receive.
 
-The initial curated set will be:
+The curated set is:
 
 - `examples/product-tour` at `/demos/product/`
 - `examples/feature-gallery` at `/demos/features/`
 - `examples/motion-recipes` at `/demos/motion/`
+- `examples/architecture` at `/demos/architecture/`
+- `examples/basic` at `/demos/basic/`
 
 ## Local development
 
 Run commands from the repository root:
 
 ```sh
-vp run dev:website
-vp run build:website
-vp run preview:website
+pnpm run dev:website
+pnpm run build:website
+pnpm run preview:website
 ```
 
-`build:website` prerenders every static route and type-checks the website. `preview:website` serves the exact `dist/client` directory through the Cloudflare Pages development server.
+`build:website` builds workspace packages, rebuilds the curated examples,
+prerenders every static route, copies the standalone demos, and verifies the
+final output. `preview:website` serves that exact `dist/client` directory
+through the Cloudflare Pages development server.
 
 ## Cloudflare Pages
 
@@ -46,10 +57,10 @@ Build settings:
 - Node.js: `24.18.0`
 - pnpm: `11.15.1`
 
-The manual fallback command is:
+The manual fallback command builds and verifies the same output before upload:
 
 ```sh
-vp run deploy:website
+pnpm run deploy:website
 ```
 
-The custom domain is managed by Pages rather than source configuration. The previous Worker remains available during migration only as a rollback target.
+The custom domain is managed by Pages rather than source configuration.

@@ -1,0 +1,66 @@
+<h2 id="check">Check the source</h2>
+
+```bash
+drever check
+drever check slides.mdx
+drever check --json
+```
+
+Preflight reports defects Drever can prove from authored source:
+
+- Missing or duplicate slide titles.
+- Missing or explicitly empty image alternative text.
+- Skipped heading levels inside a slide.
+- Authored video without a caption track.
+
+Diagnostics include a stable code, severity, stage, message, and exact source range when available.
+The command exits nonzero for errors; warnings stay visible without blocking delivery.
+
+Preflight is not a visual oracle. Inspect rendered overflow, contrast, reading order, component
+semantics, and motion in the actual browser surfaces.
+
+<h2 id="static-build">Build a static website</h2>
+
+```bash
+drever build
+```
+
+The default output is `dist/`. The build emits a standalone application plus static entries for
+every valid audience and speaker position and `/document`. A small route bootstrap resolves the
+mount point before assets activate, so the artifact works at a domain root or below a subdirectory.
+
+Host the complete `dist/` directory on any static platform.
+
+<h2 id="pdf-export">Export PDF</h2>
+
+```bash
+drever export pdf
+drever export pdf --output release/keynote.pdf
+drever export pdf --slides 2-5,8
+drever export pdf --steps
+```
+
+By default, export creates one page per slide at its final authored Step. `--steps` emits Step 0 and
+every exact compiled stop. `--slides` selects one-based slide numbers and inclusive ranges, and
+composes with `--steps`.
+
+The export surface disables motion, awaits fonts and authored images, runs plugin export setup,
+rejects duplicate DOM IDs, and writes the file only after capture succeeds. Page order, state, and
+dimensions are deterministic; byte-for-byte PDF equality across Chromium and font environments is
+not part of the contract.
+
+<h2 id="continuous-delivery">Use the same evidence in CI</h2>
+
+The human commands expose stable JSON forms for agents and automation:
+
+```bash
+drever doctor --json
+drever context --json
+drever check --json
+drever build --json
+drever export pdf --json
+```
+
+Run source checks on every change. Build and browser-test the presentation states that changed.
+Keep visual review focused on real layouts and transitions instead of adding cosmetic E2E cases for
+every style detail.

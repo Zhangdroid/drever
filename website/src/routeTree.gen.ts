@@ -10,33 +10,194 @@
 
 import { Route as rootRouteImport } from "./routes/__root";
 import { Route as IndexRouteImport } from "./routes/index";
+import { Route as DemosRouteImport } from "./routes/demos";
+import { Route as DocsRouteImport } from "./routes/docs";
+import { Route as ThemesRouteImport } from "./routes/themes";
+import { Route as DocsIndexRouteImport } from "./routes/docs.index";
+import { Route as DocsAiRouteImport } from "./routes/docs.ai";
+import { Route as DocsAuthoringRouteImport } from "./routes/docs.authoring";
+import { Route as DocsConfigurationRouteImport } from "./routes/docs.configuration";
+import { Route as DocsDeliveryRouteImport } from "./routes/docs.delivery";
+import { Route as DocsGettingStartedRouteImport } from "./routes/docs.getting-started";
+import { Route as DocsMotionRouteImport } from "./routes/docs.motion";
+import { Route as DocsPluginsRouteImport } from "./routes/docs.plugins";
+import { Route as DocsPresentingRouteImport } from "./routes/docs.presenting";
+import { Route as DocsThemesRouteImport } from "./routes/docs.themes";
 
 const IndexRoute = IndexRouteImport.update({
   id: "/",
   path: "/",
   getParentRoute: () => rootRouteImport,
 } as any);
+const DemosRoute = DemosRouteImport.update({
+  id: "/demos",
+  path: "/demos",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const DocsRoute = DocsRouteImport.update({
+  id: "/docs",
+  path: "/docs",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const ThemesRoute = ThemesRouteImport.update({
+  id: "/themes",
+  path: "/themes",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const DocsIndexRoute = DocsIndexRouteImport.update({
+  id: "/",
+  path: "/",
+  getParentRoute: () => DocsRoute,
+} as any);
+const DocsAiRoute = DocsAiRouteImport.update({
+  id: "/ai",
+  path: "/ai",
+  getParentRoute: () => DocsRoute,
+} as any);
+const DocsAuthoringRoute = DocsAuthoringRouteImport.update({
+  id: "/authoring",
+  path: "/authoring",
+  getParentRoute: () => DocsRoute,
+} as any);
+const DocsConfigurationRoute = DocsConfigurationRouteImport.update({
+  id: "/configuration",
+  path: "/configuration",
+  getParentRoute: () => DocsRoute,
+} as any);
+const DocsDeliveryRoute = DocsDeliveryRouteImport.update({
+  id: "/delivery",
+  path: "/delivery",
+  getParentRoute: () => DocsRoute,
+} as any);
+const DocsGettingStartedRoute = DocsGettingStartedRouteImport.update({
+  id: "/getting-started",
+  path: "/getting-started",
+  getParentRoute: () => DocsRoute,
+} as any);
+const DocsMotionRoute = DocsMotionRouteImport.update({
+  id: "/motion",
+  path: "/motion",
+  getParentRoute: () => DocsRoute,
+} as any);
+const DocsPluginsRoute = DocsPluginsRouteImport.update({
+  id: "/plugins",
+  path: "/plugins",
+  getParentRoute: () => DocsRoute,
+} as any);
+const DocsPresentingRoute = DocsPresentingRouteImport.update({
+  id: "/presenting",
+  path: "/presenting",
+  getParentRoute: () => DocsRoute,
+} as any);
+const DocsThemesRoute = DocsThemesRouteImport.update({
+  id: "/themes",
+  path: "/themes",
+  getParentRoute: () => DocsRoute,
+} as any);
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute;
+  "/demos": typeof DemosRoute;
+  "/docs": typeof DocsRouteWithChildren;
+  "/themes": typeof ThemesRoute;
+  "/docs/ai": typeof DocsAiRoute;
+  "/docs/authoring": typeof DocsAuthoringRoute;
+  "/docs/configuration": typeof DocsConfigurationRoute;
+  "/docs/delivery": typeof DocsDeliveryRoute;
+  "/docs/getting-started": typeof DocsGettingStartedRoute;
+  "/docs/motion": typeof DocsMotionRoute;
+  "/docs/plugins": typeof DocsPluginsRoute;
+  "/docs/presenting": typeof DocsPresentingRoute;
+  "/docs/themes": typeof DocsThemesRoute;
+  "/docs/": typeof DocsIndexRoute;
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute;
+  "/demos": typeof DemosRoute;
+  "/themes": typeof ThemesRoute;
+  "/docs/ai": typeof DocsAiRoute;
+  "/docs/authoring": typeof DocsAuthoringRoute;
+  "/docs/configuration": typeof DocsConfigurationRoute;
+  "/docs/delivery": typeof DocsDeliveryRoute;
+  "/docs/getting-started": typeof DocsGettingStartedRoute;
+  "/docs/motion": typeof DocsMotionRoute;
+  "/docs/plugins": typeof DocsPluginsRoute;
+  "/docs/presenting": typeof DocsPresentingRoute;
+  "/docs/themes": typeof DocsThemesRoute;
+  "/docs": typeof DocsIndexRoute;
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
   "/": typeof IndexRoute;
+  "/demos": typeof DemosRoute;
+  "/docs": typeof DocsRouteWithChildren;
+  "/themes": typeof ThemesRoute;
+  "/docs/ai": typeof DocsAiRoute;
+  "/docs/authoring": typeof DocsAuthoringRoute;
+  "/docs/configuration": typeof DocsConfigurationRoute;
+  "/docs/delivery": typeof DocsDeliveryRoute;
+  "/docs/getting-started": typeof DocsGettingStartedRoute;
+  "/docs/motion": typeof DocsMotionRoute;
+  "/docs/plugins": typeof DocsPluginsRoute;
+  "/docs/presenting": typeof DocsPresentingRoute;
+  "/docs/themes": typeof DocsThemesRoute;
+  "/docs/": typeof DocsIndexRoute;
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: "/";
+  fullPaths:
+    | "/"
+    | "/demos"
+    | "/docs"
+    | "/themes"
+    | "/docs/ai"
+    | "/docs/authoring"
+    | "/docs/configuration"
+    | "/docs/delivery"
+    | "/docs/getting-started"
+    | "/docs/motion"
+    | "/docs/plugins"
+    | "/docs/presenting"
+    | "/docs/themes"
+    | "/docs/";
   fileRoutesByTo: FileRoutesByTo;
-  to: "/";
-  id: "__root__" | "/";
+  to:
+    | "/"
+    | "/demos"
+    | "/themes"
+    | "/docs/ai"
+    | "/docs/authoring"
+    | "/docs/configuration"
+    | "/docs/delivery"
+    | "/docs/getting-started"
+    | "/docs/motion"
+    | "/docs/plugins"
+    | "/docs/presenting"
+    | "/docs/themes"
+    | "/docs";
+  id:
+    | "__root__"
+    | "/"
+    | "/demos"
+    | "/docs"
+    | "/themes"
+    | "/docs/ai"
+    | "/docs/authoring"
+    | "/docs/configuration"
+    | "/docs/delivery"
+    | "/docs/getting-started"
+    | "/docs/motion"
+    | "/docs/plugins"
+    | "/docs/presenting"
+    | "/docs/themes"
+    | "/docs/";
   fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
+  DemosRoute: typeof DemosRoute;
+  DocsRoute: typeof DocsRouteWithChildren;
+  ThemesRoute: typeof ThemesRoute;
 }
 
 declare module "@tanstack/react-router" {
@@ -48,11 +209,133 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof IndexRouteImport;
       parentRoute: typeof rootRouteImport;
     };
+    "/demos": {
+      id: "/demos";
+      path: "/demos";
+      fullPath: "/demos";
+      preLoaderRoute: typeof DemosRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/docs": {
+      id: "/docs";
+      path: "/docs";
+      fullPath: "/docs";
+      preLoaderRoute: typeof DocsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/themes": {
+      id: "/themes";
+      path: "/themes";
+      fullPath: "/themes";
+      preLoaderRoute: typeof ThemesRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/docs/": {
+      id: "/docs/";
+      path: "/";
+      fullPath: "/docs/";
+      preLoaderRoute: typeof DocsIndexRouteImport;
+      parentRoute: typeof DocsRoute;
+    };
+    "/docs/ai": {
+      id: "/docs/ai";
+      path: "/ai";
+      fullPath: "/docs/ai";
+      preLoaderRoute: typeof DocsAiRouteImport;
+      parentRoute: typeof DocsRoute;
+    };
+    "/docs/authoring": {
+      id: "/docs/authoring";
+      path: "/authoring";
+      fullPath: "/docs/authoring";
+      preLoaderRoute: typeof DocsAuthoringRouteImport;
+      parentRoute: typeof DocsRoute;
+    };
+    "/docs/configuration": {
+      id: "/docs/configuration";
+      path: "/configuration";
+      fullPath: "/docs/configuration";
+      preLoaderRoute: typeof DocsConfigurationRouteImport;
+      parentRoute: typeof DocsRoute;
+    };
+    "/docs/delivery": {
+      id: "/docs/delivery";
+      path: "/delivery";
+      fullPath: "/docs/delivery";
+      preLoaderRoute: typeof DocsDeliveryRouteImport;
+      parentRoute: typeof DocsRoute;
+    };
+    "/docs/getting-started": {
+      id: "/docs/getting-started";
+      path: "/getting-started";
+      fullPath: "/docs/getting-started";
+      preLoaderRoute: typeof DocsGettingStartedRouteImport;
+      parentRoute: typeof DocsRoute;
+    };
+    "/docs/motion": {
+      id: "/docs/motion";
+      path: "/motion";
+      fullPath: "/docs/motion";
+      preLoaderRoute: typeof DocsMotionRouteImport;
+      parentRoute: typeof DocsRoute;
+    };
+    "/docs/plugins": {
+      id: "/docs/plugins";
+      path: "/plugins";
+      fullPath: "/docs/plugins";
+      preLoaderRoute: typeof DocsPluginsRouteImport;
+      parentRoute: typeof DocsRoute;
+    };
+    "/docs/presenting": {
+      id: "/docs/presenting";
+      path: "/presenting";
+      fullPath: "/docs/presenting";
+      preLoaderRoute: typeof DocsPresentingRouteImport;
+      parentRoute: typeof DocsRoute;
+    };
+    "/docs/themes": {
+      id: "/docs/themes";
+      path: "/themes";
+      fullPath: "/docs/themes";
+      preLoaderRoute: typeof DocsThemesRouteImport;
+      parentRoute: typeof DocsRoute;
+    };
   }
 }
 
+interface DocsRouteChildren {
+  DocsAiRoute: typeof DocsAiRoute;
+  DocsAuthoringRoute: typeof DocsAuthoringRoute;
+  DocsConfigurationRoute: typeof DocsConfigurationRoute;
+  DocsDeliveryRoute: typeof DocsDeliveryRoute;
+  DocsGettingStartedRoute: typeof DocsGettingStartedRoute;
+  DocsMotionRoute: typeof DocsMotionRoute;
+  DocsPluginsRoute: typeof DocsPluginsRoute;
+  DocsPresentingRoute: typeof DocsPresentingRoute;
+  DocsThemesRoute: typeof DocsThemesRoute;
+  DocsIndexRoute: typeof DocsIndexRoute;
+}
+
+const DocsRouteChildren: DocsRouteChildren = {
+  DocsAiRoute: DocsAiRoute,
+  DocsAuthoringRoute: DocsAuthoringRoute,
+  DocsConfigurationRoute: DocsConfigurationRoute,
+  DocsDeliveryRoute: DocsDeliveryRoute,
+  DocsGettingStartedRoute: DocsGettingStartedRoute,
+  DocsMotionRoute: DocsMotionRoute,
+  DocsPluginsRoute: DocsPluginsRoute,
+  DocsPresentingRoute: DocsPresentingRoute,
+  DocsThemesRoute: DocsThemesRoute,
+  DocsIndexRoute: DocsIndexRoute,
+};
+
+const DocsRouteWithChildren = DocsRoute._addFileChildren(DocsRouteChildren);
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DemosRoute: DemosRoute,
+  DocsRoute: DocsRouteWithChildren,
+  ThemesRoute: ThemesRoute,
 };
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

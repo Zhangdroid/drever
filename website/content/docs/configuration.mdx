@@ -1,0 +1,57 @@
+<h2 id="config-file">Start with zero config</h2>
+
+A new project runs without `drever.config.ts`. Add the file at the project root only when the
+presentation needs a different entry, canvas, theme, development server, build output, rehearsal
+target, focus tools, Stage, or plugin plan.
+
+```ts
+import { defineConfig } from "drever";
+
+export default defineConfig({
+  entry: "talk.mdx",
+  canvas: { width: 1600, height: 900 },
+  server: { port: 4317, open: true, strictPort: true },
+  build: { outDir: "dist", sourcemap: false },
+  rehearsal: { targetDurationMinutes: 20 },
+  focusTools: {
+    laser: { color: "#c7f03a" },
+    pen: { color: "#5b45d8", width: 7 },
+    highlighter: { color: "#ffe66d", opacity: 0.28, width: 30 },
+  },
+  stage: {
+    background: "./StageBackground.tsx",
+    foreground: "./StageChrome.tsx",
+  },
+});
+```
+
+Every key is typed and validated. Unknown settings fail with a precise config diagnostic instead of
+being forwarded to Vite.
+
+<h2 id="settings">Configuration reference</h2>
+
+| Setting      | Purpose                                                                          |
+| ------------ | -------------------------------------------------------------------------------- |
+| `entry`      | MDX entry path. The zero-config default is `slides.mdx`.                         |
+| `theme`      | One Drever theme definition. See the [theme guide](/docs/themes).                |
+| `canvas`     | Positive integer `width` and `height` values for the authored surface.           |
+| `server`     | Curated development options: `host`, `open`, `port`, and `strictPort`.           |
+| `build`      | Static `outDir` and optional source-map mode.                                    |
+| `rehearsal`  | Positive `targetDurationMinutes` used by Speaker View pacing.                    |
+| `focusTools` | Laser, Pen, and Highlighter colors, widths, and Highlighter opacity.             |
+| `stage`      | Background and foreground React module paths outside slide transitions.          |
+| `plugins`    | Ordered plugin definitions or typed registrations. See [plugins](/docs/plugins). |
+
+Paths resolve from the project root. Keep Stage modules deterministic across Audience, Speaker,
+Document, and PDF surfaces.
+
+<h2 id="ownership">Keep the public surface small</h2>
+
+Presentation authors should not need to understand the Vite, Remark, or Rehype configuration
+graphs. Drever exposes the common project controls above. Plugin developers can contribute those
+lower-level integrations through the typed plugin descriptor without turning them into global user
+configuration.
+
+Run `drever doctor --json` when the local toolchain or browser installation is in doubt. Run
+`drever context --json` to inspect the fully resolved canvas, theme, plugins, slides, and Step stops
+that the compiler will use.

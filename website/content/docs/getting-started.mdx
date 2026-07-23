@@ -1,0 +1,79 @@
+<h2 id="requirements">Requirements</h2>
+
+Drever targets current tools on purpose:
+
+- Node.js 24.18 or newer.
+- A current Chromium-family browser.
+- Playwright Chromium only when exporting PDF.
+
+There is no legacy router or animation fallback. Drever respects `prefers-reduced-motion` while
+keeping the same presentation-state model.
+
+<h2 id="create-a-project">Create a project</h2>
+
+```bash
+npm create drever@latest my-slides
+cd my-slides
+npm run dev
+```
+
+The creator writes a complete starter: `brief.md`, `slides.mdx`, package scripts, and project-local
+skills for Codex and Claude Code. Add `drever.config.ts` only when the zero-config defaults no longer
+fit the presentation.
+
+To open the finished project directly in an agent:
+
+```bash
+npm create drever@latest my-slides -- --open codex
+npm create drever@latest my-slides -- --open claude
+```
+
+Then ask for the outcome in ordinary language:
+
+> Turn brief.md into a clear 10-minute presentation for this audience. Inspect every reveal, then
+> deliver the website and PDF.
+
+<h2 id="write-the-first-slides">Write the first slides</h2>
+
+A root-level `---` line begins a new slide. `Step` and `Note` are built in, so they do not need
+imports.
+
+```mdx
+# The decision
+
+One clear idea is enough.
+
+---
+
+## Reveal only what matters
+
+<Step>Frame the question.</Step>
+<Step>Reveal the evidence.</Step>
+
+<Note>Pause before showing the result.</Note>
+```
+
+The source remains readable Markdown until the idea needs interaction. At that point, import an
+ordinary React component into the MDX.
+
+<h2 id="inspect-and-deliver">Inspect and deliver</h2>
+
+```bash
+npm run check
+npm run build
+npx playwright install chromium
+npm run export
+```
+
+`check` reports source diagnostics with exact locations. `build` creates a static website.
+Playwright Chromium is a one-time installation for PDF capture. `export` creates a PDF at each
+slide's final state.
+
+During development, open:
+
+- `/` for the audience view.
+- `/speaker` for notes, next-state preview, and rehearsal timing.
+- `/document` for the complete searchable reading view.
+
+Every slide and exact Step has a stable path such as `/4/2`, so reload, history, and shared links
+return to the same moment.

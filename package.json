@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build:packages": "vp run -F './packages/**' -F './plugins/**' --fail-if-no-match build",
-    "build:website": "pnpm --dir website run build",
+    "build:website": "node scripts/build-website.mjs",
     "build": "vp run -r build",
     "check": "vp check",
     "demo": "vp run -F @drever/example-basic dev",

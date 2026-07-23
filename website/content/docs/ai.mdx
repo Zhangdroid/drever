@@ -1,0 +1,75 @@
+<h2 id="agent-first">Agent-first, not agent-only</h2>
+
+Drever makes AI authoring a versioned project contract. It does not hide the source behind a hosted
+editor or a private prompt. The same MDX remains readable, reviewable, and editable by a person.
+
+New projects contain four local workflows for Codex and Claude Code:
+
+1. Create a deck from a brief.
+2. Make focused authoring changes.
+3. Review presentation readiness.
+4. Deliver verified web and PDF artifacts.
+
+Refresh them after upgrading:
+
+```bash
+drever agent sync --target all
+```
+
+The sync command preserves instructions outside its managed blocks and never overwrites an
+unmarked, user-owned skill.
+
+<h2 id="authoring-context">Give the agent exact context</h2>
+
+```bash
+drever context --json
+drever context talks/keynote.mdx --json
+```
+
+The report contains the resolved canvas, exact slides and sparse Step stops, authored source ranges,
+theme tokens and guidance, motion intents, layout recipes, component manifests, ordered plugins,
+and source preflight.
+
+This is planning evidence, not rendered evidence. It does not judge overflow, contrast, animation
+quality, media readiness, or runtime component behavior.
+
+<h2 id="current-position">Resolve “this slide”</h2>
+
+While `drever dev` is running:
+
+```bash
+drever current --json
+```
+
+The command resolves the most recently updated open audience or speaker window to its source path,
+surface, exact route, slide identity, zero-based index, and sparse Step. The snapshot is local and
+ephemeral; it disappears when interactive windows close or the dev server stops.
+
+<h2 id="mcp">Optional read-only MCP</h2>
+
+```json
+{
+  "mcpServers": {
+    "drever": {
+      "command": "npx",
+      "args": ["drever", "mcp", "slides.mdx"]
+    }
+  }
+}
+```
+
+The dependency-free stdio server exposes context, slide listing, exact slide source, preflight, and
+the optional live position. Every tool is read-only. Agents edit ordinary files through their normal
+workspace tools so permissions, diffs, checks, and Git rollback remain visible.
+
+<h2 id="recommended-loop">Recommended loop</h2>
+
+1. Describe the audience, decision, constraints, and desired deliverables in `brief.md`.
+2. Ask the agent to create or revise the presentation.
+3. Inspect `drever context --json` and fix `drever check --json` diagnostics.
+4. Review every changed Step in Audience View and the complete `/document` surface.
+5. Review Speaker View when notes, timing, or focus behavior changed.
+6. Build and deliver the static website or PDF from the same verified project.
+
+Ask for outcomes in natural language. Keep the commands available as a transparent, deterministic
+contract underneath.

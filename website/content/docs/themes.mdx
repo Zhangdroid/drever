@@ -1,0 +1,70 @@
+<h2 id="choose-a-theme">Choose a visual voice</h2>
+
+A theme owns the presentation's global visual language: semantic MDX elements, canvas defaults,
+layout recipes, the visual treatment of Step states, and the visual treatment of motion intents.
+
+Install the theme you want to use:
+
+```bash
+npm install --save-dev @drever/theme-editorial
+```
+
+```ts
+import editorialTheme from "@drever/theme-editorial";
+import { defineConfig } from "drever";
+
+export default defineConfig({
+  theme: editorialTheme,
+});
+```
+
+Drever currently ships three official themes:
+
+- **Default** — clear, neutral, and adaptable, with `Cover` and `TwoColumn`.
+- **Editorial** — typographic storytelling, with `Masthead` and `Feature`.
+- **Studio** — a restrained technical canvas, with `Statement` and `Workbench`.
+
+See the [theme gallery](/themes) for representative previews and links to live extended demos.
+
+<h2 id="layout-recipes">Use layouts for semantic composition</h2>
+
+Layouts are typed components with documented slots and constraints. Use them when their composition
+matches the story—not as decoration.
+
+```mdx
+<TwoColumn primary={<Evidence />} secondary={<Decision />} />
+```
+
+Ordinary Markdown remains the default. A layout should make a relationship clearer, such as a true
+comparison, a feature-and-visual composition, or a chapter opening.
+
+<h2 id="theme-versus-plugin">Theme versus plugin</h2>
+
+A theme can personalize `h1`, `p`, lists, quotes, code, images, tables, layouts, and motion voice. A
+plugin adds behavior such as syntax transforms, feature components, runtime setup, or export setup.
+
+A plugin may style the feature it introduces. It should not restyle global headings or paragraphs;
+that would silently compete with the selected theme.
+
+<h2 id="persistent-stage">Persistent Stage layers</h2>
+
+Project-wide background and foreground components belong to the Stage:
+
+```ts
+export default defineConfig({
+  stage: {
+    background: "./stage-background.tsx",
+    foreground: "./stage-foreground.tsx",
+  },
+});
+```
+
+Stage layers remain outside per-slide transition snapshots. They are appropriate for page numbers,
+branding, persistent art, and background systems. Keep the Stage stable and animate only the
+sub-element whose state actually changed.
+
+<h2 id="author-a-theme">Authoring a theme</h2>
+
+Custom themes use Drever's typed extension descriptor. They publish JSON-safe metadata for AI
+authoring, map semantic elements and layouts to runtime modules, and provide scoped CSS. They do not
+own compilation, routing, or navigation state.

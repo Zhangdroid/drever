@@ -1,0 +1,82 @@
+# Drever
+
+> Drever is an open-source, AI-first framework for clear, expressive, interactive slides.
+
+Drever uses readable MDX as its authoritative source. A root-level `---` line separates slides.
+Authors use Markdown for ordinary content, built-in `Step` for deliberate progressive disclosure,
+`Note` for speaker-only guidance, and React components when an idea needs interaction.
+
+One project produces:
+
+- a live audience presentation with clean, exact slide and Step URLs;
+- Speaker View with notes, current/next previews, rehearsal timing, and focus tools;
+- Document View with every reveal in searchable reading order;
+- a static production website;
+- deterministic PDF output at final states or every exact Step stop.
+
+## Start
+
+- Documentation: https://drever.dev/docs
+- Getting started: https://drever.dev/docs/getting-started
+- Configuration: https://drever.dev/docs/configuration
+- Authoring: https://drever.dev/docs/authoring
+- Motion: https://drever.dev/docs/motion
+- Theme guide: https://drever.dev/docs/themes
+- Plugin guide: https://drever.dev/docs/plugins
+- Presenting: https://drever.dev/docs/presenting
+- Build and export: https://drever.dev/docs/delivery
+- AI workflows: https://drever.dev/docs/ai
+- Theme gallery: https://drever.dev/themes
+- GitHub: https://github.com/Zhangdroid/drever
+
+Create a project:
+
+```sh
+npm create drever@latest my-slides
+```
+
+Open directly in an agent:
+
+```sh
+npm create drever@latest my-slides -- --open codex
+npm create drever@latest my-slides -- --open claude
+```
+
+Recommended natural-language request:
+
+> Turn brief.md into a clear presentation for this audience. Inspect every reveal, then deliver the website and PDF.
+
+## Live demos
+
+- Product tour: https://drever.dev/demos/product/
+- Feature gallery: https://drever.dev/demos/features/
+- Motion field notes: https://drever.dev/demos/motion/
+- Architecture: https://drever.dev/demos/architecture/
+- Minimal reference: https://drever.dev/demos/basic/
+
+Each demo is a complete static Drever build. Append `/speaker` for Speaker View or `/document` for
+Document View. Audience paths such as `/4/2` select an exact slide and sparse Step.
+
+## Implemented capabilities
+
+- MDX compilation with protected `---` slide boundaries.
+- Sparse, addressable Step state.
+- Built-in Note and semantic MotionGroup primitives.
+- Motion intents: focus, replace, compare, stagger, and continuity.
+- Stage background and foreground layers outside per-slide transitions.
+- Audience toolbar, slide search, fullscreen, black/white pause screens, and canonical link copying.
+- Laser, Pen, and Highlighter in audience and speaker views.
+- Source accessibility preflight with human and stable JSON diagnostics.
+- Project-local Codex and Claude skills.
+- JSON authoring context and local live-position commands.
+- Optional dependency-free, read-only MCP server.
+- Default build-time Shiki and reset-free Tailwind CSS.
+- Opt-in build-time LaTeX through KaTeX.
+- Default, Editorial, and Studio themes.
+
+## Important boundaries
+
+Drever is under active development and its public API is not yet stable. Mermaid is intentionally
+deferred. Drever does not currently claim a hosted editor, real-time collaboration, cross-device
+remote control, PPTX/Keynote import or export, video export, or a visual layout oracle. The MCP
+server is read-only and does not edit presentation source.

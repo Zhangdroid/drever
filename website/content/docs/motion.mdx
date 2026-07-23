@@ -1,0 +1,70 @@
+<h2 id="semantic-motion">Motion starts with meaning</h2>
+
+Drever does not ask authors to choose easing curves or entrance presets. Authors describe the
+narrative relationship; the active theme decides how that relationship moves.
+
+| Intent       | Use it when                                                           |
+| ------------ | --------------------------------------------------------------------- |
+| `focus`      | Earlier points remain visible while the newest point becomes primary. |
+| `replace`    | One stable frame exchanges one state for another.                     |
+| `compare`    | Revealed evidence must remain readable as peers.                      |
+| `stagger`    | Up to four parts form one explanatory beat.                           |
+| `continuity` | The same object persists across adjacent slides.                      |
+
+<h2 id="focus-replace-compare">Focus, replace, and compare</h2>
+
+These intents use direct `Step` children:
+
+```mdx
+<MotionGroup intent="focus" flow="block">
+  <Step>Frame the question.</Step>
+  <Step>Reveal the evidence.</Step>
+  <Step>Make the decision.</Step>
+</MotionGroup>
+```
+
+Use `flow="block"` for vertical reading order and `flow="inline"` for a horizontal pipeline or
+comparison. Flow provides meaning to the theme; it does not create layout.
+
+<h2 id="stagger">Stagger without adding navigation stops</h2>
+
+Put `stagger` inside one Step. One advance reveals the complete group:
+
+```mdx
+<Step>
+  <MotionGroup intent="stagger" flow="inline">
+    <div>Parse</div>
+    <div>Compile</div>
+    <div>Verify</div>
+    <div>Ship</div>
+  </MotionGroup>
+</Step>
+```
+
+If the audience needs to discuss an item separately, author separate Steps instead.
+
+<h2 id="continuity">Continuity across slides</h2>
+
+Give the same explicit name to the same object on adjacent slides:
+
+```mdx
+<MotionGroup intent="continuity" name="decision-card">
+  <DecisionCard />
+</MotionGroup>
+```
+
+Carry identity, not resemblance. A matching color or shape does not make two objects the same.
+Keep the captured shell's size, aspect ratio, typography, and media crop deliberate. Changing prose
+usually belongs outside the shared bitmap.
+
+<h2 id="principles">The non-negotiable principles</h2>
+
+1. Motion explains focus, order, replacement, comparison, or continuity. Otherwise omit it.
+2. Give each moment one primary motion and at most one quieter supporting cue.
+3. Move the smallest meaningful object. Background, title, controls, and page chrome stay put.
+4. Keep recurring geometry, wrapping, paint, and shadow lists stable.
+5. Never clip a surface whose shadow or glow must remain visible.
+6. Review intermediate frames, backward navigation, reduced motion, speaker, document, and export.
+
+Official themes deliberately use different motion voices. The same authoring intent should feel
+calm in Default, editorial in Editorial, and precise in Studio.

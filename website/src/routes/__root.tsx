@@ -15,6 +15,8 @@ export const Route = createRootRoute({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "theme-color", content: "#f6f3e9" },
+      { name: "color-scheme", content: "light" },
+      { property: "og:site_name", content: "Drever" },
     ],
   }),
   shellComponent: RootDocument,

@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "build": "vp build && tsc --noEmit",
-    "deploy": "pnpm run build && wrangler pages deploy dist/client --project-name drever-website --branch main",
+    "deploy": "pnpm --dir .. run build:website && wrangler pages deploy dist/client --project-name drever-website --branch main",
     "dev": "vp dev",
     "preview": "vp preview",
-    "preview:pages": "pnpm run build && wrangler pages dev dist/client --port 4318 --compatibility-date 2026-07-22",
+    "preview:pages": "pnpm --dir .. run build:website && wrangler pages dev dist/client --port 4318 --compatibility-date 2026-07-22",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -19,6 +19,7 @@
     "react-dom": "catalog:"
   },
   "devDependencies": {
+    "@mdx-js/rollup": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",

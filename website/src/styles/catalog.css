@@ -1,0 +1,506 @@
+.catalog-page {
+  padding-inline: var(--site-gutter);
+}
+
+.page-hero__aside {
+  width: min(100%, 23rem);
+  padding: 1.5rem 0 0 1.5rem;
+  border-left: 0.35rem solid var(--site-signal);
+}
+
+.page-hero__aside strong {
+  display: block;
+  font-size: 0.95rem;
+}
+
+.page-hero__aside p {
+  margin: 0.7rem 0 0;
+  color: var(--site-muted);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.featured-demo {
+  display: grid;
+  max-width: var(--site-max);
+  margin: 0 auto var(--site-section);
+  grid-template-columns: minmax(0, 1.45fr) minmax(20rem, 0.55fr);
+  align-items: stretch;
+}
+
+.featured-demo__visual {
+  position: relative;
+  display: flex;
+  aspect-ratio: 16 / 8.6;
+  padding: clamp(2rem, 5vw, 5rem);
+  overflow: hidden;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--site-night);
+  color: var(--site-night-text);
+  text-decoration: none;
+}
+
+.featured-demo__visual > span {
+  margin-block-end: 1rem;
+  color: var(--site-signal);
+  font-size: 0.68rem;
+  font-weight: 680;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.featured-demo__visual h2 {
+  max-width: 12ch;
+  margin: 0;
+  font-family: var(--drever-brand-font-family-display);
+  font-size: clamp(2.8rem, 6vw, 6.5rem);
+  font-weight: 570;
+  letter-spacing: -0.055em;
+  line-height: 0.9;
+}
+
+.featured-demo__visual > div {
+  display: inline-flex;
+  width: fit-content;
+  margin-block-start: 2.2rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.65rem;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--site-signal);
+  color: var(--site-ink);
+  font-size: 0.76rem;
+  font-weight: 680;
+}
+
+.featured-demo__visual > i {
+  position: absolute;
+  right: 4rem;
+  bottom: 3.5rem;
+  width: 5rem;
+  height: 0.42rem;
+  background: var(--site-continuity);
+  box-shadow: -2rem 0 0 var(--site-signal);
+  transform-origin: right;
+  transition: transform var(--drever-brand-motion-duration-expressive)
+    var(--drever-brand-motion-easing-emphasized);
+}
+
+.featured-demo__visual:hover > i {
+  transform: translateX(1.5rem);
+}
+
+.featured-demo__copy {
+  display: flex;
+  padding: clamp(2rem, 4vw, 3.5rem);
+  flex-direction: column;
+  justify-content: center;
+  background: var(--site-continuity-soft);
+}
+
+.featured-demo__copy > span,
+.catalog-demo > div > span,
+.theme-detail__copy > span {
+  color: var(--site-continuity);
+  font-size: 0.66rem;
+  font-weight: 680;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.featured-demo__copy h2,
+.catalog-demo > div h2 {
+  margin: 0.7rem 0 0;
+  font-family: var(--drever-brand-font-family-display);
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 610;
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+
+.featured-demo__copy > p,
+.catalog-demo > div > p {
+  margin: 1rem 0 0;
+  color: var(--site-muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.featured-demo__copy nav {
+  display: flex;
+  margin-block-start: 2rem;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.featured-demo__copy nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.featured-demo__copy nav a:hover {
+  color: var(--site-continuity);
+}
+
+.featured-demo__copy nav svg {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+.catalog-demos {
+  display: grid;
+  max-width: var(--site-max);
+  margin: 0 auto var(--site-section);
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(2rem, 4vw, 4rem) 1rem;
+}
+
+.catalog-demo {
+  min-width: 0;
+}
+
+.catalog-demo__visual {
+  position: relative;
+  display: flex;
+  aspect-ratio: 16 / 10;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  overflow: hidden;
+  flex-direction: column;
+  background: #101311;
+  color: #f2f4ed;
+  text-decoration: none;
+}
+
+.catalog-demo__visual > span {
+  color: #dcff4f;
+  font-family: var(--drever-brand-font-family-mono);
+  font-size: 0.65rem;
+}
+
+.catalog-demo__visual > strong {
+  max-width: 8ch;
+  margin: auto 0 0;
+  font-family: var(--drever-brand-font-family-display);
+  font-size: clamp(2rem, 4vw, 4rem);
+  font-weight: 580;
+  letter-spacing: -0.05em;
+  line-height: 0.92;
+}
+
+.catalog-demo__visual > svg {
+  position: absolute;
+  right: 1.6rem;
+  bottom: 1.6rem;
+  transition: transform var(--drever-brand-motion-duration-standard)
+    var(--drever-brand-motion-easing-standard);
+}
+
+.catalog-demo__visual:hover > svg {
+  transform: translate(0.4rem, -0.4rem);
+}
+
+.catalog-demo[data-demo="motion"] .catalog-demo__visual {
+  border-top: 1px solid #191814;
+  border-bottom: 1px solid #cfc7b8;
+  background: #f3efe4;
+  color: #191814;
+}
+
+.catalog-demo[data-demo="motion"] .catalog-demo__visual > span {
+  color: #9d302f;
+}
+
+.catalog-demo[data-demo="architecture"] .catalog-demo__visual {
+  background: var(--site-continuity);
+}
+
+.catalog-demo[data-demo="architecture"] .catalog-demo__visual > span {
+  color: var(--site-signal);
+}
+
+.catalog-demo[data-demo="basic"] .catalog-demo__visual {
+  border: 1px solid #d9dcd4;
+  background: linear-gradient(90deg, #2855e7 0 0.45rem, transparent 0.45rem), #f7f7f2;
+  color: #171816;
+}
+
+.catalog-demo[data-demo="basic"] .catalog-demo__visual > span {
+  color: #2855e7;
+}
+
+.catalog-demo > div {
+  padding: 1.4rem 0.2rem 0;
+}
+
+.catalog-demo > div h2 {
+  font-size: 1.65rem;
+}
+
+.catalog-demo .text-link {
+  margin-block-start: 1rem;
+}
+
+.catalog-proof {
+  display: grid;
+  max-width: var(--site-max);
+  margin: 0 auto var(--site-section);
+  padding: clamp(2.5rem, 6vw, 5rem);
+  grid-template-columns: minmax(18rem, 0.9fr) minmax(0, 1.1fr);
+  align-items: end;
+  gap: 2rem 5rem;
+  background: var(--site-night);
+  color: var(--site-night-text);
+}
+
+.catalog-proof > div > span,
+.catalog-next > div > span,
+.theme-principle > span {
+  color: var(--site-signal);
+  font-size: 0.68rem;
+  font-weight: 680;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.catalog-proof h2,
+.catalog-next h2,
+.theme-principle h2 {
+  max-width: 14ch;
+  margin: 0.8rem 0 0;
+  font-family: var(--drever-brand-font-family-display);
+  font-size: clamp(2.5rem, 5vw, 4.8rem);
+  font-weight: 590;
+  letter-spacing: -0.05em;
+  line-height: 0.96;
+  text-wrap: balance;
+}
+
+.catalog-proof > p {
+  margin: 0;
+  color: var(--site-night-muted);
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+.catalog-proof > p code {
+  font-family: var(--drever-brand-font-family-mono);
+  color: var(--site-night-text);
+}
+
+.catalog-proof .button {
+  grid-column: 2;
+  justify-self: start;
+}
+
+.catalog-next {
+  display: flex;
+  max-width: var(--site-max);
+  margin: 0 auto var(--site-section);
+  padding-block-start: 3rem;
+  border-top: 1px solid var(--site-line);
+  align-items: end;
+  justify-content: space-between;
+  gap: 3rem;
+}
+
+.catalog-next > div:last-child {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.themes-catalog {
+  max-width: var(--site-max);
+  margin: 0 auto var(--site-section);
+}
+
+.theme-detail {
+  display: grid;
+  padding: clamp(3rem, 7vw, 6rem) 0;
+  border-top: 1px solid var(--site-line);
+  grid-template-columns: minmax(0, 1.15fr) minmax(20rem, 0.85fr);
+  align-items: center;
+  gap: clamp(3rem, 9vw, 9rem);
+  scroll-margin-top: 6rem;
+}
+
+.theme-detail:nth-child(even) .theme-detail__preview {
+  order: 2;
+}
+
+.theme-detail__preview .theme-preview {
+  width: 100%;
+}
+
+.theme-detail__copy h2 {
+  margin: 0.7rem 0 0;
+  font-family: var(--drever-brand-font-family-display);
+  font-size: clamp(3rem, 6vw, 5.5rem);
+  font-weight: 610;
+  letter-spacing: -0.055em;
+  line-height: 0.9;
+}
+
+.theme-detail__copy > strong {
+  display: block;
+  max-width: 20ch;
+  margin-block-start: 1.2rem;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+
+.theme-detail__copy > p {
+  max-width: 36rem;
+  margin: 1rem 0 0;
+  color: var(--site-muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.theme-detail dl {
+  display: grid;
+  margin: 2rem 0 0;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.theme-detail dl > div {
+  padding-block-start: 0.8rem;
+  border-top: 1px solid var(--site-line);
+}
+
+.theme-detail dt {
+  color: var(--site-muted);
+  font-size: 0.64rem;
+  font-weight: 680;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.theme-detail dd {
+  margin: 0.45rem 0 0;
+  font-size: 0.8rem;
+}
+
+.theme-detail code {
+  font-family: var(--drever-brand-font-family-mono);
+  font-size: 0.72rem;
+}
+
+.theme-detail__actions {
+  display: flex;
+  margin-block-start: 2rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.theme-detail__copy > small {
+  display: block;
+  max-width: 32rem;
+  margin-block-start: 1.2rem;
+  color: var(--site-muted);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+.theme-principle {
+  max-width: var(--site-max);
+  margin: 0 auto var(--site-section);
+  padding: clamp(3rem, 7vw, 6rem);
+  background: var(--site-continuity-soft);
+}
+
+.theme-principle > span {
+  color: var(--site-continuity);
+}
+
+.theme-principle h2 {
+  max-width: 18ch;
+}
+
+.theme-principle > div {
+  display: grid;
+  max-width: 52rem;
+  margin-block-start: 2rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.theme-principle p {
+  margin: 0;
+  color: var(--site-muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.theme-principle .text-link {
+  margin-block-start: 2rem;
+}
+
+@media (max-width: 68rem) {
+  .featured-demo,
+  .theme-detail {
+    grid-template-columns: 1fr;
+  }
+
+  .featured-demo__visual {
+    aspect-ratio: 16 / 10;
+  }
+
+  .theme-detail:nth-child(even) .theme-detail__preview {
+    order: initial;
+  }
+
+  .theme-detail__copy {
+    max-width: 42rem;
+  }
+}
+
+@media (max-width: 54rem) {
+  .catalog-demos {
+    grid-template-columns: 1fr;
+  }
+
+  .catalog-demo {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(16rem, 0.8fr);
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .catalog-proof {
+    grid-template-columns: 1fr;
+  }
+
+  .catalog-proof .button {
+    grid-column: 1;
+  }
+
+  .catalog-next {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 48rem) {
+  .page-hero {
+    padding-inline: 0;
+  }
+
+  .catalog-demo {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .theme-detail dl,
+  .theme-principle > div {
+    grid-template-columns: 1fr;
+  }
+}

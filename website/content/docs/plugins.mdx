@@ -1,0 +1,79 @@
+<h2 id="extension-model">Add capability without exposing the toolchain</h2>
+
+Presentation authors configure typed Drever plugins. They do not need to configure Vite, Remark, or
+Rehype directly. Plugin developers can work at those boundaries through one normalized descriptor.
+
+A plugin may contribute:
+
+- Vite plugins at build time.
+- Remark, Rehype, and Recma modules for MDX compilation.
+- Components exposed to authored MDX.
+- Scoped styles.
+- Runtime and deterministic export setup.
+
+Build-only dependencies do not enter the browser bundle. Runtime modules ship only when the
+resolved plan references them.
+
+<h2 id="official-plugins">Official plugins</h2>
+
+| Plugin        | Activation          | Browser output                                            |
+| ------------- | ------------------- | --------------------------------------------------------- |
+| Shiki         | Enabled by default  | Highlighted HTML and CSS variables                        |
+| Tailwind CSS  | Enabled by default  | Generated utility CSS, without Preflight                  |
+| LaTeX / KaTeX | Explicit opt-in     | Accessible HTML, MathML, CSS, and font assets             |
+| Mermaid       | Not implemented yet | Deferred until security and export contracts are complete |
+
+Shiki and Tailwind can be configured or disabled:
+
+```ts
+import { defineConfig, shiki, shikiPlugin, tailwindCss } from "drever";
+
+export default defineConfig({
+  plugins: [
+    shiki({ lightTheme: "github-light", darkTheme: "github-dark" }),
+    tailwindCss({ optimize: true }),
+  ],
+});
+
+// To disable the default Shiki plugin instead:
+// plugins: [{ plugin: shikiPlugin, enabled: false }]
+```
+
+<h2 id="math">Enable LaTeX</h2>
+
+```bash
+npm install --save-dev @drever/plugin-math
+```
+
+```ts
+import { math } from "@drever/plugin-math";
+import { defineConfig } from "drever";
+
+export default defineConfig({
+  plugins: [math({ strict: "warn", throwOnError: true })],
+});
+```
+
+```md
+Einstein's relation is $E = mc^2$.
+
+$$
+\int_0^1 x^2\,dx = \frac{1}{3}
+$$
+```
+
+The plugin parses LaTeX with Remark Math and renders HTML plus MathML with Rehype KaTeX at build
+time. It ships no client-side typesetter.
+
+<h2 id="why-mermaid-is-deferred">Why Mermaid is deferred</h2>
+
+Drever will not insert unchecked SVG strings and call that a plugin. Mermaid needs strict security,
+sanitized output, collision-free IDs across speaker previews, accessible labels, useful
+diagnostics, and deterministic development, production, and PDF behavior. Until those contracts
+exist together, the official catalog does not claim Mermaid support.
+
+<h2 id="plugin-versus-theme">Keep ownership clear</h2>
+
+Themes own global visual language. Plugins own added behavior. Stage modules own persistent
+deck-specific background and foreground UI. Keeping those responsibilities separate lets a deck
+change its visual system without changing its delivery contract.
