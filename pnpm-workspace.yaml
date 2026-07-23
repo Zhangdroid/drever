@@ -1,8 +1,8 @@
 packages:
-  - apps/*
   - examples/*
   - packages/*
   - plugins/*
+  - website
 
 catalogMode: prefer
 
@@ -34,6 +34,7 @@ catalog:
   unified: 11.0.5
   vite: npm:@voidzero-dev/vite-plus-core@0.2.5
   vite-plus: 0.2.5
+  wrangler: 4.113.0
 
 overrides:
   react: "catalog:"
@@ -48,3 +49,8 @@ minimumReleaseAgeExclude:
   - react-dom@19.3.0-canary-83840902-20260719
   - react@19.3.0-canary-83840902-20260719
   - scheduler@0.28.0-canary-83840902-20260719
+
+allowBuilds:
+  esbuild: true
+  sharp: false
+  workerd: true

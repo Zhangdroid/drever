@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build:packages": "vp run -F './packages/**' -F './plugins/**' --fail-if-no-match build",
+    "build:website": "vp run -F @drever/website build",
     "build": "vp run -r build",
     "check": "vp check",
     "demo": "vp run -F @drever/example-basic dev",

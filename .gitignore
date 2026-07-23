@@ -11,8 +11,8 @@ node_modules
 .pnpm-store
 dist
 dist-ssr
-apps/*/build/
-apps/*/.react-router/
+website/build/
+website/.react-router/
 **/.drever/
 test-results/
 *.local
