@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { mkdtemp, readFile, realpath, rm, stat, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, realpath, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
@@ -18,7 +18,9 @@ const packageNames = (await readPublicPackages())
   .sort((left, right) => (left < right ? -1 : left > right ? 1 : 0));
 
 const root = await realpath(await mkdtemp(join(tmpdir(), "drever-registry-consumer-")));
-const deckRoot = join(root, "registry-deck");
+const packageConsumerRoot = join(root, "all-packages");
+const journeyRoot = join(root, "first-user");
+const deckRoot = join(journeyRoot, "registry-deck");
 const run = (command, arguments_, cwd = root, timeout = 240_000) =>
   execute(command, arguments_, {
     cwd,
@@ -27,11 +29,19 @@ const run = (command, arguments_, cwd = root, timeout = 240_000) =>
       CI: "true",
       FORCE_COLOR: "0",
       npm_config_cache: join(root, "npm-cache"),
+      npm_config_registry: "https://registry.npmjs.org",
     },
     maxBuffer: 10 * 1024 * 1024,
     timeout,
   });
 const readJson = async (path) => JSON.parse(await readFile(path, "utf8"));
+const readCreateReceipt = (output) => {
+  const start = output.search(/^\{/mu);
+  if (start === -1) {
+    throw new Error("The public npm create command did not return a JSON receipt.");
+  }
+  return JSON.parse(output.slice(start));
+};
 const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 
 const installPublishedPackages = async () => {
@@ -40,8 +50,8 @@ const installPublishedPackages = async () => {
   for (const [attempt, delay] of delays.entries()) {
     if (delay > 0) await wait(delay);
     await Promise.all([
-      rm(join(root, "node_modules"), { force: true, recursive: true }),
-      rm(join(root, "package-lock.json"), { force: true }),
+      rm(join(packageConsumerRoot, "node_modules"), { force: true, recursive: true }),
+      rm(join(packageConsumerRoot, "package-lock.json"), { force: true }),
     ]);
     try {
       const taggedVersions = await Promise.all(
@@ -74,7 +84,7 @@ const installPublishedPackages = async () => {
           "--prefer-online",
           "--registry=https://registry.npmjs.org",
         ],
-        root,
+        packageConsumerRoot,
         90_000,
       );
       return;
@@ -94,8 +104,9 @@ const installPublishedPackages = async () => {
 };
 
 try {
+  await mkdir(packageConsumerRoot);
   await writeFile(
-    join(root, "package.json"),
+    join(packageConsumerRoot, "package.json"),
     `${JSON.stringify(
       {
         name: "drever-registry-consumer",
@@ -111,12 +122,10 @@ try {
   );
   await installPublishedPackages();
 
-  const modules = join(root, "node_modules");
+  const modules = join(packageConsumerRoot, "node_modules");
   const moduleRoot = (name) => join(modules, ...name.split("/"));
   const packageRoots = {
     agent: moduleRoot("@drever/agent"),
-    create: moduleRoot("create-drever"),
-    drever: moduleRoot("drever"),
   };
   const installedVersions = await Promise.all(
     packageNames.map(async (name) =>
@@ -127,27 +136,32 @@ try {
     throw new Error(`The registry consumer did not install every Drever package at ${version}.`);
   }
 
-  const createCli = join(packageRoots.create, "dist", "bin.mjs");
-  const dreverCli = join(packageRoots.drever, "dist", "bin.mjs");
-  const created = await run(process.execPath, [
-    createCli,
-    "registry-deck",
-    "--no-install",
-    "--json",
+  await mkdir(journeyRoot);
+  const created = await run(
+    "npm",
+    ["create", `drever@${version}`, "registry-deck", "--", "--json"],
+    journeyRoot,
+    300_000,
+  );
+  const createReceipt = readCreateReceipt(created.stdout);
+  if (
+    createReceipt.installed !== true ||
+    createReceipt.packageManager !== "npm" ||
+    createReceipt.root !== deckRoot ||
+    createReceipt.version !== 1
+  ) {
+    throw new Error("The public npm create command returned an invalid receipt.");
+  }
+  const [generatedPackage, generatedDrever] = await Promise.all([
+    readJson(join(deckRoot, "package.json")),
+    readJson(join(deckRoot, "node_modules", "drever", "package.json")),
   ]);
-  const createReceipt = JSON.parse(created.stdout);
-  if (createReceipt.root !== deckRoot || createReceipt.version !== 1) {
-    throw new Error("The published create-drever returned an invalid receipt.");
+  if (generatedPackage.devDependencies?.drever !== version || generatedDrever.version !== version) {
+    throw new Error(`The public npm create command did not install Drever ${version}.`);
   }
 
-  const checked = await run(process.execPath, [dreverCli, "check", "--json"], deckRoot);
-  if (JSON.parse(checked.stdout).summary?.errors !== 0) {
-    throw new Error("The published Drever CLI did not validate its generated deck.");
-  }
-  const built = await run(process.execPath, [dreverCli, "build", "--json"], deckRoot);
-  if (JSON.parse(built.stdout).artifacts?.[0]?.path !== join(deckRoot, "dist")) {
-    throw new Error("The published Drever CLI returned an invalid build receipt.");
-  }
+  await run("npm", ["run", "check"], deckRoot);
+  await run("npm", ["run", "build"], deckRoot);
   await stat(join(deckRoot, "dist", "index.html"));
 
   const [codexPlugin, claudePlugin] = await Promise.all([
