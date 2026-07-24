@@ -23,6 +23,7 @@ catalog:
   react: 19.3.0-canary-83840902-20260719
   react-dom: 19.3.0-canary-83840902-20260719
   rehype-katex: 7.0.1
+  remark-gfm: 4.0.1
   remark-mdx: 3.1.1
   remark-math: 6.0.0
   remark-parse: 11.0.0
