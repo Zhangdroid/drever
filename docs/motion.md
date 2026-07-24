@@ -567,13 +567,15 @@ both axes. If it does not change, leave it completely still.
 
 ## Runtime and accessibility contract
 
-The audience viewer starts the native View Transition on the deck element and
-commits the corresponding React state inside its update callback. Only the deck
-and explicit continuity identities are captured. Stage layers, dialogs, and
-audience controls remain live siblings outside that snapshot, so their hover,
-focus, and visual state do not hand off through stale bitmaps. Step recipes run
-on the live DOM instead of captured images; persistent titles and surrounding
-content therefore never receive duplicate transition snapshots.
+The audience viewer starts the native View Transition on the document and
+commits the corresponding React state inside its update callback. CSS excludes
+the document root, then captures the named deck and explicit continuity
+identities. The Stage background stays live; non-empty foreground, focus, and
+command-bar surfaces receive stable named groups above the deck. The transition
+overlay ignores pointer input, although those short-lived visuals remain
+snapshots until the document transition finishes. Step recipes run on the live
+DOM instead of captured images; persistent titles and surrounding content
+therefore never receive duplicate transition snapshots.
 
 Native capture is audience-only. Speaker previews and PDF export retain the
 stable-frame replacement semantics but disable animation and View Transition
@@ -583,7 +585,7 @@ replacement states into its reading flow. Reduced-motion preference, or the
 path without presentation animation.
 
 Core owns `Step` visibility, replacement accessibility, intent and flow
-attributes, and continuity identity. The client owns deck-scoped capture, the
+attributes, and continuity identity. The client owns named document capture, the
 Navigation-to-React commit, and navigation direction. Themes own the visual
 mapping: duration, easing, emphasis, displacement, and the intentional
 reduced-motion result. A theme's `motion` field is JSON-safe
@@ -615,8 +617,9 @@ does not load a JavaScript motion module and there is no separate
 - Keep global backgrounds, branding, and page numbers in Stage layers. Animate
   only a Stage sub-element whose visual state changes, and let it yield to
   stronger content motion.
-- Keep audience controls, dialogs, and other client chrome outside the deck
-  transition surface; never give them slide or continuity identities.
+- Keep audience controls, dialogs, and other client chrome outside deck content;
+  never give them slide or continuity identities. Let the client assign stable
+  overlay groups during document transitions.
 - Use direct Step children for `focus`, `replace`, and `compare`.
 - Use a Step instead of an inline control when presentation navigation owns the
   next narrative state.

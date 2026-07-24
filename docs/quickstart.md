@@ -7,9 +7,8 @@ application, and export a portable PDF.
 ## Requirements
 
 - Node.js 24.18 or newer.
-- A current Chromium-family browser with Navigation API,
-  `Document.startViewTransition`, `Element.startViewTransition`,
-  `BroadcastChannel`, and `ResizeObserver`.
+- A current desktop browser with Navigation API and `NavigateEvent.signal`,
+  `Document.startViewTransition`, `BroadcastChannel`, and `ResizeObserver`.
 - Playwright Chromium for PDF export. Install it once with
   `npx playwright install chromium`. CI images can use
   `npx playwright install --with-deps chromium`.
@@ -91,8 +90,9 @@ intents when the relationship between states matters:
 inside one Step and contains at most four direct visual children. `continuity`
 requires the same explicit lowercase kebab-case `name` on the same object across
 adjacent slides. Themes decide how each intent looks; Drever owns Step state,
-accessibility, continuity identity, deck-scoped capture, and reduced-motion behavior. See
-[Motion choreography](./motion.md) for the complete grammar and examples.
+accessibility, continuity identity, named deck capture, and reduced-motion
+behavior. See [Motion choreography](./motion.md) for the complete grammar and
+examples.
 
 ## Set up agent authoring
 
@@ -431,9 +431,10 @@ modules, and runtime components are covered in
   pointing stops. A late audience receives the current persistent ink snapshot.
 - Pointer and touch users can navigate, use Focus Tools, open the slide
   navigator, document or speaker view, and enter fullscreen from the compact
-  audience control bar. The bar is rendered outside the slide canvas, so it is
-  never captured by slide View Transitions. The Focus Tools overlay is inside
-  the canvas but outside the transitioning deck.
+  audience control bar. The bar remains a live sibling of the canvas and uses a
+  stable named snapshot above the transitioning deck. Visible Focus Tools marks
+  use a separate stable group above the deck while the transition overlay
+  ignores pointer input.
 - Audience navigation does not capture input or interactive controls. In speaker
   chrome, Arrow/Page/Home/End continue to work after a control receives focus;
   Space and Enter retain the focused button's native behavior, and the focused

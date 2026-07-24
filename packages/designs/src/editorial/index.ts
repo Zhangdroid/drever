@@ -161,7 +161,7 @@ export const theme = defineTheme({
         nestedColumns: false,
       },
       example:
-        '<Feature heading="Interfaces explain change." body={<p>Motion should preserve context, not decorate navigation.</p>} visual={<Diagram />} caption="Canvas-scoped transition model" balance="visual-led" />',
+        '<Feature heading="Interfaces explain change." body={<p>Motion should preserve context, not decorate navigation.</p>} visual={<Diagram />} caption="Named transition groups" balance="visual-led" />',
     },
   ],
   manifest: {

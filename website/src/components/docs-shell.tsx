@@ -169,7 +169,7 @@ export function ManualSetup() {
         <p>Drever targets current tools on purpose:</p>
         <ul>
           <li>Node.js 24.18 or newer.</li>
-          <li>A current Chromium-family browser.</li>
+          <li>A current Safari or Chromium-family browser.</li>
           <li>Playwright Chromium only when exporting PDF.</li>
         </ul>
         <p>

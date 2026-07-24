@@ -31,7 +31,7 @@ await viewer.navigate({ type: "next" });
 
 The viewer owns canvas scaling, exact Step navigation, clean path/history state,
 an accessible audience command bar and visual slide navigator, keyboard controls,
-deck-scoped View Transitions, runtime setup, and teardown.
+document View Transitions with deck-specific capture, runtime setup, and teardown.
 Its Copy link control writes the canonical URL for the committed slide and Step
 while preserving query and hash state. It requires the Clipboard API in a
 secure context and reports a clear error instead of using a legacy fallback.
@@ -43,10 +43,11 @@ and the command bar yields while the presenter draws. Completed ink can be
 undone or cleared. Ink remains visible across Step changes on the same slide and
 clears when the slide changes.
 The laser is transient. The overlay is mounted inside `.drever-canvas`, above
-the Stage but outside `.drever-deck`, so it never enters the deck-scoped View
-Transition. `focusTools` sets per-viewer appearance, while themes and project
-styles provide fallback colors, widths, and highlighter opacity through the
-documented `--drever-focus-*` CSS variables.
+the Stage but outside `.drever-deck`. When marks are visible during a slide
+change, they receive a stable named snapshot above the deck group. `focusTools`
+sets per-viewer appearance, while themes and project styles provide fallback
+colors, widths, and highlighter opacity through the documented
+`--drever-focus-*` CSS variables.
 
 `createSpeaker` adds current/next previews, compiled notes, a searchable slide
 navigator, rehearsal controls, and `BroadcastChannel` position synchronization
@@ -90,7 +91,7 @@ const result = await createExport({
 ```
 
 The package targets current browsers and intentionally requires the Navigation
-API, `Document.startViewTransition`, `Element.startViewTransition`,
+API with `NavigateEvent.signal`, `Document.startViewTransition`,
 `BroadcastChannel`, and `ResizeObserver` instead of shipping legacy fallbacks.
 Export readiness similarly depends on modern `FontFaceSet`, image decoding, and
 animation-frame APIs.

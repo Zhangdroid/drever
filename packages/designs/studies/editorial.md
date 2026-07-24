@@ -58,7 +58,7 @@ unrelated ideas on a slide.
   heading="Interfaces explain change."
   body={<p>Motion should preserve context, not decorate navigation.</p>}
   visual={<TransitionDiagram />}
-  caption="Canvas-scoped transition model"
+  caption="Named transition groups"
   balance="visual-led"
 />
 ```
