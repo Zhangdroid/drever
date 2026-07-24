@@ -1,8 +1,12 @@
-import studioTheme from "@drever/designs/studio";
 import { defineConfig } from "drever";
+import architectureTheme from "./design/theme.ts";
 
 export default defineConfig({
-  theme: studioTheme,
+  stage: {
+    background: "./stage-background.tsx",
+    foreground: "./stage-foreground.tsx",
+  },
+  theme: architectureTheme,
   server: {
     host: "127.0.0.1",
     port: 4321,

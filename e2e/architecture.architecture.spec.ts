@@ -3,82 +3,57 @@ import { monitorPageHealth } from "./support/page-health.ts";
 
 const activeSlide = '[data-drever-slide][data-slide-state="active"]';
 
-test("the architecture tour makes compiler artifacts inspectable", async ({ page }) => {
+test("the architecture tour follows one compiler contract across its artifacts", async ({
+  page,
+}) => {
   const health = monitorPageHealth(page);
   await page.goto("/");
 
-  await expect(page.locator(activeSlide).locator('[data-drever-layout="statement"]')).toBeVisible();
-  await expect(page.locator('[data-drever-stage-layer="background"]')).toHaveCSS(
-    "background-color",
-    "rgb(11, 20, 31)",
+  await expect(page.locator(`${activeSlide} .arch-opening`)).toBeVisible();
+  await expect(page.getByTestId("architecture-stage-background")).toHaveAttribute(
+    "data-scene",
+    "opening",
   );
-  await expect(page.locator(activeSlide)).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+  await expect(page.locator(activeSlide)).toContainText("Every surface agrees.");
 
   await page.goto("/3");
+  const artifact = page.locator(`${activeSlide} .arch-artifact-lens`);
+  await expect(artifact).toContainText("Authored source");
+  await expect(artifact).toContainText("# Ship one story.");
 
-  await expect(page.locator(activeSlide)).toContainText("The deck becomes data before UI.");
-  const runtime = page.getByRole("button", { name: /Runtime/u });
-  const artifact = page.locator(activeSlide).locator(".arch-explorer__artifact");
-  await runtime.click();
-  await expect(runtime).toHaveAttribute("aria-pressed", "true");
+  await page.goto("/3/2");
+  await expect(artifact).toContainText("Manifest");
+  await expect(artifact).toContainText('"stepStops": [1]');
+
+  await page.goto("/3/3");
+  await expect(artifact).toContainText("Runtime");
   await expect(artifact).toContainText('"surface": "audience"');
-  await expect(artifact).toContainText("without inspecting DOM");
-
-  await page.getByRole("button", { name: /Manifest/u }).click();
-  await expect(artifact).toContainText('"stepStops": [1, 2, 3, 4, 5]');
+  await expect(
+    page.locator(`${activeSlide} .arch-step-caption [data-step-state="active"]`),
+  ).toHaveText(/never reverse-engineers the DOM/u);
 
   await page.goto("/5");
-  const workbench = page.locator(activeSlide).locator('[data-drever-layout="workbench"]');
-  await expect(workbench).toBeVisible();
-  await expect(page.locator(activeSlide)).toContainText(
-    "Design and plugins answer different questions.",
-  );
-  await expect(workbench).toContainText("Changing the design must not change content semantics.");
-  await expect(workbench).toHaveAttribute("aria-label", "Design and plugin ownership boundary");
-  expect(
-    await workbench.evaluate((element) => {
-      const slide = element.closest<HTMLElement>("[data-drever-slide]");
-      if (slide === null) {
-        throw new Error("A Workbench layout must render inside a Drever slide.");
-      }
-      const layoutBounds = element.getBoundingClientRect();
-      const slideBounds = slide.getBoundingClientRect();
-      const descendantsOverflow = Array.from(
-        element.querySelectorAll<HTMLElement>(
-          ".drever-studio-workbench__main, .drever-studio-workbench__rail",
-        ),
-        (region) =>
-          region.scrollWidth > region.clientWidth || region.scrollHeight > region.clientHeight,
-      ).some(Boolean);
-      return (
-        descendantsOverflow ||
-        layoutBounds.left < slideBounds.left ||
-        layoutBounds.right > slideBounds.right ||
-        layoutBounds.top < slideBounds.top ||
-        layoutBounds.bottom > slideBounds.bottom
-      );
-    }),
-  ).toBe(false);
+  const boundary = page.locator(`${activeSlide} .arch-boundary-map`);
+  await expect(boundary).toContainText(/design/iu);
+  await expect(boundary).toContainText("Expression");
+  await expect(boundary).toContainText(/plugin/iu);
+  await expect(boundary).toContainText("Capability");
+  await expect(boundary).toContainText(/unchanged semantics/iu);
 
   await page.goto("/speaker/3");
   await expect(page.locator("[data-drever-speaker]")).toBeVisible();
-  const explorerLabels = await page.evaluate(() => {
-    const references = Array.from(
-      document.querySelectorAll(".arch-explorer[aria-labelledby]"),
-      (element) => element.getAttribute("aria-labelledby"),
-    ).filter((value): value is string => value !== null);
-    const counts = new Map<string, number>();
-    for (const { id } of document.querySelectorAll<HTMLElement>("[id]")) {
-      counts.set(id, (counts.get(id) ?? 0) + 1);
-    }
-    return {
-      allResolveOnce: references.every((id) => counts.get(id) === 1),
-      references,
-    };
-  });
-  expect(explorerLabels.references.length).toBeGreaterThanOrEqual(2);
-  expect(new Set(explorerLabels.references).size).toBe(explorerLabels.references.length);
-  expect(explorerLabels.allResolveOnce).toBe(true);
+  await expect(
+    page.getByTestId("speaker-current").getByTestId("architecture-stage-background"),
+  ).toHaveAttribute("data-scene", "contract");
+
+  await page.goto("/document");
+  const compilerCaptions = page
+    .locator('[data-drever-document-page][data-slide-index="3"]')
+    .locator(".arch-step-caption > [data-drever-step]");
+  await expect(compilerCaptions).toHaveCount(5);
+  for (const caption of await compilerCaptions.all()) {
+    await expect(caption).toBeVisible();
+  }
 
   health.expectHealthy();
 });
@@ -89,7 +64,25 @@ test("the architecture tour demonstrates deterministic routes and valid manifest
   const health = monitorPageHealth(page);
   await page.goto("/6");
 
-  await expect(page.locator(activeSlide)).toContainText("The URL is presentation state.");
+  await expect(page.locator(activeSlide)).toContainText("One coordinate drives every surface.");
+  await page
+    .getByRole("group", { name: "Slide" })
+    .getByRole("button", { name: "1", exact: true })
+    .click();
+  await expect(page.getByRole("status")).toContainText(
+    "Route /speaker; output dist/speaker/index.html.",
+  );
+  await expect(page.locator(`${activeSlide} .arch-route-expression`)).toHaveAttribute(
+    "aria-label",
+    "Canonical route /speaker",
+  );
+  await page.getByRole("button", { name: "audience", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText("Route /; output dist/index.html.");
+  await expect(page.locator(`${activeSlide} .arch-route-expression`)).toHaveAttribute(
+    "aria-label",
+    "Canonical route /",
+  );
+
   await page.getByRole("button", { name: "speaker", exact: true }).click();
   await page
     .getByRole("group", { name: "Slide" })
@@ -102,27 +95,19 @@ test("the architecture tour demonstrates deterministic routes and valid manifest
   const output = page.getByRole("status");
   await expect(output).toContainText("/speaker/4/2");
   await expect(output).toContainText("dist/speaker/4/2/index.html");
-
-  await page.goto("/4");
-  const pipeline = page.locator(`${activeSlide} .arch-pipeline`);
-  const firstPipelineStep = pipeline.locator(":scope > [data-drever-step]").first();
-  await expect(pipeline).toHaveAttribute("data-motion-flow", "inline");
-  expect(
-    await firstPipelineStep.evaluate((element) => {
-      const [x = "0", y = "0"] = getComputedStyle(element).translate.split(" ");
-      return [Number.parseFloat(x), Number.parseFloat(y)];
-    }),
-  ).toEqual([10, 0]);
-  expect(
-    await firstPipelineStep.evaluate((element) => {
-      const style = getComputedStyle(element);
-      return { opacity: Number(style.opacity), scale: Number(style.scale) };
-    }),
-  ).toEqual({ opacity: 0.12, scale: 0.985 });
+  await expect(page.locator(`${activeSlide} .arch-route-expression`)).toHaveAttribute(
+    "aria-label",
+    "Canonical route /speaker/4/2",
+  );
 
   await page.goto("/4/5");
-  await expect(page.locator(activeSlide)).toContainText("Compilation is an owned sequence.");
+  const pipeline = page.locator(`${activeSlide} .arch-compiler-rail`);
+  await expect(page.locator(activeSlide)).toContainText(
+    "Five owned passes turn intent into certainty.",
+  );
   await expect(page.locator('[data-drever-step="5"]')).toHaveAttribute("data-step-state", "active");
+  await expect(pipeline.locator(".arch-compiler-pass[data-active]")).toContainText("Seal");
+  await expect(pipeline.locator(".arch-compiler-pass[data-passed]")).toHaveCount(4);
 
   const staticEntry = await page.request.get("/4/5/index.html");
   expect(staticEntry.ok()).toBe(true);

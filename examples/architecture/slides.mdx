@@ -1,341 +1,269 @@
-import { ArtifactExplorer, RouteCompiler } from "./ArchitectureLab.tsx";
+import { RouteCompiler } from "./ArchitectureLab.tsx";
+import {
+  ArtifactLineage,
+  BoundaryMap,
+  BuildGraph,
+  CommitProtocol,
+  CompilerRail,
+  FailureBoundary,
+  InvariantMap,
+  StaticTopology,
+  TestBoundaries,
+} from "./ArchitectureVisuals.tsx";
 import "../showcase-return.css";
 import "./architecture.css";
 
-<Statement
-  eyebrow="Drever / architecture"
-  index="00"
-  title="One source. Many trustworthy surfaces."
-  supporting="The architecture turns authored intent into a stable contract before it becomes a presentation."
-/>
+<section aria-label="One source. Every surface agrees." className="arch-slide arch-opening">
+  <div className="arch-opening__copy">
+    <span className="arch-kicker">Drever / architecture</span>
+    <h1>
+      {"One source."}
+      <br />
+      <em>Every surface agrees.</em>
+    </h1>
+    <p>Drever turns authored intent into one contract before it becomes a presentation.</p>
+  </div>
+  <BuildGraph />
+</section>
 
 <Note>
-  Frame this as an architecture of agreements, not packages. Each layer exists to make audience,
-  speaker view, build output, tests, and future tools agree on what the deck means.
+  This is an architecture of agreement, not a package tour. Follow one idea from readable source to
+  every place it must remain true.
 </Note>
 
 ---
 
-## Start with invariants—not components.
-
-<div className="arch-principles">
-  <article>
-    <span>01 / semantics</span>
-    <strong>Meaning before rendering</strong>
-    <p>The deck is serializable before React enters the picture.</p>
-  </article>
-  <article>
-    <span>02 / navigation</span>
-    <strong>URL as source of truth</strong>
-    <p>History, reload, sync, and tests share one position.</p>
-  </article>
-  <article>
-    <span>03 / extensions</span>
-    <strong>Capability with provenance</strong>
-    <p>Every contribution has an owner and a validated boundary.</p>
-  </article>
-  <article>
-    <span>04 / failure</span>
-    <strong>Errors as data</strong>
-    <p>Stable diagnostics serve people, tools, and AI equally.</p>
-  </article>
-</div>
+<section className="arch-slide">
+  <header className="arch-slide-heading">
+    <span className="arch-kicker">01 / The problem</span>
+    <h1>First, decide what must never drift.</h1>
+    <p>Slide, Step, notes, and URL need one semantic center.</p>
+  </header>
+  <InvariantMap />
+</section>
 
 <Note>
-  These invariants explain most implementation decisions later in the deck. They are deliberately
-  independent of any specific component library or bundler.
+  Without a shared contract, the audience, speaker, document, and export surfaces each invent a
+  slightly different deck. Drever fixes the meaning before those surfaces exist.
 </Note>
 
 ---
 
-## The deck becomes data before UI.
-
-<ArtifactExplorer />
+<section className="arch-slide">
+  <header className="arch-slide-heading arch-slide-heading--compact">
+    <span className="arch-kicker">02 / The contract</span>
+    <h1>Before pixels, the deck is data.</h1>
+  </header>
+  <ArtifactLineage />
+  <MotionGroup className="arch-step-caption" flow="inline" intent="replace">
+    <Step at={1}>
+      <p>Deck IR gives authored meaning a serializable shape.</p>
+    </Step>
+    <Step at={2}>
+      <p>The manifest freezes every valid runtime position.</p>
+    </Step>
+    <Step at={3}>
+      <p>Runtime reads the contract. It never reverse-engineers the DOM.</p>
+    </Step>
+  </MotionGroup>
+</section>
 
 <Note>
-  Move through all four layers. Deck IR is the semantic center; the manifest is the frozen runtime
-  projection. The viewer never discovers Steps or notes by inspecting rendered DOM.
+  Advance three times. The source remains readable, Deck IR owns semantics, the manifest owns valid
+  positions, and runtime only interprets the sealed result.
 </Note>
 
 ---
 
-## Compilation is an owned sequence.
-
-<MotionGroup className="arch-pipeline" flow="inline" intent="focus">
-  <Step at={1}>
-    <article>
-      <span>01 / grammar</span>
-      <strong>Split</strong>
-      <p>Reserve root-level `---` before extensions run.</p>
-    </article>
-  </Step>
-  <Step at={2}>
-    <article>
-      <span>02 / model</span>
-      <strong>Analyze</strong>
-      <p>Build Deck IR with exact source fragments.</p>
-    </article>
-  </Step>
-  <Step at={3}>
-    <article>
-      <span>03 / plan</span>
-      <strong>Resolve</strong>
-      <p>Validate theme, plugins, order, and provenance.</p>
-    </article>
-  </Step>
-  <Step at={4}>
-    <article>
-      <span>04 / transform</span>
-      <strong>Compile</strong>
-      <p>Run protected Remark, Rehype, and Recma phases.</p>
-    </article>
-  </Step>
-  <Step at={5}>
-    <article>
-      <span>05 / artifact</span>
-      <strong>Seal</strong>
-      <p>Emit MDX, manifest, registry, styles, and setup.</p>
-    </article>
-  </Step>
-</MotionGroup>
+<section className="arch-slide">
+  <header className="arch-slide-heading arch-slide-heading--compact">
+    <span className="arch-kicker">03 / The compiler</span>
+    <h1>Five owned passes turn intent into certainty.</h1>
+  </header>
+  <CompilerRail />
+  <MotionGroup
+    className="arch-step-caption arch-step-caption--centered"
+    flow="inline"
+    intent="focus"
+  >
+    <Step at={1}>
+      <p>Split reserves root-level slide boundaries before extensions run.</p>
+    </Step>
+    <Step at={2}>
+      <p>Analyze builds Deck IR with exact source ranges.</p>
+    </Step>
+    <Step at={3}>
+      <p>Resolve validates theme, plugins, order, and provenance.</p>
+    </Step>
+    <Step at={4}>
+      <p>Compile runs protected Remark, Rehype, and Recma phases.</p>
+    </Step>
+    <Step at={5}>
+      <p>Seal validates the result and emits one immutable manifest.</p>
+    </Step>
+  </MotionGroup>
+</section>
 
 <Note>
-  Advance five times. Boundary detection precedes extension transformations so plugin order cannot
-  change pagination. Final validation seals the framework-owned structure after each extension
-  phase.
+  Advance five times. Boundary detection happens first, so plugin order can never change pagination.
+  Each pass has one owner and one artifact to hand forward.
 </Note>
 
 ---
 
-## Design and plugins answer different questions.
-
-<Workbench
-  aria-label="Design and plugin ownership boundary"
-  className="arch-ownership-workbench"
-  main={
-    <div className="arch-boundaries">
-      <section className="arch-boundary">
-        <div className="arch-boundary__header">
-          <h3>Design</h3>
-          <code>visual direction</code>
-        </div>
-        <ul>
-          <li>Design tokens</li>
-          <li>Markdown elements</li>
-          <li>Layouts and motion grammar</li>
-        </ul>
-      </section>
-      <section className="arch-boundary">
-        <div className="arch-boundary__header">
-          <h3>Plugin</h3>
-          <code>added capability</code>
-        </div>
-        <ul>
-          <li>Remark / Rehype / Recma</li>
-          <li>Vite build modules</li>
-          <li>Components and lifecycle hooks</li>
-        </ul>
-      </section>
-    </div>
-  }
-  rail={
-    <div className="arch-boundary__rule">
-      <strong>The boundary</strong>
-      <p>
-        {
-          "Changing the design must not change content semantics. A feature that does belongs in a plugin."
-        }
-      </p>
-    </div>
-  }
-/>
+<section className="arch-slide">
+  <header className="arch-slide-heading">
+    <span className="arch-kicker">04 / Extension boundaries</span>
+    <h1>Design changes expression. Plugins change capability.</h1>
+    <p>The same deck contract stays at the center.</p>
+  </header>
+  <BoundaryMap />
+</section>
 
 <Note>
-  Components can exist in both, but ownership resolves the apparent overlap. Theme components are
-  semantic composition vocabulary; plugin components are the runtime face of an added capability.
+  Components can exist in both. A design component is composition vocabulary; a plugin component is
+  the runtime face of added capability. Ownership resolves the apparent overlap.
 </Note>
 
 ---
 
-## The URL is presentation state.
-
-<RouteCompiler />
+<section className="arch-slide">
+  <header className="arch-slide-heading arch-slide-heading--compact">
+    <span className="arch-kicker">05 / Canonical position</span>
+    <h1>One coordinate drives every surface.</h1>
+  </header>
+  <RouteCompiler />
+</section>
 
 <Note>
-  Change surface, slide, and Step. The lab mirrors a selected projection of this deck's compiled
-  manifest. The encoder is deterministic and production materializes only valid positions.
+  Change surface, slide, and Step. The URL is a deterministic projection of the manifest, and
+  production materializes the exact same position as a static file.
 </Note>
 
 ---
 
-## Navigation is one commit protocol.
-
-<div className="arch-commit">
-  <div>
-    <span>01</span>
-    <strong>Intercept</strong>
-    <p>Navigation API receives intent.</p>
-  </div>
-  <div>
-    <span>02</span>
-    <strong>Decode</strong>
-    <p>Path resolves to a manifest position.</p>
-  </div>
-  <div>
-    <span>03</span>
-    <strong>Classify</strong>
-    <p>Step, slide, or jump direction.</p>
-  </div>
-  <div>
-    <span>04</span>
-    <strong>Transition</strong>
-    <p>React activates the slide boundary.</p>
-  </div>
-  <div>
-    <span>05</span>
-    <strong>Commit</strong>
-    <p>React exposes one coherent state.</p>
-  </div>
-  <div>
-    <span>06</span>
-    <strong>Publish</strong>
-    <p>Speaker and audience synchronize.</p>
-  </div>
-</div>
-
-<div className="arch-scope">
-  <strong>Deck-scoped by design</strong>
-  <code>{"deck.startViewTransition({ update })"}</code>
-</div>
+<section className="arch-slide">
+  <header className="arch-slide-heading arch-slide-heading--compact">
+    <span className="arch-kicker">06 / Navigation</span>
+    <h1>Navigation commits that coordinate once.</h1>
+  </header>
+  <CommitProtocol />
+  <MotionGroup
+    className="arch-step-caption arch-step-caption--centered"
+    flow="inline"
+    intent="focus"
+  >
+    <Step at={1}>
+      <p>URL, React, and native capture enter one atomic update.</p>
+    </Step>
+    <Step at={2}>
+      <p>The committed position publishes to speaker and audience together.</p>
+    </Step>
+  </MotionGroup>
+</section>
 
 <Note>
-  This protocol prevents the URL, React tree, animation, and remote audience from briefly
-  disagreeing. The deck owns native capture while React owns the state commit, keeping Stage layers
-  and audience controls live while Step changes stay in the DOM.
+  Advance twice. The deck owns native capture while React owns the state commit. Persistent Stage
+  layers remain live, and no surface observes a half-finished position.
 </Note>
 
 ---
 
-## Static output materializes the state space.
-
-<div className="arch-static">
-  <div className="arch-static__tree">
-    <strong>dist/</strong>
-    <span>├── index.html</span>
-    <span>├── 2/index.html</span>
-    <span>├── 4/5/index.html</span>
-    <span>├── speaker/index.html</span>
-    <span>└── speaker/4/5/index.html</span>
-  </div>
-  <div className="arch-static__contract">
-    <div>
-      <strong>Known depth</strong>
-      <p>Each entry computes its deployment mount before assets activate.</p>
-    </div>
-    <div>
-      <strong>Portable links</strong>
-      <p>Slash and no-slash directory URLs resolve to one canonical position.</p>
-    </div>
-    <div>
-      <strong>No app server</strong>
-      <p>A static host can reload every audience and speaker deep link.</p>
-    </div>
-  </div>
-</div>
+<section className="arch-slide">
+  <header className="arch-slide-heading">
+    <span className="arch-kicker">07 / Static delivery</span>
+    <h1>The coordinate becomes a real file.</h1>
+    <p>Every valid deep link can reload without an application server.</p>
+  </header>
+  <StaticTopology />
+</section>
 
 <Note>
-  This is generation, not an SPA fallback. The tiny bootstrap establishes the absolute base before
-  deferred assets load, including when the whole deck is mounted below a subdirectory.
+  This is generation, not an SPA fallback. Each route computes its deployment mount before assets
+  activate, including when the deck lives below a subdirectory.
 </Note>
 
 ---
 
-## Resources unwind. Failures stay legible.
-
-<div className="arch-lifecycle">
-  <div className="arch-resource-stack">
-    <span className="arch-kicker">Lifecycle stack</span>
-    <ol>
-      <li>Navigation</li>
-      <li>Keyboard</li>
-      <li>Synchronization</li>
-      <li>Plugin setup</li>
-    </ol>
-    <small>Abort once · dispose in reverse · roll back partial setup</small>
-  </div>
-  <div className="arch-diagnostic">
-    <code>DREVER_COMPILE_STEP_INVALID</code>
-    <strong>Step `at` must be a positive static integer.</strong>
-    <div className="arch-diagnostic__location">slides.mdx:18:7 · compiler / analyze</div>
-    <p>
-      {
-        "Expected problems cross boundaries as serializable diagnostics. Unexpected invariants are caught once at the adapter edge."
-      }
-    </p>
-  </div>
-</div>
+<section className="arch-slide">
+  <header className="arch-slide-heading arch-slide-heading--compact">
+    <span className="arch-kicker">08 / Owned failure</span>
+    <h1>Failure is reversible—and explainable.</h1>
+  </header>
+  <FailureBoundary />
+  <MotionGroup
+    className="arch-step-caption arch-step-caption--centered"
+    flow="block"
+    intent="focus"
+  >
+    <Step at={1}>
+      <p>A failed acquisition rolls back in reverse and points to authored source.</p>
+    </Step>
+  </MotionGroup>
+</section>
 
 <Note>
-  The setup runner treats acquisition and disposal as a transaction. Diagnostics have stable codes,
-  stage, owner, source range, and an actionable hint—the same structure works in a CLI, overlay,
-  test, or AI repair loop.
+  Advance once. Setup behaves as a transaction. Expected failures cross boundaries as structured
+  diagnostics with stable codes, ownership, location, and an actionable message.
 </Note>
 
 ---
 
-## Test each promise where it can fail.
-
-<div className="arch-testing">
-  <div>
-    <strong>Pure state</strong>
-    <p>Routes, transition classification, ordering, and diagnostics.</p>
-    <span>unit</span>
-  </div>
-  <div>
-    <strong>Artifact contract</strong>
-    <p>Deck IR and manifest semantics—not generated JavaScript snapshots.</p>
-    <span>compiler</span>
-  </div>
-  <div>
-    <strong>User reality</strong>
-    <p>
-      {"Deep reloads, native View Transitions, speaker sync, HMR, and static mounts in Chromium."}
-    </p>
-    <span>browser / E2E</span>
-  </div>
-</div>
+<section className="arch-slide">
+  <header className="arch-slide-heading arch-slide-heading--compact">
+    <span className="arch-kicker">09 / Evidence</span>
+    <h1>Prove each promise where it can break.</h1>
+  </header>
+  <TestBoundaries />
+  <MotionGroup
+    className="arch-step-caption arch-step-caption--centered"
+    flow="block"
+    intent="focus"
+  >
+    <Step at={1}>
+      <p>Compiler tests protect the semantic artifact—not generated JavaScript snapshots.</p>
+    </Step>
+    <Step at={2}>
+      <p>Browser tests protect reloads, transitions, synchronization, and static mounts.</p>
+    </Step>
+  </MotionGroup>
+</section>
 
 <Note>
-  Unit tests protect algorithms; browser tests protect the product. The highlighted final row
-  reflects Drever's emphasis on real E2E evidence without replacing focused unit coverage.
+  Advance twice. Unit tests protect pure state. Compiler tests protect the contract. Browser tests
+  protect the product where real platform behavior can fail.
 </Note>
 
 ---
 
-<Statement
-  eyebrow="The design rule"
-  index="11"
-  title="Make agreement the default."
-  supporting={
-    <>
-      <span>One semantic deck. One canonical position. Explicit ownership.</span>
-      <span className="drever-example-exit">
-        <a
-          className="drever-example-exit__primary"
-          data-drever-showcase-return=""
-          href="https://drever.dev/docs/getting-started"
-        >
-          Create your own <span aria-hidden="true">↗</span>
-        </a>
-        <a className="drever-example-exit__secondary" href="https://drever.dev/showcase">
-          Explore more examples <span aria-hidden="true">→</span>
-        </a>
-      </span>
-    </>
-  }
-/>
+<section aria-label="Agreement, by default." className="arch-slide arch-closing">
+  <div className="arch-closing__graph">
+    <BuildGraph resolved />
+  </div>
+  <div className="arch-closing__copy">
+    <span className="arch-kicker">The result</span>
+    <h1>
+      {"Agreement,"}
+      <br />
+      <em>by default.</em>
+    </h1>
+    <p>One story. One position. Every surface in sync.</p>
+    <span className="drever-example-exit">
+      <a
+        className="drever-example-exit__primary"
+        data-drever-showcase-return=""
+        href="https://drever.dev/docs/getting-started"
+      >
+        Create your own <span aria-hidden="true">↗</span>
+      </a>
+      <a className="drever-example-exit__secondary" href="https://drever.dev/showcase">
+        Explore more examples <span aria-hidden="true">→</span>
+      </a>
+    </span>
+  </div>
+</section>
 
 <Note>
-  Close by returning to agreement. The architecture is successful when authors can think about the
-  story while every delivery surface remains predictably consistent.
+  Return to the opening graph, now fully resolved. The architecture succeeds when authors can focus
+  on the story while every delivery surface remains predictably consistent.
 </Note>

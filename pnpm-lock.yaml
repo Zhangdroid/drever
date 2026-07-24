@@ -302,12 +302,15 @@ importers:
 
   examples/architecture:
     devDependencies:
-      '@drever/designs':
+      '@drever/brand':
         specifier: workspace:*
-        version: link:../../packages/designs
-      '@drever/schema':
+        version: link:../../packages/brand
+      '@drever/client':
         specifier: workspace:*
-        version: link:../../packages/schema
+        version: link:../../packages/client
+      '@drever/compiler':
+        specifier: workspace:*
+        version: link:../../packages/compiler
       '@types/react':
         specifier: 'catalog:'
         version: 19.2.17

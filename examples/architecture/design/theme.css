@@ -1,0 +1,518 @@
+@import "@drever/brand/fonts.css";
+
+:root:has(.drever-viewer),
+.drever-viewer {
+  --drever-stage-background: #17103f;
+  --drever-stage-color: #ffffff;
+  --drever-canvas-background: #4935ad;
+  --drever-canvas-color: #ffffff;
+  --drever-canvas-color-scheme: dark;
+  --drever-motion-duration: 520ms;
+  --drever-motion-easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --drever-motion-slide-offset: 1%;
+  --drever-recipe-enter-duration: 420ms;
+  --drever-recipe-stagger-duration: 400ms;
+  --drever-recipe-stagger-gap: 70ms;
+  --drever-recipe-step-from-translate: 14px 0;
+  --drever-recipe-replace-from-translate: 12px 0;
+  --drever-recipe-stagger-from-translate: 12px 0;
+  --drever-recipe-step-block-from-translate: 0 14px;
+  --drever-recipe-step-inline-from-translate: 14px 0;
+  --drever-recipe-replace-block-from-translate: 0 12px;
+  --drever-recipe-replace-inline-from-translate: 12px 0;
+  --drever-recipe-stagger-block-from-translate: 0 12px;
+  --drever-recipe-stagger-inline-from-translate: 12px 0;
+  --arch-violet-start: #4f3bc0;
+  --arch-violet-end: #402f9f;
+  --arch-indigo: #21164f;
+  --arch-indigo-deep: #17103f;
+  --arch-ink: #ffffff;
+  --arch-muted: #c1b9f6;
+  --arch-muted-strong: #ded9ff;
+  --arch-signal: #dbff4f;
+  --arch-signal-ink: #21174f;
+  --arch-failure: #ffc466;
+  --arch-line: rgb(222 217 255 / 28%);
+  --arch-line-strong: rgb(222 217 255 / 46%);
+  --arch-glass: rgb(25 16 69 / 48%);
+  --arch-glass-strong: rgb(21 13 61 / 64%);
+  --drever-theme-ink: var(--arch-ink);
+  --drever-theme-muted: var(--arch-muted);
+  --drever-theme-accent: var(--arch-signal);
+  --drever-theme-accent-strong: var(--arch-signal);
+  --drever-theme-accent-soft: rgb(219 255 79 / 15%);
+  --drever-theme-accent-ink: var(--arch-signal-ink);
+  --drever-theme-surface: var(--arch-glass);
+  --drever-theme-border: var(--arch-line);
+  --drever-theme-code-canvas: var(--arch-indigo-deep);
+  --drever-theme-code-ink: #f7f5ff;
+  --drever-theme-radius: 18px;
+  font-family:
+    "Instrument Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+.drever-canvas {
+  border: 1px solid rgb(222 217 255 / 17%);
+  box-shadow:
+    0 50px 130px rgb(15 8 48 / 52%),
+    0 0 0 1px rgb(255 255 255 / 3%);
+}
+
+[data-drever-render-mode^="speaker"] {
+  --drever-motion-duration: 1ms;
+  --drever-recipe-enter-duration: 1ms;
+  --drever-recipe-stagger-duration: 1ms;
+}
+
+.drever-viewer:has([data-drever-render-mode^="speaker"]) .drever-canvas {
+  box-shadow:
+    0 22px 58px rgb(15 8 48 / 42%),
+    0 0 0 1px rgb(255 255 255 / 3%);
+}
+
+[data-drever-stage-layer="background"] {
+  background:
+    radial-gradient(circle at 75% 14%, rgb(126 102 233 / 42%), transparent 36%),
+    linear-gradient(135deg, var(--arch-violet-start), var(--arch-violet-end));
+}
+
+.arch-stage-background,
+.arch-stage-foreground {
+  position: absolute;
+  inset: 0;
+}
+
+.arch-stage-background {
+  overflow: hidden;
+}
+
+.arch-stage-background::before {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgb(226 222 255 / 5%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(226 222 255 / 5%) 1px, transparent 1px);
+  background-size: 52px 52px;
+  content: "";
+  mask-image: linear-gradient(to bottom, rgb(0 0 0 / 88%), transparent 94%);
+}
+
+.arch-stage-background__wash {
+  position: absolute;
+  top: -260px;
+  right: -180px;
+  display: block;
+  width: 820px;
+  height: 820px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgb(172 152 255 / 17%) 0,
+    rgb(172 152 255 / 6%) 42%,
+    transparent 70%
+  );
+  opacity: 0.7;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+.arch-stage-background__topology {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.arch-stage-background__graph {
+  opacity: 0.34;
+  transform: translate3d(0, 0, 0) scale(1);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.arch-stage-background__edge {
+  fill: none;
+  stroke: rgb(222 217 255 / 34%);
+  stroke-linecap: round;
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+
+.arch-stage-background__edge--spine {
+  stroke: rgb(222 217 255 / 48%);
+  stroke-width: 1.5;
+}
+
+.arch-stage-background__edge--return {
+  stroke-dasharray: 5 10;
+}
+
+.arch-stage-background__nodes {
+  fill: rgb(255 255 255 / 55%);
+  stroke: rgb(255 255 255 / 22%);
+  stroke-width: 7;
+}
+
+.arch-stage-background__signal {
+  fill: var(--arch-signal);
+  filter: drop-shadow(0 0 9px rgb(219 255 79 / 48%));
+  transform: translate(136px, 716px);
+}
+
+[data-drever-render-mode="audience"] .arch-stage-background__wash,
+[data-drever-render-mode="audience"] .arch-stage-background__graph,
+[data-drever-render-mode="audience"] .arch-stage-background__signal {
+  transition:
+    opacity 620ms ease,
+    transform 900ms var(--drever-motion-easing);
+}
+
+.arch-stage-background[data-scene="contract"] .arch-stage-background__wash {
+  opacity: 0.46;
+  transform: translate3d(-150px, 110px, 0) scale(0.9);
+}
+
+.arch-stage-background[data-scene="contract"] .arch-stage-background__graph {
+  opacity: 0.23;
+  transform: translate3d(-52px, 34px, 0) scale(0.96);
+}
+
+.arch-stage-background[data-scene="contract"] .arch-stage-background__signal {
+  transform: translate(584px, 530px);
+}
+
+.arch-stage-background[data-scene="pipeline"] .arch-stage-background__wash {
+  opacity: 0.5;
+  transform: translate3d(-28px, 190px, 0) scale(1.04);
+}
+
+.arch-stage-background[data-scene="pipeline"] .arch-stage-background__graph {
+  opacity: 0.27;
+  transform: translate3d(-18px, -42px, 0) scale(1.02);
+}
+
+.arch-stage-background[data-scene="pipeline"] .arch-stage-background__signal {
+  transform: translate(820px, 414px);
+}
+
+.arch-stage-background[data-scene="delivery"] .arch-stage-background__wash {
+  opacity: 0.42;
+  transform: translate3d(-260px, 228px, 0) scale(0.84);
+}
+
+.arch-stage-background[data-scene="delivery"] .arch-stage-background__graph {
+  opacity: 0.2;
+  transform: translate3d(40px, 20px, 0) scale(0.98);
+}
+
+.arch-stage-background[data-scene="delivery"] .arch-stage-background__signal {
+  transform: translate(1022px, 312px);
+}
+
+.arch-stage-background[data-scene="proof"] .arch-stage-background__wash {
+  opacity: 0.56;
+  transform: translate3d(-90px, 74px, 0) scale(0.94);
+}
+
+.arch-stage-background[data-scene="proof"] .arch-stage-background__graph {
+  opacity: 0.25;
+  transform: translate3d(78px, -20px, 0) scale(0.94);
+}
+
+.arch-stage-background[data-scene="proof"] .arch-stage-background__signal {
+  transform: translate(1058px, 716px);
+}
+
+.arch-stage-background:is([data-scene="opening"], [data-scene="closing"])
+  .arch-stage-background__graph {
+  opacity: 0.4;
+}
+
+.arch-stage-background[data-scene="opening"] .arch-stage-background__signal {
+  transform: translate(136px, 716px);
+}
+
+.arch-stage-background[data-scene="closing"] .arch-stage-background__signal {
+  transform: translate(1460px, 170px);
+}
+
+.arch-stage-background[data-reduced-motion]
+  :where(
+    .arch-stage-background__wash,
+    .arch-stage-background__graph,
+    .arch-stage-background__signal
+  ) {
+  transition: none;
+}
+
+.arch-stage-foreground {
+  color: var(--arch-muted);
+  font-family: "Instrument Sans", system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 610;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.arch-stage-foreground__chapter,
+.arch-stage-foreground__page {
+  position: absolute;
+  bottom: 38px;
+  display: flex;
+  align-items: center;
+}
+
+.arch-stage-foreground__chapter {
+  left: 104px;
+  gap: 12px;
+}
+
+.arch-stage-foreground__chapter i {
+  width: 22px;
+  height: 1px;
+  background: rgb(222 217 255 / 44%);
+}
+
+.arch-stage-foreground__page {
+  right: 104px;
+  font-variant-numeric: tabular-nums;
+  gap: 8px;
+}
+
+.arch-stage-foreground__page i {
+  color: rgb(222 217 255 / 46%);
+  font-style: normal;
+}
+
+[data-drever-slide] {
+  position: relative;
+  display: grid;
+  box-sizing: border-box;
+  align-content: center;
+  padding: 78px 104px 90px;
+  overflow: clip;
+  isolation: isolate;
+  background: transparent;
+  color: var(--arch-ink);
+}
+
+[data-drever-slide] :where(h1, h2, h3, h4, h5, h6, p, ul, ol, blockquote, pre, table, figure) {
+  margin-block: 0;
+}
+
+[data-drever-slide] figure {
+  margin-inline: 0;
+}
+
+[data-drever-slide] :where(h1, h2, h3, h4, h5, h6) {
+  max-width: 18ch;
+  color: var(--arch-ink);
+  font-family:
+    "Bricolage Grotesque", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui,
+    sans-serif;
+  font-stretch: 100%;
+  font-weight: 670;
+  letter-spacing: -0.046em;
+  text-wrap: balance;
+}
+
+[data-drever-slide] h1 {
+  max-width: 12ch;
+  font-size: 80px;
+  line-height: 0.94;
+}
+
+[data-drever-slide] h2 {
+  max-width: 16ch;
+  font-size: 60px;
+  line-height: 0.98;
+}
+
+[data-drever-slide] h3 {
+  font-size: 34px;
+  line-height: 1.08;
+}
+
+[data-drever-slide] :where(h4, h5, h6) {
+  font-size: 24px;
+  line-height: 1.15;
+}
+
+[data-drever-slide] :where(p, li) {
+  color: var(--arch-muted-strong);
+  font-family: "Instrument Sans", system-ui, sans-serif;
+  font-size: 25px;
+  letter-spacing: -0.018em;
+  line-height: 1.44;
+  text-wrap: pretty;
+}
+
+[data-drever-slide] p {
+  max-width: 49ch;
+}
+
+[data-drever-slide] > :where(h1, h2, h3) + :where(p, ul, ol, blockquote, pre, table) {
+  margin-top: 28px;
+}
+
+[data-drever-slide] :where(ul, ol) {
+  display: grid;
+  max-width: 44ch;
+  padding: 0;
+  gap: 13px;
+  list-style: none;
+  counter-reset: arch-list;
+}
+
+[data-drever-slide] :where(ul, ol) > li {
+  position: relative;
+  padding-inline-start: 34px;
+  counter-increment: arch-list;
+}
+
+[data-drever-slide] ul > li::before {
+  position: absolute;
+  top: 0.69em;
+  left: 2px;
+  width: 14px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--arch-signal);
+  content: "";
+}
+
+[data-drever-slide] ol > li::before {
+  position: absolute;
+  top: 0.2em;
+  left: 0;
+  color: var(--arch-signal);
+  content: counter(arch-list, decimal-leading-zero);
+  font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
+  font-size: 0.62em;
+  font-weight: 700;
+}
+
+[data-drever-slide] strong {
+  color: var(--arch-ink);
+  font-weight: 690;
+}
+
+[data-drever-slide] em {
+  color: var(--arch-signal);
+  font-style: normal;
+  font-weight: 680;
+}
+
+[data-drever-slide] a {
+  color: var(--arch-ink);
+  font-weight: 660;
+  text-decoration-color: var(--arch-signal);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.18em;
+}
+
+[data-drever-slide] a:hover {
+  color: var(--arch-signal);
+}
+
+[data-drever-slide] blockquote {
+  max-width: 34ch;
+  padding: 24px 30px;
+  border: 1px solid var(--arch-line);
+  border-inline-start: 4px solid var(--arch-signal);
+  border-radius: 0 16px 16px 0;
+  background: var(--arch-glass);
+  box-shadow:
+    0 20px 54px rgb(17 9 55 / 20%),
+    inset 0 1px rgb(255 255 255 / 4%);
+  backdrop-filter: blur(18px);
+}
+
+[data-drever-slide] blockquote p {
+  color: var(--arch-ink);
+  font-family: "Bricolage Grotesque", system-ui, sans-serif;
+  font-size: 32px;
+  font-weight: 590;
+  letter-spacing: -0.028em;
+  line-height: 1.2;
+}
+
+[data-drever-slide] :not(pre) > code {
+  padding: 0.12em 0.38em;
+  border: 1px solid var(--arch-line);
+  border-radius: 6px;
+  background: rgb(23 16 63 / 54%);
+  color: var(--arch-signal);
+  font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
+  font-size: 0.82em;
+}
+
+[data-drever-slide] pre {
+  box-sizing: border-box;
+  max-width: 100%;
+  padding: 26px 30px;
+  overflow: hidden;
+  border: 1px solid var(--arch-line);
+  border-radius: 16px;
+  background: var(--arch-indigo-deep) !important;
+  box-shadow:
+    0 22px 56px rgb(17 9 55 / 24%),
+    inset 0 1px rgb(255 255 255 / 5%);
+  color: #f7f5ff;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", ui-monospace, monospace;
+  font-size: 19px;
+  line-height: 1.5;
+  tab-size: 2;
+}
+
+[data-drever-slide] pre code {
+  font: inherit;
+}
+
+[data-drever-slide] table {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--arch-line);
+  border-collapse: separate;
+  border-radius: 14px;
+  border-spacing: 0;
+  background: var(--arch-glass);
+}
+
+[data-drever-slide] :where(th, td) {
+  padding: 16px 20px;
+  border-right: 1px solid var(--arch-line);
+  border-bottom: 1px solid var(--arch-line);
+  color: var(--arch-muted-strong);
+  font-size: 20px;
+  text-align: left;
+}
+
+[data-drever-slide] :where(th, td):last-child {
+  border-right: 0;
+}
+
+[data-drever-slide] tr:last-child td {
+  border-bottom: 0;
+}
+
+[data-drever-slide] th {
+  color: var(--arch-ink);
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arch-stage-background
+    :where(
+      .arch-stage-background__wash,
+      .arch-stage-background__graph,
+      .arch-stage-background__signal
+    ) {
+    transition: none;
+  }
+}
