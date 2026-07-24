@@ -2,7 +2,7 @@ import faviconHref from "@drever/brand/assets/favicon.svg";
 import { HeadContent, Link, Outlet, Scripts, createRootRoute } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
-import { BrowserSupportGate, browserSupportCheckScript } from "../components/browser-support-gate";
+import { BrowserSupportNotice } from "../components/browser-support-notice";
 import { SiteShell } from "../components/site-shell";
 import siteStylesHref from "../site.css?url";
 
@@ -48,18 +48,12 @@ function NotFoundPage() {
 
 function RootDocument({ children }: { children: ReactNode }) {
   return (
-    <html
-      data-browser-missing="navigation document-view-transition element-view-transition broadcast-channel resize-observer"
-      data-browser-support="checking"
-      lang="en"
-      suppressHydrationWarning
-    >
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
-        <script dangerouslySetInnerHTML={{ __html: browserSupportCheckScript }} />
       </head>
       <body>
-        <BrowserSupportGate />
+        <BrowserSupportNotice />
         <div className="site-application">{children}</div>
         <Scripts />
       </body>

@@ -25,7 +25,7 @@
     "test:e2e": "playwright test",
     "test:e2e:core": "playwright test --project=dev-chromium --project=build-chromium --project=export-chromium --project=check-cli",
     "test:release": "node --test scripts/release.test.mjs scripts/configure-trusted-publishing.test.mjs scripts/official-plugin-catalog.test.mjs",
-    "test:unit": "vp run --parallel --concurrency-limit 4 -F './packages/**' -F './plugins/**' --fail-if-no-match test"
+    "test:unit": "vp run --parallel --concurrency-limit 4 -F './packages/**' -F './plugins/**' -F @drever/website --fail-if-no-match test"
   },
   "devDependencies": {
     "@playwright/test": "catalog:",

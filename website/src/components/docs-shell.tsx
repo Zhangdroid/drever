@@ -50,13 +50,14 @@ export function DocsShell() {
       });
     };
 
-    const resizeObserver = new ResizeObserver(updateIndicator);
-    resizeObserver.observe(navigation);
+    const resizeObserver =
+      typeof ResizeObserver === "function" ? new ResizeObserver(updateIndicator) : undefined;
+    resizeObserver?.observe(navigation);
     updateIndicator();
 
     return () => {
       cancelAnimationFrame(frame);
-      resizeObserver.disconnect();
+      resizeObserver?.disconnect();
     };
   }, [pathname]);
 

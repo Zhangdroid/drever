@@ -221,23 +221,27 @@ export function HeroStage() {
       animationFrame = window.requestAnimationFrame(draw);
     };
     const handleMotionPreference = () => start();
-    const resizeObserver = new ResizeObserver(() => start());
-    const visibilityObserver = new IntersectionObserver(([entry]) => {
-      visible = entry?.isIntersecting ?? true;
-      if (visible) start();
-      else window.cancelAnimationFrame(animationFrame);
-    });
+    const resizeObserver =
+      typeof ResizeObserver === "function" ? new ResizeObserver(() => start()) : undefined;
+    const visibilityObserver =
+      typeof IntersectionObserver === "function"
+        ? new IntersectionObserver(([entry]) => {
+            visible = entry?.isIntersecting ?? true;
+            if (visible) start();
+            else window.cancelAnimationFrame(animationFrame);
+          })
+        : undefined;
 
-    resizeObserver.observe(canvas);
-    visibilityObserver.observe(canvas);
+    resizeObserver?.observe(canvas);
+    visibilityObserver?.observe(canvas);
     reducedMotion.addEventListener("change", handleMotionPreference);
     start();
 
     return () => {
       window.cancelAnimationFrame(animationFrame);
       window.cancelAnimationFrame(pointerFrameRef.current ?? 0);
-      resizeObserver.disconnect();
-      visibilityObserver.disconnect();
+      resizeObserver?.disconnect();
+      visibilityObserver?.disconnect();
       reducedMotion.removeEventListener("change", handleMotionPreference);
       gl.deleteBuffer(buffer);
       gl.deleteProgram(program);

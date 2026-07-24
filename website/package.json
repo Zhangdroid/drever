@@ -9,6 +9,7 @@
     "dev": "vp dev",
     "preview": "vp preview",
     "preview:pages": "pnpm --dir .. run build:website && wrangler pages dev dist/client --port 4318 --compatibility-date 2026-07-22",
+    "test": "vp test",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
