@@ -232,7 +232,7 @@
     0 0 3rem rgb(255 196 100 / 18%);
 }
 
-.scene-study__record {
+.scene-study__sensor {
   position: absolute;
   top: 27%;
   left: 12%;
@@ -241,13 +241,17 @@
   border: 1px solid rgb(255 255 255 / 14%);
   border-radius: 50%;
   background:
-    radial-gradient(circle, #e5c177 0 4%, #1c1927 4.5% 15%, transparent 15.5%),
-    repeating-radial-gradient(circle, rgb(248 235 208 / 22%) 0 1px, transparent 1px 5px);
-  box-shadow: 0 1.4rem 3rem rgb(0 0 0 / 32%);
-  transition: transform 1.8s var(--drever-brand-motion-easing-standard);
+    radial-gradient(circle, #d7ff54 0 4%, #6a4dc6 4.5% 12%, transparent 12.5%),
+    repeating-radial-gradient(circle, rgb(248 235 208 / 18%) 0 1px, transparent 1px 12%);
+  box-shadow:
+    0 0 0 0.7rem rgb(106 77 198 / 4%),
+    0 1.4rem 3rem rgb(0 0 0 / 32%);
+  transition:
+    box-shadow 1s var(--drever-brand-motion-easing-standard),
+    transform 1s var(--drever-brand-motion-easing-standard);
 }
 
-.scene-study__record > i {
+.scene-study__sensor > i {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -259,14 +263,14 @@
   translate: -50% -50%;
 }
 
-.scene-study__record > span,
-.scene-study__record > strong {
+.scene-study__sensor > span,
+.scene-study__sensor > strong {
   position: absolute;
   left: 122%;
   width: max-content;
 }
 
-.scene-study__record > span {
+.scene-study__sensor > span {
   top: 10%;
   color: #c6b9e9;
   font-size: clamp(0.48rem, 0.75vw, 0.6rem);
@@ -274,7 +278,7 @@
   text-transform: uppercase;
 }
 
-.scene-study__record > strong {
+.scene-study__sensor > strong {
   top: 27%;
   max-width: 13ch;
   color: #f6f0df;
@@ -325,26 +329,26 @@
   height: 92%;
 }
 
-.scene-study__countdown {
+.scene-study__hint {
   position: absolute;
   right: 12%;
   bottom: 22%;
-  display: flex;
-  align-items: baseline;
-  gap: 0.55rem;
+  display: grid;
+  gap: 0.18rem;
+  text-align: right;
 }
 
-.scene-study__countdown span {
+.scene-study__hint span {
   color: #aca5bb;
   font-size: 0.48rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
 }
 
-.scene-study__countdown strong {
-  font-family: var(--drever-brand-font-family-mono);
-  font-size: clamp(0.75rem, 1.4vw, 1.2rem);
-  font-weight: 500;
+.scene-study__hint strong {
+  color: #f6f0df;
+  font-size: clamp(0.56rem, 0.9vw, 0.78rem);
+  font-weight: 560;
 }
 
 .study-cover--scenes .study-cover__meta,
@@ -468,8 +472,11 @@
   transform: translateY(-0.25rem);
 }
 
-.catalog-demo:is(:hover, :focus-within) .scene-study__record {
-  transform: rotate(20deg);
+.catalog-demo:is(:hover, :focus-within) .scene-study__sensor {
+  box-shadow:
+    0 0 0 1rem rgb(106 77 198 / 8%),
+    0 1.4rem 3rem rgb(0 0 0 / 32%);
+  transform: scale(1.035);
 }
 
 .catalog-demo:is(:hover, :focus-within) .scene-study__wave i {

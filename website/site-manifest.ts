@@ -40,7 +40,7 @@ export const demoMounts = [
   },
   {
     description:
-      "A live room study with a reactive soundtrack, provider embeds, a countdown, and persistent atmosphere.",
+      "A microphone-reactive room with local sound analysis and a persistent ambient Stage.",
     id: "scenes",
     label: "Room scenes",
     slug: "scenes",

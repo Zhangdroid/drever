@@ -2,7 +2,7 @@ import { AmbientStage, type AmbientStageState } from "@drever/scenes";
 import type { StageLayerProps } from "drever";
 import type { ReactElement } from "react";
 
-const states: readonly AmbientStageState[] = ["gather", "gather", "focus", "focus", "resolve"];
+const states: readonly AmbientStageState[] = ["gather", "focus", "focus", "resolve"];
 
 export default function RoomScenesBackground({
   position,

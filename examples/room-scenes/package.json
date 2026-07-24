@@ -6,8 +6,7 @@
   "scripts": {
     "build": "drever build",
     "check": "drever check --json",
-    "dev": "drever dev",
-    "generate:audio": "node scripts/generate-opening-loop.mjs"
+    "dev": "drever dev"
   },
   "devDependencies": {
     "@drever/brand": "workspace:*",

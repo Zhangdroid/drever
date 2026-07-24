@@ -1,9 +1,14 @@
 import { DreverRenderModeProvider } from "@drever/core";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect, it, vi } from "vite-plus/test";
 import { resolveMusicEmbed, RoomAudio, RoomCountdown, Soundtrack } from "./index.ts";
-import { deactivateRoomAudio } from "./room-audio.tsx";
+import {
+  deactivateRoomAudio,
+  disposeRoomAudio,
+  requestRoomMicrophone,
+  resolveRoomAudioSignal,
+} from "./room-audio.tsx";
 import { deactivateSoundtrackPlayback, pauseSoundtrackPlayback } from "./soundtrack.tsx";
 
 describe("music links", () => {
@@ -34,23 +39,65 @@ describe("music links", () => {
 });
 
 describe("scene render surfaces", () => {
-  it("offers explicit room-audio sources without autoplay", () => {
-    const markup = renderToStaticMarkup(
-      createElement(RoomAudio, {
-        track: {
-          artist: "Example artist",
-          sourceLabel: "Remote demo",
-          src: "https://media.example/track.mp3",
-          title: "Example track",
-        },
-      }),
-    );
+  it("offers one explicit microphone action without media or source choices", () => {
+    const markup = renderToStaticMarkup(createElement(RoomAudio));
 
-    expect(markup).toContain("Remote demo");
-    expect(markup).toContain("Computer audio");
-    expect(markup).toContain("Microphone");
-    expect(markup).toContain("<audio");
-    expect(markup).not.toContain("autoplay");
+    expect(markup.match(/<button/gu)).toHaveLength(1);
+    expect(markup).toContain("Enable microphone");
+    expect(markup).toContain("Processed in this browser");
+    expect(markup).not.toContain("Computer audio");
+    expect(markup).not.toContain("Demo track");
+    expect(markup).not.toContain("<audio");
+    expect(markup).not.toContain('role="group"');
+  });
+
+  it("requests an unprocessed microphone signal and rejects an empty capture", async () => {
+    const stop = vi.fn();
+    const validStream = {
+      getAudioTracks: () => [{}],
+      getTracks: () => [{ stop }],
+    } as unknown as MediaStream;
+    const getUserMedia = vi.fn().mockResolvedValue(validStream);
+
+    await expect(
+      requestRoomMicrophone({ getUserMedia } as Pick<MediaDevices, "getUserMedia">),
+    ).resolves.toBe(validStream);
+    expect(getUserMedia).toHaveBeenCalledWith({
+      audio: {
+        autoGainControl: false,
+        echoCancellation: false,
+        noiseSuppression: false,
+      },
+      video: false,
+    });
+    expect(stop).not.toHaveBeenCalled();
+
+    const emptyStop = vi.fn();
+    const emptyStream = {
+      getAudioTracks: () => [],
+      getTracks: () => [{ stop: emptyStop }],
+    } as unknown as MediaStream;
+
+    await expect(
+      requestRoomMicrophone({
+        getUserMedia: vi.fn().mockResolvedValue(emptyStream),
+      } as Pick<MediaDevices, "getUserMedia">),
+    ).rejects.toThrow("No microphone audio track was available.");
+    expect(emptyStop).toHaveBeenCalledOnce();
+  });
+
+  it("maps silence and frequency bands to stable Stage signals", () => {
+    expect(resolveRoomAudioSignal({ high: 0.01, low: 0.01, mid: 0.01 })).toEqual({
+      high: 0,
+      level: 0,
+      low: 0,
+      mid: 0,
+    });
+    const signal = resolveRoomAudioSignal({ high: 0.3, low: 0.1, mid: 0.2 });
+    expect(signal.high).toBeCloseTo(0.54);
+    expect(signal.level).toBeCloseTo(0.36);
+    expect(signal.low).toBeCloseTo(0.18);
+    expect(signal.mid).toBeCloseTo(0.36);
   });
 
   it("releases every room-audio resource when the source stops", async () => {
@@ -77,6 +124,32 @@ describe("scene render surfaces", () => {
     await deactivateRoomAudio(session, (frame) => calls.push(`cancel ${frame}`));
 
     expect(calls).toEqual(["cancel 12", "disconnect", "stop first", "stop second", "suspend"]);
+    expect(session.frame).toBeUndefined();
+    expect(session.source).toBeUndefined();
+    expect(session.stream).toBeUndefined();
+  });
+
+  it("closes the audio context when a room-audio scene is disposed", async () => {
+    const calls: string[] = [];
+    const session = {
+      context: {
+        close: () => {
+          calls.push("close");
+          return Promise.resolve();
+        },
+      },
+      frame: 17,
+      source: {
+        disconnect: () => calls.push("disconnect"),
+      },
+      stream: {
+        getTracks: () => [{ stop: () => calls.push("stop") }],
+      },
+    };
+
+    await disposeRoomAudio(session, (frame) => calls.push(`cancel ${frame}`));
+
+    expect(calls).toEqual(["cancel 17", "disconnect", "stop", "close"]);
     expect(session.frame).toBeUndefined();
     expect(session.source).toBeUndefined();
     expect(session.stream).toBeUndefined();
@@ -181,19 +254,10 @@ describe("scene render surfaces", () => {
     "keeps %s free of permissioned room-audio inputs",
     (mode) => {
       const markup = renderToStaticMarkup(
-        createElement(
-          DreverRenderModeProvider,
-          { mode },
-          createElement(RoomAudio, {
-            track: {
-              src: "https://media.example/track.mp3",
-              title: "Example track",
-            },
-          }),
-        ),
+        createElement(DreverRenderModeProvider, { mode }, createElement(RoomAudio)),
       );
 
-      expect(markup).toContain("Live input is available in audience view");
+      expect(markup).toContain("Microphone available in audience view");
       expect(markup).not.toContain("<audio");
       expect(markup).not.toContain("<button");
     },

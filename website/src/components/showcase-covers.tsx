@@ -51,14 +51,14 @@ export function StudyCover({ study }: { study: StudyId }) {
     return (
       <div className="study-cover study-cover--scenes" aria-hidden="true">
         <header className="study-cover__meta">
-          <span>Room atmosphere</span>
-          <small>Live scene</small>
+          <span>Room Sense</span>
+          <small>Mic reactive</small>
         </header>
         <div className="scene-study__glow" />
-        <div className="scene-study__record">
+        <div className="scene-study__sensor">
           <i />
-          <span>Now playing</span>
-          <strong>Before the room begins</strong>
+          <span>Listening locally</span>
+          <strong>Move the light</strong>
         </div>
         <div className="scene-study__wave">
           <i />
@@ -71,12 +71,12 @@ export function StudyCover({ study }: { study: StudyId }) {
           <i />
           <i />
         </div>
-        <div className="scene-study__countdown">
-          <span>Doors open</span>
-          <strong>04:12</strong>
+        <div className="scene-study__hint">
+          <span>Computer speakers → microphone</span>
+          <strong>Nothing leaves the browser</strong>
         </div>
         <footer className="study-cover__foot">
-          <span>Audio-reactive</span>
+          <span>Microphone-reactive</span>
           <small>Scene persists</small>
         </footer>
       </div>

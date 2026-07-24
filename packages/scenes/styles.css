@@ -98,7 +98,13 @@
 
 [data-drever-room-audio-active] .drever-ambient-stage [data-orbit="near"]::after {
   opacity: calc(var(--drever-audio-high, 0) * 0.32);
-  scale: calc(0.98 + var(--drever-audio-high, 0) * 0.035);
+  scale: calc(0.98 + var(--drever-audio-high, 0) * 0.08);
+}
+
+[data-drever-room-audio-active] .drever-ambient-stage [data-orbit="far"]::after {
+  border-color: var(--drever-scene-accent);
+  opacity: calc(var(--drever-audio-mid, 0) * 0.2 + var(--drever-audio-low, 0) * 0.1);
+  scale: calc(0.98 + var(--drever-audio-mid, 0) * 0.06);
 }
 
 .drever-ambient-stage[data-state="gather"] [data-orbit="near"] {
@@ -421,15 +427,16 @@
   --drever-audio-mid: 0;
   position: relative;
   display: grid;
-  min-height: 246px;
+  min-height: 310px;
   box-sizing: border-box;
-  padding: 30px;
+  padding: 36px;
   overflow: clip;
   isolation: isolate;
   border: 1px solid color-mix(in srgb, var(--drever-theme-border, currentColor), transparent 34%);
   border-radius: max(var(--drever-theme-radius, 18px), 22px);
-  grid-template-columns: auto minmax(0, 1fr);
-  align-content: end;
+  grid-template-columns: 132px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  align-content: center;
   align-items: center;
   background: linear-gradient(
     138deg,
@@ -440,17 +447,46 @@
     0 24px 70px rgb(0 0 0 / 12%),
     inset 0 1px rgb(255 255 255 / 8%);
   color: var(--drever-theme-ink, #f6f3e9);
-  gap: 24px;
+  column-gap: 30px;
+  row-gap: 18px;
   backdrop-filter: blur(24px) saturate(1.16);
 }
 
 .drever-room-audio__meter {
   position: relative;
-  width: 96px;
+  width: 132px;
   aspect-ratio: 1;
   border: 1px solid color-mix(in srgb, currentColor, transparent 78%);
   border-radius: 50%;
+  grid-row: 1 / span 2;
   background: color-mix(in srgb, var(--drever-theme-surface, #171719), transparent 54%);
+  box-shadow:
+    0 0 54px color-mix(in srgb, var(--drever-theme-accent, #c7f03a), transparent 88%),
+    inset 0 0 36px rgb(255 255 255 / 3%);
+}
+
+.drever-room-audio__meter::before,
+.drever-room-audio__meter::after {
+  position: absolute;
+  border: 1px solid color-mix(in srgb, currentColor, transparent 84%);
+  border-radius: inherit;
+  content: "";
+  opacity: calc(0.34 + var(--drever-audio-level) * 0.42);
+  scale: calc(0.9 + var(--drever-audio-level) * 0.1);
+  transition:
+    opacity 100ms linear,
+    scale 80ms linear;
+}
+
+.drever-room-audio__meter::before {
+  inset: -12%;
+}
+
+.drever-room-audio__meter::after {
+  inset: -25%;
+  border-color: color-mix(in srgb, var(--drever-theme-accent-strong, #5b45d8), transparent 82%);
+  opacity: calc(0.24 + var(--drever-audio-high) * 0.36);
+  scale: calc(0.92 + var(--drever-audio-high) * 0.08);
 }
 
 .drever-room-audio__meter > i {
@@ -516,36 +552,44 @@
 .drever-room-audio__copy span,
 .drever-room-audio__status {
   color: color-mix(in srgb, currentColor, transparent 42%);
-  font-size: 14px;
+  font-size: 15px;
+  line-height: 1.42;
 }
 
-.drever-room-audio__controls {
+.drever-room-audio__control {
   display: flex;
-  min-width: 0;
-  margin-top: 4px;
-  grid-column: 1 / -1;
-  gap: 8px;
-}
-
-.drever-room-audio__controls button {
-  min-width: 0;
-  padding: 9px 13px;
+  width: max-content;
+  min-width: 154px;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 16px;
   border: 1px solid color-mix(in srgb, currentColor, transparent 72%);
   border-radius: 999px;
   background: color-mix(in srgb, var(--drever-theme-surface, #171719), transparent 32%);
   color: inherit;
   font: inherit;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 650;
   cursor: pointer;
+  gap: 9px;
   transition:
     border-color 180ms ease,
     background-color 180ms ease,
-    translate 180ms ease;
+    translate 180ms ease,
+    opacity 180ms ease;
 }
 
-.drever-room-audio__controls button:hover,
-.drever-room-audio__controls button[aria-pressed="true"] {
+.drever-room-audio__control > i {
+  width: 7px;
+  aspect-ratio: 1;
+  margin: 0;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.46;
+}
+
+.drever-room-audio__control:hover,
+.drever-room-audio__control[aria-pressed="true"] {
   border-color: color-mix(in srgb, var(--drever-theme-accent, #c7f03a), transparent 36%);
   background: color-mix(
     in srgb,
@@ -555,23 +599,33 @@
   translate: 0 -1px;
 }
 
-.drever-room-audio__controls button:focus-visible,
-.drever-room-audio__credit:focus-visible {
+.drever-room-audio__control[aria-pressed="true"] > i {
+  background: var(--drever-theme-accent, #c7f03a);
+  box-shadow: 0 0 12px var(--drever-theme-accent, #c7f03a);
+  opacity: 1;
+}
+
+.drever-room-audio__control:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
+
+.drever-room-audio__control:focus-visible {
   outline: 2px solid var(--drever-theme-accent, #c7f03a);
   outline-offset: 3px;
 }
 
 .drever-room-audio__status {
-  grid-column: 1 / -1;
+  grid-column: 2;
 }
 
-.drever-room-audio__credit {
-  position: absolute;
-  top: 24px;
-  right: 26px;
-  color: color-mix(in srgb, currentColor, transparent 28%);
-  font-size: 12px;
-  text-underline-offset: 4px;
+.drever-room-audio__privacy {
+  padding-top: 16px;
+  border-top: 1px solid color-mix(in srgb, currentColor, transparent 88%);
+  color: color-mix(in srgb, currentColor, transparent 58%);
+  font-size: 11px;
+  grid-column: 1 / -1;
+  letter-spacing: 0.015em;
 }
 
 .drever-room-audio__error {
@@ -579,6 +633,10 @@
   color: #ff9a8f;
   font-size: 13px;
   grid-column: 1 / -1;
+}
+
+.drever-room-audio[data-phase="requesting"] .drever-room-audio__meter::before {
+  animation: drever-room-audio-request 1.2s ease-in-out infinite alternate;
 }
 
 @keyframes drever-scene-breathe {
@@ -592,10 +650,19 @@
   }
 }
 
+@keyframes drever-room-audio-request {
+  to {
+    opacity: 0.76;
+    scale: 1.04;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .drever-ambient-stage > *,
   .drever-ambient-stage [data-orbit]::after,
   .drever-ambient-stage [data-signal]::after,
+  .drever-room-audio__meter::before,
+  .drever-room-audio__meter::after,
   .drever-room-audio__meter > i,
   .drever-soundtrack__visual [data-band],
   .drever-soundtrack__visual > i::after {
@@ -608,6 +675,8 @@
 [data-drever-reduced-motion] .drever-ambient-stage > *,
 [data-drever-reduced-motion] .drever-ambient-stage [data-orbit]::after,
 [data-drever-reduced-motion] .drever-ambient-stage [data-signal]::after,
+[data-drever-reduced-motion] .drever-room-audio__meter::before,
+[data-drever-reduced-motion] .drever-room-audio__meter::after,
 [data-drever-reduced-motion] .drever-room-audio__meter > i,
 [data-drever-reduced-motion] .drever-soundtrack__visual [data-band],
 [data-drever-reduced-motion] .drever-soundtrack__visual > i::after {

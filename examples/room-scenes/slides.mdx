@@ -8,48 +8,9 @@ import "../showcase-return.css";
 <OpeningRoom aria-label="Before the room speaks" />
 
 <Note>
-  Turn the sound on, then start the demo loop. Computer audio listens to a shared tab or screen;
-  Microphone listens to speakers in the room. All three sources drive the persistent Stage without
-  putting the background inside the slide transition.
-</Note>
-
----
-
-<div aria-label="Three ways to give the room a signal" className="input-scene">
-  <header>
-    <span className="scene-kicker">Three inputs / one honest signal</span>
-    <h2>Bring the sound you already have.</h2>
-    <p>The visual response is the same; only the source changes.</p>
-  </header>
-
-<ol className="input-scene__sources">
-  <li>
-    <span>01 · Demo</span>
-    <strong>Local loop</strong>
-    <p>A reliable first look with no account, network, or provider SDK.</p>
-  </li>
-  <li>
-    <span>02 · Direct</span>
-    <strong>Computer audio</strong>
-    <p>Share a tab or screen with audio for a clean digital signal.</p>
-  </li>
-  <li>
-    <span>03 · Physical</span>
-    <strong>Microphone</strong>
-    <p>Let the room itself—speakers, voices, applause—shape the light.</p>
-  </li>
-</ol>
-
-  <p className="input-scene__silence">
-    <span>When the room is quiet</span>
-    the authored background simply rests.
-  </p>
-</div>
-
-<Note>
-  Computer capture and microphone access are explicit presenter gestures, stay inside the browser,
-  and stop when the component leaves the audience surface. This works with any music provider
-  because Drever listens to the selected device, not a provider API.
+  Enable the microphone, then play music through the computer speakers. The low, mid, and high
+  frequencies shape the persistent glow and rings without putting the background inside the slide
+  transition. The captured audio stays inside the browser and is released when listening stops.
 </Note>
 
 ---
@@ -88,7 +49,7 @@ import "../showcase-return.css";
   <li>
     <span>While the room is alive</span>
     <strong>RoomAudio</strong>
-    <p>Turn a stream, computer sound, or the room itself into a visual signal.</p>
+    <p>Let music, voices, or applause reaching the microphone shape a local visual signal.</p>
   </li>
   <li>
     <span>While the story moves</span>

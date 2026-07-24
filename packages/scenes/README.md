@@ -39,31 +39,22 @@ this mode never claims to be frequency-reactive. Leaving the slide disconnects
 local audio and unloads the provider frame; the first version does not create a
 deck-wide music service.
 
-`RoomAudio` connects the same persistent Stage signal to one of three explicit
-inputs:
+`RoomAudio` connects sound reaching the presenter's microphone to the same
+persistent Stage signal:
 
 ```tsx
 import { RoomAudio } from "@drever/scenes";
 
-<RoomAudio
-  track={{
-    artist: "Example artist",
-    sourceLabel: "Demo loop",
-    src: "/audio/opening.mp3",
-    title: "Example track",
-  }}
-/>;
+<RoomAudio label="Listen to the room" />;
 ```
 
-- **Demo track** plays a local or CORS-enabled stream through Web Audio.
-- **Computer audio** asks the presenter to share a tab or screen with audio.
-- **Microphone** listens to sound reaching the room.
-
-The analyzer writes low, mid, high, and overall levels onto the persistent
-`[data-drever-stage]`. It sends no captured audio to Drever. When the input is
-silent or stopped, all values return to zero and the authored background rests.
-Non-audience surfaces render deterministic metadata without media or permission
-controls.
+The presenter explicitly enables the microphone, then may play music through
+the computer speakers, speak, clap, or use any other nearby sound. The analyzer
+writes low, mid, high, and overall levels onto the persistent
+`[data-drever-stage]`. Captured audio is processed only in the browser and is
+never recorded or uploaded. When the room is silent or listening stops, all
+values return to zero and the authored background rests. Non-audience surfaces
+render deterministic metadata without media or permission controls.
 
 ## Render surfaces
 

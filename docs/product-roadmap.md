@@ -194,6 +194,8 @@ but not to a generic UI kit. The first slice provides:
 
 - `Soundtrack`, with an explicit presenter gesture, true Web Audio response for
   local or CORS-enabled audio, and on-demand Spotify or Apple Music embeds;
+- `RoomAudio`, with one explicit microphone gesture and local low, mid, high,
+  and overall Stage signals for music, voices, or applause reaching the room;
 - `RoomCountdown`, which updates only for the audience and keeps authored,
   deterministic copy on every other render surface;
 - `AmbientStage`, a persistent field with a small narrative-state vocabulary
@@ -207,8 +209,8 @@ live frequency response. Audible autoplay is not a product capability.
 The package remains private while its API and visual language are incubating.
 The `room-scenes` example is the executable design study. Strong follow-up
 scenes include `BrowserJourney`, `DataStory`, `CompareLens`, `TimelinePath`, and
-`MediaCue`. Microphone input, spatial runtimes, and audience responses require
-explicit permission, privacy, network, or export design and remain later work.
+`MediaCue`. Spatial runtimes and audience responses require explicit permission,
+privacy, network, or export design and remain later work.
 
 Every Scene must have one narrative job, a stable reduced-motion and export
 state, keyboard and semantic behavior, bounded continuous motion, and no
