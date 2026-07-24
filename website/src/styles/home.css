@@ -1969,18 +1969,6 @@
   line-height: 1.5;
 }
 
-.home-showcase__direction > div:last-child {
-  padding-block-start: 1.2rem;
-}
-
-.home-showcase__direction h3 {
-  font-size: 1.08rem;
-}
-
-.home-showcase__direction p {
-  font-size: 0.74rem;
-}
-
 .home-ai {
   display: grid;
   padding: var(--site-section) var(--site-gutter);

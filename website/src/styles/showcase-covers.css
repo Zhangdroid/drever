@@ -491,7 +491,7 @@
   animation-delay: -600ms;
 }
 
-.catalog-demo:is(:hover, :focus-within) .architecture-study__pulse {
+:is(.catalog-demo, .demo-card):is(:hover, :focus-within) .architecture-study__pulse {
   animation: architecture-study-pulse 2.4s var(--drever-brand-motion-easing-standard) both;
 }
 

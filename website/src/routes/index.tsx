@@ -5,8 +5,8 @@ import { CopyButton } from "../components/copy-button";
 import { ConnectedSourceDemo, RoomMomentDemo } from "../components/home-demos";
 import { ArrowIcon, ArrowUpRightIcon, PlayIcon } from "../components/icons";
 import { HeroStage, HomeShowcaseCover } from "../components/showcase";
-import { ArtDirectionCover } from "../components/showcase-covers";
-import { demos, themes } from "../site-data";
+import { StudyCover } from "../components/showcase-covers";
+import { demos } from "../site-data";
 
 const title = "Drever — Slides that move with your ideas";
 const description =
@@ -33,10 +33,10 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   const story = demos.find((demo) => demo.id === "product");
   const motion = demos.find((demo) => demo.id === "motion");
-  const direction = themes.find((theme) => theme.id === "fieldnote");
+  const architecture = demos.find((demo) => demo.id === "architecture");
 
-  if (story === undefined || motion === undefined || direction === undefined) {
-    throw new Error("The home showcase requires a story, motion study, and art direction.");
+  if (story === undefined || motion === undefined || architecture === undefined) {
+    throw new Error("The home showcase requires product, motion, and architecture demos.");
   }
 
   return (
@@ -142,19 +142,23 @@ function HomePage() {
       <section className="home-showcase">
         <header className="section-heading">
           <div>
-            <span>Story · capability · art direction</span>
+            <span>Story · motion · architecture</span>
             <h2>See what Drever can make.</h2>
           </div>
-          <Link className="text-link" to="/showcase">
-            Explore the showcase <ArrowIcon />
+          <Link className="button button--primary" to="/showcase">
+            Explore all showcases <ArrowIcon />
           </Link>
         </header>
 
         <div className="demo-grid">
-          {[story, motion].map((demo) => (
+          {[story, motion, architecture].map((demo) => (
             <a className="demo-card" data-demo={demo.id} href={demo.href} key={demo.id}>
               <div className="demo-card__visual demo-card__visual--rich">
-                <HomeShowcaseCover kind={demo.id === "product" ? "product" : "motion"} />
+                {demo.id === "architecture" ? (
+                  <StudyCover study="architecture" />
+                ) : (
+                  <HomeShowcaseCover kind={demo.id === "product" ? "product" : "motion"} />
+                )}
               </div>
               <div className="demo-card__copy">
                 <div>
@@ -166,15 +170,6 @@ function HomePage() {
               </div>
             </a>
           ))}
-
-          <Link className="theme-card home-showcase__direction" hash={direction.id} to="/showcase">
-            <ArtDirectionCover theme={direction.id} />
-            <div>
-              <span>Art direction</span>
-              <h3>{direction.label}</h3>
-              <p>{direction.statement}</p>
-            </div>
-          </Link>
         </div>
       </section>
 
