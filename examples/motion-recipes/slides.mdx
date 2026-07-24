@@ -1,7 +1,10 @@
 import {
+  AccessibleEndpoint,
   BrowserFrame,
+  CapabilityPipeline,
   EvidenceReveal,
   MotionEvidence,
+  MotionPrimer,
   SemanticCorrection,
   SpatialModel,
 } from "./MotionArtifacts.tsx";
@@ -9,37 +12,34 @@ import "@drever/brand/fonts.css";
 import "@drever/brand/tokens.css";
 import "./motion.css";
 
-<Masthead
-  aria-label="Move the idea, not the slide."
-  className="motion-cover"
-  kicker="Drever / motion recipes"
-  title={
-    <>
-      <span>Move the idea.</span>
-      <span className="motion-cover__answer">Not the slide.</span>
-    </>
-  }
-  deck="Motion earns attention when it introduces evidence, preserves context, or makes a change easier to understand."
-  meta="A story-led motion study"
-  tone="ink"
-/>
+<div aria-label="Move what changed" className="motion-intro">
+  <header>
+    <span className="motion-kicker">Drever / motion recipes</span>
+    <h1>
+      {"Move what "}
+      <mark>changed.</mark>
+    </h1>
+    <p>Motion is useful when it makes the next thought easier to understand.</p>
+  </header>
+  <MotionPrimer />
+</div>
 
 <Note>
-  Wait for the underline. It is the only movement because it establishes the rule the rest of the
-  deck will follow: movement must help the audience understand what changed.
+  The opening stays sparse. The route on the right demonstrates the principle, and the marker waits
+  until the room has started reading before it emphasizes the single word that matters.
 </Note>
 
 ---
 
-<div aria-label="A screenshot cannot show the moment of change" className="browser-story browser-story--peek">
+<div aria-label="A screenshot cannot show the moment of change" className="browser-story browser-story--anticipate">
   <header className="browser-story__copy">
     <span className="motion-kicker">01 · Anticipation</span>
-    <h2>A screenshot can show the interface.</h2>
+    <h2>A screenshot shows the interface.</h2>
     <p>It cannot show the moment the product changes someone’s mind.</p>
   </header>
 
   <MotionGroup
-    aria-label="A product browser waiting below the stage"
+    aria-label="A product browser waiting completely below the stage"
     className="story-browser"
     intent="continuity"
     name="story-browser"
@@ -49,8 +49,8 @@ import "./motion.css";
 </div>
 
 <Note>
-  The browser already exists, but only its edge is visible. That quiet anticipation supports the
-  sentence without competing with it. Nothing else moves.
+  The browser already exists, but it is completely below the stage. The audience does not need a
+  meaningless sliver of interface; the empty space creates anticipation on its own.
 </Note>
 
 ---
@@ -58,8 +58,8 @@ import "./motion.css";
 <div aria-label="Bring the evidence into the room" className="browser-story browser-story--arrive">
   <header className="browser-story__copy">
     <span className="motion-kicker">02 · Introduction</span>
-    <h2>Bring the evidence into the room.</h2>
-    <p>The same object rises into view because it has become the subject.</p>
+    <h2>Now bring the change into the room.</h2>
+    <p>The same object rises because the story has moved from a claim to its evidence.</p>
   </header>
 
   <MotionGroup
@@ -73,44 +73,20 @@ import "./motion.css";
 </div>
 
 <Note>
-  The browser is not an entrance effect chosen from a menu. It moves because the story has shifted
-  from a claim to its evidence. Its geometry stays fixed while only its position changes.
-</Note>
-
----
-
-<div aria-label="Let the interaction answer" className="browser-story browser-story--inspect">
-  <header className="browser-story__copy">
-    <span className="motion-kicker">03 · Local state</span>
-    <h2>Let the interaction answer.</h2>
-    <p>Switch the evidence. The frame stays still while the answer changes inside it.</p>
-  </header>
-
-  <MotionGroup
-    aria-label="An interactive product browser"
-    className="story-browser"
-    intent="continuity"
-    name="story-browser"
-  >
-    <BrowserFrame interactive />
-  </MotionGroup>
-</div>
-
-<Note>
-  Click Setup completion and Support pattern. The browser has already earned the floor, so moving
-  the whole frame again would distract from the result changing inside it.
+  The browser rises from below instead of reappearing. Its geometry stays fixed, so the movement
+  reads as one object receiving a new narrative job.
 </Note>
 
 ---
 
 <div aria-label="Keep the evidence and return the focus" className="browser-story browser-story--context">
   <header className="browser-story__copy">
-    <span className="motion-kicker">04 · Recontextualization</span>
-    <h2>Keep the evidence. Return the focus.</h2>
-    <p>The browser moves to the edge and becomes quiet context while the explanation takes over.</p>
+    <span className="motion-kicker">03 · Recontextualization</span>
+    <h2>Once it has answered, let it recede.</h2>
+    <p>The browser moves to the edge and becomes context while the explanation takes over.</p>
     <ul>
       <li>Same object</li>
-      <li>Different narrative job</li>
+      <li>New narrative job</li>
       <li>No repeated entrance</li>
     </ul>
   </header>
@@ -126,49 +102,51 @@ import "./motion.css";
 </div>
 
 <Note>
-  This completes one object lifecycle: hint, arrive, demonstrate, then dock. The browser keeps its
-  dimensions and shadow structure; position and visual priority are the only changes.
+  This completes a useful object lifecycle: wait, arrive, answer, then recede. Position and visual
+  priority change; dimensions and shadow geometry do not.
 </Note>
 
 ---
 
 <div aria-label="Change the words only when the thought changes" className="semantic-scene">
-  <span className="motion-kicker">05 · Semantic correction</span>
+  <span className="motion-kicker">04 · Semantic correction</span>
   <h2>Change the words only when the thought changes.</h2>
   <SemanticCorrection />
-  <p className="motion-caption">
-    {
-      "A fixed text slot can borrow the vocabulary of rotating text without becoming a slogan carousel."
-    }
-  </p>
+  <div className="motion-caption">
+    A fixed text slot can correct an idea without turning the sentence into a slogan carousel.
+  </div>
 </div>
 
 <Note>
-  The replacement corrects a misconception in place. This is an original dependency-free treatment
-  inspired by kinetic text patterns, not copied source from a showcase library.
+  The replacement corrects a misconception in place. Both phrases share one measured slot and one
+  baseline, so the transition changes meaning without stretching or shifting the sentence.
 </Note>
 
 ---
 
 <div aria-label="Reveal only what was truly hidden" className="reveal-scene">
   <header>
-    <span className="motion-kicker">06 · Genuine reveal</span>
+    <span className="motion-kicker">05 · Genuine reveal</span>
     <h2>Reveal only what was truly hidden.</h2>
-    <p>A decrypted treatment makes sense when the audience is uncovering a real finding.</p>
+    <p>A decrypted treatment earns its place when the audience uncovers a real finding.</p>
   </header>
-  <EvidenceReveal />
+  <EvidenceReveal>
+    <Step at={1} as="span" className="evidence-reveal__answer">
+      a first decision they could trust.
+    </Step>
+  </EvidenceReveal>
 </div>
 
 <Note>
-  Use the button to uncover the interview finding. Decorative scrambling on already-known copy would
-  imply mystery without delivering information, so it does not belong here.
+  Advance once to uncover the interview finding. The navigation Step—not a control inside the
+  content—owns the reveal, so presenting stays effortless.
 </Note>
 
 ---
 
 <div aria-label="Keep both sides when the difference is the point" className="compare-scene">
   <header>
-    <span className="motion-kicker">07 · Comparison</span>
+    <span className="motion-kicker">06 · Comparison</span>
     <h2>Keep both sides when the difference is the point.</h2>
   </header>
 
@@ -177,7 +155,7 @@ import "./motion.css";
       <article>
         <span>Frozen export</span>
         <strong>One final frame</strong>
-        <p>The audience can see the answer, but not revisit how the room reached it.</p>
+        <p>The audience sees the answer, but not how the room reached it.</p>
       </article>
     </Step>
     <Step at={2}>
@@ -191,15 +169,15 @@ import "./motion.css";
 </div>
 
 <Note>
-  Advance twice. The first state remains readable because the comparison—not the newest card—is the
-  idea. Replacing it would destroy the evidence needed for the conclusion.
+  Advance twice. Each card enters without clipping its painted shadow, and the first remains fully
+  readable because the comparison—not the newest card—is the idea.
 </Note>
 
 ---
 
 <div aria-label="Sequence should carry a decision forward" className="causality-scene">
   <header>
-    <span className="motion-kicker">08 · Causality</span>
+    <span className="motion-kicker">07 · Causality</span>
     <h2>Sequence should carry a decision forward.</h2>
     <p>One advance reveals a connected chain, not four unrelated cards.</p>
   </header>
@@ -220,24 +198,24 @@ import "./motion.css";
 </div>
 
 <Note>
-  Advance once. The stagger follows the causal reading direction and completes as one thought. If
-  the room needed to discuss each stage independently, they would become separate Steps instead.
+  Advance once. The stagger follows the causal reading direction. Its local animation deliberately
+  avoids clip-path, so card shadows interpolate from matching transparent layers instead of popping.
 </Note>
 
 ---
 
 <div aria-label="Numbers move when the evidence changes" className="data-scene">
   <header>
-    <span className="motion-kicker">09 · Measured change</span>
-    <h2>Numbers move when the evidence changes.</h2>
-    <p>The animation is local to the metric and responds to a deliberate state change.</p>
+    <span className="motion-kicker">08 · Measured change</span>
+    <h2>Let live evidence keep breathing.</h2>
+    <p>The metric and bars vary continuously because the data itself is the changing subject.</p>
   </header>
   <MotionEvidence />
 </div>
 
 <Note>
-  Toggle the guided run. This is a real Motion for React integration inside ordinary MDX. It owns
-  the local bars only; Drever continues to own navigation, history, notes, and export.
+  The deterministic sequence feels live while remaining reproducible. Motion for React owns only the
+  chart; Drever still owns navigation, history, notes, reduced motion, and export.
 </Note>
 
 ---
@@ -250,164 +228,146 @@ import "./motion.css";
     <i />
     <i />
     <i />
+    <b data-signal="one" />
+    <b data-signal="two" />
+    <b data-signal="three" />
   </div>
   <header>
-    <span className="motion-kicker">10 · Subject-led background</span>
-    <h2>When the subject is a network, the background can behave like one.</h2>
-    <p>Ambient motion mirrors the model without competing with the reading.</p>
+    <span className="motion-kicker">09 · Subject-led background</span>
+    <h2>When the subject is a network, the background should flow like one.</h2>
+    <p>Signals travel through the topology; the movement is quiet, but unmistakable.</p>
   </header>
   <aside>
-    <strong>Use a background system when it carries subject matter.</strong>
+    <strong>The background carries subject matter.</strong>
     <span>Flow · connection · continuity</span>
   </aside>
 </div>
 
 <Note>
-  The moving field is the primary motion on this page. A React Bits-style background can provide a
-  richer vocabulary, but it should follow the same contrast, attention, and reduced-motion rules.
+  Moving signals make the network legible instead of relying on nearly static decoration. The field
+  remains behind the reading and resolves to a complete still topology for reduced motion or export.
 </Note>
 
 ---
 
 <div aria-label="Depth earns its cost when structure is the subject" className="spatial-scene">
   <header>
-    <span className="motion-kicker">11 · Spatial explanation</span>
+    <span className="motion-kicker">10 · Spatial explanation</span>
     <h2>Depth earns its cost when structure is the subject.</h2>
-    <p>Reveal one hidden layer instead of continuously orbiting a decorative object.</p>
+    <p>Advance once to separate the one layer the audience needs to inspect.</p>
   </header>
-  <SpatialModel />
+  <SpatialModel>
+    <Step at={1} className="spatial-model__state spatial-model__state--open">
+      <strong>The hidden dependency is now visible.</strong>
+      <p>Only the layer required for the decision moves.</p>
+    </Step>
+  </SpatialModel>
 </div>
 
 <Note>
-  Toggle the model. This lightweight proxy defines the same presentation boundary a Spline or Rive
-  scene should respect: one persistent scene, meaningful states, keyboard access, and a static end
-  state for export.
+  One persistent object moves between meaningful states. The same boundary can host Spline or Rive,
+  while the authored Step keeps navigation, accessibility, and export deterministic.
 </Note>
 
 ---
 
-<div aria-label="Bring specialized animation tools to a focused boundary" className="ecosystem-scene">
+<div
+  aria-label="Animation capability is proven through a live composition"
+  className="capability-scene"
+>
   <header>
-    <span className="motion-kicker">12 · React ecosystem</span>
-    <h2>Drever does not need to own every animation.</h2>
-    <p>Bring in a specialized tool at the smallest boundary where its capability matters.</p>
+    <span className="motion-kicker">11 · Focused capability</span>
+    <h2>Show the capability. Do not merely name the library.</h2>
+    <p>A real loop connects kinetic type, local motion, and spatial state to one decision.</p>
   </header>
-
-  <div className="ecosystem-scene__grid">
-    <pre><code>{`import { motion } from "motion/react"
-import Spline from "@splinetool/react-spline"
-
-<MotionEvidence />
-<SplineScene fallback={<Poster />} />`}</code></pre>
-    <nav aria-label="Animation references">
-      <a href="https://reactbits.dev/" rel="noreferrer" target="_blank">
-        <strong>React Bits</strong><span>Kinetic text and background references ↗</span>
-      </a>
-      <a href="https://spline.design/" rel="noreferrer" target="_blank">
-        <strong>Spline</strong><span>Authored interactive 3D ↗</span>
-      </a>
-      <a href="https://motion.dev/docs/react" rel="noreferrer" target="_blank">
-        <strong>Motion</strong><span>Local React choreography ↗</span>
-      </a>
-      <a href="https://rive.app/" rel="noreferrer" target="_blank">
-        <strong>Rive</strong><span>State-driven interactive graphics ↗</span>
-      </a>
-    </nav>
-  </div>
+  <CapabilityPipeline />
 </div>
 
 <Note>
-  These are capabilities, not a style catalog. Research current official documentation and
-  licensing, then choose the smallest tool that improves the explanation. Never let it own deck
-  navigation or introduce another competing slide transition.
+  This is a working example rather than a list of links. Specialized libraries may replace one
+  boundary when they materially improve the explanation; they never need to own the entire deck.
 </Note>
 
 ---
 
-<div aria-label="Wait until the room can notice the point that matters" className="timing-scene">
-  <span className="motion-kicker">13 · Timing</span>
+<div aria-label="Let the room read and then direct the eye" className="timing-scene">
+  <span className="motion-kicker">12 · Timing</span>
   <h2>
-    {"Wait until the room can notice "}
-    <mark>the point that matters.</mark>
+    {"Let the room read. Then direct "}
+    <mark>the eye.</mark>
   </h2>
-  <p>A delayed local emphasis can arrive after reading begins—without moving the whole layout.</p>
+  <p>
+    {"One precise cue arrives "}
+    <strong>after reading begins.</strong>
+  </p>
 </div>
 
 <Note>
-  The marker waits long enough for the audience to begin reading, then points to the exact phrase
-  the presenter wants to hold. Delay is useful only because it improves notice.
+  The marker establishes the point first. A quieter wash then holds the supporting phrase. Both cues
+  are delayed because their job is to guide reading, not decorate the page.
 </Note>
 
 ---
 
 <div aria-label="Every animation system spends the same attention" className="budget-scene">
   <header>
-    <span className="motion-kicker">14 · Attention budget</span>
-    <h2>Every animation system spends the same attention.</h2>
-    <p>
-      {
-        "View Transitions, Steps, kinetic type, video, backgrounds, and 3D are not separate budgets."
-      }
-    </p>
+    <span className="motion-kicker">13 · Attention budget</span>
+    <h2>Spend attention on the idea that changed.</h2>
+    <p>Primary motion leads. Support follows once. Everything else holds still.</p>
   </header>
   <div className="budget-scene__ledger">
     <article data-level="primary">
-      <span>Primary</span>
-      <strong>One idea changes</strong>
-      <small>Use the clearest motion.</small>
+      <header>
+        <span>Primary</span>
+        <strong>72%</strong>
+      </header>
+      <div aria-hidden="true">
+        <i />
+      </div>
+      <small>What changed</small>
     </article>
     <article data-level="support">
-      <span>Optional support</span>
-      <strong>One quieter cue</strong>
-      <small>Only in the same causal chain.</small>
+      <header>
+        <span>Support</span>
+        <strong>20%</strong>
+      </header>
+      <div aria-hidden="true">
+        <i />
+      </div>
+      <small>The same causal chain</small>
     </article>
     <article data-level="still">
-      <span>Everything else</span>
-      <strong>Hold still</strong>
-      <small>Make the hierarchy obvious.</small>
+      <header>
+        <span>Still</span>
+        <strong>8%</strong>
+      </header>
+      <div aria-hidden="true">
+        <i />
+      </div>
+      <small>Everything else</small>
     </article>
   </div>
 </div>
 
 <Note>
-  A moving 3D scene already counts as the primary motion. Adding a title morph, card stagger, and
-  animated decoration at the same time would split attention rather than add richness.
+  The primary allocation grows first. Support follows once, and the smallest rail never moves. The
+  page demonstrates one attention hierarchy instead of animating three competing ideas.
 </Note>
 
 ---
 
 <div aria-label="The meaning survives when motion disappears" className="endpoint-scene">
   <header>
-    <span className="motion-kicker">15 · Accessible endpoint</span>
+    <span className="motion-kicker">14 · Accessible endpoint</span>
     <h2>The motion may disappear. The meaning may not.</h2>
-    <p>
-      {
-        "Reduced motion, document view, and PDF need the same conclusion in a deliberate static state."
-      }
-    </p>
+    <p>Live presentation and static export must arrive at the same authored conclusion.</p>
   </header>
-  <div className="endpoint-scene__states">
-    <article>
-      <span>Live</span>
-      <div aria-hidden="true" className="endpoint-scene__route">
-        <i />
-        <i />
-        <i />
-      </div>
-      <strong>Question → evidence → decision</strong>
-      <small>Movement clarifies the path.</small>
-    </article>
-    <article>
-      <span>Static</span>
-      <strong>Question → evidence → decision</strong>
-      <small>The complete path remains readable.</small>
-    </article>
-  </div>
+  <AccessibleEndpoint />
 </div>
 
 <Note>
-  The export is not a screenshot taken at an arbitrary animation frame. It is an authored endpoint
-  that preserves content, order, contrast, and the final decision.
+  The focus travels through a large concrete route, then the equality cue appears. Document view and
+  PDF render the complete path immediately instead of capturing an arbitrary animation frame.
 </Note>
 
 ---
@@ -415,13 +375,11 @@ import Spline from "@splinetool/react-spline"
 <div aria-label="Move what changed and keep the rest still" className="motion-close">
   <span className="motion-kicker">The recipe</span>
   <h1>Move what changed. Keep the rest still.</h1>
-  <p>
-    {
-      "Design the object’s job across the story. Then choose the smallest motion that makes that job clear."
-    }
-  </p>
+  <div className="motion-close__description">
+    Design the object’s job across the story. Then choose the smallest motion that makes it clear.
+  </div>
   <div className="motion-close__rule" aria-hidden="true">
-    <span>hint</span>
+    <span>wait</span>
     <i />
     <span>arrive</span>
     <i />

@@ -1,9 +1,8 @@
 # Drever motion stories
 
 This public showcase demonstrates motion as part of a presentation argument,
-not as a catalog of effects. Its seventeen slides follow recurring objects
-through useful lifecycles: anticipation, evidence, interaction, context, and
-retirement.
+not as a catalog of effects. Its sixteen slides follow recurring objects
+through useful lifecycles: anticipation, evidence, context, and retirement.
 
 The opening sequence carries one browser from below the canvas into the center
 of the story, then docks it as quiet context while the conclusion takes focus.
@@ -13,11 +12,11 @@ and stillness.
 
 The live components are original examples. One data scene deliberately embeds
 Motion for React to demonstrate the integration boundary; the remaining
-treatments use local React and CSS. React Bits, Spline, and Rive are linked as
-optional specialist vocabularies rather than copied into Drever. A real
-integration should verify its current license, load only while needed, stop
-when hidden, preserve accessible DOM meaning, and provide deterministic
-reduced-motion and export states.
+treatments use local React and CSS. The capability scene proves kinetic type,
+local motion, and spatial state in a working composition instead of presenting
+a list of libraries. A real third-party integration should verify its current
+license, load only while needed, stop when hidden, preserve accessible DOM
+meaning, and provide deterministic reduced-motion and export states.
 
 The browser-geometry regression fixtures that previously occupied this example
 now live in `examples/motion-contracts`.
