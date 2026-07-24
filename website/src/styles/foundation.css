@@ -935,10 +935,6 @@ main[tabindex="-1"]:focus {
 }
 
 @media (min-width: 68rem) and (min-height: 38rem) {
-  .site-shell__surface {
-    box-shadow: 0 1.5rem 3.5rem rgb(8 6 22 / 16%);
-  }
-
   .site-footer {
     position: sticky;
     bottom: 0;
