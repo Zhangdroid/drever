@@ -11,6 +11,19 @@ The public [`prompt.md`](/prompt.md) only starts the work. Once the project exis
 instructions and skills take over so the agent always follows the contract for the installed Drever
 version.
 
+The work happens in ordinary files on your machine. Setup succeeds when the agent leaves a running
+local preview, a readable `slides.mdx`, and the requested web or PDF outputs ready for review.
+
+<h2 id="local-workflow">Know what runs where</h2>
+
+The website button copies text; it does not upload the brief or start a hosted generation job. Paste
+the prompt into the coding agent you already trust. That agent creates a local React and MDX
+project, installs packages from npm, and may use the network for research only when the brief and
+your agent permissions allow it.
+
+Drever does not add telemetry to the generated project. Your chosen AI provider, any remote media,
+and the platform where you later publish the static build each keep their own privacy contract.
+
 <h2 id="write-a-useful-brief">Give the agent a useful outcome</h2>
 
 A single sentence is enough to begin. Include the audience, the change you want, and any required

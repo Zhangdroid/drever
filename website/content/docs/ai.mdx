@@ -39,7 +39,7 @@ document, and export outcomes.
 Refresh them after upgrading:
 
 ```bash
-drever agent sync --target all
+npm exec -- drever agent sync --target all
 ```
 
 The sync command preserves instructions outside its managed blocks and never overwrites an
@@ -48,8 +48,8 @@ unmarked, user-owned skill.
 <h2 id="authoring-context">Give the agent exact context</h2>
 
 ```bash
-drever context --json
-drever context talks/keynote.mdx --json
+npm exec -- drever context --json
+npm exec -- drever context talks/keynote.mdx --json
 ```
 
 The report contains the resolved canvas, exact slides and sparse Step stops, authored source ranges,
@@ -61,10 +61,10 @@ quality, media readiness, or runtime component behavior.
 
 <h2 id="current-position">Resolve “this slide”</h2>
 
-While `drever dev` is running:
+While `npm run dev` is running:
 
 ```bash
-drever current --json
+npm exec -- drever current --json
 ```
 
 The command resolves the most recently updated open audience or speaker window to its source path,
@@ -92,7 +92,7 @@ workspace tools so permissions, diffs, checks, and Git rollback remain visible.
 
 1. Describe the audience, decision, constraints, and desired deliverables in `brief.md`.
 2. Ask the agent to create or revise the presentation.
-3. Inspect `drever context --json` and fix `drever check --json` diagnostics.
+3. Inspect `npm exec -- drever context --json` and fix `npm run check -- --json` diagnostics.
 4. Review every changed Step in Audience View and the complete `/document` surface.
 5. Review Speaker View when notes, timing, or focus behavior changed.
 6. Build and deliver the static website or PDF from the same verified project.

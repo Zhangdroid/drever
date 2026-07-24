@@ -12,33 +12,35 @@ The site has four primary surfaces:
 - `/` contains the product website.
 - `/docs/*` contains prerendered documentation routes.
 - `/showcase` curates complete stories, focused capability studies, and art directions.
-- `/demos/*` hosts real Drever builds selected from `examples/`.
+- `/showcase/*` hosts the real Drever builds selected from `examples/`.
 
 TanStack Start owns the website, documentation, and showcase routes. The root build compiles each
 curated example in its own project and copies its complete output to
-`dist/client/demos/<slug>`. The website does not duplicate a demo's MDX or React components. Every
+`dist/client/showcase/<slug>`. The website does not duplicate a demo's MDX or React components. Every
 published demo is executable with the same Drever code users receive.
 
 The curated set is:
 
-- `examples/product-tour` at `/demos/product/`
-- `examples/feature-gallery` at `/demos/features/`
-- `examples/motion-recipes` at `/demos/motion/`
-- `examples/room-scenes` at `/demos/scenes/`
-- `examples/architecture` at `/demos/architecture/`
-- `examples/basic` at `/demos/basic/`
+- `examples/product-tour` at `/showcase/product/`
+- `examples/feature-gallery` at `/showcase/features/`
+- `examples/motion-recipes` at `/showcase/motion/`
+- `examples/room-scenes` at `/showcase/scenes/`
+- `examples/architecture` at `/showcase/architecture/`
+- `examples/basic` at `/showcase/basic/`
 
 Five focused decks from `examples/theme-showcase` extend the design catalog:
 
-- Fieldnote at `/demos/design/fieldnote/`
-- Atlas at `/demos/design/atlas/`
-- Ledger at `/demos/design/ledger/`
-- Cinema at `/demos/design/cinema/`
-- Construct at `/demos/design/construct/`
+- Fieldnote at `/showcase/design/fieldnote/`
+- Atlas at `/showcase/design/atlas/`
+- Ledger at `/showcase/design/ledger/`
+- Cinema at `/showcase/design/cinema/`
+- Construct at `/showcase/design/construct/`
 
 The theme-showcase project builds all five studies once and keeps their output
 isolated under `dist/<study>`. The website mounts those outputs independently
 without adding them to the main demo catalog.
+
+Legacy `/demos/*` URLs permanently redirect to the equivalent `/showcase/*` path.
 
 ## Local development
 

@@ -77,13 +77,13 @@ function ShowcasePage() {
             <h2>{product.label}</h2>
             <p>{product.description}</p>
             <nav aria-label="Product tour surfaces">
-              <a href="/demos/product/">
+              <a href="/showcase/product/">
                 Audience <ArrowUpRightIcon />
               </a>
-              <a href="/demos/product/speaker">
+              <a href="/showcase/product/speaker">
                 Speaker <ArrowUpRightIcon />
               </a>
-              <a href="/demos/product/document">
+              <a href="/showcase/product/document">
                 Document <ArrowUpRightIcon />
               </a>
             </nav>
@@ -185,7 +185,7 @@ function ShowcasePage() {
         <p>
           Each presentation is rebuilt from repository source and mounted as a standalone app. Clean
           URLs, exact Step states, Speaker View, Document View, interaction, and assets all keep
-          working below <code>/demos/*</code>.
+          working below <code>/showcase/*</code>.
         </p>
         <a className="button button--light" href={`${githubURL}/tree/main/examples`}>
           Browse example source <ArrowUpRightIcon />

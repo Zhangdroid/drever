@@ -1,9 +1,12 @@
 <h2 id="check">Check the source</h2>
 
+Run these commands from the generated project root. The `npm run` scripts always use the Drever
+version installed in that project.
+
 ```bash
-drever check
-drever check slides.mdx
-drever check --json
+npm run check
+npm run check -- slides.mdx
+npm run check -- --json
 ```
 
 Preflight reports defects Drever can prove from authored source:
@@ -22,7 +25,7 @@ semantics, and motion in the actual browser surfaces.
 <h2 id="static-build">Build a static website</h2>
 
 ```bash
-drever build
+npm run build
 ```
 
 The default output is `dist/`. The build emits a standalone application plus static entries for
@@ -34,10 +37,10 @@ Host the complete `dist/` directory on any static platform.
 <h2 id="pdf-export">Export PDF</h2>
 
 ```bash
-drever export pdf
-drever export pdf --output release/keynote.pdf
-drever export pdf --slides 2-5,8
-drever export pdf --steps
+npm run export
+npm run export -- --output release/keynote.pdf
+npm run export -- --slides 2-5,8
+npm run export -- --steps
 ```
 
 By default, export creates one page per slide at its final authored Step. `--steps` emits Step 0 and
@@ -54,13 +57,26 @@ not part of the contract.
 The human commands expose stable JSON forms for agents and automation:
 
 ```bash
-drever doctor --json
-drever context --json
-drever check --json
-drever build --json
-drever export pdf --json
+npm exec -- drever doctor --json
+npm exec -- drever context --json
+npm run check -- --json
+npm run build -- --json
+npm run export -- --json
 ```
 
 Run source checks on every change. Build and browser-test the presentation states that changed.
 Keep visual review focused on real layouts and transitions instead of adding cosmetic E2E cases for
 every style detail.
+
+<h2 id="troubleshooting">Troubleshooting and support</h2>
+
+Start with the project-local diagnostic so the report reflects the version you installed:
+
+```bash
+npm exec -- drever doctor --json
+```
+
+It reports the resolved project, Node.js version, browser availability, and delivery prerequisites.
+If the problem remains, include that output and a minimal reproduction in a
+[GitHub issue](https://github.com/Zhangdroid/drever/issues). Drever is under active development;
+keep the generated project files and its installed version together when reporting a problem.

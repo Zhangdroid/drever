@@ -16,9 +16,9 @@ export function CopyAIHandoff({ brief = "", className }: { brief?: string; class
   return (
     <CopyButton
       className={className}
-      copiedText="Handoff copied"
-      idleText="Create with AI"
-      label="AI handoff"
+      copiedText="Prompt copied"
+      idleText="Copy AI prompt"
+      label="for Codex or Claude Code"
       value={handoffFor(brief)}
     />
   );
@@ -51,13 +51,16 @@ export function AIHandoff({
         />
       </label>
       <footer>
-        <p>Works with Codex, Claude Code, and other coding agents. Project setup is included.</p>
+        <p>
+          Copies the complete setup prompt. Paste it into Codex, Claude Code, or another coding
+          agent; project creation and review instructions are included.
+        </p>
         <div>
           <a href="/prompt.md">Read prompt.md</a>
           <CopyButton
-            copiedText="Handoff copied"
-            idleText="Hand off to AI"
-            label="presentation brief"
+            copiedText="Prompt copied"
+            idleText="Copy AI prompt"
+            label="for this presentation"
             value={handoff}
           />
         </div>

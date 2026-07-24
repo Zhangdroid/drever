@@ -22,15 +22,15 @@
 <p align="center"><strong>Slides that move with your ideas.</strong></p>
 
 <p align="center">
-  Drever is an AI-first tool for expressive, interactive presentations.
-  Tell your AI what the room should understand, then present live,
-  publish to the web, or export a PDF from one readable source.
+  Drever is an open-source, local-first React and MDX framework for expressive,
+  interactive presentations. Tell your AI what the room should understand,
+  then present live, publish to the web, or export a PDF from one readable source.
 </p>
 
 <p align="center">
   <a href="https://drever.dev">Website</a> ·
   <a href="https://drever.dev/docs">Documentation</a> ·
-  <a href="https://drever.dev/demos">Demos</a> ·
+  <a href="https://drever.dev/showcase">Showcase</a> ·
   <a href="./CONTRIBUTING.md">Contributing</a>
 </p>
 

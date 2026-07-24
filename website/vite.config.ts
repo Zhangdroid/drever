@@ -30,7 +30,7 @@ export default defineConfig({
       pages: [
         ...siteRoutes.map((path) => ({ path })),
         ...publicPresentationMounts.map(({ slug }) => ({
-          path: `/demos/${slug}/`,
+          path: `/showcase/${slug}/`,
           prerender: { enabled: false },
         })),
       ],

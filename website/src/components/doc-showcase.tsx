@@ -68,7 +68,7 @@ const capabilities = [
     body: "Objects enter, answer, recede, or hold still because the story gives them a new job.",
     guide: "/docs/motion",
     label: "Meaningful motion",
-    live: "/demos/motion/2/",
+    live: "/showcase/motion/2/",
     liveLabel: "Follow one object",
     title: "Motion carries the idea.",
     visual: <MotionVisual />,
@@ -77,7 +77,7 @@ const capabilities = [
     body: "See real GFM, code, math, chart, and media output with explicit browser costs.",
     guide: "/docs/plugins",
     label: "Plugins",
-    live: "/demos/features/3/",
+    live: "/showcase/features/3/",
     liveLabel: "Open the feature tour",
     title: "Use the right medium.",
     visual: <PluginVisual />,
@@ -95,7 +95,7 @@ const capabilities = [
     body: "Audience, Speaker, Document, website, and PDF begin with the same editable project.",
     guide: "/docs/presenting",
     label: "Present",
-    live: "/demos/features/8/",
+    live: "/showcase/features/8/",
     liveLabel: "See every surface",
     title: "One story stays useful.",
     visual: <SurfaceVisual />,
@@ -137,31 +137,31 @@ export function DocsCapabilityGallery() {
 const motionRecipes = [
   {
     description: "Hint, arrive, demonstrate, then recede.",
-    href: "/demos/motion/2/",
+    href: "/showcase/motion/2/",
     intent: "continuity",
     label: "Object lifecycle",
   },
   {
     description: "Correct one thought in a fixed text slot.",
-    href: "/demos/motion/6/",
+    href: "/showcase/motion/6/",
     intent: "replace",
     label: "Semantic change",
   },
   {
     description: "Uncover information that was genuinely hidden.",
-    href: "/demos/motion/7/",
+    href: "/showcase/motion/7/",
     intent: "focus",
     label: "Genuine reveal",
   },
   {
     description: "Make reading order carry cause and effect.",
-    href: "/demos/motion/9/",
+    href: "/showcase/motion/9/",
     intent: "stagger",
     label: "Causality",
   },
   {
     description: "Use depth only when structure is the subject.",
-    href: "/demos/motion/12/",
+    href: "/showcase/motion/12/",
     intent: "compare",
     label: "Spatial state",
   },
@@ -170,7 +170,7 @@ const motionRecipes = [
 export function MotionRecipeGallery() {
   return (
     <section className="doc-visual-intro" aria-labelledby="motion-recipes-title">
-      <a className="motion-recipe-deck" href="/demos/motion/">
+      <a className="motion-recipe-deck" href="/showcase/motion/">
         <span className="motion-recipe-deck__copy">
           <small>Complete live deck</small>
           <strong>Watch every motion story in context.</strong>
@@ -207,7 +207,7 @@ const plugins = [
   {
     badge: "Included",
     description: "Tables, task lists, autolinks, and strikethrough with no browser parser.",
-    href: "/demos/features/9/",
+    href: "/showcase/features/9/",
     id: "gfm",
     label: "GitHub Flavored Markdown",
     mark: "✓",
@@ -216,7 +216,7 @@ const plugins = [
   {
     badge: "Included",
     description: "Build-time highlighting with no client-side highlighter.",
-    href: "/demos/features/4/",
+    href: "/showcase/features/4/",
     id: "shiki",
     label: "Shiki",
     mark: "{}",
@@ -225,7 +225,7 @@ const plugins = [
   {
     badge: "Included",
     description: "Compose local artifacts without letting Preflight replace the theme.",
-    href: "/demos/features/5/",
+    href: "/showcase/features/5/",
     id: "tailwind",
     label: "Tailwind CSS",
     mark: "Aa",
@@ -234,7 +234,7 @@ const plugins = [
   {
     badge: "Opt in",
     description: "Write readable LaTeX and ship accessible HTML and MathML.",
-    href: "/demos/features/3/",
+    href: "/showcase/features/3/",
     id: "math",
     label: "LaTeX / KaTeX",
     mark: "∑",
@@ -243,7 +243,7 @@ const plugins = [
   {
     badge: "Opt in",
     description: "Render accessible bar or line data as deterministic semantic SVG.",
-    href: "/demos/features/10/",
+    href: "/showcase/features/10/",
     id: "charts",
     label: "Charts",
     mark: "↗",
@@ -253,7 +253,7 @@ const plugins = [
     badge: "Opt in",
     description:
       "Play privacy-enhanced lazy media live and keep every other surface deterministic.",
-    href: "/demos/features/11/",
+    href: "/showcase/features/11/",
     id: "media",
     label: "Media",
     mark: "▶",
@@ -262,7 +262,7 @@ const plugins = [
   {
     badge: "Build your own",
     description: "Add Vite, MDX, runtime, and export capability through one owned contract.",
-    href: "/demos/features/12/",
+    href: "/showcase/features/12/",
     id: "custom",
     label: "Typed extensions",
     mark: "＋",

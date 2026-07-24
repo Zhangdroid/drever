@@ -10,7 +10,7 @@ import { demos, themes } from "../site-data";
 
 const title = "Drever — Slides that move with your ideas";
 const description =
-  "Create clear, expressive slides with your AI agent. Present live, share on the web, or deliver a PDF from one editable source.";
+  "An open-source, local-first React and MDX presentation framework for creating expressive slides with AI.";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -43,21 +43,26 @@ function HomePage() {
     <main id="main" tabIndex={-1}>
       <section className="home-hero">
         <div className="home-hero__copy">
+          <p className="home-hero__eyebrow">Open source · Local first · React + MDX</p>
           <h1>
             Slides that <span>move</span>
             <br />
             with your ideas.
           </h1>
-          <p>
-            Tell your AI what the room should understand. Drever shapes the story, design, and
-            motion—ready for the room, web, or PDF.
+          <p className="home-hero__lede">
+            Drever is a presentation framework designed for AI-assisted creation. Keep the editable
+            project on your machine, then present live, publish to the web, or export PDF.
           </p>
           <div className="home-hero__actions">
             <CopyAIHandoff className="button button--primary" />
-            <a className="button home-hero__demo" href="/demos/product/">
+            <a className="button home-hero__demo" href="/showcase/product/">
               <PlayIcon /> Try the live demo
             </a>
           </div>
+          <p className="home-hero__handoff-note">
+            Copies a complete setup prompt. Paste it into Codex or Claude Code; the agent creates
+            the project and leaves a local preview ready to review.
+          </p>
           <div aria-label="More ways to get started" className="home-hero__secondary">
             <Link className="home-hero__manual" to="/docs/getting-started">
               How AI creation works <ArrowIcon />
@@ -73,6 +78,9 @@ function HomePage() {
               />
             </div>
           </div>
+          <p className="home-hero__requirements">
+            Requires Node.js 24.18+ and a current Chromium-family browser.
+          </p>
         </div>
 
         <div className="home-hero__visual">

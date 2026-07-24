@@ -9,6 +9,15 @@
   gap: clamp(3rem, 8vw, 9rem);
 }
 
+.home-hero__eyebrow {
+  margin: 0 0 1rem;
+  color: var(--site-continuity);
+  font-size: 0.68rem;
+  font-weight: 680;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
 .home-hero__copy h1 {
   max-width: 10ch;
   margin: 0;
@@ -41,7 +50,7 @@
   animation: hero-highlight 880ms 900ms var(--drever-brand-motion-easing-emphasized) forwards;
 }
 
-.home-hero__copy > p {
+.home-hero__lede {
   max-width: 34rem;
   margin: 1.7rem 0 0;
   color: var(--site-muted);
@@ -49,6 +58,14 @@
   letter-spacing: -0.015em;
   line-height: 1.58;
   text-wrap: pretty;
+}
+
+.home-hero__handoff-note {
+  max-width: 37rem;
+  margin: 0.78rem 0 0;
+  color: color-mix(in srgb, var(--site-muted), transparent 16%);
+  font-size: 0.72rem;
+  line-height: 1.5;
 }
 
 .home-hero__actions {
@@ -149,6 +166,13 @@
   width: 0.72rem;
   height: 0.72rem;
   opacity: 0.72;
+}
+
+.home-hero__requirements {
+  margin: 0.65rem 0 0 0.1rem;
+  color: color-mix(in srgb, var(--site-muted), transparent 30%);
+  font-size: 0.64rem;
+  line-height: 1.45;
 }
 
 .home-hero__visual {

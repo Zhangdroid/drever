@@ -12,6 +12,8 @@ import {
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const websiteOutput = join(root, "website", "dist", "client");
 const dreverBin = join(root, "packages", "cli", "dist", "bin.mjs");
+const presentationMountRoot = "showcase";
+const presentationURL = (slug) => `https://drever.dev/${presentationMountRoot}/${slug}/`;
 
 const run = (command, args, cwd = root) =>
   new Promise((resolveRun, rejectRun) => {
@@ -53,7 +55,7 @@ const escapeAttribute = (value) =>
 
 const decoratePresentation = async (presentation, destination) => {
   const title = `${presentation.label} — Drever`;
-  const canonical = `https://drever.dev/demos/${presentation.slug}/`;
+  const canonical = presentationURL(presentation.slug);
   const htmlFiles = await collectFiles(destination, ".html");
 
   await Promise.all(
@@ -84,6 +86,12 @@ const decoratePresentation = async (presentation, destination) => {
 const presentationOutput = (presentation) =>
   join(root, "examples", presentation.source, presentation.output ?? "dist");
 
+const buildDemos = async () => {
+  for (const demo of demoMounts) {
+    await run(process.execPath, [dreverBin, "build"], join(root, "examples", demo.source));
+  }
+};
+
 const build = async () => {
   await run("vp", ["run", "build:packages"]);
   const presentationSources = new Set(
@@ -98,23 +106,19 @@ const build = async () => {
       ),
   ]);
 
-  await Promise.all([
-    run("vp", ["run", "-F", "@drever/website", "build"]),
-    ...demoMounts.map((demo) =>
-      run(process.execPath, [dreverBin, "build"], join(root, "examples", demo.source)),
-    ),
-    run("vp", ["run", "-F", "@drever/example-theme-showcase", "build:all"]),
-  ]);
+  await run("vp", ["run", "-F", "@drever/website", "build"]);
+  await buildDemos();
+  await run("vp", ["run", "-F", "@drever/example-theme-showcase", "build:all"]);
 };
 
 const assemblePresentations = async () => {
-  const demosOutput = join(websiteOutput, "demos");
-  await mkdir(demosOutput, { recursive: true });
+  const presentationsOutput = join(websiteOutput, presentationMountRoot);
+  await mkdir(presentationsOutput, { recursive: true });
 
   await Promise.all(
     publicPresentationMounts.map(async (presentation) => {
       const source = presentationOutput(presentation);
-      const destination = join(demosOutput, presentation.slug);
+      const destination = join(presentationsOutput, presentation.slug);
       await rm(destination, { force: true, recursive: true });
       await cp(source, destination, { recursive: true });
       await decoratePresentation(presentation, destination);
@@ -134,12 +138,14 @@ const requiredFiles = [
   "prompt.md",
   "sitemap.xml",
   ...siteEntryFiles,
-  ...publicPresentationMounts.map((presentation) => `demos/${presentation.slug}/index.html`),
   ...publicPresentationMounts.map(
-    (presentation) => `demos/${presentation.slug}/document/index.html`,
+    (presentation) => `${presentationMountRoot}/${presentation.slug}/index.html`,
   ),
   ...publicPresentationMounts.map(
-    (presentation) => `demos/${presentation.slug}/speaker/index.html`,
+    (presentation) => `${presentationMountRoot}/${presentation.slug}/document/index.html`,
+  ),
+  ...publicPresentationMounts.map(
+    (presentation) => `${presentationMountRoot}/${presentation.slug}/speaker/index.html`,
   ),
 ];
 
@@ -166,22 +172,24 @@ const verifyOutput = async () => {
   }
 
   for (const presentation of publicPresentationMounts) {
-    const assets = await readdir(join(websiteOutput, "demos", presentation.slug, "assets"));
+    const assets = await readdir(
+      join(websiteOutput, presentationMountRoot, presentation.slug, "assets"),
+    );
     if (assets.length === 0) {
       throw new Error(`Presentation has no built assets: ${presentation.slug}`);
     }
 
     const rootHtml = await readFile(
-      join(websiteOutput, "demos", presentation.slug, "index.html"),
+      join(websiteOutput, presentationMountRoot, presentation.slug, "index.html"),
       "utf8",
     );
     const speakerHtml = await readFile(
-      join(websiteOutput, "demos", presentation.slug, "speaker", "index.html"),
+      join(websiteOutput, presentationMountRoot, presentation.slug, "speaker", "index.html"),
       "utf8",
     );
     if (
       !rootHtml.includes(`<title>${presentation.label} — Drever</title>`) ||
-      !rootHtml.includes(`rel="canonical" href="https://drever.dev/demos/${presentation.slug}/"`) ||
+      !rootHtml.includes(`rel="canonical" href="${presentationURL(presentation.slug)}"`) ||
       rootHtml.includes('name="robots" content="noindex')
     ) {
       throw new Error(`Presentation root metadata is incomplete: ${presentation.slug}`);
@@ -243,7 +251,7 @@ const verifyOutput = async () => {
   );
   const expectedLocations = new Set([
     ...siteRoutes.map((route) => new URL(route, "https://drever.dev").href),
-    ...publicPresentationMounts.map(({ slug }) => `https://drever.dev/demos/${slug}/`),
+    ...publicPresentationMounts.map(({ slug }) => presentationURL(slug)),
   ]);
   if (
     sitemapLocations.size !== expectedLocations.size ||
@@ -255,10 +263,15 @@ const verifyOutput = async () => {
   const llms = await readFile(join(websiteOutput, "llms.txt"), "utf8");
   const missingAgentRoutes = [
     ...documentationRoutes.map((route) => `https://drever.dev${route}`),
-    ...publicPresentationMounts.map(({ slug }) => `https://drever.dev/demos/${slug}/`),
+    ...publicPresentationMounts.map(({ slug }) => presentationURL(slug)),
   ].filter((location) => !llms.includes(location));
   if (missingAgentRoutes.length > 0) {
     throw new Error(`llms.txt is missing public routes:\n${missingAgentRoutes.join("\n")}`);
+  }
+
+  const redirects = await readFile(join(websiteOutput, "_redirects"), "utf8");
+  if (!redirects.includes("/demos/* /showcase/:splat 301")) {
+    throw new Error("Website redirects must preserve legacy /demos/* presentation URLs.");
   }
 
   process.stdout.write(`Verified ${requiredFiles.length} website entry points.\n`);

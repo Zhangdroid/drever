@@ -1,6 +1,7 @@
 # Drever
 
-> Drever is an open-source, AI-first framework for clear, expressive, interactive slides.
+> Drever is an open-source, local-first React and MDX framework for clear, expressive, interactive
+> slides created with AI.
 
 Drever uses readable MDX as its authoritative source. A root-level `---` line separates slides.
 Authors use Markdown for ordinary content, built-in `Step` for deliberate progressive disclosure,
@@ -56,20 +57,20 @@ Catalog: https://drever.dev/showcase
 
 ### Complete stories and capability studies
 
-- Product tour: https://drever.dev/demos/product/
-- Feature gallery: https://drever.dev/demos/features/
-- Motion stories: https://drever.dev/demos/motion/
-- Room scenes: https://drever.dev/demos/scenes/
-- Architecture: https://drever.dev/demos/architecture/
-- Minimal reference: https://drever.dev/demos/basic/
+- Product tour: https://drever.dev/showcase/product/
+- Feature gallery: https://drever.dev/showcase/features/
+- Motion stories: https://drever.dev/showcase/motion/
+- Room scenes: https://drever.dev/showcase/scenes/
+- Architecture: https://drever.dev/showcase/architecture/
+- Minimal reference: https://drever.dev/showcase/basic/
 
 ### Art-direction studies
 
-- Fieldnote: https://drever.dev/demos/design/fieldnote/
-- Atlas: https://drever.dev/demos/design/atlas/
-- Ledger: https://drever.dev/demos/design/ledger/
-- Cinema: https://drever.dev/demos/design/cinema/
-- Construct: https://drever.dev/demos/design/construct/
+- Fieldnote: https://drever.dev/showcase/design/fieldnote/
+- Atlas: https://drever.dev/showcase/design/atlas/
+- Ledger: https://drever.dev/showcase/design/ledger/
+- Cinema: https://drever.dev/showcase/design/cinema/
+- Construct: https://drever.dev/showcase/design/construct/
 
 Each demo is a complete static Drever build. Append `/speaker` for Speaker View or `/document` for
 Document View. Audience paths such as `/5/2` select an exact slide and sparse Step.

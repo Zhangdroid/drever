@@ -52,6 +52,7 @@ graphs. Drever exposes the common project controls above. Plugin developers can 
 lower-level integrations through the typed plugin descriptor without turning them into global user
 configuration.
 
-Run `drever doctor --json` when the local toolchain or browser installation is in doubt. Run
-`drever context --json` to inspect the fully resolved canvas, theme, plugins, slides, and Step stops
-that the compiler will use.
+Run `npm exec -- drever doctor --json` when the local toolchain or browser installation is in doubt.
+Run `npm exec -- drever context --json` to inspect the fully resolved canvas, theme, plugins,
+slides, and Step stops that the compiler will use. Both commands resolve the Drever version
+installed in the current project.

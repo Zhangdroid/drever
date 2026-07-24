@@ -27,5 +27,5 @@ vp run demo:features
 Open <http://localhost:4324>. To keep every related link live, start all three
 showcases with `vp run demo:showcases`. Local development uses ports `4320`,
 `4322`, and `4324`; sibling `dist` builds use relative file links. A production
-host mounts the same artifacts at `/demos/product/`, `/demos/motion/`, and
-`/demos/features/`.
+host mounts the same artifacts at `/showcase/product/`, `/showcase/motion/`, and
+`/showcase/features/`.
