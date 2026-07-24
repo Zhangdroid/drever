@@ -178,6 +178,42 @@ Do not add a button inside the slide merely to reveal the next authored finding,
 comparison, or spatial state. Keep an inline control only when direct
 manipulation is itself what the audience must understand.
 
+## Markers, live data, and motion envelopes
+
+Give every moving indicator one unmistakable role. A cursor or focus reticle
+communicates agency or directed attention: give it a recognizable pointer or
+target shape, define its hotspot, and land that hotspot exactly on a meaningful
+target. A route signal communicates state, causality, or data flow: keep it
+centered on the path instead of making it resemble a pointer. Never use an
+ambiguous floating dot for both jobs. Decorative indicators are `aria-hidden`
+and ignore pointer input.
+
+Keep the route, milestones, and moving marker in one `position: relative`
+wrapper. Derive stops from that local grid, percentages, or an `offset-path`;
+use `border-box` geometry and align the cursor hotspot or signal center to each
+anchor. Do not animate with pixel distances measured from another container.
+The final route state must reach its authored endpoint at every supported
+canvas size.
+
+Tie live metrics and repeating data motion to the active audience lifecycle.
+Start the first meaningful update when the slide becomes active instead of
+waiting through a complete interval, and cancel timers or animation frames when
+it deactivates. Drive the number, label, chart, and related marks from the same
+deterministic frame. Keep numeric width stable with tabular figures or a fixed
+slot, expose one stable accessible summary instead of announcing every frame,
+and render the intentional final state immediately in reduced-motion,
+document, speaker, and export surfaces.
+
+Reserve layout for the largest painted and transformed footprint across the
+whole sequence, not only the resting frame. An exploded 3D object, translated
+layer, shadow, or glow must never cross a track, label, or adjacent copy at its
+maximum extent. Inspect the peak intermediate state with rendered bounds;
+clipping overflow is not a substitute for providing enough space.
+
+Keep decorative background nodes clearly subordinate: use lower contrast,
+small travel, and slow asynchronous pulses. They must not look like the active
+cursor or route signal.
+
 ## Step choreography
 
 `focus`, `replace`, and `compare` operate on direct `Step` children. Keep the
@@ -570,6 +606,14 @@ does not load a JavaScript motion module and there is no separate
   stable document/export fallback when needed.
 - Loop only when ongoing change is the subject. Keep the sequence deterministic,
   pause it outside the active audience surface, and author a stable final state.
+- Give a moving marker one role: cursor hotspots land exactly on targets, while
+  route signals stay centered on their path. Use one local route coordinate
+  system instead of pixel travel measured from another container.
+- Start live data on active audience entry, synchronize its number and marks,
+  suppress frame-by-frame announcements, and render one stable final state
+  elsewhere.
+- Reserve the maximum transformed and painted footprint of 2D or 3D motion so
+  no intermediate layer crosses a track, label, or adjacent copy.
 - Inspect intermediate frames and the finished handoff in both directions at
   every affected route; verify that toolbar hover and focus remain stable.
 - Verify reduced motion, `/speaker`, `/document`, and export after changing
@@ -635,9 +679,15 @@ commit the final state without spatial,
 draw, scramble, or decorative delay. Do not put persistent titles, backgrounds,
 page numbers, dialogs, or audience controls inside slide transitions. Do not
 invent animation props, hidden Step stops, runtime.motion, or native View
-Transition calls. Loop only when ongoing change is the subject; keep it
-deterministic, pause it outside the active audience surface, and author one
-stable final state. Inspect intermediate frames and the finished handoff in both
+Transition calls. Give each moving marker one role: a cursor has a recognizable
+hotspot that lands exactly on a target, while a route signal remains centered
+on its path. Keep markers and milestones in one local coordinate system; do not
+use magic pixel travel from another container. Loop only when ongoing change is
+the subject; keep it deterministic, start live data when the audience slide
+activates, synchronize numbers and marks, pause it outside the active audience
+surface, and author one stable final state. Reserve the largest transformed
+footprint of spatial motion so intermediate layers never overlap labels or
+tracks. Inspect intermediate frames and the finished handoff in both
 directions; check repeated Steps, pointer focus, reduced-motion, speaker,
 document, and export states.
 ```
