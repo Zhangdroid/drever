@@ -300,6 +300,78 @@ export function HeroStage() {
   );
 }
 
+export function HomeShowcaseCover({ kind }: { kind: "motion" | "product" }) {
+  if (kind === "product") {
+    return (
+      <div className="home-showcase-cover home-showcase-cover--product" aria-hidden="true">
+        <div className="home-showcase-cover__meta">
+          <span>Live product story</span>
+          <small>04 / 11</small>
+        </div>
+        <div className="home-product-cover__statement">
+          <strong>The room</strong>
+          <strong>
+            <mark>changes.</mark>
+          </strong>
+        </div>
+        <div className="home-product-cover__surfaces">
+          <div data-surface="audience">
+            <span>Audience</span>
+            <strong>What would help you decide?</strong>
+            <small>Step 02 / 03</small>
+          </div>
+          <div data-surface="speaker">
+            <span>Speaker</span>
+            <strong>Next: reveal the proof</strong>
+            <small>Note · 08:42</small>
+          </div>
+          <div data-surface="document">
+            <span>Document</span>
+            <strong>The exact moment stays readable.</strong>
+            <small>/4/2 · searchable</small>
+          </div>
+        </div>
+        <small className="home-product-cover__promise">One story · every useful surface</small>
+      </div>
+    );
+  }
+
+  return (
+    <div className="home-showcase-cover home-showcase-cover--motion" aria-hidden="true">
+      <div className="home-showcase-cover__meta">
+        <span>Object lifecycle</span>
+        <small>03 / 16</small>
+      </div>
+      <div className="home-motion-cover__artifact">
+        <header>
+          <i />
+          <i />
+          <i />
+        </header>
+        <div>
+          <span />
+          <strong />
+          <i />
+          <i />
+          <i />
+        </div>
+      </div>
+      <div className="home-motion-cover__answer">
+        <span>Same object</span>
+        <strong>New narrative job.</strong>
+      </div>
+      <div className="home-motion-cover__route">
+        <span>arrive</span>
+        <i />
+        <span>explain</span>
+        <i />
+        <span>recede</span>
+        <b />
+      </div>
+    </div>
+  );
+}
+
 export function ThemePreview({ theme }: { theme: ThemeId }) {
   if (theme === "fieldnote") {
     return (

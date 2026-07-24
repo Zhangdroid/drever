@@ -3,7 +3,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { AIHandoff, CopyAIHandoff } from "../components/ai-handoff";
 import { CopyButton } from "../components/copy-button";
 import { ArrowIcon, ArrowUpRightIcon, PlayIcon } from "../components/icons";
-import { HeroStage, ThemePreview } from "../components/showcase";
+import { HeroStage, HomeShowcaseCover, ThemePreview } from "../components/showcase";
 import { demos, themes } from "../site-data";
 
 const title = "Drever — Slides that move with your ideas";
@@ -195,12 +195,10 @@ What does the room need next?
         </header>
 
         <div className="demo-grid">
-          {[story, motion].map((demo, index) => (
+          {[story, motion].map((demo) => (
             <a className="demo-card" data-demo={demo.id} href={demo.href} key={demo.id}>
-              <div className="demo-card__visual">
-                <span>{index === 0 ? "Complete story" : "Motion study"}</span>
-                <strong>{demo.label}</strong>
-                <i />
+              <div className="demo-card__visual demo-card__visual--rich">
+                <HomeShowcaseCover kind={demo.id === "product" ? "product" : "motion"} />
               </div>
               <div className="demo-card__copy">
                 <div>
@@ -213,7 +211,7 @@ What does the room need next?
             </a>
           ))}
 
-          <Link className="theme-card" hash={direction.id} to="/showcase">
+          <Link className="theme-card home-showcase__direction" hash={direction.id} to="/showcase">
             <ThemePreview theme={direction.id} />
             <div>
               <span>Art direction · {direction.voice}</span>
