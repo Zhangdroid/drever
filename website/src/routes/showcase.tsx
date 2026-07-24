@@ -3,7 +3,8 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { CopyAIHandoff } from "../components/ai-handoff";
 import { ArrowIcon, ArrowUpRightIcon, PlayIcon } from "../components/icons";
 import { PageHero } from "../components/page-hero";
-import { HomeShowcaseCover, ThemePreview } from "../components/showcase";
+import { ArtDirectionCover, StudyCover } from "../components/showcase-covers";
+import { HomeShowcaseCover } from "../components/showcase";
 import { demos, githubURL, themes } from "../site-data";
 import { pageHead } from "../seo";
 
@@ -107,22 +108,16 @@ function ShowcasePage() {
         </header>
 
         <div className="catalog-demos">
-          {capabilities.map((demo, index) => (
+          {capabilities.map((demo) => (
             <article className="catalog-demo" data-demo={demo.id} key={demo.id}>
               <a
                 aria-label={`Open the ${demo.label} live study`}
-                className={`catalog-demo__visual${demo.id === "motion" ? " catalog-demo__visual--rich" : ""}`}
+                className="catalog-demo__visual catalog-demo__visual--rich"
                 href={demo.href}
               >
-                {demo.id === "motion" ? (
-                  <HomeShowcaseCover kind="motion" />
-                ) : (
-                  <>
-                    <span>0{index + 2}</span>
-                    <strong>{demo.label}</strong>
-                    <ArrowUpRightIcon />
-                  </>
-                )}
+                {demo.id !== "product" && demo.id !== "basic" ? (
+                  <StudyCover study={demo.id} />
+                ) : null}
               </a>
               <div>
                 <span>{demo.meta}</span>
@@ -172,7 +167,7 @@ function ShowcasePage() {
         <div className="theme-strip">
           {themes.map((theme, index) => (
             <a className="theme-card" href={theme.liveHref} id={theme.id} key={theme.id}>
-              <ThemePreview theme={theme.id} />
+              <ArtDirectionCover theme={theme.id} />
               <div>
                 <span>
                   Direction 0{index + 1} · {theme.voice}
