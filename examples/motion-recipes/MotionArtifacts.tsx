@@ -38,29 +38,40 @@ const ENDPOINT_STAGES = [
   { label: "Decision", value: "Ship a guided first run." },
 ] as const;
 
-/** A compact semantic motion diagram for the opening claim. */
+/** One changed object moves while the surrounding composition remains fixed. */
 export function MotionPrimer(): ReactElement {
   return (
     <figure
-      aria-label="A question moves through evidence to become a decision"
+      aria-label="One evidence card moves from supporting detail to decision evidence while every other element stays still"
       className="motion-primer"
     >
-      <header aria-hidden="true" className="motion-primer__meta">
-        <span>Decision path</span>
-        <small>Three linked states</small>
-      </header>
-      <div aria-hidden="true" className="motion-primer__route">
-        <span data-stage="question">?</span>
-        <i />
-        <span data-stage="evidence">31%</span>
-        <i />
-        <span data-stage="decision">✓</span>
-        <b className="motion-route-marker" />
+      <div aria-hidden="true" className="motion-primer__canvas">
+        <div className="motion-primer__fixed-copy">
+          <i />
+          <i />
+          <small>Fixed context</small>
+        </div>
+        <div className="motion-primer__origin">
+          <small>Supporting detail</small>
+        </div>
+        <div className="motion-primer__target">
+          <small>Decision evidence</small>
+        </div>
+        <div className="motion-primer__fixed-data">
+          <i />
+          <i />
+          <i />
+          <small>Unchanged data</small>
+        </div>
+        <div className="motion-primer__mover">
+          <span>Evidence</span>
+          <strong>31%</strong>
+          <small>fewer teams stopped</small>
+        </div>
       </div>
       <figcaption>
-        <span>Question</span>
-        <span>Evidence</span>
-        <span>Decision</span>
+        <span>One object gets a new job.</span>
+        <small>Everything else stays still.</small>
       </figcaption>
     </figure>
   );
