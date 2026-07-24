@@ -170,11 +170,21 @@ const motionRecipes = [
 export function MotionRecipeGallery() {
   return (
     <section className="doc-visual-intro" aria-labelledby="motion-recipes-title">
+      <a className="motion-recipe-deck" href="/demos/motion/">
+        <span className="motion-recipe-deck__copy">
+          <small>Complete live deck</small>
+          <strong>Watch every motion story in context.</strong>
+        </span>
+        <span className="motion-recipe-deck__action">
+          Open the motion deck <ArrowUpRightIcon />
+        </span>
+      </a>
       <header>
         <span>Live motion recipes</span>
         <h2 id="motion-recipes-title">Choose the relationship before the effect.</h2>
         <p>Open a recipe, advance its states, then return for the authoring contract.</p>
       </header>
+      <p className="motion-recipe-grid__label">Or jump directly to one relationship.</p>
       <div className="motion-recipe-grid">
         {motionRecipes.map((recipe) => (
           <a data-intent={recipe.intent} href={recipe.href} key={recipe.intent}>
@@ -189,9 +199,6 @@ export function MotionRecipeGallery() {
           </a>
         ))}
       </div>
-      <a className="doc-visual-intro__more" href="/demos/motion/">
-        View all 16 motion stories <ArrowUpRightIcon />
-      </a>
     </section>
   );
 }

@@ -614,6 +614,120 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   line-height: 1.6;
 }
 
+.motion-recipe-deck {
+  position: relative;
+  display: grid;
+  min-height: 9.5rem;
+  padding: clamp(1.4rem, 3vw, 2rem);
+  overflow: hidden;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 2rem;
+  isolation: isolate;
+  background: var(--site-night);
+  color: var(--site-night-text);
+  text-decoration: none;
+}
+
+.motion-recipe-deck + header {
+  margin-block-start: clamp(3.5rem, 7vw, 6rem);
+}
+
+.motion-recipe-deck::before,
+.motion-recipe-deck::after {
+  position: absolute;
+  z-index: -1;
+  content: "";
+  pointer-events: none;
+}
+
+.motion-recipe-deck::before {
+  top: 1.25rem;
+  right: clamp(12rem, 26vw, 22rem);
+  width: clamp(5rem, 11vw, 9rem);
+  height: 1px;
+  background: color-mix(in srgb, var(--site-night-text), transparent 76%);
+  transform: rotate(-24deg);
+  transform-origin: right;
+  transition: transform var(--drever-brand-motion-duration-expressive)
+    var(--drever-brand-motion-easing-emphasized);
+}
+
+.motion-recipe-deck::after {
+  top: -1.4rem;
+  right: clamp(8rem, 19vw, 15rem);
+  width: 5rem;
+  height: 5rem;
+  background: var(--site-signal);
+  opacity: 0.92;
+  transform: rotate(8deg);
+  transition: transform var(--drever-brand-motion-duration-expressive)
+    var(--drever-brand-motion-easing-emphasized);
+}
+
+.motion-recipe-deck:is(:hover, :focus-visible)::before {
+  transform: rotate(-18deg) scaleX(1.08);
+}
+
+.motion-recipe-deck:is(:hover, :focus-visible)::after {
+  transform: translate(-0.75rem, 0.65rem) rotate(2deg);
+}
+
+.motion-recipe-deck__copy {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.motion-recipe-deck__copy > small {
+  color: var(--site-signal);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.motion-recipe-deck__copy > strong {
+  max-width: 18ch;
+  color: var(--site-night-text);
+  font-family: var(--drever-brand-font-family-display);
+  font-size: clamp(1.7rem, 3.2vw, 2.8rem);
+  font-weight: 610;
+  letter-spacing: -0.045em;
+  line-height: 0.98;
+  text-wrap: balance;
+}
+
+.motion-recipe-deck__action {
+  display: inline-flex;
+  min-height: 3rem;
+  padding: 0.75rem 1rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  background: var(--site-signal);
+  color: var(--site-ink);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.motion-recipe-deck__action svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  transition: transform var(--drever-brand-motion-duration-quick)
+    var(--drever-brand-motion-easing-standard);
+}
+
+.motion-recipe-deck:is(:hover, :focus-visible) .motion-recipe-deck__action svg {
+  transform: translate(0.18rem, -0.18rem);
+}
+
+.motion-recipe-grid__label {
+  margin: 2rem 0 0.8rem;
+  color: var(--site-muted);
+  font-size: 0.72rem;
+}
+
 .motion-recipe-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1543,6 +1657,15 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
 
   .motion-recipe-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .motion-recipe-deck {
+    min-height: 12rem;
+    grid-template-columns: 1fr;
+  }
+
+  .motion-recipe-deck__action {
+    justify-self: start;
   }
 
   .plugin-gallery p {
