@@ -746,7 +746,7 @@
 
 .home-room-demo__prompt {
   animation: home-room-prompt linear both;
-  animation-range: entry 74% cover 68%;
+  animation-range: entry 66% cover 62%;
   animation-timeline: --home-room;
 }
 
@@ -807,7 +807,7 @@
   opacity: 0;
   transform: translateY(0.8rem);
   animation: home-room-proof linear both;
-  animation-range: entry 74% cover 68%;
+  animation-range: entry 66% cover 62%;
   animation-timeline: --home-room;
 }
 
@@ -987,6 +987,30 @@
   color: var(--site-muted);
 }
 
+.home-source__copy h2 span {
+  position: relative;
+  z-index: 0;
+  display: inline-block;
+}
+
+.home-source__copy h2 span::after {
+  position: absolute;
+  z-index: -1;
+  right: -0.04em;
+  bottom: 0.02em;
+  left: -0.02em;
+  height: 0.16em;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--site-signal), var(--site-continuity));
+  content: "";
+  opacity: 0.62;
+  animation: home-source-line linear both;
+  animation-range: entry 66% cover 34%;
+  animation-timeline: view(block);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
 .home-source__copy .text-link {
   margin-block-start: 1.5rem;
 }
@@ -1077,10 +1101,14 @@
   z-index: -1;
   inset: -0.55rem -0.7rem;
   border-left: 0.18rem solid var(--site-signal);
-  background: rgb(199 240 58 / 9%);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--site-signal), transparent 88%),
+    color-mix(in srgb, var(--site-continuity), transparent 92%)
+  );
   content: "";
   animation: home-source-line linear both;
-  animation-range: entry 22% cover 35%;
+  animation-range: entry 58% cover 42%;
   animation-timeline: --home-source;
   transform: scaleX(0.08);
   transform-origin: left;
@@ -1106,7 +1134,7 @@
 .home-connected-demo__bus::after {
   background: linear-gradient(90deg, var(--site-signal), var(--site-continuity));
   animation: home-source-signal linear both;
-  animation-range: entry 30% cover 56%;
+  animation-range: entry 72% cover 59%;
   animation-timeline: --home-source;
   transform: scaleX(0);
   transform-origin: left;
@@ -1122,9 +1150,11 @@
   border: 2px solid var(--site-paper);
   border-radius: 50%;
   background: var(--site-signal);
-  box-shadow: 0 0 0 1px var(--site-continuity);
+  box-shadow:
+    0 0 0 1px var(--site-continuity),
+    0 0 1rem rgb(199 240 58 / 28%);
   animation: home-source-node linear both;
-  animation-range: entry 30% cover 56%;
+  animation-range: entry 72% cover 59%;
   animation-timeline: --home-source;
   translate: -50% -50%;
 }
@@ -1144,6 +1174,11 @@
   width: 1px;
   background: color-mix(in srgb, var(--site-continuity), transparent 72%);
   content: "";
+  animation: home-source-branch linear both;
+  animation-range: cover 44% cover 58%;
+  animation-timeline: --home-source;
+  transform: scaleY(0);
+  transform-origin: center;
   translate: -50% 0;
 }
 
@@ -1159,8 +1194,8 @@
   box-shadow:
     0 0 0 transparent,
     0 0.8rem 2.2rem rgb(25 23 43 / 8%);
-  opacity: 0.46;
-  transform: translateY(0.5rem);
+  opacity: 0.24;
+  transform: translateX(-0.65rem) scale(0.985);
 }
 
 .home-connected-demo__surface::before {
@@ -1194,7 +1229,7 @@
 
 .home-connected-demo__surface[data-surface="audience"] {
   animation: home-source-output linear both;
-  animation-range: entry 40% cover 49%;
+  animation-range: cover 42% cover 49%;
   animation-timeline: --home-source;
   background: var(--site-night);
   color: var(--site-night-text);
@@ -1238,7 +1273,7 @@
 
 .home-connected-demo__surface[data-surface="speaker"] {
   animation: home-source-output linear both;
-  animation-range: entry 48% cover 57%;
+  animation-range: cover 46% cover 53%;
   animation-timeline: --home-source;
   background: var(--site-continuity-soft);
 }
@@ -1273,7 +1308,7 @@
 
 .home-connected-demo__surface[data-surface="document"] {
   animation: home-source-output linear both;
-  animation-range: entry 56% cover 65%;
+  animation-range: cover 50% cover 57%;
   animation-timeline: --home-source;
 }
 
@@ -1318,7 +1353,7 @@
 
 .home-connected-demo__surface[data-surface="delivery"] {
   animation: home-source-output linear both;
-  animation-range: entry 64% cover 73%;
+  animation-range: cover 54% cover 61%;
   animation-timeline: --home-source;
   background: var(--site-signal-soft);
 }
@@ -2198,6 +2233,12 @@
   }
 }
 
+@keyframes home-source-branch {
+  to {
+    transform: scaleY(1);
+  }
+}
+
 @keyframes home-source-output {
   to {
     opacity: 1;
@@ -2327,6 +2368,10 @@
     display: none;
   }
 
+  .home-connected-demo__surface {
+    transform: translateY(0.6rem) scale(0.985);
+  }
+
   .home-connected-demo > figcaption {
     text-align: left;
   }
@@ -2368,8 +2413,10 @@
   }
 
   .home-room-demo__timeline > i,
+  .home-source__copy h2 span::after,
   .home-connected-demo__source-line::before,
-  .home-connected-demo__bus::after {
+  .home-connected-demo__bus::after,
+  .home-connected-demo__outputs::before {
     transform: none;
   }
 

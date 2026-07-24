@@ -116,7 +116,9 @@ function HomePage() {
       <section className="home-source">
         <div className="home-source__copy">
           <span>One story, made once</span>
-          <h2>Write clearly. Keep everything else connected.</h2>
+          <h2>
+            Write clearly. Keep everything else <span>connected.</span>
+          </h2>
           <p>
             Your content, interactions, speaker notes, theme, and motion live together. AI can work
             with the source because a person can read it too.
