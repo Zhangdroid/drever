@@ -122,12 +122,14 @@
 
 .arch-build-graph {
   position: relative;
+  isolation: isolate;
   width: 760px;
   height: 430px;
 }
 
 .arch-build-graph svg {
   position: absolute;
+  z-index: 0;
   inset: 0;
   width: 100%;
   height: 100%;
@@ -150,6 +152,7 @@
 
 .arch-graph-node {
   position: absolute;
+  z-index: 2;
   display: grid;
   width: 120px;
   height: 76px;
@@ -213,6 +216,7 @@
 
 .arch-surface-stack {
   position: absolute;
+  z-index: 2;
   top: 60px;
   left: 632px;
   display: grid;
@@ -237,6 +241,7 @@
 
 .arch-signal-pulse {
   position: absolute;
+  z-index: 1;
   top: 0;
   left: 0;
   width: 9px;
@@ -247,6 +252,7 @@
   offset-distance: 0%;
   background: var(--arch-signal);
   box-shadow: 0 0 20px rgb(219 255 79 / 72%);
+  pointer-events: none;
 }
 
 [data-drever-render-mode="audience"]:not([data-drever-reduced-motion])
@@ -429,9 +435,7 @@
   padding: 0 18px 0 55px;
   align-content: center;
   opacity: 0.46;
-  transition:
-    opacity 280ms ease,
-    translate 280ms ease;
+  transition: opacity 280ms ease;
 }
 
 .arch-lineage-stop::before {
@@ -452,10 +456,6 @@
 .arch-lineage-stop[data-active],
 .arch-lineage-stop[data-passed] {
   opacity: 1;
-}
-
-.arch-lineage-stop[data-active] {
-  translate: 7px 0;
 }
 
 .arch-lineage-stop[data-active]::before {
@@ -555,7 +555,7 @@
 
 .arch-compiler-track {
   position: absolute;
-  top: 111px;
+  top: 121px;
   right: 95px;
   left: 95px;
   height: 2px;
@@ -582,9 +582,7 @@
   justify-items: center;
   text-align: center;
   opacity: 0.42;
-  transition:
-    opacity 260ms ease,
-    translate 260ms ease;
+  transition: opacity 260ms ease;
   gap: 15px;
 }
 
@@ -611,10 +609,6 @@
 .arch-compiler-pass[data-passed]::before {
   border-color: var(--arch-signal);
   background: var(--arch-signal);
-}
-
-.arch-compiler-pass[data-active] {
-  translate: 0 -8px;
 }
 
 .arch-compiler-pass[data-active]::before {
@@ -1493,6 +1487,17 @@
   font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
   font-size: 16px;
   line-height: 1.45;
+}
+
+.arch-step-caption--evidence {
+  margin-top: 14px;
+}
+
+[data-drever-slide] .arch-step-caption--evidence p {
+  color: var(--arch-ink);
+  font-size: 18px;
+  font-weight: 520;
+  letter-spacing: -0.01em;
 }
 
 .arch-step-caption--centered {
