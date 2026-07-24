@@ -76,6 +76,8 @@ Implement `theme.ts` with `defineTheme`, `baseURL: import.meta.url`, a stable lo
 
 Use local components for recurring presentation semantics, not one-off decoration. Use Stage only for persistent canvas layers. Import the generated theme and Stage modules from `drever.config.ts` once. If a generated design already exists, revise it in place and preserve intentional authored changes; never silently replace it.
 
+Pair a text-heavy narrative region with a primarily visual supporting region: a diagram, artifact, media frame, data mark, spatial form, or quiet subject-led abstraction. Do not put another prose-heavy panel beside it; keep supporting text to functional labels or captions unless comparing the texts is the claim.
+
 ## Design motion with meaning
 
 - Give each moment one primary motion and at most one quieter cue in the same causal chain. Count native transitions, Steps, kinetic type, video, 3D, and third-party animation against that one budget.

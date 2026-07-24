@@ -35,6 +35,7 @@ Author with these rules:
 - Give every slide a unique, descriptive heading.
 - Prefer Markdown and documented theme layouts over custom markup.
 - Keep titles concise and remove prose that does not support the slide's claim.
+- Pair a text-heavy narrative region with a primarily visual supporting region: a diagram, artifact, media frame, data mark, spatial form, or quiet subject-led abstraction. Do not put another prose-heavy panel beside it; keep supporting text to functional labels or captions unless comparing the texts is the claim.
 - Use static `Step` elements only for meaningful progressive disclosure. Use positive integer `at` values only for intentional sparse stops.
 - Use motion only to explain focus, order, replacement, comparison, continuity, or a real Stage state change. Match its direction to the content flow and its visual voice to the theme. A sparse draw-on emphasis, signal travel, or small Stage shift may add quiet contextual delight; repeated generic entrances may not.
 - Establish a concrete claim, evidence, and decision before adding choreography. Motion cannot rescue abstract copy.

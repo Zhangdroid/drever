@@ -19,6 +19,7 @@ Review for:
 
 - A coherent story, one dominant idea per slide, useful evidence, and a clear conclusion. Motion must not disguise abstract slogans or missing reasoning.
 - Stable alignment, deliberate spacing, readable type, sufficient contrast, and no clipping or overflow.
+- Flag prose-heavy narrative and supporting regions placed side by side when the support could communicate through a diagram, artifact, media frame, data mark, spatial form, or quiet subject-led abstraction. Keep its text to functional labels or captions unless comparing the texts is the claim.
 - Step changes that reveal meaning without moving persistent content.
 - Motion that has a clear narrative job, follows the content flow, fits the theme, uses quiet contextual delight sparingly, avoids repeated generic entrances, and respects reduced motion.
 - One primary motion per moment across native transitions, Steps, kinetic type, video, 3D, and third-party animation, with at most one quieter supporting cue in the same causal chain. Multiple techniques must serialize around one focal object instead of competing simultaneously. If a headline or core object changes, Stage decoration and neighboring cards stay still; recurring decoration does not earn motion merely by recurring. Ask: What single object should the audience follow? If the answer names two, remove or sequence one.
