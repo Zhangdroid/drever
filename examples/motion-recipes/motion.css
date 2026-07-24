@@ -1222,12 +1222,32 @@
   align-items: center;
 }
 
+.motion-stage-network {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.motion-stage-network[data-visible] {
+  opacity: 1;
+}
+
+.motion-stage-network .subject-network {
+  inset: 0;
+}
+
+.drever-stage[data-drever-render-mode="audience"]:not([data-drever-reduced-motion])
+  .motion-stage-network {
+  transition: opacity 520ms var(--drever-motion-easing);
+}
+
 .subject-network {
   --network-drift-x: 3.6%;
   --network-drift-y: -2.4%;
   position: absolute;
   inset: -82px -108px;
   overflow: hidden;
+  z-index: 0;
   pointer-events: none;
 }
 
@@ -1239,9 +1259,42 @@
 
 .subject-network__topology {
   overflow: hidden;
-  background:
-    radial-gradient(circle at 17% 42%, var(--motion-signal-soft) 0 7%, transparent 28%),
-    radial-gradient(circle at 76% 63%, var(--motion-continuity-soft) 0 10%, transparent 31%);
+  isolation: isolate;
+}
+
+.drever-stage[data-drever-render-mode="audience"]:not([data-drever-reduced-motion])
+  .subject-network__topology {
+  transition: opacity 900ms var(--drever-motion-easing);
+}
+
+.subject-network__glow {
+  position: absolute;
+  width: 700px;
+  height: 700px;
+  border-radius: 50%;
+  z-index: 0;
+  opacity: 0.92;
+}
+
+.drever-stage[data-drever-render-mode="audience"]:not([data-drever-reduced-motion])
+  .subject-network__glow {
+  transition:
+    translate 1.1s var(--drever-motion-easing),
+    scale 1.1s var(--drever-motion-easing);
+}
+
+.subject-network__glow[data-tone="signal"] {
+  top: -48px;
+  left: -96px;
+  background: radial-gradient(circle, var(--motion-signal-soft) 0 14%, transparent 66%);
+}
+
+.subject-network__glow[data-tone="continuity"] {
+  top: 74px;
+  right: -20px;
+  width: 760px;
+  height: 760px;
+  background: radial-gradient(circle, var(--motion-continuity-soft) 0 17%, transparent 68%);
 }
 
 .subject-network__topology::before,
@@ -1252,6 +1305,7 @@
   border-radius: 48%;
   content: "";
   rotate: -9deg;
+  z-index: 1;
 }
 
 .subject-network__topology::after {
@@ -1260,44 +1314,54 @@
   rotate: 12deg;
 }
 
+.drever-stage[data-drever-render-mode="audience"]:not([data-drever-reduced-motion])
+  .subject-network__topology::before,
+.drever-stage[data-drever-render-mode="audience"]:not([data-drever-reduced-motion])
+  .subject-network__topology::after {
+  transition:
+    inset 1.1s var(--drever-motion-easing),
+    rotate 1.1s var(--drever-motion-easing),
+    border-color 900ms var(--drever-motion-easing);
+}
+
 .subject-network__topology > i {
   position: absolute;
   width: 12px;
   height: 12px;
   border: 2px solid color-mix(in srgb, var(--motion-paper), transparent 28%);
   border-radius: 50%;
-  z-index: 1;
+  z-index: 2;
   background: color-mix(in srgb, var(--motion-continuity), transparent 18%);
   box-shadow: 0 0 8px color-mix(in srgb, var(--motion-continuity), transparent 72%);
   opacity: 0.24;
 }
 
-.subject-network__topology > i:nth-child(1) {
+.subject-network__topology > i:nth-of-type(1) {
   top: 24%;
   left: 14%;
 }
 
-.subject-network__topology > i:nth-child(2) {
+.subject-network__topology > i:nth-of-type(2) {
   top: 42%;
   left: 37%;
 }
 
-.subject-network__topology > i:nth-child(3) {
+.subject-network__topology > i:nth-of-type(3) {
   top: 22%;
   left: 61%;
 }
 
-.subject-network__topology > i:nth-child(4) {
+.subject-network__topology > i:nth-of-type(4) {
   top: 66%;
   left: 72%;
 }
 
-.subject-network__topology > i:nth-child(5) {
+.subject-network__topology > i:nth-of-type(5) {
   top: 72%;
   left: 26%;
 }
 
-.subject-network__topology > i:nth-child(6) {
+.subject-network__topology > i:nth-of-type(6) {
   top: 44%;
   left: 88%;
 }
@@ -1327,60 +1391,60 @@
   offset-path: path("M 480 302 C 650 354 810 260 930 450");
 }
 
-.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+.drever-stage[data-drever-render-mode="audience"]:not([data-drever-reduced-motion])
   .subject-network__topology::before {
   animation: field-drift 7.5s ease-in-out infinite alternate;
 }
 
-.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+.drever-stage[data-drever-render-mode="audience"]:not([data-drever-reduced-motion])
   .subject-network__topology::after {
   animation: field-drift 9.5s 0.7s ease-in-out infinite alternate-reverse;
 }
 
-.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+.drever-stage[data-drever-render-mode="audience"]:not([data-drever-reduced-motion])
   .subject-network__topology
   > i {
   animation: node-twinkle 3.8s ease-in-out infinite;
 }
 
-.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+.drever-stage[data-drever-render-mode="audience"]:not([data-drever-reduced-motion])
   .subject-network__topology
-  > i:nth-child(2) {
+  > i:nth-of-type(2) {
   animation-delay: -0.7s;
 }
 
-.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+.drever-stage[data-drever-render-mode="audience"]:not([data-drever-reduced-motion])
   .subject-network__topology
-  > i:nth-child(3) {
+  > i:nth-of-type(3) {
   animation-delay: -1.4s;
 }
 
-.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+.drever-stage[data-drever-render-mode="audience"]:not([data-drever-reduced-motion])
   .subject-network__topology
-  > i:nth-child(4) {
+  > i:nth-of-type(4) {
   animation-delay: -2.1s;
 }
 
-.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+.drever-stage[data-drever-render-mode="audience"]:not([data-drever-reduced-motion])
   .subject-network__topology
-  > i:nth-child(5) {
+  > i:nth-of-type(5) {
   animation-delay: -2.8s;
 }
 
-.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+.drever-stage[data-drever-render-mode="audience"]:not([data-drever-reduced-motion])
   .subject-network__topology
-  > i:nth-child(6) {
+  > i:nth-of-type(6) {
   animation-delay: -3.5s;
 }
 
-.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+.drever-stage[data-drever-render-mode="audience"]:not([data-drever-reduced-motion])
   .subject-network[data-mode="hero"]
   .subject-network__signals
   > b {
   animation: network-signal 5.2s linear infinite;
 }
 
-.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+.drever-stage[data-drever-render-mode="audience"]:not([data-drever-reduced-motion])
   .subject-network[data-mode="hero"]
   .subject-network__signals
   > b[data-signal="two"] {
@@ -1388,7 +1452,7 @@
   animation-duration: 6.4s;
 }
 
-.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+.drever-stage[data-drever-render-mode="audience"]:not([data-drever-reduced-motion])
   .subject-network[data-mode="hero"]
   .subject-network__signals
   > b[data-signal="three"] {
@@ -1402,37 +1466,57 @@
 }
 
 .subject-network[data-mode="context"] .subject-network__topology {
-  opacity: 0.32;
+  opacity: 0.52;
 }
 
 .subject-network[data-mode="context"] .subject-network__signals {
-  opacity: 0.28;
+  opacity: 0.4;
+}
+
+.subject-network[data-mode="context"] .subject-network__glow[data-tone="signal"] {
+  scale: 0.92;
+  translate: 40% 22%;
+}
+
+.subject-network[data-mode="context"] .subject-network__glow[data-tone="continuity"] {
+  scale: 0.88;
+  translate: 12% -38%;
+}
+
+.subject-network[data-mode="context"] .subject-network__topology::before {
+  inset: 7% -21% 19% -7%;
+  rotate: -3deg;
+}
+
+.subject-network[data-mode="context"] .subject-network__topology::after {
+  inset: 18% -3% 8% -15%;
+  rotate: 18deg;
 }
 
 .subject-network[data-mode="context"] .subject-network__signals > b:not([data-signal="one"]) {
   display: none;
 }
 
-.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+.drever-stage[data-drever-render-mode="audience"]:not([data-drever-reduced-motion])
   .subject-network[data-mode="context"]
   .subject-network__topology::before {
   animation-duration: 12s;
 }
 
-.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+.drever-stage[data-drever-render-mode="audience"]:not([data-drever-reduced-motion])
   .subject-network[data-mode="context"]
   .subject-network__topology::after {
   animation-duration: 14s;
 }
 
-.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+.drever-stage[data-drever-render-mode="audience"]:not([data-drever-reduced-motion])
   .subject-network[data-mode="context"]
   .subject-network__topology
   > i {
   animation-duration: 6.8s;
 }
 
-.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+.drever-stage[data-drever-render-mode="audience"]:not([data-drever-reduced-motion])
   .subject-network[data-mode="context"]
   .subject-network__signals
   > b[data-signal="one"] {
@@ -1586,18 +1670,6 @@
 [data-drever-slide] .subject-scene__content > p {
   color: var(--motion-muted);
   font-size: 13px;
-}
-
-.drever-deck::view-transition-group(drever-subject-network-topology) {
-  animation-duration: 760ms;
-  animation-timing-function: var(--drever-motion-easing);
-}
-
-.drever-deck::view-transition-old(drever-subject-network-topology),
-.drever-deck::view-transition-new(drever-subject-network-topology) {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
 }
 
 /* Spatial Step */
@@ -2961,7 +3033,6 @@
   .subject-network__topology::after,
   .subject-network__topology > i {
     animation: none;
-    translate: none;
   }
 
   .spatial-model__object span,
@@ -3128,7 +3199,6 @@
   .subject-network__topology::after,
 [data-drever-render-mode]:not([data-drever-render-mode="audience"]) .subject-network__topology > i {
   animation: none;
-  translate: none;
 }
 
 [data-drever-render-mode]:not([data-drever-render-mode="audience"])

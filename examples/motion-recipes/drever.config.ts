@@ -9,6 +9,9 @@ export default defineConfig({
   rehearsal: {
     targetDurationMinutes: 10,
   },
+  stage: {
+    background: "./stage-background.tsx",
+  },
   theme: editorialTheme,
   server: {
     host: "127.0.0.1",

@@ -1,4 +1,4 @@
-import { MotionGroup, useDreverRenderMode } from "@drever/core";
+import { useDreverRenderMode } from "@drever/core";
 import { motion, useReducedMotion } from "motion/react";
 import {
   useEffect,
@@ -300,22 +300,20 @@ export function MotionEvidence(): ReactElement {
   );
 }
 
-/** One topology moves from subject to subdued context without snapshotting its live signals. */
+/** One live field moves from subject to subdued context behind the slide content. */
 export function SubjectNetwork({ mode }: SubjectNetworkProps): ReactElement {
   return (
     <div aria-hidden="true" className="subject-network" data-mode={mode}>
-      <MotionGroup
-        className="subject-network__topology"
-        intent="continuity"
-        name="subject-network-topology"
-      >
+      <div className="subject-network__topology">
+        <span className="subject-network__glow" data-tone="signal" />
+        <span className="subject-network__glow" data-tone="continuity" />
         <i />
         <i />
         <i />
         <i />
         <i />
         <i />
-      </MotionGroup>
+      </div>
       <div className="subject-network__signals">
         <b data-signal="one" />
         <b data-signal="two" />
