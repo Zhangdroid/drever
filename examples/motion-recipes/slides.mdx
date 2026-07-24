@@ -109,15 +109,20 @@ import "../showcase-return.css";
 <div aria-label="Change the words only when the thought changes" className="semantic-scene">
   <span className="motion-kicker">04 · Semantic correction</span>
   <h2>Change the words only when the thought changes.</h2>
-  <SemanticCorrection />
+  <SemanticCorrection>
+    <Step at={1} as="span" className="semantic-correction__word" data-word="new">
+      {"explain the change."}
+    </Step>
+  </SemanticCorrection>
   <div className="motion-caption">
     A fixed text slot can correct an idea without turning the sentence into a slogan carousel.
   </div>
 </div>
 
 <Note>
-  The replacement corrects a misconception in place. Both phrases share one measured slot and one
-  baseline, so the transition changes meaning without stretching or shifting the sentence.
+  Advance once. The replacement corrects a misconception in place. Both phrases share one measured
+  slot and one baseline, so the transition changes meaning without stretching or shifting the
+  sentence.
 </Note>
 
 ---
@@ -130,7 +135,7 @@ import "../showcase-return.css";
   </header>
   <EvidenceReveal>
     <Step at={1} as="span" className="evidence-reveal__answer">
-      a first decision they could trust.
+      {"a first decision they could trust."}
     </Step>
   </EvidenceReveal>
 </div>
@@ -276,20 +281,28 @@ import "../showcase-return.css";
   <header>
     <span className="motion-kicker">11 · Focused capability</span>
     <h2>Show the capability. Do not merely name the library.</h2>
-    <p>A real loop connects kinetic type, local motion, and spatial state to one decision.</p>
+    <p>A real sequence connects kinetic type, local motion, and spatial state to one decision.</p>
   </header>
-  <CapabilityPipeline />
+  <CapabilityPipeline>
+    <Step at={1} as="span" className="capability-pipeline__step">
+      {"The signal reaches guidance, separates the relevant layer, and resolves the decision."}
+    </Step>
+  </CapabilityPipeline>
 </div>
 
 <Note>
-  This is a working example rather than a list of links. Specialized libraries may replace one
-  boundary when they materially improve the explanation; they never need to own the entire deck.
+  Advance once. The signal now reaches its visible endpoint before the causal chain resolves.
+  Specialized libraries may replace one boundary when they materially improve the explanation; they
+  never need to own the entire deck.
 </Note>
 
 ---
 
 <div aria-label="Let the room read and then direct the eye" className="timing-scene">
   <span className="motion-kicker">12 · Timing</span>
+  <Step at={1} as="span" className="timing-scene__step">
+    {"The reading cue is now active."}
+  </Step>
   <h2>
     {"Let the room read. Then direct "}
     <mark>the eye.</mark>
@@ -301,8 +314,9 @@ import "../showcase-return.css";
 </div>
 
 <Note>
-  The marker establishes the point first. A quieter wash then holds the supporting phrase. Both cues
-  are delayed because their job is to guide reading, not decorate the page.
+  Let the room read, then advance once. The marker establishes the point first; a quieter wash then
+  holds the supporting phrase. The cues are serialized because their job is to guide reading, not
+  decorate the page.
 </Note>
 
 ---

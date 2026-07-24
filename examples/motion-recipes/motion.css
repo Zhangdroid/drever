@@ -834,12 +834,27 @@
   translate: 0 112%;
 }
 
-[data-drever-render-mode="audience"] .semantic-correction__slot [data-word="old"] {
-  animation: semantic-old 720ms 1s var(--drever-motion-easing) forwards;
+[data-drever-render-mode="audience"]
+  .semantic-correction__slot:has(> [data-word="new"][data-step-state="active"])
+  > [data-word="old"] {
+  animation: semantic-old 720ms var(--drever-motion-easing) forwards;
 }
 
-[data-drever-render-mode="audience"] .semantic-correction__slot [data-word="new"] {
-  animation: semantic-new 720ms 1.06s var(--drever-motion-easing) forwards;
+[data-drever-render-mode="audience"]
+  .semantic-correction__slot
+  > [data-word="new"][data-step-state="active"] {
+  animation: semantic-new 720ms 60ms var(--drever-motion-easing) forwards;
+}
+
+.semantic-correction__slot:has(> [data-word="new"][data-step-state="complete"])
+  > [data-word="old"] {
+  opacity: 0;
+  translate: 0 -108%;
+}
+
+.semantic-correction__slot > [data-word="new"][data-step-state="complete"] {
+  opacity: 1;
+  translate: 0;
 }
 
 [data-drever-slide] .motion-caption {
@@ -1675,16 +1690,18 @@
 
 .capability-pipeline__track::before {
   left: 0;
+  translate: -50% 0;
 }
 
 .capability-pipeline__track::after {
   right: 0;
+  translate: 50% 0;
 }
 
 .capability-pipeline__track i {
   position: absolute;
   top: 50%;
-  left: 12px;
+  left: 0;
   width: 10px;
   height: 10px;
   border: 2px solid color-mix(in srgb, var(--motion-paper), transparent 16%);
@@ -1693,7 +1710,7 @@
   z-index: 1;
   background: var(--motion-signal);
   box-shadow: 0 0 12px color-mix(in srgb, var(--motion-signal), transparent 46%);
-  opacity: 0;
+  opacity: 1;
   translate: -50% -50%;
 }
 
@@ -1729,7 +1746,7 @@
 }
 
 .capability-pipeline__decision strong {
-  color: var(--motion-paper);
+  color: color-mix(in srgb, var(--motion-paper), transparent 42%);
   font-family: var(--drever-brand-font-family-display);
   font-size: 23px;
   letter-spacing: -0.025em;
@@ -1746,32 +1763,111 @@
   text-transform: uppercase;
 }
 
-[data-drever-render-mode="audience"] .capability-pipeline__track i {
-  animation: capability-signal 6.4s 0.4s var(--drever-motion-easing) infinite both;
+.capability-pipeline__step,
+.timing-scene__step {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }
 
-[data-drever-render-mode="audience"] .capability-pipeline__kinetic i[data-word="old"] {
-  animation: capability-old-word 6.4s 0.4s var(--drever-motion-easing) infinite;
+[data-drever-render-mode="audience"]
+  .capability-pipeline:has(.capability-pipeline__step[data-step-state="active"])
+  .capability-pipeline__track
+  i {
+  animation: capability-signal 3.2s var(--drever-motion-easing) both;
 }
 
-[data-drever-render-mode="audience"] .capability-pipeline__kinetic i[data-word="new"] {
-  animation: capability-new-word 6.4s 0.4s var(--drever-motion-easing) infinite;
+[data-drever-render-mode="audience"]
+  .capability-pipeline:has(.capability-pipeline__step[data-step-state="active"])
+  .capability-pipeline__kinetic
+  i[data-word="old"] {
+  animation: capability-old-word 3.2s var(--drever-motion-easing) both;
 }
 
-[data-drever-render-mode="audience"] .capability-pipeline__object i:first-child {
-  animation: capability-outer-layer 6.4s 0.4s var(--drever-motion-easing) infinite;
+[data-drever-render-mode="audience"]
+  .capability-pipeline:has(.capability-pipeline__step[data-step-state="active"])
+  .capability-pipeline__kinetic
+  i[data-word="new"] {
+  animation: capability-new-word 3.2s var(--drever-motion-easing) both;
 }
 
-[data-drever-render-mode="audience"] .capability-pipeline__object i:nth-child(2) {
-  animation: capability-middle-layer 6.4s 0.4s var(--drever-motion-easing) infinite;
+[data-drever-render-mode="audience"]
+  .capability-pipeline:has(.capability-pipeline__step[data-step-state="active"])
+  .capability-pipeline__object
+  i:first-child {
+  animation: capability-outer-layer 3.2s var(--drever-motion-easing) both;
 }
 
-[data-drever-render-mode="audience"] .capability-pipeline__object i:nth-child(3) {
-  animation: capability-core-layer 6.4s 0.4s var(--drever-motion-easing) infinite;
+[data-drever-render-mode="audience"]
+  .capability-pipeline:has(.capability-pipeline__step[data-step-state="active"])
+  .capability-pipeline__object
+  i:nth-child(2) {
+  animation: capability-middle-layer 3.2s var(--drever-motion-easing) both;
 }
 
-[data-drever-render-mode="audience"] .capability-pipeline__decision strong {
-  animation: capability-decision 6.4s 0.4s ease-in-out infinite;
+[data-drever-render-mode="audience"]
+  .capability-pipeline:has(.capability-pipeline__step[data-step-state="active"])
+  .capability-pipeline__object
+  i:nth-child(3) {
+  animation: capability-core-layer 3.2s var(--drever-motion-easing) both;
+}
+
+[data-drever-render-mode="audience"]
+  .capability-pipeline:has(.capability-pipeline__step[data-step-state="active"])
+  .capability-pipeline__decision
+  strong {
+  animation: capability-decision 3.2s var(--drever-motion-easing) both;
+}
+
+.capability-pipeline:has(.capability-pipeline__step[data-step-state="complete"])
+  .capability-pipeline__track
+  i {
+  left: 100%;
+}
+
+.capability-pipeline:has(.capability-pipeline__step[data-step-state="complete"])
+  .capability-pipeline__kinetic
+  i[data-word="old"] {
+  opacity: 0;
+  translate: 0 -110%;
+}
+
+.capability-pipeline:has(.capability-pipeline__step[data-step-state="complete"])
+  .capability-pipeline__kinetic
+  i[data-word="new"] {
+  opacity: 1;
+  translate: 0;
+}
+
+.capability-pipeline:has(.capability-pipeline__step[data-step-state="complete"])
+  .capability-pipeline__object
+  i:first-child {
+  opacity: 0.36;
+  transform: translateZ(-20px) translate(-14px, 11px);
+}
+
+.capability-pipeline:has(.capability-pipeline__step[data-step-state="complete"])
+  .capability-pipeline__object
+  i:nth-child(2) {
+  transform: translateZ(32px) translate(10px, -7px);
+}
+
+.capability-pipeline:has(.capability-pipeline__step[data-step-state="complete"])
+  .capability-pipeline__object
+  i:nth-child(3) {
+  transform: translateZ(60px) translate(22px, -13px);
+}
+
+.capability-pipeline:has(.capability-pipeline__step[data-step-state="complete"])
+  .capability-pipeline__decision
+  strong {
+  color: var(--motion-paper);
 }
 
 /* Timing */
@@ -1804,8 +1900,11 @@
   transform-origin: left;
 }
 
-[data-drever-render-mode="audience"] .timing-scene h2 mark::after {
-  animation: motion-marker 980ms 1s var(--drever-motion-easing) forwards;
+[data-drever-render-mode="audience"]
+  .timing-scene:has(> .timing-scene__step[data-step-state="active"])
+  h2
+  mark::after {
+  animation: motion-marker 980ms var(--drever-motion-easing) forwards;
 }
 
 .timing-scene > p {
@@ -1836,8 +1935,19 @@
   transform-origin: left;
 }
 
-[data-drever-render-mode="audience"] .timing-scene > p strong::before {
-  animation: timing-wash 820ms 2.05s var(--drever-motion-easing) forwards;
+[data-drever-render-mode="audience"]
+  .timing-scene:has(> .timing-scene__step[data-step-state="active"])
+  > p
+  strong::before {
+  animation: timing-wash 820ms 1.02s var(--drever-motion-easing) forwards;
+}
+
+.timing-scene:has(> .timing-scene__step[data-step-state="complete"]) h2 mark::after {
+  transform: scaleX(1) rotate(-0.7deg);
+}
+
+.timing-scene:has(> .timing-scene__step[data-step-state="complete"]) > p strong::before {
+  transform: scaleX(1);
 }
 
 /* Attention budget */
@@ -2379,77 +2489,55 @@
 }
 
 @keyframes capability-signal {
-  0%,
-  10% {
-    left: 12px;
-    opacity: 0;
-  }
-
-  18% {
+  0% {
+    left: 0;
     opacity: 1;
   }
 
-  58% {
-    left: calc(100% - 12px);
-    opacity: 1;
-  }
-
-  66%,
+  82%,
   100% {
-    left: calc(100% - 12px);
-    opacity: 0;
+    left: 100%;
+    opacity: 1;
   }
 }
 
 @keyframes capability-old-word {
   0%,
-  24% {
+  20% {
     opacity: 1;
     translate: 0 0;
   }
 
-  36%,
-  92% {
+  38%,
+  100% {
     opacity: 0;
     translate: 0 -110%;
-  }
-
-  100% {
-    opacity: 1;
-    translate: 0 0;
   }
 }
 
 @keyframes capability-new-word {
   0%,
-  25% {
+  22% {
     opacity: 0;
     translate: 0 110%;
   }
 
-  37%,
-  88% {
+  40%,
+  100% {
     opacity: 1;
     translate: 0 0;
-  }
-
-  96%,
-  100% {
-    opacity: 0;
-    translate: 0 -110%;
   }
 }
 
 @keyframes capability-outer-layer {
   0%,
-  44%,
-  100% {
+  44% {
     opacity: 1;
     transform: translateZ(0);
   }
 
-  58%,
-  88% {
+  64%,
+  100% {
     opacity: 0.36;
     transform: translateZ(-20px) translate(-14px, 11px);
   }
@@ -2457,39 +2545,36 @@
 
 @keyframes capability-middle-layer {
   0%,
-  44%,
-  100% {
+  44% {
     transform: translateZ(18px);
   }
 
-  58%,
-  88% {
+  64%,
+  100% {
     transform: translateZ(32px) translate(10px, -7px);
   }
 }
 
 @keyframes capability-core-layer {
   0%,
-  44%,
-  100% {
+  44% {
     transform: translateZ(36px);
   }
 
-  58%,
-  88% {
+  64%,
+  100% {
     transform: translateZ(60px) translate(22px, -13px);
   }
 }
 
 @keyframes capability-decision {
   0%,
-  52%,
-  100% {
+  70% {
     color: color-mix(in srgb, var(--motion-paper), transparent 42%);
   }
 
-  64%,
-  88% {
+  86%,
+  100% {
     color: var(--motion-paper);
   }
 }
@@ -2631,8 +2716,7 @@
 /* Deterministic static endpoints */
 
 @media (prefers-reduced-motion: reduce) {
-  .motion-intro > header h1 mark::after,
-  .timing-scene h2 mark::after {
+  .motion-intro > header h1 mark::after {
     animation: none;
     transform: scaleX(1) rotate(-0.7deg);
   }
@@ -2659,12 +2743,18 @@
     translate: 0;
   }
 
-  .semantic-correction__slot [data-word="old"] {
+  .semantic-correction__slot:has(
+      > [data-word="new"]:is([data-step-state="active"], [data-step-state="complete"])
+    )
+    > [data-word="old"] {
     display: none;
   }
 
-  .semantic-correction__slot [data-word="new"] {
+  .semantic-correction__slot
+    > [data-word="new"]:is([data-step-state="active"], [data-step-state="complete"]) {
+    visibility: visible !important;
     opacity: 1;
+    animation: none;
     translate: 0;
   }
 
@@ -2681,34 +2771,97 @@
     transition-duration: 1ms;
   }
 
-  .capability-pipeline__track i {
-    display: none;
-  }
-
-  .capability-pipeline__kinetic i[data-word="old"] {
-    display: none;
-  }
-
-  .capability-pipeline__kinetic i[data-word="new"] {
+  [data-drever-render-mode="audience"]
+    .capability-pipeline:has(
+      .capability-pipeline__step:is([data-step-state="active"], [data-step-state="complete"])
+    )
+    .capability-pipeline__track
+    i {
+    left: 100%;
     opacity: 1;
+    animation: none;
+  }
+
+  [data-drever-render-mode="audience"]
+    .capability-pipeline:has(
+      .capability-pipeline__step:is([data-step-state="active"], [data-step-state="complete"])
+    )
+    .capability-pipeline__kinetic
+    i[data-word="old"] {
+    opacity: 0;
+    animation: none;
+    translate: 0 -110%;
+  }
+
+  [data-drever-render-mode="audience"]
+    .capability-pipeline:has(
+      .capability-pipeline__step:is([data-step-state="active"], [data-step-state="complete"])
+    )
+    .capability-pipeline__kinetic
+    i[data-word="new"] {
+    opacity: 1;
+    animation: none;
     translate: 0;
   }
 
-  .capability-pipeline__object i:first-child {
+  [data-drever-render-mode="audience"]
+    .capability-pipeline:has(
+      .capability-pipeline__step:is([data-step-state="active"], [data-step-state="complete"])
+    )
+    .capability-pipeline__object
+    i:first-child {
     opacity: 0.36;
+    animation: none;
     transform: translateZ(-20px) translate(-14px, 11px);
   }
 
-  .capability-pipeline__object i:nth-child(2) {
+  [data-drever-render-mode="audience"]
+    .capability-pipeline:has(
+      .capability-pipeline__step:is([data-step-state="active"], [data-step-state="complete"])
+    )
+    .capability-pipeline__object
+    i:nth-child(2) {
+    animation: none;
     transform: translateZ(32px) translate(10px, -7px);
   }
 
-  .capability-pipeline__object i:nth-child(3) {
+  [data-drever-render-mode="audience"]
+    .capability-pipeline:has(
+      .capability-pipeline__step:is([data-step-state="active"], [data-step-state="complete"])
+    )
+    .capability-pipeline__object
+    i:nth-child(3) {
+    animation: none;
     transform: translateZ(60px) translate(22px, -13px);
   }
 
-  .timing-scene > p strong::before {
-    opacity: 1;
+  [data-drever-render-mode="audience"]
+    .capability-pipeline:has(
+      .capability-pipeline__step:is([data-step-state="active"], [data-step-state="complete"])
+    )
+    .capability-pipeline__decision
+    strong {
+    color: var(--motion-paper);
+    animation: none;
+  }
+
+  [data-drever-render-mode="audience"]
+    .timing-scene:has(
+      > .timing-scene__step:is([data-step-state="active"], [data-step-state="complete"])
+    )
+    h2
+    mark::after {
+    animation: none;
+    transform: scaleX(1) rotate(-0.7deg);
+  }
+
+  [data-drever-render-mode="audience"]
+    .timing-scene:has(
+      > .timing-scene__step:is([data-step-state="active"], [data-step-state="complete"])
+    )
+    > p
+    strong::before {
+    animation: none;
     transform: scaleX(1);
   }
 
@@ -2740,8 +2893,7 @@
   .motion-intro
   > header
   h1
-  mark::after,
-[data-drever-render-mode]:not([data-drever-render-mode="audience"]) .timing-scene h2 mark::after {
+  mark::after {
   animation: none;
   transform: scaleX(1) rotate(-0.7deg);
 }
@@ -2756,14 +2908,17 @@
 }
 
 [data-drever-render-mode]:not([data-drever-render-mode="audience"])
-  .semantic-correction__slot
-  [data-word="old"] {
+  .semantic-correction__slot:has(
+    > [data-word="new"]:is([data-step-state="active"], [data-step-state="complete"])
+  )
+  > [data-word="old"] {
   display: none;
 }
 
 [data-drever-render-mode]:not([data-drever-render-mode="audience"])
   .semantic-correction__slot
-  [data-word="new"] {
+  > [data-word="new"]:is([data-step-state="active"], [data-step-state="complete"]) {
+  visibility: visible !important;
   opacity: 1;
   translate: 0;
 }
@@ -2775,17 +2930,30 @@
   translate: none;
 }
 
-[data-drever-render-mode]:not([data-drever-render-mode="audience"]) .capability-pipeline__track i {
-  display: none;
+[data-drever-render-mode]:not([data-drever-render-mode="audience"])
+  .capability-pipeline:has(
+    .capability-pipeline__step:is([data-step-state="active"], [data-step-state="complete"])
+  )
+  .capability-pipeline__track
+  i {
+  left: 100%;
+  opacity: 1;
 }
 
 [data-drever-render-mode]:not([data-drever-render-mode="audience"])
+  .capability-pipeline:has(
+    .capability-pipeline__step:is([data-step-state="active"], [data-step-state="complete"])
+  )
   .capability-pipeline__kinetic
   i[data-word="old"] {
-  display: none;
+  opacity: 0;
+  translate: 0 -110%;
 }
 
 [data-drever-render-mode]:not([data-drever-render-mode="audience"])
+  .capability-pipeline:has(
+    .capability-pipeline__step:is([data-step-state="active"], [data-step-state="complete"])
+  )
   .capability-pipeline__kinetic
   i[data-word="new"] {
   opacity: 1;
@@ -2793,6 +2961,9 @@
 }
 
 [data-drever-render-mode]:not([data-drever-render-mode="audience"])
+  .capability-pipeline:has(
+    .capability-pipeline__step:is([data-step-state="active"], [data-step-state="complete"])
+  )
   .capability-pipeline__object
   i:first-child {
   opacity: 0.36;
@@ -2800,22 +2971,47 @@
 }
 
 [data-drever-render-mode]:not([data-drever-render-mode="audience"])
+  .capability-pipeline:has(
+    .capability-pipeline__step:is([data-step-state="active"], [data-step-state="complete"])
+  )
   .capability-pipeline__object
   i:nth-child(2) {
   transform: translateZ(32px) translate(10px, -7px);
 }
 
 [data-drever-render-mode]:not([data-drever-render-mode="audience"])
+  .capability-pipeline:has(
+    .capability-pipeline__step:is([data-step-state="active"], [data-step-state="complete"])
+  )
   .capability-pipeline__object
   i:nth-child(3) {
   transform: translateZ(60px) translate(22px, -13px);
 }
 
 [data-drever-render-mode]:not([data-drever-render-mode="audience"])
-  .timing-scene
+  .capability-pipeline:has(
+    .capability-pipeline__step:is([data-step-state="active"], [data-step-state="complete"])
+  )
+  .capability-pipeline__decision
+  strong {
+  color: var(--motion-paper);
+}
+
+[data-drever-render-mode]:not([data-drever-render-mode="audience"])
+  .timing-scene:has(
+    > .timing-scene__step:is([data-step-state="active"], [data-step-state="complete"])
+  )
+  h2
+  mark::after {
+  transform: scaleX(1) rotate(-0.7deg);
+}
+
+[data-drever-render-mode]:not([data-drever-render-mode="audience"])
+  .timing-scene:has(
+    > .timing-scene__step:is([data-step-state="active"], [data-step-state="complete"])
+  )
   > p
   strong::before {
-  opacity: 1;
   transform: scaleX(1);
 }
 

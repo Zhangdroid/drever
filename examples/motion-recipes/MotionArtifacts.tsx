@@ -164,17 +164,19 @@ export function BrowserFrame(): ReactElement {
 }
 
 /** An original fixed-slot word correction; animated copies remain presentation-only. */
-export function SemanticCorrection(): ReactElement {
+export function SemanticCorrection({ children }: PropsWithChildren): ReactElement {
   return (
-    <p className="semantic-correction" aria-label="Motion should explain the change.">
+    <p
+      className="semantic-correction"
+      aria-label="Motion should decorate everything, then corrects to: Motion should explain the change."
+    >
       <span aria-hidden="true" className="semantic-correction__line">
         <span>Motion should</span>
         <span className="semantic-correction__slot">
           <span data-word="old">decorate everything.</span>
-          <span data-word="new">explain the change.</span>
+          {children}
         </span>
       </span>
-      <span className="motion-sr-only">Motion should explain the change.</span>
     </p>
   );
 }
@@ -321,8 +323,8 @@ export function SpatialModel({ children }: PropsWithChildren): ReactElement {
   );
 }
 
-/** A live composition that demonstrates several focused animation capabilities. */
-export function CapabilityPipeline(): ReactElement {
+/** A Step-driven composition that demonstrates several focused animation capabilities. */
+export function CapabilityPipeline({ children }: PropsWithChildren): ReactElement {
   return (
     <section
       aria-label="A research brief transforms friction into guidance and then a product decision"
@@ -351,7 +353,8 @@ export function CapabilityPipeline(): ReactElement {
         <span>Spatial state</span>
         <strong>Ship the guided first run.</strong>
       </div>
-      <small>One causal loop · kinetic type · local motion · spatial state</small>
+      <small>One causal sequence · kinetic type · local motion · spatial state</small>
+      {children}
     </section>
   );
 }
