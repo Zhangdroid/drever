@@ -12,6 +12,7 @@ export default defineConfig({
   test: {
     alias: {
       "@drever/compiler": fileURLToPath(new URL("../compiler/src/index.ts", import.meta.url)),
+      "@drever/schema": fileURLToPath(new URL("../schema/src/index.ts", import.meta.url)),
     },
     include: ["src/**/*.test.{ts,tsx}"],
   },
