@@ -4,7 +4,7 @@ import { mkdir, mkdtemp, readFile, readdir, realpath, rm, stat, writeFile } from
 import { tmpdir } from "node:os";
 import { join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import { promisify } from "node:util";
+import { promisify, stripVTControlCharacters } from "node:util";
 import { chromium } from "@playwright/test";
 
 const execute = promisify(execFile);
@@ -56,7 +56,7 @@ const startDevServer = (cli, cwd) =>
     }, 30_000);
     const inspect = (chunk) => {
       output += chunk;
-      const match = output.match(/Local:\s+(https?:\/\/[^\s]+)/u);
+      const match = stripVTControlCharacters(output).match(/Local:\s+(https?:\/\/[^\s]+)/u);
       if (match === null) return;
       clearTimeout(timeout);
       resolvePromise({ child, url: match[1] });
@@ -97,7 +97,7 @@ const verifyDevRuntime = async (cli, root) => {
   const server = await startDevServer(cli, root);
   let browser;
   try {
-    browser = await chromium.launch({ headless: true });
+    browser = await chromium.launch({ channel: "chromium", headless: true });
     const page = await browser.newPage();
     const failures = [];
     page.on("console", (message) => {
@@ -105,9 +105,9 @@ const verifyDevRuntime = async (cli, root) => {
     });
     page.on("pageerror", (error) => failures.push(`pageerror: ${error.stack ?? error.message}`));
     await page.goto(server.url, { waitUntil: "networkidle" });
-    await page.locator("[data-drever-ready]").waitFor();
+    await page.locator("[data-drever-ready]").waitFor({ state: "attached" });
     await page.reload({ waitUntil: "networkidle" });
-    await page.locator("[data-drever-ready]").waitFor();
+    await page.locator("[data-drever-ready]").waitFor({ state: "attached" });
     if (failures.length > 0) {
       throw new Error(`The packed dev runtime reported browser failures:\n${failures.join("\n")}`);
     }
