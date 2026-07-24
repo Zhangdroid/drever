@@ -844,13 +844,6 @@
   .drever-audience-dialog[data-panel="overview"] {
     width: min(1160px, calc(100vw - 32px));
     max-height: min(780px, calc(100dvh - 32px));
-    background: var(--drever-controls-stage);
-  }
-
-  .drever-audience-dialog[data-panel="overview"]::backdrop {
-    background: rgb(from var(--drever-controls-ink) r g b / 24%);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
   }
 
   .drever-audience-dialog__content {
