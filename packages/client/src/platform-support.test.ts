@@ -5,8 +5,8 @@ const candidateDocument = (
   capabilities: Readonly<{
     broadcastChannel?: unknown;
     clipboard?: unknown;
-    elementStartViewTransition?: unknown;
     documentStartViewTransition?: unknown;
+    navigateEventSignal?: boolean;
     navigation?: unknown;
     resizeObserver?: unknown;
   }> = {},
@@ -19,13 +19,14 @@ const candidateDocument = (
   Object.defineProperty(document, "defaultView", {
     value: {
       BroadcastChannel: capabilities.broadcastChannel ?? class {},
-      Element: {
-        prototype: {
-          startViewTransition:
-            capabilities.elementStartViewTransition ??
-            (() => Object.freeze({ finished: Promise.resolve() })),
-        },
-      },
+      NavigateEvent:
+        capabilities.navigateEventSignal === false
+          ? class {}
+          : class {
+              get signal(): AbortSignal {
+                return new AbortController().signal;
+              }
+            },
       ResizeObserver: capabilities.resizeObserver ?? class {},
       navigator: {
         clipboard: capabilities.clipboard ?? { writeText: () => Promise.resolve() },
@@ -42,9 +43,9 @@ const candidateDocument = (
 };
 
 describe("viewer platform support", () => {
-  it("returns the exact modern browser surfaces used by the viewer", () => {
+  it("accepts document transitions without requiring an element transition API", () => {
     const startViewTransition = vi.fn();
-    const document = candidateDocument({ elementStartViewTransition: startViewTransition });
+    const document = candidateDocument({ documentStartViewTransition: startViewTransition });
     const platform = requireViewerPlatform(document);
 
     expect(platform).toMatchObject({
@@ -69,7 +70,7 @@ describe("viewer platform support", () => {
     const document = candidateDocument({
       broadcastChannel: false,
       documentStartViewTransition: false,
-      elementStartViewTransition: false,
+      navigateEventSignal: false,
       navigation: false,
       resizeObserver: false,
     });
@@ -85,7 +86,6 @@ describe("viewer platform support", () => {
             "BroadcastChannel",
             "Navigation API",
             "Document.startViewTransition",
-            "Element.startViewTransition",
             "ResizeObserver",
           ],
         },
@@ -93,28 +93,24 @@ describe("viewer platform support", () => {
     }
   });
 
-  it("does not accept the document API as an element-scoped transition fallback", () => {
-    const document = candidateDocument({
-      documentStartViewTransition: vi.fn(),
-      elementStartViewTransition: false,
-    });
-
-    expect(() => requireViewerPlatform(document)).toThrowError(
-      expect.objectContaining({
-        details: { capabilities: ["Element.startViewTransition"] },
-      }),
-    );
-  });
-
-  it("does not accept the element API as a document transition fallback", () => {
+  it("requires the document API", () => {
     const document = candidateDocument({
       documentStartViewTransition: false,
-      elementStartViewTransition: vi.fn(),
     });
 
     expect(() => requireViewerPlatform(document)).toThrowError(
       expect.objectContaining({
         details: { capabilities: ["Document.startViewTransition"] },
+      }),
+    );
+  });
+
+  it("requires Navigation API abort signals", () => {
+    const document = candidateDocument({ navigateEventSignal: false });
+
+    expect(() => requireViewerPlatform(document)).toThrowError(
+      expect.objectContaining({
+        details: { capabilities: ["Navigation API"] },
       }),
     );
   });

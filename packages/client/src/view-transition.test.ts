@@ -3,8 +3,8 @@ import {
   PRESENTATION_TRANSITION_TYPES,
   resolveLocalSlideTransition,
   setLocalSlideTransitionMode,
-  startScopedViewTransition,
-  type ScopedViewTransition,
+  startPresentationViewTransition,
+  type PresentationViewTransition,
 } from "./view-transition.ts";
 
 describe("presentation transition types", () => {
@@ -69,8 +69,8 @@ describe("presentation transition types", () => {
     expect(root.removeAttribute).toHaveBeenCalledWith("data-drever-transition-mode");
   });
 
-  it("starts one typed transition on the supplied presentation surface", async () => {
-    const transition: ScopedViewTransition = {
+  it("starts one typed transition on the supplied document", async () => {
+    const transition: PresentationViewTransition = {
       finished: Promise.resolve(),
       ready: Promise.resolve(),
       skipTransition: vi.fn(),
@@ -84,14 +84,16 @@ describe("presentation transition types", () => {
         }>
       | undefined;
     const startViewTransition = vi.fn(
-      (received: NonNullable<typeof options>): ScopedViewTransition => {
+      (received: NonNullable<typeof options>): PresentationViewTransition => {
         options = received;
         return transition;
       },
     );
-    const deck = { startViewTransition } as unknown as HTMLElement;
+    const document = { startViewTransition } as unknown as Document;
 
-    expect(startScopedViewTransition(deck, "drever-slide-forward", update)).toBe(transition);
+    expect(startPresentationViewTransition(document, "drever-slide-forward", update)).toBe(
+      transition,
+    );
     expect(startViewTransition).toHaveBeenCalledOnce();
     expect(options?.types).toEqual(["drever-slide-forward"]);
     expect(update).not.toHaveBeenCalled();

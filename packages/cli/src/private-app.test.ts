@@ -26,19 +26,21 @@ const runBrowserSupportBootstrap = (
   source: string,
   {
     documentViewTransition = true,
-    elementViewTransition = true,
     navigation = true,
+    navigationSignal = true,
   }: Readonly<{
     documentViewTransition?: boolean;
-    elementViewTransition?: boolean;
     navigation?: boolean;
+    navigationSignal?: boolean;
   }> = {},
 ): Readonly<Record<string, string>> => {
   const attributes: Record<string, string> = {};
-  class SupportedElement {
-    startViewTransition() {}
+  class SupportedNavigateEvent {
+    get signal(): object {
+      return {};
+    }
   }
-  class UnsupportedElement {}
+  class UnsupportedNavigateEvent {}
 
   runInNewContext(source, {
     document: {
@@ -51,7 +53,7 @@ const runBrowserSupportBootstrap = (
     },
     window: {
       BroadcastChannel: class {},
-      Element: elementViewTransition ? SupportedElement : UnsupportedElement,
+      NavigateEvent: navigationSignal ? SupportedNavigateEvent : UnsupportedNavigateEvent,
       ResizeObserver: class {},
       navigation: navigation
         ? {
@@ -91,10 +93,10 @@ describe("generated private application", () => {
       });
       expect(
         runBrowserSupportBootstrap(bootstrap, {
-          elementViewTransition: false,
+          navigationSignal: false,
         }),
       ).toMatchObject({
-        "data-drever-browser-missing": "element-view-transition",
+        "data-drever-browser-missing": "navigation",
         "data-drever-browser-support": "unsupported",
       });
       expect(

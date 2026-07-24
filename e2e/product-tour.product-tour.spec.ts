@@ -269,7 +269,7 @@ test("the global Stage keeps one identity while Steps and slides change", async 
   await waitForViewTransition(page, nextSlide, "finished");
 
   expect(await readViewTransitionCalls(page)).toEqual([
-    { kind: "element", target: "deck", types: ["drever-slide-forward"] },
+    { kind: "document", target: "document", types: ["drever-slide-forward"] },
   ]);
   health.expectHealthy();
 });
@@ -313,8 +313,8 @@ test("the decision proof keeps stable geometry and paint through forward and rev
   expectStableBounds(returnedProof.bounds, sourceProof.bounds);
   expect(returnedProof.paint).toEqual(sourceProof.paint);
   expect(await readViewTransitionCalls(page)).toEqual([
-    { kind: "element", target: "deck", types: ["drever-slide-forward"] },
-    { kind: "element", target: "deck", types: ["drever-slide-backward"] },
+    { kind: "document", target: "document", types: ["drever-slide-forward"] },
+    { kind: "document", target: "document", types: ["drever-slide-backward"] },
   ]);
   health.expectHealthy();
 });
@@ -404,8 +404,8 @@ test("the story core and persistent headline preserve their continuity in both d
   expectStableBounds((await readStoryState()).bounds, sourceStory.bounds);
 
   expect(await readViewTransitionCalls(page)).toEqual([
-    { kind: "element", target: "deck", types: ["drever-slide-forward"] },
-    { kind: "element", target: "deck", types: ["drever-slide-backward"] },
+    { kind: "document", target: "document", types: ["drever-slide-forward"] },
+    { kind: "document", target: "document", types: ["drever-slide-backward"] },
   ]);
   health.expectHealthy();
 });

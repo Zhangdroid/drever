@@ -308,7 +308,7 @@ const useIdleControls = (
   return idle;
 };
 
-/** Discoverable controls layered outside the transitioning presentation canvas. */
+/** Discoverable live controls with a stable visual group above the transitioning canvas. */
 export const AudienceControls = ({
   canvas,
   canvasRef,

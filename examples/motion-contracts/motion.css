@@ -1,3 +1,4 @@
+:root:has(.drever-viewer),
 .drever-viewer {
   --drever-editorial-paper: var(--drever-brand-color-paper);
   --drever-editorial-ink: var(--drever-brand-color-ink);

@@ -4,6 +4,7 @@
   :root {
     color-scheme: light dark;
     overflow: hidden;
+    view-transition-name: none;
   }
 
   body {
@@ -151,74 +152,130 @@
     outline: none;
   }
 
-  .drever-deck:is(
+  .drever-deck[data-drever-render-mode="audience"]:not([data-drever-reduced-motion]) {
+    view-transition-name: drever-deck;
+  }
+
+  .drever-stage[data-drever-render-mode="audience"]:not([data-drever-reduced-motion])
+    > .drever-stage__foreground:not(:empty) {
+    view-transition-name: drever-stage-foreground;
+  }
+
+  .drever-viewer:has(
+      > .drever-canvas
+        > .drever-stage[data-drever-render-mode="audience"]:not([data-drever-reduced-motion])
+    )
+    > .drever-canvas
+    > .drever-presentation-focus:has([data-drever-focus-stroke], [data-drever-focus-laser]) {
+    view-transition-name: drever-focus-layer;
+  }
+
+  :root::view-transition {
+    pointer-events: none;
+  }
+
+  :root:is(
     :active-view-transition-type(drever-slide-forward),
     :active-view-transition-type(drever-slide-backward),
     :active-view-transition-type(drever-jump-forward),
     :active-view-transition-type(drever-jump-backward)
-  )::view-transition-group(root),
-  .drever-deck::view-transition-group(.drever-motion-continuity) {
+  )::view-transition-group(drever-deck),
+  :root::view-transition-group(.drever-motion-continuity) {
     animation-duration: var(--drever-motion-duration, 420ms);
     animation-timing-function: var(--drever-motion-easing, cubic-bezier(0.22, 1, 0.36, 1));
   }
 
-  .drever-deck::view-transition-group(root) {
+  :root::view-transition-group(drever-deck) {
     z-index: 1;
   }
 
-  .drever-deck::view-transition-old(root),
-  .drever-deck::view-transition-new(root),
-  .drever-deck::view-transition-old(.drever-motion-continuity),
-  .drever-deck::view-transition-new(.drever-motion-continuity) {
+  :root::view-transition-image-pair(drever-deck) {
+    overflow: clip;
+  }
+
+  :root::view-transition-old(drever-deck),
+  :root::view-transition-new(drever-deck),
+  :root::view-transition-old(.drever-motion-continuity),
+  :root::view-transition-new(.drever-motion-continuity) {
     mix-blend-mode: normal;
   }
 
-  .drever-deck::view-transition-old(root) {
+  :root::view-transition-old(drever-deck) {
     animation: none;
     opacity: 0;
   }
 
-  .drever-deck::view-transition-new(root) {
+  :root::view-transition-new(drever-deck) {
     animation-duration: var(--drever-motion-duration, 420ms);
     animation-fill-mode: both;
     animation-timing-function: var(--drever-motion-easing, cubic-bezier(0.22, 1, 0.36, 1));
     opacity: 1;
   }
 
-  .drever-deck:is(
+  :root:is(
     :active-view-transition-type(drever-slide-forward),
     :active-view-transition-type(drever-jump-forward)
-  )::view-transition-new(root) {
+  )::view-transition-new(drever-deck) {
     --drever-motion-slide-x: var(--drever-motion-slide-offset, 2.5%);
     animation-name: drever-slide-cover;
   }
 
-  .drever-deck:is(
+  :root:is(
     :active-view-transition-type(drever-slide-backward),
     :active-view-transition-type(drever-jump-backward)
-  )::view-transition-new(root) {
+  )::view-transition-new(drever-deck) {
     --drever-motion-slide-x: calc(var(--drever-motion-slide-offset, 2.5%) * -1);
     animation-name: drever-slide-cover;
   }
 
-  .drever-deck:is(
+  :root:is(
     :active-view-transition-type(drever-jump-forward),
     :active-view-transition-type(drever-jump-backward)
-  )::view-transition-new(root) {
+  )::view-transition-new(drever-deck) {
     animation-duration: calc(var(--drever-motion-duration, 420ms) * 1.08);
   }
 
-  .drever-deck::view-transition-group(.drever-motion-continuity) {
+  :root::view-transition-group(.drever-motion-continuity) {
     z-index: 2;
   }
 
-  .drever-deck::view-transition-old(.drever-motion-continuity) {
+  :root::view-transition-old(.drever-motion-continuity) {
     animation: none;
     opacity: 0;
   }
 
-  .drever-deck::view-transition-new(.drever-motion-continuity) {
+  :root::view-transition-new(.drever-motion-continuity) {
     animation: none;
+    opacity: 1;
+  }
+
+  :root::view-transition-group(drever-stage-foreground) {
+    z-index: 3;
+    animation: none;
+  }
+
+  :root::view-transition-group(drever-focus-layer) {
+    z-index: 4;
+    animation: none;
+  }
+
+  :root::view-transition-group(drever-toolbar) {
+    z-index: 5;
+    animation: none;
+  }
+
+  :root::view-transition-old(drever-stage-foreground),
+  :root::view-transition-old(drever-focus-layer),
+  :root::view-transition-old(drever-toolbar) {
+    animation: none;
+    opacity: 0;
+  }
+
+  :root::view-transition-new(drever-stage-foreground),
+  :root::view-transition-new(drever-focus-layer),
+  :root::view-transition-new(drever-toolbar) {
+    animation: none;
+    mix-blend-mode: normal;
     opacity: 1;
   }
 
@@ -328,7 +385,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .drever-deck:is(
+    :root:is(
       :active-view-transition-type(drever-slide-forward),
       :active-view-transition-type(drever-slide-backward),
       :active-view-transition-type(drever-jump-forward),
@@ -458,6 +515,7 @@
       transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
     backdrop-filter: var(--drever-controls-glass-filter);
     -webkit-backdrop-filter: var(--drever-controls-glass-filter);
+    view-transition-name: drever-toolbar;
   }
 
   .drever-audience-focus-anchor {

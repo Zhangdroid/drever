@@ -9,7 +9,7 @@ export const PRESENTATION_TRANSITION_TYPES = Object.freeze([
   "drever-jump-backward",
 ] as const satisfies readonly PresentationTransitionType[]);
 
-export type ScopedViewTransition = Readonly<{
+export type PresentationViewTransition = Readonly<{
   finished: Promise<void>;
   ready: Promise<void>;
   skipTransition(): void;
@@ -19,12 +19,12 @@ export type ScopedViewTransition = Readonly<{
 type TransitionRoot = Pick<HTMLElement, "querySelector" | "removeAttribute" | "setAttribute">;
 export type LocalSlideTransitionOrigin = "next" | "previous";
 
-type ScopedViewTransitionRoot = HTMLElement &
+type PresentationViewTransitionDocument = Document &
   Readonly<{
     startViewTransition(options: {
       types: PresentationTransitionType[];
       update(): Promise<void>;
-    }): ScopedViewTransition;
+    }): PresentationViewTransition;
   }>;
 
 const adjacentTransitionOrigin = (
@@ -70,13 +70,13 @@ export const setLocalSlideTransitionMode = (
   }
 };
 
-/** Starts a typed View Transition whose snapshots are limited to one presentation surface. */
-export const startScopedViewTransition = (
-  root: HTMLElement,
+/** Starts one typed document transition; CSS limits capture to presentation-owned groups. */
+export const startPresentationViewTransition = (
+  document: Document,
   transitionType: PresentationTransitionType,
   update: () => Promise<void>,
-): ScopedViewTransition =>
-  (root as ScopedViewTransitionRoot).startViewTransition({
+): PresentationViewTransition =>
+  (document as PresentationViewTransitionDocument).startViewTransition({
     types: [transitionType],
     update,
   });

@@ -124,7 +124,7 @@ const Stroke = memo(
   ),
 );
 
-/** Pointer, touch, and stylus layer kept outside the deck View Transition boundary. */
+/** Pointer, touch, and stylus layer kept outside deck content and named only when visible. */
 export const PresentationFocusLayer = ({
   active,
   appearance,

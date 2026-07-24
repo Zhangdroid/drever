@@ -39,18 +39,14 @@ const browserSupportBootstrap = `<script data-drever-browser-support>
     typeof navigation.addEventListener !== "function" ||
     typeof navigation.navigate !== "function" ||
     typeof navigation.removeEventListener !== "function" ||
-    typeof navigation.updateCurrentEntry !== "function"
+    typeof navigation.updateCurrentEntry !== "function" ||
+    typeof window.NavigateEvent !== "function" ||
+    !("signal" in window.NavigateEvent.prototype)
   ) {
     missing.push("navigation");
   }
   if (typeof document.startViewTransition !== "function") {
     missing.push("document-view-transition");
-  }
-  if (
-    typeof window.Element !== "function" ||
-    typeof window.Element.prototype.startViewTransition !== "function"
-  ) {
-    missing.push("element-view-transition");
   }
   if (typeof window.BroadcastChannel !== "function") {
     missing.push("broadcast-channel");
@@ -189,8 +185,6 @@ html[data-drever-browser-support="supported"] .drever-browser-gate {
 html[data-drever-browser-missing~="navigation"] [data-drever-browser-feature="navigation"],
 html[data-drever-browser-missing~="document-view-transition"]
   [data-drever-browser-feature="document-view-transition"],
-html[data-drever-browser-missing~="element-view-transition"]
-  [data-drever-browser-feature="element-view-transition"],
 html[data-drever-browser-missing~="broadcast-channel"]
   [data-drever-browser-feature="broadcast-channel"],
 html[data-drever-browser-missing~="resize-observer"]
@@ -222,19 +216,19 @@ const browserSupportGate = `<main
           <span>The browser is part of the canvas.</span>
           <h1 id="drever-browser-support-title">This browser can’t run this deck.</h1>
           <p>
-            Drever uses native navigation and scoped motion without a reduced fallback.
+            Drever uses native navigation and document-level View Transitions without a legacy
+            fallback.
           </p>
-          <p>Open this presentation in the latest desktop Chrome to continue.</p>
+          <p>Open this presentation in a current Safari or Chromium-family browser to continue.</p>
         </section>
         <aside class="drever-browser-gate__status" aria-label="Required browser capabilities">
           <span>Missing capability</span>
           <ul>
-            <li data-drever-browser-feature="navigation">Navigation API</li>
+            <li data-drever-browser-feature="navigation">
+              Navigation API with NavigateEvent.signal
+            </li>
             <li data-drever-browser-feature="document-view-transition">
               Document View Transitions
-            </li>
-            <li data-drever-browser-feature="element-view-transition">
-              Scoped element View Transitions
             </li>
             <li data-drever-browser-feature="broadcast-channel">BroadcastChannel</li>
             <li data-drever-browser-feature="resize-observer">ResizeObserver</li>
@@ -304,7 +298,7 @@ const applicationHtml = ({
   browserSupport
     ? `
   data-drever-browser-support="checking"
-  data-drever-browser-missing="navigation document-view-transition element-view-transition broadcast-channel resize-observer"`
+  data-drever-browser-missing="navigation document-view-transition broadcast-channel resize-observer"`
     : ""
 }>
   <head>

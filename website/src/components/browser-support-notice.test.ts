@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vite-plus/test";
 import { readMissingBrowserCapabilities } from "./browser-support-notice";
 
-const browserPlatform = (elementViewTransition = true) => ({
+const browserPlatform = (navigationAbortSignal = true) => ({
   broadcastChannel: class {},
   documentViewTransition() {},
-  elementViewTransition: elementViewTransition ? () => undefined : undefined,
+  navigationAbortSignal,
   navigation: {
     addEventListener: () => undefined,
     navigate: () => undefined,
@@ -20,8 +20,6 @@ describe("website browser support notice", () => {
   });
 
   it("marks missing presentation capabilities as limited rather than blocking the site", () => {
-    expect(readMissingBrowserCapabilities(browserPlatform(false))).toEqual([
-      "element-view-transition",
-    ]);
+    expect(readMissingBrowserCapabilities(browserPlatform(false))).toEqual(["navigation"]);
   });
 });

@@ -3,14 +3,13 @@ import { useEffect, useState } from "react";
 type BrowserCapability =
   | "broadcast-channel"
   | "document-view-transition"
-  | "element-view-transition"
   | "navigation"
   | "resize-observer";
 
 type BrowserPlatform = Readonly<{
   broadcastChannel?: unknown;
   documentViewTransition?: unknown;
-  elementViewTransition?: unknown;
+  navigationAbortSignal?: boolean;
   navigation?: Readonly<{
     addEventListener?: unknown;
     navigate?: unknown;
@@ -24,7 +23,7 @@ type BrowserPlatform = Readonly<{
 export const readMissingBrowserCapabilities = ({
   broadcastChannel,
   documentViewTransition,
-  elementViewTransition,
+  navigationAbortSignal,
   navigation,
   resizeObserver,
 }: BrowserPlatform): readonly BrowserCapability[] => {
@@ -36,15 +35,13 @@ export const readMissingBrowserCapabilities = ({
     typeof navigation.addEventListener !== "function" ||
     typeof navigation.navigate !== "function" ||
     typeof navigation.removeEventListener !== "function" ||
-    typeof navigation.updateCurrentEntry !== "function"
+    typeof navigation.updateCurrentEntry !== "function" ||
+    navigationAbortSignal !== true
   ) {
     missing.push("navigation");
   }
   if (typeof documentViewTransition !== "function") {
     missing.push("document-view-transition");
-  }
-  if (typeof elementViewTransition !== "function") {
-    missing.push("element-view-transition");
   }
   if (typeof broadcastChannel !== "function") {
     missing.push("broadcast-channel");
@@ -64,7 +61,9 @@ export function BrowserSupportNotice() {
     const missing = readMissingBrowserCapabilities({
       broadcastChannel: window.BroadcastChannel,
       documentViewTransition: Reflect.get(document, "startViewTransition"),
-      elementViewTransition: Reflect.get(window.Element.prototype, "startViewTransition"),
+      navigationAbortSignal:
+        typeof window.NavigateEvent === "function" &&
+        Reflect.has(window.NavigateEvent.prototype, "signal"),
       navigation: window.navigation,
       resizeObserver: window.ResizeObserver,
     });
@@ -84,10 +83,10 @@ export function BrowserSupportNotice() {
         <i />
       </span>
       <div aria-live="polite" role="status">
-        <strong id="browser-support-title">Full presentation motion uses Chrome.</strong>
+        <strong id="browser-support-title">This browser limits live presentations.</strong>
         <span>
-          You can keep browsing here. Open live decks in the latest desktop Chrome for scoped
-          transitions.
+          You can keep browsing here. Open live decks in a current Safari or Chromium-family browser
+          for the full experience.
         </span>
       </div>
       <button
