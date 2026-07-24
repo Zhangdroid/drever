@@ -217,10 +217,6 @@
   translate: -28px 94px;
 }
 
-.tour-stage-foreground[data-signal-position="room"] .tour-stage-foreground__signal {
-  translate: 0 18px;
-}
-
 .tour-stage-foreground__story {
   position: absolute;
   top: 202px;
@@ -748,18 +744,23 @@
   display: none;
 }
 
-.tour-prompt__cursor {
-  position: absolute;
-  right: 64px;
-  bottom: 52px;
+.tour-prompt__ending {
+  white-space: nowrap;
+}
+
+.tour-prompt__ending::after {
+  display: inline-block;
   width: 2px;
-  height: 34px;
+  height: 0.88em;
+  margin-left: 0.08em;
   background: var(--tour-continuity);
+  content: "";
+  vertical-align: -0.08em;
 }
 
 [data-drever-render-mode="audience"]
   [data-drever-slide][data-slide-state="active"]
-  .tour-prompt__cursor {
+  .tour-prompt__ending::after {
   animation: tour-cursor-blink 1.2s steps(1) infinite;
 }
 
@@ -1724,7 +1725,7 @@
   [data-drever-render-mode="audience"] .tour-cover h1 mark::after,
   [data-drever-render-mode="audience"] .tour-room-response__thread > span,
   [data-drever-render-mode="audience"] .tour-room-response__story > span,
-  [data-drever-render-mode="audience"] .tour-prompt__cursor,
+  [data-drever-render-mode="audience"] .tour-prompt__ending::after,
   [data-drever-render-mode="audience"] .tour-surfaces {
     animation: none !important;
   }

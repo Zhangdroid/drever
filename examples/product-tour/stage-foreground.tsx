@@ -13,7 +13,6 @@ const chapter = (slideIndex: number): string => {
 
 const signalPosition = (slideIndex: number, slideCount: number): string => {
   if (slideIndex === 0 || slideIndex === slideCount - 1) return "edge";
-  if (slideIndex === 3 || slideIndex === 4) return "room";
   return "frame";
 };
 
