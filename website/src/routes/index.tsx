@@ -1,6 +1,7 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { AIHandoff, CopyAIHandoff } from "../components/ai-handoff";
+import { CopyButton } from "../components/copy-button";
 import { ConnectedSourceDemo, RoomMomentDemo } from "../components/home-demos";
 import { ArrowIcon, ArrowUpRightIcon, PlayIcon } from "../components/icons";
 import { HeroStage, HomeShowcaseCover } from "../components/showcase";
@@ -57,6 +58,28 @@ function HomePage() {
               <PlayIcon /> Try the live demo
             </a>
           </div>
+          <p className="home-hero__handoff-note">
+            Copies a complete setup prompt. Paste it into Codex or Claude Code; the agent creates
+            the project and leaves a local preview ready to review.
+          </p>
+          <div aria-label="More ways to get started" className="home-hero__secondary">
+            <Link className="home-hero__manual" to="/docs/getting-started">
+              How AI creation works <ArrowIcon />
+            </Link>
+            <div className="home-hero__manual-setup">
+              <span>Manual setup</span>
+              <CopyButton
+                className="home-hero__command"
+                copiedText="Command copied"
+                idleText="npm create drever@latest"
+                label="setup command"
+                value="npm create drever@latest my-slides"
+              />
+            </div>
+          </div>
+          <p className="home-hero__requirements">
+            Requires Node.js 24.18+ and a current Chromium-family browser.
+          </p>
         </div>
 
         <div className="home-hero__visual">

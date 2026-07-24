@@ -589,31 +589,29 @@ main[tabindex="-1"]:focus {
 }
 
 .copy-button__text {
-  display: inline-grid;
+  display: inline-block;
+  height: 1em;
+  overflow: hidden;
+  contain: paint;
   line-height: 1;
 }
 
 .copy-button__text-track {
   display: grid;
+  row-gap: 0.25em;
+  transition: transform 260ms var(--drever-brand-motion-easing-emphasized);
 }
 
 .copy-button__text-track > span {
   display: flex;
-  visibility: hidden;
-  grid-area: 1 / 1;
+  height: 1em;
   align-items: center;
   white-space: nowrap;
 }
 
-.copy-button__text-track > span:first-child,
-[data-copy-state="copied"] .copy-button__text-track > span:last-child,
-[data-copy-state="failed"] .copy-button__text-track > span:last-child {
-  visibility: visible;
-}
-
-[data-copy-state="copied"] .copy-button__text-track > span:first-child,
-[data-copy-state="failed"] .copy-button__text-track > span:first-child {
-  visibility: hidden;
+[data-copy-state="copied"] .copy-button__text-track,
+[data-copy-state="failed"] .copy-button__text-track {
+  transform: translateY(calc(-1em - 0.25em));
 }
 
 .copy-button__announcement {
