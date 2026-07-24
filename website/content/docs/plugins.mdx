@@ -26,19 +26,46 @@ resolved plan references them.
   </thead>
   <tbody>
     <tr>
-      <td>Shiki</td>
+      <td>
+        <code>@drever/plugin-gfm</code>
+      </td>
+      <td>Enabled by default</td>
+      <td>Semantic HTML and scoped task-list CSS; no plugin JavaScript</td>
+    </tr>
+    <tr>
+      <td>
+        <code>@drever/plugin-shiki</code>
+      </td>
       <td>Enabled by default</td>
       <td>Highlighted HTML and CSS variables</td>
     </tr>
     <tr>
-      <td>Tailwind CSS</td>
+      <td>
+        <code>@drever/plugin-tailwindcss</code>
+      </td>
       <td>Enabled by default</td>
       <td>Generated utility CSS, without Preflight</td>
     </tr>
     <tr>
-      <td>LaTeX / KaTeX</td>
+      <td>
+        <code>@drever/plugin-math</code>
+      </td>
       <td>Explicit opt-in</td>
       <td>Accessible HTML, MathML, CSS, and font assets</td>
+    </tr>
+    <tr>
+      <td>
+        <code>@drever/plugin-charts</code>
+      </td>
+      <td>Explicit opt-in</td>
+      <td>Deterministic semantic SVG; no chart runtime</td>
+    </tr>
+    <tr>
+      <td>
+        <code>@drever/plugin-media</code>
+      </td>
+      <td>Explicit opt-in</td>
+      <td>Audience iframe; stable link on non-interactive surfaces</td>
     </tr>
     <tr>
       <td>Mermaid</td>
@@ -48,13 +75,14 @@ resolved plan references them.
   </tbody>
 </table>
 
-Shiki and Tailwind can be configured or disabled:
+GFM, Shiki, and Tailwind can be configured or disabled:
 
 ```ts
-import { defineConfig, shiki, shikiPlugin, tailwindCss } from "drever";
+import { defineConfig, gfm, shiki, shikiPlugin, tailwindCss } from "drever";
 
 export default defineConfig({
   plugins: [
+    gfm({ singleTilde: false }),
     shiki({ lightTheme: "github-light", darkTheme: "github-dark" }),
     tailwindCss({ optimize: true }),
   ],
@@ -62,6 +90,22 @@ export default defineConfig({
 
 // To disable the default Shiki plugin instead:
 // plugins: [{ plugin: shikiPlugin, enabled: false }]
+```
+
+<h2 id="gfm">Use familiar Markdown by default</h2>
+
+GFM adds tables, task lists, autolink literals, and strikethrough at build time. It ships no
+browser parser; a small component-layer stylesheet aligns task-list checkboxes across designs.
+Footnotes currently fail with a clear build error because document-level footnote output must not
+escape Drever's protected Slide boundaries.
+
+```md
+| Decision      | State |
+| ------------- | ----- |
+| Ship the demo | Ready |
+
+- [x] Review the live deck
+- [ ] Rehearse the decision
 ```
 
 <h2 id="math">Enable LaTeX</h2>
@@ -89,6 +133,64 @@ $$
 
 The plugin parses LaTeX with Remark Math and renders HTML plus MathML with Rehype KaTeX at build
 time. It ships no client-side typesetter.
+
+<h2 id="charts">Keep chart data inspectable</h2>
+
+```bash
+npm install --save-dev @drever/plugin-charts
+```
+
+```ts
+import chartsPlugin from "@drever/plugin-charts";
+import { defineConfig } from "drever";
+
+export default defineConfig({
+  plugins: [chartsPlugin],
+});
+```
+
+```mdx
+<DataChart
+  label="Adoption by quarter"
+  kind="line"
+  valueSuffix="%"
+  data={[
+    { label: "Q1", value: 28 },
+    { label: "Q2", value: 46 },
+    { label: "Q3", value: 71 },
+  ]}
+/>
+```
+
+The component accepts one to twelve labeled values and renders bar or line SVG directly with React.
+Its title and complete value description come from the same data. There is no charting framework,
+canvas renderer, or decorative motion hidden inside it.
+
+<h2 id="media">Adapt media to the surface</h2>
+
+```bash
+npm install --save-dev @drever/plugin-media
+```
+
+```ts
+import mediaPlugin from "@drever/plugin-media";
+import { defineConfig } from "drever";
+
+export default defineConfig({
+  plugins: [mediaPlugin],
+});
+```
+
+```mdx
+<YouTube id="M7lc1UVf-VE" title="YouTube player API demo" start={30} />
+```
+
+The active audience slide receives a lazy player from `youtube-nocookie.com` and never autoplays it.
+Leaving the slide removes its remote source so playback cannot continue over the next slide. Speaker
+previews, Document View, PDF export, and print receive a stable title and link instead of an iframe
+or remote thumbnail. The required title keeps the component accessible; invalid ids and start times
+fail near their source. The audience iframe still makes a third-party YouTube request:
+privacy-enhanced mode limits storage before playback, but does not make embedded playback private.
 
 <h2 id="why-mermaid-is-deferred">Why Mermaid is deferred</h2>
 

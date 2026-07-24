@@ -29,6 +29,7 @@ export default defineConfig({
       "@drever/core": source("./packages/core/src/index.ts"),
       "@drever/designs/default": source("./packages/designs/src/default/index.ts"),
       "@drever/plugin": source("./packages/plugin/src/index.ts"),
+      "@drever/plugin-gfm": source("./packages/plugin-gfm/src/index.ts"),
       "@drever/plugin-shiki": source("./packages/plugin-shiki/src/index.ts"),
       "@drever/plugin-tailwindcss": source("./packages/plugin-tailwindcss/src/index.ts"),
       "@drever/schema": source("./packages/schema/src/index.ts"),

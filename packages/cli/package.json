@@ -42,6 +42,7 @@
     "@drever/compiler": "workspace:*",
     "@drever/core": "workspace:*",
     "@drever/designs": "workspace:*",
+    "@drever/plugin-gfm": "workspace:*",
     "@drever/plugin-shiki": "workspace:*",
     "@drever/plugin-tailwindcss": "workspace:*",
     "@drever/schema": "workspace:*",

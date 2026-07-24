@@ -8,8 +8,25 @@ type DiagnosticOptions = Readonly<{
   extra?: JsonObject;
 }>;
 
-export const errorMessage = (error: unknown): string =>
-  error instanceof Error ? error.message : "The build module failed with an unknown error.";
+export const errorMessage = (error: unknown): string => {
+  if (!(error instanceof Error)) {
+    return "The build module failed with an unknown error.";
+  }
+  const line =
+    "line" in error && typeof error.line === "number" && Number.isSafeInteger(error.line)
+      ? error.line
+      : undefined;
+  const column =
+    "column" in error && typeof error.column === "number" && Number.isSafeInteger(error.column)
+      ? error.column
+      : undefined;
+  const source = "source" in error && typeof error.source === "string" ? error.source : undefined;
+  const ruleId = "ruleId" in error && typeof error.ruleId === "string" ? error.ruleId : undefined;
+  const location = line === undefined || column === undefined ? undefined : `${line}:${column}`;
+  const origin = source === undefined || ruleId === undefined ? undefined : `[${source}:${ruleId}]`;
+  const message = origin === undefined ? error.message : `${error.message} ${origin}`;
+  return location === undefined ? message : `${location}: ${message}`;
+};
 
 export const buildDiagnostic = (
   code: string,

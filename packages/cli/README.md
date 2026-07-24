@@ -88,14 +88,19 @@ Plugins can be registered directly or with settings; the CLI marks them as
 user plugins internally:
 
 ```ts
+import chartsPlugin from "@drever/plugin-charts";
+import { defineConfig, gfm } from "drever";
+
 export default defineConfig({
-  plugins: [charts, { plugin: mermaid, enabled: true }],
+  plugins: [gfm({ singleTilde: false }), chartsPlugin],
 });
 ```
 
-The default theme is used when `theme` is omitted. Plugins are explicit
-`PluginRegistration` values; Vite remains available to plugin developers
-through the Drever plugin contract rather than through this config.
+The default theme is used when `theme` is omitted. GFM, Shiki, and Tailwind CSS
+are ordered defaults; the first matching config entry can configure or disable
+one in place. Other plugins are explicit `PluginRegistration` values. Vite
+remains available to plugin developers through the Drever plugin contract
+rather than through this config.
 
 ## Agent authoring
 

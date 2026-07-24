@@ -56,6 +56,7 @@ Choose what would help you decide.
 ## A formula should remain a formula.
 
 <p>LaTeX is opt-in, compiled to accessible HTML and MathML, and ships no KaTeX JavaScript.</p>
+<code className="gallery-plugin-id">@drever/plugin-math</code>
 
 $$
 A_t = S_t \div (N_t + 1)
@@ -86,6 +87,7 @@ $$
 ## Code arrives ready to discuss.
 
 <p>Shiki runs during compilation, keeps language semantics, and emits no highlighter runtime.</p>
+<code className="gallery-plugin-id">@drever/plugin-shiki</code>
 
 <div className="gallery-shiki">
   <div className="gallery-shiki__code">
@@ -117,6 +119,8 @@ export default defineConfig({
 
 Tailwind v4 is available by default. Utilities compose the artifact; Drever keeps typography and
 reset ownership.
+
+<code className="gallery-plugin-id">@drever/plugin-tailwindcss</code>
 
 <div className="grid grid-cols-5 gap-5" data-testid="tailwind-gallery">
   <article className="col-span-3 flex min-h-64 flex-col justify-between rounded-2xl border border-lime-300/35 bg-lime-300/10 p-8">
@@ -231,6 +235,86 @@ surfaces.
 
 ---
 
+## Markdown should include what people already expect.
+
+<p>GFM is ready by default, compiled with the deck, and adds no browser JavaScript.</p>
+<code className="gallery-plugin-id">@drever/plugin-gfm</code>
+
+<div className="gallery-gfm">
+
+| Deliverable    | State       |
+| -------------- | ----------- |
+| Audience build | **Ready**   |
+| Speaker notes  | **Ready**   |
+| PDF review     | In progress |
+
+- [x] Link the live deck: https://drever.dev
+- [x] ~~Copy status into a separate document~~
+- [ ] Rehearse the decision
+
+</div>
+
+<Note>
+  This is authored as an ordinary Markdown table, task list, autolink, and strikethrough. The
+  default GFM plugin turns them into semantic output during compilation, with no client parser.
+</Note>
+
+---
+
+## Data should remain data.
+
+<p>
+  Charts are opt-in React components with deterministic SVG and a complete accessible description.
+</p>
+<code className="gallery-plugin-id">@drever/plugin-charts</code>
+
+<div className="gallery-chart">
+  <DataChart
+    label="Decision confidence after each review"
+    kind="line"
+    valueSuffix="%"
+    data={[
+      { label: "Brief", value: 31 },
+      { label: "Prototype", value: 58 },
+      { label: "Evidence", value: 82 },
+      { label: "Decision", value: 96 },
+    ]}
+  />
+</div>
+
+<Note>
+  The official Charts plugin does not pull a charting framework into the presentation. Its source
+  data produces both the visible marks and the SVG description, so website and PDF output stay
+  deterministic and understandable.
+</Note>
+
+---
+
+## Media should respect the surface.
+
+<p>
+  Audience view gets a privacy-enhanced, lazy player. Speaker, Document, and PDF get a stable title
+  and link.
+</p>
+<code className="gallery-plugin-id">@drever/plugin-media</code>
+
+<div className="gallery-media">
+  <YouTube id="aqz-KE-bpKQ" title="Big Buck Bunny short film" start={11} />
+  <aside>
+    <span>One component</span>
+    <strong>Useful live. Reliable everywhere else.</strong>
+    <p>No autoplay, remote poster, or iframe is required for deterministic output.</p>
+  </aside>
+</div>
+
+<Note>
+  This is the real component from the official Media plugin. It uses youtube-nocookie.com in the
+  audience surface and intentionally changes representation where embedded playback would be
+  distracting or nondeterministic.
+</Note>
+
+---
+
 ## Start complete. Extend on purpose.
 
 <p>Popular capabilities are ready by default; specialized behavior stays explicit and typed.</p>
@@ -238,13 +322,13 @@ surfaces.
 <section className="gallery-capabilities" aria-label="Plugin and extension model">
   <div>
     <span>Default</span>
-    <strong>Shiki · Tailwind CSS</strong>
+    <strong>GFM · Shiki · Tailwind CSS</strong>
     <small>Build-time, configurable, removable</small>
   </div>
   <div>
     <span>Opt in</span>
-    <strong>LaTeX / KaTeX</strong>
-    <small>Semantic math with no runtime script</small>
+    <strong>Math · Charts · Media</strong>
+    <small>Only the capabilities this story needs</small>
   </div>
   <div>
     <span>Author</span>

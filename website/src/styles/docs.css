@@ -960,9 +960,24 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   color: var(--site-continuity);
 }
 
+.plugin-gallery [data-plugin="gfm"] .plugin-gallery__visual {
+  background: #e7eee8;
+  color: #236148;
+}
+
 .plugin-gallery [data-plugin="math"] .plugin-gallery__visual {
   background: #f3efe4;
   color: #9d302f;
+}
+
+.plugin-gallery [data-plugin="charts"] .plugin-gallery__visual {
+  background: #e9e6f5;
+  color: var(--site-continuity);
+}
+
+.plugin-gallery [data-plugin="media"] .plugin-gallery__visual {
+  background: #19212d;
+  color: #e5fa74;
 }
 
 .plugin-gallery [data-plugin="custom"] .plugin-gallery__visual {

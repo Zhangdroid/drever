@@ -1,9 +1,11 @@
+import chartsPlugin from "@drever/plugin-charts";
 import { math } from "@drever/plugin-math";
+import mediaPlugin from "@drever/plugin-media";
 import studioTheme from "@drever/designs/studio";
 import { defineConfig } from "drever";
 
 export default defineConfig({
-  plugins: [math({ strict: "warn", throwOnError: true })],
+  plugins: [chartsPlugin, math({ strict: "warn", throwOnError: true }), mediaPlugin],
   rehearsal: {
     targetDurationMinutes: 12,
   },

@@ -5,9 +5,11 @@ uses the public CLI and official Studio theme, then proves each capability with
 real output rather than a mock screenshot:
 
 - readable MDX composed with React components;
+- default GitHub Flavored Markdown tables, task lists, autolinks, and strikethrough;
 - opt-in LaTeX compiled to HTML and MathML;
 - default build-time Shiki syntax highlighting;
 - default Tailwind CSS v4 utilities without Preflight;
+- opt-in deterministic SVG charts and surface-aware YouTube media;
 - local React interaction and addressable Step states;
 - audience, speaker, document, build, and export surfaces;
 - the typed plugin boundary for custom Vite, Remark, Rehype, and MDX behavior.

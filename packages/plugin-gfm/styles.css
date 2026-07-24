@@ -1,0 +1,15 @@
+:where([data-drever-slide] .contains-task-list > .task-list-item) {
+  padding-inline-start: 0;
+  list-style: none;
+}
+
+:where([data-drever-slide] .contains-task-list > .task-list-item)::before {
+  content: none;
+}
+
+:where([data-drever-slide] .task-list-item > input[type="checkbox"]) {
+  inline-size: 0.9em;
+  block-size: 0.9em;
+  margin: 0 0.5em 0 0;
+  accent-color: var(--drever-theme-accent, currentColor);
+}

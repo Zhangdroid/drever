@@ -29,12 +29,12 @@ function PluginVisual() {
         </strong>
       </div>
       <div>
-        <small>Shiki</small>
+        <small>Shiki + Charts</small>
         <code>
-          <i>const</i> story = <b>alive</b>
+          <i>const</i> evidence = <b>[31, 58, 82]</b>
         </code>
       </div>
-      <span>Tailwind CSS</span>
+      <span>GFM · Tailwind · Media</span>
     </div>
   );
 }
@@ -74,7 +74,7 @@ const capabilities = [
     visual: <MotionVisual />,
   },
   {
-    body: "See real output from Shiki, Tailwind CSS, and build-time LaTeX.",
+    body: "See real GFM, code, math, chart, and media output with explicit browser costs.",
     guide: "/docs/plugins",
     label: "Plugins",
     live: "/demos/features/3/",
@@ -206,10 +206,21 @@ export function MotionRecipeGallery() {
 const plugins = [
   {
     badge: "Included",
+    description: "Tables, task lists, autolinks, and strikethrough with no browser parser.",
+    href: "/demos/features/9/",
+    id: "gfm",
+    label: "GitHub Flavored Markdown",
+    mark: "✓",
+    packageId: "@drever/plugin-gfm",
+  },
+  {
+    badge: "Included",
     description: "Build-time highlighting with no client-side highlighter.",
     href: "/demos/features/4/",
     id: "shiki",
     label: "Shiki",
+    mark: "{}",
+    packageId: "@drever/plugin-shiki",
   },
   {
     badge: "Included",
@@ -217,6 +228,8 @@ const plugins = [
     href: "/demos/features/5/",
     id: "tailwind",
     label: "Tailwind CSS",
+    mark: "Aa",
+    packageId: "@drever/plugin-tailwindcss",
   },
   {
     badge: "Opt in",
@@ -224,13 +237,36 @@ const plugins = [
     href: "/demos/features/3/",
     id: "math",
     label: "LaTeX / KaTeX",
+    mark: "∑",
+    packageId: "@drever/plugin-math",
+  },
+  {
+    badge: "Opt in",
+    description: "Render accessible bar or line data as deterministic semantic SVG.",
+    href: "/demos/features/10/",
+    id: "charts",
+    label: "Charts",
+    mark: "↗",
+    packageId: "@drever/plugin-charts",
+  },
+  {
+    badge: "Opt in",
+    description:
+      "Play privacy-enhanced lazy media live and keep every other surface deterministic.",
+    href: "/demos/features/11/",
+    id: "media",
+    label: "Media",
+    mark: "▶",
+    packageId: "@drever/plugin-media",
   },
   {
     badge: "Build your own",
     description: "Add Vite, MDX, runtime, and export capability through one owned contract.",
-    href: "/demos/features/9/",
+    href: "/demos/features/12/",
     id: "custom",
     label: "Typed extensions",
+    mark: "＋",
+    packageId: undefined,
   },
 ] as const;
 
@@ -244,12 +280,17 @@ export function PluginGallery() {
       </header>
       <div className="plugin-gallery">
         {plugins.map((plugin) => (
-          <a data-plugin={plugin.id} href={plugin.href} key={plugin.id}>
+          <a
+            data-plugin={plugin.id}
+            data-plugin-package={plugin.packageId}
+            href={plugin.href}
+            key={plugin.id}
+          >
             <div className="plugin-gallery__visual" aria-hidden="true">
               <i />
               <i />
               <i />
-              <strong>{plugin.id === "math" ? "∑" : plugin.id === "shiki" ? "{}" : "Aa"}</strong>
+              <strong>{plugin.mark}</strong>
             </div>
             <span>{plugin.badge}</span>
             <h3>{plugin.label}</h3>

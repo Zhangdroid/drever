@@ -24,7 +24,7 @@ export const demoMounts = [
     source: "product-tour",
   },
   {
-    description: "Live MDX, React, LaTeX, code highlighting, Tailwind CSS, and delivery surfaces.",
+    description: "Live MDX, GFM, code, math, charts, media, React, and complete delivery surfaces.",
     id: "features",
     label: "Feature gallery",
     slug: "features",

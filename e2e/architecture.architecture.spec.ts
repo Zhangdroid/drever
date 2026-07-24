@@ -18,22 +18,23 @@ test("the architecture tour makes compiler artifacts inspectable", async ({ page
 
   await expect(page.locator(activeSlide)).toContainText("The deck becomes data before UI.");
   const runtime = page.getByRole("button", { name: /Runtime/u });
+  const artifact = page.locator(activeSlide).locator(".arch-explorer__artifact");
   await runtime.click();
   await expect(runtime).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByRole("status")).toContainText('"surface": "audience"');
-  await expect(page.getByRole("status")).toContainText("without inspecting DOM");
+  await expect(artifact).toContainText('"surface": "audience"');
+  await expect(artifact).toContainText("without inspecting DOM");
 
   await page.getByRole("button", { name: /Manifest/u }).click();
-  await expect(page.getByRole("status")).toContainText('"stepStops": [1, 2, 3, 4, 5]');
+  await expect(artifact).toContainText('"stepStops": [1, 2, 3, 4, 5]');
 
   await page.goto("/5");
   const workbench = page.locator(activeSlide).locator('[data-drever-layout="workbench"]');
   await expect(workbench).toBeVisible();
-  await expect(workbench).toContainText("Theme and plugin answer different questions.");
-  await expect(workbench).toContainText("Changing a theme must not change content semantics.");
-  const workbenchLabelId = await workbench.getAttribute("aria-labelledby");
-  expect(workbenchLabelId).not.toBeNull();
-  await expect(page.locator(`[id="${workbenchLabelId}"]`)).toHaveCount(1);
+  await expect(page.locator(activeSlide)).toContainText(
+    "Design and plugins answer different questions.",
+  );
+  await expect(workbench).toContainText("Changing the design must not change content semantics.");
+  await expect(workbench).toHaveAttribute("aria-label", "Design and plugin ownership boundary");
   expect(
     await workbench.evaluate((element) => {
       const slide = element.closest<HTMLElement>("[data-drever-slide]");

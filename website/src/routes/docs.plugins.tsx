@@ -6,7 +6,7 @@ import { DocArticle, DocMdx, DocNext } from "../components/docs-shell";
 import { pageHead } from "../seo";
 
 const description =
-  "Use default Shiki and Tailwind CSS, opt into build-time LaTeX, or add typed Vite, MDX, runtime, and export capabilities.";
+  "Use default GFM, Shiki, and Tailwind CSS; opt into Math, Charts, and Media; or add typed build and runtime capabilities.";
 
 export const Route = createFileRoute("/docs/plugins")({
   component: Page,

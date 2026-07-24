@@ -18,7 +18,10 @@ const dependencyFields = [
 
 export const repositoryUrl = "git+https://github.com/Zhangdroid/drever.git";
 export const runtimeVersionFiles = [
+  "packages/plugin-charts/src/index.ts",
+  "packages/plugin-gfm/src/index.ts",
   "packages/plugin-math/src/index.ts",
+  "packages/plugin-media/src/index.ts",
   "packages/plugin-shiki/src/index.ts",
   "packages/plugin-tailwindcss/src/index.ts",
   "packages/designs/src/atlas/index.ts",

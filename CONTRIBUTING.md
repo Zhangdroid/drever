@@ -41,5 +41,12 @@ Prefer the web platform and small local modules. Add a dependency only for
 specialist infrastructure that would be less correct or maintainable in-house,
 and keep it behind a narrow adapter or in the build graph.
 
+An official plugin is complete only when its package contract and behavioral
+tests pass, the Feature Gallery proves it with real rendered output, and the
+website plugin catalog plus canonical official-plugin guide document its
+activation, browser/export cost, and limitations. Keep generic agent prompts
+catalog-agnostic; expose each capability through its plugin manifest and
+authoring context.
+
 Keep commits focused and self-contained. Update the relevant documentation when
 a public contract changes, and commit only after the complete gate passes.

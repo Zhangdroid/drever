@@ -172,6 +172,7 @@ export default {
         elements: ["p"],
       },
       plugins: [
+        { id: "@drever/plugin-gfm", origin: "default" },
         { id: "@drever/plugin-shiki", origin: "default" },
         { id: "@drever/plugin-tailwindcss", origin: "default" },
         { id: "fixture:authoring", origin: "user" },

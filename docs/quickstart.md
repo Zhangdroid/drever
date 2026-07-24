@@ -373,15 +373,16 @@ and registers the semantic `Cover` and `TwoColumn` layouts:
 />
 ```
 
-A custom theme is assigned to `theme`. Shiki and Tailwind CSS are active by
-default. They can be configured or disabled through the typed exports from
+A custom theme is assigned to `theme`. GFM, Shiki, and Tailwind CSS are active
+by default. They can be configured or disabled through the typed exports from
 `drever`; other plugins may be registered directly or with project settings:
 
 ```ts
-import { defineConfig, shikiPlugin, tailwindCss } from "drever";
+import { defineConfig, gfm, shikiPlugin, tailwindCss } from "drever";
 
 export default defineConfig({
   plugins: [
+    gfm({ singleTilde: false }),
     { plugin: shikiPlugin, enabled: false },
     tailwindCss({ optimize: true }),
     myPlugin,
@@ -392,9 +393,10 @@ export default defineConfig({
 
 The first matching entry overrides a default registration; other entries are
 normalized with `origin: "user"`. Authors never provide compiler provenance.
-See [Official plugins](./official-plugins.md) for Shiki, Tailwind CSS, Math, and
-the Mermaid safety plan. Plugin definitions, build modules, and runtime
-components are covered in [Extension authoring](./extensions.md).
+See [Official plugins](./official-plugins.md) for GFM, Shiki, Tailwind CSS,
+Math, Charts, Media, and the Mermaid safety plan. Plugin definitions, build
+modules, and runtime components are covered in
+[Extension authoring](./extensions.md).
 
 ## Present and inspect
 

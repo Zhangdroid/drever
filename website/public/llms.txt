@@ -87,8 +87,10 @@ Document View. Audience paths such as `/4/2` select an exact slide and sparse St
 - Project-local Codex and Claude skills.
 - JSON authoring context and local live-position commands.
 - Optional dependency-free, read-only MCP server.
-- Default build-time Shiki and reset-free Tailwind CSS.
+- Default build-time GFM, Shiki, and reset-free Tailwind CSS.
 - Opt-in build-time LaTeX through KaTeX.
+- Opt-in `@drever/plugin-charts` for deterministic accessible SVG data.
+- Opt-in `@drever/plugin-media` for surface-aware YouTube embeds.
 - Eight official design studies, implemented as deterministic Theme contracts: Default, Editorial,
   Studio, Fieldnote, Atlas, Ledger, Cinema, and Construct.
 

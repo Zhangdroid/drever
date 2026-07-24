@@ -1,0 +1,101 @@
+.drever-youtube {
+  --drever-youtube-aspect-ratio: 16 / 9;
+  color: inherit;
+  inline-size: 100%;
+  margin: 0;
+}
+
+.drever-youtube__viewport {
+  aspect-ratio: var(--drever-youtube-aspect-ratio);
+  background:
+    radial-gradient(
+      circle at 18% 12%,
+      color-mix(in srgb, currentcolor 12%, transparent),
+      transparent 42%
+    ),
+    color-mix(in srgb, currentcolor 5%, transparent);
+  border: 1px solid color-mix(in srgb, currentcolor 18%, transparent);
+  border-radius: var(--drever-youtube-radius, 1.25rem);
+  inline-size: 100%;
+  isolation: isolate;
+  overflow: hidden;
+  position: relative;
+}
+
+.drever-youtube iframe,
+.drever-youtube__fallback {
+  block-size: 100%;
+  border: 0;
+  inline-size: 100%;
+  inset: 0;
+  position: absolute;
+}
+
+.drever-youtube__fallback {
+  align-items: center;
+  color: inherit;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  padding: clamp(1.25rem, 4vw, 3rem);
+  text-align: start;
+  text-decoration: none;
+}
+
+.drever-youtube[data-render-mode="audience"] .drever-youtube__fallback {
+  display: none;
+}
+
+.drever-youtube__play {
+  align-items: center;
+  background: currentcolor;
+  border-radius: 999px;
+  display: inline-flex;
+  flex: 0 0 auto;
+  block-size: 3.25rem;
+  inline-size: 3.25rem;
+  justify-content: center;
+}
+
+.drever-youtube__play::after {
+  border-block: 0.42rem solid transparent;
+  border-inline-start: 0.72rem solid Canvas;
+  content: "";
+  margin-inline-start: 0.14rem;
+}
+
+.drever-youtube__copy {
+  display: grid;
+  gap: 0.3rem;
+  max-inline-size: 30rem;
+}
+
+.drever-youtube__copy strong {
+  font: inherit;
+  font-weight: 650;
+}
+
+.drever-youtube__copy small {
+  color: color-mix(in srgb, currentcolor 64%, transparent);
+  font: inherit;
+  font-size: 0.72em;
+}
+
+.drever-youtube__fallback:is(:hover, :focus-visible) small {
+  color: currentcolor;
+}
+
+.drever-youtube__fallback:focus-visible {
+  outline: 2px solid currentcolor;
+  outline-offset: -0.35rem;
+}
+
+@media print {
+  .drever-youtube iframe {
+    display: none !important;
+  }
+
+  .drever-youtube__fallback {
+    display: flex !important;
+  }
+}

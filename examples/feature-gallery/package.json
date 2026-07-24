@@ -11,7 +11,9 @@
   "devDependencies": {
     "@drever/brand": "workspace:*",
     "@drever/designs": "workspace:*",
+    "@drever/plugin-charts": "workspace:*",
     "@drever/plugin-math": "workspace:*",
+    "@drever/plugin-media": "workspace:*",
     "@types/react": "catalog:",
     "drever": "workspace:*",
     "react": "catalog:"

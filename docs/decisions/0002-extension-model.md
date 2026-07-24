@@ -136,9 +136,10 @@ The exact built-in descriptors arrive with their implementation packages:
 
 - `---` splitting is a compiler grammar invariant, not a plugin and never
   configurable.
-- Shiki and Tailwind are default registrations that users may disable.
-- Math is an optional registration enabled explicitly. Mermaid remains deferred
-  until its security, accessibility, rendering, and export contracts are proven.
+- GFM, Shiki, and Tailwind are default registrations that users may disable.
+- Math, Charts, and Media are optional registrations enabled explicitly.
+  Mermaid remains deferred until its security, accessibility, rendering, and
+  export contracts are proven.
 
 This keeps product grammar outside plugin ordering and prevents double slide
 splitting.

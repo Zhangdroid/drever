@@ -30,12 +30,22 @@ const exportContext = (error: DreverCliError): string | undefined => {
   return values.length === 0 ? undefined : `Context: ${values.join(" ")}`;
 };
 
+const nestedCause = (error: DreverCliError): string | undefined => {
+  if (!(error.cause instanceof Error)) {
+    return;
+  }
+  const message = error.cause.message.trim();
+  return message.length === 0 ? undefined : `Cause: ${message}`;
+};
+
 export const formatCliError = (error: unknown): string => {
   if (error instanceof DreverCliError) {
     const context = exportContext(error);
+    const cause = nestedCause(error);
     return [
       `[${error.code}] ${error.message}`,
       ...(context === undefined ? [] : [context]),
+      ...(cause === undefined ? [] : [cause]),
       ...(error.hint === undefined ? [] : [`Hint: ${error.hint}`]),
     ].join("\n");
   }

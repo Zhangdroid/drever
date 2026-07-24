@@ -8,33 +8,46 @@ into the browser bundle. Presentation authors select plugins in
 
 This is the first official catalog:
 
-| Plugin                       | Activation               | Capabilities                                   | Browser output                         |
-| ---------------------------- | ------------------------ | ---------------------------------------------- | -------------------------------------- |
-| `@drever/plugin-shiki`       | Default; can be disabled | Rehype at build time                           | Highlighted HTML and CSS variables     |
-| `@drever/plugin-tailwindcss` | Default; can be disabled | Official Tailwind Vite plugin                  | Generated utility CSS only             |
-| `@drever/plugin-math`        | Explicit opt-in          | Remark Math, Rehype KaTeX, component-layer CSS | HTML + MathML and bundled KaTeX assets |
-| Mermaid                      | Deferred                 | Planned opt-in build/runtime feature           | No unsafe implementation is shipped    |
+| Plugin                       | Activation               | Capabilities                                   | Browser output                            |
+| ---------------------------- | ------------------------ | ---------------------------------------------- | ----------------------------------------- |
+| `@drever/plugin-gfm`         | Default; can be disabled | Remark GFM at build time                       | Semantic HTML + task-list CSS             |
+| `@drever/plugin-shiki`       | Default; can be disabled | Rehype at build time                           | Highlighted HTML and CSS variables        |
+| `@drever/plugin-tailwindcss` | Default; can be disabled | Official Tailwind Vite plugin                  | Generated utility CSS only                |
+| `@drever/plugin-math`        | Explicit opt-in          | Remark Math, Rehype KaTeX, component-layer CSS | HTML + MathML and bundled KaTeX assets    |
+| `@drever/plugin-charts`      | Explicit opt-in          | MDX component and component-layer CSS          | Deterministic semantic SVG                |
+| `@drever/plugin-media`       | Explicit opt-in          | MDX component and component-layer CSS          | Audience iframe or stable link by surface |
+| Mermaid                      | Deferred                 | Planned opt-in build/runtime feature           | No unsafe implementation is shipped       |
 
 `---` splitting is not a plugin. It is Drever's protected document grammar, so
 plugin order can never change pagination.
 
 ## Configure the defaults
 
-Shiki and Tailwind CSS work without configuration. The `drever` facade exports
-their descriptors and typed helpers so overriding a transitive default does not
-require another project dependency:
+GFM, Shiki, and Tailwind CSS work without configuration. The `drever` facade
+exports their descriptors and typed helpers so overriding a transitive default
+does not require another project dependency:
 
 ```ts
-import { defineConfig, shiki, shikiPlugin, tailwindCss, tailwindCssPlugin } from "drever";
+import {
+  defineConfig,
+  gfm,
+  gfmPlugin,
+  shiki,
+  shikiPlugin,
+  tailwindCss,
+  tailwindCssPlugin,
+} from "drever";
 
 export default defineConfig({
   plugins: [
+    gfm({ singleTilde: false }),
     shiki({ lightTheme: "github-light", darkTheme: "github-dark" }),
     tailwindCss({ optimize: true }),
   ],
 });
 
-// Either default can instead be disabled:
+// Any default can instead be disabled:
+// plugins: [{ plugin: gfmPlugin, enabled: false }]
 // plugins: [{ plugin: shikiPlugin, enabled: false }]
 // plugins: [{ plugin: tailwindCssPlugin, enabled: false }]
 ```
@@ -42,6 +55,17 @@ export default defineConfig({
 The first registration with a default plugin id overrides that default in
 place. A second registration with the same id remains a duplicate and produces
 the compiler's stable `DREVER_PLUGIN_DUPLICATE` diagnostic.
+
+### GitHub Flavored Markdown
+
+GFM adds tables, task lists, autolink literals, and strikethrough during
+compilation, with no browser JavaScript. A small component-layer stylesheet
+aligns task-list checkboxes across designs. `singleTilde` matches the Remark
+GFM default and can be disabled to require `~~double tilde~~`.
+
+Footnotes currently fail with a clear build error. Their generated
+document-level section can cross protected Slide boundaries, so Drever will not
+claim support until the output is slide-scoped.
 
 ### Shiki
 
@@ -103,6 +127,86 @@ so CI catches invalid equations. See the official
 [remark-math integration](https://github.com/remarkjs/remark-math),
 [KaTeX security options](https://katex.org/docs/options), and
 [browser assets guide](https://katex.org/docs/browser.html).
+
+## Enable charts
+
+Charts are opt-in and use React plus semantic SVG directly:
+
+```bash
+pnpm add -D @drever/plugin-charts
+```
+
+```ts
+import chartsPlugin from "@drever/plugin-charts";
+import { defineConfig } from "drever";
+
+export default defineConfig({
+  plugins: [chartsPlugin],
+});
+```
+
+```mdx
+<DataChart
+  label="Adoption by quarter"
+  kind="line"
+  valueSuffix="%"
+  data={[
+    { label: "Q1", value: 28 },
+    { label: "Q2", value: 46 },
+    { label: "Q3", value: 71 },
+  ]}
+/>
+```
+
+`DataChart` accepts one to twelve labeled finite values, supports `bar` and
+`line`, and generates a visible chart plus an accessible title and complete
+value description from the same data. It adds no chart framework, client
+setup, canvas renderer, or automatic animation.
+
+## Enable media
+
+The first Media component is a privacy-enhanced YouTube embed:
+
+```bash
+pnpm add -D @drever/plugin-media
+```
+
+```ts
+import mediaPlugin from "@drever/plugin-media";
+import { defineConfig } from "drever";
+
+export default defineConfig({
+  plugins: [mediaPlugin],
+});
+```
+
+```mdx
+<YouTube id="M7lc1UVf-VE" title="YouTube player API demo" start={30} />
+```
+
+The active audience slide gets a lazy `youtube-nocookie.com` iframe with no
+autoplay. Leaving the slide removes its remote source so playback cannot
+continue over the next slide. Speaker previews, Document View, PDF export, and
+print get a deterministic title and link instead of loading embedded media or
+a remote thumbnail.
+The iframe still makes a third-party YouTube request. Privacy-enhanced mode
+limits storage before playback; it does not make embedded playback private.
+
+## Keep the official catalog synchronized
+
+An official plugin change is incomplete until all of these surfaces agree:
+
+- the package manifest, AI component/config manifest, and behavioral tests;
+- a Feature Gallery slide with real rendered output;
+- the website plugin gallery and guide, including live links and slide numbers;
+- this canonical guide, activation policy, browser/export cost, and limitations;
+- release version metadata and default/facade wiring when applicable.
+
+Repository tests require every public `packages/plugin-*` package to stay in
+sync across these catalogs, the Feature Gallery dependency/configuration path,
+release version metadata, and default facade wiring where applicable. Generic
+agent skills remain catalog-agnostic; the compile plan exposes active
+capability through plugin manifests and authoring context.
 
 ## Why Mermaid is deferred
 

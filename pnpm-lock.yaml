@@ -348,9 +348,15 @@ importers:
       '@drever/designs':
         specifier: workspace:*
         version: link:../../packages/designs
+      '@drever/plugin-charts':
+        specifier: workspace:*
+        version: link:../../packages/plugin-charts
       '@drever/plugin-math':
         specifier: workspace:*
         version: link:../../packages/plugin-math
+      '@drever/plugin-media':
+        specifier: workspace:*
+        version: link:../../packages/plugin-media
       '@types/react':
         specifier: 'catalog:'
         version: 19.2.17
@@ -489,6 +495,9 @@ importers:
       '@drever/designs':
         specifier: workspace:*
         version: link:../designs
+      '@drever/plugin-gfm':
+        specifier: workspace:*
+        version: link:../plugin-gfm
       '@drever/plugin-shiki':
         specifier: workspace:*
         version: link:../plugin-shiki
@@ -683,6 +692,74 @@ importers:
         specifier: 'catalog:'
         version: 0.2.5(@types/node@24.13.3)(@voidzero-dev/vite-plus-core@0.2.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(esbuild@0.28.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)
 
+  packages/plugin-charts:
+    dependencies:
+      '@drever/compiler':
+        specifier: workspace:*
+        version: link:../compiler
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.13.3
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.17
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.2.3(@types/react@19.2.17)
+      react:
+        specifier: 19.3.0-canary-83840902-20260719
+        version: 19.3.0-canary-83840902-20260719
+      react-dom:
+        specifier: 19.3.0-canary-83840902-20260719
+        version: 19.3.0-canary-83840902-20260719(react@19.3.0-canary-83840902-20260719)
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+      vite:
+        specifier: npm:@voidzero-dev/vite-plus-core@0.2.5
+        version: '@voidzero-dev/vite-plus-core@0.2.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)'
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.2.5(@types/node@24.13.3)(@voidzero-dev/vite-plus-core@0.2.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(esbuild@0.28.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)
+
+  packages/plugin-gfm:
+    dependencies:
+      '@drever/compiler':
+        specifier: workspace:*
+        version: link:../compiler
+      '@drever/plugin':
+        specifier: workspace:*
+        version: link:../plugin
+      '@drever/schema':
+        specifier: workspace:*
+        version: link:../schema
+      remark-gfm:
+        specifier: 'catalog:'
+        version: 4.0.1
+      unified:
+        specifier: 'catalog:'
+        version: 11.0.5
+    devDependencies:
+      '@types/mdast':
+        specifier: 'catalog:'
+        version: 4.0.4
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.13.3
+      remark-parse:
+        specifier: 'catalog:'
+        version: 11.0.0
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+      vite:
+        specifier: npm:@voidzero-dev/vite-plus-core@0.2.5
+        version: '@voidzero-dev/vite-plus-core@0.2.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)'
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.2.5(@types/node@24.13.3)(@voidzero-dev/vite-plus-core@0.2.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(esbuild@0.28.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)
+
   packages/plugin-math:
     dependencies:
       '@drever/compiler':
@@ -713,6 +790,40 @@ importers:
       remark-parse:
         specifier: 'catalog:'
         version: 11.0.0
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+      vite:
+        specifier: npm:@voidzero-dev/vite-plus-core@0.2.5
+        version: '@voidzero-dev/vite-plus-core@0.2.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)'
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.2.5(@types/node@24.13.3)(@voidzero-dev/vite-plus-core@0.2.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0))(esbuild@0.28.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.0)
+
+  packages/plugin-media:
+    dependencies:
+      '@drever/compiler':
+        specifier: workspace:*
+        version: link:../compiler
+      '@drever/core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.13.3
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.17
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.2.3(@types/react@19.2.17)
+      react:
+        specifier: 19.3.0-canary-83840902-20260719
+        version: 19.3.0-canary-83840902-20260719
+      react-dom:
+        specifier: 19.3.0-canary-83840902-20260719
+        version: 19.3.0-canary-83840902-20260719(react@19.3.0-canary-83840902-20260719)
       typescript:
         specifier: 'catalog:'
         version: 7.0.2

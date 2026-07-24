@@ -206,6 +206,7 @@ test("the built CLI exposes the canonical basic-deck authoring context", async (
   });
   expect(context.design.layouts.map(({ name }) => name)).toEqual(["Cover", "TwoColumn"]);
   expect(context.plugins.map(({ id, origin, version }) => ({ id, origin, version }))).toEqual([
+    { id: "@drever/plugin-gfm", origin: "default", version: "0.0.0" },
     { id: "@drever/plugin-shiki", origin: "default", version: "0.0.0" },
     { id: "@drever/plugin-tailwindcss", origin: "default", version: "0.0.0" },
   ]);

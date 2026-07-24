@@ -1,0 +1,67 @@
+[data-drever-data-chart] {
+  --drever-data-chart-accent: var(--drever-theme-accent, #5b45d8);
+
+  display: block;
+  width: 100%;
+  margin: 0;
+  color: inherit;
+}
+
+[data-drever-data-chart] svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  font-family: inherit;
+}
+
+[data-drever-data-chart] :where([data-chart-grid] line, [data-chart-baseline]) {
+  vector-effect: non-scaling-stroke;
+  stroke: currentColor;
+}
+
+[data-drever-data-chart] [data-chart-grid] line {
+  opacity: 0.12;
+  stroke-width: 1;
+}
+
+[data-drever-data-chart] [data-chart-baseline] {
+  opacity: 0.34;
+  stroke-width: 1.5;
+}
+
+[data-drever-data-chart] [data-chart-bars] rect {
+  fill: var(--drever-data-chart-accent);
+}
+
+[data-drever-data-chart] [data-chart-polarity="negative"] rect {
+  opacity: 0.62;
+}
+
+[data-drever-data-chart] [data-chart-line] path {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+  stroke: var(--drever-data-chart-accent);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+[data-drever-data-chart] [data-chart-line] circle {
+  fill: var(--drever-data-chart-accent);
+}
+
+[data-drever-data-chart] text {
+  fill: currentColor;
+  font-size: 18px;
+}
+
+[data-drever-data-chart] [data-chart-labels] {
+  opacity: 0.66;
+}
+
+[data-drever-data-chart] [data-chart-value-label] {
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 720;
+}

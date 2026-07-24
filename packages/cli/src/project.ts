@@ -1,4 +1,5 @@
 import defaultTheme from "@drever/designs/default";
+import gfmPlugin from "@drever/plugin-gfm";
 import shikiPlugin from "@drever/plugin-shiki";
 import tailwindCssPlugin from "@drever/plugin-tailwindcss";
 import {
@@ -32,7 +33,11 @@ export type ResolvedDreverProject = ResolvedDreverPlan &
 
 const DEFAULT_ENTRY = "slides.mdx";
 const DEFAULT_OUT_DIR = "dist";
-const DEFAULT_PLUGINS: readonly DreverPlugin[] = Object.freeze([shikiPlugin, tailwindCssPlugin]);
+const DEFAULT_PLUGINS: readonly DreverPlugin[] = Object.freeze([
+  gfmPlugin,
+  shikiPlugin,
+  tailwindCssPlugin,
+]);
 
 const entryNotFound = (path: string, cause?: unknown): DreverCliError =>
   new DreverCliError("DREVER_ENTRY_NOT_FOUND", `Deck entry not found: ${path}`, {

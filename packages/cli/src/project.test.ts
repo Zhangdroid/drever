@@ -1,4 +1,5 @@
 import { createCompilePlan } from "@drever/compiler";
+import gfmPlugin from "@drever/plugin-gfm";
 import shikiPlugin from "@drever/plugin-shiki";
 import tailwindCssPlugin, { tailwindCss } from "@drever/plugin-tailwindcss";
 import defaultTheme from "@drever/designs/default";
@@ -6,8 +7,9 @@ import { describe, expect, it } from "vite-plus/test";
 import { resolvePluginRegistrations } from "./project.ts";
 
 describe("default plugin registrations", () => {
-  it("enables Shiki and Tailwind CSS as ordered defaults", () => {
+  it("enables GFM, Shiki, and Tailwind CSS as ordered defaults", () => {
     expect(resolvePluginRegistrations()).toMatchObject([
+      { origin: "default", plugin: gfmPlugin },
       { origin: "default", plugin: shikiPlugin },
       { origin: "default", plugin: tailwindCssPlugin },
     ]);
@@ -26,6 +28,11 @@ describe("default plugin registrations", () => {
       ok: true,
       value: {
         plugins: [
+          {
+            id: "@drever/plugin-gfm",
+            origin: "default",
+            config: { singleTilde: true },
+          },
           {
             id: "@drever/plugin-tailwindcss",
             origin: "default",

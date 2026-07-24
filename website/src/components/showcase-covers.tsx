@@ -13,7 +13,7 @@ export function StudyCover({ study }: { study: StudyId }) {
       <div className="study-cover study-cover--features" aria-hidden="true">
         <header className="study-cover__meta">
           <span>Source → live slide</span>
-          <small>06 / 09</small>
+          <small>06 / 12</small>
         </header>
         <div className="feature-study__workbench">
           <div className="feature-study__source">
@@ -40,8 +40,8 @@ export function StudyCover({ study }: { study: StudyId }) {
           </div>
         </div>
         <footer className="study-cover__foot">
-          <span>MDX · React · LaTeX</span>
-          <small>One authored source</small>
+          <span>Build · components · media</span>
+          <small>One plugin contract</small>
         </footer>
       </div>
     );

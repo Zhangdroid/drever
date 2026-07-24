@@ -21,4 +21,19 @@ describe("formatCliError", () => {
       ].join("\n"),
     );
   });
+
+  it("keeps the nested cause visible at an owned CLI boundary", () => {
+    const error = new DreverCliError("DREVER_AUTHORING_CONTEXT_COMPILE_FAILED", "Compile failed.", {
+      cause: new Error("@drever/plugin-gfm does not support footnotes yet."),
+      hint: "Fix the authored source.",
+    });
+
+    expect(formatCliError(error)).toBe(
+      [
+        "[DREVER_AUTHORING_CONTEXT_COMPILE_FAILED] Compile failed.",
+        "Cause: @drever/plugin-gfm does not support footnotes yet.",
+        "Hint: Fix the authored source.",
+      ].join("\n"),
+    );
+  });
 });

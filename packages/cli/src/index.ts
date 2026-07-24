@@ -39,6 +39,8 @@ export type {
 } from "@drever/core";
 export { useStage } from "@drever/client";
 export type { StageComponents, StageLayerComponent, StageLayerProps } from "@drever/client";
+export { gfm, gfmPlugin } from "@drever/plugin-gfm";
+export type { GfmOptions } from "@drever/plugin-gfm";
 export { shiki, shikiPlugin } from "@drever/plugin-shiki";
 export type { ShikiOptions } from "@drever/plugin-shiki";
 export { tailwindCss, tailwindCssPlugin } from "@drever/plugin-tailwindcss";
