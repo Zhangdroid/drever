@@ -31,8 +31,8 @@ test("drever dev exposes the live audience and speaker position to local agents"
     route: "/2/2?theme=dark#notes",
     sourcePath: `${demoRoot}slides.mdx`,
     surface: "audience",
-    version: 1,
-  });
+    version: 2,
+  } satisfies DreverCurrentPosition);
 
   await page.evaluate(() => history.replaceState(null, "", "/2/2?review=true#current"));
   await expect(page).toHaveURL(/\/2\/2\?review=true#current$/u);

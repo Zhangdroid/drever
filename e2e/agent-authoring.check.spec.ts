@@ -19,6 +19,8 @@ const agentFiles = [
   ".agents/skills/drever-author-deck/agents/openai.yaml",
   ".agents/skills/drever-create-deck/SKILL.md",
   ".agents/skills/drever-create-deck/agents/openai.yaml",
+  ".agents/skills/drever-create-design/SKILL.md",
+  ".agents/skills/drever-create-design/agents/openai.yaml",
   ".agents/skills/drever-review-deck/SKILL.md",
   ".agents/skills/drever-review-deck/agents/openai.yaml",
   ".agents/skills/drever-deliver-deck/SKILL.md",
@@ -91,7 +93,7 @@ test("the built CLI installs an idempotent agent kit without loading project con
     ]);
 
     const first = await runCli(root, "agent", "sync");
-    expect(first.stdout).toBe("Synced Drever agent kit: 8 created, 1 updated, 0 unchanged.\n");
+    expect(first.stdout).toBe("Synced Drever agent kit: 10 created, 1 updated, 0 unchanged.\n");
 
     const firstContents = await readAgentFiles(root);
     const agents = firstContents[0];
@@ -113,7 +115,7 @@ test("the built CLI installs an idempotent agent kit without loading project con
     }
 
     const second = await runCli(root, "agent", "sync");
-    expect(second.stdout).toBe("Synced Drever agent kit: 0 created, 0 updated, 9 unchanged.\n");
+    expect(second.stdout).toBe("Synced Drever agent kit: 0 created, 0 updated, 11 unchanged.\n");
     expect(await readAgentFiles(root)).toEqual(firstContents);
   } finally {
     await rm(root, { force: true, recursive: true });
