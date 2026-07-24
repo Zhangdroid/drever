@@ -92,14 +92,16 @@ usually belongs outside the shared bitmap.
 
 <h2 id="principles">The non-negotiable principles</h2>
 
-1. Motion explains focus, order, replacement, comparison, or continuity. Otherwise omit it.
-2. Give each moment one primary motion and at most one quieter supporting cue. Steps, native
+1. Start with a concrete claim, evidence, and decision. Motion cannot rescue abstract copy.
+2. Motion explains focus, order, replacement, comparison, or continuity. Otherwise omit it.
+3. Give each moment one primary motion and at most one quieter supporting cue. Steps, native
    transitions, kinetic type, video, 3D, and third-party animation share that budget.
-3. Move the smallest meaningful object. Background, title, controls, and page chrome stay put.
-4. Keep recurring geometry, wrapping, paint, and shadow lists stable.
-5. Never clip a surface whose shadow or glow must remain visible.
-6. Mark the active Step without dimming an entire completed Step below readable contrast.
-7. Review intermediate frames, backward navigation, reduced motion, speaker, document, and export.
+4. Move the smallest meaningful object and only the properties that express its change. Background,
+   title, controls, and page chrome stay put.
+5. Keep recurring geometry, wrapping, paint, and shadow lists stable.
+6. Never clip a surface whose shadow or glow must remain visible.
+7. Mark the active Step without dimming an entire completed Step below readable contrast.
+8. Review intermediate frames, backward navigation, reduced motion, speaker, document, and export.
 
 The eight official design studies deliberately use different motion voices. The same intent can feel
 calm in Default, editorial in Editorial, precise in Studio, handwritten in Fieldnote, directional
@@ -107,13 +109,24 @@ in Atlas, accountable in Ledger, cinematic in Cinema, or assembled in Construct.
 
 <h2 id="object-lifecycle">Plan a role, not an entrance</h2>
 
-A key object can hint just below the canvas, enter when it becomes evidence, dock at a quiet edge
-while the explanation takes focus, and retire when it stops helping. Use only the beats the story
-needs. A browser frame that moves from demonstration to low-contrast context explains a changing
-narrative role; four unrelated entrance effects do not.
+A key object can begin completely below the canvas, enter when it becomes evidence, dock at a quiet
+edge while the explanation takes focus, and retire when it stops helping. Reveal a fragment only
+when the fragment itself creates useful anticipation; never leave a meaningless clipped sliver. Use
+only the beats the story needs. A browser frame that moves from demonstration to low-contrast
+context explains a changing narrative role; four unrelated entrance effects do not.
 
 Keep one motion owner per element. Use native continuity between slides or local live-DOM motion
 inside one slide, never both at once.
+
+<h2 id="timing-and-control">Time the idea, not the effect</h2>
+
+When the audience must notice a before state, let it settle before directing the eye. Choose delay
+and duration from the reading job and the preceding transition instead of applying a fixed
+one-second rule. Quiet motion should remain perceptible at presentation distance.
+
+Animate one semantic payload at a time. Multiple techniques are valid only when they form a
+sequence with one focal object at a time. If presentation navigation owns a reveal, use a `Step`
+instead of an inline button; keep direct manipulation for ideas that actually require interaction.
 
 <h2 id="external-tools">Bring focused capabilities</h2>
 
@@ -124,6 +137,12 @@ presets. Prefer native CSS and small local React for simple motion. Before copyi
 runtimes, inspect current official documentation, source, license, bundle behavior, and export
 constraints, then adapt the technique to the deck's subject-led design.
 
+If the deck claims a capability, prove it with a focused working example rather than a library
+name, logo, or link. Let the external tool own only the boundary that needs it while Drever keeps
+navigation, history, notes, and delivery.
+
 Every live integration needs accessible final meaning, keyboard behavior, deterministic loading
 and export readiness, reduced-motion output, and a stable poster or authored fallback when document
-or export surfaces should not run it. Keep continuous backgrounds and 3D subordinate to the claim.
+or export surfaces should not run it. Loop only when ongoing change is the subject, use a
+deterministic sequence, pause it outside the active audience surface, and author a stable final
+state. Keep continuous backgrounds and 3D subordinate to the claim.

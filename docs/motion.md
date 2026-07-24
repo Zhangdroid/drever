@@ -14,24 +14,30 @@ deck, and review Skill:
 
 1. **Explain, do not decorate.** Motion must clarify focus, order,
    replacement, comparison, continuity, or a real Stage state change. If it
-   does not improve audience understanding, omit it.
+   does not improve audience understanding, omit it. Motion cannot rescue an
+   abstract slogan or missing argument; establish the concrete claim, evidence,
+   and decision first.
 2. **Budget attention, not effects.** Give each moment one primary motion. Add
    at most one quieter supporting cue, and only when it belongs to the same
    causal chain. Native transitions, Steps, kinetic type, video, 3D, and
    third-party animation all spend the same budget. If a headline or core
    object already carries the change, keep Stage decoration and neighboring
    cards still. A recurring decorative object does not earn motion merely by
-   recurring.
+   recurring. A slide may contain several techniques only when they form a
+   sequence with one focal object at a time.
 3. **Follow the content and theme.** Direction follows reading order and layout:
    vertical stacks progress on the block axis; horizontal pipelines progress
    on the inline axis. The theme supplies the visual voice. A sparse draw-on
    emphasis, short signal travel, or small Stage shift may add quiet contextual
    delight, but it must reinforce the current idea and remain subordinate to
-   reading. Repeated generic entrances are not a visual voice.
+   reading. Quiet does not mean imperceptible: the cue must still communicate
+   its job at presentation distance. Repeated generic entrances are not a
+   visual voice.
 4. **Move the smallest meaningful object.** Persistent titles, layout anchors,
    Stage shells, backgrounds, page numbers, branding, dialogs, and audience
    controls stay live and stationary. Animate only the child whose narrative
-   state changed.
+   state changed and only the properties that express that change. A draw-on
+   highlight does not also need to recolor its type or move an unrelated accent.
 5. **Keep geometry deliberate.** Stable objects need stable size, aspect ratio,
    typography, wrapping, and media crop. Recurring motifs retain their
    thickness, opacity, paint, orientation, and cross-axis alignment. Animate
@@ -42,7 +48,12 @@ deck, and review Skill:
    media frame when its shadow, glow, outline, or filter must remain visible.
    Clip an inner content wrapper, or use opacity with translate or scale. Shadow
    endpoints use matching lists and transparent colors, never `none` to opaque.
-7. **Review the journey, not only the endpoints.** Inspect intermediate frames,
+7. **Pace for comprehension.** Preserve an initial state long enough for the
+   audience to orient and read when the motion depends on noticing a before
+   state. Choose delay and duration from that reading job and narrative beat,
+   not from a blanket one-second rule. Do not let first-paint motion finish
+   before the room can perceive it.
+8. **Review the journey, not only the endpoints.** Inspect intermediate frames,
    transition completion, forward and backward navigation, repeated Step
    changes, pointer focus, reduced motion, speaker, document, and export modes.
 
@@ -84,8 +95,10 @@ the right default for progressive disclosure.
 Design a key object's complete role in the story instead of assigning an
 entrance effect independently on every slide. A useful lifecycle may be:
 
-1. **Hint:** keep a small part of the object just off-stage when anticipation
-   helps the audience form a question.
+1. **Anticipate:** the object may begin completely outside the canvas when its
+   absence helps the audience form a question. Reveal a fragment only when that
+   fragment itself communicates useful anticipation; never leave a meaningless
+   clipped sliver on stage.
 2. **Enter as evidence:** bring the complete object into a stable, readable
    position when the presentation needs to inspect or interact with it.
 3. **Recontextualize:** move the same object to a quiet edge or corner, reduce
@@ -95,8 +108,8 @@ entrance effect independently on every slide. A useful lifecycle may be:
    next claim.
 
 This is not a required four-effect sequence. Author only the beats that advance
-the argument. For example, a browser frame can peek from below the canvas,
-enter to demonstrate a workflow, then dock at low contrast while the next slide
+the argument. For example, a browser frame can begin completely below the
+canvas, enter to demonstrate a workflow, then dock at low contrast while the next slide
 explains the decision revealed by that workflow. The movement explains the
 object's changing narrative role; it is not decoration.
 
@@ -136,6 +149,34 @@ Every integration must be presentation-safe:
   subordinate to the current claim;
 - avoid nested slide-navigation transitions and never hide required content
   behind animation completion.
+
+When a deck claims an external animation or spatial capability, prove it with a
+focused working example instead of a library name, logo, or link. Let the
+external tool own only the smallest boundary that needs its capability; Drever
+continues to own navigation, history, notes, and delivery.
+
+Run continuous or repeating motion only when ongoing change is itself the
+subject, such as a live metric or signal moving through a network. Use a
+deterministic sequence, pause it when its audience surface is inactive, and
+provide one intentional final state for reduced motion, document, speaker, and
+export output. Do not loop decoration to keep a slide looking alive.
+
+## Timing and interaction ownership
+
+When a local cue depends on an initial state, let that state settle before
+directing the eye. The appropriate hold may be shorter or longer than one second;
+derive it from the amount of reading, the transition that preceded it, and the
+importance of the change. Give the final state enough time to be understood.
+
+Animate one semantic payload at a time. If a marker draws under one word, keep
+unrelated type, accents, and Stage decoration still. A complex showcase may
+demonstrate several techniques, but serialize them into one causal story instead
+of presenting competing simultaneous focal points.
+
+If the presenter advances a narrative state, author that change as a `Step`.
+Do not add a button inside the slide merely to reveal the next authored finding,
+comparison, or spatial state. Keep an inline control only when direct
+manipulation is itself what the audience must understand.
 
 ## Step choreography
 
@@ -485,11 +526,17 @@ does not load a JavaScript motion module and there is no separate
 - Start with ordinary Steps; add a MotionGroup only for a clear narrative job.
 - Ask: What single object should the audience follow? If the answer names two,
   remove or sequence one.
-- Plan that object's lifecycle across the story: hint it only when anticipation
-  helps, enter it as evidence, dock it at low contrast when it becomes context,
-  and retire it when it stops explaining the claim.
+- Plan that object's lifecycle across the story: keep it completely off-stage
+  when a visible fragment says nothing, reveal a fragment only for useful
+  anticipation, enter it as evidence, dock it at low contrast when it becomes
+  context, and retire it when it stops explaining the claim.
 - Count native transitions, Steps, kinetic type, video, 3D, and third-party
   animation against one attention budget.
+- Establish a concrete claim, evidence, and decision before adding motion.
+- Let the initial state settle when the audience must notice it, then choose
+  timing from the reading job instead of applying a fixed delay.
+- Animate only the properties that carry the change. Keep quiet cues
+  perceptible and serialize multiple techniques around one focal object.
 - Keep persistent headings and context outside Step-oriented MotionGroups.
 - Keep shadows, glows, and other overflow effects outside hard clip reveals;
   interpolate matching transparent and opaque shadow lists.
@@ -501,6 +548,8 @@ does not load a JavaScript motion module and there is no separate
 - Keep audience controls, dialogs, and other client chrome outside the deck
   transition surface; never give them slide or continuity identities.
 - Use direct Step children for `focus`, `replace`, and `compare`.
+- Use a Step instead of an inline control when presentation navigation owns the
+  next narrative state.
 - Put `stagger` inside one Step and limit it to four direct children.
 - Use `replace` when one state should be accessible at a time while presenting;
   expect the document view to expose the complete replacement history.
@@ -514,10 +563,13 @@ does not load a JavaScript motion module and there is no separate
   through a View Transition.
 - Use external tools only for a capability the story needs. Verify current
   official docs and licenses, adapt references such as React Bits or Spline to
-  the subject-led design, and avoid copying a showcase as the deck's style.
+  the subject-led design, prove the capability with a focused working example,
+  and avoid copying a showcase as the deck's style.
 - Give every live integration accessible final semantics, keyboard behavior,
   reduced-motion output, deterministic loading and export readiness, plus a
   stable document/export fallback when needed.
+- Loop only when ongoing change is the subject. Keep the sequence deterministic,
+  pause it outside the active audience surface, and author a stable final state.
 - Inspect intermediate frames and the finished handoff in both directions at
   every affected route; verify that toolbar hover and focus remain stable.
 - Verify reduced motion, `/speaker`, `/document`, and export after changing
@@ -527,7 +579,11 @@ does not load a JavaScript motion module and there is no separate
 
 ```text
 Use Drever motion semantically. Motion must explain a change; if removing it
-does not reduce understanding, remove it. Prefer ordinary Step for disclosure. Use a
+does not reduce understanding, remove it. Establish a concrete claim, evidence,
+and decision before adding choreography; motion cannot rescue abstract copy.
+Prefer ordinary Step for disclosure. If presentation navigation owns a reveal,
+use a Step instead of an inline button; keep direct controls only when
+manipulation itself is the lesson. Use a
 MotionGroup with direct Step children for focus (retain context), replace (one
 accessible state in a stable presentation frame; the document view expands all
 states), or compare (retain readable peers). Put a stagger MotionGroup inside
@@ -539,12 +595,20 @@ only for the same object on adjacent slides, give both groups the same unique
 lowercase kebab-case name, and never give continuity a flow. Give each moment
 one primary motion and at most one quieter supporting cue in the same causal
 chain. Count native transitions, Steps, kinetic type, video, 3D, and
-third-party animation against that one budget. Plan a key object's lifecycle
-instead of isolated entrances: it may hint off-stage, enter as evidence, dock
-at low contrast as context, then retire when it no longer explains the claim.
+third-party animation against that one budget. Serialize multiple techniques
+around one focal object instead of running competing cues. Plan a key object's
+lifecycle instead of isolated entrances: it may begin completely off-stage,
+enter as evidence, dock at low contrast as context, then retire when it no
+longer explains the claim. Show a fragment only when the fragment itself creates
+useful anticipation.
 Author only the beats the story needs. When a headline or core object changes,
 keep Stage decoration and
 neighboring cards still; recurring decoration does not earn motion by recurring.
+When the audience must perceive a before state, let it settle before the cue and
+choose delay and duration from reading and narrative causality rather than a
+blanket one-second rule. Keep quiet motion perceptible. Animate only properties
+that express the same semantic change; a draw-on highlight does not need an
+unrelated type-color or accent animation.
 Keep its endpoint
 size, aspect ratio, typography, wrapping, and media crop explicit; keep
 changing copy outside the shared snapshot. Keep persistent titles outside Step
@@ -562,7 +626,8 @@ different glyphs. Treat React Bits, Spline, and other external work as optional
 references or capabilities, never required dependencies or a style catalog.
 Prefer native CSS and small local React for simple motion; before copying code,
 assets, or runtimes, inspect current official docs, source, license, bundle
-behavior, and export constraints. Give integrations accessible final semantics,
+behavior, and export constraints. Prove a claimed capability with a focused
+working example rather than a name or link. Give integrations accessible final semantics,
 keyboard behavior, deterministic loading and export readiness, and a stable
 document/export fallback when live rendering is inappropriate. Never let native
 and local motion transform the same element at once. Under reduced motion,
@@ -570,7 +635,9 @@ commit the final state without spatial,
 draw, scramble, or decorative delay. Do not put persistent titles, backgrounds,
 page numbers, dialogs, or audience controls inside slide transitions. Do not
 invent animation props, hidden Step stops, runtime.motion, or native View
-Transition calls. Inspect intermediate frames and the finished handoff in both
+Transition calls. Loop only when ongoing change is the subject; keep it
+deterministic, pause it outside the active audience surface, and author one
+stable final state. Inspect intermediate frames and the finished handoff in both
 directions; check repeated Steps, pointer focus, reduced-motion, speaker,
 document, and export states.
 ```

@@ -33,9 +33,9 @@ Classify every major choice:
 
 Prefer subject-led decisions. Fallback beauty is valid; invented thematic meaning is not.
 
-## Use official themes as design studies
+## Use official designs as studies
 
-Scan the manifest and art direction of all eight official themes. When source is available, inspect `src/index.ts`, `layouts.tsx`, `theme.css`, and the relevant example deck for the two closest studies and one useful contrast:
+Scan all eight studies in the single `@drever/designs` package. When source is available, inspect `packages/designs/src/<study>/index.ts`, `packages/designs/src/<study>/layouts.tsx`, `packages/designs/themes/<study>/theme.css`, and the relevant example deck for the two closest studies and one useful contrast:
 
 - Default — neutral hierarchy and spacing; use only as the context-insufficient fallback.
 - Editorial — publication rhythm, warm narrative, and evidence-led typography.
@@ -79,14 +79,17 @@ Use local components for recurring presentation semantics, not one-off decoratio
 ## Design motion with meaning
 
 - Give each moment one primary motion and at most one quieter cue in the same causal chain. Count native transitions, Steps, kinetic type, video, 3D, and third-party animation against that one budget.
-- Plan a key object's narrative lifecycle instead of a series of entrances. Hint it off-stage only when anticipation helps, enter it as evidence, dock it at lower contrast when it becomes context, and retire it when it stops supporting the claim. Author only the beats that improve understanding.
+- Establish a concrete claim, evidence, and decision before adding choreography. Motion cannot rescue abstract copy.
+- Plan a key object's narrative lifecycle instead of a series of entrances. It may begin completely off-stage, enter as evidence, dock at lower contrast when it becomes context, and retire when it stops supporting the claim. Show a fragment only when that fragment creates useful anticipation; never leave a meaningless clipped sliver.
 - Animate the smallest object whose meaning changed. Keep the Stage shell, controls, page information, backgrounds, and persistent anchors stationary.
-- Match direction, timing, and gesture to reading order, spatial structure, or narrative causality.
+- Match direction, timing, and gesture to reading order, spatial structure, or narrative causality. Let an initial state settle when the audience must perceive it; choose timing from the reading job instead of applying a fixed delay. Keep quiet cues perceptible at presentation distance.
+- Animate only properties that express the same semantic change. Serialize multiple techniques around one focal object instead of running competing cues.
+- Use `Step` when presentation navigation owns a reveal. Keep an inline control only when direct manipulation is itself the lesson.
 - Use continuity only for the same semantic object. Keep endpoint geometry, type metrics, wrapping, paint, shadows, and media crop explicit.
 - Never stretch text or boxes, hard-clip painted shadows, switch a shadow from `none`, or animate a recurring motif merely because it exists.
 - Add quiet delight only when it emphasizes the slide's claim. Respect reduced motion and deterministic export.
-- Treat React Bits, Spline, and other outside work as optional references or focused capabilities, not a style catalog. Prefer native CSS, Drever primitives, and small local React for simple motion. Verify current official documentation, source, license, bundle behavior, and export constraints before copying code, assets, or runtimes, then adapt the technique to the subject-led system.
-- Give every live motion or spatial integration accessible final semantics, keyboard behavior, deterministic loading and export readiness, reduced-motion output, and a stable poster or authored fallback when live rendering is inappropriate. Keep continuous backgrounds and 3D subordinate to the claim, and never let navigation continuity and local motion transform the same element at once.
+- Treat React Bits, Spline, and other outside work as optional references or focused capabilities, not a style catalog. Prefer native CSS, Drever primitives, and small local React for simple motion. Verify current official documentation, source, license, bundle behavior, and export constraints before copying code, assets, or runtimes, then adapt the technique to the subject-led system. Prove a claimed capability with a focused working example rather than a name or link.
+- Give every live motion or spatial integration accessible final semantics, keyboard behavior, deterministic loading and export readiness, reduced-motion output, and a stable poster or authored fallback when live rendering is inappropriate. Loop only when ongoing change is the subject; use a deterministic sequence, pause it outside the active audience surface, and author a stable final state. Keep continuous backgrounds and 3D subordinate to the claim, and never let navigation continuity and local motion transform the same element at once.
 
 ## Validate the result
 
