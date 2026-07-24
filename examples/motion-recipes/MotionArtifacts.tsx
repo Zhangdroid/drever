@@ -1,3 +1,4 @@
+import { useDreverRenderMode } from "@drever/core";
 import { motion, useReducedMotion } from "motion/react";
 import {
   useEffect,
@@ -8,6 +9,15 @@ import {
   type PropsWithChildren,
   type ReactElement,
 } from "react";
+
+type BrowserStoryHeadlineProps = {
+  phase: "before" | "after";
+};
+
+type AnimatedMetricProps = {
+  animate: boolean;
+  value: number;
+};
 
 const METRIC_FRAMES = [
   { bars: [28, 34, 38, 42], label: "Baseline", metric: 42 },
@@ -35,13 +45,17 @@ export function MotionPrimer(): ReactElement {
       aria-label="A question moves through evidence to become a decision"
       className="motion-primer"
     >
+      <header aria-hidden="true" className="motion-primer__meta">
+        <span>Decision path</span>
+        <small>Three linked states</small>
+      </header>
       <div aria-hidden="true" className="motion-primer__route">
         <span data-stage="question">?</span>
         <i />
         <span data-stage="evidence">31%</span>
         <i />
         <span data-stage="decision">✓</span>
-        <b />
+        <b className="motion-cursor" />
       </div>
       <figcaption>
         <span>Question</span>
@@ -49,6 +63,28 @@ export function MotionPrimer(): ReactElement {
         <span>Decision</span>
       </figcaption>
     </figure>
+  );
+}
+
+/** A stable headline slot that changes only the subject and outcome. */
+export function BrowserStoryHeadline({ phase }: BrowserStoryHeadlineProps): ReactElement {
+  const label =
+    phase === "before" ? "A screenshot shows the interface." : "Motion shows the change.";
+
+  return (
+    <h2 aria-label={label} className="browser-story-headline" data-phase={phase}>
+      <span aria-hidden="true" className="browser-story-headline__slot" data-slot="subject">
+        <span data-word="old">A screenshot</span>
+        <span data-word="new">Motion</span>
+      </span>
+      <span aria-hidden="true" className="browser-story-headline__fixed">
+        shows the
+      </span>
+      <span aria-hidden="true" className="browser-story-headline__slot" data-slot="outcome">
+        <span data-word="old">interface.</span>
+        <span data-word="new">change.</span>
+      </span>
+    </h2>
   );
 }
 
@@ -132,26 +168,69 @@ export function EvidenceReveal({ children }: PropsWithChildren): ReactElement {
   );
 }
 
-/** A deterministic live metric animated by Motion for React. */
-export function MotionEvidence(): ReactElement {
-  const reducedMotion = useReducedMotion();
-  const rootRef = useRef<HTMLElement>(null);
-  const [frameIndex, setFrameIndex] = useState(FINAL_METRIC_INDEX);
+/** A small count-up tied to the same deterministic frame as the chart. */
+function AnimatedMetric({ animate, value }: AnimatedMetricProps): ReactElement {
+  const nodeRef = useRef<HTMLElement>(null);
+  const previousValue = useRef(value);
 
   useEffect(() => {
-    const renderMode = rootRef.current
-      ?.closest<HTMLElement>("[data-drever-render-mode]")
-      ?.getAttribute("data-drever-render-mode");
-    if (renderMode !== "audience" || reducedMotion === true) {
+    const node = nodeRef.current;
+    const from = previousValue.current;
+    previousValue.current = value;
+
+    if (!node || !animate || from === value) {
+      if (node) {
+        node.textContent = `${value}%`;
+      }
       return;
     }
 
+    let animationFrame = 0;
+    let startedAt: number | undefined;
+
+    const update = (now: number) => {
+      startedAt ??= now;
+      const progress = Math.min((now - startedAt) / 680, 1);
+      const eased = 1 - (1 - progress) ** 3;
+      node.textContent = `${Math.round(from + (value - from) * eased)}%`;
+
+      if (progress < 1) {
+        animationFrame = window.requestAnimationFrame(update);
+      }
+    };
+
+    animationFrame = window.requestAnimationFrame(update);
+    return () => window.cancelAnimationFrame(animationFrame);
+  }, [animate, value]);
+
+  return <strong ref={nodeRef}>{value}%</strong>;
+}
+
+/** A deterministic live metric animated by Motion for React. */
+export function MotionEvidence(): ReactElement {
+  const renderMode = useDreverRenderMode();
+  const reducedMotion = useReducedMotion();
+  const isLive = renderMode === "audience" && reducedMotion !== true;
+  const [frameIndex, setFrameIndex] = useState(isLive ? 0 : FINAL_METRIC_INDEX);
+
+  useEffect(() => {
+    if (!isLive) {
+      setFrameIndex(FINAL_METRIC_INDEX);
+      return;
+    }
+
+    const firstFrame = window.requestAnimationFrame(() => {
+      setFrameIndex((current) => (current + 1) % METRIC_FRAMES.length);
+    });
     const interval = window.setInterval(() => {
       setFrameIndex((current) => (current + 1) % METRIC_FRAMES.length);
-    }, 1_350);
+    }, 1_650);
 
-    return () => window.clearInterval(interval);
-  }, [reducedMotion]);
+    return () => {
+      window.cancelAnimationFrame(firstFrame);
+      window.clearInterval(interval);
+    };
+  }, [isLive]);
 
   const frame = METRIC_FRAMES[frameIndex] ?? FINAL_METRIC;
 
@@ -159,19 +238,11 @@ export function MotionEvidence(): ReactElement {
     <section
       aria-label="A simulated live setup-completion metric varies from 42 to 96 percent"
       className="motion-evidence"
-      ref={rootRef}
     >
       <div aria-hidden="true" className="motion-evidence__metric">
         <header>
           <span className="motion-kicker">Setup completion</span>
-          <motion.strong
-            animate={{ opacity: 1, y: 0 }}
-            initial={false}
-            key={frame.metric}
-            transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
-          >
-            {frame.metric}%
-          </motion.strong>
+          <AnimatedMetric animate={isLive} value={frame.metric} />
           <p>{frame.label}</p>
         </header>
         <div className="motion-evidence__bars">
@@ -265,29 +336,33 @@ export function AccessibleEndpoint(): ReactElement {
           <span>Live route</span>
           <small>Motion clarifies the path.</small>
         </header>
-        <ol>
-          {ENDPOINT_STAGES.map((stage) => (
-            <li key={stage.label}>
-              <span>{stage.label}</span>
-              <strong>{stage.value}</strong>
-            </li>
-          ))}
-        </ol>
-        <i aria-hidden="true" className="accessible-endpoint__focus" />
+        <div className="accessible-endpoint__route">
+          <ol>
+            {ENDPOINT_STAGES.map((stage) => (
+              <li key={stage.label}>
+                <span>{stage.label}</span>
+                <strong>{stage.value}</strong>
+              </li>
+            ))}
+          </ol>
+          <i aria-hidden="true" className="accessible-endpoint__focus motion-cursor" />
+        </div>
       </article>
       <article data-mode="static">
         <header>
           <span>Document / PDF</span>
           <small>The complete path remains readable.</small>
         </header>
-        <ol>
-          {ENDPOINT_STAGES.map((stage) => (
-            <li key={stage.label}>
-              <span>{stage.label}</span>
-              <strong>{stage.value}</strong>
-            </li>
-          ))}
-        </ol>
+        <div className="accessible-endpoint__route">
+          <ol>
+            {ENDPOINT_STAGES.map((stage) => (
+              <li key={stage.label}>
+                <span>{stage.label}</span>
+                <strong>{stage.value}</strong>
+              </li>
+            ))}
+          </ol>
+        </div>
       </article>
       <div className="accessible-endpoint__same">
         <span aria-hidden="true">=</span>

@@ -1,6 +1,7 @@
 import {
   AccessibleEndpoint,
   BrowserFrame,
+  BrowserStoryHeadline,
   CapabilityPipeline,
   EvidenceReveal,
   MotionEvidence,
@@ -34,7 +35,7 @@ import "./motion.css";
 <div aria-label="A screenshot cannot show the moment of change" className="browser-story browser-story--anticipate">
   <header className="browser-story__copy">
     <span className="motion-kicker">01 · Anticipation</span>
-    <h2>A screenshot shows the interface.</h2>
+    <BrowserStoryHeadline phase="before" />
     <p>It cannot show the moment the product changes someone’s mind.</p>
   </header>
 
@@ -58,7 +59,7 @@ import "./motion.css";
 <div aria-label="Bring the evidence into the room" className="browser-story browser-story--arrive">
   <header className="browser-story__copy">
     <span className="motion-kicker">02 · Introduction</span>
-    <h2>Now bring the change into the room.</h2>
+    <BrowserStoryHeadline phase="after" />
     <p>The same object rises because the story has moved from a claim to its evidence.</p>
   </header>
 
@@ -73,8 +74,8 @@ import "./motion.css";
 </div>
 
 <Note>
-  The browser rises from below instead of reappearing. Its geometry stays fixed, so the movement
-  reads as one object receiving a new narrative job.
+  The browser rises from below instead of reappearing. The stable headline swaps only the subject
+  and outcome, so both words and object receive a clear new narrative job.
 </Note>
 
 ---
