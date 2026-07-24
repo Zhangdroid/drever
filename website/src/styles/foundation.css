@@ -589,27 +589,31 @@ main[tabindex="-1"]:focus {
 }
 
 .copy-button__text {
-  display: inline-block;
-  height: 1em;
-  overflow: hidden;
+  display: inline-grid;
   line-height: 1;
 }
 
 .copy-button__text-track {
   display: grid;
-  transition: transform 260ms var(--drever-brand-motion-easing-emphasized);
 }
 
 .copy-button__text-track > span {
   display: flex;
-  height: 1em;
+  visibility: hidden;
+  grid-area: 1 / 1;
   align-items: center;
   white-space: nowrap;
 }
 
-[data-copy-state="copied"] .copy-button__text-track,
-[data-copy-state="failed"] .copy-button__text-track {
-  transform: translateY(-1em);
+.copy-button__text-track > span:first-child,
+[data-copy-state="copied"] .copy-button__text-track > span:last-child,
+[data-copy-state="failed"] .copy-button__text-track > span:last-child {
+  visibility: visible;
+}
+
+[data-copy-state="copied"] .copy-button__text-track > span:first-child,
+[data-copy-state="failed"] .copy-button__text-track > span:first-child {
+  visibility: hidden;
 }
 
 .copy-button__announcement {

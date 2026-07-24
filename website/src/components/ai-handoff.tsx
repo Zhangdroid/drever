@@ -17,7 +17,7 @@ export function CopyAIHandoff({ brief = "", className }: { brief?: string; class
     <CopyButton
       className={className}
       copiedText="Prompt copied"
-      idleText="Copy AI prompt"
+      idleText="Copy prompt"
       label="for Codex or Claude Code"
       value={handoffFor(brief)}
     />
@@ -59,7 +59,7 @@ export function AIHandoff({
           <a href="/prompt.md">Read prompt.md</a>
           <CopyButton
             copiedText="Prompt copied"
-            idleText="Copy AI prompt"
+            idleText="Copy prompt"
             label="for this presentation"
             value={handoff}
           />
