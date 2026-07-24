@@ -69,7 +69,7 @@ export async function configureTrustedPublishing({
   packageNames,
   run,
   sleep = wait,
-  delay = 2_000,
+  delay = 250,
   verifyOnly = false,
   output = process.stdout,
 }) {

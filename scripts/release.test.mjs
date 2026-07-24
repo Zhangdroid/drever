@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { afterEach, test } from "node:test";
 import { promisify } from "node:util";
 import {
+  assertRegistryPackagesExist,
   assertDistTag,
   cleanReleaseOutputs,
   commitVersion,
@@ -192,6 +193,32 @@ test("rejects release receipt tarballs outside the audited directory", async () 
     publishRelease({ dryRun: true, receiptPath, tag: "commit" }),
     /escapes its artifact directory/u,
   );
+});
+
+test("checks every npm package before a lockstep release publishes anything", async () => {
+  const inspected = [];
+  await assert.rejects(
+    assertRegistryPackagesExist(
+      "/tmp/release-preflight",
+      [
+        { name: "@drever/core" },
+        { name: "@drever/plugin-new" },
+        { name: "@drever/theme-new" },
+        { name: "drever" },
+      ],
+      async (cwd, name) => {
+        inspected.push([cwd, name]);
+        return name.endsWith("-new") ? undefined : name;
+      },
+    ),
+    /packages that do not exist on npm: @drever\/plugin-new, @drever\/theme-new/u,
+  );
+  assert.deepEqual(inspected, [
+    ["/tmp/release-preflight", "@drever/core"],
+    ["/tmp/release-preflight", "@drever/plugin-new"],
+    ["/tmp/release-preflight", "@drever/theme-new"],
+    ["/tmp/release-preflight", "drever"],
+  ]);
 });
 
 test("updates every lockstep and mirrored runtime version", async () => {

@@ -1,9 +1,11 @@
-import { execFile } from "node:child_process";
+import { execFile, spawn } from "node:child_process";
+import { createServer } from "node:net";
 import { mkdir, mkdtemp, readFile, readdir, realpath, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { chromium } from "@playwright/test";
 
 const execute = promisify(execFile);
 const root = fileURLToPath(new URL("../", import.meta.url));
@@ -21,6 +23,99 @@ const run = (command, arguments_, cwd, timeout = 120_000) =>
     maxBuffer: 10 * 1024 * 1024,
     timeout,
   });
+
+const availablePort = () =>
+  new Promise((resolvePromise, rejectPromise) => {
+    const server = createServer();
+    server.once("error", rejectPromise);
+    server.listen(0, "127.0.0.1", () => {
+      const address = server.address();
+      if (typeof address !== "object" || address === null) {
+        server.close();
+        rejectPromise(new TypeError("Could not allocate a local port for the packed dev server."));
+        return;
+      }
+      server.close((error) => {
+        if (error === undefined) resolvePromise(address.port);
+        else rejectPromise(error);
+      });
+    });
+  });
+
+const startDevServer = (cli, cwd) =>
+  new Promise((resolvePromise, rejectPromise) => {
+    const child = spawn(process.execPath, [cli, "dev"], {
+      cwd,
+      env: { ...process.env, CI: "true", FORCE_COLOR: "0" },
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    let output = "";
+    const timeout = setTimeout(() => {
+      child.kill();
+      rejectPromise(new Error(`The packed dev server did not start.\n${output}`));
+    }, 30_000);
+    const inspect = (chunk) => {
+      output += chunk;
+      const match = output.match(/Local:\s+(https?:\/\/[^\s]+)/u);
+      if (match === null) return;
+      clearTimeout(timeout);
+      resolvePromise({ child, url: match[1] });
+    };
+    child.stdout.on("data", inspect);
+    child.stderr.on("data", inspect);
+    child.once("error", (error) => {
+      clearTimeout(timeout);
+      rejectPromise(error);
+    });
+    child.once("exit", (code, signal) => {
+      clearTimeout(timeout);
+      rejectPromise(
+        new Error(
+          `The packed dev server exited with ${signal === null ? `code ${code}` : signal}.\n${output}`,
+        ),
+      );
+    });
+  });
+
+const stopDevServer = async (child) => {
+  if (child.exitCode !== null || child.signalCode !== null) return;
+  const exited = new Promise((resolvePromise) => child.once("exit", resolvePromise));
+  child.kill();
+  await Promise.race([exited, new Promise((resolvePromise) => setTimeout(resolvePromise, 5_000))]);
+  if (child.exitCode === null && child.signalCode === null) {
+    child.kill("SIGKILL");
+    await exited;
+  }
+};
+
+const verifyDevRuntime = async (cli, root) => {
+  const port = await availablePort();
+  await writeFile(
+    join(root, "drever.config.ts"),
+    `export default { server: { host: "127.0.0.1", port: ${port}, strictPort: true } };\n`,
+  );
+  const server = await startDevServer(cli, root);
+  let browser;
+  try {
+    browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage();
+    const failures = [];
+    page.on("console", (message) => {
+      if (message.type() === "error") failures.push(`console: ${message.text()}`);
+    });
+    page.on("pageerror", (error) => failures.push(`pageerror: ${error.stack ?? error.message}`));
+    await page.goto(server.url, { waitUntil: "networkidle" });
+    await page.locator("[data-drever-ready]").waitFor();
+    await page.reload({ waitUntil: "networkidle" });
+    await page.locator("[data-drever-ready]").waitFor();
+    if (failures.length > 0) {
+      throw new Error(`The packed dev runtime reported browser failures:\n${failures.join("\n")}`);
+    }
+  } finally {
+    await browser?.close();
+    await stopDevServer(server.child);
+  }
+};
 
 const readJson = async (path) => JSON.parse(await readFile(path, "utf8"));
 const listTreeFiles = async (directory, current = directory) => {
@@ -181,9 +276,10 @@ try {
     throw new Error("The packed Drever CLI returned an invalid build receipt.");
   }
   await stat(join(deckRoot, "dist", "index.html"));
+  await verifyDevRuntime(dreverCli, deckRoot);
 
   process.stdout.write(
-    `Verified packed create, check, and build flows across ${publicPackages.length} packages.\n`,
+    `Verified packed create, check, build, and dev flows across ${publicPackages.length} packages.\n`,
   );
 } finally {
   await rm(temporaryRoot, { force: true, recursive: true });

@@ -63,6 +63,26 @@ describe("deck accessibility preflight", () => {
     ]);
   });
 
+  it("accepts a static native heading passed to a layout slot", () => {
+    const report = preflightDeck(
+      `<TwoColumn
+  primary={<><h2>Decision evidence</h2><p>What changed</p></>}
+  secondary={<Chart />}
+/>
+
+---
+
+<section>
+  <h2>Native <strong>JSX</strong> title</h2>
+  <p>Visible context</p>
+</section>`,
+      { path: "layout-title.mdx" },
+    );
+
+    expect(report.summary).toEqual({ errors: 0, warnings: 0, info: 0 });
+    expect(report.diagnostics).toEqual([]);
+  });
+
   it("normalizes case and whitespace before reporting a duplicate title", () => {
     const source = "# Repeat   Me\n\n---\n\n# repeat me";
     const report = preflightDeck(source, { path: "duplicates.mdx" });

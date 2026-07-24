@@ -400,6 +400,40 @@ const registryIntegrity = async (cwd, name, version) => {
   }
 };
 
+const registryPackageName = async (cwd, name) => {
+  const environment = {
+    ...process.env,
+    FORCE_COLOR: "0",
+    npm_config_cache: join(cwd, "npm-cache"),
+  };
+  try {
+    const { stdout } = await execute(
+      "npm",
+      ["view", name, "name", "--json", "--registry=https://registry.npmjs.org"],
+      { cwd, env: environment },
+    );
+    return JSON.parse(stdout);
+  } catch (error) {
+    if (error instanceof Error && "stderr" in error && String(error.stderr).includes("E404")) {
+      return undefined;
+    }
+    throw error;
+  }
+};
+
+export async function assertRegistryPackagesExist(cwd, packages, lookup = registryPackageName) {
+  const missing = [];
+  for (const { name } of packages) {
+    if ((await lookup(cwd, name)) === undefined) missing.push(name);
+  }
+  if (missing.length > 0) {
+    throw new Error(
+      `Release preflight found packages that do not exist on npm: ${missing.join(", ")}. ` +
+        "Bootstrap every new package and configure its Trusted Publisher before retrying.",
+    );
+  }
+}
+
 const registryTagVersion = async (cwd, name, tag) => {
   const environment = {
     ...process.env,
@@ -505,6 +539,8 @@ export async function publishRelease({ dryRun = false, receiptPath, tag }) {
     npm_config_cache: join(cwd, "npm-cache"),
   };
   try {
+    await assertRegistryPackagesExist(cwd, receipt.packages);
+
     if (dryRun) {
       for (const value of receipt.packages) {
         await execute(

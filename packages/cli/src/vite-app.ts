@@ -32,6 +32,17 @@ const workspaceFallbacks = Object.freeze({
   "react-dom/client": "../../client/node_modules/react-dom/client.js",
 }) satisfies Readonly<Record<string, string>>;
 
+const optimizedFrameworkDependencies = Object.freeze([
+  "@drever/client",
+  "@drever/core",
+  "@drever/designs/default/layouts",
+  "react",
+  "react/jsx-dev-runtime",
+  "react/jsx-runtime",
+  "react-dom",
+  "react-dom/client",
+]);
+
 const packageFile = (specifier: keyof typeof workspaceFallbacks): string => {
   let resolutionError: unknown;
   try {
@@ -72,6 +83,21 @@ const frameworkAliases = (): readonly Alias[] => [
   { find: /^react-dom\/client$/u, replacement: packageFile("react-dom/client") },
 ];
 
+/**
+ * @internal Vite cannot see MDX and virtual-module imports during its initial
+ * scan. Eager optimization keeps their first browser load on one React graph.
+ */
+export const resolveFrameworkViteConfig = (): Readonly<{
+  aliases: readonly Alias[];
+  dedupe: readonly string[];
+  optimize: readonly string[];
+}> =>
+  Object.freeze({
+    aliases: frameworkAliases(),
+    dedupe: Object.freeze(["react", "react-dom"]),
+    optimize: optimizedFrameworkDependencies,
+  });
+
 const projectModuleResolver = (root: string): Plugin => {
   const importer = join(root, ".drever", "runtime-entry.js");
   return {
@@ -109,12 +135,14 @@ const inlineConfig = (
   appRoot: string,
   plugins: readonly Plugin[] = [],
 ): InlineConfig => {
-  const aliases = [...frameworkAliases()];
+  const framework = resolveFrameworkViteConfig();
+  const aliases = [...framework.aliases];
   return {
     appType: "spa",
     configFile: false,
+    optimizeDeps: { include: [...framework.optimize] },
     plugins: [projectModuleResolver(project.root), ...plugins, ...project.plugins],
-    resolve: { alias: aliases },
+    resolve: { alias: aliases, dedupe: [...framework.dedupe] },
     root: appRoot,
     server: {
       fs: {

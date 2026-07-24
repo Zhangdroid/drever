@@ -99,6 +99,10 @@ describe("remarkDreverDeckManifest", () => {
 
 ---
 
+<TwoColumn primary={<><h2>  Nested   layout title </h2><p>Detail</p></>} secondary={<h2>Answer</h2>} />
+
+---
+
 <TwoColumn primary="A" secondary="B" />`);
 
     expect(manifest.slides.map((slide) => slide.title)).toEqual([
@@ -106,10 +110,27 @@ describe("remarkDreverDeckManifest", () => {
       undefined,
       "Layout title",
       "Accessible feature",
+      "Nested layout title",
       undefined,
     ]);
     expect(Object.hasOwn(manifest.slides[1] as object, "title")).toBe(false);
-    expect(Object.hasOwn(manifest.slides[4] as object, "title")).toBe(false);
+    expect(Object.hasOwn(manifest.slides[5] as object, "title")).toBe(false);
+  });
+
+  it("does not mistake dynamic JSX layout headings for static titles", async () => {
+    const manifest = await captureManifest(
+      `<TwoColumn primary={<h2>Hello {audience}</h2>} secondary={<p>Context</p>} />
+
+---
+
+<TwoColumn
+  aria-label="Stable comparison"
+  primary={<h2>{\`Before \${state}\`}</h2>}
+  secondary={<h2>After</h2>}
+/>`,
+    );
+
+    expect(manifest.slides.map((slide) => slide.title)).toEqual([undefined, "Stable comparison"]);
   });
 
   it("uses the first top-level JSX element and only static semantic props", async () => {

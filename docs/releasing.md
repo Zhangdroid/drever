@@ -1,6 +1,6 @@
 # Releasing Drever
 
-Drever publishes 14 public packages with one lockstep version. In particular,
+Drever publishes its public packages with one lockstep version. In particular,
 `drever`, `create-drever`, and `@drever/agent` must always share the same
 version so project creation, the runtime, and agent workflows remain
 compatible.
@@ -46,15 +46,17 @@ missing package dependencies and native bindings.
 ## Automated publishing
 
 [`.github/workflows/publish.yml`](../.github/workflows/publish.yml) is the only
-npm publishing identity. Run it manually from `main`, choose `commit`, `next`,
-or `latest`, and provide a version only for a named release. Publications are
-queued rather than replaced and run as three jobs:
+recurring lockstep publishing identity. Run it manually from `main`, choose
+`commit`, `next`, or `latest`, and provide a version only for a named release.
+Publications are queued rather than replaced and run as three jobs:
 
-1. an unprivileged audit job installs, tests, versions, packs, dry-runs, and
-   uploads the release artifact with `contents: read` only;
+1. an unprivileged audit job installs, tests, versions, packs, retains the
+   release artifact, checks the registry package set, and dry-runs publication
+   with `contents: read` only;
 2. a minimal publish job downloads that exact artifact, receives
-   `id-token: write` through the `npm` environment, publishes it, and verifies
-   a clean registry consumer;
+   `id-token: write` through the `npm` environment, verifies that every public
+   package name has already been bootstrapped, publishes it, and verifies a
+   clean registry consumer;
 3. an isolated record job receives `contents: write` only after publication
    succeeds and creates the matching GitHub Release with the audited receipt.
 
@@ -84,6 +86,17 @@ reproduces the same bytes. An existing package version is skipped only when the
 registry integrity matches the audited tarball. `drever` and `create-drever`
 are published after their dependencies.
 
+Before publishing the first tarball, the publish command checks every package
+name against the public registry. This prevents a newly added, unbootstrapped
+package from leaving a lockstep release half-published. npm OIDC credentials
+authorize only publication and cannot inspect Trusted Publisher settings, so
+run the authenticated trust audit below after changing the public package set
+and before dispatching the release:
+
+```sh
+node scripts/configure-trusted-publishing.mjs --verify-only
+```
+
 After publishing, a clean npm consumer installs the exact public versions,
 creates a deck, checks it, builds it, and verifies the packaged Codex and
 Claude plugin versions.
@@ -105,23 +118,24 @@ Create every new package name with one temporary-token commit release,
 configure and verify its Trusted Publisher, remove the token, and only then
 dispatch a named `next` or `latest` release. Do not start a lockstep named
 release while one package is still absent from npm: multi-package publication
-is retryable, but it is not transactional.
+is retryable, but it is not transactional. The publish preflight deliberately
+rejects a missing package name before uploading any tarball.
 
 1. Enable 2FA on the npm maintainer account.
-2. Create a GitHub environment named `npm`. A private bootstrap may use the
-   environment without protection and a repository-level secret. Before the
-   first stable release, make the repository public and add a required reviewer,
+2. Create a GitHub environment named `npm`. A private repository can publish
+   through Trusted Publishing, but npm provenance is available only after the
+   repository is public. When the repository is public, add a required reviewer,
    a `main` deployment branch rule, a separate `v*` deployment tag rule, and a
    GitHub tag ruleset for `v*`.
-3. Create a short-lived granular npm access token for the one-time bootstrap.
-   Select **Packages and scopes: Read and write**, **All Packages**, and
-   **Bypass 2FA**. `All Packages` may be temporarily necessary because npm
-   cannot grant package-specific access to a name that does not exist yet.
-   Store it as an `npm` environment secret named `NPM_TOKEN`. Never commit the
-   token.
-4. Temporarily add `NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}` to the publish
-   step, then run the `Publish npm release` workflow manually on `main`. It publishes a
-   `0.0.0-commit.g<sha>` test release under the `commit` dist-tag.
+3. Dispatch a `commit` release. The audit job packs and retains the complete
+   release artifact, then deliberately stops at the registry preflight and
+   names every package that still needs bootstrapping.
+4. Download the retained artifact, verify its `release.json`, and publish only
+   the named missing tarballs with `--access public` and the `commit` tag from a
+   neutral temporary directory. Prefer an interactive npm login with 2FA. If a
+   short-lived bootstrap token is unavoidable, keep it local and never add it
+   to the workflow, repository, or GitHub secrets. npm cannot grant
+   package-specific access to a name that does not exist yet.
 5. Configure every package to trust `Zhangdroid/drever`, workflow
    `publish.yml`, environment `npm`, with `npm publish` permission. A granular
    access token, including one with Bypass 2FA, cannot access npm's trust
@@ -140,24 +154,21 @@ is retryable, but it is not transactional.
    ```
 
    The first trust request opens npm's 2FA flow. Select the option to skip
-   additional 2FA checks for five minutes; the script spaces requests by two
-   seconds as npm recommends. It first inspects all 14 packages, skips exact
-   matches, refuses to replace a conflicting policy, creates missing policies,
-   and then reads all policies back from npm. A partial network failure is safe
-   to resume by running the same command again. To perform a read-only audit,
-   pass `--verify-only`.
+   additional 2FA checks for five minutes. The script paces requests within
+   that verification window, first inspects the complete package set, skips
+   exact matches, refuses to replace a conflicting policy, creates missing
+   policies, and then reads all policies back from npm. A partial network
+   failure is safe to resume by running the same command again. To perform a
+   read-only audit, pass `--verify-only`.
 
-6. Remove `NODE_AUTH_TOKEN` from the workflow, delete the GitHub `NPM_TOKEN`
-   secret, and revoke the token immediately. The committed workflow must use
-   only OIDC.
+6. Revoke the bootstrap token immediately when one was used.
 7. Set each package's publishing access to **Require two-factor authentication
    and disallow tokens**.
-8. Push or merge a new commit to `main` and dispatch that new SHA as a second
-   commit test. Confirm that it publishes through OIDC without `NPM_TOKEN`. If
-   the repository is public, also confirm that npm shows provenance from the
-   GitHub workflow. Do not rerun the first SHA: it has the same immutable
-   version and would only verify and skip existing packages without exercising
-   OIDC publication.
+8. Rerun the failed workflow jobs. The audit reproduces the same artifact, the
+   registry preflight now passes, and the publish job verifies and skips the
+   bootstrapped tarballs before publishing the remaining package set through
+   OIDC. If the repository is public, confirm that npm shows provenance from
+   the GitHub workflow.
 
 Trusted Publishing requires the repository URL in each package manifest to
 match the GitHub repository. The workflow filename and environment name are

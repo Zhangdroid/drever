@@ -11,6 +11,13 @@ import {
 } from "./create-project.ts";
 
 const directories: string[] = [];
+const agentSkills = [
+  "drever-author-deck",
+  "drever-create-deck",
+  "drever-create-design",
+  "drever-review-deck",
+  "drever-deliver-deck",
+] as const;
 
 const temporaryDirectory = async (): Promise<string> => {
   const directory = await mkdtemp(join(tmpdir(), "drever-create-test-"));
@@ -90,6 +97,7 @@ describe("project creation", () => {
     const result = await createDreverProject({
       agent: "all",
       dreverVersion: "1.2.3",
+      environment: {},
       install: false,
       root,
     });
@@ -123,18 +131,14 @@ describe("project creation", () => {
       "What will you make clear?",
     );
     await expect(readFile(join(root, ".gitignore"), "utf8")).resolves.toContain("node_modules");
-    await expect(
-      readFile(join(root, ".agents/skills/drever-deliver-deck/SKILL.md"), "utf8"),
-    ).resolves.toContain("name: drever-deliver-deck");
-    await expect(
-      readFile(join(root, ".agents/skills/drever-create-design/SKILL.md"), "utf8"),
-    ).resolves.toContain("name: drever-create-design");
-    await expect(
-      readFile(join(root, ".claude/skills/drever-deliver-deck/SKILL.md"), "utf8"),
-    ).resolves.toContain("name: drever-deliver-deck");
-    await expect(
-      readFile(join(root, ".claude/skills/drever-create-design/SKILL.md"), "utf8"),
-    ).resolves.toContain("name: drever-create-design");
+    for (const skill of agentSkills) {
+      await expect(
+        readFile(join(root, `.agents/skills/${skill}/SKILL.md`), "utf8"),
+      ).resolves.toContain(`name: ${skill}`);
+      await expect(
+        readFile(join(root, `.claude/skills/${skill}/SKILL.md`), "utf8"),
+      ).resolves.toContain(`name: ${skill}`);
+    }
   });
 
   it("reports all project-file conflicts before installing agent files", async () => {

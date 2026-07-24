@@ -31,8 +31,9 @@ const manifest: DeckManifest = {
 compile-time readable projection for lightweight speaker interfaces. Both are
 immutable serializable data; they never contain React nodes or compiler ASTs.
 `title` is optional additive metadata inferred from the first static Markdown
-heading, or from the first top-level MDX element's static `aria-label`, `title`,
-`heading`, or `label` prop when the slide has no usable heading.
+heading, a static native `h1`–`h6` passed to a layout slot, or the first
+top-level MDX element's static `aria-label`, `title`, `heading`, or `label` prop
+when the slide has no usable heading.
 
 The package includes Deck IR, compile-plan, manifest, extension, diagnostic,
 source-location, and JSON-safe value contracts. Contracts are versioned so

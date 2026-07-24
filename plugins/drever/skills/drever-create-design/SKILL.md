@@ -11,7 +11,7 @@ Treat a Drever Theme as a deterministic internal contract, not the primary user 
 
 ## Start with a design brief
 
-1. Read the complete brief, deck, `drever.config.ts`, existing assets, local components, Stage modules, and current design files. Use `drever_get_context` when available; otherwise run the project-local `drever context --json`.
+1. Read the complete brief, deck, existing assets, local components, current design files, and `drever.config.ts` plus Stage modules when they exist. Use `drever_get_context` when available; otherwise run the project-local `drever context --json`.
 2. Derive and record:
    - subject, central claim, source material, and dominant content types;
    - audience, desired action, familiarity, and accessibility needs;
@@ -74,7 +74,7 @@ Implement `theme.ts` with `defineTheme`, `baseURL: import.meta.url`, a stable lo
 - an art-direction manifest with principles and explicit anti-patterns;
 - motion guidance that describes the visual voice and content relationships.
 
-Use local components for recurring presentation semantics, not one-off decoration. Use Stage only for persistent canvas layers. Import the generated theme and Stage modules from `drever.config.ts` once. If a generated design already exists, revise it in place and preserve intentional authored changes; never silently replace it.
+Use local components for recurring presentation semantics, not one-off decoration. Use Stage only for persistent canvas layers. Create or update `drever.config.ts` when the design needs a generated theme or Stage modules, and import each module there once. If a generated design already exists, revise it in place and preserve intentional authored changes; never silently replace it.
 
 Keep backgrounds subordinate to the current claim. They should normally recede behind content and become prominent only when the background itself is evidence or the meaningful scene. Reduce background contrast, texture, and movement before compromising foreground legibility.
 

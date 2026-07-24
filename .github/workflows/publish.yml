@@ -82,11 +82,6 @@ jobs:
       - name: Pack the release
         run: node scripts/release.mjs pack "$RUNNER_TEMP/drever-release"
 
-      - name: Verify npm publication locally
-        env:
-          RELEASE_TAG: ${{ steps.release.outputs.tag }}
-        run: node scripts/release.mjs publish "$RUNNER_TEMP/drever-release/release.json" "$RELEASE_TAG" --dry-run
-
       - name: Retain the audited tarballs
         id: upload
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -94,6 +89,11 @@ jobs:
           name: drever-${{ steps.release.outputs.version }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/drever-release
           retention-days: 30
+
+      - name: Verify npm publication locally
+        env:
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+        run: node scripts/release.mjs publish "$RUNNER_TEMP/drever-release/release.json" "$RELEASE_TAG" --dry-run
 
   publish:
     name: Publish to npm

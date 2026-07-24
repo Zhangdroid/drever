@@ -9,7 +9,7 @@ description: Deliver a Drever presentation as a verified website or PDF. Use whe
 
 Translate the requested outcome into Drever's deterministic checks, build, and export commands. Do not make the user choose internal commands when their desired artifact is clear.
 
-1. Run `drever doctor --json`, then inspect `drever.config.ts`, `package.json`, and the configured MDX entry. Treat missing project-local installation or Chromium as actionable environment warnings; do not change the environment unless the requested deliverable needs it. Use `drever_get_context` and `drever_check` when the read-only Drever MCP is connected; otherwise run `drever context --json` and `drever check --json`.
+1. Run `drever doctor --json`, then inspect `package.json`, the configured MDX entry, and `drever.config.ts` when present. Treat missing project-local installation or Chromium as actionable environment warnings; do not change the environment unless the requested deliverable needs it. Use `drever_get_context` and `drever_check` when the read-only Drever MCP is connected; otherwise run `drever context --json` and `drever check --json`.
 2. Fix proven source errors only when the user asked for a finished deliverable. Preserve unrelated work and never edit generated files in `dist/` or `.drever/`.
 3. Run `drever check --json` and inspect its report even when it exits nonzero. Do not deliver while errors remain.
 4. Run `drever build --json` for a website deliverable or before final browser inspection. Use the returned artifact receipt rather than guessing the output path. Verify the built entry, exact slide routes, assets, reload behavior, and `/document`.

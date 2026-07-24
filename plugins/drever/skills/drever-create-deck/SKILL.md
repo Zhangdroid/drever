@@ -9,11 +9,11 @@ description: Create a new Drever presentation from a brief, outline, source docu
 
 Start from the current workspace:
 
-1. Detect whether it is already a Drever project by inspecting `package.json`, `drever.config.ts`, and the configured MDX entry.
+1. Detect whether it is already a Drever project by inspecting `package.json`, the configured MDX entry, and `drever.config.ts` when that optional file exists.
    - In an existing project, read its `AGENTS.md` or `CLAUDE.md` and project-local Drever skills. Use the installed project-local `drever` binary; never substitute `drever@latest`.
    - In an empty or missing target directory, run `npm create drever@latest [directory]`. The default scaffold installs dependencies and both project agent adapters. Preserve those defaults unless the user requested a specific package manager, agent, or no installation.
    - Never scaffold over a non-empty, non-Drever directory. Use a new directory when the intended target is clear; ask only when that choice materially changes the result.
-2. After scaffolding, work from the new project root and follow its project-local Drever skills. Inspect `package.json`, `drever.config.ts`, `brief.md`, existing assets, local components, and the configured entry. When a deck already exists, use `drever_get_context` if the read-only Drever MCP is connected; otherwise run the project-local `drever context --json`.
+2. After scaffolding, work from the new project root and follow its project-local Drever skills. Inspect `package.json`, `brief.md`, existing assets, local components, the configured entry, and `drever.config.ts` when present. When a deck already exists, use `drever_get_context` if the read-only Drever MCP is connected; otherwise run the project-local `drever context --json`.
 3. Derive the audience, purpose, duration, tone, and desired action from the brief. State material assumptions instead of inventing facts.
 4. Plan one dominant idea per slide: establish context, develop the argument, show evidence, and close with a clear conclusion.
 5. Use the project-local `drever-create-design` skill when the brief calls for a custom visual system or material redesign. Otherwise derive a restrained direction from the brief and use an official design study as a documented fallback.

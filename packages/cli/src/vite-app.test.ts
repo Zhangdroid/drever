@@ -1,10 +1,34 @@
 import { describe, expect, it, vi } from "vite-plus/test";
 import {
   attachPrivateAppLifetime,
+  resolveFrameworkViteConfig,
   resolvePrivateAppOptions,
   resolveServerFsAllow,
   resolveSpeakerUrls,
 } from "./vite-app.ts";
+
+describe("resolveFrameworkViteConfig", () => {
+  it("eagerly optimizes Drever and keeps every React import on one module identity", () => {
+    const config = resolveFrameworkViteConfig();
+
+    expect(config.dedupe).toEqual(["react", "react-dom"]);
+    expect(config.optimize).toEqual([
+      "@drever/client",
+      "@drever/core",
+      "@drever/designs/default/layouts",
+      "react",
+      "react/jsx-dev-runtime",
+      "react/jsx-runtime",
+      "react-dom",
+      "react-dom/client",
+    ]);
+    expect(
+      config.aliases
+        .filter(({ find }) => find instanceof RegExp && find.test("react"))
+        .map(({ replacement }) => replacement),
+    ).toHaveLength(1);
+  });
+});
 
 describe("resolveServerFsAllow", () => {
   it("allows assets from the authored workspace and resolved framework packages", () => {
