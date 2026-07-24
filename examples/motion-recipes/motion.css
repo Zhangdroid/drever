@@ -1222,17 +1222,30 @@
   align-items: center;
 }
 
-.subject-scene__field {
+.subject-network {
+  --network-drift-x: 3.6%;
+  --network-drift-y: -2.4%;
   position: absolute;
   inset: -82px -108px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.subject-network__topology,
+.subject-network__signals {
+  position: absolute;
+  inset: 0;
+}
+
+.subject-network__topology {
   overflow: hidden;
   background:
     radial-gradient(circle at 17% 42%, var(--motion-signal-soft) 0 7%, transparent 28%),
     radial-gradient(circle at 76% 63%, var(--motion-continuity-soft) 0 10%, transparent 31%);
 }
 
-.subject-scene__field::before,
-.subject-scene__field::after {
+.subject-network__topology::before,
+.subject-network__topology::after {
   position: absolute;
   inset: 12% -15%;
   border: 1px solid color-mix(in srgb, var(--motion-continuity), transparent 76%);
@@ -1241,13 +1254,13 @@
   rotate: -9deg;
 }
 
-.subject-scene__field::after {
+.subject-network__topology::after {
   inset: 24% -8% 2%;
   border-color: color-mix(in srgb, var(--motion-signal), transparent 72%);
   rotate: 12deg;
 }
 
-.subject-scene__field > i {
+.subject-network__topology > i {
   position: absolute;
   width: 12px;
   height: 12px;
@@ -1259,37 +1272,37 @@
   opacity: 0.24;
 }
 
-.subject-scene__field > i:nth-child(1) {
+.subject-network__topology > i:nth-child(1) {
   top: 24%;
   left: 14%;
 }
 
-.subject-scene__field > i:nth-child(2) {
+.subject-network__topology > i:nth-child(2) {
   top: 42%;
   left: 37%;
 }
 
-.subject-scene__field > i:nth-child(3) {
+.subject-network__topology > i:nth-child(3) {
   top: 22%;
   left: 61%;
 }
 
-.subject-scene__field > i:nth-child(4) {
+.subject-network__topology > i:nth-child(4) {
   top: 66%;
   left: 72%;
 }
 
-.subject-scene__field > i:nth-child(5) {
+.subject-network__topology > i:nth-child(5) {
   top: 72%;
   left: 26%;
 }
 
-.subject-scene__field > i:nth-child(6) {
+.subject-network__topology > i:nth-child(6) {
   top: 44%;
   left: 88%;
 }
 
-.subject-scene__field > b {
+.subject-network__signals > b {
   position: absolute;
   width: 13px;
   height: 13px;
@@ -1298,65 +1311,132 @@
   z-index: 2;
   background: var(--motion-signal);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--motion-signal), transparent 60%);
+  opacity: 0;
   offset-rotate: 0deg;
 }
 
-.subject-scene__field > b[data-signal="one"] {
+.subject-network__signals > b[data-signal="one"] {
   offset-path: path("M 180 178 C 310 92 418 324 480 302 C 620 250 688 108 792 164");
 }
 
-.subject-scene__field > b[data-signal="two"] {
+.subject-network__signals > b[data-signal="two"] {
   offset-path: path("M 338 518 C 512 456 620 506 788 475 C 930 448 1000 340 1140 318");
 }
 
-.subject-scene__field > b[data-signal="three"] {
+.subject-network__signals > b[data-signal="three"] {
   offset-path: path("M 480 302 C 650 354 810 260 930 450");
 }
 
-[data-drever-render-mode="audience"] .subject-scene__field::before {
+.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+  .subject-network__topology::before {
   animation: field-drift 7.5s ease-in-out infinite alternate;
 }
 
-[data-drever-render-mode="audience"] .subject-scene__field::after {
+.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+  .subject-network__topology::after {
   animation: field-drift 9.5s 0.7s ease-in-out infinite alternate-reverse;
 }
 
-[data-drever-render-mode="audience"] .subject-scene__field > i {
+.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+  .subject-network__topology
+  > i {
   animation: node-twinkle 3.8s ease-in-out infinite;
 }
 
-[data-drever-render-mode="audience"] .subject-scene__field > i:nth-child(2) {
+.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+  .subject-network__topology
+  > i:nth-child(2) {
   animation-delay: -0.7s;
 }
 
-[data-drever-render-mode="audience"] .subject-scene__field > i:nth-child(3) {
+.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+  .subject-network__topology
+  > i:nth-child(3) {
   animation-delay: -1.4s;
 }
 
-[data-drever-render-mode="audience"] .subject-scene__field > i:nth-child(4) {
+.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+  .subject-network__topology
+  > i:nth-child(4) {
   animation-delay: -2.1s;
 }
 
-[data-drever-render-mode="audience"] .subject-scene__field > i:nth-child(5) {
+.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+  .subject-network__topology
+  > i:nth-child(5) {
   animation-delay: -2.8s;
 }
 
-[data-drever-render-mode="audience"] .subject-scene__field > i:nth-child(6) {
+.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+  .subject-network__topology
+  > i:nth-child(6) {
   animation-delay: -3.5s;
 }
 
-[data-drever-render-mode="audience"] .subject-scene__field > b {
+.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+  .subject-network[data-mode="hero"]
+  .subject-network__signals
+  > b {
   animation: network-signal 5.2s linear infinite;
 }
 
-[data-drever-render-mode="audience"] .subject-scene__field > b[data-signal="two"] {
+.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+  .subject-network[data-mode="hero"]
+  .subject-network__signals
+  > b[data-signal="two"] {
   animation-delay: -2.2s;
   animation-duration: 6.4s;
 }
 
-[data-drever-render-mode="audience"] .subject-scene__field > b[data-signal="three"] {
+.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+  .subject-network[data-mode="hero"]
+  .subject-network__signals
+  > b[data-signal="three"] {
   animation-delay: -3.6s;
   animation-duration: 4.6s;
+}
+
+.subject-network[data-mode="context"] {
+  --network-drift-x: 1.2%;
+  --network-drift-y: -0.8%;
+}
+
+.subject-network[data-mode="context"] .subject-network__topology {
+  opacity: 0.32;
+}
+
+.subject-network[data-mode="context"] .subject-network__signals {
+  opacity: 0.28;
+}
+
+.subject-network[data-mode="context"] .subject-network__signals > b:not([data-signal="one"]) {
+  display: none;
+}
+
+.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+  .subject-network[data-mode="context"]
+  .subject-network__topology::before {
+  animation-duration: 12s;
+}
+
+.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+  .subject-network[data-mode="context"]
+  .subject-network__topology::after {
+  animation-duration: 14s;
+}
+
+.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+  .subject-network[data-mode="context"]
+  .subject-network__topology
+  > i {
+  animation-duration: 6.8s;
+}
+
+.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+  .subject-network[data-mode="context"]
+  .subject-network__signals
+  > b[data-signal="one"] {
+  animation: network-signal 10.4s linear infinite both;
 }
 
 .subject-scene > header {
@@ -1399,6 +1479,125 @@
 .subject-scene > aside span {
   color: var(--motion-muted);
   font-size: 12px;
+}
+
+.subject-scene--context {
+  grid-template-columns: 0.84fr 1.16fr;
+  gap: 72px;
+}
+
+.subject-scene--context > header {
+  width: auto;
+}
+
+.subject-scene--context > header h2 {
+  max-width: 13ch;
+  font-size: 52px;
+}
+
+.subject-scene--context > header p {
+  max-width: 35ch;
+  font-size: 19px;
+}
+
+.subject-scene__content {
+  position: relative;
+  display: grid;
+  min-height: 398px;
+  padding: 36px 38px;
+  border: 1px solid color-mix(in srgb, var(--motion-ink), transparent 86%);
+  border-radius: 28px;
+  z-index: 3;
+  box-sizing: border-box;
+  backdrop-filter: blur(22px);
+  background: color-mix(in srgb, var(--motion-white), transparent 7%);
+  box-shadow: 0 24px 70px color-mix(in srgb, var(--motion-ink), transparent 90%);
+  gap: 22px;
+}
+
+.subject-scene__content > span {
+  color: var(--motion-continuity);
+  font-size: 12px;
+  font-weight: 760;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.subject-scene__content ol {
+  display: grid;
+  margin: 0;
+  counter-reset: network-stage;
+  gap: 0;
+  list-style: none;
+}
+
+.subject-scene__content li {
+  position: relative;
+  display: grid;
+  min-height: 74px;
+  padding-left: 37px;
+  align-content: center;
+  counter-increment: network-stage;
+  gap: 4px;
+}
+
+.subject-scene__content li::before {
+  position: absolute;
+  top: 30px;
+  left: 0;
+  display: grid;
+  width: 19px;
+  height: 19px;
+  border: 1px solid color-mix(in srgb, var(--motion-continuity), transparent 46%);
+  border-radius: 50%;
+  background: var(--motion-white);
+  color: var(--motion-continuity);
+  content: counter(network-stage, decimal-leading-zero);
+  font-size: 8px;
+  font-weight: 800;
+  place-items: center;
+}
+
+.subject-scene__content li:not(:last-child)::after {
+  position: absolute;
+  top: 50px;
+  bottom: -24px;
+  left: 9px;
+  width: 1px;
+  background: color-mix(in srgb, var(--motion-continuity), transparent 72%);
+  content: "";
+}
+
+.subject-scene__content li small {
+  color: var(--motion-muted);
+  font-size: 10px;
+  font-weight: 720;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.subject-scene__content li strong {
+  color: var(--motion-ink);
+  font-family: var(--drever-brand-font-family-display);
+  font-size: 23px;
+  letter-spacing: -0.02em;
+}
+
+[data-drever-slide] .subject-scene__content > p {
+  color: var(--motion-muted);
+  font-size: 13px;
+}
+
+.drever-deck::view-transition-group(drever-subject-network-topology) {
+  animation-duration: 760ms;
+  animation-timing-function: var(--drever-motion-easing);
+}
+
+.drever-deck::view-transition-old(drever-subject-network-topology),
+.drever-deck::view-transition-new(drever-subject-network-topology) {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 /* Spatial Step */
@@ -2436,7 +2635,7 @@
 
 @keyframes field-drift {
   to {
-    translate: 3.6% -2.4%;
+    translate: var(--network-drift-x) var(--network-drift-y);
   }
 }
 
@@ -2721,7 +2920,7 @@
     transform: scaleX(1) rotate(-0.7deg);
   }
 
-  .subject-scene__field > b {
+  .subject-network__signals > b {
     display: none;
   }
 
@@ -2758,9 +2957,9 @@
     translate: 0;
   }
 
-  .subject-scene__field::before,
-  .subject-scene__field::after,
-  .subject-scene__field > i {
+  .subject-network__topology::before,
+  .subject-network__topology::after,
+  .subject-network__topology > i {
     animation: none;
     translate: none;
   }
@@ -2898,7 +3097,7 @@
   transform: scaleX(1) rotate(-0.7deg);
 }
 
-[data-drever-render-mode]:not([data-drever-render-mode="audience"]) .subject-scene__field > b {
+[data-drever-render-mode]:not([data-drever-render-mode="audience"]) .subject-network__signals > b {
   display: none;
 }
 
@@ -2923,9 +3122,11 @@
   translate: 0;
 }
 
-[data-drever-render-mode]:not([data-drever-render-mode="audience"]) .subject-scene__field::before,
-[data-drever-render-mode]:not([data-drever-render-mode="audience"]) .subject-scene__field::after,
-[data-drever-render-mode]:not([data-drever-render-mode="audience"]) .subject-scene__field > i {
+[data-drever-render-mode]:not([data-drever-render-mode="audience"])
+  .subject-network__topology::before,
+[data-drever-render-mode]:not([data-drever-render-mode="audience"])
+  .subject-network__topology::after,
+[data-drever-render-mode]:not([data-drever-render-mode="audience"]) .subject-network__topology > i {
   animation: none;
   translate: none;
 }

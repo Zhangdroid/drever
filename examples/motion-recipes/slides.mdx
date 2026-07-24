@@ -8,6 +8,7 @@ import {
   MotionPrimer,
   SemanticCorrection,
   SpatialModel,
+  SubjectNetwork,
 } from "./MotionArtifacts.tsx";
 import "@drever/brand/fonts.css";
 import "@drever/brand/tokens.css";
@@ -224,17 +225,7 @@ import "../showcase-return.css";
 ---
 
 <div aria-label="A subject-led background behaves like a network" className="subject-scene">
-  <div className="subject-scene__field" aria-hidden="true">
-    <i />
-    <i />
-    <i />
-    <i />
-    <i />
-    <i />
-    <b data-signal="one" />
-    <b data-signal="two" />
-    <b data-signal="three" />
-  </div>
+  <SubjectNetwork mode="hero" />
   <header>
     <span className="motion-kicker">09 · Subject-led background</span>
     <h2>When the subject is a network, the background should flow like one.</h2>
@@ -253,9 +244,49 @@ import "../showcase-return.css";
 
 ---
 
+<div
+  aria-label="The network recedes while one concrete handoff becomes the content"
+  className="subject-scene subject-scene--context"
+>
+  <SubjectNetwork mode="context" />
+  <header>
+    <span className="motion-kicker">10 · Background as context</span>
+    <h2>Now follow the connection that changes the decision.</h2>
+    <p>The topology stays present. One concrete handoff takes the foreground.</p>
+  </header>
+  <section
+    aria-label="A signal moves from support to a product decision"
+    className="subject-scene__content"
+  >
+    <span>One relationship to follow</span>
+    <ol>
+      <li>
+        <small>Support</small>
+        <strong>Setup friction repeats</strong>
+      </li>
+      <li>
+        <small>Product</small>
+        <strong>The pattern connects</strong>
+      </li>
+      <li>
+        <small>Decision</small>
+        <strong>Guide the first run</strong>
+      </li>
+    </ol>
+    <p>The subject remains. The content leads.</p>
+  </section>
+</div>
+
+<Note>
+  The same topology moves from subject to context. Its contrast falls, its signals slow, and one
+  concrete relationship becomes readable without introducing a second visual language.
+</Note>
+
+---
+
 <div aria-label="Depth earns its cost when structure is the subject" className="spatial-scene">
   <header>
-    <span className="motion-kicker">10 · Spatial explanation</span>
+    <span className="motion-kicker">11 · Spatial explanation</span>
     <h2>Depth earns its cost when structure is the subject.</h2>
     <p>Advance once to separate the one layer the audience needs to inspect.</p>
   </header>
@@ -279,7 +310,7 @@ import "../showcase-return.css";
   className="capability-scene"
 >
   <header>
-    <span className="motion-kicker">11 · Focused capability</span>
+    <span className="motion-kicker">12 · Focused capability</span>
     <h2>Show the capability. Do not merely name the library.</h2>
     <p>A real sequence connects kinetic type, local motion, and spatial state to one decision.</p>
   </header>
@@ -299,7 +330,7 @@ import "../showcase-return.css";
 ---
 
 <div aria-label="Let the room read and then direct the eye" className="timing-scene">
-  <span className="motion-kicker">12 · Timing</span>
+  <span className="motion-kicker">13 · Timing</span>
   <Step at={1} as="span" className="timing-scene__step">
     {"The reading cue is now active."}
   </Step>
@@ -323,7 +354,7 @@ import "../showcase-return.css";
 
 <div aria-label="Every animation system spends the same attention" className="budget-scene">
   <header>
-    <span className="motion-kicker">13 · Attention budget</span>
+    <span className="motion-kicker">14 · Attention budget</span>
     <h2>Spend attention on the idea that changed.</h2>
     <p>Primary motion leads. Support follows once. Everything else holds still.</p>
   </header>
@@ -370,7 +401,7 @@ import "../showcase-return.css";
 
 <div aria-label="The meaning survives when motion disappears" className="endpoint-scene">
   <header>
-    <span className="motion-kicker">14 · Accessible endpoint</span>
+    <span className="motion-kicker">15 · Accessible endpoint</span>
     <h2>The motion may disappear. The meaning may not.</h2>
     <p>Live presentation and static export must arrive at the same authored conclusion.</p>
   </header>

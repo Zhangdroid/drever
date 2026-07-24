@@ -1,4 +1,4 @@
-import { useDreverRenderMode } from "@drever/core";
+import { MotionGroup, useDreverRenderMode } from "@drever/core";
 import { motion, useReducedMotion } from "motion/react";
 import {
   useEffect,
@@ -17,6 +17,10 @@ type BrowserStoryCopyProps = {
 type AnimatedMetricProps = {
   animate: boolean;
   value: number;
+};
+
+type SubjectNetworkProps = {
+  mode: "context" | "hero";
 };
 
 const METRIC_FRAMES = [
@@ -293,6 +297,31 @@ export function MotionEvidence(): ReactElement {
       </div>
       <small>Motion for React animates one live signal. Drever still owns the slide.</small>
     </section>
+  );
+}
+
+/** One topology moves from subject to subdued context without snapshotting its live signals. */
+export function SubjectNetwork({ mode }: SubjectNetworkProps): ReactElement {
+  return (
+    <div aria-hidden="true" className="subject-network" data-mode={mode}>
+      <MotionGroup
+        className="subject-network__topology"
+        intent="continuity"
+        name="subject-network-topology"
+      >
+        <i />
+        <i />
+        <i />
+        <i />
+        <i />
+        <i />
+      </MotionGroup>
+      <div className="subject-network__signals">
+        <b data-signal="one" />
+        <b data-signal="two" />
+        <b data-signal="three" />
+      </div>
+    </div>
   );
 }
 
