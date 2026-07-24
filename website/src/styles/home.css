@@ -746,7 +746,7 @@
 
 .home-room-demo__prompt {
   animation: home-room-prompt linear both;
-  animation-range: entry 20% cover 48%;
+  animation-range: entry 88% cover 70%;
   animation-timeline: --home-room;
 }
 
@@ -807,7 +807,7 @@
   opacity: 0;
   transform: translateY(0.8rem);
   animation: home-room-proof linear both;
-  animation-range: entry 48% cover 62%;
+  animation-range: entry 88% cover 70%;
   animation-timeline: --home-room;
 }
 
@@ -2599,7 +2599,7 @@
 
 @keyframes home-room-prompt {
   0%,
-  52% {
+  44% {
     opacity: 1;
     transform: none;
   }
@@ -2611,7 +2611,13 @@
 }
 
 @keyframes home-room-proof {
-  to {
+  0%,
+  44% {
+    opacity: 0;
+    transform: translateY(0.8rem);
+  }
+
+  100% {
     opacity: 1;
     transform: none;
   }
