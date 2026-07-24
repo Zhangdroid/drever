@@ -144,5 +144,6 @@ describe("@drever/designs/fieldnote", () => {
     expect(css).toContain("[data-drever-slide] :where(:lang(zh), :lang(ja), :lang(ko))");
     expect(css).toContain("[data-drever-slide] ::selection");
     expect(css).not.toMatch(/^::selection/mu);
+    expect(theme.tokens.typography.body).toBe(theme.tokens.typography.display);
   });
 });

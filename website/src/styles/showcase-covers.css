@@ -1,3 +1,11 @@
+@font-face {
+  font-family: "Drever Fieldnote";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("../../../packages/designs/themes/fieldnote/fonts/Caveat[wght].ttf") format("truetype");
+}
+
 .study-cover {
   position: absolute;
   inset: 0;
@@ -745,31 +753,30 @@
 }
 
 .art-cover--fieldnote {
-  border-left: 0.16rem solid rgb(158 59 50 / 64%);
   background:
-    repeating-linear-gradient(to bottom, transparent 0 1.4rem, rgb(39 95 150 / 10%) 1.4rem 1.44rem),
-    #f7f1dd;
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 1.75rem,
+      rgb(39 95 150 / 4%) 1.75rem 1.79rem
+    ),
+    #fbfaf4;
   color: #26231e;
-}
-
-.art-cover--fieldnote::before {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 1.2rem;
-  width: 1px;
-  background: rgb(158 59 50 / 42%);
-  content: "";
+  font-family:
+    "Drever Fieldnote", "Kaiti SC", STKaiti, KaiTi, "Bradley Hand", "Segoe Print", cursive;
 }
 
 .art-cover--fieldnote > header {
   color: #6d6558;
+  font-family: inherit;
+  font-size: clamp(0.5rem, 0.76vw, 0.68rem);
+  letter-spacing: 0.025em;
+  text-transform: none;
 }
 
 .fieldnote-cover__note {
   position: absolute;
-  top: 29%;
-  left: 15%;
+  top: 26%;
+  left: 13%;
 }
 
 .fieldnote-cover__note > i {
@@ -780,14 +787,15 @@
   height: 0.45rem;
   border-radius: 50%;
   background: #9e3b32;
+  opacity: 0.72;
 }
 
 .fieldnote-cover__note > strong {
-  font-family: Caveat, "Kaiti SC", STKaiti, KaiTi, "Bradley Hand", "Segoe Print", cursive;
-  font-size: clamp(1.15rem, 2.35vw, 2rem);
+  font-family: inherit;
+  font-size: clamp(1.35rem, 2.8vw, 2.4rem);
   font-weight: 600;
   letter-spacing: -0.025em;
-  line-height: 0.84;
+  line-height: 0.88;
 }
 
 .fieldnote-cover__note > span {
@@ -795,9 +803,9 @@
   width: fit-content;
   margin-block-start: 0.55rem;
   padding: 0.18rem 0.35rem;
-  background: rgb(255 205 70 / 42%);
+  background: rgb(255 205 70 / 26%);
   color: #744037;
-  font-family: Caveat, "Kaiti SC", STKaiti, KaiTi, "Segoe Print", cursive;
+  font-family: inherit;
   font-size: clamp(0.58rem, 0.9vw, 0.76rem);
   transform: rotate(-1deg);
 }

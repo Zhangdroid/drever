@@ -40,7 +40,7 @@ Scan all eight studies in the single `@drever/designs` package. When source is a
 - Default — neutral hierarchy and spacing; use only as the context-insufficient fallback.
 - Editorial — publication rhythm, warm narrative, and evidence-led typography.
 - Studio — dark technical surfaces, code, interfaces, and restrained signal color.
-- Fieldnote — selective handwriting, annotation, reflection, and readable body text.
+- Fieldnote — coherent handwriting, annotation, reflection, and quiet paper.
 - Atlas — place, route, chronology, field evidence, and meaningful legends.
 - Ledger — metrics, sources, variance, accountability, and aligned quantities.
 - Cinema — title cards, stable media frames, captions, and editorial pacing.
@@ -75,6 +75,10 @@ Implement `theme.ts` with `defineTheme`, `baseURL: import.meta.url`, a stable lo
 - motion guidance that describes the visual voice and content relationships.
 
 Use local components for recurring presentation semantics, not one-off decoration. Use Stage only for persistent canvas layers. Import the generated theme and Stage modules from `drever.config.ts` once. If a generated design already exists, revise it in place and preserve intentional authored changes; never silently replace it.
+
+Keep backgrounds subordinate to the current claim. They should normally recede behind content and become prominent only when the background itself is evidence or the meaningful scene. Reduce background contrast, texture, and movement before compromising foreground legibility.
+
+Treat typography as one deliberate system. When the premise is intentionally all-handwritten, carry that voice through headings, body copy, labels, and data instead of accidentally mixing unrelated type voices. Make exceptions only when the content semantics require a specialized face, such as literal code or a protected brand mark.
 
 Pair a text-heavy narrative region with a primarily visual supporting region: a diagram, artifact, media frame, data mark, spatial form, or quiet subject-led abstraction. Do not put another prose-heavy panel beside it; keep supporting text to functional labels or captions unless comparing the texts is the claim.
 

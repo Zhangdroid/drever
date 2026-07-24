@@ -96,7 +96,7 @@ export const themes = [
   },
   {
     description:
-      "Ruled-paper structure and restrained handwriting for workshops, lessons, tutorials, and reflection.",
+      "Quiet paper and one coherent handwritten voice for workshops, lessons, tutorials, and reflection.",
     id: "fieldnote",
     label: "Fieldnote",
     liveHref: "/demos/design/fieldnote/",

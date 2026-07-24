@@ -8,9 +8,9 @@
 
 :root:has(.drever-viewer),
 .drever-viewer {
-  --drever-stage-background: #e5ddc8;
+  --drever-stage-background: #ece8dd;
   --drever-stage-color: #26231e;
-  --drever-canvas-background: #f7f1dd;
+  --drever-canvas-background: #fbfaf4;
   --drever-canvas-color: #26231e;
   --drever-canvas-color-scheme: light;
   --drever-motion-duration: 420ms;
@@ -28,15 +28,15 @@
   --drever-recipe-replace-inline-from-translate: 8px 0;
   --drever-recipe-stagger-block-from-translate: 0 8px;
   --drever-recipe-stagger-inline-from-translate: 8px 0;
-  --drever-fieldnote-paper: #f7f1dd;
+  --drever-fieldnote-paper: #fbfaf4;
   --drever-fieldnote-ink: #26231e;
   --drever-fieldnote-muted: #696153;
   --drever-fieldnote-blue: #275f96;
   --drever-fieldnote-blue-strong: #184875;
   --drever-fieldnote-blue-soft: #dce8ef;
   --drever-fieldnote-red: #9e3b32;
-  --drever-fieldnote-surface: #fffdf7;
-  --drever-fieldnote-line: #cec4a7;
+  --drever-fieldnote-surface: #fffefa;
+  --drever-fieldnote-line: #ddd6c5;
   --drever-fieldnote-code: #24323a;
   --drever-fieldnote-code-ink: #f8f4e8;
   --drever-theme-ink: var(--drever-fieldnote-ink);
@@ -49,7 +49,7 @@
   --drever-theme-code-canvas: var(--drever-fieldnote-code);
   --drever-theme-code-ink: var(--drever-fieldnote-code-ink);
   --drever-theme-radius: 5px;
-  font-family: "Avenir Next", Aptos, "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  font-family: Caveat, "Kaiti SC", STKaiti, KaiTi, "Bradley Hand", "Segoe Print", cursive;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
@@ -71,23 +71,8 @@
 
 [data-drever-stage-layer="background"] {
   background:
-    linear-gradient(90deg, transparent 0 112px, rgb(158 59 50 / 52%) 112px 114px, transparent 114px)
-      0 0 / 100% 100% no-repeat,
-    repeating-linear-gradient(to bottom, transparent 0 31px, rgb(39 95 150 / 12%) 31px 32px),
+    repeating-linear-gradient(to bottom, transparent 0 39px, rgb(39 95 150 / 4%) 39px 40px),
     var(--drever-fieldnote-paper);
-}
-
-[data-drever-stage-layer="background"]::after {
-  position: absolute;
-  right: 44px;
-  bottom: 32px;
-  color: var(--drever-fieldnote-muted);
-  content: "FIELD / NOTES";
-  font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  opacity: 0.58;
 }
 
 [data-drever-slide] {
@@ -95,7 +80,7 @@
   display: grid;
   box-sizing: border-box;
   align-content: center;
-  padding: 82px 108px 76px 148px;
+  padding: 82px 108px 76px;
   overflow: clip;
   isolation: isolate;
   background: transparent;
@@ -141,9 +126,9 @@
 }
 
 [data-drever-slide] :where(p, li) {
-  font-size: 27px;
+  font-size: 30px;
   letter-spacing: -0.012em;
-  line-height: 1.5;
+  line-height: 1.38;
   text-wrap: pretty;
 }
 
@@ -304,8 +289,8 @@
 [data-drever-slide] table {
   width: 100%;
   border-collapse: collapse;
-  background: rgb(255 253 247 / 52%);
-  font-size: 22px;
+  background: rgb(255 254 250 / 42%);
+  font-size: 25px;
   font-variant-numeric: tabular-nums;
   line-height: 1.35;
 }
@@ -408,10 +393,9 @@
 .drever-fieldnote-notebook__eyebrow,
 .drever-fieldnote-notebook__footer {
   color: var(--drever-fieldnote-muted);
-  font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
-  font-size: 17px;
+  font-size: 20px;
   font-weight: 720;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
@@ -498,9 +482,8 @@
 
 .drever-fieldnote-annotated__evidence figcaption {
   color: var(--drever-fieldnote-muted);
-  font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
-  font-size: 15px;
-  letter-spacing: 0.035em;
+  font-size: 18px;
+  letter-spacing: 0.025em;
 }
 
 .drever-fieldnote-annotated__notes {
