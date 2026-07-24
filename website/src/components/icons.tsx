@@ -12,7 +12,7 @@ const iconProps = {
 
 export function ArrowIcon(props: IconProps) {
   return (
-    <svg {...iconProps} {...props}>
+    <svg {...iconProps} data-link-icon="forward" {...props}>
       <path
         d="M5 12h13M13 6l6 6-6 6"
         stroke="currentColor"
@@ -26,7 +26,7 @@ export function ArrowIcon(props: IconProps) {
 
 export function ArrowUpRightIcon(props: IconProps) {
   return (
-    <svg {...iconProps} {...props}>
+    <svg {...iconProps} data-link-icon="external" {...props}>
       <path
         d="M7 17 17 7M8 7h9v9"
         stroke="currentColor"

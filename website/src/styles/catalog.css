@@ -219,6 +219,15 @@
     0 0.7rem 1.8rem rgb(0 0 0 / 14%);
 }
 
+.featured-demo__open svg {
+  transition: transform var(--drever-brand-motion-duration-quick)
+    var(--drever-brand-motion-easing-standard);
+}
+
+.featured-demo__visual:is(:hover, :focus-visible) .featured-demo__open svg {
+  transform: translateX(0.12rem) scale(1.04);
+}
+
 .featured-demo__visual > span {
   margin-block-end: 1rem;
   color: var(--site-signal);
@@ -321,7 +330,7 @@
   text-decoration: none;
 }
 
-.featured-demo__copy nav a:hover {
+.featured-demo__copy nav a:is(:hover, :focus-visible) {
   color: var(--site-continuity);
 }
 
@@ -350,8 +359,13 @@
   overflow: hidden;
   flex-direction: column;
   background: #101311;
+  box-shadow:
+    0 0 0 1px rgb(25 23 43 / 8%),
+    0 1.4rem 3rem rgb(25 23 43 / 0%);
   color: #f2f4ed;
   text-decoration: none;
+  transition: box-shadow var(--drever-brand-motion-duration-standard)
+    var(--drever-brand-motion-easing-standard);
 }
 
 .catalog-demo__visual--rich {
@@ -378,12 +392,12 @@
   position: absolute;
   right: 1.6rem;
   bottom: 1.6rem;
-  transition: transform var(--drever-brand-motion-duration-standard)
-    var(--drever-brand-motion-easing-standard);
 }
 
-.catalog-demo__visual:is(:hover, :focus-visible) > svg {
-  transform: translate(0.4rem, -0.4rem);
+.catalog-demo:is(:hover, :focus-within) .catalog-demo__visual {
+  box-shadow:
+    0 0 0 1px rgb(25 23 43 / 11%),
+    0 1.4rem 3rem rgb(25 23 43 / 9%);
 }
 
 .catalog-demo[data-demo="motion"] .catalog-demo__visual {

@@ -447,49 +447,45 @@
   translate: -50% -50%;
 }
 
-.catalog-demo__visual:is(:hover, :focus-visible) .feature-study__source {
+.catalog-demo:is(:hover, :focus-within) .feature-study__source {
   border-color: rgb(255 255 255 / 22%);
 }
 
-.catalog-demo__visual:is(:hover, :focus-visible) .feature-study__signal {
+.catalog-demo:is(:hover, :focus-within) .feature-study__signal {
   transform: scaleX(1);
 }
 
-.catalog-demo__visual:is(:hover, :focus-visible) .feature-study__result {
+.catalog-demo:is(:hover, :focus-within) .feature-study__result {
   border-color: rgb(201 239 69 / 52%);
   transform: translateY(-0.25rem);
 }
 
-.catalog-demo__visual:is(:hover, :focus-visible) .scene-study__record {
+.catalog-demo:is(:hover, :focus-within) .scene-study__record {
   transform: rotate(20deg);
 }
 
-.catalog-demo__visual:is(:hover, :focus-visible) .scene-study__wave i {
-  animation: scene-study-wave 900ms ease-in-out infinite alternate;
+.catalog-demo:is(:hover, :focus-within) .scene-study__wave i {
+  animation: scene-study-wave 900ms ease-in-out 2 alternate;
 }
 
-.catalog-demo__visual:is(:hover, :focus-visible) .scene-study__wave i:nth-child(2n) {
+.catalog-demo:is(:hover, :focus-within) .scene-study__wave i:nth-child(2n) {
   animation-delay: -320ms;
 }
 
-.catalog-demo__visual:is(:hover, :focus-visible) .scene-study__wave i:nth-child(3n) {
+.catalog-demo:is(:hover, :focus-within) .scene-study__wave i:nth-child(3n) {
   animation-delay: -600ms;
 }
 
-.catalog-demo__visual:is(:hover, :focus-visible) .architecture-study__pulse {
+.catalog-demo:is(:hover, :focus-within) .architecture-study__pulse {
   animation: architecture-study-pulse 2.4s var(--drever-brand-motion-easing-standard) both;
 }
 
-.catalog-demo[data-demo="motion"]
-  .catalog-demo__visual:is(:hover, :focus-visible)
-  .home-motion-cover__artifact {
+.catalog-demo[data-demo="motion"]:is(:hover, :focus-within) .home-motion-cover__artifact {
   opacity: 1;
   transform: translate(0) scale(1);
 }
 
-.catalog-demo[data-demo="motion"]
-  .catalog-demo__visual:is(:hover, :focus-visible)
-  .home-motion-cover__answer {
+.catalog-demo[data-demo="motion"]:is(:hover, :focus-within) .home-motion-cover__answer {
   opacity: 0;
   transform: translateY(0.5rem);
 }

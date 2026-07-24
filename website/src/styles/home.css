@@ -71,7 +71,7 @@
   color: var(--site-ink);
 }
 
-.home-hero__demo:hover {
+.home-hero__demo:is(:hover, :focus-visible) {
   border-color: color-mix(in srgb, var(--site-continuity), transparent 70%);
   background: rgb(255 255 255 / 72%);
 }
@@ -98,7 +98,7 @@
   text-decoration: none;
 }
 
-.home-hero__manual:hover {
+.home-hero__manual:is(:hover, :focus-visible) {
   color: var(--site-ink);
 }
 
@@ -140,7 +140,7 @@
     color var(--drever-brand-motion-duration-quick);
 }
 
-.home-hero__command:hover {
+.home-hero__command:is(:hover, :focus-visible) {
   background: color-mix(in srgb, var(--site-continuity-soft) 44%, transparent);
   color: var(--site-ink);
 }
@@ -1793,31 +1793,32 @@
 }
 
 @media (hover: hover) {
-  .demo-card[data-demo="product"]:is(:hover, :focus-visible) .home-product-cover__statement {
+  :is(.demo-card[data-demo="product"], .featured-demo__visual):is(:hover, :focus-visible)
+    .home-product-cover__statement {
     transform: translateY(-0.2rem);
   }
 
-  .demo-card[data-demo="product"]:is(:hover, :focus-visible)
+  :is(.demo-card[data-demo="product"], .featured-demo__visual):is(:hover, :focus-visible)
     .home-product-cover__statement
     mark::after {
     transform: scaleX(1) rotate(-1deg);
   }
 
-  .demo-card[data-demo="product"]:is(:hover, :focus-visible)
+  :is(.demo-card[data-demo="product"], .featured-demo__visual):is(:hover, :focus-visible)
     .home-product-cover__surfaces
     > div[data-surface="audience"] {
     opacity: 1;
     transform: translate(-2.2rem, 1.8rem) rotate(-7deg) scale(0.73);
   }
 
-  .demo-card[data-demo="product"]:is(:hover, :focus-visible)
+  :is(.demo-card[data-demo="product"], .featured-demo__visual):is(:hover, :focus-visible)
     .home-product-cover__surfaces
     > div[data-surface="speaker"] {
     opacity: 0.8;
     transform: translate(-0.3rem, 0.5rem) rotate(-1deg) scale(0.87);
   }
 
-  .demo-card[data-demo="product"]:is(:hover, :focus-visible)
+  :is(.demo-card[data-demo="product"], .featured-demo__visual):is(:hover, :focus-visible)
     .home-product-cover__surfaces
     > div[data-surface="document"] {
     opacity: 0.68;
@@ -1847,12 +1848,6 @@
 .demo-card__copy > svg {
   flex: none;
   margin-block-start: 1.6rem;
-  transition: transform var(--drever-brand-motion-duration-quick)
-    var(--drever-brand-motion-easing-standard);
-}
-
-.demo-card:is(:hover, :focus-visible) .demo-card__copy > svg {
-  transform: translate(3px, -3px);
 }
 
 .demo-card__copy span {

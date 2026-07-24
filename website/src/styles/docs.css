@@ -140,7 +140,7 @@
   text-decoration: none;
 }
 
-.docs-nav__source:hover {
+.docs-nav__source:is(:hover, :focus-visible) {
   color: var(--site-ink);
 }
 
@@ -305,7 +305,7 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   text-underline-offset: 0.18em;
 }
 
-.doc-prose a:not(.doc-next):hover {
+.doc-prose a:not(.doc-next):is(:hover, :focus-visible) {
   text-decoration-color: currentcolor;
 }
 
@@ -545,7 +545,7 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
     var(--drever-brand-motion-easing-standard);
 }
 
-.doc-next:hover {
+.doc-next:is(:hover, :focus-visible) {
   transform: translateX(var(--drever-brand-geometry-shift));
 }
 
@@ -714,12 +714,6 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
 .motion-recipe-deck__action svg {
   width: 0.85rem;
   height: 0.85rem;
-  transition: transform var(--drever-brand-motion-duration-quick)
-    var(--drever-brand-motion-easing-standard);
-}
-
-.motion-recipe-deck:is(:hover, :focus-visible) .motion-recipe-deck__action svg {
-  transform: translate(0.18rem, -0.18rem);
 }
 
 .motion-recipe-grid__label {
@@ -768,12 +762,6 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   bottom: 1.15rem;
   width: 0.9rem;
   height: 0.9rem;
-  transition: transform var(--drever-brand-motion-duration-quick)
-    var(--drever-brand-motion-easing-standard);
-}
-
-.motion-recipe-grid > a:is(:hover, :focus-visible) > svg {
-  transform: translate(0.18rem, -0.18rem);
 }
 
 .motion-recipe__visual {
@@ -872,7 +860,7 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   text-decoration: none;
 }
 
-.doc-visual-intro__more:hover {
+.doc-visual-intro__more:is(:hover, :focus-visible) {
   color: var(--site-ink);
 }
 
@@ -1124,6 +1112,18 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   min-width: 0;
   border: 1px solid var(--site-line);
   background: var(--site-paper-raised);
+  box-shadow: 0 1.4rem 3rem rgb(25 23 43 / 0%);
+  transition:
+    border-color var(--drever-brand-motion-duration-standard),
+    box-shadow var(--drever-brand-motion-duration-standard),
+    transform var(--drever-brand-motion-duration-standard)
+      var(--drever-brand-motion-easing-standard);
+}
+
+.docs-capabilities__grid > article:is(:hover, :focus-within) {
+  border-color: color-mix(in srgb, var(--site-continuity), var(--site-line) 68%);
+  box-shadow: 0 1.4rem 3rem rgb(25 23 43 / 7%);
+  transform: translateY(-0.18rem);
 }
 
 .capability-visual {
@@ -1365,10 +1365,15 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   font-size: 0.72rem;
   font-weight: 650;
   text-decoration: none;
+  transition: color var(--drever-brand-motion-duration-quick);
 }
 
 .docs-capabilities__copy nav a:last-child {
   color: var(--site-muted);
+}
+
+.docs-capabilities__copy nav a:is(:hover, :focus-visible) {
+  color: var(--site-continuity);
 }
 
 .docs-capabilities__copy nav svg {
@@ -1448,7 +1453,7 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   transition: background var(--drever-brand-motion-duration-standard);
 }
 
-.docs-overview__paths > a:hover {
+.docs-overview__paths > a:is(:hover, :focus-visible) {
   background: var(--site-paper-raised);
 }
 
@@ -1482,12 +1487,6 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   position: absolute;
   right: 1.6rem;
   bottom: 1.6rem;
-  transition: transform var(--drever-brand-motion-duration-quick)
-    var(--drever-brand-motion-easing-standard);
-}
-
-.docs-overview__paths > a:hover svg {
-  transform: translateX(4px);
 }
 
 .docs-overview__ai {

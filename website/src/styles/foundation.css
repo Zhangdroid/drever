@@ -263,7 +263,7 @@ main[tabindex="-1"]:focus {
   transform: translateX(var(--site-nav-indicator-x));
 }
 
-.site-header__nav a:hover,
+.site-header__nav a:is(:hover, :focus-visible),
 .site-header__nav a.is-active {
   color: var(--site-ink);
 }
@@ -272,7 +272,7 @@ main[tabindex="-1"]:focus {
   color: var(--site-night-muted);
 }
 
-.site-header[data-tone="dark"] .site-header__nav a:hover,
+.site-header[data-tone="dark"] .site-header__nav a:is(:hover, :focus-visible),
 .site-header[data-tone="dark"] .site-header__nav a.is-active {
   color: var(--site-night-text);
 }
@@ -329,7 +329,7 @@ main[tabindex="-1"]:focus {
     transform var(--drever-brand-motion-duration-quick) var(--drever-brand-motion-easing-standard);
 }
 
-.site-header__ai:hover {
+.site-header__ai:is(:hover, :focus-visible) {
   background: color-mix(in srgb, var(--site-continuity-soft) 78%, transparent);
   color: var(--site-ink);
   transform: translateY(-1px);
@@ -366,7 +366,7 @@ main[tabindex="-1"]:focus {
     transform var(--drever-brand-motion-duration-quick) var(--drever-brand-motion-easing-standard);
 }
 
-.site-header__github:hover {
+.site-header__github:is(:hover, :focus-visible) {
   border-color: color-mix(in srgb, var(--site-line), transparent 8%);
   background: color-mix(in srgb, var(--site-continuity-soft) 24%, transparent);
   color: var(--site-ink);
@@ -386,7 +386,7 @@ main[tabindex="-1"]:focus {
   color: var(--site-night-muted);
 }
 
-.site-header[data-tone="dark"] .site-header__github:hover {
+.site-header[data-tone="dark"] .site-header__github:is(:hover, :focus-visible) {
   border-color: rgb(255 255 255 / 12%);
   background: rgb(255 255 255 / 7%);
   color: var(--site-night-text);
@@ -403,7 +403,7 @@ main[tabindex="-1"]:focus {
   color: var(--site-night-text);
 }
 
-.site-header[data-tone="dark"] .site-header__ai:hover {
+.site-header[data-tone="dark"] .site-header__ai:is(:hover, :focus-visible) {
   border-color: color-mix(in srgb, var(--site-signal), transparent 55%);
   background: rgb(255 255 255 / 11%);
   color: var(--site-signal);
@@ -427,21 +427,22 @@ main[tabindex="-1"]:focus {
     transform var(--drever-brand-motion-duration-quick) var(--drever-brand-motion-easing-standard);
 }
 
-.button svg,
-.text-link svg {
+:where(a, button) [data-link-icon] {
   flex: none;
-  transition: transform var(--drever-brand-motion-duration-quick)
+  transition: translate var(--drever-brand-motion-duration-quick)
     var(--drever-brand-motion-easing-standard);
 }
 
-.button:hover,
-.text-link:hover {
+.button:is(:hover, :focus-visible) {
   transform: translateY(-2px);
 }
 
-.button:hover svg,
-.text-link:hover svg {
-  transform: translateX(3px);
+:where(a, button):is(:hover, :focus-visible) [data-link-icon="forward"] {
+  translate: 0.2rem 0;
+}
+
+:where(a, button):is(:hover, :focus-visible) [data-link-icon="external"] {
+  translate: 0.16rem -0.16rem;
 }
 
 .button--primary {
@@ -453,7 +454,7 @@ main[tabindex="-1"]:focus {
   color: var(--site-ink);
 }
 
-.button--quiet:hover {
+.button--quiet:is(:hover, :focus-visible) {
   background: rgb(255 255 255 / 42%);
 }
 
@@ -813,7 +814,7 @@ main[tabindex="-1"]:focus {
   text-decoration: none;
 }
 
-.site-footer__links a:hover {
+.site-footer__links a:is(:hover, :focus-visible) {
   color: var(--site-signal);
 }
 
@@ -986,6 +987,10 @@ main[tabindex="-1"]:focus {
   .home-hero__copy h1 span::after {
     animation: none !important;
     transform: scaleX(1);
+  }
+
+  :where(a, button):is(:hover, :focus-visible) [data-link-icon] {
+    translate: 0 0;
   }
 }
 
