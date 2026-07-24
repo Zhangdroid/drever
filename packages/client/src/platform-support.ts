@@ -5,7 +5,6 @@ import type { PresentationChannelView } from "./presentation-sync.ts";
 export type DreverPlatformCapability =
   | "BroadcastChannel"
   | "Document.startViewTransition"
-  | "Element.startViewTransition"
   | "Navigation API"
   | "ResizeObserver";
 
@@ -25,11 +24,7 @@ export type ViewerPlatform = Readonly<{
 type CandidateWindow = Window &
   Readonly<{
     BroadcastChannel?: unknown;
-    Element?: Readonly<{
-      prototype?: Readonly<{
-        startViewTransition?: unknown;
-      }>;
-    }>;
+    NavigateEvent?: unknown;
     ResizeObserver?: unknown;
     navigation?: unknown;
   }>;
@@ -52,6 +47,14 @@ const supportsNavigation = (value: unknown): value is NavigationLike => {
   );
 };
 
+const supportsNavigationAbortSignal = (value: unknown): boolean => {
+  if (typeof value !== "function") {
+    return false;
+  }
+  const prototype = Reflect.get(value, "prototype");
+  return typeof prototype === "object" && prototype !== null && Reflect.has(prototype, "signal");
+};
+
 const missingCapabilities = (
   view: CandidateWindow,
   document: CandidateDocument,
@@ -60,14 +63,11 @@ const missingCapabilities = (
   if (typeof view.BroadcastChannel !== "function") {
     missing.push("BroadcastChannel");
   }
-  if (!supportsNavigation(view.navigation)) {
+  if (!supportsNavigation(view.navigation) || !supportsNavigationAbortSignal(view.NavigateEvent)) {
     missing.push("Navigation API");
   }
   if (typeof document.startViewTransition !== "function") {
     missing.push("Document.startViewTransition");
-  }
-  if (typeof view.Element?.prototype?.startViewTransition !== "function") {
-    missing.push("Element.startViewTransition");
   }
   if (typeof view.ResizeObserver !== "function") {
     missing.push("ResizeObserver");

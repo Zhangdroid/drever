@@ -1,3 +1,4 @@
+:root:has(.drever-viewer),
 .drever-viewer {
   --drever-editorial-paper: var(--drever-brand-color-paper);
   --drever-editorial-ink: var(--drever-brand-color-ink);
@@ -1649,20 +1650,20 @@
   animation: tour-surfaces-enter 480ms var(--drever-brand-motion-easing-standard) 380ms both;
 }
 
-.drever-deck::view-transition-group(drever-decision-proof) {
+:root::view-transition-group(drever-decision-proof) {
   animation-duration: 680ms;
   animation-timing-function: var(--drever-brand-motion-easing-emphasized);
 }
 
-.drever-deck::view-transition-group(drever-story-core) {
+:root::view-transition-group(drever-story-core) {
   animation-duration: 620ms;
   animation-timing-function: var(--drever-brand-motion-easing-standard);
 }
 
-.drever-deck::view-transition-old(drever-decision-proof),
-.drever-deck::view-transition-new(drever-decision-proof),
-.drever-deck::view-transition-old(drever-story-core),
-.drever-deck::view-transition-new(drever-story-core) {
+:root::view-transition-old(drever-decision-proof),
+:root::view-transition-new(drever-decision-proof),
+:root::view-transition-old(drever-story-core),
+:root::view-transition-new(drever-story-core) {
   animation: none;
   mix-blend-mode: normal;
 }

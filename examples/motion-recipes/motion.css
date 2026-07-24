@@ -1,3 +1,4 @@
+:root:has(.drever-viewer),
 .drever-viewer {
   --drever-editorial-paper: var(--drever-brand-color-paper);
   --drever-editorial-ink: var(--drever-brand-color-ink);
@@ -412,7 +413,8 @@
   translate: 0 108%;
 }
 
-.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+:root:not(:active-view-transition)
+  .drever-deck[data-drever-render-mode="audience"]
   [data-slide-state="active"]
   .browser-story-copy[data-phase="after"]
   [data-slot="subject"]
@@ -420,7 +422,8 @@
   animation: story-word-old 560ms 180ms var(--drever-motion-easing) both;
 }
 
-.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+:root:not(:active-view-transition)
+  .drever-deck[data-drever-render-mode="audience"]
   [data-slide-state="active"]
   .browser-story-copy[data-phase="after"]
   [data-slot="subject"]
@@ -428,7 +431,8 @@
   animation: story-word-new 560ms 180ms var(--drever-motion-easing) both;
 }
 
-.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+:root:not(:active-view-transition)
+  .drever-deck[data-drever-render-mode="audience"]
   [data-slide-state="active"]
   .browser-story-copy[data-phase="after"]
   [data-slot="outcome"]
@@ -436,7 +440,8 @@
   animation: story-word-old 560ms 260ms var(--drever-motion-easing) both;
 }
 
-.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+:root:not(:active-view-transition)
+  .drever-deck[data-drever-render-mode="audience"]
   [data-slide-state="active"]
   .browser-story-copy[data-phase="after"]
   [data-slot="outcome"]
@@ -459,7 +464,8 @@
   translate: 0 8px;
 }
 
-.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+:root:not(:active-view-transition)
+  .drever-deck[data-drever-render-mode="audience"]
   [data-slide-state="active"]
   .browser-story-copy[data-phase="after"]
   .browser-story-copy__kicker
@@ -467,7 +473,8 @@
   animation: story-copy-old 480ms 100ms var(--drever-motion-easing) both;
 }
 
-.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+:root:not(:active-view-transition)
+  .drever-deck[data-drever-render-mode="audience"]
   [data-slide-state="active"]
   .browser-story-copy[data-phase="after"]
   .browser-story-copy__kicker
@@ -475,7 +482,8 @@
   animation: story-copy-new 480ms 100ms var(--drever-motion-easing) both;
 }
 
-.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+:root:not(:active-view-transition)
+  .drever-deck[data-drever-render-mode="audience"]
   [data-slide-state="active"]
   .browser-story-copy[data-phase="after"]
   .browser-story-copy__body
@@ -483,7 +491,8 @@
   animation: story-copy-old 520ms 380ms var(--drever-motion-easing) both;
 }
 
-.drever-deck[data-drever-render-mode="audience"]:not(:active-view-transition)
+:root:not(:active-view-transition)
+  .drever-deck[data-drever-render-mode="audience"]
   [data-slide-state="active"]
   .browser-story-copy[data-phase="after"]
   .browser-story-copy__body
@@ -780,32 +789,32 @@
   font-size: 10px;
 }
 
-.drever-deck:active-view-transition-type(drever-slide-backward):has(
-  [data-slide-state="active"] .browser-story--anticipate
-)::view-transition-new(root) {
+:root:active-view-transition-type(drever-slide-backward):has(
+  .drever-deck [data-slide-state="active"] .browser-story--anticipate
+)::view-transition-new(drever-deck) {
   animation-name: none;
 }
 
-.drever-deck::view-transition-group(drever-story-browser) {
+:root::view-transition-group(drever-story-browser) {
   animation-duration: 680ms;
 }
 
-.drever-deck::view-transition-old(drever-story-browser),
-.drever-deck::view-transition-new(drever-story-browser) {
+:root::view-transition-old(drever-story-browser),
+:root::view-transition-new(drever-story-browser) {
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
 
 /* Reverse with the visible source bitmap; the destination is intentionally below the canvas. */
-.drever-deck:active-view-transition-type(drever-slide-backward):has(
-  [data-slide-state="active"] .browser-story--anticipate
+:root:active-view-transition-type(drever-slide-backward):has(
+  .drever-deck [data-slide-state="active"] .browser-story--anticipate
 )::view-transition-old(drever-story-browser) {
   opacity: 1;
 }
 
-.drever-deck:active-view-transition-type(drever-slide-backward):has(
-  [data-slide-state="active"] .browser-story--anticipate
+:root:active-view-transition-type(drever-slide-backward):has(
+  .drever-deck [data-slide-state="active"] .browser-story--anticipate
 )::view-transition-new(drever-story-browser) {
   opacity: 0;
 }

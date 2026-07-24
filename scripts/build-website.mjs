@@ -183,7 +183,7 @@ const verifyOutput = async () => {
   ).join("\n");
   if (
     !websiteJavaScript.includes("data-browser-support-notice") ||
-    !websiteJavaScript.includes("Full presentation motion uses Chrome.")
+    !websiteJavaScript.includes("This browser limits live presentations.")
   ) {
     throw new Error("Website assets are missing the non-blocking browser support notice.");
   }

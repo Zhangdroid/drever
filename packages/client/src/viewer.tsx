@@ -37,8 +37,8 @@ import { PresentationStage, type StageComponents } from "./stage.tsx";
 import {
   resolveLocalSlideTransition,
   setLocalSlideTransitionMode,
-  startScopedViewTransition,
-  type ScopedViewTransition,
+  startPresentationViewTransition,
+  type PresentationViewTransition,
 } from "./view-transition.ts";
 import { scheduleStableMountNotification } from "./viewer-lifecycle.ts";
 
@@ -197,7 +197,7 @@ type PendingCommit = {
   resolve(): void;
   resolveUpdate?(): void;
   signal: AbortSignal;
-  transition?: ScopedViewTransition;
+  transition?: PresentationViewTransition;
 };
 
 const navigationAbortReason = (signal: AbortSignal): unknown =>
@@ -294,7 +294,7 @@ export const ViewerHost = ({
           reject(
             new DreverClientError(
               "DREVER_CLIENT_VIEWER_NOT_READY",
-              "The presentation deck is not ready to start a scoped View Transition.",
+              "The presentation deck is not ready to start a View Transition.",
             ),
           );
           return;
@@ -308,8 +308,8 @@ export const ViewerHost = ({
         }
 
         try {
-          const transition = startScopedViewTransition(
-            deck,
+          const transition = startPresentationViewTransition(
+            deck.ownerDocument,
             change.transitionType,
             () =>
               new Promise<void>((resolveUpdate, rejectUpdate) => {
@@ -332,7 +332,7 @@ export const ViewerHost = ({
             onError(
               new DreverClientError(
                 "DREVER_CLIENT_VIEW_TRANSITION_INVALID",
-                "The deck View Transition could not capture the authored motion identities.",
+                "The document View Transition could not capture the authored motion identities.",
                 { cause: error },
               ),
             );

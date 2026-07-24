@@ -784,7 +784,9 @@ test("speaker chrome keeps remote keys while buttons and notes retain native key
   health.expectHealthy();
 });
 
-test("the deck owns slide transitions while audience controls stay live", async ({ page }) => {
+test("document transitions capture the deck while audience controls keep a stable group", async ({
+  page,
+}) => {
   await monitorViewTransitions(page);
 
   await page.goto("/");
@@ -803,17 +805,18 @@ test("the deck owns slide transitions while audience controls stay live", async 
   await expect(next).toBeFocused();
 
   expect(await readViewTransitionCalls(page)).toEqual([
-    { kind: "element", target: "deck", types: ["drever-slide-forward"] },
+    { kind: "document", target: "document", types: ["drever-slide-forward"] },
   ]);
   const transitionStyles = await page.evaluate(() => {
     const deck = document.querySelector<HTMLElement>("[data-drever-deck]");
     const controls = document.querySelector<HTMLElement>("[data-drever-audience-controls]");
+    const toolbar = document.querySelector<HTMLElement>(".drever-audience-controls__bar");
     const canvas = document.querySelector<HTMLElement>("[data-drever-canvas]");
-    if (deck === null || controls === null || canvas === null) {
+    if (deck === null || controls === null || toolbar === null || canvas === null) {
       throw new Error("Expected the audience viewer surfaces to be mounted.");
     }
     const read = (pseudo: string) => {
-      const style = getComputedStyle(deck, pseudo);
+      const style = getComputedStyle(document.documentElement, pseudo);
       return {
         animationName: style.animationName,
         filter: style.filter,
@@ -822,24 +825,37 @@ test("the deck owns slide transitions while audience controls stay live", async 
       };
     };
     return {
-      controlsAreLive:
+      controlsAreStable:
         controls === Reflect.get(globalThis, "__dreverAudienceControls") &&
         !deck.contains(controls) &&
         !canvas.contains(controls) &&
-        getComputedStyle(controls).viewTransitionName === "none",
-      newRoot: read("::view-transition-new(root)"),
-      oldRoot: read("::view-transition-old(root)"),
+        getComputedStyle(controls).viewTransitionName === "none" &&
+        getComputedStyle(toolbar).viewTransitionName === "drever-toolbar",
+      deckName: getComputedStyle(deck).viewTransitionName,
+      deckPairOverflow: getComputedStyle(
+        document.documentElement,
+        "::view-transition-image-pair(drever-deck)",
+      ).overflow,
+      newDeck: read("::view-transition-new(drever-deck)"),
+      oldDeck: read("::view-transition-old(drever-deck)"),
+      overlayPointerEvents: getComputedStyle(document.documentElement, "::view-transition")
+        .pointerEvents,
+      rootName: getComputedStyle(document.documentElement).viewTransitionName,
     };
   });
   expect(transitionStyles).toMatchObject({
-    controlsAreLive: true,
-    newRoot: {
+    controlsAreStable: true,
+    deckName: "drever-deck",
+    deckPairOverflow: "clip",
+    newDeck: {
       animationName: "drever-slide-cover",
       filter: "none",
       mixBlendMode: "normal",
       opacity: 1,
     },
-    oldRoot: { animationName: "none", mixBlendMode: "normal", opacity: 0 },
+    oldDeck: { animationName: "none", mixBlendMode: "normal", opacity: 0 },
+    overlayPointerEvents: "none",
+    rootName: "none",
   });
   await waitForViewTransition(page, transition, "finished");
   await expect(page.locator('[data-drever-slide][data-slide-state="active"] h2')).toHaveCSS(
@@ -921,8 +937,8 @@ test("a second slide navigation supersedes an in-flight transition cleanly", asy
   await waitForViewTransition(page, first, "finished");
 
   expect(await readViewTransitionCalls(page)).toEqual([
-    { kind: "element", target: "deck", types: ["drever-slide-forward"] },
-    { kind: "element", target: "deck", types: ["drever-slide-forward"] },
+    { kind: "document", target: "document", types: ["drever-slide-forward"] },
+    { kind: "document", target: "document", types: ["drever-slide-forward"] },
   ]);
   health.expectHealthy();
 });
