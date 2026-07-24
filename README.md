@@ -31,6 +31,7 @@
   <a href="https://drever.dev">Website</a> ·
   <a href="https://drever.dev/docs">Documentation</a> ·
   <a href="https://drever.dev/showcase">Showcase</a> ·
+  <a href="https://drever.dev/changelog">Changelog</a> ·
   <a href="./CONTRIBUTING.md">Contributing</a>
 </p>
 

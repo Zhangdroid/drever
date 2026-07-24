@@ -12,7 +12,7 @@ export const documentationRoutes = [
   "/docs/credits",
 ] as const;
 
-export const siteRoutes = ["/", ...documentationRoutes, "/showcase"] as const;
+export const siteRoutes = ["/", "/changelog", ...documentationRoutes, "/showcase"] as const;
 
 export const demoMounts = [
   {

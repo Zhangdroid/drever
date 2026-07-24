@@ -1,0 +1,108 @@
+.changelog-page {
+  padding-inline: var(--site-gutter);
+}
+
+.changelog-page .page-hero {
+  min-height: 32rem;
+}
+
+.changelog-page__releases {
+  flex: 0 0 auto;
+}
+
+.changelog-content {
+  width: 100%;
+  max-width: var(--site-max);
+  margin-inline: auto;
+  padding-block: clamp(1rem, 3vw, 2rem) var(--site-section);
+}
+
+.changelog-content > p:first-of-type {
+  max-width: 46rem;
+  margin: 0 0 clamp(4rem, 8vw, 7rem);
+  color: var(--site-muted);
+  font-size: clamp(1rem, 1.7vw, 1.25rem);
+  line-height: 1.65;
+}
+
+.changelog-content h2 {
+  max-width: 18ch;
+  margin: clamp(4.5rem, 9vw, 8rem) 0 0;
+  padding-block-start: clamp(1.5rem, 3vw, 2.5rem);
+  border-top: 1px solid var(--site-line);
+  font-family: var(--drever-brand-font-family-display);
+  font-size: clamp(2.8rem, 6vw, 5.6rem);
+  font-weight: 590;
+  letter-spacing: -0.055em;
+  line-height: 0.92;
+}
+
+.changelog-content h2:first-of-type {
+  margin-block-start: 0;
+}
+
+.changelog-content h2 a {
+  color: inherit;
+  text-decoration-color: color-mix(in srgb, var(--site-continuity), transparent 52%);
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.12em;
+}
+
+.changelog-content h3 {
+  margin: clamp(2.4rem, 5vw, 4rem) 0 1.1rem;
+  color: var(--site-continuity);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.changelog-content ul {
+  display: grid;
+  max-width: 52rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  gap: 0;
+}
+
+.changelog-content li {
+  position: relative;
+  padding: 1rem 0 1rem 1.4rem;
+  border-top: 1px solid color-mix(in srgb, var(--site-line), transparent 24%);
+  color: color-mix(in srgb, var(--site-ink), var(--site-muted) 22%);
+  font-size: 0.94rem;
+  line-height: 1.65;
+}
+
+.changelog-content li:last-child {
+  border-bottom: 1px solid color-mix(in srgb, var(--site-line), transparent 24%);
+}
+
+.changelog-content li::before {
+  position: absolute;
+  top: 1.65rem;
+  left: 0;
+  width: 0.48rem;
+  height: 2px;
+  background: var(--site-signal);
+  content: "";
+}
+
+.changelog-content code {
+  font-family: var(--drever-brand-font-family-mono);
+  font-size: 0.88em;
+}
+
+@media (max-width: 48rem) {
+  .changelog-page .page-hero {
+    min-height: 28rem;
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  .changelog-content > p:first-of-type {
+    margin-block-end: 3.5rem;
+  }
+}

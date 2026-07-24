@@ -13,7 +13,7 @@ on:
           - next
           - latest
       version:
-        description: SemVer for next/latest; leave empty for a commit release
+        description: SemVer for next/latest with a matching CHANGELOG.md section; empty for commit
         required: false
         type: string
 
@@ -65,6 +65,11 @@ jobs:
           echo "tag=$(jq -r .tag <<<"$plan")" >> "$GITHUB_OUTPUT"
           echo "prerelease=$(jq -r .prerelease <<<"$plan")" >> "$GITHUB_OUTPUT"
 
+      - name: Validate the release changelog
+        env:
+          CHANGELOG_SECTION: ${{ inputs.channel == 'commit' && 'Unreleased' || steps.release.outputs.version }}
+        run: node scripts/changelog.mjs extract "$CHANGELOG_SECTION" > "$RUNNER_TEMP/drever-release-notes.md"
+
       - name: Install Chromium
         run: vp exec playwright install --with-deps --no-shell chromium
 
@@ -82,7 +87,10 @@ jobs:
       - name: Pack the release
         run: node scripts/release.mjs pack "$RUNNER_TEMP/drever-release"
 
-      - name: Retain the audited tarballs
+      - name: Add the audited release notes
+        run: cp "$RUNNER_TEMP/drever-release-notes.md" "$RUNNER_TEMP/drever-release/release-notes.md"
+
+      - name: Retain the audited release
         id: upload
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -160,26 +168,46 @@ jobs:
           RELEASE_VERSION: ${{ needs.audit.outputs.version }}
         run: |
           github_tag="v$RELEASE_VERSION"
-          if existing="$(gh release view "$github_tag" --repo "$GITHUB_REPOSITORY" --json isPrerelease 2>/dev/null)"; then
-            existing_prerelease="$(jq -r .isPrerelease <<<"$existing")"
-            existing_commit="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$github_tag" --jq .object.sha)"
-            if [[ "$existing_prerelease" != "$RELEASE_PRERELEASE" || "$existing_commit" != "$RELEASE_COMMIT" ]]; then
-              echo "GitHub release $github_tag does not match the audited npm release." >&2
-              exit 1
-            fi
-            echo "GitHub release $github_tag already records this npm release."
-            exit 0
+          audited_notes="$RUNNER_TEMP/drever-release/release-notes.md"
+          if [[ ! -s "$audited_notes" ]]; then
+            echo "The audited release artifact does not contain release notes." >&2
+            exit 1
           fi
 
-          notes="$RUNNER_TEMP/drever-release-notes.md"
+          notes="$RUNNER_TEMP/drever-release-body.md"
           {
-            echo "Published the Drever package set to npm."
+            cat "$audited_notes"
+            echo
+            echo "---"
+            echo
+            echo "### Release provenance"
             echo
             echo "- Version: \`$RELEASE_VERSION\`"
             echo "- npm dist-tag: \`$RELEASE_TAG\`"
             echo "- Source: [\`${RELEASE_COMMIT:0:12}\`](https://github.com/$GITHUB_REPOSITORY/commit/$RELEASE_COMMIT)"
             echo "- Package: [\`drever@$RELEASE_VERSION\`](https://www.npmjs.com/package/drever/v/$RELEASE_VERSION)"
           } > "$notes"
+
+          if existing="$(gh release view "$github_tag" --repo "$GITHUB_REPOSITORY" --json body,isPrerelease 2>/dev/null)"; then
+            existing_prerelease="$(jq -r .isPrerelease <<<"$existing")"
+            existing_commit="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$github_tag" --jq .object.sha)"
+            if [[ "$existing_prerelease" != "$RELEASE_PRERELEASE" || "$existing_commit" != "$RELEASE_COMMIT" ]]; then
+              echo "GitHub release $github_tag does not match the audited npm release." >&2
+              exit 1
+            fi
+            existing_notes="$(jq -r .body <<<"$existing")"
+            expected_notes="$(cat "$notes")"
+            if [[ "$existing_notes" == "$expected_notes" ]]; then
+              echo "GitHub release $github_tag already records this npm release."
+              exit 0
+            fi
+            gh release edit "$github_tag" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "Drever $RELEASE_VERSION" \
+              --notes-file "$notes"
+            echo "Updated GitHub release $github_tag from the audited changelog."
+            exit 0
+          fi
 
           arguments=(
             "$github_tag"

@@ -49,4 +49,6 @@ catalog-agnostic; expose each capability through its plugin manifest and
 authoring context.
 
 Keep commits focused and self-contained. Update the relevant documentation when
-a public contract changes, and commit only after the complete gate passes.
+a public contract changes. Record user-facing additions, changes, and fixes in
+the `Unreleased` section of [`CHANGELOG.md`](./CHANGELOG.md), then commit only
+after the complete gate passes.

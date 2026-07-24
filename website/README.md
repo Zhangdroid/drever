@@ -7,9 +7,10 @@ It uses TanStack Start for file-based routing and build-time prerendering. Only 
 
 ## Site boundaries
 
-The site has four primary surfaces:
+The site has five primary surfaces:
 
 - `/` contains the product website.
+- `/changelog` renders the repository's canonical `CHANGELOG.md`.
 - `/docs/*` contains prerendered documentation routes.
 - `/showcase` curates complete stories, focused capability studies, and art directions.
 - `/showcase/*` hosts the real Drever builds selected from `examples/`.

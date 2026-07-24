@@ -47,7 +47,7 @@ export default defineConfig({
       },
       sitemap: { enabled: false },
     }),
-    react({ include: /\.(?:js|jsx|mdx|ts|tsx)$/ }),
+    react({ include: /\.(?:js|jsx|md|mdx|ts|tsx)$/ }),
   ],
   server: {
     host: "127.0.0.1",

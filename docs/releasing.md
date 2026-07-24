@@ -19,6 +19,34 @@ be renamed to a stable version. A stable release rebuilds the same source
 revision with its final version. GitHub Releases are written only after npm
 publication and public-registry verification succeed.
 
+## Release notes
+
+[`CHANGELOG.md`](../CHANGELOG.md) is the canonical release history for the
+repository, website, and GitHub Releases. Keep its `Unreleased` section current
+as user-facing work lands.
+
+Before dispatching `next` or `latest`, move the relevant entries into one
+version section:
+
+```md
+## [0.2.0] - 2026-08-01
+
+### Added
+
+- Describe the user-visible capability.
+```
+
+The heading version must exactly match the workflow input. A commit test uses
+the current `Unreleased` section. Every selected section must contain at least
+one list item; otherwise the audit job fails before npm publication.
+
+The audit job extracts the selected section into the retained release artifact.
+The record job uses only that audited file for the GitHub Release body and
+appends package version, dist-tag, source commit, and npm links. The public
+website compiles the same root file at
+[`/changelog`](https://drever.dev/changelog), so release notes are never copied
+between three independently maintained sources.
+
 ## Release gate
 
 Run the complete local gate before requesting a release:
@@ -50,15 +78,16 @@ recurring lockstep publishing identity. Run it manually from `main`, choose
 `commit`, `next`, or `latest`, and provide a version only for a named release.
 Publications are queued rather than replaced and run as three jobs:
 
-1. an unprivileged audit job installs, tests, versions, packs, retains the
-   release artifact, checks the registry package set, and dry-runs publication
-   with `contents: read` only;
+1. an unprivileged audit job installs, tests, versions, packs, extracts the
+   required changelog section, retains the release artifact, checks the
+   registry package set, and dry-runs publication with `contents: read` only;
 2. a minimal publish job downloads that exact artifact, receives
    `id-token: write` through the `npm` environment, verifies that every public
    package name has already been bootstrapped, publishes it, and verifies a
    clean registry consumer;
 3. an isolated record job receives `contents: write` only after publication
-   succeeds and creates the matching GitHub Release with the audited receipt.
+   succeeds and creates the matching GitHub Release with the audited receipt
+   and release notes.
 
 The workflow verifies the unmodified source revision first. It then applies an
 ephemeral lockstep version, rebuilds, and first packs with pnpm through Vite+.
@@ -182,8 +211,8 @@ artifact. A full rerun for the same commit is also safe because the pack is
 reproducible. Matching versions are verified and skipped; missing packages
 continue in dependency order. A version with different integrity stops the
 workflow. If only GitHub Release creation fails, rerun that final job; an
-existing matching tag and prerelease state are accepted, while a conflicting
-record stops the workflow.
+existing matching tag and prerelease state have their notes repaired from the
+audited artifact, while a conflicting record stops the workflow.
 
 Do not unpublish a broken release by default. npm never allows the same
 name/version pair to be reused. Publish a corrected version and deprecate the

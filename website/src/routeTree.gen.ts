@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from "./routes/__root";
 import { Route as IndexRouteImport } from "./routes/index";
+import { Route as ChangelogRouteImport } from "./routes/changelog";
 import { Route as DemosRouteImport } from "./routes/demos";
 import { Route as DocsRouteImport } from "./routes/docs";
 import { Route as ShowcaseRouteImport } from "./routes/showcase";
@@ -29,6 +30,11 @@ import { Route as DocsThemesRouteImport } from "./routes/docs.themes";
 const IndexRoute = IndexRouteImport.update({
   id: "/",
   path: "/",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const ChangelogRoute = ChangelogRouteImport.update({
+  id: "/changelog",
+  path: "/changelog",
   getParentRoute: () => rootRouteImport,
 } as any);
 const DemosRoute = DemosRouteImport.update({
@@ -109,6 +115,7 @@ const DocsThemesRoute = DocsThemesRouteImport.update({
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute;
+  "/changelog": typeof ChangelogRoute;
   "/demos": typeof DemosRoute;
   "/docs": typeof DocsRouteWithChildren;
   "/showcase": typeof ShowcaseRoute;
@@ -127,6 +134,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute;
+  "/changelog": typeof ChangelogRoute;
   "/demos": typeof DemosRoute;
   "/showcase": typeof ShowcaseRoute;
   "/themes": typeof ThemesRoute;
@@ -145,6 +153,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
   "/": typeof IndexRoute;
+  "/changelog": typeof ChangelogRoute;
   "/demos": typeof DemosRoute;
   "/docs": typeof DocsRouteWithChildren;
   "/showcase": typeof ShowcaseRoute;
@@ -165,6 +174,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
     | "/"
+    | "/changelog"
     | "/demos"
     | "/docs"
     | "/showcase"
@@ -183,6 +193,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo;
   to:
     | "/"
+    | "/changelog"
     | "/demos"
     | "/showcase"
     | "/themes"
@@ -200,6 +211,7 @@ export interface FileRouteTypes {
   id:
     | "__root__"
     | "/"
+    | "/changelog"
     | "/demos"
     | "/docs"
     | "/showcase"
@@ -219,6 +231,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
+  ChangelogRoute: typeof ChangelogRoute;
   DemosRoute: typeof DemosRoute;
   DocsRoute: typeof DocsRouteWithChildren;
   ShowcaseRoute: typeof ShowcaseRoute;
@@ -232,6 +245,13 @@ declare module "@tanstack/react-router" {
       path: "/";
       fullPath: "/";
       preLoaderRoute: typeof IndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/changelog": {
+      id: "/changelog";
+      path: "/changelog";
+      fullPath: "/changelog";
+      preLoaderRoute: typeof ChangelogRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/demos": {
@@ -374,6 +394,7 @@ const DocsRouteWithChildren = DocsRoute._addFileChildren(DocsRouteChildren);
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ChangelogRoute: ChangelogRoute,
   DemosRoute: DemosRoute,
   DocsRoute: DocsRouteWithChildren,
   ShowcaseRoute: ShowcaseRoute,

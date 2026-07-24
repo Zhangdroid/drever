@@ -158,6 +158,9 @@ export function SiteFooter() {
           </div>
           <div>
             <span>Project</span>
+            <Link activeOptions={{ exact: true }} to="/changelog">
+              Changelog
+            </Link>
             <a href={githubURL} rel="noreferrer" target="_blank">
               GitHub <ArrowUpRightIcon />
             </a>
