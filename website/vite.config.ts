@@ -5,6 +5,7 @@ import react from "@vitejs/plugin-react";
 import remarkGfm from "remark-gfm";
 // oxlint-disable-next-line vite-plus/prefer-vite-plus-imports -- TanStack Start uses Vite's config contract.
 import { defineConfig } from "vite";
+import { dreverShikiTheme } from "./shiki-theme";
 import { publicPresentationMounts, siteRoutes } from "./site-manifest";
 
 export default defineConfig({
@@ -18,7 +19,7 @@ export default defineConfig({
             {
               addLanguageClass: true,
               langs: ["bash", "json", "md", "mdx", "ts"],
-              theme: "vitesse-dark",
+              theme: dreverShikiTheme,
             },
           ],
         ],

@@ -469,10 +469,10 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
 }
 
 .code-block {
-  margin: 1.7rem 0;
+  margin: 1.5rem 0;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--drever-brand-color-night-line), white 4%);
-  border-radius: 0.7rem;
+  border-radius: var(--drever-brand-radius-medium);
   background: var(--site-night);
   box-shadow: 0 1rem 2.5rem rgb(25 23 43 / 9%);
   color-scheme: dark;
@@ -482,7 +482,7 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
 .code-block__bar {
   display: flex;
   min-height: 3rem;
-  padding: 0.45rem 0.55rem 0.45rem 1rem;
+  padding: 0.5rem 0.5rem 0.5rem 1rem;
   border-bottom: 1px solid var(--drever-brand-color-night-line);
   align-items: center;
   justify-content: space-between;
@@ -492,7 +492,7 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
 .code-block__bar > span {
   display: inline-flex;
   align-items: center;
-  gap: 0.48rem;
+  gap: 0.5rem;
   color: var(--site-night-muted);
   font-family: var(--drever-brand-font-family-mono);
   font-size: 0.62rem;
@@ -516,7 +516,7 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
 
 .code-block pre {
   margin: 0;
-  padding: 1.5rem;
+  padding: 1.25rem 1.5rem;
   overflow: auto;
 }
 
@@ -531,17 +531,8 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   font-family: var(--drever-brand-font-family-mono);
   font-size: 0.78rem;
   font-variant-ligatures: none;
-  line-height: 1.75;
+  line-height: 1.6;
   tab-size: 2;
-}
-
-.code-block code .line {
-  display: block;
-  min-height: 1.75em;
-}
-
-.code-block code .line:empty::after {
-  content: " ";
 }
 
 .code-block code ::selection {
