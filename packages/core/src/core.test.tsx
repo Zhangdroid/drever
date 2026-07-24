@@ -12,6 +12,7 @@ import {
   Note,
   Slide,
   SlideStateProvider,
+  SlideTransition,
   Step,
   useDreverRenderMode,
   type MDXContentProps,
@@ -53,6 +54,50 @@ describe("core primitives", () => {
     expect(markup).toContain('data-step-state="pending" aria-hidden="true" inert=""');
     expect(markup).toContain('style="visibility:hidden"');
     expect(markup).toContain('data-motion-intent="continuity"');
+  });
+
+  it("hoists adjacent local transition declarations onto their containing Slide", () => {
+    const markup = renderToStaticMarkup(
+      createElement(
+        Slide,
+        { id: "evidence", index: 2 },
+        createElement(SlideTransition, { from: "previous", mode: "local" }),
+        createElement(SlideTransition, { from: "next", mode: "local" }),
+        createElement("p", {}, "Evidence"),
+      ),
+    );
+    const sectionTag = markup.slice(0, markup.indexOf(">") + 1);
+
+    expect(sectionTag).toContain('data-drever-slide-transition-from-previous="local"');
+    expect(sectionTag).toContain('data-drever-slide-transition-from-next="local"');
+    expect(markup).toContain("<p>Evidence</p>");
+  });
+
+  it("rejects invalid or nested SlideTransition declarations", () => {
+    expect(() =>
+      renderToStaticMarkup(
+        createElement(
+          Slide,
+          { id: "evidence", index: 2 },
+          createElement(SlideTransition, { from: "earlier", mode: "local" } as never),
+        ),
+      ),
+    ).toThrowError(expect.objectContaining({ code: "DREVER_RUNTIME_SLIDE_TRANSITION_INVALID" }));
+    expect(() =>
+      renderToStaticMarkup(
+        createElement(
+          Slide,
+          { id: "evidence", index: 2 },
+          createElement(
+            "div",
+            {},
+            createElement(SlideTransition, { from: "previous", mode: "local" }),
+          ),
+        ),
+      ),
+    ).toThrowError(
+      expect.objectContaining({ code: "DREVER_RUNTIME_SLIDE_TRANSITION_PLACEMENT_INVALID" }),
+    );
   });
 
   it.each<DreverRenderMode>(["document", "export", "speaker-current", "speaker-next"])(
@@ -704,7 +749,13 @@ describe("MDXRenderer", () => {
 
   it("publishes an immutable primitive registry", () => {
     expect(Object.isFrozen(coreComponents)).toBe(true);
-    expect(Object.keys(coreComponents)).toEqual(["MotionGroup", "Note", "Slide", "Step"]);
+    expect(Object.keys(coreComponents)).toEqual([
+      "MotionGroup",
+      "Note",
+      "Slide",
+      "SlideTransition",
+      "Step",
+    ]);
   });
 });
 

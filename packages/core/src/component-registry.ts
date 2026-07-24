@@ -4,7 +4,7 @@ import {
   type ThemeElementName,
 } from "@drever/schema";
 import type { ElementType } from "react";
-import { MotionGroup, Note, Slide, Step } from "./primitives.tsx";
+import { MotionGroup, Note, Slide, SlideTransition, Step } from "./primitives.tsx";
 import { DreverRuntimeError } from "./runtime-error.ts";
 
 export type MDXComponents = Readonly<Record<string, ElementType>>;
@@ -19,6 +19,7 @@ export const coreComponents = Object.freeze({
   MotionGroup,
   Note,
   Slide,
+  SlideTransition,
   Step,
 }) satisfies MDXComponents;
 

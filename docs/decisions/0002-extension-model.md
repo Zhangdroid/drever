@@ -81,7 +81,8 @@ original statement. Content transforms belong in Remark or Rehype.
 The authoring surface has distinct semantic registries even if the Vite adapter
 later emits one MDX component module:
 
-1. Core primitives: `Slide`, `Step`, `Note`, and `MotionGroup`; protected.
+1. Core primitives: `Slide`, `Step`, `Note`, `MotionGroup`, and
+   `SlideTransition`; protected.
 2. Theme elements: lowercase intrinsic Markdown names such as `h1`, `p`, and
    `code`.
 3. Theme layouts: PascalCase composition contracts with slots and constraints.

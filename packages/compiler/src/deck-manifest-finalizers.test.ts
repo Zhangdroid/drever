@@ -89,6 +89,8 @@ describe("remarkDreverDeckManifest", () => {
 
 ---
 
+<SlideTransition from="previous" mode="local" />
+
 <Masthead title="  Layout   title  " />
 
 ---

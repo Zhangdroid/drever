@@ -32,6 +32,7 @@ const PROTECTED_COMPONENT_NAMES: ReadonlySet<string> = new Set([
   "MotionGroup",
   "Note",
   "Slide",
+  "SlideTransition",
   "Step",
 ]);
 

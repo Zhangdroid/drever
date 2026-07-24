@@ -339,6 +339,11 @@ describe("createCompilePlan", () => {
             module: { specifier: "step" },
             manifest: { description: "Invalid Step replacement." },
           },
+          {
+            name: "SlideTransition",
+            module: { specifier: "slide-transition" },
+            manifest: { description: "Invalid SlideTransition replacement." },
+          },
         ],
       },
     });
@@ -348,6 +353,7 @@ describe("createCompilePlan", () => {
     expect(result.ok).toBe(false);
     expect(diagnosticCodes(result)).toEqual([
       "DREVER_COMPONENT_CONFLICT",
+      "DREVER_COMPONENT_PROTECTED",
       "DREVER_COMPONENT_PROTECTED",
     ]);
     expect(result.diagnostics[0]?.details).toEqual({

@@ -8,6 +8,7 @@ export {
   Note,
   Slide,
   SlideStateProvider,
+  SlideTransition,
   Step,
   useDreverRenderMode,
 } from "./primitives.tsx";
@@ -22,6 +23,7 @@ export type {
   SlideProps,
   SlideStateProviderProps,
   SlideStateResolver,
+  SlideTransitionProps,
   StepProps,
   StepState,
 } from "./primitives.tsx";

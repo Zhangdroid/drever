@@ -27,6 +27,8 @@ describe("deck accessibility preflight", () => {
 
 ---
 
+<SlideTransition from="previous" mode="local" />
+
 <Statement aria-label="Closing thought" />`,
       { path: "talk.mdx" },
     );

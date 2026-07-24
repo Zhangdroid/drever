@@ -461,9 +461,12 @@ interaction and assistive technology. The complete authoring contract is in
 [Motion choreography](./motion.md).
 
 The client owns deck-scoped capture, the Navigation-to-React commit, direction,
-and state classification. Core owns intent attributes, continuity identity,
-and replacement accessibility. Themes own duration, easing, emphasis, and
-displacement through CSS. Their
+and state classification. A direct `SlideTransition` child can assign one
+adjacent entry to live authored motion; that exact edge bypasses snapshot
+capture and exposes `data-drever-transition-mode="local"` plus its
+`data-drever-transition-from` origin on the deck. Core owns the declaration,
+intent attributes, continuity identity, and replacement accessibility. Themes
+own duration, easing, emphasis, and displacement through CSS. Their
 `theme.motion` field is JSON-safe authoring metadata (`id`, supported `intents`,
 and optional `guidance`), not an executable module, and the generated runtime
 does not export a separate `motion` value.

@@ -34,7 +34,12 @@ import type {
   PresentationStore,
 } from "./presentation-state.ts";
 import { PresentationStage, type StageComponents } from "./stage.tsx";
-import { startScopedViewTransition, type ScopedViewTransition } from "./view-transition.ts";
+import {
+  resolveLocalSlideTransition,
+  setLocalSlideTransitionMode,
+  startScopedViewTransition,
+  type ScopedViewTransition,
+} from "./view-transition.ts";
 import { scheduleStableMountNotification } from "./viewer-lifecycle.ts";
 
 export type ViewerProps = Readonly<{
@@ -245,6 +250,10 @@ export const ViewerHost = ({
           pending.removeAbortListener();
           const reason = navigationAbortReason(signal);
           pending.transition?.skipTransition();
+          const deck = deckRef.current;
+          if (deck !== null) {
+            setLocalSlideTransitionMode(deck, undefined);
+          }
           pending.rejectUpdate?.(reason);
           reject(reason);
           setPosition(store.getSnapshot());
@@ -260,12 +269,15 @@ export const ViewerHost = ({
         signal.addEventListener("abort", onAbort, { once: true });
 
         const changesSlide = change.from.slideIndex !== change.to.slideIndex;
+        const deck = deckRef.current;
         if (reducedMotion || !changesSlide) {
+          if (deck !== null) {
+            setLocalSlideTransitionMode(deck, undefined);
+          }
           setPosition(change.to);
           return;
         }
 
-        const deck = deckRef.current;
         if (deck === null) {
           pendingRef.current = undefined;
           pending.removeAbortListener();
@@ -275,6 +287,13 @@ export const ViewerHost = ({
               "The presentation deck is not ready to start a scoped View Transition.",
             ),
           );
+          return;
+        }
+
+        const localTransitionFrom = resolveLocalSlideTransition(deck, change);
+        setLocalSlideTransitionMode(deck, localTransitionFrom);
+        if (localTransitionFrom !== undefined) {
+          setPosition(change.to);
           return;
         }
 
@@ -363,6 +382,10 @@ export const ViewerHost = ({
       if (pending.signal.aborted) {
         const reason = navigationAbortReason(pending.signal);
         pending.transition?.skipTransition();
+        const deck = deckRef.current;
+        if (deck !== null) {
+          setLocalSlideTransitionMode(deck, undefined);
+        }
         pending.rejectUpdate?.(reason);
         pending.reject(reason);
         setPosition(store.getSnapshot());

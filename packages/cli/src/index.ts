@@ -27,12 +27,13 @@ export type {
   SpeakerNote,
   ThemeDefinition,
 } from "@drever/compiler";
-export { MotionGroup, Note, Step } from "@drever/core";
+export { MotionGroup, Note, SlideTransition, Step } from "@drever/core";
 export type {
   MotionFlow,
   MotionGroupProps,
   MotionIntent,
   NoteProps,
+  SlideTransitionProps,
   StepProps,
   StepState,
 } from "@drever/core";

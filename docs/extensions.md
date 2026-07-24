@@ -323,7 +323,8 @@ When generating a Drever extension, an AI should verify:
 4. Build-reference options and registration config contain canonical JSON only.
 5. Theme layouts document slots, accepted content, variants, and constraints.
 6. Plugin components use unique PascalCase names and document their props.
-7. Core names `Slide`, `Step`, `Note`, and `MotionGroup` are never replaced.
+7. Core names `Slide`, `Step`, `Note`, `MotionGroup`, and `SlideTransition` are
+   never replaced.
 8. Browser-lite support is declared only when the complete plugin can run there.
 9. Remark hooks preserve protected Slide wrapper identity, order, and generated props.
 10. Rehype hooks preserve the exact static Step sequence and navigation semantics.

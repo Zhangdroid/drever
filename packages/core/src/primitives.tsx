@@ -198,10 +198,19 @@ export const Slide = ({
     return null;
   }
 
+  const localTransitionFrom = new Set<SlideTransitionProps["from"]>();
+  const slideChildren = Children.map(children, (child) => {
+    if (!isValidElement<SlideTransitionProps>(child) || child.type !== SlideTransition) {
+      return child;
+    }
+    const transition = resolveSlideTransition(child.props);
+    localTransitionFrom.add(transition.from);
+    return null;
+  });
   const content = createElement(
     SlideContext.Provider,
     { value: Object.freeze({ active, currentStep }) },
-    children,
+    slideChildren,
   );
   const section = createElement(
     "section",
@@ -213,6 +222,12 @@ export const Slide = ({
       "data-slide-index": index,
       "data-slide-state": active ? "active" : "inactive",
       "data-current-step": currentStep,
+      "data-drever-slide-transition-from-next": localTransitionFrom.has("next")
+        ? "local"
+        : undefined,
+      "data-drever-slide-transition-from-previous": localTransitionFrom.has("previous")
+        ? "local"
+        : undefined,
       "aria-current": !exporting && !documentMode && active ? "page" : undefined,
       "aria-label": documentMode
         ? (props["aria-label"] ?? resolvedState?.label)
@@ -297,6 +312,31 @@ export const Step = ({
 export type NoteProps = PropsWithChildren;
 
 export const Note = (_props: NoteProps) => null;
+
+export type SlideTransitionProps = Readonly<{
+  from: "next" | "previous";
+  mode: "local";
+}>;
+
+const resolveSlideTransition = ({ from, mode }: SlideTransitionProps): SlideTransitionProps => {
+  if ((from !== "next" && from !== "previous") || mode !== "local") {
+    throw new DreverRuntimeError(
+      "DREVER_RUNTIME_SLIDE_TRANSITION_INVALID",
+      'SlideTransition requires from="previous" or from="next" and mode="local".',
+      { from: String(from), mode: String(mode) },
+    );
+  }
+  return Object.freeze({ from, mode });
+};
+
+/** Declares how the containing Slide is entered from one adjacent Slide. */
+export const SlideTransition = (props: SlideTransitionProps): never => {
+  resolveSlideTransition(props);
+  throw new DreverRuntimeError(
+    "DREVER_RUNTIME_SLIDE_TRANSITION_PLACEMENT_INVALID",
+    "SlideTransition must be a direct child of its target Slide.",
+  );
+};
 
 type MotionGroupElementProps = Omit<ComponentPropsWithoutRef<"div">, "name">;
 

@@ -18,9 +18,9 @@ export function ExampleSlide() {
 ```
 
 Exports include `MDXRenderer`, the protected component registry, `Slide`,
-`Step`, `Note`, `MotionGroup`, and slide-state context. The runtime targets
-React Canary and current browsers; it intentionally uses React `Activity` for
-inactive slide state and effect lifecycle.
+`Step`, `Note`, `MotionGroup`, `SlideTransition`, and slide-state context. The
+runtime targets React Canary and current browsers; it intentionally uses React
+`Activity` for inactive slide state and effect lifecycle.
 
 Components with media, network work, or global listeners should call
 `useDreverRenderMode()`. It returns `audience`, `document`, `export`,
@@ -59,6 +59,11 @@ pass animation parameters. Missing or unknown intents, invalid continuity
 names, and invalid prop combinations fail with structured runtime errors. See
 [Motion choreography](../../docs/motion.md) for the complete grammar,
 render-mode behavior, and author checklist.
+
+Use a direct `<SlideTransition from="previous" mode="local" />` child when the
+target slide's live DOM must own that exact adjacent entry instead of native
+snapshot capture. `from="next"` applies the same policy in the opposite
+direction.
 
 Exporters can pass `idPrefix` to `DreverRenderModeProvider` when they render the
 same compiled content tree more than once. The prefix keeps rendered slide IDs

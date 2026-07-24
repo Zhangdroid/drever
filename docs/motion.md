@@ -462,6 +462,40 @@ font metrics and wrapping stable, expose the final copy as accessible text, and
 use non-overlapping exit and reveal phases. Never scale or crossfade different
 glyph snapshots. Under reduced motion, render the same final copy immediately.
 
+#### Let live DOM own one adjacent handoff
+
+Use `SlideTransition` when a scene needs to animate its live destination DOM
+instead of entering through a native snapshot:
+
+```mdx
+---
+
+<SlideTransition from="previous" mode="local" />
+
+<div className="evidence-scene">...</div>
+```
+
+Place it as a direct child of the target slide. `from="previous"` applies only
+when entering from the immediately preceding slide; `from="next"` is the
+symmetric form. Non-adjacent jumps and the opposite direction keep their normal
+native transition.
+
+The client does not call `startViewTransition` for the declared edge. It exposes
+that commit while the target is active so authored CSS can own the handoff:
+
+```css
+.drever-deck[data-drever-transition-mode="local"][data-drever-transition-from="previous"]
+  [data-slide-state="active"]
+  .evidence-scene {
+  animation: evidence-arrive 680ms var(--drever-motion-easing) both;
+}
+```
+
+Use this boundary narrowly. It is appropriate when live kinetic type, canvas,
+or another destination-side scene must not pass through a captured bitmap.
+Starting a View Transition and immediately skipping it is not equivalent: a
+faulty capture frame may already have been presented.
+
 #### Media with a deliberate crop
 
 ```mdx

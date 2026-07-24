@@ -34,9 +34,9 @@ import "../showcase-return.css";
 ---
 
 <div aria-label="A screenshot cannot show the moment of change" className="browser-story browser-story--anticipate">
-  <MotionGroup className="browser-story__copy" intent="continuity" name="story-copy">
+  <div className="browser-story__copy">
     <BrowserStoryCopy phase="before" />
-  </MotionGroup>
+  </div>
 
   <MotionGroup
     aria-label="A product browser waiting completely below the stage"
@@ -55,10 +55,12 @@ import "../showcase-return.css";
 
 ---
 
+<SlideTransition from="previous" mode="local" />
+
 <div aria-label="Bring the evidence into the room" className="browser-story browser-story--arrive">
-  <MotionGroup className="browser-story__copy" intent="continuity" name="story-copy">
+  <div className="browser-story__copy">
     <BrowserStoryCopy phase="after" />
-  </MotionGroup>
+  </div>
 
   <MotionGroup
     aria-label="The product browser becomes the central evidence"

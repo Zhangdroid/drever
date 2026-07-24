@@ -17,7 +17,8 @@ const descendants = (node: RootContent): readonly RootContent[] =>
 const isElement = (node: RootContent): node is MdxJsxElement =>
   node.type === "mdxJsxFlowElement" || node.type === "mdxJsxTextElement";
 
-const isSpeakerNote = (node: RootContent): boolean => isElement(node) && node.name === "Note";
+const isHeadlessCoreComponent = (node: RootContent): boolean =>
+  isElement(node) && (node.name === "Note" || node.name === "SlideTransition");
 
 const staticHeadingText = (node: RootContent): string | undefined => {
   const record = node as unknown as Readonly<Record<string, unknown>>;
@@ -54,7 +55,7 @@ export const normalizeStaticTitle = (value: string): string | undefined => {
 
 const findFirstHeading = (children: readonly RootContent[]): RootContent | undefined => {
   for (const child of children) {
-    if (isSpeakerNote(child)) {
+    if (isHeadlessCoreComponent(child)) {
       continue;
     }
     if (child.type === "heading") {
@@ -90,7 +91,7 @@ export const staticSlideTitle = (
   }
 
   const layout = children.find(
-    (child): child is MdxJsxElement => isElement(child) && !isSpeakerNote(child),
+    (child): child is MdxJsxElement => isElement(child) && !isHeadlessCoreComponent(child),
   );
   if (layout === undefined) {
     return;
