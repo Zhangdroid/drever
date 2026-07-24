@@ -13,8 +13,8 @@
 <p align="center">
   <a href="https://drever.dev">
     <img
-      src="./.github/assets/drever-readme-hero.jpg"
-      alt="Two Drever presentation states connected by one continuous path."
+      src="./.github/assets/drever-readme-hero.png"
+      alt="Readable MDX becomes a live Drever slide with document and PDF outputs."
     />
   </a>
 </p>

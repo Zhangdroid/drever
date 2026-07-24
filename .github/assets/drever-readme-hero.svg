@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="800" viewBox="0 0 1600 800">
+  <defs>
+    <style>
+      @font-face {
+        font-family: "Bricolage Grotesque";
+        font-style: normal;
+        font-weight: 200 800;
+        font-stretch: 75% 100%;
+        src: url("../../packages/brand/fonts/BricolageGrotesque-Latin[opsz,wdth,wght].woff2")
+          format("woff2-variations");
+      }
+
+      @font-face {
+        font-family: "Instrument Sans";
+        font-style: normal;
+        font-weight: 400 700;
+        font-stretch: 75% 100%;
+        src: url("../../packages/brand/fonts/InstrumentSans[wdth,wght].woff2")
+          format("woff2-variations");
+      }
+
+      .display {
+        font-family: "Bricolage Grotesque", "Instrument Sans", sans-serif;
+        font-variation-settings:
+          "opsz" 96,
+          "wdth" 100,
+          "wght" 640;
+      }
+
+      .sans {
+        font-family: "Instrument Sans", sans-serif;
+        font-variation-settings:
+          "wdth" 100,
+          "wght" 520;
+      }
+
+      .label {
+        font-family: "Instrument Sans", sans-serif;
+        font-size: 18px;
+        font-variation-settings:
+          "wdth" 100,
+          "wght" 650;
+        letter-spacing: 2.4px;
+      }
+
+      .code {
+        font-family: "SFMono-Regular", "Cascadia Code", "Roboto Mono", monospace;
+        font-size: 23px;
+      }
+    </style>
+  </defs>
+
+  <!-- Paper is the stable stage. -->
+  <rect width="1600" height="800" fill="#F6F3E9" />
+
+  <!-- One readable source. -->
+  <g transform="translate(88 104)">
+    <text class="label" fill="#5B45D8" x="0" y="0">READABLE SOURCE</text>
+    <text class="sans" fill="#686474" font-size="18" x="0" y="42">One story, authored once.</text>
+
+    <g class="code" transform="translate(0 120)">
+      <text fill="#19172B" x="0" y="0"># The room changes.</text>
+      <text fill="#5B45D8" x="0" y="66">&lt;Step&gt;</text>
+      <text fill="#19172B" x="24" y="112">Reveal the proof.</text>
+      <text fill="#5B45D8" x="0" y="158">&lt;/Step&gt;</text>
+    </g>
+
+    <g transform="translate(0 372)">
+      <rect width="50" height="1" fill="#D9D4E1" />
+      <text class="sans" fill="#686474" font-size="17" x="0" y="38">Human-readable MDX</text>
+      <text class="sans" fill="#686474" font-size="17" x="0" y="70">AI-readable intent</text>
+    </g>
+  </g>
+
+  <!-- The thematic break becomes the live frame. -->
+  <rect x="88" y="641" width="32" height="8" fill="#C7F03A" />
+  <rect x="132" y="641" width="32" height="8" fill="#C7F03A" />
+  <path d="M176 645H500V80H1524" fill="none" stroke="#5B45D8" stroke-width="3" />
+  <circle cx="500" cy="645" r="7" fill="#F6F3E9" stroke="#5B45D8" stroke-width="3" />
+
+  <!-- One dominant live stage. -->
+  <rect x="500" y="80" width="1024" height="640" fill="#19172B" />
+
+  <g transform="translate(574 150)">
+    <text class="label" fill="#B9B3C7" x="0" y="0">LIVE STORY</text>
+    <text class="label" fill="#B9B3C7" text-anchor="end" x="876" y="0">04 / 12</text>
+
+    <text class="display" fill="#F6F3E9" font-size="112" letter-spacing="-5" x="0" y="160">
+      The room
+    </text>
+    <rect x="-4" y="194" width="447" height="106" fill="#C7F03A" />
+    <text class="display" fill="#19172B" font-size="112" letter-spacing="-5" x="0" y="282">
+      changes.
+    </text>
+
+    <text class="sans" fill="#B9B3C7" font-size="25" x="2" y="352">
+      Reveal the proof when the room needs it.
+    </text>
+
+    <g transform="translate(0 440)">
+      <line x1="0" x2="876" y1="0" y2="0" stroke="#3A3549" />
+
+      <circle cx="6" cy="53" r="6" fill="#C7F03A" />
+      <text class="label" fill="#F6F3E9" x="28" y="60">LIVE</text>
+
+      <circle cx="208" cy="53" r="6" fill="#5B45D8" />
+      <text class="label" fill="#B9B3C7" x="230" y="60">DOCUMENT</text>
+
+      <circle cx="487" cy="53" r="6" fill="#5B45D8" />
+      <text class="label" fill="#B9B3C7" x="509" y="60">PDF</text>
+
+      <text class="label" fill="#B9B3C7" text-anchor="end" x="876" y="60">STEP 02</text>
+    </g>
+  </g>
+</svg>
