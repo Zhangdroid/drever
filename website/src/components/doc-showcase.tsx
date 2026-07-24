@@ -190,7 +190,7 @@ export function MotionRecipeGallery() {
         ))}
       </div>
       <a className="doc-visual-intro__more" href="/demos/motion/">
-        View all 17 motion stories <ArrowUpRightIcon />
+        View all 16 motion stories <ArrowUpRightIcon />
       </a>
     </section>
   );

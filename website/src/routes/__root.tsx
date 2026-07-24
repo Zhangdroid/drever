@@ -34,7 +34,7 @@ function RootComponent() {
 
 function NotFoundPage() {
   return (
-    <main className="not-found" id="main">
+    <main className="not-found" id="main" tabIndex={-1}>
       <span>404 / wrong room</span>
       <h1>This slide does not exist.</h1>
       <p>The story continues from the Drever home page.</p>

@@ -3,7 +3,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { CopyAIHandoff } from "../components/ai-handoff";
 import { ArrowIcon, ArrowUpRightIcon, PlayIcon } from "../components/icons";
 import { PageHero } from "../components/page-hero";
-import { ThemePreview } from "../components/showcase";
+import { HomeShowcaseCover, ThemePreview } from "../components/showcase";
 import { demos, githubURL, themes } from "../site-data";
 import { pageHead } from "../seo";
 
@@ -25,7 +25,7 @@ function ShowcasePage() {
   }
 
   return (
-    <main className="catalog-page showcase-page" id="main">
+    <main className="catalog-page showcase-page" id="main" tabIndex={-1}>
       <PageHero
         description={description}
         eyebrow="Built with Drever"
@@ -60,18 +60,16 @@ function ShowcasePage() {
         </header>
 
         <div className="featured-demo">
-          <a className="featured-demo__visual" href={product.href}>
-            <span>Product tour</span>
-            <h2>
-              The room changes.
-              <br />
-              Your slides should too.
-            </h2>
-            <div>
+          <a
+            aria-label="Open the Product tour live presentation"
+            className="featured-demo__visual featured-demo__visual--rich"
+            href={product.href}
+          >
+            <HomeShowcaseCover kind="product" />
+            <div className="featured-demo__open">
               <PlayIcon />
               <span>Open live presentation</span>
             </div>
-            <i />
           </a>
           <div className="featured-demo__copy">
             <span>{product.meta}</span>
@@ -111,10 +109,20 @@ function ShowcasePage() {
         <div className="catalog-demos">
           {capabilities.map((demo, index) => (
             <article className="catalog-demo" data-demo={demo.id} key={demo.id}>
-              <a className="catalog-demo__visual" href={demo.href}>
-                <span>0{index + 2}</span>
-                <strong>{demo.label}</strong>
-                <ArrowUpRightIcon />
+              <a
+                aria-label={`Open the ${demo.label} live study`}
+                className={`catalog-demo__visual${demo.id === "motion" ? " catalog-demo__visual--rich" : ""}`}
+                href={demo.href}
+              >
+                {demo.id === "motion" ? (
+                  <HomeShowcaseCover kind="motion" />
+                ) : (
+                  <>
+                    <span>0{index + 2}</span>
+                    <strong>{demo.label}</strong>
+                    <ArrowUpRightIcon />
+                  </>
+                )}
               </a>
               <div>
                 <span>{demo.meta}</span>

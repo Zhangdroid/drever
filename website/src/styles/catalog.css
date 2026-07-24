@@ -42,7 +42,7 @@
       var(--drever-brand-motion-easing-standard);
 }
 
-.showcase-index a:hover {
+.showcase-index a:is(:hover, :focus-visible) {
   padding-inline: 0.4rem;
   color: var(--site-continuity);
 }
@@ -201,6 +201,30 @@
   text-decoration: none;
 }
 
+.featured-demo__visual--rich {
+  padding: 0;
+}
+
+.featured-demo__visual--rich .home-product-cover__statement {
+  left: clamp(2rem, 5vw, 5rem);
+}
+
+.featured-demo__visual--rich .home-product-cover__promise {
+  left: clamp(2rem, 5vw, 5rem);
+}
+
+.featured-demo__visual .featured-demo__open {
+  position: absolute;
+  z-index: 5;
+  right: clamp(1.4rem, 2.5vw, 2.2rem);
+  bottom: clamp(1.3rem, 2.5vw, 2rem);
+  margin: 0;
+  background: color-mix(in srgb, var(--site-signal) 92%, white);
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 12%),
+    0 0.7rem 1.8rem rgb(0 0 0 / 14%);
+}
+
 .featured-demo__visual > span {
   margin-block-end: 1rem;
   color: var(--site-signal);
@@ -220,7 +244,7 @@
   line-height: 0.9;
 }
 
-.featured-demo__visual > div {
+.featured-demo__visual > .featured-demo__open {
   display: inline-flex;
   width: fit-content;
   margin-block-start: 2.2rem;
@@ -247,7 +271,7 @@
     var(--drever-brand-motion-easing-emphasized);
 }
 
-.featured-demo__visual:hover > i {
+.featured-demo__visual:is(:hover, :focus-visible) > i {
   transform: translateX(1.5rem);
 }
 
@@ -336,6 +360,10 @@
   text-decoration: none;
 }
 
+.catalog-demo__visual--rich {
+  padding: 0;
+}
+
 .catalog-demo__visual > span {
   color: #dcff4f;
   font-family: var(--drever-brand-font-family-mono);
@@ -360,7 +388,7 @@
     var(--drever-brand-motion-easing-standard);
 }
 
-.catalog-demo__visual:hover > svg {
+.catalog-demo__visual:is(:hover, :focus-visible) > svg {
   transform: translate(0.4rem, -0.4rem);
 }
 

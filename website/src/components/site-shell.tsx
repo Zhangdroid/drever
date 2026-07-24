@@ -137,34 +137,33 @@ export function SiteHeader() {
 export function SiteFooter() {
   return (
     <footer className="site-footer" data-header-tone="dark">
-      <div className="site-footer__lead">
-        <img alt="Drever" src={lockupDarkHref} />
-        <p>Clear ideas. Expressive slides. One editable source.</p>
-      </div>
-
-      <div className="site-footer__links">
-        <div>
-          <span>Explore</span>
-          <Link activeOptions={{ exact: true }} to="/docs">
-            Documentation
-          </Link>
-          <Link activeOptions={{ exact: true }} to="/showcase">
-            Showcase
-          </Link>
+      <div className="site-footer__primary">
+        <div className="site-footer__lead">
+          <img alt="Drever" src={lockupDarkHref} />
+          <p>Clear ideas. Expressive slides. One editable source.</p>
         </div>
-        <div>
-          <span>Project</span>
-          <a href={githubURL} rel="noreferrer" target="_blank">
-            GitHub <ArrowUpRightIcon />
-          </a>
-          <a href="https://www.npmjs.com/package/create-drever" rel="noreferrer" target="_blank">
-            npm <ArrowUpRightIcon />
-          </a>
-          <a href="/prompt.md">prompt.md</a>
-          <a href="/llms.txt">llms.txt</a>
-          <Link activeOptions={{ exact: true }} to="/docs/credits">
-            Credits
-          </Link>
+
+        <div className="site-footer__links">
+          <div>
+            <span>Explore</span>
+            <Link activeOptions={{ exact: true }} to="/docs">
+              Documentation
+            </Link>
+            <Link activeOptions={{ exact: true }} to="/showcase">
+              Showcase
+            </Link>
+            <Link activeOptions={{ exact: true }} to="/docs/credits">
+              Credits
+            </Link>
+          </div>
+          <div>
+            <span>Project</span>
+            <a href={githubURL} rel="noreferrer" target="_blank">
+              GitHub <ArrowUpRightIcon />
+            </a>
+            <a href="/prompt.md">prompt.md</a>
+            <a href="/llms.txt">llms.txt</a>
+          </div>
         </div>
       </div>
 
@@ -181,10 +180,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
-      const heading = document.querySelector("main h1");
-      if (!(heading instanceof HTMLElement)) return;
-      heading.tabIndex = -1;
-      heading.focus({ preventScroll: true });
+      document.querySelector<HTMLElement>("main")?.focus({ preventScroll: true });
     });
     return () => cancelAnimationFrame(frame);
   }, [pathname]);

@@ -61,7 +61,7 @@ export function DocsShell() {
   }, [pathname]);
 
   return (
-    <main className="docs" id="main">
+    <main className="docs" id="main" tabIndex={-1}>
       <aside className="docs-nav">
         <Link activeOptions={{ exact: true }} className="docs-nav__home" to="/docs">
           Documentation

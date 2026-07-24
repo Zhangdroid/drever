@@ -106,7 +106,7 @@ svg {
   outline-offset: 4px;
 }
 
-main h1[tabindex="-1"]:focus {
+main[tabindex="-1"]:focus {
   outline: none;
 }
 
@@ -185,7 +185,7 @@ main h1[tabindex="-1"]:focus {
   grid-template-columns: auto auto auto;
   align-items: center;
   gap: clamp(0.65rem, 1.8vw, 1.2rem);
-  background: color-mix(in srgb, var(--site-paper-raised) 78%, transparent);
+  background: color-mix(in srgb, var(--site-paper-raised) 88%, transparent);
   box-shadow:
     0 0.2rem 0.8rem rgb(25 23 43 / 5%),
     0 1rem 2.8rem rgb(25 23 43 / 6%);
@@ -754,12 +754,18 @@ main h1[tabindex="-1"]:focus {
 }
 
 .site-footer {
-  display: grid;
   padding: clamp(4rem, 8vw, 7rem) var(--site-gutter) 2rem;
-  grid-template-columns: minmax(0, 1.5fr) minmax(20rem, 1fr);
-  gap: 5rem;
   background: var(--site-night);
   color: var(--site-night-text);
+}
+
+.site-footer__primary {
+  display: grid;
+  width: 100%;
+  max-width: var(--site-max);
+  margin-inline: auto;
+  grid-template-columns: minmax(0, 1.5fr) minmax(20rem, 1fr);
+  gap: 5rem;
 }
 
 .site-footer__lead img {
@@ -818,9 +824,11 @@ main h1[tabindex="-1"]:focus {
 
 .site-footer__bottom {
   display: flex;
+  width: 100%;
+  max-width: var(--site-max);
+  margin: clamp(3rem, 6vw, 5rem) auto 0;
   padding-block-start: 2rem;
   border-top: 1px solid var(--drever-brand-color-night-line);
-  grid-column: 1 / -1;
   justify-content: space-between;
   gap: 1rem;
   color: var(--site-night-muted);
@@ -859,7 +867,7 @@ main h1[tabindex="-1"]:focus {
 }
 
 @media (max-width: 68rem) {
-  .site-footer {
+  .site-footer__primary {
     grid-template-columns: 1fr;
   }
 
@@ -953,6 +961,10 @@ main h1[tabindex="-1"]:focus {
   }
 
   .site-header__github {
+    display: none;
+  }
+
+  .site-header__divider {
     display: none;
   }
 }

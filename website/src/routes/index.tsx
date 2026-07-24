@@ -2,6 +2,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { AIHandoff, CopyAIHandoff } from "../components/ai-handoff";
 import { CopyButton } from "../components/copy-button";
+import { ConnectedSourceDemo, RoomMomentDemo } from "../components/home-demos";
 import { ArrowIcon, ArrowUpRightIcon, PlayIcon } from "../components/icons";
 import { HeroStage, HomeShowcaseCover, ThemePreview } from "../components/showcase";
 import { demos, themes } from "../site-data";
@@ -38,7 +39,7 @@ function HomePage() {
   }
 
   return (
-    <main id="main">
+    <main id="main" tabIndex={-1}>
       <section className="home-hero">
         <div className="home-hero__copy">
           <h1>
@@ -108,32 +109,7 @@ function HomePage() {
           </p>
         </header>
 
-        <div className="home-story__sequence">
-          <article>
-            <span>Ask</span>
-            <div>
-              <strong>What would help you decide?</strong>
-              <p>Follow the concern the room chooses.</p>
-            </div>
-            <small>Interactive</small>
-          </article>
-          <article>
-            <span>Reveal</span>
-            <div>
-              <strong>96% completed setup unaided.</strong>
-              <p>Bring in evidence when it can change the decision.</p>
-            </div>
-            <small>Step / 02</small>
-          </article>
-          <article>
-            <span>Return</span>
-            <div>
-              <strong>The exact moment has a URL.</strong>
-              <p>Share it, revisit it, or open it in Document View.</p>
-            </div>
-            <small>/4/2</small>
-          </article>
-        </div>
+        <RoomMomentDemo />
       </section>
 
       <section className="home-source">
@@ -149,38 +125,7 @@ function HomePage() {
           </Link>
         </div>
 
-        <div className="home-source__artifact">
-          <div className="home-source__code">
-            <span>slides.mdx</span>
-            <pre>
-              <code>{`# Make the decision clear.
-
-What does the room need next?
-
-<Step>Reveal the evidence.</Step>
-
-<Note>Pause before the result.</Note>`}</code>
-            </pre>
-          </div>
-          <div className="home-source__surfaces">
-            <div>
-              <span>Audience</span>
-              <strong>Live and interactive</strong>
-            </div>
-            <div>
-              <span>Speaker</span>
-              <strong>Notes and timing</strong>
-            </div>
-            <div>
-              <span>Document</span>
-              <strong>Readable and searchable</strong>
-            </div>
-            <div>
-              <span>Delivery</span>
-              <strong>Static site and PDF</strong>
-            </div>
-          </div>
-        </div>
+        <ConnectedSourceDemo />
       </section>
 
       <section className="home-showcase">

@@ -658,7 +658,7 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
     var(--drever-brand-motion-easing-standard);
 }
 
-.motion-recipe-grid > a:hover > svg {
+.motion-recipe-grid > a:is(:hover, :focus-visible) > svg {
   transform: translate(0.18rem, -0.18rem);
 }
 
@@ -730,15 +730,21 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   height: 66%;
 }
 
-.motion-recipe-grid > a:hover .motion-recipe__visual i:last-child {
+.motion-recipe-grid > a:is(:hover, :focus-visible) .motion-recipe__visual i:last-child {
   transform: translateY(-0.45rem);
 }
 
-.motion-recipe-grid [data-intent="replace"]:hover .motion-recipe__visual i:nth-child(2) {
+.motion-recipe-grid
+  [data-intent="replace"]:is(:hover, :focus-visible)
+  .motion-recipe__visual
+  i:nth-child(2) {
   transform: rotate(90deg);
 }
 
-.motion-recipe-grid [data-intent="continuity"]:hover .motion-recipe__visual i:nth-child(2) {
+.motion-recipe-grid
+  [data-intent="continuity"]:is(:hover, :focus-visible)
+  .motion-recipe__visual
+  i:nth-child(2) {
   transform: translateX(1rem);
 }
 
@@ -834,7 +840,7 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   color: var(--site-signal);
 }
 
-.plugin-gallery > a:hover .plugin-gallery__visual strong {
+.plugin-gallery > a:is(:hover, :focus-visible) .plugin-gallery__visual strong {
   transform: scale(1.08) rotate(-2deg);
 }
 
