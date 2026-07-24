@@ -1,14 +1,18 @@
 import assert from "node:assert/strict";
+import { execFile } from "node:child_process";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { afterEach, test } from "node:test";
+import { promisify } from "node:util";
 import {
   assertDistTag,
   cleanReleaseOutputs,
   commitVersion,
   normalizePackedManifest,
   orderPublicPackages,
+  planRelease,
   repositoryUrl,
   runtimeVersionFiles,
   setReleaseVersion,
@@ -18,6 +22,7 @@ import {
 
 const temporaryRoots = [];
 const json = (value) => `${JSON.stringify(value, null, 2)}\n`;
+const execute = promisify(execFile);
 
 afterEach(async () => {
   await Promise.all(
@@ -34,6 +39,73 @@ test("creates a stable commit prerelease version", () => {
   assert.throws(() => commitVersion("0123456789a"), /Invalid Git commit/u);
   assert.doesNotThrow(() => assertDistTag("commit"));
   assert.throws(() => assertDistTag("latest;id"), /Invalid npm dist-tag/u);
+});
+
+test("plans commit, next, and latest releases with their matching npm tags", () => {
+  const commit = "0123456789abcdef0123456789abcdef01234567";
+
+  assert.deepEqual(planRelease({ channel: "commit", commit }), {
+    version: "0.0.0-commit.g0123456789ab",
+    tag: "commit",
+    prerelease: true,
+  });
+  assert.deepEqual(planRelease({ channel: "next", commit, requestedVersion: "1.2.0-beta.3" }), {
+    version: "1.2.0-beta.3",
+    tag: "next",
+    prerelease: true,
+  });
+  assert.deepEqual(planRelease({ channel: "latest", commit, requestedVersion: " 1.2.0 " }), {
+    version: "1.2.0",
+    tag: "latest",
+    prerelease: false,
+  });
+});
+
+test("rejects versions that do not match the selected release channel", () => {
+  const commit = "0123456789abcdef0123456789abcdef01234567";
+
+  assert.throws(
+    () => planRelease({ channel: "commit", commit, requestedVersion: "1.2.0" }),
+    /do not accept an explicit version/u,
+  );
+  assert.throws(
+    () => planRelease({ channel: "next", commit, requestedVersion: "1.2.0" }),
+    /require a prerelease version/u,
+  );
+  assert.throws(
+    () => planRelease({ channel: "latest", commit, requestedVersion: "1.2.0-rc.1" }),
+    /require a non-prerelease version/u,
+  );
+  assert.throws(
+    () => planRelease({ channel: "next", commit, requestedVersion: "1.02.0-beta.1" }),
+    /Invalid release version/u,
+  );
+  assert.throws(() => planRelease({ channel: "latest", commit }), /require an explicit version/u);
+  assert.throws(
+    () => planRelease({ channel: "stable", commit, requestedVersion: "1.2.0" }),
+    /Unsupported release channel/u,
+  );
+  assert.throws(
+    () => planRelease({ channel: "latest", commit: "main", requestedVersion: "1.2.0" }),
+    /Invalid Git commit/u,
+  );
+});
+
+test("prints a release plan as JSON from the command line", async () => {
+  const releaseScript = fileURLToPath(new URL("./release.mjs", import.meta.url));
+  const { stdout } = await execute(process.execPath, [
+    releaseScript,
+    "plan",
+    "next",
+    "0123456789abcdef0123456789abcdef01234567",
+    "2.0.0-rc.1",
+  ]);
+
+  assert.deepEqual(JSON.parse(stdout), {
+    version: "2.0.0-rc.1",
+    tag: "next",
+    prerelease: true,
+  });
 });
 
 test("orders internal dependencies before public entry packages", () => {

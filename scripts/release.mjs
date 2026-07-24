@@ -63,6 +63,44 @@ export function commitVersion(commit) {
   return `0.0.0-commit.g${commit.slice(0, 12)}`;
 }
 
+export function planRelease({ channel, commit, requestedVersion }) {
+  const commitReleaseVersion = commitVersion(commit);
+  const version = typeof requestedVersion === "string" ? requestedVersion.trim() : requestedVersion;
+
+  if (channel === "commit") {
+    if (version !== undefined && version !== "") {
+      throw new Error("Commit releases do not accept an explicit version.");
+    }
+    return {
+      version: commitReleaseVersion,
+      tag: channel,
+      prerelease: true,
+    };
+  }
+
+  if (channel !== "next" && channel !== "latest") {
+    throw new Error(`Unsupported release channel: ${channel}`);
+  }
+  if (typeof version !== "string" || version.length === 0) {
+    throw new Error(`${channel} releases require an explicit version.`);
+  }
+
+  assertReleaseVersion(version);
+  const hasPrerelease = version.includes("-");
+  if (channel === "next" && !hasPrerelease) {
+    throw new Error("Next releases require a prerelease version.");
+  }
+  if (channel === "latest" && hasPrerelease) {
+    throw new Error("Latest releases require a non-prerelease version.");
+  }
+
+  return {
+    version,
+    tag: channel,
+    prerelease: channel !== "latest",
+  };
+}
+
 export function assertDistTag(tag) {
   if (!/^[a-z][a-z0-9-]*$/u.test(tag)) throw new Error(`Invalid npm dist-tag: ${tag}`);
 }
@@ -516,7 +554,7 @@ export async function publishRelease({ dryRun = false, receiptPath, tag }) {
 }
 
 const usage =
-  "Usage: node scripts/release.mjs <packages|clean|commit-version SHA|validate-version VERSION|prepare VERSION|pack DIRECTORY|publish RECEIPT TAG [--dry-run]>";
+  "Usage: node scripts/release.mjs <packages|clean|commit-version SHA|validate-version VERSION|plan CHANNEL COMMIT [VERSION]|prepare VERSION|pack DIRECTORY|publish RECEIPT TAG [--dry-run]>";
 
 if (resolve(process.argv[1] ?? "") === fileURLToPath(import.meta.url)) {
   const [command, ...arguments_] = process.argv.slice(2);
@@ -531,6 +569,9 @@ if (resolve(process.argv[1] ?? "") === fileURLToPath(import.meta.url)) {
     process.stdout.write(`${commitVersion(arguments_[0])}\n`);
   } else if (command === "validate-version" && arguments_.length === 1) {
     assertReleaseVersion(arguments_[0]);
+  } else if (command === "plan" && (arguments_.length === 2 || arguments_.length === 3)) {
+    const [channel, commit, requestedVersion] = arguments_;
+    process.stdout.write(json(planRelease({ channel, commit, requestedVersion })));
   } else if (command === "prepare" && arguments_.length === 1) {
     const packages = await setReleaseVersion(defaultRoot, arguments_[0]);
     process.stdout.write(`Prepared ${packages.length} packages at ${arguments_[0]}.\n`);

@@ -1,9 +1,21 @@
-name: Publish npm packages
+name: Publish npm release
 
 on:
   workflow_dispatch:
-  release:
-    types: [published]
+    inputs:
+      channel:
+        description: npm release channel
+        required: true
+        default: commit
+        type: choice
+        options:
+          - commit
+          - next
+          - latest
+      version:
+        description: SemVer for next/latest; leave empty for a commit release
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -15,19 +27,18 @@ concurrency:
 jobs:
   audit:
     name: Audit release
-    if: github.event_name == 'release' || github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 50
     outputs:
       artifact-id: ${{ steps.upload.outputs.artifact-id }}
       source-commit: ${{ steps.source.outputs.commit }}
+      prerelease: ${{ steps.release.outputs.prerelease }}
       tag: ${{ steps.release.outputs.tag }}
       version: ${{ steps.release.outputs.version }}
     steps:
       - name: Check out the release source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ github.event_name == 'release' && github.event.release.tag_name || github.sha }}
 
       - name: Record the release source
         id: source
@@ -46,36 +57,13 @@ jobs:
       - name: Plan the release
         id: release
         env:
-          EVENT_NAME: ${{ github.event_name }}
-          RELEASE_PRERELEASE: ${{ github.event.release.prerelease }}
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_CHANNEL: ${{ inputs.channel }}
+          RELEASE_VERSION: ${{ inputs.version }}
         run: |
-          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
-            version="$(node scripts/release.mjs commit-version "$GITHUB_SHA")"
-            tag="commit"
-          else
-            if [[ "$RELEASE_TAG" != v* ]]; then
-              echo "GitHub release tags must start with v." >&2
-              exit 1
-            fi
-            version="${RELEASE_TAG#v}"
-            if [[ "$RELEASE_PRERELEASE" == "true" ]]; then
-              tag="next"
-            else
-              tag="latest"
-            fi
-            if [[ "$version" == *-* && "$tag" != "next" ]]; then
-              echo "A prerelease version must be published as a GitHub prerelease." >&2
-              exit 1
-            fi
-            if [[ "$version" != *-* && "$tag" == "next" ]]; then
-              echo "A GitHub prerelease tag must contain a SemVer prerelease identifier." >&2
-              exit 1
-            fi
-          fi
-          node scripts/release.mjs validate-version "$version"
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          plan="$(node scripts/release.mjs plan "$RELEASE_CHANNEL" "$GITHUB_SHA" "$RELEASE_VERSION")"
+          echo "version=$(jq -r .version <<<"$plan")" >> "$GITHUB_OUTPUT"
+          echo "tag=$(jq -r .tag <<<"$plan")" >> "$GITHUB_OUTPUT"
+          echo "prerelease=$(jq -r .prerelease <<<"$plan")" >> "$GITHUB_OUTPUT"
 
       - name: Install Chromium
         run: vp exec playwright install --with-deps --no-shell chromium
@@ -147,3 +135,61 @@ jobs:
           RELEASE_TAG: ${{ needs.audit.outputs.tag }}
           RELEASE_VERSION: ${{ needs.audit.outputs.version }}
         run: node scripts/verify-published.mjs "$RELEASE_VERSION" "$RELEASE_TAG"
+
+  record:
+    name: Create GitHub release
+    needs: [audit, publish]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - name: Download the audited release receipt
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          artifact-ids: ${{ needs.audit.outputs.artifact-id }}
+          path: ${{ runner.temp }}/drever-release
+
+      - name: Record the completed npm release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_COMMIT: ${{ needs.audit.outputs.source-commit }}
+          RELEASE_PRERELEASE: ${{ needs.audit.outputs.prerelease }}
+          RELEASE_TAG: ${{ needs.audit.outputs.tag }}
+          RELEASE_VERSION: ${{ needs.audit.outputs.version }}
+        run: |
+          github_tag="v$RELEASE_VERSION"
+          if existing="$(gh release view "$github_tag" --repo "$GITHUB_REPOSITORY" --json isPrerelease 2>/dev/null)"; then
+            existing_prerelease="$(jq -r .isPrerelease <<<"$existing")"
+            existing_commit="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$github_tag" --jq .object.sha)"
+            if [[ "$existing_prerelease" != "$RELEASE_PRERELEASE" || "$existing_commit" != "$RELEASE_COMMIT" ]]; then
+              echo "GitHub release $github_tag does not match the audited npm release." >&2
+              exit 1
+            fi
+            echo "GitHub release $github_tag already records this npm release."
+            exit 0
+          fi
+
+          notes="$RUNNER_TEMP/drever-release-notes.md"
+          {
+            echo "Published the Drever package set to npm."
+            echo
+            echo "- Version: \`$RELEASE_VERSION\`"
+            echo "- npm dist-tag: \`$RELEASE_TAG\`"
+            echo "- Source: [\`${RELEASE_COMMIT:0:12}\`](https://github.com/$GITHUB_REPOSITORY/commit/$RELEASE_COMMIT)"
+            echo "- Package: [\`drever@$RELEASE_VERSION\`](https://www.npmjs.com/package/drever/v/$RELEASE_VERSION)"
+          } > "$notes"
+
+          arguments=(
+            "$github_tag"
+            "$RUNNER_TEMP/drever-release/release.json#Audited release receipt"
+            --repo "$GITHUB_REPOSITORY"
+            --target "$RELEASE_COMMIT"
+            --title "Drever $RELEASE_VERSION"
+            --notes-file "$notes"
+          )
+          if [[ "$RELEASE_PRERELEASE" == "true" ]]; then
+            arguments+=(--prerelease)
+          fi
+          gh release create "${arguments[@]}"

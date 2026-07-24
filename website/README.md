@@ -57,7 +57,14 @@ through the Cloudflare Pages development server.
 
 ## Cloudflare Pages
 
-The site is a Git-integrated Cloudflare Pages project. Pages owns production deployments from `main` and creates isolated previews for pull requests.
+The site is a Git-integrated Cloudflare Pages project. Pages owns production
+deployments from `main` and creates isolated previews for pull requests.
+[`deploy-website.yml`](../.github/workflows/deploy-website.yml) waits for the
+matching Cloudflare check on each `main` commit and mirrors its outcome to the
+GitHub `website` environment. This gives production a real GitHub Deployment
+record and a direct `drever.dev` environment URL without uploading the same
+site twice. Pull-request preview URLs remain owned by the Cloudflare check and
+its PR integration.
 
 Build settings:
 

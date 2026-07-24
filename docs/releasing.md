@@ -7,16 +7,17 @@ compatible.
 
 ## Release channels
 
-| Channel     | Version                            | npm dist-tag | Trigger                                          |
-| ----------- | ---------------------------------- | ------------ | ------------------------------------------------ |
-| Commit test | `0.0.0-commit.g<12-character-sha>` | `commit`     | Manual `Publish npm packages` workflow on `main` |
-| Prerelease  | `0.1.0-next.0` or `0.1.0-rc.1`     | `next`       | Published GitHub prerelease                      |
-| Stable      | `0.1.0`                            | `latest`     | Published GitHub release                         |
+| Channel     | Version                            | npm dist-tag | Workflow input               | GitHub result |
+| ----------- | ---------------------------------- | ------------ | ---------------------------- | ------------- |
+| Commit test | `0.0.0-commit.g<12-character-sha>` | `commit`     | `commit`; version left empty | Prerelease    |
+| Prerelease  | `0.1.0-next.0` or `0.1.0-rc.1`     | `next`       | `next`; prerelease SemVer    | Prerelease    |
+| Stable      | `0.1.0`                            | `latest`     | `latest`; stable SemVer      | Release       |
 
 Every publish passes an explicit dist-tag. A commit test must never update
 `latest`. npm package versions are immutable, so a commit build cannot later
 be renamed to a stable version. A stable release rebuilds the same source
-revision with its final version.
+revision with its final version. GitHub Releases are written only after npm
+publication and public-registry verification succeed.
 
 ## Release gate
 
@@ -45,14 +46,17 @@ missing package dependencies and native bindings.
 ## Automated publishing
 
 [`.github/workflows/publish.yml`](../.github/workflows/publish.yml) is the only
-npm publishing identity. Publications are queued rather than replaced and run
-as two jobs:
+npm publishing identity. Run it manually from `main`, choose `commit`, `next`,
+or `latest`, and provide a version only for a named release. Publications are
+queued rather than replaced and run as three jobs:
 
 1. an unprivileged audit job installs, tests, versions, packs, dry-runs, and
    uploads the release artifact with `contents: read` only;
 2. a minimal publish job downloads that exact artifact, receives
    `id-token: write` through the `npm` environment, publishes it, and verifies
-   a clean registry consumer.
+   a clean registry consumer;
+3. an isolated record job receives `contents: write` only after publication
+   succeeds and creates the matching GitHub Release with the audited receipt.
 
 The workflow verifies the unmodified source revision first. It then applies an
 ephemeral lockstep version, rebuilds, and first packs with pnpm through Vite+.
@@ -63,10 +67,10 @@ workflow's short-lived OIDC identity; the publish job has no registry token.
 
 The `npm` environment is a publishing security boundary, not a deployment
 target. The publish job keeps its environment protections and trusted
-publishing identity but disables GitHub Deployment records. Published GitHub
-releases and prereleases remain the canonical history for named product
-versions. A manual workflow dispatch publishes only an ephemeral commit test
-and intentionally creates neither a GitHub Release nor a Deployment.
+publishing identity but disables GitHub Deployment records. Every completed
+npm publication is recorded as a GitHub Release; commit tests and `next`
+versions are marked as prereleases. Creating the Release last prevents GitHub
+from advertising a version whose npm publication failed.
 
 Trusted Publishing automatically adds provenance when the source repository
 and package are public; the publish command must not pass `--provenance`
@@ -99,7 +103,7 @@ rules.
 The same bootstrap rule applies whenever a later change adds a public package.
 Create every new package name with one temporary-token commit release,
 configure and verify its Trusted Publisher, remove the token, and only then
-publish a named GitHub prerelease or release. Do not start a lockstep named
+dispatch a named `next` or `latest` release. Do not start a lockstep named
 release while one package is still absent from npm: multi-package publication
 is retryable, but it is not transactional.
 
@@ -116,7 +120,7 @@ is retryable, but it is not transactional.
    Store it as an `npm` environment secret named `NPM_TOKEN`. Never commit the
    token.
 4. Temporarily add `NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}` to the publish
-   step, then run the `Publish npm packages` workflow manually on `main`. It publishes a
+   step, then run the `Publish npm release` workflow manually on `main`. It publishes a
    `0.0.0-commit.g<sha>` test release under the `commit` dist-tag.
 5. Configure every package to trust `Zhangdroid/drever`, workflow
    `publish.yml`, environment `npm`, with `npm publish` permission. A granular
@@ -166,7 +170,9 @@ publish job fails, use **Re-run failed jobs** so it downloads the exact audited
 artifact. A full rerun for the same commit is also safe because the pack is
 reproducible. Matching versions are verified and skipped; missing packages
 continue in dependency order. A version with different integrity stops the
-workflow.
+workflow. If only GitHub Release creation fails, rerun that final job; an
+existing matching tag and prerelease state are accepted, while a conflicting
+record stops the workflow.
 
 Do not unpublish a broken release by default. npm never allows the same
 name/version pair to be reused. Publish a corrected version and deprecate the

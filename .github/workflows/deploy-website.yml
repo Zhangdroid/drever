@@ -1,0 +1,76 @@
+name: Website deployment
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  checks: read
+  contents: read
+  deployments: write
+
+concurrency:
+  group: website-production
+  cancel-in-progress: true
+
+jobs:
+  track:
+    name: Track Cloudflare Pages
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: website
+      url: https://drever.dev
+    steps:
+      - name: Wait for the matching Cloudflare Pages deployment
+        env:
+          DEPLOY_SHA: ${{ github.sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          checks="$RUNNER_TEMP/cloudflare-checks.json"
+          for attempt in {1..90}; do
+            gh api "repos/$GITHUB_REPOSITORY/commits/$DEPLOY_SHA/check-runs" > "$checks"
+            status="$(
+              jq -r '
+                [.check_runs[]
+                  | select(
+                      .name == "Cloudflare Pages"
+                      and .app.slug == "cloudflare-workers-and-pages"
+                    )
+                ]
+                | sort_by(.started_at)
+                | last
+                | if . == null then "pending" else .status end
+              ' "$checks"
+            )"
+            conclusion="$(
+              jq -r '
+                [.check_runs[]
+                  | select(
+                      .name == "Cloudflare Pages"
+                      and .app.slug == "cloudflare-workers-and-pages"
+                    )
+                ]
+                | sort_by(.started_at)
+                | last
+                | .conclusion // ""
+              ' "$checks"
+            )"
+
+            if [[ "$status" == "completed" && "$conclusion" == "success" ]]; then
+              echo "Cloudflare Pages deployed \`$DEPLOY_SHA\` to [drever.dev](https://drever.dev)." >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+
+            if [[ "$status" == "completed" ]]; then
+              echo "Cloudflare Pages completed with conclusion: $conclusion" >&2
+              exit 1
+            fi
+
+            echo "Cloudflare Pages is $status (attempt $attempt/90)."
+            sleep 10
+          done
+
+          echo "Timed out waiting for Cloudflare Pages." >&2
+          exit 1
