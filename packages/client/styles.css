@@ -841,10 +841,26 @@
     -webkit-backdrop-filter: blur(6px);
   }
 
+  .drever-audience-dialog[data-panel="overview"] {
+    width: min(1160px, calc(100vw - 32px));
+    max-height: min(780px, calc(100dvh - 32px));
+    background: var(--drever-controls-stage);
+  }
+
+  .drever-audience-dialog[data-panel="overview"]::backdrop {
+    background: rgb(from var(--drever-controls-ink) r g b / 24%);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
   .drever-audience-dialog__content {
     display: grid;
     max-height: min(720px, calc(100vh - 48px));
     grid-template-rows: auto auto minmax(0, 1fr);
+  }
+
+  .drever-audience-dialog[data-panel="overview"] .drever-audience-dialog__content {
+    max-height: min(780px, calc(100dvh - 32px));
   }
 
   .drever-audience-dialog__content > header {
@@ -906,43 +922,112 @@
     display: grid;
     padding: 2px 24px 26px;
     overflow: auto;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
+    grid-auto-rows: max-content;
     align-content: start;
-    gap: 9px;
+    gap: 12px;
     overscroll-behavior: contain;
   }
 
-  .drever-audience-dialog__slides .drever-audience-slide-link {
+  .drever-audience-slide-card {
+    position: relative;
     display: grid;
     min-width: 0;
-    min-height: 64px;
-    padding: 11px 13px;
-    border: 1px solid color-mix(in srgb, var(--drever-controls-line) 82%, transparent);
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--drever-controls-line) 76%, transparent);
     border-radius: var(--drever-brand-radius-medium, 0.875rem);
-    background: rgb(from var(--drever-controls-white) r g b / 38%);
-    grid-template-columns: 30px minmax(0, 1fr) auto;
+    background: rgb(from var(--drever-controls-white) r g b / 18%);
+    box-shadow:
+      inset 0 1px 0 rgb(from var(--drever-controls-white) r g b / 42%),
+      0 8px 22px rgb(from var(--drever-controls-ink) r g b / 8%);
+    transition:
+      border-color 160ms ease-out,
+      box-shadow 200ms ease-out,
+      transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+    align-self: start;
+  }
+
+  .drever-audience-slide-preview {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    border-bottom: 1px solid color-mix(in srgb, var(--drever-controls-line) 68%, transparent);
+    background: var(--drever-controls-ink);
+    pointer-events: none;
+  }
+
+  .drever-audience-slide-preview > .drever-viewer {
+    position: absolute;
+    inset: 0;
+  }
+
+  .drever-audience-slide-preview .drever-canvas {
+    box-shadow: none;
+  }
+
+  .drever-audience-slide-meta {
+    display: grid;
+    min-width: 0;
+    min-height: 46px;
+    box-sizing: border-box;
+    padding: 9px 11px;
+    grid-template-columns: 28px minmax(0, 1fr) auto;
     justify-items: start;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     text-align: left;
   }
 
-  .drever-audience-slide-link:hover {
+  .drever-audience-slide-link {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    border-radius: inherit;
+    background: transparent;
+  }
+
+  .drever-audience-dialog .drever-audience-slide-link:hover:not(:disabled) {
+    background: transparent;
+  }
+
+  .drever-audience-slide-card:has(> .drever-audience-slide-link:hover) {
     border-color: color-mix(
       in srgb,
       var(--drever-controls-continuity) 42%,
       var(--drever-controls-line)
     );
+    box-shadow:
+      inset 0 1px 0 rgb(from var(--drever-controls-white) r g b / 56%),
+      0 14px 30px rgb(from var(--drever-controls-ink) r g b / 14%);
+    transform: translateY(-2px);
   }
 
-  .drever-audience-slide-link[aria-current="page"] {
+  .drever-audience-slide-card:has(> .drever-audience-slide-link:active) {
+    transform: translateY(0) scale(0.995);
+  }
+
+  .drever-audience-slide-card:has(> .drever-audience-slide-link:focus-visible) {
+    outline: 2px solid var(--drever-controls-continuity);
+    outline-offset: 2px;
+  }
+
+  .drever-audience-slide-link:focus-visible {
+    outline: none;
+  }
+
+  .drever-audience-slide-card[data-current] {
     border-color: var(--drever-controls-continuity);
-    background: color-mix(in srgb, var(--drever-controls-continuity-soft) 72%, transparent);
-    box-shadow: inset 0 0 0 1px
-      color-mix(in srgb, var(--drever-controls-continuity) 16%, transparent);
+    background: color-mix(in srgb, var(--drever-controls-continuity-soft) 42%, transparent);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--drever-controls-continuity) 14%, transparent),
+      0 8px 24px rgb(from var(--drever-controls-ink) r g b / 10%);
   }
 
-  .drever-audience-slide-link > span {
+  .drever-audience-slide-meta > span {
     color: var(--drever-controls-muted);
     font-size: 11px;
     font-variant-numeric: tabular-nums;
@@ -950,16 +1035,16 @@
     letter-spacing: 0.08em;
   }
 
-  .drever-audience-slide-link > strong {
+  .drever-audience-slide-meta > strong {
     min-width: 0;
     overflow: hidden;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: var(--drever-brand-font-weight-semibold, 650);
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .drever-audience-slide-link > small {
+  .drever-audience-slide-meta > small {
     color: var(--drever-controls-continuity);
     font-size: 9px;
     font-weight: var(--drever-brand-font-weight-bold, 700);
@@ -1051,20 +1136,44 @@
       min-width: 116px;
     }
 
+    .drever-audience-dialog[data-panel="overview"] {
+      width: calc(100vw - 16px);
+      max-height: calc(100dvh - 16px);
+    }
+
+    .drever-audience-dialog[data-panel="overview"] .drever-audience-dialog__content {
+      max-height: calc(100dvh - 16px);
+    }
+
+    .drever-audience-dialog[data-panel="overview"] .drever-audience-dialog__content > header {
+      padding-inline: 16px;
+    }
+
+    .drever-audience-dialog[data-panel="overview"] .drever-audience-dialog__search {
+      padding-inline: 16px;
+    }
+
     .drever-audience-dialog__slides {
-      grid-template-columns: minmax(0, 1fr);
+      padding-inline: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(min(190px, 100%), 1fr));
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .drever-audience-controls__bar,
     .drever-audience-controls__bar button,
-    .drever-audience-controls__bar button[data-drever-tooltip]::after {
+    .drever-audience-controls__bar button[data-drever-tooltip]::after,
+    .drever-audience-slide-card {
       transition: none;
     }
 
     .drever-audience-focus-tools {
       animation: none;
+    }
+
+    .drever-audience-slide-card:has(> .drever-audience-slide-link:hover),
+    .drever-audience-slide-card:has(> .drever-audience-slide-link:active) {
+      transform: none;
     }
   }
 
@@ -1075,13 +1184,22 @@
     .drever-audience-goto,
     .drever-audience-dialog,
     .drever-audience-dialog__search input,
-    .drever-audience-slide-link,
+    .drever-audience-slide-card,
     .drever-audience-controls__bar button[data-drever-tooltip]::after {
       border: 1px solid CanvasText;
       background: Canvas;
       box-shadow: none;
       color: CanvasText;
       backdrop-filter: none;
+    }
+
+    .drever-audience-slide-link {
+      border: 0;
+      background: transparent;
+    }
+
+    .drever-audience-slide-card:has(> .drever-audience-slide-link:focus-visible) {
+      outline-color: Highlight;
     }
 
     .drever-audience-focus-anchor > button[aria-pressed="true"],

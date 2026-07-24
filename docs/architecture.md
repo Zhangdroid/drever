@@ -163,7 +163,8 @@ document, speaker, and export surfaces through the public `drever create`,
 `drever export pdf` flows.
 `<Note>` is captured into the compiler-owned manifest and removed from audience,
 document, and export trees. The speaker surface consumes that explicit artifact;
-a richer thumbnail overview remains a future view over the same manifest.
+the audience Slide Navigator combines the same manifest with deterministic
+reduced-motion renders of each slide's final Step.
 
 The CLI-generated application selects `createViewer`, `createDocument`, or
 `createSpeaker` from `@drever/client` based on the canonical route. All three

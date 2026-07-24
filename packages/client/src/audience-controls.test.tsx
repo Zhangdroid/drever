@@ -5,6 +5,7 @@ import {
   AudienceControls,
   readSlideNavigationItems,
   resolveAudienceProgress,
+  SlideOverviewItem,
 } from "./audience-controls.tsx";
 import { createPresentationFocusStore } from "./presentation-focus-store.ts";
 
@@ -85,6 +86,7 @@ describe("audience controls", () => {
         onOpenSpeaker={vi.fn()}
         position={{ slideId: "intro", slideIndex: 0, step: 0 }}
         remoteFocus={createPresentationFocusStore({ slideId: "intro", slideIndex: 0, step: 0 })}
+        renderSlidePreview={() => <div data-preview="" />}
       />,
     );
 
@@ -100,5 +102,28 @@ describe("audience controls", () => {
     expect(markup).not.toContain(" title=");
     expect(markup).toContain("Slide 1 of 3");
     expect(markup).toMatch(/aria-label="Previous presentation state"[^>]*disabled/u);
+  });
+
+  it("defers an inert visual preview and keeps navigation outside its surface", () => {
+    const renderPreview = vi.fn(() => <a href="https://example.com/">Authored link</a>);
+    const markup = renderToStaticMarkup(
+      <SlideOverviewItem
+        canvas={{ height: 900, width: 1600 }}
+        current
+        onSelect={vi.fn()}
+        previewRoot={{ current: null }}
+        renderPreview={renderPreview}
+        slide={{ id: "intro", index: 0, title: "Opening claim" }}
+      />,
+    );
+
+    expect(markup).toContain('data-drever-slide-preview=""');
+    expect(markup).toContain('aria-hidden="true"');
+    expect(markup).toContain('inert=""');
+    expect(markup).toContain('style="aspect-ratio:1600 / 900"');
+    expect(markup).toContain('aria-current="page"');
+    expect(markup).toContain('aria-label="Go to slide 1: Opening claim"');
+    expect(renderPreview).not.toHaveBeenCalled();
+    expect(markup.indexOf('data-drever-slide-preview=""')).toBeLessThan(markup.indexOf("<button"));
   });
 });

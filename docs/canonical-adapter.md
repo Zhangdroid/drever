@@ -249,8 +249,9 @@ tree, does not run viewer setup hooks, and exposes only idempotent destruction.
 The export client owns a separate lifetime: it mounts raw canvas-sized pages,
 awaits `runExportSetup`, fonts, images, and final layout frames, then exposes a
 ready marker for Chromium capture. Its destroy handle unmounts React and runs
-the export-hook disposer before the CLI writes output. A richer thumbnail
-overview remains future work.
+the export-hook disposer before the CLI writes output. The audience Slide
+Navigator reuses the same deterministic render path for its lazy visual
+thumbnails.
 
 Each lifecycle module embeds resolved config only for the owners of hooks it
 imports: viewer setup config never pulls in export-only plugin config, and the

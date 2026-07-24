@@ -10,7 +10,7 @@ import {
   type ResolvedSlideState,
   type SlideIdentity,
 } from "@drever/core";
-import type { CanvasDefinition, DeckManifest } from "@drever/schema";
+import type { CanvasDefinition, DeckManifest, SlideManifest } from "@drever/schema";
 import {
   startTransition,
   useCallback,
@@ -71,6 +71,14 @@ export const resolveSlideState = (
   return Object.freeze({ active, currentStep: active ? position.step : 0 });
 };
 
+/** Shows the most complete authored state in a slide overview thumbnail. */
+export const resolveSlidePreviewPosition = (slide: SlideManifest): DeckPosition =>
+  Object.freeze({
+    slideId: slide.id,
+    slideIndex: slide.index,
+    step: slide.stepStops.at(-1) ?? 0,
+  });
+
 /** A controlled React presentation surface. Navigation is owned by createViewer. */
 export const Viewer = (props: ViewerProps): ReactElement => <ViewerSurface {...props} />;
 
@@ -78,6 +86,7 @@ type ViewerSurfaceProps = ViewerProps &
   Readonly<{
     canvasRef?: RefObject<HTMLDivElement | null>;
     deckRef?: RefObject<HTMLDivElement | null>;
+    idPrefix?: string;
   }>;
 
 const ViewerSurface = ({
@@ -85,6 +94,7 @@ const ViewerSurface = ({
   canvas,
   canvasRef,
   deckRef: providedDeckRef,
+  idPrefix,
   manageFocus = true,
   onPositionCommitted,
   manifest,
@@ -136,7 +146,7 @@ const ViewerSurface = ({
 
   return (
     <CanvasViewport canvas={resolvedCanvas} {...(canvasRef === undefined ? {} : { canvasRef })}>
-      <DreverRenderModeProvider mode={renderMode}>
+      <DreverRenderModeProvider mode={renderMode} {...(idPrefix === undefined ? {} : { idPrefix })}>
         <PresentationStage
           canvas={resolvedCanvas}
           manifest={manifest}
@@ -422,6 +432,17 @@ export const ViewerHost = ({
         onOpenSpeaker={onOpenSpeaker}
         position={position}
         remoteFocus={remoteFocus}
+        renderSlidePreview={(slide) => (
+          <ViewerSurface
+            {...viewerProps}
+            idPrefix={`drever-overview-slide-${slide.index + 1}`}
+            manageFocus={false}
+            manifest={machine.manifest}
+            position={resolveSlidePreviewPosition(slide)}
+            reducedMotion={true}
+            renderMode="export"
+          />
+        )}
       />
     </>
   );

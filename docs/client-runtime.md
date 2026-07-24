@@ -5,8 +5,9 @@
 view, `createSpeaker` for the speaker view, and `createExport` for deterministic
 PDF documents. The `drever` CLI generates the appropriate bootstrap. Deck
 authors configure Drever and write MDX rather than assembling React, Navigation
-API, `BroadcastChannel`, export readiness, or Vite integrations. A richer
-thumbnail overview remains a separate future consumer.
+API, `BroadcastChannel`, export readiness, or Vite integrations. The audience
+Slide Navigator reuses the deterministic render path to show a searchable
+visual overview without creating another presentation store.
 
 ## Generated application entry
 
@@ -233,6 +234,14 @@ The document namespace is exactly `/document`. It renders the complete deck and
 uses slide-id fragments only as table-of-contents anchors. A static build emits
 `/document/index.html`; it remains portable below a subdirectory like the
 audience and speaker entries.
+
+The audience Slide Navigator mounts only while open. It lazily mounts nearby
+inert thumbnails as they approach the scroll viewport, then keeps them mounted
+for that overview session. Each thumbnail renders the target slide's final authored Step and exact Stage in reduced-motion
+export mode. That prunes inactive slides and keeps official media components
+non-interactive. The preview and full-card navigation button are siblings, so
+authored links or controls never become invalid descendants of another button.
+Every preview receives a unique render-ID prefix.
 
 ## Speaker surface and synchronization
 

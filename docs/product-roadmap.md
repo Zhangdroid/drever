@@ -36,9 +36,10 @@ These capabilities should be refined rather than replaced.
 
 The audience surface now provides a searchable slide navigator, current-position
 marker, compiled slide titles, direct numbered jumps, keyboard shortcuts, and a
-visible speaker-view action. Exact jumps use the same browser-history contract as
-linear navigation. A richer thumbnail/Step scrubber can build on this foundation
-when Drever has a dedicated overview render mode.
+visible speaker-view action. Its glass overview renders each slide's final
+authored Step and exact Stage as an inert thumbnail. Exact jumps use the same
+browser-history contract as linear navigation. A dedicated Step scrubber remains
+an optional follow-up rather than a prerequisite for visual navigation.
 
 Slide lists and thumbnail navigators are standard recovery tools during a live
 presentation in [Google Slides][google-present], [PowerPoint Presenter View][powerpoint-presenter],

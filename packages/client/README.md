@@ -30,7 +30,7 @@ await viewer.navigate({ type: "next" });
 ```
 
 The viewer owns canvas scaling, exact Step navigation, clean path/history state,
-an accessible audience command bar and slide navigator, keyboard controls,
+an accessible audience command bar and visual slide navigator, keyboard controls,
 deck-scoped View Transitions, runtime setup, and teardown.
 Its Copy link control writes the canonical URL for the committed slide and Step
 while preserving query and hash state. It requires the Clipboard API in a

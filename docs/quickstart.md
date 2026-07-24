@@ -405,8 +405,9 @@ modules, and runtime components are covered in
 - Next / previous slide, skipping Steps: `ArrowDown` / `ArrowUp`.
 - First / last: `Home` / `End`.
 - Slide navigator: press `O` or `G`, or select the position in the audience
-  control bar. Search by title or number and select a result to jump through
-  the same path-addressable navigation system.
+  control bar. The glass overview renders every slide at its final authored
+  Step with its exact Stage, then lets you search by title or number and jump
+  through the same path-addressable navigation system.
 - Direct slide jump: type a slide number, then press `Enter`.
 - Fullscreen: `F`. Pause on a blank black or white screen with `B` or `W`;
   press the same key, `Escape`, or select the screen to return.

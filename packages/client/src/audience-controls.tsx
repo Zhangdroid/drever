@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
   type ReactElement,
+  type ReactNode,
   type RefObject,
 } from "react";
 import { DreverClientError } from "./client-error.ts";
@@ -54,6 +55,7 @@ export type AudienceControlsProps = Readonly<{
   onOpenSpeaker(): void;
   position: DeckPosition;
   remoteFocus: PresentationFocusStore;
+  renderSlidePreview(slide: SlideManifest): ReactNode;
 }>;
 
 export type AudienceProgress = Readonly<{
@@ -95,6 +97,84 @@ export const readSlideNavigationItems = (
       });
     }),
   );
+
+export type SlideOverviewItemProps = Readonly<{
+  canvas: CanvasDefinition;
+  current: boolean;
+  onSelect(): void;
+  previewRoot: RefObject<HTMLDivElement | null>;
+  renderPreview(): ReactNode;
+  slide: SlideNavigationItem;
+}>;
+
+/** Keeps authored preview content inert and separate from the card's navigation button. */
+export const SlideOverviewItem = ({
+  canvas,
+  current,
+  onSelect,
+  previewRoot,
+  renderPreview,
+  slide,
+}: SlideOverviewItemProps): ReactElement => {
+  const cardRef = useRef<HTMLElement>(null);
+  const [previewReady, setPreviewReady] = useState(false);
+  const ordinal = slide.index + 1;
+  const label = `Go to slide ${ordinal}: ${slide.title}`;
+
+  useEffect(() => {
+    const card = cardRef.current;
+    if (card === null || previewReady) {
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting === true) {
+          setPreviewReady(true);
+          observer.disconnect();
+        }
+      },
+      {
+        root: previewRoot.current,
+        rootMargin: "320px 0px",
+      },
+    );
+    observer.observe(card);
+    return () => observer.disconnect();
+  }, [previewReady, previewRoot]);
+
+  return (
+    <article
+      className="drever-audience-slide-card"
+      data-current={current ? "" : undefined}
+      data-slide-index={slide.index}
+      ref={cardRef}
+    >
+      <div
+        aria-hidden="true"
+        className="drever-audience-slide-preview"
+        data-drever-slide-preview=""
+        inert
+        style={{ aspectRatio: `${canvas.width} / ${canvas.height}` }}
+      >
+        {previewReady ? renderPreview() : null}
+      </div>
+      <div aria-hidden="true" className="drever-audience-slide-meta">
+        <span>{String(ordinal).padStart(2, "0")}</span>
+        <strong>{slide.title}</strong>
+        {current ? <small>Now</small> : null}
+      </div>
+      <button
+        aria-current={current ? "page" : undefined}
+        aria-label={label}
+        className="drever-audience-slide-link"
+        onClick={onSelect}
+        type="button"
+      >
+        <span className="drever-visually-hidden">{label}</span>
+      </button>
+    </article>
+  );
+};
 
 const lastStep = (slide: SlideManifest): number => slide.stepStops.at(-1) ?? 0;
 
@@ -242,10 +322,12 @@ export const AudienceControls = ({
   onOpenSpeaker,
   position,
   remoteFocus,
+  renderSlidePreview,
 }: AudienceControlsProps): ReactElement => {
   const hostRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const overviewRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const [fullscreen, setFullscreen] = useState(false);
   const [focusInteracting, setFocusInteracting] = useState(false);
@@ -598,6 +680,7 @@ export const AudienceControls = ({
       <dialog
         aria-labelledby="drever-audience-dialog-title"
         className="drever-audience-dialog"
+        data-panel={panel}
         onCancel={closePanel}
         onClick={(event) => {
           if (event.target === event.currentTarget) {
@@ -628,20 +711,21 @@ export const AudienceControls = ({
                 value={query}
               />
             </label>
-            <div className="drever-audience-dialog__slides">
-              {visibleSlides.map((slide) => (
-                <button
-                  aria-current={slide.index === position.slideIndex ? "page" : undefined}
-                  className="drever-audience-slide-link"
-                  key={slide.id}
-                  onClick={() => jumpTo(slide)}
-                  type="button"
-                >
-                  <span>{String(slide.index + 1).padStart(2, "0")}</span>
-                  <strong>{slide.title}</strong>
-                  {slide.index === position.slideIndex ? <small>Current</small> : null}
-                </button>
-              ))}
+            <div className="drever-audience-dialog__slides" ref={overviewRef}>
+              {visibleSlides.map((slide) => {
+                const manifestSlide = manifest.slides[slide.index] as SlideManifest;
+                return (
+                  <SlideOverviewItem
+                    canvas={canvas}
+                    current={slide.index === position.slideIndex}
+                    key={slide.id}
+                    onSelect={() => jumpTo(slide)}
+                    previewRoot={overviewRef}
+                    renderPreview={() => renderSlidePreview(manifestSlide)}
+                    slide={slide}
+                  />
+                );
+              })}
               {visibleSlides.length === 0 ? <p>No slides match “{query}”.</p> : null}
             </div>
           </div>

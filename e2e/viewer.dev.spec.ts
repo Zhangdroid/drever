@@ -420,6 +420,7 @@ test("audience sharing copies the canonical visible slide and Step URL", async (
 test("audience shortcuts skip Steps, search slides, and jump by number", async ({ page }) => {
   const health = monitorPageHealth(page);
   await monitorViewTransitions(page);
+  await page.setViewportSize({ height: 480, width: 390 });
   await page.goto("/2/2");
   await expect(page.locator("#drever-root")).toHaveAttribute("data-drever-ready", "");
 
@@ -433,7 +434,25 @@ test("audience shortcuts skip Steps, search slides, and jump by number", async (
   await page.keyboard.press("o");
   const navigator = page.getByRole("dialog", { name: "Slide navigator" });
   await expect(navigator).toBeVisible();
+  await expect(navigator.locator("[data-drever-slide-preview]")).toHaveCount(5);
+  await expect(
+    navigator.locator(
+      '.drever-audience-slide-card[data-slide-index="1"] [data-drever-stage][data-drever-render-mode="export"]',
+    ),
+  ).toHaveAttribute("data-current-step", "5");
+  await expect(
+    navigator.locator('.drever-audience-slide-card[data-slide-index="1"] [data-drever-stage]'),
+  ).toHaveAttribute("data-drever-reduced-motion", "");
+  const lastPreview = navigator.locator(
+    '.drever-audience-slide-card[data-slide-index="4"] [data-drever-stage]',
+  );
+  await expect(lastPreview).toHaveCount(0);
+  await navigator
+    .locator('.drever-audience-slide-card[data-slide-index="4"]')
+    .scrollIntoViewIfNeeded();
+  await expect(lastPreview).toHaveCount(1);
   await navigator.getByRole("searchbox", { name: "Find a slide" }).fill("static output");
+  await expect(navigator.locator("[data-drever-slide-preview]")).toHaveCount(1);
   const transition = await captureNextViewTransition(page, () =>
     navigator.getByRole("button", { name: /Static output/u }).click(),
   );
