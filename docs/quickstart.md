@@ -8,13 +8,15 @@ application, and export a portable PDF.
 
 - Node.js 24.18 or newer.
 - A current Chromium-family browser with Navigation API,
-  `Element.startViewTransition`, `BroadcastChannel`, and `ResizeObserver`.
+  `Document.startViewTransition`, `Element.startViewTransition`,
+  `BroadcastChannel`, and `ResizeObserver`.
 - Playwright Chromium for PDF export. Install it once with
   `npx playwright install chromium`. CI images can use
   `npx playwright install --with-deps chromium`.
 
-Drever deliberately has no legacy router or animation fallback. It reports an
-unsupported-platform diagnostic when a required browser API is missing.
+Drever deliberately has no legacy router or animation fallback. Its generated
+pages show an unsupported-browser screen before the runtime starts when a
+required API is missing.
 `prefers-reduced-motion` is respected without changing the runtime model.
 
 ## Create a deck

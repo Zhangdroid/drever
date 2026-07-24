@@ -90,9 +90,10 @@ const result = await createExport({
 ```
 
 The package targets current browsers and intentionally requires the Navigation
-API, `Element.startViewTransition`, `BroadcastChannel`, and `ResizeObserver`
-instead of shipping legacy fallbacks. Export readiness similarly depends on
-modern `FontFaceSet`, image decoding, and animation-frame APIs.
+API, `Document.startViewTransition`, `Element.startViewTransition`,
+`BroadcastChannel`, and `ResizeObserver` instead of shipping legacy fallbacks.
+Export readiness similarly depends on modern `FontFaceSet`, image decoding, and
+animation-frame APIs.
 
 Clipboard support is required only when Copy link is selected. If
 `navigator.clipboard.writeText()` is unavailable or rejects the write, the

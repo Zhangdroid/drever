@@ -68,6 +68,7 @@ describe("viewer platform support", () => {
   it("reports every missing capability without selecting a fallback", () => {
     const document = candidateDocument({
       broadcastChannel: false,
+      documentStartViewTransition: false,
       elementStartViewTransition: false,
       navigation: false,
       resizeObserver: false,
@@ -83,6 +84,7 @@ describe("viewer platform support", () => {
           capabilities: [
             "BroadcastChannel",
             "Navigation API",
+            "Document.startViewTransition",
             "Element.startViewTransition",
             "ResizeObserver",
           ],
@@ -100,6 +102,19 @@ describe("viewer platform support", () => {
     expect(() => requireViewerPlatform(document)).toThrowError(
       expect.objectContaining({
         details: { capabilities: ["Element.startViewTransition"] },
+      }),
+    );
+  });
+
+  it("does not accept the element API as a document transition fallback", () => {
+    const document = candidateDocument({
+      documentStartViewTransition: false,
+      elementStartViewTransition: vi.fn(),
+    });
+
+    expect(() => requireViewerPlatform(document)).toThrowError(
+      expect.objectContaining({
+        details: { capabilities: ["Document.startViewTransition"] },
       }),
     );
   });

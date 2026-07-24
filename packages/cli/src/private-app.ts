@@ -27,6 +27,222 @@ export type PrivateExportAppOptions = Readonly<{
   }>;
 }>;
 
+const browserSupportBootstrap = `<script data-drever-browser-support>
+(function () {
+  var missing = [];
+  var root = document.documentElement;
+  var navigation = window.navigation;
+
+  if (
+    typeof navigation !== "object" ||
+    navigation === null ||
+    typeof navigation.addEventListener !== "function" ||
+    typeof navigation.navigate !== "function" ||
+    typeof navigation.removeEventListener !== "function" ||
+    typeof navigation.updateCurrentEntry !== "function"
+  ) {
+    missing.push("navigation");
+  }
+  if (typeof document.startViewTransition !== "function") {
+    missing.push("document-view-transition");
+  }
+  if (
+    typeof window.Element !== "function" ||
+    typeof window.Element.prototype.startViewTransition !== "function"
+  ) {
+    missing.push("element-view-transition");
+  }
+  if (typeof window.BroadcastChannel !== "function") {
+    missing.push("broadcast-channel");
+  }
+  if (typeof window.ResizeObserver !== "function") {
+    missing.push("resize-observer");
+  }
+
+  root.setAttribute("data-drever-browser-missing", missing.join(" "));
+  root.setAttribute(
+    "data-drever-browser-support",
+    missing.length === 0 ? "supported" : "unsupported"
+  );
+})();
+</script>`;
+
+const browserSupportStyles = `<style data-drever-browser-support>
+html:not([data-drever-browser-support="supported"]),
+html:not([data-drever-browser-support="supported"]) body {
+  min-height: 100%;
+  background: #111018;
+}
+html:not([data-drever-browser-support="supported"]) body {
+  margin: 0;
+}
+html:not([data-drever-browser-support="supported"]) #drever-root {
+  display: none;
+}
+html[data-drever-browser-support="supported"] .drever-browser-gate {
+  display: none;
+}
+.drever-browser-gate {
+  box-sizing: border-box;
+  display: grid;
+  min-height: 100svh;
+  padding: clamp(1.5rem, 5vw, 4rem);
+  align-content: space-between;
+  gap: 5rem;
+  background:
+    radial-gradient(circle at 78% 72%, rgb(111 91 255 / 18%), transparent 30rem),
+    #111018;
+  color: #f6f3e9;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+.drever-browser-gate * {
+  box-sizing: border-box;
+}
+.drever-browser-gate header,
+.drever-browser-gate__layout {
+  width: min(100%, 88rem);
+  margin-inline: auto;
+}
+.drever-browser-gate header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+.drever-browser-gate header strong {
+  font-size: 1rem;
+  letter-spacing: -0.03em;
+}
+.drever-browser-gate header span,
+.drever-browser-gate__status > span {
+  color: #9f9cae;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.drever-browser-gate__layout {
+  display: grid;
+  align-items: end;
+  grid-template-columns: minmax(0, 1.3fr) minmax(17rem, 0.7fr);
+  gap: clamp(3rem, 9vw, 9rem);
+}
+.drever-browser-gate__copy > span {
+  color: #c7f03a;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.drever-browser-gate h1 {
+  max-width: 10ch;
+  margin: 1.2rem 0 0;
+  font-size: clamp(3.2rem, 8vw, 7rem);
+  font-weight: 580;
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+  text-wrap: balance;
+}
+.drever-browser-gate p {
+  max-width: 38rem;
+  margin: 1.8rem 0 0;
+  color: #aaa7b7;
+  font-size: clamp(1rem, 1.5vw, 1.16rem);
+  line-height: 1.55;
+}
+.drever-browser-gate p:last-child {
+  color: #f6f3e9;
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+.drever-browser-gate__status {
+  padding: 1rem;
+  border: 1px solid rgb(246 243 233 / 12%);
+  border-radius: 0.9rem;
+  background: rgb(246 243 233 / 5%);
+}
+.drever-browser-gate ul {
+  display: grid;
+  margin: 1rem 0 0;
+  padding: 0;
+  gap: 0.35rem;
+  list-style: none;
+}
+.drever-browser-gate li {
+  display: none;
+  min-height: 2.5rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.5rem;
+  align-items: center;
+  gap: 0.65rem;
+  background: rgb(246 243 233 / 4%);
+  font-size: 0.76rem;
+}
+.drever-browser-gate li::before {
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 50%;
+  background: #c7f03a;
+  box-shadow: 0 0 0 0.22rem rgb(199 240 58 / 10%);
+  content: "";
+}
+html[data-drever-browser-missing~="navigation"] [data-drever-browser-feature="navigation"],
+html[data-drever-browser-missing~="document-view-transition"]
+  [data-drever-browser-feature="document-view-transition"],
+html[data-drever-browser-missing~="element-view-transition"]
+  [data-drever-browser-feature="element-view-transition"],
+html[data-drever-browser-missing~="broadcast-channel"]
+  [data-drever-browser-feature="broadcast-channel"],
+html[data-drever-browser-missing~="resize-observer"]
+  [data-drever-browser-feature="resize-observer"] {
+  display: flex;
+}
+@media (max-width: 48rem) {
+  .drever-browser-gate header span {
+    display: none;
+  }
+  .drever-browser-gate__layout {
+    grid-template-columns: 1fr;
+  }
+}
+</style>`;
+
+const browserSupportGate = `<main
+      class="drever-browser-gate"
+      data-drever-browser-support-gate
+      data-nosnippet
+      aria-labelledby="drever-browser-support-title"
+    >
+      <header>
+        <strong>Drever</strong>
+        <span>Modern browser required</span>
+      </header>
+      <div class="drever-browser-gate__layout">
+        <section class="drever-browser-gate__copy">
+          <span>The browser is part of the canvas.</span>
+          <h1 id="drever-browser-support-title">This browser can’t run this deck.</h1>
+          <p>
+            Drever uses native navigation and scoped motion without a reduced fallback.
+          </p>
+          <p>Open this presentation in the latest desktop Chrome to continue.</p>
+        </section>
+        <aside class="drever-browser-gate__status" aria-label="Required browser capabilities">
+          <span>Missing capability</span>
+          <ul>
+            <li data-drever-browser-feature="navigation">Navigation API</li>
+            <li data-drever-browser-feature="document-view-transition">
+              Document View Transitions
+            </li>
+            <li data-drever-browser-feature="element-view-transition">
+              Scoped element View Transitions
+            </li>
+            <li data-drever-browser-feature="broadcast-channel">BroadcastChannel</li>
+            <li data-drever-browser-feature="resize-observer">ResizeObserver</li>
+          </ul>
+        </aside>
+      </div>
+    </main>`;
+
 const exportBootstrapReporter = `<script data-drever-export-bootstrap>
 const __dreverExportRecord = (value) =>
   typeof value === "object" && value !== null ? value : undefined;
@@ -77,8 +293,20 @@ globalThis.addEventListener("unhandledrejection", (event) => {
 });
 </script>`;
 
-const applicationHtml = (bootstrap = ""): string => `<!doctype html>
-<html lang="en">
+const applicationHtml = ({
+  bootstrap = "",
+  browserSupport = true,
+}: Readonly<{
+  bootstrap?: string;
+  browserSupport?: boolean;
+}> = {}): string => `<!doctype html>
+<html lang="en"${
+  browserSupport
+    ? `
+  data-drever-browser-support="checking"
+  data-drever-browser-missing="navigation document-view-transition element-view-transition broadcast-channel resize-observer"`
+    : ""
+}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -86,8 +314,10 @@ const applicationHtml = (bootstrap = ""): string => `<!doctype html>
     <meta name="drever-base" content="/" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" />
     <title>Drever</title>
+    ${browserSupport ? `${browserSupportStyles}\n    ${browserSupportBootstrap}` : ""}
   </head>
   <body>
+    ${browserSupport ? browserSupportGate : ""}
     <main id="drever-root"></main>
 ${bootstrap}
     <script type="module" src="/entry.js"></script>
@@ -134,6 +364,10 @@ import Content, { deckManifest } from ${JSON.stringify(entry)};
 import { components } from "virtual:drever/mdx-components";
 import { runSetup, theme } from "virtual:drever/runtime";
 ${stageSource.imports}import "virtual:drever/styles.css";
+
+if (document.documentElement.dataset.dreverBrowserSupport !== "supported") {
+  await new Promise(() => undefined);
+}
 
 const container = document.querySelector("#drever-root");
 const base = document.querySelector('meta[name="drever-base"]');
@@ -399,5 +633,8 @@ export const createPrivateExportApp = async (
   createGeneratedApp(
     "drever-export-app-",
     exportModuleSource(entry, options),
-    applicationHtml(exportBootstrapReporter),
+    applicationHtml({
+      bootstrap: exportBootstrapReporter,
+      browserSupport: false,
+    }),
   );

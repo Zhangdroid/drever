@@ -156,6 +156,13 @@ const verifyOutput = async () => {
     if (html.includes("noindex")) {
       throw new Error(`Production page must be indexable: ${path}`);
     }
+    if (
+      !html.includes('data-browser-support="checking"') ||
+      !html.includes("data-browser-support-gate") ||
+      !html.includes("window.Element.prototype.startViewTransition")
+    ) {
+      throw new Error(`Production page is missing the browser capability gate: ${path}`);
+    }
   }
 
   for (const presentation of publicPresentationMounts) {
@@ -181,6 +188,13 @@ const verifyOutput = async () => {
     }
     if (!speakerHtml.includes('name="robots" content="noindex, follow"')) {
       throw new Error(`Presentation speaker route must not be indexed: ${presentation.slug}`);
+    }
+    if (
+      !rootHtml.includes('data-drever-browser-support="checking"') ||
+      !rootHtml.includes("data-drever-browser-support-gate") ||
+      !speakerHtml.includes("data-drever-browser-support-gate")
+    ) {
+      throw new Error(`Presentation is missing the browser capability gate: ${presentation.slug}`);
     }
   }
 

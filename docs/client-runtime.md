@@ -553,12 +553,14 @@ The audience and speaker surfaces require a browser document connected to a
 
 - `BroadcastChannel`
 - Navigation API
+- `Document.startViewTransition`
 - `Element.startViewTransition`
 - `ResizeObserver`
 
 There is intentionally no fallback router, animation engine, or resize polling.
-Unsupported environments fail before React mounts with a structured
-`DREVER_CLIENT_PLATFORM_UNSUPPORTED` error.
+Generated pages show an unsupported-browser screen before React mounts. The
+runtime repeats the contract as a structured
+`DREVER_CLIENT_PLATFORM_UNSUPPORTED` error boundary.
 
 The viewer itself does not require Clipboard API support. The Copy link action
 does: it uses `navigator.clipboard.writeText()` in a secure context and reports

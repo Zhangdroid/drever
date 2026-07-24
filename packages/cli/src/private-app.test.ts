@@ -13,7 +13,104 @@ const exportBootstrapSource = (html: string): string => {
   return source;
 };
 
+const browserSupportBootstrapSource = (html: string): string => {
+  const match = html.match(/<script data-drever-browser-support>(?<source>[\s\S]*?)<\/script>/u);
+  const source = match?.groups?.source;
+  if (source === undefined) {
+    throw new TypeError("The generated document is missing its browser support bootstrap.");
+  }
+  return source;
+};
+
+const runBrowserSupportBootstrap = (
+  source: string,
+  {
+    documentViewTransition = true,
+    elementViewTransition = true,
+    navigation = true,
+  }: Readonly<{
+    documentViewTransition?: boolean;
+    elementViewTransition?: boolean;
+    navigation?: boolean;
+  }> = {},
+): Readonly<Record<string, string>> => {
+  const attributes: Record<string, string> = {};
+  class SupportedElement {
+    startViewTransition() {}
+  }
+  class UnsupportedElement {}
+
+  runInNewContext(source, {
+    document: {
+      documentElement: {
+        setAttribute(name: string, value: string) {
+          attributes[name] = value;
+        },
+      },
+      startViewTransition: documentViewTransition ? () => undefined : undefined,
+    },
+    window: {
+      BroadcastChannel: class {},
+      Element: elementViewTransition ? SupportedElement : UnsupportedElement,
+      ResizeObserver: class {},
+      navigation: navigation
+        ? {
+            addEventListener: () => undefined,
+            navigate: () => undefined,
+            removeEventListener: () => undefined,
+            updateCurrentEntry: () => undefined,
+          }
+        : undefined,
+    },
+  });
+
+  return Object.freeze(attributes);
+};
+
 describe("generated private application", () => {
+  it("gates the presentation before runtime when a required browser primitive is missing", async () => {
+    const app = await createPrivateApp("/project/slides.mdx");
+    try {
+      const [html, source] = await Promise.all([
+        readFile(join(app.root, "index.html"), "utf8"),
+        readFile(join(app.root, "entry.js"), "utf8"),
+      ]);
+      const bootstrap = browserSupportBootstrapSource(html);
+
+      expect(html).toContain('data-drever-browser-support="checking"');
+      expect(html).toContain("data-drever-browser-support-gate");
+      expect(source).toContain(
+        'document.documentElement.dataset.dreverBrowserSupport !== "supported"',
+      );
+      expect(html.indexOf("data-drever-browser-support>")).toBeLessThan(
+        html.indexOf('src="/entry.js"'),
+      );
+      expect(runBrowserSupportBootstrap(bootstrap)).toMatchObject({
+        "data-drever-browser-missing": "",
+        "data-drever-browser-support": "supported",
+      });
+      expect(
+        runBrowserSupportBootstrap(bootstrap, {
+          elementViewTransition: false,
+        }),
+      ).toMatchObject({
+        "data-drever-browser-missing": "element-view-transition",
+        "data-drever-browser-support": "unsupported",
+      });
+      expect(
+        runBrowserSupportBootstrap(bootstrap, {
+          documentViewTransition: false,
+          navigation: false,
+        }),
+      ).toMatchObject({
+        "data-drever-browser-missing": "navigation document-view-transition",
+        "data-drever-browser-support": "unsupported",
+      });
+    } finally {
+      await app.dispose();
+    }
+  });
+
   it("publishes live positions from interactive surfaces until HMR disposal", async () => {
     const app = await createPrivateApp("/project/slides.mdx");
     try {
@@ -424,6 +521,7 @@ describe("generated private application", () => {
     });
     try {
       const html = await readFile(join(app.root, "index.html"), "utf8");
+      expect(html).not.toContain("data-drever-browser-support-gate");
       const listeners = new Map<string, (event: Record<string, unknown>) => void>();
       const dataset: Record<string, string> = {};
       runInNewContext(exportBootstrapSource(html), {

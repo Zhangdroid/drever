@@ -182,11 +182,11 @@ buffer. It does not drive audience routes, merge page files, or touch the
 configured build directory.
 
 The client intentionally has no legacy router, animation, synchronization, or
-resize fallback. Navigation API, `Element.startViewTransition`,
-`BroadcastChannel`, and `ResizeObserver` are hard requirements. The deck owns
-the native capture surface while React owns its state commit, so Stage layers
-and client chrome remain live. React concurrent rendering and Navigation
-interception remain one commit protocol. Reduced
+resize fallback. Navigation API, `Document.startViewTransition`,
+`Element.startViewTransition`, `BroadcastChannel`, and `ResizeObserver` are hard
+requirements. The deck owns the native capture surface while React owns its
+state commit, so Stage layers and client chrome remain live. React concurrent
+rendering and Navigation interception remain one commit protocol. Reduced
 motion disables presentation animation but does not select an alternate
 runtime.
 
