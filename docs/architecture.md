@@ -183,13 +183,15 @@ buffer. It does not drive audience routes, merge page files, or touch the
 configured build directory.
 
 The client intentionally has no legacy router, animation, synchronization, or
-resize fallback. Navigation API, `Document.startViewTransition`,
-`Element.startViewTransition`, `BroadcastChannel`, and `ResizeObserver` are hard
-requirements. The deck owns the native capture surface while React owns its
-state commit, so Stage layers and client chrome remain live. React concurrent
-rendering and Navigation interception remain one commit protocol. Reduced
-motion disables presentation animation but does not select an alternate
-runtime.
+resize fallback. Navigation API with `NavigateEvent.signal`,
+`Document.startViewTransition`, `BroadcastChannel`, and `ResizeObserver` are
+hard requirements. A document View Transition owns the native update while
+explicit names limit capture to the deck, authored continuity groups, and stable
+overlay groups. React owns the state commit; the Stage background remains live
+while foreground, focus, and command-bar snapshots keep their visual stacking
+above the deck. React concurrent rendering and Navigation interception remain
+one commit protocol. Reduced motion disables presentation animation but does
+not select an alternate runtime.
 
 ## Extensions
 
@@ -252,8 +254,9 @@ preflight report rather than defining a second diagnostic vocabulary.
 - Compiler fixtures assert semantic IR rather than large generated-JavaScript snapshots.
 - Plugin and theme contract tests run against shared fixtures.
 - Real-browser tests cover audience, document, and speaker path routing,
-  deck-scoped View Transitions, rapid navigation, cross-window synchronization, static deep
-  links, document landmarks and final Step visibility, and visual states.
+  document View Transitions with named deck capture, rapid navigation,
+  cross-window synchronization, static deep links, document landmarks and final
+  Step visibility, and visual states.
   Export E2E runs the public command and verifies
   final and sparse-Step page counts, tags, dimensions, build isolation, and
   rejecting-plugin cleanup.

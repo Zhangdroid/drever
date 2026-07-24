@@ -82,7 +82,7 @@ Document View. Audience paths such as `/5/2` select an exact slide and sparse St
 - Sparse, addressable Step state.
 - Built-in Note and semantic MotionGroup primitives.
 - Motion intents: focus, replace, compare, stagger, and continuity.
-- Stage background and foreground layers outside per-slide transitions.
+- A live Stage background and stable named foreground above document View Transitions.
 - Audience toolbar, slide search, fullscreen, black/white pause screens, and canonical link copying.
 - Laser, Pen, and Highlighter in audience and speaker views.
 - Source accessibility preflight with human and stable JSON diagnostics.

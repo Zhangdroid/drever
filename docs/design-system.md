@@ -352,8 +352,8 @@ Keep the gradient angle, stops, blur, border, and shadow geometry unchanged
 across states. Never animate `backdrop-filter` or transition between `none` and
 the shadow list. Show or hide the whole plane with opacity and at most `8px` of
 translation; do not scale it. Use Quick motion for selection, Standard motion
-for disclosure, and the standard easing for spatial changes. Iris Glass remains
-outside slide View Transitions.
+for disclosure, and the standard easing for spatial changes. During slide View
+Transitions, Iris Glass keeps one stable named visual above the moving deck.
 
 Under reduced motion, apply the final position and visibility immediately.
 Color feedback may remain Instant, but no replacement spatial animation is
@@ -503,9 +503,10 @@ popovers, floating or sticky headers, tooltips, dialogs, and compact overlays.
 Use the documented dark or light semantic mapping, fixed 180-degree two-stop
 gradient, 1px border, material blur and saturation tokens, and two-layer shadow
 without changing their geometry. Never apply Iris Glass to content cards, slide
-canvases, media, or repeated grids. Keep it outside slide transitions; animate
-only opacity and up to 8px of translation, and remove spatial motion under
-reduced motion.
+canvases, media, or repeated grids. Keep it structurally outside deck content;
+during a document View Transition, client chrome receives one stable named
+visual above the moving deck. Animate only opacity and up to 8px of translation,
+and remove spatial motion under reduced motion.
 
 If a Signal recurs across states, keep its weight, opacity, color treatment,
 orientation, and cross-axis alignment fixed. Translate it along the reading

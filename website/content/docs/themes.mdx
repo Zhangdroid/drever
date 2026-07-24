@@ -87,9 +87,10 @@ export default defineConfig({
 });
 ```
 
-Stage layers remain outside per-slide transition snapshots. They are appropriate for page numbers,
-branding, persistent art, and background systems. Keep the Stage stable and animate only the
-sub-element whose state actually changed.
+The Stage background remains live during document View Transitions. A non-empty foreground uses a
+stable named visual above the moving deck. Stage layers are appropriate for page numbers, branding,
+persistent art, and background systems. Keep the Stage stable and animate only the sub-element whose
+state actually changed.
 
 <h2 id="author-a-theme">Authoring a theme</h2>
 

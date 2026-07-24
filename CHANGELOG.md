@@ -17,6 +17,9 @@ section, while commit snapshots use the current Unreleased section.
 
 ### Changed
 
+- Moved slide navigation to document View Transitions with explicitly named deck and overlay groups,
+  removing the client requirement for element-scoped transitions while keeping Stage backgrounds
+  live.
 - Simplified the website hero and setup path while making showcase entry points easier to discover.
 - Aligned canonical, sitemap, and first-party website URLs with their final trailing-slash routes.
 - Refined Product Tour and Architecture motion so repeated elements remain stable and ambient

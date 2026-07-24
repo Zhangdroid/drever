@@ -160,7 +160,7 @@ viewer. Do not modify the package CSS:
 ```
 
 The theme targets current browsers and intentionally uses `color-mix()` and
-modern text wrapping without legacy fallbacks. The client scopes each native
-View Transition to the deck while continuity identities isolate shared objects.
-Steps animate in the live DOM, and persistent headings never receive inferred
-transition identities.
+modern text wrapping without legacy fallbacks. The client starts each native
+View Transition on the document while named groups isolate the deck, stable
+overlays, and explicit continuity objects. Steps animate in the live DOM, and
+persistent headings never receive inferred transition identities.

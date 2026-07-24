@@ -52,8 +52,9 @@ screens, numeric slide entry, Step-aware progress, keyboard help, and a compact
 control bar for pointer and touch users. Its session-local Focus Tools provide
 a transient laser plus pen and highlighter strokes with Undo and Clear. Ink
 survives Step changes on the current slide, clears on slide changes, and renders
-outside the deck View Transition. The speaker exposes the same three tools over
-its current preview and synchronizes their actions through the existing
+outside deck content. Visible marks receive a stable named transition group
+above the deck snapshot. The speaker exposes the same three tools over its
+current preview and synchronizes their actions through the existing
 `BroadcastChannel`. A late audience receives persistent Pen and Highlighter ink;
 Laser remains transient and exact-Position scoped.
 The speaker view remains the authoritative place for persistent progress and
@@ -152,7 +153,7 @@ delay never invents navigation state. Continuity requires an explicit lowercase
 kebab-case identity on the same object across adjacent slides.
 
 Core owns Step and accessibility semantics plus continuity identity. The client
-owns deck-scoped capture, the Navigation-to-React commit, and navigation
+owns named document capture, the Navigation-to-React commit, and navigation
 direction. Each official theme owns a distinct CSS mapping plus JSON-safe
 guidance. Audience motion is disabled for reduced motion and is never assigned
 in speaker, document, or export rendering.

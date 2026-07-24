@@ -253,7 +253,7 @@ export const CommitProtocol = (): ReactElement => {
           </div>
         ))}
       </div>
-      <code className="arch-commit-code">{"deck.startViewTransition({ update })"}</code>
+      <code className="arch-commit-code">{"document.startViewTransition({ update })"}</code>
     </div>
   );
 };

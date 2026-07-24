@@ -81,7 +81,7 @@ function HomePage() {
             </div>
           </div>
           <p className="home-hero__requirements">
-            Requires Node.js 24.18+ and a current Chromium-family browser.
+            Requires Node.js 24.18+ and a current Safari or Chromium-family browser.
           </p>
         </div>
 
