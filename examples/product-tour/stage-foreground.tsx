@@ -12,7 +12,7 @@ const chapter = (slideIndex: number): string => {
 };
 
 const signalPosition = (slideIndex: number, slideCount: number): string => {
-  if (slideIndex === 0 || slideIndex === slideCount - 1) return "edge";
+  if (slideIndex === 0 || slideIndex === slideCount - 1) return "hidden";
   return "frame";
 };
 

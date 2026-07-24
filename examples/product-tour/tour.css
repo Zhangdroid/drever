@@ -210,11 +210,13 @@
 }
 
 [data-drever-render-mode="audience"] .tour-stage-foreground__signal {
-  transition: translate 720ms var(--drever-brand-motion-easing-standard);
+  transition:
+    opacity 320ms ease-out,
+    translate 720ms var(--drever-brand-motion-easing-standard);
 }
 
-.tour-stage-foreground[data-signal-position="edge"] .tour-stage-foreground__signal {
-  translate: -28px 94px;
+.tour-stage-foreground[data-signal-position="hidden"] .tour-stage-foreground__signal {
+  opacity: 0;
 }
 
 .tour-stage-foreground__story {
@@ -660,15 +662,7 @@
   .tour-cover--opening
   .tour-room-response__thread
   > span {
-  animation: tour-room-signal 1.2s var(--drever-brand-motion-easing-standard) 1.9s both;
-}
-
-[data-drever-render-mode="audience"]
-  [data-drever-slide][data-slide-state="active"]
-  .tour-cover--opening
-  .tour-room-response__story
-  > span:nth-child(2) {
-  animation: tour-story-answer 720ms var(--drever-brand-motion-easing-standard) 2.55s both;
+  animation: tour-room-signal 5.6s ease-in-out 400ms infinite alternate both;
 }
 
 .tour-room-response[data-phase="closing"] .tour-room-response__room > i {
@@ -1682,22 +1676,12 @@
 @keyframes tour-room-signal {
   from {
     left: 0;
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--tour-signal), transparent 90%);
   }
 
   to {
     left: calc(100% - 12px);
-  }
-}
-
-@keyframes tour-story-answer {
-  from {
-    border-color: color-mix(in srgb, var(--tour-paper), transparent 72%);
-    background: color-mix(in srgb, var(--tour-paper), transparent 94%);
-    clip-path: inset(0 100% 0 0);
-  }
-
-  to {
-    clip-path: inset(0);
+    box-shadow: 0 0 0 10px color-mix(in srgb, var(--tour-signal), transparent 82%);
   }
 }
 
@@ -1724,7 +1708,6 @@
 @media (prefers-reduced-motion: reduce) {
   [data-drever-render-mode="audience"] .tour-cover h1 mark::after,
   [data-drever-render-mode="audience"] .tour-room-response__thread > span,
-  [data-drever-render-mode="audience"] .tour-room-response__story > span,
   [data-drever-render-mode="audience"] .tour-prompt__ending::after,
   [data-drever-render-mode="audience"] .tour-surfaces {
     animation: none !important;
