@@ -1,4 +1,4 @@
-import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { lstat, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -45,13 +45,23 @@ const claudeManifest = (version) =>
     skills: "./skills/",
   });
 
+const rejectSymbolicLink = (path) => {
+  throw new Error(`Drever agent skill projection does not support symbolic links: ${path}`);
+};
+
 const listFiles = async (root, current = root) => {
+  if ((await lstat(current)).isSymbolicLink()) {
+    rejectSymbolicLink(current);
+  }
   const entries = await readdir(current, { withFileTypes: true });
   const files = await Promise.all(
     entries
       .sort((left, right) => left.name.localeCompare(right.name))
       .map(async (entry) => {
         const path = join(current, entry.name);
+        if (entry.isSymbolicLink()) {
+          rejectSymbolicLink(path);
+        }
         return entry.isDirectory() ? listFiles(root, path) : [relative(root, path)];
       }),
   );
@@ -129,6 +139,7 @@ export const synchronizePlugin = async ({
 }) => {
   const expected = await expectedFiles(pluginRoot, sourceRoot);
   if (mode === "write") {
+    await actualGeneratedFiles(pluginRoot);
     await writeExpectedFiles(pluginRoot, expected);
     return;
   }

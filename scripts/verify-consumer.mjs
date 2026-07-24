@@ -1,7 +1,7 @@
 import { execFile } from "node:child_process";
 import { mkdir, mkdtemp, readFile, readdir, realpath, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
@@ -12,6 +12,7 @@ const temporaryRoot = await realpath(await mkdtemp(join(tmpdir(), "drever-consum
 const packsRoot = join(temporaryRoot, "packs");
 const consumerRoot = join(temporaryRoot, "consumer");
 const deckRoot = join(consumerRoot, "customer-story");
+const canonicalSkillRoot = join(root, "packages", "cli", "agent-kit", "skills");
 
 const run = (command, arguments_, cwd, timeout = 120_000) =>
   execute(command, arguments_, {
@@ -22,6 +23,47 @@ const run = (command, arguments_, cwd, timeout = 120_000) =>
   });
 
 const readJson = async (path) => JSON.parse(await readFile(path, "utf8"));
+const listTreeFiles = async (directory, current = directory) => {
+  const entries = await readdir(current, { withFileTypes: true });
+  const files = await Promise.all(
+    entries
+      .sort((left, right) => left.name.localeCompare(right.name))
+      .map(async (entry) => {
+        const path = join(current, entry.name);
+        if (entry.isDirectory()) return listTreeFiles(directory, path);
+        if (!entry.isFile()) {
+          throw new Error(`Expected a regular file in the skill tree: ${path}`);
+        }
+        return [relative(directory, path).split(sep).join("/")];
+      }),
+  );
+  return files.flat();
+};
+
+const readTree = async (directory) => {
+  const paths = await listTreeFiles(directory);
+  return new Map(
+    await Promise.all(paths.map(async (path) => [path, await readFile(join(directory, path))])),
+  );
+};
+
+const compareTrees = async (expectedRoot, actualRoot, label) => {
+  const [expected, actual] = await Promise.all([readTree(expectedRoot), readTree(actualRoot)]);
+  const expectedPaths = [...expected.keys()];
+  const actualPaths = [...actual.keys()];
+  if (
+    expectedPaths.length !== actualPaths.length ||
+    expectedPaths.some((path, index) => path !== actualPaths[index])
+  ) {
+    throw new Error(`${label} does not contain the complete canonical skill tree.`);
+  }
+  for (const path of expectedPaths) {
+    if (!actual.get(path)?.equals(expected.get(path))) {
+      throw new Error(`${label} is out of sync at ${path}.`);
+    }
+  }
+};
+
 const publicPackages = (
   await Promise.all(
     packageRoots.map(async (packageRoot) =>
@@ -92,24 +134,31 @@ try {
 
   const createCli = join(consumerRoot, "node_modules", "create-drever", "dist", "bin.mjs");
   const dreverCli = join(consumerRoot, "node_modules", "drever", "dist", "bin.mjs");
+  const dreverPackage = join(consumerRoot, "node_modules", "drever");
   const agentPlugin = join(consumerRoot, "node_modules", "@drever", "agent");
-  const [codexPlugin, claudePlugin, canonicalSkill, packagedSkill] = await Promise.all([
+  const [codexPlugin, claudePlugin] = await Promise.all([
     readJson(join(agentPlugin, ".codex-plugin", "plugin.json")),
     readJson(join(agentPlugin, ".claude-plugin", "plugin.json")),
-    readFile(
-      join(root, "packages", "cli", "agent-kit", "skills", "drever-create-deck", "SKILL.md"),
-      "utf8",
-    ),
-    readFile(join(agentPlugin, "skills", "drever-create-deck", "SKILL.md"), "utf8"),
   ]);
   if (
     codexPlugin.name !== "drever" ||
     claudePlugin.name !== "drever" ||
-    codexPlugin.version !== claudePlugin.version ||
-    canonicalSkill !== packagedSkill
+    codexPlugin.version !== claudePlugin.version
   ) {
     throw new Error("The packed @drever/agent plugin is incomplete or out of sync.");
   }
+  await Promise.all([
+    compareTrees(
+      canonicalSkillRoot,
+      join(dreverPackage, "agent-kit", "skills"),
+      "The packed drever agent kit",
+    ),
+    compareTrees(
+      canonicalSkillRoot,
+      join(agentPlugin, "skills"),
+      "The packed @drever/agent plugin",
+    ),
+  ]);
   const created = await run(
     process.execPath,
     [createCli, "customer-story", "--no-install", "--json"],

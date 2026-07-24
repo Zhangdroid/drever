@@ -9,12 +9,28 @@ import { repositoryUrl, runtimeVersionFiles } from "./release.mjs";
 const execute = promisify(execFile);
 const root = fileURLToPath(new URL("../", import.meta.url));
 const packageRoots = [join(root, "packages"), join(root, "plugins")];
+const canonicalSkillRoot = join(root, "packages", "cli", "agent-kit", "skills");
 
 const fail = (message) => {
   throw new Error(`Release verification failed: ${message}`);
 };
 
 const readJson = async (path) => JSON.parse(await readFile(path, "utf8"));
+const listFiles = async (directory, current = directory) => {
+  const entries = await readdir(current, { withFileTypes: true });
+  const files = await Promise.all(
+    entries
+      .sort((left, right) => left.name.localeCompare(right.name))
+      .map(async (entry) => {
+        const path = join(current, entry.name);
+        if (entry.isDirectory()) return listFiles(directory, path);
+        if (!entry.isFile()) fail(`skill tree contains a non-regular file at ${path}.`);
+        return [relative(directory, path).split(sep).join("/")];
+      }),
+  );
+  return files.flat();
+};
+const canonicalSkillFiles = await listFiles(canonicalSkillRoot);
 const packages = (
   await Promise.all(
     packageRoots.map(async (packageRoot) =>
@@ -103,7 +119,7 @@ const verifyPackedFiles = async (name, requiredFiles) => {
 
 try {
   await verifyPackedFiles("drever", [
-    "agent-kit/skills/drever-deliver-deck/SKILL.md",
+    ...canonicalSkillFiles.map((path) => `agent-kit/skills/${path}`),
     "create-template/gitignore",
     "create-template/slides.mdx",
     "dist/bin.mjs",
@@ -160,10 +176,7 @@ try {
   await verifyPackedFiles("@drever/agent", [
     ".claude-plugin/plugin.json",
     ".codex-plugin/plugin.json",
-    "skills/drever-author-deck/SKILL.md",
-    "skills/drever-create-deck/SKILL.md",
-    "skills/drever-deliver-deck/SKILL.md",
-    "skills/drever-review-deck/SKILL.md",
+    ...canonicalSkillFiles.map((path) => `skills/${path}`),
   ]);
 } finally {
   await rm(npmCache, { force: true, recursive: true });
