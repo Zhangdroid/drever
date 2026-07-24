@@ -22,6 +22,8 @@ test-results/
 .env
 .env.*
 !.env.example
+.npmrc
+!.npmrc.example
 
 # Editor directories and files
 .vscode/*
@@ -37,3 +39,4 @@ test-results/
 
 # AI agent worktrees
 .claude/worktrees/
+.claude/settings.local.json

@@ -11,6 +11,7 @@ section, while commit snapshots use the current Unreleased section.
   surfaces, and delivery.
 - Added one canonical changelog for the repository, public website, and audited GitHub Release
   notes.
+- Added a private vulnerability reporting policy for the public repository.
 
 ### Changed
 
