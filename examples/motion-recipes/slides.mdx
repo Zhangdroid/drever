@@ -1,7 +1,7 @@
 import {
   AccessibleEndpoint,
   BrowserFrame,
-  BrowserStoryHeadline,
+  BrowserStoryCopy,
   CapabilityPipeline,
   EvidenceReveal,
   MotionEvidence,
@@ -33,11 +33,9 @@ import "./motion.css";
 ---
 
 <div aria-label="A screenshot cannot show the moment of change" className="browser-story browser-story--anticipate">
-  <header className="browser-story__copy">
-    <span className="motion-kicker">01 · Anticipation</span>
-    <BrowserStoryHeadline phase="before" />
-    <p>It cannot show the moment the product changes someone’s mind.</p>
-  </header>
+  <MotionGroup className="browser-story__copy" intent="continuity" name="story-copy">
+    <BrowserStoryCopy phase="before" />
+  </MotionGroup>
 
   <MotionGroup
     aria-label="A product browser waiting completely below the stage"
@@ -57,11 +55,9 @@ import "./motion.css";
 ---
 
 <div aria-label="Bring the evidence into the room" className="browser-story browser-story--arrive">
-  <header className="browser-story__copy">
-    <span className="motion-kicker">02 · Introduction</span>
-    <BrowserStoryHeadline phase="after" />
-    <p>The same object rises because the story has moved from a claim to its evidence.</p>
-  </header>
+  <MotionGroup className="browser-story__copy" intent="continuity" name="story-copy">
+    <BrowserStoryCopy phase="after" />
+  </MotionGroup>
 
   <MotionGroup
     aria-label="The product browser becomes the central evidence"

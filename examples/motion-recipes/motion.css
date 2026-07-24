@@ -96,6 +96,10 @@
   gap: 72px;
 }
 
+.motion-intro .motion-kicker {
+  color: var(--motion-muted);
+}
+
 .motion-intro > header h1 {
   max-width: 8ch;
   margin-top: 20px;
@@ -117,10 +121,10 @@
   right: -0.04em;
   bottom: 0.05em;
   left: -0.02em;
-  height: 0.14em;
+  height: 0.11em;
   z-index: -1;
   border-radius: 999px 12px 999px 10px;
-  background: var(--motion-signal);
+  background: color-mix(in srgb, var(--motion-signal), var(--motion-paper) 14%);
   content: "";
   transform: scaleX(0) rotate(-0.7deg);
   transform-origin: left;
@@ -143,17 +147,12 @@
   min-height: 324px;
   padding: 32px 38px 31px;
   margin: 0;
-  border: 1px solid color-mix(in srgb, var(--motion-continuity), transparent 74%);
-  border-radius: 32px;
+  border: 1px solid var(--motion-line);
+  border-radius: 26px;
   box-sizing: border-box;
   align-content: center;
-  background:
-    radial-gradient(
-      circle at 50% 42%,
-      color-mix(in srgb, var(--motion-continuity-soft), transparent 12%),
-      transparent 52%
-    ),
-    color-mix(in srgb, var(--motion-white), transparent 8%);
+  background: color-mix(in srgb, var(--motion-white), transparent 9%);
+  box-shadow: 0 20px 64px color-mix(in srgb, var(--motion-ink), transparent 94%);
 }
 
 .motion-primer__meta {
@@ -203,9 +202,9 @@
 }
 
 .motion-primer__route > span[data-stage="evidence"] {
-  border-color: color-mix(in srgb, var(--motion-continuity), transparent 54%);
-  background: var(--motion-continuity-soft);
-  color: var(--motion-continuity);
+  border-color: var(--motion-line);
+  background: color-mix(in srgb, var(--motion-paper), var(--motion-white) 58%);
+  color: var(--motion-ink);
 }
 
 .motion-primer__route > span[data-stage="decision"] {
@@ -215,7 +214,41 @@
 
 .motion-primer__route > i {
   height: 2px;
-  background: linear-gradient(90deg, var(--motion-line), var(--motion-continuity));
+  background: var(--motion-line);
+}
+
+.motion-route-marker {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  border: 2px solid var(--motion-white);
+  border-radius: 50%;
+  box-sizing: border-box;
+  z-index: 0;
+  background: var(--motion-ink);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--motion-ink), transparent 76%),
+    0 4px 12px color-mix(in srgb, var(--motion-ink), transparent 84%);
+  pointer-events: none;
+  translate: -50% -50%;
+}
+
+.motion-route-marker::after {
+  position: absolute;
+  inset: -7px;
+  border: 1px solid color-mix(in srgb, var(--motion-ink), transparent 88%);
+  border-radius: inherit;
+  box-sizing: border-box;
+  content: "";
+}
+
+.motion-primer__route > .motion-route-marker {
+  top: 37px;
+  left: 37px;
+}
+
+[data-drever-render-mode="audience"] .motion-primer__route > .motion-route-marker {
+  animation: primer-travel 4.8s 0.7s var(--drever-motion-easing) infinite;
 }
 
 .motion-cursor {
@@ -228,37 +261,28 @@
 
 .motion-cursor::before {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 18px;
-  height: 22px;
-  background: var(--motion-signal);
-  clip-path: polygon(0 0, 0 86%, 5px 13px, 9px 21px, 13px 19px, 9px 11px, 18px 11px);
+  top: -2px;
+  left: -2px;
+  width: 13px;
+  height: 16px;
+  background: var(--motion-ink);
+  clip-path: polygon(0 0, 12px 8px, 7px 10px, 5px 16px, 2px 15px, 3px 10px);
   content: "";
   filter: drop-shadow(0 0 1px var(--motion-white))
-    drop-shadow(0 2px 3px color-mix(in srgb, var(--motion-ink), transparent 72%));
+    drop-shadow(0 3px 4px color-mix(in srgb, var(--motion-ink), transparent 74%));
 }
 
 .motion-cursor::after {
   position: absolute;
-  top: -7px;
-  left: -7px;
-  width: 14px;
-  height: 14px;
-  border: 1px solid color-mix(in srgb, var(--motion-signal), transparent 26%);
+  top: -9px;
+  left: -9px;
+  width: 18px;
+  height: 18px;
+  border: 1px solid color-mix(in srgb, var(--motion-continuity), transparent 30%);
   border-radius: 50%;
   box-sizing: border-box;
   content: "";
-  opacity: 0.72;
-}
-
-.motion-primer__route > .motion-cursor {
-  top: 37px;
-  left: 37px;
-}
-
-[data-drever-render-mode="audience"] .motion-primer__route > .motion-cursor {
-  animation: primer-travel 4.8s 0.7s var(--drever-motion-easing) infinite;
+  opacity: 0;
 }
 
 .motion-primer figcaption {
@@ -291,6 +315,28 @@
   margin-top: 14px;
 }
 
+.browser-story-copy {
+  width: 100%;
+  height: 342px;
+}
+
+.browser-story-copy__swap {
+  display: grid;
+  overflow: clip;
+}
+
+.browser-story-copy__swap > [data-word] {
+  grid-area: 1 / 1;
+}
+
+.browser-story-copy__kicker {
+  color: var(--motion-continuity);
+  font-size: 14px;
+  font-weight: 720;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
 .browser-story-headline {
   display: grid;
   width: max-content;
@@ -317,53 +363,111 @@
   white-space: nowrap;
 }
 
-.browser-story-headline[data-phase="before"] [data-word="new"],
-.browser-story-headline[data-phase="after"] [data-word="old"] {
+.browser-story-copy[data-phase="before"] [data-word="new"] {
   visibility: hidden;
   opacity: 0;
 }
 
-.browser-story-headline[data-phase="after"] [data-word="new"] {
-  visibility: visible;
-}
-
-[data-drever-render-mode="audience"] .browser-story-headline[data-phase="after"] [data-word="old"] {
+.browser-story-copy[data-phase="after"] [data-word="old"] {
   visibility: visible;
   opacity: 1;
-  translate: 0 0;
 }
 
-[data-drever-render-mode="audience"] .browser-story-headline[data-phase="after"] [data-word="new"] {
+.browser-story-copy[data-phase="after"] [data-word="new"] {
+  visibility: visible;
   opacity: 0;
+}
+
+.browser-story-headline[data-phase="after"] [data-word="new"] {
   translate: 0 108%;
 }
 
 [data-drever-render-mode="audience"]
-  .browser-story-headline[data-phase="after"]
+  .browser-story-copy[data-phase="after"]
   [data-slot="subject"]
   [data-word="old"] {
-  animation: story-word-old 560ms 700ms var(--drever-motion-easing) forwards;
+  animation: story-word-old 560ms 720ms var(--drever-motion-easing) forwards;
 }
 
 [data-drever-render-mode="audience"]
-  .browser-story-headline[data-phase="after"]
+  .browser-story-copy[data-phase="after"]
   [data-slot="subject"]
   [data-word="new"] {
-  animation: story-word-new 560ms 735ms var(--drever-motion-easing) forwards;
+  animation: story-word-new 560ms 755ms var(--drever-motion-easing) forwards;
 }
 
 [data-drever-render-mode="audience"]
-  .browser-story-headline[data-phase="after"]
+  .browser-story-copy[data-phase="after"]
   [data-slot="outcome"]
   [data-word="old"] {
-  animation: story-word-old 560ms 780ms var(--drever-motion-easing) forwards;
+  animation: story-word-old 560ms 800ms var(--drever-motion-easing) forwards;
 }
 
 [data-drever-render-mode="audience"]
-  .browser-story-headline[data-phase="after"]
+  .browser-story-copy[data-phase="after"]
   [data-slot="outcome"]
   [data-word="new"] {
-  animation: story-word-new 560ms 815ms var(--drever-motion-easing) forwards;
+  animation: story-word-new 560ms 835ms var(--drever-motion-easing) forwards;
+}
+
+.browser-story-copy > .browser-story-copy__body {
+  width: 340px;
+  min-height: 82px;
+  margin-top: 20px;
+  color: var(--motion-muted);
+  font-size: 19px;
+  line-height: 1.42;
+}
+
+.browser-story-copy[data-phase="after"]
+  :where(.browser-story-copy__kicker, .browser-story-copy__body)
+  [data-word="new"] {
+  translate: 0 8px;
+}
+
+[data-drever-render-mode="audience"]
+  .browser-story-copy[data-phase="after"]
+  .browser-story-copy__kicker
+  [data-word="old"] {
+  animation: story-copy-old 480ms 680ms var(--drever-motion-easing) forwards;
+}
+
+[data-drever-render-mode="audience"]
+  .browser-story-copy[data-phase="after"]
+  .browser-story-copy__kicker
+  [data-word="new"] {
+  animation: story-copy-new 480ms 710ms var(--drever-motion-easing) forwards;
+}
+
+[data-drever-render-mode="audience"]
+  .browser-story-copy[data-phase="after"]
+  .browser-story-copy__body
+  [data-word="old"] {
+  animation: story-copy-old 520ms 880ms var(--drever-motion-easing) forwards;
+}
+
+[data-drever-render-mode="audience"]
+  .browser-story-copy[data-phase="after"]
+  .browser-story-copy__body
+  [data-word="new"] {
+  animation: story-copy-new 520ms 910ms var(--drever-motion-easing) forwards;
+}
+
+[data-drever-render-mode]:not([data-drever-render-mode="audience"])
+  .browser-story-copy[data-phase="after"]
+  [data-word="old"] {
+  visibility: hidden;
+  opacity: 0;
+  animation: none;
+}
+
+[data-drever-render-mode]:not([data-drever-render-mode="audience"])
+  .browser-story-copy[data-phase="after"]
+  [data-word="new"] {
+  visibility: visible;
+  opacity: 1;
+  animation: none;
+  translate: 0;
 }
 
 .browser-story__copy p {
@@ -399,8 +503,9 @@
   opacity: 1;
 }
 
-.browser-story--anticipate .browser-story__copy {
-  top: 70px;
+.browser-story--anticipate .browser-story__copy,
+.browser-story--arrive .browser-story__copy {
+  top: 62px;
   left: 0;
   width: 340px;
 }
@@ -408,17 +513,6 @@
 .browser-story--anticipate .story-browser {
   top: 660px;
   left: 336px;
-}
-
-.browser-story--arrive .browser-story__copy {
-  top: 62px;
-  left: 0;
-  width: 340px;
-}
-
-.browser-story--arrive .browser-story__copy p {
-  max-width: 27ch;
-  font-size: 19px;
 }
 
 .browser-story--arrive .story-browser {
@@ -641,12 +735,15 @@
   font-size: 10px;
 }
 
-.drever-deck::view-transition-group(drever-story-browser) {
+.drever-deck::view-transition-group(drever-story-browser),
+.drever-deck::view-transition-group(drever-story-copy) {
   animation-duration: 680ms;
 }
 
 .drever-deck::view-transition-old(drever-story-browser),
-.drever-deck::view-transition-new(drever-story-browser) {
+.drever-deck::view-transition-new(drever-story-browser),
+.drever-deck::view-transition-old(drever-story-copy),
+.drever-deck::view-transition-new(drever-story-copy) {
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -941,8 +1038,8 @@
 .causality-path {
   position: relative;
   display: grid;
-  --drever-recipe-stagger-duration: 500ms;
-  --drever-recipe-stagger-gap: 125ms;
+  --drever-recipe-stagger-duration: 620ms;
+  --drever-recipe-stagger-gap: 180ms;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
 }
@@ -961,7 +1058,7 @@
 [data-drever-render-mode="audience"]
   [data-drever-step][data-step-state="active"]
   > .causality-path::before {
-  animation: causality-line 920ms 60ms var(--drever-motion-easing) backwards;
+  animation: causality-line 1160ms 80ms var(--drever-motion-easing) backwards;
 }
 
 .causality-path article {
@@ -1555,10 +1652,10 @@
 .capability-pipeline__track i {
   position: absolute;
   top: 50%;
-  left: 0;
-  width: 14px;
-  height: 14px;
-  border: 3px solid var(--motion-ink);
+  left: 5px;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--motion-ink);
   border-radius: 50%;
   box-sizing: border-box;
   background: var(--motion-signal);
@@ -1891,8 +1988,8 @@
 .accessible-endpoint ol::before {
   position: absolute;
   top: 23px;
-  right: 15%;
-  left: 15%;
+  right: calc(100% / 6);
+  left: calc(100% / 6);
   height: 2px;
   background: var(--motion-line);
   content: "";
@@ -1902,8 +1999,8 @@
 .accessible-endpoint article[data-mode="live"] ol::after {
   position: absolute;
   top: 23px;
-  right: 15%;
-  left: 15%;
+  right: calc(100% / 6);
+  left: calc(100% / 6);
   height: 2px;
   background: linear-gradient(90deg, var(--motion-signal), var(--motion-continuity));
   content: "";
@@ -1959,6 +2056,7 @@
   top: 24px;
   left: calc(100% / 6);
   z-index: 2;
+  opacity: 0;
 }
 
 .accessible-endpoint__same {
@@ -1990,33 +2088,37 @@
 }
 
 [data-drever-render-mode="audience"] .accessible-endpoint article[data-mode="live"] ol::after {
-  animation: endpoint-line 2.4s 0.5s var(--drever-motion-easing) backwards;
+  animation: endpoint-line 1.1s 0.55s var(--drever-motion-easing) both;
 }
 
 [data-drever-render-mode="audience"] .accessible-endpoint__focus {
-  animation: endpoint-focus 2.4s 0.5s var(--drever-motion-easing) forwards;
+  animation: endpoint-focus 2.6s 1.78s var(--drever-motion-easing) both;
+}
+
+[data-drever-render-mode="audience"] .accessible-endpoint__focus::after {
+  animation: endpoint-focus-ring 2.6s 1.78s ease-out both;
 }
 
 [data-drever-render-mode="audience"] .accessible-endpoint article[data-mode="live"] li::before {
-  animation: endpoint-node 2.4s 0.5s ease-out both;
+  animation: endpoint-node 420ms 1.9s var(--drever-motion-easing) both;
 }
 
 [data-drever-render-mode="audience"]
   .accessible-endpoint
   article[data-mode="live"]
   li:nth-child(2)::before {
-  animation-delay: 0.9s;
+  animation-delay: 2.72s;
 }
 
 [data-drever-render-mode="audience"]
   .accessible-endpoint
   article[data-mode="live"]
   li:nth-child(3)::before {
-  animation-delay: 1.3s;
+  animation-delay: 3.54s;
 }
 
 [data-drever-render-mode="audience"] .accessible-endpoint__same {
-  animation: endpoint-same 560ms 3s var(--drever-motion-easing) forwards;
+  animation: endpoint-same 560ms 4.48s var(--drever-motion-easing) forwards;
 }
 
 /* Closing */
@@ -2151,6 +2253,20 @@
   }
 }
 
+@keyframes story-copy-old {
+  to {
+    opacity: 0;
+    translate: 0 -8px;
+  }
+}
+
+@keyframes story-copy-new {
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
 @keyframes semantic-old {
   to {
     opacity: 0;
@@ -2255,7 +2371,7 @@
 @keyframes capability-signal {
   0%,
   10% {
-    left: 0;
+    left: 5px;
     opacity: 0;
   }
 
@@ -2264,13 +2380,13 @@
   }
 
   58% {
-    left: 100%;
+    left: calc(100% - 5px);
     opacity: 1;
   }
 
   66%,
   100% {
-    left: 100%;
+    left: calc(100% - 5px);
     opacity: 0;
   }
 }
@@ -2392,33 +2508,80 @@
 }
 
 @keyframes endpoint-focus {
-  0%,
+  0% {
+    left: calc(100% / 6);
+    opacity: 0;
+  }
+
+  4%,
   18% {
     left: calc(100% / 6);
+    opacity: 1;
   }
 
-  44%,
-  62% {
+  34%,
+  50% {
     left: 50%;
+    opacity: 1;
   }
 
-  88%,
+  66%,
+  86% {
+    left: calc(500% / 6);
+    opacity: 1;
+  }
+
   100% {
     left: calc(500% / 6);
+    opacity: 0;
+  }
+}
+
+@keyframes endpoint-focus-ring {
+  0%,
+  3%,
+  19%,
+  33%,
+  51%,
+  65%,
+  87%,
+  100% {
+    opacity: 0;
+    scale: 0.58;
+  }
+
+  8%,
+  39%,
+  71% {
+    opacity: 0.72;
+    scale: 1;
+  }
+
+  14%,
+  45%,
+  77% {
+    opacity: 0;
+    scale: 1.35;
   }
 }
 
 @keyframes endpoint-node {
-  0%,
-  35% {
+  from {
     border-color: color-mix(in srgb, var(--motion-continuity), transparent 44%);
     background: var(--motion-white);
+    scale: 1;
   }
 
-  52%,
-  100% {
+  62% {
     border-color: var(--motion-continuity);
     background: var(--motion-continuity-soft);
+    scale: 1.08;
+  }
+
+  to {
+    border-color: var(--motion-continuity);
+    background: var(--motion-continuity-soft);
+    scale: 1;
   }
 }
 
@@ -2465,22 +2628,18 @@
     transform: scaleX(1) rotate(-0.7deg);
   }
 
-  .motion-primer__route > .motion-cursor,
+  .motion-primer__route > .motion-route-marker,
   .subject-scene__field > b {
     display: none;
   }
 
-  [data-drever-render-mode="audience"]
-    .browser-story-headline[data-phase="after"]
-    [data-word="old"] {
+  [data-drever-render-mode="audience"] .browser-story-copy[data-phase="after"] [data-word="old"] {
     visibility: hidden;
     opacity: 0;
     animation: none;
   }
 
-  [data-drever-render-mode="audience"]
-    .browser-story-headline[data-phase="after"]
-    [data-word="new"] {
+  [data-drever-render-mode="audience"] .browser-story-copy[data-phase="after"] [data-word="new"] {
     visibility: visible;
     opacity: 1;
     animation: none;
@@ -2551,6 +2710,13 @@
     display: none;
   }
 
+  .accessible-endpoint article[data-mode="live"] li::before {
+    border-color: var(--motion-continuity);
+    background: var(--motion-continuity-soft);
+    animation: none;
+    scale: 1;
+  }
+
   .accessible-endpoint__same {
     opacity: 1;
     scale: 1;
@@ -2569,7 +2735,7 @@
 
 [data-drever-render-mode]:not([data-drever-render-mode="audience"])
   .motion-primer__route
-  > .motion-cursor,
+  > .motion-route-marker,
 [data-drever-render-mode]:not([data-drever-render-mode="audience"]) .subject-scene__field > b {
   display: none;
 }
@@ -2654,6 +2820,14 @@
 
 [data-drever-render-mode]:not([data-drever-render-mode="audience"]) .accessible-endpoint__focus {
   display: none;
+}
+
+[data-drever-render-mode]:not([data-drever-render-mode="audience"])
+  .accessible-endpoint
+  article[data-mode="live"]
+  li::before {
+  border-color: var(--motion-continuity);
+  background: var(--motion-continuity-soft);
 }
 
 [data-drever-render-mode]:not([data-drever-render-mode="audience"]) .accessible-endpoint__same {

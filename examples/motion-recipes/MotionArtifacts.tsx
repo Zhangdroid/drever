@@ -10,7 +10,7 @@ import {
   type ReactElement,
 } from "react";
 
-type BrowserStoryHeadlineProps = {
+type BrowserStoryCopyProps = {
   phase: "before" | "after";
 };
 
@@ -55,7 +55,7 @@ export function MotionPrimer(): ReactElement {
         <span data-stage="evidence">31%</span>
         <i />
         <span data-stage="decision">✓</span>
-        <b className="motion-cursor" />
+        <b className="motion-route-marker" />
       </div>
       <figcaption>
         <span>Question</span>
@@ -67,7 +67,7 @@ export function MotionPrimer(): ReactElement {
 }
 
 /** A stable headline slot that changes only the subject and outcome. */
-export function BrowserStoryHeadline({ phase }: BrowserStoryHeadlineProps): ReactElement {
+function BrowserStoryHeadline({ phase }: BrowserStoryCopyProps): ReactElement {
   const label =
     phase === "before" ? "A screenshot shows the interface." : "Motion shows the change.";
 
@@ -85,6 +85,39 @@ export function BrowserStoryHeadline({ phase }: BrowserStoryHeadlineProps): Reac
         <span data-word="new">change.</span>
       </span>
     </h2>
+  );
+}
+
+/** One fixed copy canvas whose words change without moving their reading positions. */
+export function BrowserStoryCopy({ phase }: BrowserStoryCopyProps): ReactElement {
+  const description =
+    phase === "before"
+      ? "It cannot show the moment the product changes someone’s mind."
+      : "The same object rises because the story has moved from a claim to its evidence.";
+
+  return (
+    <header className="browser-story-copy" data-phase={phase}>
+      <span
+        aria-label={phase === "before" ? "01 · Anticipation" : "02 · Introduction"}
+        className="browser-story-copy__kicker browser-story-copy__swap"
+      >
+        <span aria-hidden="true" data-word="old">
+          01 · Anticipation
+        </span>
+        <span aria-hidden="true" data-word="new">
+          02 · Introduction
+        </span>
+      </span>
+      <BrowserStoryHeadline phase={phase} />
+      <p aria-label={description} className="browser-story-copy__body browser-story-copy__swap">
+        <span aria-hidden="true" data-word="old">
+          It cannot show the moment the product changes someone’s mind.
+        </span>
+        <span aria-hidden="true" data-word="new">
+          The same object rises because the story has moved from a claim to its evidence.
+        </span>
+      </p>
+    </header>
   );
 }
 
