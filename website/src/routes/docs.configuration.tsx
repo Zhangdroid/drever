@@ -18,7 +18,7 @@ function Page() {
       <DocMdx content={Content} />
       <DocNext
         description="Learn how Markdown, Steps, Notes, and React work together."
-        href="/docs/authoring"
+        href="/docs/authoring/"
         label="Authoring slides"
       />
     </DocArticle>

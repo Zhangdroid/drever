@@ -1,39 +1,39 @@
 import { demoMounts } from "../site-manifest";
 
 export const primaryNavigation = [
-  { href: "/showcase", label: "Showcase" },
-  { href: "/docs", label: "Docs" },
+  { href: "/showcase/", label: "Showcase" },
+  { href: "/docs/", label: "Docs" },
 ] as const;
 
 export const documentationNavigation = [
   {
     label: "Start",
     pages: [
-      { href: "/docs", label: "Overview" },
-      { href: "/docs/getting-started", label: "Getting started" },
-      { href: "/docs/configuration", label: "Configuration" },
-      { href: "/docs/ai", label: "AI workflows" },
+      { href: "/docs/", label: "Overview" },
+      { href: "/docs/getting-started/", label: "Getting started" },
+      { href: "/docs/configuration/", label: "Configuration" },
+      { href: "/docs/ai/", label: "AI workflows" },
     ],
   },
   {
     label: "Create",
     pages: [
-      { href: "/docs/authoring", label: "Authoring slides" },
-      { href: "/docs/motion", label: "Motion" },
-      { href: "/docs/themes", label: "Art direction" },
-      { href: "/docs/plugins", label: "Plugins" },
+      { href: "/docs/authoring/", label: "Authoring slides" },
+      { href: "/docs/motion/", label: "Motion" },
+      { href: "/docs/themes/", label: "Art direction" },
+      { href: "/docs/plugins/", label: "Plugins" },
     ],
   },
   {
     label: "Present & deliver",
     pages: [
-      { href: "/docs/presenting", label: "Presenting" },
-      { href: "/docs/delivery", label: "Build and export" },
+      { href: "/docs/presenting/", label: "Presenting" },
+      { href: "/docs/delivery/", label: "Build and export" },
     ],
   },
   {
     label: "About",
-    pages: [{ href: "/docs/credits", label: "Credits" }],
+    pages: [{ href: "/docs/credits/", label: "Credits" }],
   },
 ] as const;
 
@@ -48,7 +48,7 @@ const demoContent = {
     meta: "Editorial · 16 slides",
   },
   scenes: {
-    meta: "Cinema · 4 slides",
+    meta: "Incubating source study · 4 slides",
   },
   architecture: {
     meta: "Studio · 11 slides",

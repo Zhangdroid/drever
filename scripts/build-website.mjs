@@ -3,9 +3,11 @@ import { cp, mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promi
 import { fileURLToPath } from "node:url";
 import { dirname, join, resolve } from "node:path";
 import {
+  canonicalSiteURL,
   demoMounts,
   documentationRoutes,
   publicPresentationMounts,
+  siteOrigin,
   siteRoutes,
 } from "../website/site-manifest.ts";
 
@@ -13,7 +15,10 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const websiteOutput = join(root, "website", "dist", "client");
 const dreverBin = join(root, "packages", "cli", "dist", "bin.mjs");
 const presentationMountRoot = "showcase";
-const presentationURL = (slug) => `https://drever.dev/${presentationMountRoot}/${slug}/`;
+const presentationURL = (slug) => canonicalSiteURL(`${presentationMountRoot}/${slug}`);
+const socialImageURL = new URL("/social-card.png", siteOrigin).href;
+const socialImageAlt =
+  "Drever turns an AI-directed presentation into a live story, document, and PDF.";
 
 const run = (command, args, cwd = root) =>
   new Promise((resolveRun, rejectRun) => {
@@ -69,7 +74,17 @@ const decoratePresentation = async (presentation, destination) => {
         `<meta property="og:description" content="${escapeAttribute(presentation.description)}" />`,
         '<meta property="og:type" content="website" />',
         `<meta property="og:url" content="${canonical}" />`,
-        '<meta name="twitter:card" content="summary" />',
+        '<meta property="og:site_name" content="Drever" />',
+        `<meta property="og:image" content="${socialImageURL}" />`,
+        '<meta property="og:image:type" content="image/png" />',
+        '<meta property="og:image:width" content="1200" />',
+        '<meta property="og:image:height" content="630" />',
+        `<meta property="og:image:alt" content="${escapeAttribute(socialImageAlt)}" />`,
+        '<meta name="twitter:card" content="summary_large_image" />',
+        `<meta name="twitter:title" content="${escapeAttribute(title)}" />`,
+        `<meta name="twitter:description" content="${escapeAttribute(presentation.description)}" />`,
+        `<meta name="twitter:image" content="${socialImageURL}" />`,
+        `<meta name="twitter:image:alt" content="${escapeAttribute(socialImageAlt)}" />`,
       ].join("\n    ");
       const html = (await readFile(path, "utf8"))
         .replace(
@@ -132,10 +147,12 @@ const siteEntryFiles = siteRoutes.map(routeOutput);
 const requiredFiles = [
   "_redirects",
   "404.html",
+  "apple-touch-icon.png",
   "favicon.svg",
   "robots.txt",
   "llms.txt",
   "prompt.md",
+  "social-card.png",
   "sitemap.xml",
   ...siteEntryFiles,
   ...publicPresentationMounts.map(
@@ -171,7 +188,8 @@ const verifyOutput = async () => {
     throw new Error("Website assets are missing the non-blocking browser support notice.");
   }
 
-  for (const path of siteEntryFiles) {
+  for (const route of siteRoutes) {
+    const path = routeOutput(route);
     const html = await readFile(join(websiteOutput, path), "utf8");
     if (html.includes("noindex")) {
       throw new Error(`Production page must be indexable: ${path}`);
@@ -183,6 +201,19 @@ const verifyOutput = async () => {
     ) {
       throw new Error(`Production page does not preserve the non-blocking site shell: ${path}`);
     }
+    if (
+      !html.includes(`rel="canonical" href="${canonicalSiteURL(route)}"`) ||
+      !html.includes(`property="og:image" content="${socialImageURL}"`) ||
+      !html.includes('name="twitter:card" content="summary_large_image"') ||
+      !html.includes('rel="icon" href="/favicon.svg"')
+    ) {
+      throw new Error(`Production page metadata is incomplete: ${path}`);
+    }
+  }
+
+  const homeHtml = await readFile(join(websiteOutput, "index.html"), "utf8");
+  if (!homeHtml.includes('type="application/ld+json"') || !homeHtml.includes('"@type":"WebSite"')) {
+    throw new Error("The home page is missing WebSite structured data.");
   }
 
   for (const presentation of publicPresentationMounts) {
@@ -204,6 +235,8 @@ const verifyOutput = async () => {
     if (
       !rootHtml.includes(`<title>${presentation.label} — Drever</title>`) ||
       !rootHtml.includes(`rel="canonical" href="${presentationURL(presentation.slug)}"`) ||
+      !rootHtml.includes(`property="og:image" content="${socialImageURL}"`) ||
+      !rootHtml.includes('name="twitter:card" content="summary_large_image"') ||
       rootHtml.includes('name="robots" content="noindex')
     ) {
       throw new Error(`Presentation root metadata is incomplete: ${presentation.slug}`);
@@ -264,7 +297,7 @@ const verifyOutput = async () => {
     [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/gu)].map((match) => match[1]),
   );
   const expectedLocations = new Set([
-    ...siteRoutes.map((route) => new URL(route, "https://drever.dev").href),
+    ...siteRoutes.map(canonicalSiteURL),
     ...publicPresentationMounts.map(({ slug }) => presentationURL(slug)),
   ]);
   if (
@@ -276,7 +309,7 @@ const verifyOutput = async () => {
 
   const llms = await readFile(join(websiteOutput, "llms.txt"), "utf8");
   const missingAgentRoutes = [
-    ...documentationRoutes.map((route) => `https://drever.dev${route}`),
+    ...documentationRoutes.map(canonicalSiteURL),
     ...publicPresentationMounts.map(({ slug }) => presentationURL(slug)),
   ].filter((location) => !llms.includes(location));
   if (missingAgentRoutes.length > 0) {

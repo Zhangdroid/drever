@@ -54,8 +54,8 @@
 .home-hero__handoff-note {
   max-width: 37rem;
   margin: 0.78rem 0 0;
-  color: color-mix(in srgb, var(--site-muted), transparent 16%);
-  font-size: 0.72rem;
+  color: var(--site-muted);
+  font-size: 0.75rem;
   line-height: 1.5;
 }
 
@@ -100,8 +100,8 @@
   width: fit-content;
   align-items: center;
   gap: 0.4rem;
-  color: color-mix(in srgb, var(--site-muted), transparent 10%);
-  font-size: 0.72rem;
+  color: var(--site-muted);
+  font-size: 0.75rem;
   font-weight: 560;
   text-decoration: none;
 }
@@ -124,8 +124,8 @@
 }
 
 .home-hero__manual-setup > span {
-  color: color-mix(in srgb, var(--site-muted), transparent 28%);
-  font-size: 0.66rem;
+  color: var(--site-muted);
+  font-size: 0.68rem;
   white-space: nowrap;
 }
 
@@ -138,10 +138,10 @@
   align-items: center;
   gap: 0.28rem;
   background: color-mix(in srgb, var(--site-ink), transparent 95%);
-  color: color-mix(in srgb, var(--site-muted), transparent 20%);
+  color: var(--site-muted);
   cursor: pointer;
   font-family: var(--drever-brand-font-family-mono);
-  font-size: 0.58rem;
+  font-size: 0.62rem;
   letter-spacing: -0.015em;
   transition:
     background var(--drever-brand-motion-duration-quick),
@@ -161,8 +161,8 @@
 
 .home-hero__requirements {
   margin: 0.65rem 0 0 0.1rem;
-  color: color-mix(in srgb, var(--site-muted), transparent 30%);
-  font-size: 0.64rem;
+  color: var(--site-muted);
+  font-size: 0.66rem;
   line-height: 1.45;
 }
 

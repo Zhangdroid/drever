@@ -18,20 +18,20 @@ One project produces:
 ## Start
 
 - One-step AI bootstrap: https://drever.dev/prompt.md
-- Changelog: https://drever.dev/changelog
-- Documentation: https://drever.dev/docs
-- Getting started: https://drever.dev/docs/getting-started
-- Configuration: https://drever.dev/docs/configuration
-- Authoring: https://drever.dev/docs/authoring
-- Motion: https://drever.dev/docs/motion
-- Art direction and Theme contract guide: https://drever.dev/docs/themes
-- Plugin guide: https://drever.dev/docs/plugins
-- Presenting: https://drever.dev/docs/presenting
-- Build and export: https://drever.dev/docs/delivery
-- AI workflows: https://drever.dev/docs/ai
-- Credits: https://drever.dev/docs/credits
+- Changelog: https://drever.dev/changelog/
+- Documentation: https://drever.dev/docs/
+- Getting started: https://drever.dev/docs/getting-started/
+- Configuration: https://drever.dev/docs/configuration/
+- Authoring: https://drever.dev/docs/authoring/
+- Motion: https://drever.dev/docs/motion/
+- Art direction and Theme contract guide: https://drever.dev/docs/themes/
+- Plugin guide: https://drever.dev/docs/plugins/
+- Presenting: https://drever.dev/docs/presenting/
+- Build and export: https://drever.dev/docs/delivery/
+- AI workflows: https://drever.dev/docs/ai/
+- Credits: https://drever.dev/docs/credits/
 - Showcase of complete stories, focused capabilities, and art directions:
-  https://drever.dev/showcase
+  https://drever.dev/showcase/
 - GitHub: https://github.com/Zhangdroid/drever
 
 For an AI agent, start with:
@@ -54,14 +54,14 @@ npm create drever@latest my-slides -- --open claude
 
 ## Live showcase
 
-Catalog: https://drever.dev/showcase
+Catalog: https://drever.dev/showcase/
 
 ### Complete stories and capability studies
 
 - Product tour: https://drever.dev/showcase/product/
 - Feature gallery: https://drever.dev/showcase/features/
 - Motion stories: https://drever.dev/showcase/motion/
-- Room scenes: https://drever.dev/showcase/scenes/
+- Room scenes (incubating source study): https://drever.dev/showcase/scenes/
 - Architecture: https://drever.dev/showcase/architecture/
 - Minimal reference: https://drever.dev/showcase/basic/
 

@@ -1,4 +1,3 @@
-import faviconHref from "@drever/brand/assets/favicon.svg";
 import { HeadContent, Link, Outlet, Scripts, createRootRoute } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
@@ -11,7 +10,9 @@ export const Route = createRootRoute({
   head: () => ({
     links: [
       { rel: "stylesheet", href: siteStylesHref },
-      { rel: "icon", href: faviconHref, type: "image/svg+xml" },
+      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },
+      { rel: "sitemap", href: "/sitemap.xml", type: "application/xml" },
     ],
     meta: [
       { charSet: "utf-8" },

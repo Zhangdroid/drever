@@ -16,6 +16,7 @@ export const getRouter = () =>
     },
     routeTree,
     scrollRestoration: true,
+    trailingSlash: "always",
   });
 
 declare module "@tanstack/react-router" {

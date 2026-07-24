@@ -80,10 +80,10 @@ function ShowcasePage() {
               <a href="/showcase/product/">
                 Audience <ArrowUpRightIcon />
               </a>
-              <a href="/showcase/product/speaker">
+              <a href="/showcase/product/speaker/">
                 Speaker <ArrowUpRightIcon />
               </a>
-              <a href="/showcase/product/document">
+              <a href="/showcase/product/document/">
                 Document <ArrowUpRightIcon />
               </a>
             </nav>
@@ -158,7 +158,7 @@ function ShowcasePage() {
               Each study turns a different kind of story into a reproducible visual system. Treat
               them as evidence and references—not a menu of skins.
             </p>
-            <Link className="text-link" to="/docs/themes">
+            <Link className="text-link" to="/docs/themes/">
               Read the art direction guide <ArrowIcon />
             </Link>
           </div>
@@ -199,7 +199,7 @@ function ShowcasePage() {
         </div>
         <div>
           <CopyAIHandoff className="button button--primary" />
-          <Link className="button button--quiet" to="/docs/getting-started">
+          <Link className="button button--quiet" to="/docs/getting-started/">
             Getting started <ArrowIcon />
           </Link>
         </div>

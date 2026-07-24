@@ -52,12 +52,12 @@ export const ShowcaseNav = (): ReactElement => (
     <a
       className="drever-example-exit__primary"
       data-drever-showcase-return=""
-      href="https://drever.dev/docs/getting-started"
+      href="https://drever.dev/docs/getting-started/"
     >
       <span>Create your own</span>
       <span aria-hidden="true">↗</span>
     </a>
-    <a className="drever-example-exit__secondary" href="https://drever.dev/showcase">
+    <a className="drever-example-exit__secondary" href="https://drever.dev/showcase/">
       <span>Explore more examples</span>
       <span aria-hidden="true">→</span>
     </a>

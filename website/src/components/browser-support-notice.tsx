@@ -83,7 +83,7 @@ export function BrowserSupportNotice() {
       <span aria-hidden="true" className="browser-support-notice__signal">
         <i />
       </span>
-      <div>
+      <div aria-live="polite" role="status">
         <strong id="browser-support-title">Full presentation motion uses Chrome.</strong>
         <span>
           You can keep browsing here. Open live decks in the latest desktop Chrome for scoped

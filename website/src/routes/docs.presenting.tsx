@@ -18,7 +18,7 @@ function Page() {
       <DocMdx content={Content} />
       <DocNext
         description="Check the source, build a static site, and export selected PDF states."
-        href="/docs/delivery"
+        href="/docs/delivery/"
         label="Build and export"
       />
     </DocArticle>

@@ -44,7 +44,7 @@ The audit job extracts the selected section into the retained release artifact.
 The record job uses only that audited file for the GitHub Release body and
 appends package version, dist-tag, source commit, and npm links. The public
 website compiles the same root file at
-[`/changelog`](https://drever.dev/changelog), so release notes are never copied
+[`/changelog`](https://drever.dev/changelog/), so release notes are never copied
 between three independently maintained sources.
 
 ## Release gate

@@ -146,19 +146,19 @@ export function SiteFooter() {
         <div className="site-footer__links">
           <div>
             <span>Explore</span>
-            <Link activeOptions={{ exact: true }} to="/docs">
+            <Link activeOptions={{ exact: true }} to="/docs/">
               Documentation
             </Link>
-            <Link activeOptions={{ exact: true }} to="/showcase">
+            <Link activeOptions={{ exact: true }} to="/showcase/">
               Showcase
             </Link>
-            <Link activeOptions={{ exact: true }} to="/docs/credits">
+            <Link activeOptions={{ exact: true }} to="/docs/credits/">
               Credits
             </Link>
           </div>
           <div>
             <span>Project</span>
-            <Link activeOptions={{ exact: true }} to="/changelog">
+            <Link activeOptions={{ exact: true }} to="/changelog/">
               Changelog
             </Link>
             <a href={githubURL} rel="noreferrer" target="_blank">
@@ -180,8 +180,12 @@ export function SiteFooter() {
 
 export function SiteShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const previousPathnameRef = useRef(pathname);
 
   useEffect(() => {
+    if (previousPathnameRef.current === pathname) return;
+    previousPathnameRef.current = pathname;
+
     const frame = requestAnimationFrame(() => {
       document.querySelector<HTMLElement>("main")?.focus({ preventScroll: true });
     });

@@ -18,14 +18,15 @@ The site has five primary surfaces:
 TanStack Start owns the website, documentation, and showcase routes. The root build compiles each
 curated example in its own project and copies its complete output to
 `dist/client/showcase/<slug>`. The website does not duplicate a demo's MDX or React components. Every
-published demo is executable with the same Drever code users receive.
+published demo is executable from repository source. Room Scenes is an explicitly incubating
+source study; the other demos use released Drever packages.
 
 The curated set is:
 
 - `examples/product-tour` at `/showcase/product/`
 - `examples/feature-gallery` at `/showcase/features/`
 - `examples/motion-recipes` at `/showcase/motion/`
-- `examples/room-scenes` at `/showcase/scenes/`
+- `examples/room-scenes` at `/showcase/scenes/` (incubating source study)
 - `examples/architecture` at `/showcase/architecture/`
 - `examples/basic` at `/showcase/basic/`
 

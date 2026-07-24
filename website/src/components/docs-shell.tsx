@@ -64,7 +64,7 @@ export function DocsShell() {
   return (
     <main className="docs" id="main" tabIndex={-1}>
       <aside className="docs-nav">
-        <Link activeOptions={{ exact: true }} className="docs-nav__home" to="/docs">
+        <Link activeOptions={{ exact: true }} className="docs-nav__home" to="/docs/">
           Documentation
         </Link>
         <div className="docs-nav__scroll" ref={navigationRef}>
@@ -193,8 +193,8 @@ npx playwright install chromium
 npm run export`}</CodeBlock>
         <p>
           Install Playwright Chromium only when a PDF is required. Read the{" "}
-          <Link to="/docs/authoring">authoring guide</Link> for MDX and the{" "}
-          <Link to="/docs/delivery">delivery guide</Link> for build and export behavior.
+          <Link to="/docs/authoring/">authoring guide</Link> for MDX and the{" "}
+          <Link to="/docs/delivery/">delivery guide</Link> for build and export behavior.
         </p>
       </div>
     </details>
@@ -208,16 +208,16 @@ export function DocNext({
 }: {
   description: string;
   href:
-    | "/docs/ai"
-    | "/docs/authoring"
-    | "/docs/configuration"
-    | "/docs/credits"
-    | "/docs/delivery"
-    | "/docs/getting-started"
-    | "/docs/motion"
-    | "/docs/plugins"
-    | "/docs/presenting"
-    | "/docs/themes";
+    | "/docs/ai/"
+    | "/docs/authoring/"
+    | "/docs/configuration/"
+    | "/docs/credits/"
+    | "/docs/delivery/"
+    | "/docs/getting-started/"
+    | "/docs/motion/"
+    | "/docs/plugins/"
+    | "/docs/presenting/"
+    | "/docs/themes/";
   label: string;
 }) {
   return (

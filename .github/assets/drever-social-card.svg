@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <style>
+      @font-face {
+        font-family: "Bricolage Grotesque";
+        font-style: normal;
+        font-weight: 200 800;
+        src: url("../../packages/brand/fonts/BricolageGrotesque-Latin[opsz,wdth,wght].woff2")
+          format("woff2-variations");
+      }
+
+      @font-face {
+        font-family: "Instrument Sans";
+        font-style: normal;
+        font-weight: 400 700;
+        src: url("../../packages/brand/fonts/InstrumentSans[wdth,wght].woff2")
+          format("woff2-variations");
+      }
+
+      .display {
+        font-family: "Bricolage Grotesque", "Instrument Sans", sans-serif;
+        font-variation-settings:
+          "opsz" 88,
+          "wdth" 100,
+          "wght" 640;
+      }
+
+      .sans {
+        font-family: "Instrument Sans", sans-serif;
+        font-variation-settings:
+          "wdth" 100,
+          "wght" 520;
+      }
+
+      .label {
+        font-family: "Instrument Sans", sans-serif;
+        font-size: 13px;
+        font-variation-settings:
+          "wdth" 100,
+          "wght" 680;
+        letter-spacing: 1.8px;
+      }
+    </style>
+
+    <filter id="stage-shadow" x="-25%" y="-25%" width="150%" height="170%">
+      <feDropShadow dx="0" dy="18" flood-color="#19172B" flood-opacity=".14" stdDeviation="22" />
+    </filter>
+
+    <linearGradient id="glass" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".78" />
+      <stop offset="1" stop-color="#E9E4FF" stop-opacity=".5" />
+    </linearGradient>
+
+    <radialGradient id="signal-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#C7F03A" stop-opacity=".36" />
+      <stop offset="1" stop-color="#C7F03A" stop-opacity="0" />
+    </radialGradient>
+
+    <radialGradient id="continuity-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#5B45D8" stop-opacity=".2" />
+      <stop offset="1" stop-color="#5B45D8" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="#F6F3E9" />
+  <circle cx="1076" cy="82" r="260" fill="url(#continuity-glow)" />
+  <circle cx="607" cy="610" r="260" fill="url(#signal-glow)" />
+
+  <g transform="translate(72 56)">
+    <g transform="scale(1.22)">
+      <path fill="#C7F03A" d="M4 13h12v6H4zm16 0h12v6H20z" />
+      <path fill="#19172B" d="M36 13h22v39H6V30h8v14h36V21H36z" />
+    </g>
+    <text class="display" x="84" y="48" fill="#19172B" font-size="48" letter-spacing="-1.7">
+      drever
+    </text>
+  </g>
+
+  <g transform="translate(72 190)">
+    <text class="label" fill="#5B45D8" x="0" y="0">AI-FIRST PRESENTATION FRAMEWORK</text>
+
+    <text class="display" fill="#19172B" font-size="68" letter-spacing="-3.2" x="0" y="96">
+      Slides that
+    </text>
+    <rect x="337" y="39" width="183" height="68" rx="3" fill="#C7F03A" />
+    <text class="display" fill="#19172B" font-size="68" letter-spacing="-3.2" x="349" y="96">
+      move
+    </text>
+    <text class="display" fill="#19172B" font-size="68" letter-spacing="-3.2" x="0" y="170">
+      with your ideas.
+    </text>
+
+    <text class="sans" fill="#686474" font-size="20" x="2" y="224">
+      Create with AI. Refine every detail.
+    </text>
+    <text class="sans" fill="#686474" font-size="20" x="2" y="254">
+      Respond to the room live.
+    </text>
+  </g>
+
+  <g transform="translate(666 92)">
+    <rect
+      width="452"
+      height="430"
+      x="-22"
+      y="24"
+      rx="22"
+      fill="url(#glass)"
+      stroke="#FFFFFF"
+      stroke-opacity=".82"
+    />
+    <rect width="452" height="430" rx="18" fill="#19172B" filter="url(#stage-shadow)" />
+
+    <g transform="translate(38 42)">
+      <text class="label" fill="#B9B3C7" x="0" y="0">LIVE STORY</text>
+      <text class="label" fill="#B9B3C7" text-anchor="end" x="376" y="0">04 / 12</text>
+
+      <text class="display" fill="#F6F3E9" font-size="60" letter-spacing="-2.8" x="0" y="103">
+        The room
+      </text>
+      <rect x="-2" y="128" width="254" height="66" rx="2" fill="#C7F03A" />
+      <text class="display" fill="#19172B" font-size="65" letter-spacing="-3.1" x="7" y="185">
+        changes.
+      </text>
+
+      <text class="sans" fill="#B9B3C7" font-size="16" x="2" y="235">
+        Reveal the proof when the room needs it.
+      </text>
+
+      <line x1="0" x2="376" y1="292" y2="292" stroke="#3A3549" />
+      <g transform="translate(0 329)">
+        <circle cx="5" cy="0" r="5" fill="#C7F03A" />
+        <text class="label" fill="#F6F3E9" x="21" y="5">LIVE</text>
+
+        <circle cx="130" cy="0" r="5" fill="#5B45D8" />
+        <text class="label" fill="#B9B3C7" x="146" y="5">DOCUMENT</text>
+
+        <circle cx="285" cy="0" r="5" fill="#5B45D8" />
+        <text class="label" fill="#B9B3C7" x="301" y="5">PDF</text>
+      </g>
+    </g>
+  </g>
+
+  <g transform="translate(72 570)">
+    <rect width="26" height="6" fill="#C7F03A" />
+    <rect x="36" width="26" height="6" fill="#C7F03A" />
+    <path d="M74 3H1010" fill="none" stroke="#5B45D8" stroke-width="2" />
+    <circle cx="1010" cy="3" r="5" fill="#F6F3E9" stroke="#5B45D8" stroke-width="2" />
+    <text class="label" fill="#686474" text-anchor="end" x="1056" y="31">DREVER.DEV</text>
+  </g>
+</svg>

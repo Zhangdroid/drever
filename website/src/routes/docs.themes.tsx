@@ -26,7 +26,7 @@ function Page() {
       <DocMdx content={Content} />
       <DocNext
         description="Add build and runtime capability through one typed extension model."
-        href="/docs/plugins"
+        href="/docs/plugins/"
         label="Plugins"
       />
     </DocArticle>

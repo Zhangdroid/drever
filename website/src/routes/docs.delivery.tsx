@@ -18,7 +18,7 @@ function Page() {
       <DocMdx content={Content} />
       <DocNext
         description="Meet the people, projects, and open-source foundations behind Drever."
-        href="/docs/credits"
+        href="/docs/credits/"
         label="Credits"
       />
     </DocArticle>

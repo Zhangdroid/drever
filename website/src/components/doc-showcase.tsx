@@ -66,7 +66,7 @@ function SurfaceVisual() {
 const capabilities = [
   {
     body: "Objects enter, answer, recede, or hold still because the story gives them a new job.",
-    guide: "/docs/motion",
+    guide: "/docs/motion/",
     label: "Meaningful motion",
     live: "/showcase/motion/2/",
     liveLabel: "Follow one object",
@@ -75,7 +75,7 @@ const capabilities = [
   },
   {
     body: "See real GFM, code, math, chart, and media output with explicit browser costs.",
-    guide: "/docs/plugins",
+    guide: "/docs/plugins/",
     label: "Plugins",
     live: "/showcase/features/3/",
     liveLabel: "Open the feature tour",
@@ -84,16 +84,16 @@ const capabilities = [
   },
   {
     body: "Study eight subject-led systems, then generate and persist the direction this story needs.",
-    guide: "/docs/themes",
+    guide: "/docs/themes/",
     label: "Art direction",
-    live: "/showcase#art-directions",
+    live: "/showcase/#art-directions",
     liveLabel: "Explore design studies",
     title: "Design begins with the subject.",
     visual: <ThemeVisual />,
   },
   {
     body: "Audience, Speaker, Document, website, and PDF begin with the same editable project.",
-    guide: "/docs/presenting",
+    guide: "/docs/presenting/",
     label: "Present",
     live: "/showcase/features/8/",
     liveLabel: "See every surface",

@@ -18,7 +18,7 @@ function Page() {
       <DocMdx content={Content} />
       <DocNext
         description="Add choreography only when it clarifies a real narrative change."
-        href="/docs/motion"
+        href="/docs/motion/"
         label="Motion"
       />
     </DocArticle>

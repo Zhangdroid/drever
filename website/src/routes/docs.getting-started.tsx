@@ -21,7 +21,7 @@ function Page() {
       <ManualSetup />
       <DocNext
         description="Keep zero config or choose the exact project controls you need."
-        href="/docs/configuration"
+        href="/docs/configuration/"
         label="Configuration"
       />
     </DocArticle>

@@ -7,27 +7,30 @@ import { ArrowIcon, ArrowUpRightIcon, PlayIcon } from "../components/icons";
 import { HeroStage, HomeShowcaseCover } from "../components/showcase";
 import { StudyCover } from "../components/showcase-covers";
 import { demos } from "../site-data";
+import { pageHead } from "../seo";
 
-const title = "Drever — Slides that move with your ideas";
 const description =
-  "An open-source, local-first React and MDX presentation framework for creating expressive slides with AI.";
+  "An open-source presentation framework for creating expressive, interactive slides with AI, then presenting live, publishing to the web, or exporting PDF.";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
-  head: () => ({
-    links: [{ rel: "canonical", href: "https://drever.dev/" }],
-    meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://drever.dev/" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:title", content: title },
-      { name: "twitter:description", content: description },
-    ],
-  }),
+  head: () => {
+    const head = pageHead("Drever", description, "/");
+    return {
+      ...head,
+      scripts: [
+        {
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "Drever",
+            url: "https://drever.dev/",
+          }),
+          type: "application/ld+json",
+        },
+      ],
+    };
+  },
 });
 
 function HomePage() {
@@ -63,7 +66,7 @@ function HomePage() {
             the project and leaves a local preview ready to review.
           </p>
           <div aria-label="More ways to get started" className="home-hero__secondary">
-            <Link className="home-hero__manual" to="/docs/getting-started">
+            <Link className="home-hero__manual" to="/docs/getting-started/">
               How AI creation works <ArrowIcon />
             </Link>
             <div className="home-hero__manual-setup">
@@ -130,7 +133,7 @@ function HomePage() {
             Your content, interactions, speaker notes, theme, and motion live together. AI can work
             with the source because a person can read it too.
           </p>
-          <Link className="text-link" to="/docs/authoring">
+          <Link className="text-link" to="/docs/authoring/">
             Why Drever uses MDX <ArrowIcon />
           </Link>
         </div>
@@ -144,7 +147,7 @@ function HomePage() {
             <span>Story · motion · architecture</span>
             <h2>See what Drever can make.</h2>
           </div>
-          <Link className="button button--primary" to="/showcase">
+          <Link className="button button--primary" to="/showcase/">
             Explore all showcases <ArrowIcon />
           </Link>
         </header>
@@ -180,7 +183,7 @@ function HomePage() {
             The public prompt handles setup. Version-matched project skills shape the story, derive
             a visual language from the subject, and check the finished deck.
           </p>
-          <Link className="button button--light" to="/docs/ai">
+          <Link className="button button--light" to="/docs/ai/">
             Explore AI workflows <ArrowIcon />
           </Link>
         </div>

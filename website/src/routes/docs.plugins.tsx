@@ -20,7 +20,7 @@ function Page() {
       <DocMdx content={Content} />
       <DocNext
         description="Navigate, annotate, rehearse, and share the exact moment."
-        href="/docs/presenting"
+        href="/docs/presenting/"
         label="Presenting"
       />
     </DocArticle>

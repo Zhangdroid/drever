@@ -26,7 +26,7 @@ function Page() {
       <DocMdx content={Content} />
       <DocNext
         description="Derive a visual voice from the subject and persist it as a Theme contract."
-        href="/docs/themes"
+        href="/docs/themes/"
         label="Art direction"
       />
     </DocArticle>

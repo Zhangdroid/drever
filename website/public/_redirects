@@ -1,5 +1,5 @@
-/demos  /showcase  301
-/demos/ /showcase  301
+/demos  /showcase/  301
+/demos/ /showcase/  301
 /demos/* /showcase/:splat 301
-/themes  /showcase  301
-/themes/ /showcase  301
+/themes  /showcase/  301
+/themes/ /showcase/  301

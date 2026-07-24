@@ -1,3 +1,13 @@
+export const siteOrigin = "https://drever.dev";
+
+export const canonicalSiteURL = (path: string): string => {
+  const url = new URL(path, siteOrigin);
+  if (url.pathname !== "/" && !url.pathname.endsWith("/")) {
+    url.pathname = `${url.pathname}/`;
+  }
+  return url.href;
+};
+
 export const documentationRoutes = [
   "/docs",
   "/docs/getting-started",
@@ -40,7 +50,7 @@ export const demoMounts = [
   },
   {
     description:
-      "A microphone-reactive room with local sound analysis and a persistent ambient Stage.",
+      "An incubating source study of local microphone analysis and a persistent ambient Stage.",
     id: "scenes",
     label: "Room scenes",
     slug: "scenes",
