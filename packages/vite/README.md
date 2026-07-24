@@ -29,8 +29,8 @@ virtual module; application code should not add local `declare module` shims.
 
 ## Status
 
-Version `0.0.0` is part of Drever's from-first-principles rewrite. The API is
-under active development and is not yet stable for production use.
+Drever is pre-1.0. The API is under active development and is not yet stable
+for production use.
 
 For the canonical adapter contract, architecture, and development setup, see
 the Drever main project repository.

@@ -4,9 +4,10 @@ Presentation-native scenes for moments that ordinary slide primitives do not
 cover: opening a room, preserving an ambient visual across pages, introducing
 live evidence, or closing a story.
 
-This package is incubating inside the Drever workspace. It is intentionally not
-a generic UI kit and is not registered globally. Import only the scene that has
-a real job in the presentation.
+This package is incubating inside the Drever workspace. It is private,
+unpublished, and not a supported public authoring API yet. It is intentionally
+not a generic UI kit and is not registered globally. Import only the scene that
+has a real job in a workspace study.
 
 ```tsx
 import { Soundtrack } from "@drever/scenes";

@@ -9,7 +9,7 @@ export function OpeningRoom({ "aria-label": ariaLabel }: OpeningRoomProps): Reac
   return (
     <div aria-label={ariaLabel} className="room-opening">
       <header className="room-opening__intro">
-        <span className="scene-kicker">Room Sense / microphone reactive</span>
+        <span className="scene-kicker">Incubating source study / microphone reactive</span>
         <h1>
           Let the room move the <em>light.</em>
         </h1>

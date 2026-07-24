@@ -1,6 +1,8 @@
 # Room scenes
 
-A focused demo of presentation-native components from `@drever/scenes`.
+An incubating source study of presentation-native components from
+`@drever/scenes`. The package is private to this workspace and is not currently
+published or supported as a public authoring API.
 
 ```sh
 vp run demo:scenes

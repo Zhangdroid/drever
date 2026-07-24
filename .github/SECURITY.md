@@ -5,10 +5,10 @@
 Drever is pre-1.0 and changes quickly. Security fixes target the latest
 published release and the current `main` branch.
 
-| Version | Supported |
-| --- | --- |
-| Latest release | Yes |
-| Older releases | No |
+| Version        | Supported |
+| -------------- | --------- |
+| Latest release | Yes       |
+| Older releases | No        |
 
 ## Reporting a vulnerability
 
