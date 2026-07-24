@@ -193,7 +193,7 @@ test("the built CLI exposes the canonical basic-deck authoring context", async (
   }
 
   expect(context.design.theme).toMatchObject({
-    id: "@drever/theme-default",
+    id: "@drever/designs/default",
     version: "0.0.0",
     manifest: { title: "Drever Default" },
     motion: {

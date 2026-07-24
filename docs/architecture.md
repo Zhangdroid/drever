@@ -145,7 +145,7 @@ compiler  core (runtime)
 
 The public npm facade and CLI package is `drever`. Supporting libraries use the
 `@drever/*` scope; official extensions use names such as
-`@drever/plugin-shiki` and `@drever/theme-editorial`.
+`@drever/plugin-shiki` and `@drever/designs/editorial`.
 
 Packages represent deployment boundaries. Internal folders are preferred over
 new packages when no boundary exists.

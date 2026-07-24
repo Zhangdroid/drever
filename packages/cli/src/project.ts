@@ -1,4 +1,4 @@
-import defaultTheme from "@drever/theme-default";
+import defaultTheme from "@drever/designs/default";
 import shikiPlugin from "@drever/plugin-shiki";
 import tailwindCssPlugin from "@drever/plugin-tailwindcss";
 import {

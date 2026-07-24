@@ -148,7 +148,7 @@ splitting.
 - `@drever/schema`, `@drever/compiler`, `@drever/core`, and similar scoped
   implementation packages.
 - `@drever/plugin-shiki`, `@drever/plugin-tailwindcss`, and other official plugins.
-- `@drever/theme-editorial` and other official themes.
+- `@drever/designs/editorial` and the other studies in `@drever/designs`.
 
 Third-party packages use their own npm scope but retain a globally stable plugin
 id, normally the package name.

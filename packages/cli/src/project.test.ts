@@ -1,7 +1,7 @@
 import { createCompilePlan } from "@drever/compiler";
 import shikiPlugin from "@drever/plugin-shiki";
 import tailwindCssPlugin, { tailwindCss } from "@drever/plugin-tailwindcss";
-import defaultTheme from "@drever/theme-default";
+import defaultTheme from "@drever/designs/default";
 import { describe, expect, it } from "vite-plus/test";
 import { resolvePluginRegistrations } from "./project.ts";
 

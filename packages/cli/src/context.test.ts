@@ -1,5 +1,5 @@
 import { definePlugin, parseDeck } from "@drever/compiler";
-import defaultTheme from "@drever/theme-default";
+import defaultTheme from "@drever/designs/default";
 import {
   DECK_MANIFEST_VERSION,
   DREVER_AUTHORING_CONTEXT_VERSION,

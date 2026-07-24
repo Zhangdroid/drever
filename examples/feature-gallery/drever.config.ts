@@ -1,5 +1,5 @@
 import { math } from "@drever/plugin-math";
-import studioTheme from "@drever/theme-studio";
+import studioTheme from "@drever/designs/studio";
 import { defineConfig } from "drever";
 
 export default defineConfig({

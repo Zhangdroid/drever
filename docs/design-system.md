@@ -461,7 +461,7 @@ direction. It owns its
 Markdown styling, layouts, canvas scale, semantic `--drever-theme-*` variables,
 and motion profile.
 
-The eight official packages are design studies, few-shot references, and
+The eight studies in `@drever/designs` are few-shot references and
 fallbacks—not a preset-first product workflow. Default is the neutral fallback
 when a brief does not justify a stronger direction. Editorial, Studio,
 Fieldnote, Atlas, Ledger, Cinema, and Construct may reuse a font or selected

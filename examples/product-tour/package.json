@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@drever/brand": "workspace:*",
-    "@drever/theme-editorial": "workspace:*",
+    "@drever/designs": "workspace:*",
     "@types/react": "catalog:",
     "drever": "workspace:*",
     "react": "catalog:"

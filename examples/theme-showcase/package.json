@@ -11,11 +11,7 @@
     "dev": "node ./scripts/run.mjs dev"
   },
   "devDependencies": {
-    "@drever/theme-atlas": "workspace:*",
-    "@drever/theme-cinema": "workspace:*",
-    "@drever/theme-construct": "workspace:*",
-    "@drever/theme-fieldnote": "workspace:*",
-    "@drever/theme-ledger": "workspace:*",
+    "@drever/designs": "workspace:*",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "drever": "workspace:*",

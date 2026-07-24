@@ -9,7 +9,7 @@ This is not an API inventory. Its recurring argument is that audience view,
 speaker view, URLs, build artifacts, diagnostics, and tests must agree on one
 semantic deck.
 
-The deck uses the official `@drever/theme-studio` theme, then adds only the
+The deck uses the official `@drever/designs/studio` study, then adds only the
 diagram-specific styles needed by its local interactive models.
 
 Two local React tools make important contracts inspectable:

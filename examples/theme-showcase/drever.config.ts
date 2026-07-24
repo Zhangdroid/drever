@@ -15,11 +15,11 @@ if (!isThemeName(requestedTheme)) {
 }
 
 const themeLoaders = {
-  atlas: () => import("@drever/theme-atlas"),
-  cinema: () => import("@drever/theme-cinema"),
-  construct: () => import("@drever/theme-construct"),
-  fieldnote: () => import("@drever/theme-fieldnote"),
-  ledger: () => import("@drever/theme-ledger"),
+  atlas: () => import("@drever/designs/atlas"),
+  cinema: () => import("@drever/designs/cinema"),
+  construct: () => import("@drever/designs/construct"),
+  fieldnote: () => import("@drever/designs/fieldnote"),
+  ledger: () => import("@drever/designs/ledger"),
 } satisfies Record<ThemeName, () => Promise<{ default: ThemeDefinition }>>;
 
 const selectedTheme = (await themeLoaders[requestedTheme]()).default;

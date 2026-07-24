@@ -1,6 +1,6 @@
 # Releasing Drever
 
-Drever publishes 21 public packages with one lockstep version. In particular,
+Drever publishes 14 public packages with one lockstep version. In particular,
 `drever`, `create-drever`, and `@drever/agent` must always share the same
 version so project creation, the runtime, and agent workflows remain
 compatible.
@@ -87,11 +87,14 @@ Claude plugin versions.
 ## One-time npm bootstrap
 
 npm Trusted Publishing can only be configured after a package exists. The
-existing `drever@0.0.0` is a placeholder, while the other public packages need
-their first publication. Repository visibility does not block npm publication:
-a private repository can complete this bootstrap and use Trusted Publishing.
-Keeping it private only removes npm provenance and, depending on the GitHub
-plan, some environment protection rules.
+current package set is already bootstrapped except when a change introduces a
+new public name. For example, consolidating the official design studies
+requires one initial publication of `@drever/designs`; the retired
+`@drever/theme-*` packages are not part of later lockstep releases. Repository
+visibility does not block npm publication: a private repository can complete
+this bootstrap and use Trusted Publishing. Keeping it private only removes npm
+provenance and, depending on the GitHub plan, some environment protection
+rules.
 
 The same bootstrap rule applies whenever a later change adds a public package.
 Create every new package name with one temporary-token commit release,
@@ -108,9 +111,10 @@ is retryable, but it is not transactional.
    GitHub tag ruleset for `v*`.
 3. Create a short-lived granular npm access token for the one-time bootstrap.
    Select **Packages and scopes: Read and write**, **All Packages**, and
-   **Bypass 2FA**. `All Packages` is temporarily necessary because most
-   packages, including the unscoped `create-drever`, do not exist yet. Store it
-   as an `npm` environment secret named `NPM_TOKEN`. Never commit the token.
+   **Bypass 2FA**. `All Packages` may be temporarily necessary because npm
+   cannot grant package-specific access to a name that does not exist yet.
+   Store it as an `npm` environment secret named `NPM_TOKEN`. Never commit the
+   token.
 4. Temporarily add `NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}` to the publish
    step, then run the `Publish npm packages` workflow manually on `main`. It publishes a
    `0.0.0-commit.g<sha>` test release under the `commit` dist-tag.
@@ -133,7 +137,7 @@ is retryable, but it is not transactional.
 
    The first trust request opens npm's 2FA flow. Select the option to skip
    additional 2FA checks for five minutes; the script spaces requests by two
-   seconds as npm recommends. It first inspects all 21 packages, skips exact
+   seconds as npm recommends. It first inspects all 14 packages, skips exact
    matches, refuses to replace a conflicting policy, creates missing policies,
    and then reads all policies back from npm. A partial network failure is safe
    to resume by running the same command again. To perform a read-only audit,

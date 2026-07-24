@@ -11,8 +11,8 @@
   },
   "devDependencies": {
     "@drever/brand": "workspace:*",
+    "@drever/designs": "workspace:*",
     "@drever/scenes": "workspace:*",
-    "@drever/theme-cinema": "workspace:*",
     "@types/react": "catalog:",
     "drever": "workspace:*",
     "react": "catalog:"

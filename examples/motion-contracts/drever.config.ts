@@ -1,4 +1,4 @@
-import editorialTheme from "@drever/theme-editorial";
+import editorialTheme from "@drever/designs/editorial";
 import { defineConfig } from "drever";
 
 export default defineConfig({

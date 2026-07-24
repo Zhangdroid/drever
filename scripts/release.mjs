@@ -21,14 +21,14 @@ export const runtimeVersionFiles = [
   "packages/plugin-math/src/index.ts",
   "packages/plugin-shiki/src/index.ts",
   "packages/plugin-tailwindcss/src/index.ts",
-  "packages/theme-atlas/src/index.ts",
-  "packages/theme-cinema/src/index.ts",
-  "packages/theme-construct/src/index.ts",
-  "packages/theme-default/src/index.ts",
-  "packages/theme-editorial/src/index.ts",
-  "packages/theme-fieldnote/src/index.ts",
-  "packages/theme-ledger/src/index.ts",
-  "packages/theme-studio/src/index.ts",
+  "packages/designs/src/atlas/index.ts",
+  "packages/designs/src/cinema/index.ts",
+  "packages/designs/src/construct/index.ts",
+  "packages/designs/src/default/index.ts",
+  "packages/designs/src/editorial/index.ts",
+  "packages/designs/src/fieldnote/index.ts",
+  "packages/designs/src/ledger/index.ts",
+  "packages/designs/src/studio/index.ts",
 ];
 
 const json = (value) => `${JSON.stringify(value, null, 2)}\n`;

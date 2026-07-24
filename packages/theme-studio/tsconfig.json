@@ -1,9 +1,0 @@
-{
-  "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "jsx": "react-jsx",
-    "lib": ["es2024", "dom", "dom.iterable"],
-    "types": ["node", "react"]
-  },
-  "include": ["src"]
-}

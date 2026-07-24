@@ -1,0 +1,135 @@
+{
+  "name": "@drever/designs",
+  "version": "0.0.0",
+  "description": "Official Drever design studies, typed layouts, and deterministic Theme contracts.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zhangdroid/drever.git",
+    "directory": "packages/designs"
+  },
+  "files": [
+    "dist",
+    "studies",
+    "themes",
+    "README.md"
+  ],
+  "type": "module",
+  "sideEffects": [
+    "./themes/atlas/theme.css",
+    "./themes/cinema/theme.css",
+    "./themes/construct/theme.css",
+    "./themes/default/theme.css",
+    "./themes/editorial/theme.css",
+    "./themes/fieldnote/theme.css",
+    "./themes/ledger/theme.css",
+    "./themes/studio/theme.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./atlas": {
+      "types": "./dist/atlas.d.mts",
+      "import": "./dist/atlas.mjs"
+    },
+    "./atlas/layouts": {
+      "types": "./dist/atlas-layouts.d.mts",
+      "import": "./dist/atlas-layouts.mjs"
+    },
+    "./atlas/theme.css": "./themes/atlas/theme.css",
+    "./cinema": {
+      "types": "./dist/cinema.d.mts",
+      "import": "./dist/cinema.mjs"
+    },
+    "./cinema/layouts": {
+      "types": "./dist/cinema-layouts.d.mts",
+      "import": "./dist/cinema-layouts.mjs"
+    },
+    "./cinema/theme.css": "./themes/cinema/theme.css",
+    "./construct": {
+      "types": "./dist/construct.d.mts",
+      "import": "./dist/construct.mjs"
+    },
+    "./construct/layouts": {
+      "types": "./dist/construct-layouts.d.mts",
+      "import": "./dist/construct-layouts.mjs"
+    },
+    "./construct/theme.css": "./themes/construct/theme.css",
+    "./default": {
+      "types": "./dist/default.d.mts",
+      "import": "./dist/default.mjs"
+    },
+    "./default/layouts": {
+      "types": "./dist/default-layouts.d.mts",
+      "import": "./dist/default-layouts.mjs"
+    },
+    "./default/theme.css": "./themes/default/theme.css",
+    "./editorial": {
+      "types": "./dist/editorial.d.mts",
+      "import": "./dist/editorial.mjs"
+    },
+    "./editorial/layouts": {
+      "types": "./dist/editorial-layouts.d.mts",
+      "import": "./dist/editorial-layouts.mjs"
+    },
+    "./editorial/theme.css": "./themes/editorial/theme.css",
+    "./fieldnote": {
+      "types": "./dist/fieldnote.d.mts",
+      "import": "./dist/fieldnote.mjs"
+    },
+    "./fieldnote/layouts": {
+      "types": "./dist/fieldnote-layouts.d.mts",
+      "import": "./dist/fieldnote-layouts.mjs"
+    },
+    "./fieldnote/theme.css": "./themes/fieldnote/theme.css",
+    "./ledger": {
+      "types": "./dist/ledger.d.mts",
+      "import": "./dist/ledger.mjs"
+    },
+    "./ledger/layouts": {
+      "types": "./dist/ledger-layouts.d.mts",
+      "import": "./dist/ledger-layouts.mjs"
+    },
+    "./ledger/theme.css": "./themes/ledger/theme.css",
+    "./studio": {
+      "types": "./dist/studio.d.mts",
+      "import": "./dist/studio.mjs"
+    },
+    "./studio/layouts": {
+      "types": "./dist/studio-layouts.d.mts",
+      "import": "./dist/studio-layouts.mjs"
+    },
+    "./studio/theme.css": "./themes/studio/theme.css",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "check": "vp check",
+    "test": "vp test"
+  },
+  "dependencies": {
+    "@drever/brand": "workspace:*",
+    "@drever/compiler": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "peerDependencies": {
+    "react": "catalog:"
+  },
+  "engines": {
+    "node": ">=24.18.0"
+  }
+}

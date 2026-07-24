@@ -13,8 +13,8 @@ semantic MDX elements, canvas defaults, layout recipes, Step-state treatment, an
 
 <h2 id="design-studies">Learn from the official design studies</h2>
 
-Drever ships eight official packages as few-shot references, quality benchmarks, and reliable
-fallbacks:
+Drever ships eight studies in one `@drever/designs` package as few-shot references, quality
+benchmarks, and reliable fallbacks:
 
 - **Default** — the neutral fallback when the brief does not justify a stronger direction, with
   `Cover` and `TwoColumn`.
@@ -33,16 +33,17 @@ something specific.
 
 <h2 id="manual-package">Use a packaged study directly</h2>
 
-The manual fallback remains one package install:
+The manual fallback remains one package install. That single dependency includes every official
+study, while explicit subpaths keep the selected direction clear:
 
-Install the theme you want to use:
+Install the design collection:
 
 ```bash
-npm install --save-dev @drever/theme-editorial
+npm install --save-dev @drever/designs
 ```
 
 ```ts
-import editorialTheme from "@drever/theme-editorial";
+import editorialTheme from "@drever/designs/editorial";
 import { defineConfig } from "drever";
 
 export default defineConfig({

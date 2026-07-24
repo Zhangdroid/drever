@@ -1,4 +1,4 @@
-import cinemaTheme from "@drever/theme-cinema";
+import cinemaTheme from "@drever/designs/cinema";
 import { defineConfig } from "drever";
 
 export default defineConfig({
