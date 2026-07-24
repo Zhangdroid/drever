@@ -2,7 +2,8 @@ import { DreverRenderModeProvider } from "@drever/core";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vite-plus/test";
-import { resolveMusicEmbed, RoomCountdown, Soundtrack } from "./index.ts";
+import { resolveMusicEmbed, RoomAudio, RoomCountdown, Soundtrack } from "./index.ts";
+import { deactivateRoomAudio } from "./room-audio.tsx";
 import { deactivateSoundtrackPlayback, pauseSoundtrackPlayback } from "./soundtrack.tsx";
 
 describe("music links", () => {
@@ -33,6 +34,54 @@ describe("music links", () => {
 });
 
 describe("scene render surfaces", () => {
+  it("offers explicit room-audio sources without autoplay", () => {
+    const markup = renderToStaticMarkup(
+      createElement(RoomAudio, {
+        track: {
+          artist: "Example artist",
+          sourceLabel: "Remote demo",
+          src: "https://media.example/track.mp3",
+          title: "Example track",
+        },
+      }),
+    );
+
+    expect(markup).toContain("Remote demo");
+    expect(markup).toContain("Computer audio");
+    expect(markup).toContain("Microphone");
+    expect(markup).toContain("<audio");
+    expect(markup).not.toContain("autoplay");
+  });
+
+  it("releases every room-audio resource when the source stops", async () => {
+    const calls: string[] = [];
+    const session = {
+      context: {
+        suspend: () => {
+          calls.push("suspend");
+          return Promise.resolve();
+        },
+      },
+      frame: 12,
+      source: {
+        disconnect: () => calls.push("disconnect"),
+      },
+      stream: {
+        getTracks: () => [
+          { stop: () => calls.push("stop first") },
+          { stop: () => calls.push("stop second") },
+        ],
+      },
+    };
+
+    await deactivateRoomAudio(session, (frame) => calls.push(`cancel ${frame}`));
+
+    expect(calls).toEqual(["cancel 12", "disconnect", "stop first", "stop second", "suspend"]);
+    expect(session.frame).toBeUndefined();
+    expect(session.source).toBeUndefined();
+    expect(session.stream).toBeUndefined();
+  });
+
   it("renders an audience audio control without autoplay", () => {
     const markup = renderToStaticMarkup(
       createElement(Soundtrack, {
@@ -124,6 +173,28 @@ describe("scene render surfaces", () => {
       expect(markup).toContain("Open in Spotify");
       expect(markup).not.toContain("<audio");
       expect(markup).not.toContain("<iframe");
+      expect(markup).not.toContain("<button");
+    },
+  );
+
+  it.each(["document", "export", "speaker-current", "speaker-next"] as const)(
+    "keeps %s free of permissioned room-audio inputs",
+    (mode) => {
+      const markup = renderToStaticMarkup(
+        createElement(
+          DreverRenderModeProvider,
+          { mode },
+          createElement(RoomAudio, {
+            track: {
+              src: "https://media.example/track.mp3",
+              title: "Example track",
+            },
+          }),
+        ),
+      );
+
+      expect(markup).toContain("Live input is available in audience view");
+      expect(markup).not.toContain("<audio");
       expect(markup).not.toContain("<button");
     },
   );

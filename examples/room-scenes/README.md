@@ -6,14 +6,15 @@ A focused demo of presentation-native components from `@drever/scenes`.
 vp run demo:scenes
 ```
 
-The opening page combines a live audience countdown with an original procedural
-audio loop. Press **Start room** to create the Web Audio graph; no audio starts
-on mount. The second page demonstrates an on-demand Spotify embed and explains
-why provider playback uses ambient rather than frequency-reactive motion.
+The opening combines a live audience countdown with `RoomAudio`. Its committed
+procedural loop is a reliable first look. Presenters can instead share computer
+audio from any player or let the microphone hear the room.
 
 The background is a persistent `AmbientStage` configured through Drever's Stage
 layer. It changes narrative state without joining the slide View Transition.
 Speaker, document, and export surfaces render deterministic static versions.
+Captured audio remains inside the browser and every permissioned track stops
+when the scene unmounts.
 
 The WAV file is generated from the checked-in dependency-free Node script:
 

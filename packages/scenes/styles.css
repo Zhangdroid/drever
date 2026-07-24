@@ -60,6 +60,47 @@
   opacity: calc(0.05 + var(--drever-scene-energy) * 0.12);
 }
 
+.drever-ambient-stage [data-signal]::after {
+  position: absolute;
+  inset: -8%;
+  border-radius: inherit;
+  background: inherit;
+  content: "";
+  opacity: 0;
+  scale: 0.92;
+  transition:
+    opacity 120ms linear,
+    scale 80ms linear;
+}
+
+.drever-ambient-stage [data-orbit]::after {
+  position: absolute;
+  inset: -1px;
+  border: 1px solid var(--drever-scene-accent-alt);
+  border-radius: inherit;
+  content: "";
+  opacity: 0;
+  scale: 0.98;
+  transition:
+    opacity 120ms linear,
+    scale 80ms linear;
+}
+
+[data-drever-room-audio-active] .drever-ambient-stage [data-signal="primary"]::after {
+  opacity: calc(var(--drever-audio-low, 0) * 0.34);
+  scale: calc(0.92 + var(--drever-audio-low, 0) * 0.42);
+}
+
+[data-drever-room-audio-active] .drever-ambient-stage [data-signal="secondary"]::after {
+  opacity: calc(var(--drever-audio-mid, 0) * 0.28);
+  scale: calc(0.94 + var(--drever-audio-mid, 0) * 0.36);
+}
+
+[data-drever-room-audio-active] .drever-ambient-stage [data-orbit="near"]::after {
+  opacity: calc(var(--drever-audio-high, 0) * 0.32);
+  scale: calc(0.98 + var(--drever-audio-high, 0) * 0.035);
+}
+
 .drever-ambient-stage[data-state="gather"] [data-orbit="near"] {
   translate: -18% 11%;
   scale: 0.82;
@@ -373,6 +414,173 @@
   font-size: 14px;
 }
 
+.drever-room-audio {
+  --drever-audio-high: 0;
+  --drever-audio-level: 0;
+  --drever-audio-low: 0;
+  --drever-audio-mid: 0;
+  position: relative;
+  display: grid;
+  min-height: 246px;
+  box-sizing: border-box;
+  padding: 30px;
+  overflow: clip;
+  isolation: isolate;
+  border: 1px solid color-mix(in srgb, var(--drever-theme-border, currentColor), transparent 34%);
+  border-radius: max(var(--drever-theme-radius, 18px), 22px);
+  grid-template-columns: auto minmax(0, 1fr);
+  align-content: end;
+  align-items: center;
+  background: linear-gradient(
+    138deg,
+    color-mix(in srgb, var(--drever-theme-surface, #171719), transparent 18%),
+    color-mix(in srgb, var(--drever-theme-surface, #171719), transparent 38%)
+  );
+  box-shadow:
+    0 24px 70px rgb(0 0 0 / 12%),
+    inset 0 1px rgb(255 255 255 / 8%);
+  color: var(--drever-theme-ink, #f6f3e9);
+  gap: 24px;
+  backdrop-filter: blur(24px) saturate(1.16);
+}
+
+.drever-room-audio__meter {
+  position: relative;
+  width: 96px;
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, currentColor, transparent 78%);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--drever-theme-surface, #171719), transparent 54%);
+}
+
+.drever-room-audio__meter > i {
+  position: absolute;
+  display: block;
+  margin: 0;
+  border-radius: 50%;
+  transition:
+    opacity 100ms linear,
+    scale 70ms linear,
+    translate 70ms linear;
+}
+
+.drever-room-audio__meter [data-band="low"] {
+  inset: 19%;
+  background: var(--drever-theme-accent, #c7f03a);
+  box-shadow: 0 0 28px color-mix(in srgb, var(--drever-theme-accent, #c7f03a), transparent 32%);
+  opacity: calc(0.28 + var(--drever-audio-low) * 0.68);
+  scale: calc(0.72 + var(--drever-audio-low) * 0.48);
+}
+
+.drever-room-audio__meter [data-band="mid"] {
+  inset: 7%;
+  border: 1px solid var(--drever-theme-accent-strong, #5b45d8);
+  opacity: calc(0.28 + var(--drever-audio-mid) * 0.62);
+  scale: calc(0.82 + var(--drever-audio-mid) * 0.22);
+}
+
+.drever-room-audio__meter [data-band="high"] {
+  top: 12%;
+  right: 4%;
+  width: 12px;
+  aspect-ratio: 1;
+  background: currentColor;
+  opacity: calc(0.32 + var(--drever-audio-high) * 0.68);
+  translate: calc(var(--drever-audio-high) * -9px) calc(var(--drever-audio-high) * 14px);
+}
+
+.drever-room-audio__copy {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.drever-room-audio__copy small {
+  color: var(--drever-theme-accent, #c7f03a);
+  font-size: 12px;
+  font-weight: 680;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.drever-room-audio__copy strong {
+  overflow: hidden;
+  font-size: 28px;
+  font-weight: 620;
+  letter-spacing: -0.035em;
+  line-height: 1.06;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drever-room-audio__copy span,
+.drever-room-audio__status {
+  color: color-mix(in srgb, currentColor, transparent 42%);
+  font-size: 14px;
+}
+
+.drever-room-audio__controls {
+  display: flex;
+  min-width: 0;
+  margin-top: 4px;
+  grid-column: 1 / -1;
+  gap: 8px;
+}
+
+.drever-room-audio__controls button {
+  min-width: 0;
+  padding: 9px 13px;
+  border: 1px solid color-mix(in srgb, currentColor, transparent 72%);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--drever-theme-surface, #171719), transparent 32%);
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    translate 180ms ease;
+}
+
+.drever-room-audio__controls button:hover,
+.drever-room-audio__controls button[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--drever-theme-accent, #c7f03a), transparent 36%);
+  background: color-mix(
+    in srgb,
+    var(--drever-theme-surface, #171719),
+    var(--drever-theme-accent, #c7f03a) 11%
+  );
+  translate: 0 -1px;
+}
+
+.drever-room-audio__controls button:focus-visible,
+.drever-room-audio__credit:focus-visible {
+  outline: 2px solid var(--drever-theme-accent, #c7f03a);
+  outline-offset: 3px;
+}
+
+.drever-room-audio__status {
+  grid-column: 1 / -1;
+}
+
+.drever-room-audio__credit {
+  position: absolute;
+  top: 24px;
+  right: 26px;
+  color: color-mix(in srgb, currentColor, transparent 28%);
+  font-size: 12px;
+  text-underline-offset: 4px;
+}
+
+.drever-room-audio__error {
+  margin: 0;
+  color: #ff9a8f;
+  font-size: 13px;
+  grid-column: 1 / -1;
+}
+
 @keyframes drever-scene-breathe {
   from {
     translate: -2% 1%;
@@ -386,6 +594,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .drever-ambient-stage > *,
+  .drever-ambient-stage [data-orbit]::after,
+  .drever-ambient-stage [data-signal]::after,
+  .drever-room-audio__meter > i,
   .drever-soundtrack__visual [data-band],
   .drever-soundtrack__visual > i::after {
     animation: none !important;
@@ -395,6 +606,9 @@
 
 .drever-ambient-stage[data-reduced-motion] > *,
 [data-drever-reduced-motion] .drever-ambient-stage > *,
+[data-drever-reduced-motion] .drever-ambient-stage [data-orbit]::after,
+[data-drever-reduced-motion] .drever-ambient-stage [data-signal]::after,
+[data-drever-reduced-motion] .drever-room-audio__meter > i,
 [data-drever-reduced-motion] .drever-soundtrack__visual [data-band],
 [data-drever-reduced-motion] .drever-soundtrack__visual > i::after {
   animation: none !important;

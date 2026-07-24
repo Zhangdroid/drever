@@ -39,6 +39,32 @@ this mode never claims to be frequency-reactive. Leaving the slide disconnects
 local audio and unloads the provider frame; the first version does not create a
 deck-wide music service.
 
+`RoomAudio` connects the same persistent Stage signal to one of three explicit
+inputs:
+
+```tsx
+import { RoomAudio } from "@drever/scenes";
+
+<RoomAudio
+  track={{
+    artist: "Example artist",
+    sourceLabel: "Demo loop",
+    src: "/audio/opening.mp3",
+    title: "Example track",
+  }}
+/>;
+```
+
+- **Demo track** plays a local or CORS-enabled stream through Web Audio.
+- **Computer audio** asks the presenter to share a tab or screen with audio.
+- **Microphone** listens to sound reaching the room.
+
+The analyzer writes low, mid, high, and overall levels onto the persistent
+`[data-drever-stage]`. It sends no captured audio to Drever. When the input is
+silent or stopped, all values return to zero and the authored background rests.
+Non-audience surfaces render deterministic metadata without media or permission
+controls.
+
 ## Render surfaces
 
 | Surface                 | Behavior                                     |
@@ -61,6 +87,5 @@ moment. Keep one primary attention target at a time. Do not add a soundtrack,
 countdown, spatial model, or ambient loop merely to make a slide move.
 
 Good next candidates are `BrowserJourney`, `CompareLens`, `DataStory`,
-`MediaCue`, and an explicitly permissioned microphone input. They belong in
-this one package; each should keep deterministic export semantics and avoid
-mandatory provider SDKs.
+`MediaCue`, and `AudiencePulse`. They belong in this one package; each should
+keep deterministic export semantics and avoid mandatory provider SDKs.

@@ -84,19 +84,33 @@
   font-weight: 620;
 }
 
-.room-opening__soundtrack {
-  min-height: 490px;
+.room-opening__audio {
+  min-height: 310px;
 }
 
-.provider-scene {
+.room-opening__audio .drever-room-audio__meter {
+  width: 108px;
+}
+
+.input-scene {
   display: grid;
   height: 100%;
-  align-items: center;
-  grid-template-columns: minmax(0, 0.82fr) minmax(590px, 1.18fr);
-  gap: 80px;
+  align-content: center;
+  gap: 46px;
 }
 
-.provider-scene > header h2,
+.input-scene > header {
+  display: grid;
+  align-items: end;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.54fr);
+  column-gap: 72px;
+}
+
+.input-scene > header .scene-kicker {
+  grid-column: 1 / -1;
+}
+
+.input-scene > header h2,
 .stage-story > header h2,
 .scene-board > header h2,
 .scene-ending h2 {
@@ -107,7 +121,7 @@
   letter-spacing: -0.052em;
 }
 
-.provider-scene > header p,
+.input-scene > header p,
 .stage-story > header p,
 .scene-ending > p {
   max-width: 34ch;
@@ -116,8 +130,60 @@
   font-size: 22px;
 }
 
-.provider-scene__player {
-  min-height: 480px;
+.input-scene__sources {
+  display: grid;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+  padding: 0;
+  border-block: 1px solid color-mix(in srgb, var(--drever-cinema-cue), transparent 56%);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  list-style: none;
+}
+
+.input-scene__sources li {
+  min-height: 210px;
+  box-sizing: border-box;
+  padding: 28px 30px;
+  border-left: 1px solid var(--drever-cinema-border);
+}
+
+.input-scene__sources li:first-child {
+  border-left: 0;
+}
+
+.input-scene__sources span,
+.input-scene__silence > span {
+  color: var(--drever-cinema-cue);
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.input-scene__sources strong {
+  display: block;
+  margin-top: 24px;
+  font-family: var(--drever-brand-font-family-display);
+  font-size: 34px;
+  font-weight: 570;
+  letter-spacing: -0.035em;
+}
+
+.input-scene__sources p {
+  max-width: 28ch;
+  margin-top: 14px;
+  color: color-mix(in srgb, var(--drever-cinema-ink), transparent 30%);
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.input-scene__silence {
+  display: flex;
+  margin: -22px 0 0;
+  color: var(--drever-cinema-muted);
+  font-size: 15px;
+  gap: 14px;
 }
 
 .stage-story {

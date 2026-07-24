@@ -1,4 +1,3 @@
-import { Soundtrack } from "@drever/scenes";
 import { OpeningRoom } from "./OpeningRoom.tsx";
 import "@drever/brand/fonts.css";
 import "@drever/brand/tokens.css";
@@ -9,31 +8,48 @@ import "../showcase-return.css";
 <OpeningRoom aria-label="Before the room speaks" />
 
 <Note>
-  Press Start room. This local, original audio loop is routed through Web Audio, so the light
-  responds to the signal. The presenter gesture is intentional: browsers should never be asked to
-  guess whether audible autoplay is welcome.
+  Turn the sound on, then start the demo loop. Computer audio listens to a shared tab or screen;
+  Microphone listens to speakers in the room. All three sources drive the persistent Stage without
+  putting the background inside the slide transition.
 </Note>
 
 ---
 
-<div aria-label="A playlist can play, but it cannot expose its waveform" className="provider-scene">
+<div aria-label="Three ways to give the room a signal" className="input-scene">
   <header>
-    <span className="scene-kicker">One link / two honest capabilities</span>
-    <h2>A playlist can play. It cannot expose its waveform.</h2>
-    <p>Provider links get an official player and a restrained ambient field. Local or CORS-enabled audio gets the real frequency response.</p>
+    <span className="scene-kicker">Three inputs / one honest signal</span>
+    <h2>Bring the sound you already have.</h2>
+    <p>The visual response is the same; only the source changes.</p>
   </header>
 
-  <Soundtrack
-    className="provider-scene__player"
-    playlistUrl="https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M"
-    title="Doors-open playlist"
-  />
+<ol className="input-scene__sources">
+  <li>
+    <span>01 · Demo</span>
+    <strong>Local loop</strong>
+    <p>A reliable first look with no account, network, or provider SDK.</p>
+  </li>
+  <li>
+    <span>02 · Direct</span>
+    <strong>Computer audio</strong>
+    <p>Share a tab or screen with audio for a clean digital signal.</p>
+  </li>
+  <li>
+    <span>03 · Physical</span>
+    <strong>Microphone</strong>
+    <p>Let the room itself—speakers, voices, applause—shape the light.</p>
+  </li>
+</ol>
+
+  <p className="input-scene__silence">
+    <span>When the room is quiet</span>
+    the authored background simply rests.
+  </p>
 </div>
 
 <Note>
-  Load the player only if the network is available. The background begins a deterministic ambient
-  pulse, but never claims to follow protected iframe audio. Export and speaker surfaces keep this as
-  a static card.
+  Computer capture and microphone access are explicit presenter gestures, stay inside the browser,
+  and stop when the component leaves the audience surface. This works with any music provider
+  because Drever listens to the selected device, not a provider API.
 </Note>
 
 ---
@@ -70,9 +86,9 @@ import "../showcase-return.css";
 
 <ol className="scene-board__moments" aria-label="Shipped Scenes by narrative moment">
   <li>
-    <span>Before the first word</span>
-    <strong>Soundtrack</strong>
-    <p>Turn the pre-show wait into an intentional opening ritual.</p>
+    <span>While the room is alive</span>
+    <strong>RoomAudio</strong>
+    <p>Turn a stream, computer sound, or the room itself into a visual signal.</p>
   </li>
   <li>
     <span>While the story moves</span>
@@ -94,7 +110,7 @@ import "../showcase-return.css";
 
 <Note>
   The package stays deliberately narrow. BrowserJourney, CompareLens, DataStory, MediaCue, and an
-  opt-in microphone source are stronger next candidates than generic cards or buttons.
+  audience pulse are stronger next candidates than generic cards or buttons.
 </Note>
 
 ---
