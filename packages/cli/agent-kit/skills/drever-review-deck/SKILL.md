@@ -28,6 +28,7 @@ For every prominent sentence, object, animation, background treatment, and contr
 Review for:
 
 - A coherent story, one dominant idea per slide, useful evidence, and a clear conclusion. Motion must not disguise abstract slogans or missing reasoning.
+- A flagship product tour that demonstrates its central promise through one concrete audience decision and a traceable artifact lifecycle instead of presenting a feature catalog. Require the real interaction and outcome to occur in the deck; move secondary inventory to focused examples.
 - Stable alignment, deliberate spacing, readable type, sufficient contrast, and no clipping or overflow.
 - Flag prose-heavy narrative and supporting regions placed side by side when the support could communicate through a diagram, artifact, media frame, data mark, spatial form, or quiet subject-led abstraction. Keep its text to functional labels or captions unless comparing the texts is the claim.
 - Step changes that reveal meaning without moving persistent content.

@@ -1,263 +1,300 @@
-import { AudienceSignal, MomentCard, MotionBoundary } from "./TourComponents.tsx";
+import {
+  AudienceSignal,
+  DecisionProof,
+  RoomResponse,
+  SignalOutcome,
+  StoryCore,
+  StoryRoute,
+} from "./TourComponents.tsx";
 import "@drever/brand/fonts.css";
 import "@drever/brand/tokens.css";
 import "../showcase-return.css";
 import "./tour.css";
 
-<Masthead
-  aria-label="The room changes. Your deck should too."
+<section
   className="tour-cover tour-cover--opening"
-  kicker="Drever"
-  title={
-    <>
+  aria-label="The room changes. Your deck should too."
+>
+  <div className="tour-cover__copy">
+    <span className="tour-cover__kicker">Drever</span>
+    <h1>
       <span>The room</span>
       <span>
         <mark>changes.</mark>
       </span>
       <span className="tour-cover__shift">Your deck should too.</span>
-    </>
-  }
-  deck="Start with the idea. Use the AI you already trust to shape it. Then direct it live, share the exact moment, and keep it useful afterward."
-  meta="Made with AI · Directed by you"
-  tone="ink"
-/>
+    </h1>
+    <p>Shape the story with AI. Direct what happens live. Keep every moment useful afterward.</p>
+    <small>Made with AI · Directed by you</small>
+  </div>
+  <RoomResponse />
+</section>
 
 <Note>
-  Open with the promise: AI helps make the presentation, but the person presenting still directs
-  what the room sees, when it sees it, and what remains afterward.
+  Open with the product promise. AI can shape the story, while the presenter still directs what the
+  room sees, when it sees it, and what remains afterward.
 </Note>
 
 ---
 
-## Tell your AI what must happen in the room.
+## Start with what the room must decide.
 
-<p>Drever gives it a clear presentation contract. Every choice stays visible and editable.</p>
+<p>One plain-language brief gives AI the point, the audience, and the shape of the experience.</p>
 
-<div className="tour-brief" aria-label="A presentation brief becoming a drafted story">
-  <section className="tour-brief__input">
-    <span className="tour-kicker">Your brief</span>
-    <dl>
-      <div>
-        <dt>Audience</dt>
-        <dd>Product · Legal · Sales</dd>
-      </div>
-      <div>
-        <dt>Decision</dt>
-        <dd>Approve the launch pilot</dd>
-      </div>
-      <div>
-        <dt>Direction</dt>
-        <dd>Start with risk. Ask the room. Reveal proof only when it helps.</dd>
-      </div>
-    </dl>
-  </section>
-
-  <section className="tour-brief__story">
-    <span className="tour-kicker">Drafted story</span>
-    <ol>
-      <li><span>01</span><strong>Name the decision</strong></li>
-      <li><span>02</span><strong>Hear the room</strong></li>
-      <li><span>03</span><strong>Reveal the proof</strong></li>
-      <li><span>04</span><strong>Leave a next move</strong></li>
-    </ol>
-    <small>Illustrative launch-pilot scenario · readable direction, not a locked export.</small>
-  </section>
-</div>
+<section className="tour-prompt" aria-label="A natural-language presentation brief">
+  <div className="tour-prompt__request">
+    <span className="tour-kicker">Your prompt</span>
+    <blockquote>
+      Help a product, legal, and sales team decide whether to approve a launch pilot. Ask the room
+      what they need before revealing the result.
+    </blockquote>
+    <span className="tour-prompt__cursor" aria-hidden="true" />
+  </div>
+  <dl className="tour-prompt__constraints">
+    <div>
+      <dt>Audience</dt>
+      <dd>Product · Legal · Sales</dd>
+    </div>
+    <div>
+      <dt>Decision</dt>
+      <dd>Approve the launch pilot</dd>
+    </div>
+    <div>
+      <dt>Time</dt>
+      <dd>20 minutes</dd>
+    </div>
+    <div>
+      <dt>Direction</dt>
+      <dd>Ask before proof</dd>
+    </div>
+  </dl>
+</section>
 
 <Note>
-  Use one concrete example throughout the tour: a cross-functional team deciding whether to approve
-  a launch pilot. Drever turns a plain-language brief into a story the author can still revise.
+  A person starts with intent rather than syntax. The example stays concrete: a cross-functional
+  team deciding whether to approve a launch pilot.
 </Note>
 
 ---
 
-## Ask the room. **Change what comes next.**
+## AI drafts the route. **You direct the room.**
+
+<p>Advance once. One deliberate beat changes a generated outline into a live presentation.</p>
+
+<StoryRoute>
+  <Step at={1} className="tour-route__row tour-route__row--directed">
+    <span>02</span>
+    <strong>Ask the room</strong>
+    <small>Directed by you</small>
+  </Step>
+</StoryRoute>
+
+<Note>
+  Advance once to insert “Ask the room.” AI produced the first route, but the presenter decides
+  where the room should participate and when the proof should arrive.
+</Note>
+
+---
+
+## Ask the room. **Let the story follow.**
 
 <p>This slide is live. Choose what would help you decide.</p>
 
 <AudienceSignal />
 
 <Note>
-  Select a response, leave, then return. The interaction keeps its state while the inactive slide
-  leaves the accessibility tree. The next part of the story can follow what the room actually needs.
+  Choose a response, leave the slide, then return. The choice remains available to later authored
+  React and changes the next beat without turning the deck into a separate application.
 </Note>
 
 ---
 
-## Reveal the proof when it matters.
+## The story follows the room.
 
-<p>Advance one beat at a time. Every reveal is a stable state you can reopen.</p>
-
-<MotionGroup className="tour-moment-stack" flow="block" intent="focus">
+<SignalOutcome>
   <Step at={1}>
-    <MomentCard
-      index="01"
-      title="Frame the decision"
-      detail="Agree on what the pilot must prove."
-    />
+    <div className="tour-outcome__beat-row">
+      <span>01</span>
+      <strong>The concern becomes the next beat.</strong>
+    </div>
   </Step>
   <Step at={2}>
-    <MomentCard
-      index="02"
-      title="Hear the concern"
-      detail="Let the room name the risk that matters."
-    />
+    <div className="tour-outcome__beat-row">
+      <span>02</span>
+      <strong>Then the evidence arrives.</strong>
+    </div>
+    <MotionGroup className="tour-outcome__proof-inline" intent="continuity" name="decision-proof">
+      <DecisionProof />
+    </MotionGroup>
   </Step>
-  <Step at={3}>
-    <MomentCard
-      index="03"
-      title="Reveal the evidence"
-      detail="Show the pilot result only when it can change the decision."
-    />
-  </Step>
-</MotionGroup>
+</SignalOutcome>
 
 <Note>
-  Advance three times. These are presentation states rather than timed decoration, so the sequence
-  can be rehearsed, linked, restored, and tested.
+  Advance twice. The first Step acknowledges the room. The second reveals one stable piece of
+  evidence. Direct links without a prior choice use the evidence route as a deterministic default.
 </Note>
 
 ---
 
-## When the meaning changes, only that part moves.
+## Now the room can decide.
 
-<p>The stage, title, and controls hold still. Try the moment below.</p>
-
-<MotionBoundary />
+<section className="tour-decision">
+  <div className="tour-decision__copy">
+    <span className="tour-kicker">The decision · now grounded</span>
+    <h2>Now the room can decide.</h2>
+    <p>Evidence stays visible while the next move becomes explicit.</p>
+    <MotionGroup className="tour-decision__confirmation" flow="block" intent="focus">
+      <Step at={1}>
+        <span>Decision recorded</span>
+        <strong>Approve the three-team pilot.</strong>
+        <small>Product · Legal · Sales</small>
+      </Step>
+    </MotionGroup>
+  </div>
+  <MotionGroup
+    className="tour-proof-position tour-proof-position--decision"
+    intent="continuity"
+    name="decision-proof"
+  >
+    <DecisionProof />
+  </MotionGroup>
+</section>
 
 <Note>
-  Change the local story moment. One fixed frame carries the question into evidence and then a
-  decision. Nothing around it moves merely because the content changed.
+  The proof is exactly the same object from the previous slide. Advance once to record the decision
+  without replacing the evidence that made it possible.
 </Note>
 
 ---
 
-## Present with context. Keep the room focused.
+## You see what the audience cannot.
 
-<p>See what is next, keep private notes, and point without covering the slide.</p>
+<p>Private context stays beside the same evidence—not on top of it.</p>
 
-<div className="tour-presenter" aria-label="Speaker view with private context and focus tools">
-  <section className="tour-presenter__screens">
-    <div className="tour-presenter__screen tour-presenter__screen--current">
-      <span>Audience sees</span>
-      <strong>What would make this launch feel safe?</strong>
-    </div>
-    <div className="tour-presenter__screen tour-presenter__screen--next">
-      <span>Up next</span>
-      <strong>96% completed setup</strong>
-    </div>
-  </section>
-
-  <aside className="tour-presenter__context">
-    <span className="tour-kicker">Private note</span>
-    <p>Ask what still feels risky before revealing the pilot result.</p>
-    <small className="tour-presenter__tools-label">Audience focus tools</small>
-    <div className="tour-presenter__tools" aria-label="Audience focus tools">
-      <span><i data-tool="laser" />Laser</span>
-      <span><i data-tool="pen" />Pen</span>
-      <span><i data-tool="highlighter" />Highlight</span>
-    </div>
-    <div className="tour-presenter__time">
-      <span><small>Elapsed</small><strong>08:42</strong></span>
-      <span><small>Remaining</small><strong>11:18</strong></span>
-    </div>
-  </aside>
-</div>
-
-<Note>
-  Press P to open the real speaker view. It keeps current and next previews, private notes, timing,
-  and synchronized Laser, Pen, and Highlighter tools for directing the audience's attention.
-</Note>
-
----
-
-<Feature
-  className="tour-share-feature"
-  heading="Send the moment, not directions."
-  body={<p>One link remembers the slide and what has already been revealed.</p>}
-  visual={
-    <div className="tour-share-card">
-      <span className="tour-kicker">Share link copied</span>
-      <strong>The proof the room asked for</strong>
-      <p>96% of pilot teams completed setup without support.</p>
-      <a
-        aria-label="Open the shared slide state in a new tab"
-        className="tour-route-link tour-route-link--state"
-        href="4/2"
-        rel="noopener"
-        target="_blank"
-      >
-        <span>your-deck.com/4/2</span>
-        <span aria-hidden="true">↗</span>
-      </a>
-      <footer>
-        <span>Illustrative scenario</span>
-        <span>Reveal 02</span>
-      </footer>
-    </div>
-  }
-  caption="Open, reload, or go back: everyone returns to the same moment."
-  balance="text-led"
-/>
-
-<Note>
-  The human promise comes first: send the exact evidence, not instructions for finding it.
-  Underneath, path routes and history preserve the slide and Step state on static hosting.
-</Note>
-
----
-
-## The meeting ends. The story keeps working.
-
-<p>Read the full story, search it, or reopen the exact moment that mattered.</p>
-
-<div className="tour-afterlife">
-  <div className="tour-document-preview">
+<section className="tour-speaker" aria-label="Speaker view with private notes and next context">
+  <div className="tour-speaker__chrome">
     <header>
-      <span>Document view</span>
-      <a
-        aria-label="Open Document View in a new tab"
-        className="tour-route-link tour-route-link--document"
-        href="document"
-        rel="noopener"
-        target="_blank"
-      >
-        <span>/document</span>
-        <span aria-hidden="true">↗</span>
-      </a>
+      <span>Speaker view</span>
+      <span>
+        08:42 <i /> 11:18 remaining
+      </span>
     </header>
-    <div className="tour-document-preview__search">
-      <span>Search the whole story</span>
-      <kbd>⌘ F</kbd>
+    <div className="tour-speaker__current">
+      <span className="tour-kicker">Audience sees</span>
+      <MotionGroup intent="continuity" name="decision-proof">
+        <DecisionProof />
+      </MotionGroup>
     </div>
-    <article>
-      <span>Launch pilot · Decision record</span>
-      <strong>Approve the three-team pilot</strong>
-      <p>Context, evidence, and every reveal—ready to revisit.</p>
-    </article>
+    <aside>
+      <div>
+        <span className="tour-kicker">Up next</span>
+        <strong>Approve the three-team pilot.</strong>
+      </div>
+      <div>
+        <span className="tour-kicker">Private note</span>
+        <p>Ask what still feels risky before confirming the decision.</p>
+      </div>
+      <footer>
+        <span>
+          <i data-tool="laser" /> Laser
+        </span>
+        <span>
+          <i data-tool="pen" /> Pen
+        </span>
+        <span>
+          <i data-tool="highlighter" /> Highlight
+        </span>
+      </footer>
+    </aside>
   </div>
-  <div className="tour-afterlife__outcomes">
-    <div>
-      <span>Share</span>
-      <strong>The exact moment</strong>
-      <p>Send the evidence that changed the room.</p>
-    </div>
-    <div>
-      <span>Read</span>
-      <strong>The complete story</strong>
-      <p>Search it without replaying the talk.</p>
-    </div>
-    <div>
-      <span>Return</span>
-      <strong>The same state</strong>
-      <p>One link opens it again.</p>
-    </div>
-  </div>
-</div>
+</section>
 
 <Note>
-  Press D to open the real Document View. It exposes every Step in reading order and keeps the
-  presentation useful after the meeting rather than flattening it into screenshots.
+  Press P to open the real speaker view. It includes current and next previews, private notes,
+  timing, and synchronized Laser, Pen, and Highlighter tools.
+</Note>
+
+---
+
+## Send the exact moment.
+
+<section className="tour-share">
+  <div className="tour-share__copy">
+    <span className="tour-kicker">A link to the state—not directions</span>
+    <h2>Send the exact moment.</h2>
+    <p>Slide five. Step two. The evidence the room asked for.</p>
+    <a
+      aria-label="Open the shared slide state in a new tab"
+      className="tour-state-link"
+      href="5/2"
+      rel="noopener"
+      target="_blank"
+    >
+      <span>your-deck.com/5/2</span>
+      <span aria-hidden="true">↗</span>
+    </a>
+    <small>Open · reload · go back · the state remains addressable</small>
+  </div>
+  <MotionGroup
+    className="tour-proof-position tour-proof-position--share"
+    intent="continuity"
+    name="decision-proof"
+  >
+    <DecisionProof />
+  </MotionGroup>
+</section>
+
+<Note>
+  The same proof becomes the shared moment. Path routes and history preserve both slide and Step
+  state on static hosting.
+</Note>
+
+---
+
+## The story keeps working.
+
+<section className="tour-document">
+  <div className="tour-document__copy">
+    <span className="tour-kicker">After the room moves on</span>
+    <h2>The story keeps working.</h2>
+    <p>Every Step becomes readable, searchable, and ready to revisit.</p>
+    <a
+      aria-label="Open Document View in a new tab"
+      className="tour-document__link"
+      href="document"
+      rel="noopener"
+      target="_blank"
+    >
+      Open Document View <span aria-hidden="true">↗</span>
+    </a>
+  </div>
+  <div
+    className="tour-document__page"
+    aria-label="A document containing the same decision evidence"
+  >
+    <header>
+      <span>Launch pilot · Decision record</span>
+      <kbd>⌘ F</kbd>
+    </header>
+    <div className="tour-document__intro">
+      <span>01 · Context</span>
+      <strong>Should we approve the launch pilot?</strong>
+      <i />
+      <i />
+    </div>
+    <MotionGroup intent="continuity" name="decision-proof">
+      <DecisionProof />
+    </MotionGroup>
+    <footer>
+      <span>02 · Evidence</span>
+      <span>03 · Decision</span>
+    </footer>
+  </div>
+</section>
+
+<Note>
+  Press D to open the real Document View. It exposes every Step in reading order instead of
+  flattening the presentation into screenshots.
 </Note>
 
 ---
@@ -265,34 +302,18 @@ import "./tour.css";
 ## One story, made once.
 
 <section className="tour-continuity-page tour-continuity-page--source">
-  <span className="tour-continuity-kicker">A deliverable you can keep</span>
-  <div className="tour-continuity-heading" aria-hidden="true" />
-  <p>Your content, interaction, notes, and design stay together in an editable project.</p>
-
-  <div className="tour-continuity-stage">
-    <div className="tour-deliverable-list" aria-label="Project qualities">
-      <div><span>Edit</span><strong>Change the story</strong></div>
-      <div><span>Review</span><strong>See every choice</strong></div>
-      <div><span>Rebuild</span><strong>Deliver it again</strong></div>
-    </div>
-    <MotionGroup
-      className="tour-continuity"
-      data-testid="motion-continuity"
-      intent="continuity"
-      name="deck-contract"
-    >
-      <article>
-        <span>Drever project</span>
-        <strong>Your story</strong>
-        <p>Content, interaction, notes, and design—together and editable.</p>
-      </article>
-    </MotionGroup>
+  <div className="tour-continuity-page__copy">
+    <span className="tour-kicker">A deliverable you can keep</span>
+    <p>Content, interaction, notes, and design remain one editable project.</p>
   </div>
+  <MotionGroup className="tour-story-core-position" intent="continuity" name="story-core">
+    <StoryCore />
+  </MotionGroup>
 </section>
 
 <Note>
-  Advance once. The project card is exactly the same object in exactly the same place on the next
-  slide, so it remains visually still. The headline carries the only meaningful transition.
+  The story core is the same object in the same place on the next slide. The headline carries the
+  primary transition; the project itself remains visually stable.
 </Note>
 
 ---
@@ -300,51 +321,52 @@ import "./tour.css";
 ## One story, alive everywhere.
 
 <section className="tour-continuity-page tour-continuity-page--result">
-  <span className="tour-continuity-kicker">One project · three useful surfaces</span>
-  <div className="tour-continuity-heading" aria-hidden="true" />
-  <p>The same story meets each person in the form they need.</p>
-
-  <div className="tour-continuity-stage">
-    <div className="tour-surface-list" aria-label="Presentation surfaces">
-      <div><span>Audience</span><strong>Live</strong></div>
-      <div><span>Speaker</span><strong>Guided</strong></div>
-      <div><span>Document</span><strong>Searchable</strong></div>
-    </div>
-    <MotionGroup
-      className="tour-continuity"
-      data-testid="motion-continuity"
-      intent="continuity"
-      name="deck-contract"
-    >
-      <article>
-        <span>Drever project</span>
-        <strong>Your story</strong>
-        <p>Content, interaction, notes, and design—together and editable.</p>
-      </article>
-    </MotionGroup>
+  <div className="tour-continuity-page__copy">
+    <span className="tour-kicker">One project · every useful surface</span>
+    <p>The same authored story meets each person in the form they need.</p>
   </div>
+  <div className="tour-surfaces" aria-label="Audience, speaker, document, and export surfaces">
+    <div>
+      <span>Audience</span>
+      <strong>Live</strong>
+    </div>
+    <div>
+      <span>Speaker</span>
+      <strong>Guided</strong>
+    </div>
+    <div>
+      <span>Document</span>
+      <strong>Searchable</strong>
+    </div>
+    <div>
+      <span>Export</span>
+      <strong>Portable</strong>
+    </div>
+  </div>
+  <MotionGroup className="tour-story-core-position" intent="continuity" name="story-core">
+    <StoryCore />
+  </MotionGroup>
 </section>
 
 <Note>
-  The shared project card, background, and Signal stay still. Only the related headline changes in
-  its fixed text slot: one story, made once becomes one story, alive everywhere.
+  The story core and stage hold still. Four surfaces appear as one quiet supporting consequence of
+  the headline changing from “made once” to “alive everywhere.”
 </Note>
 
 ---
 
-<Masthead
-  aria-label="Bring the idea. Direct the experience."
+<section
   className="tour-cover tour-cover--closing"
-  kicker="Your next presentation"
-  title={
-    <>
+  aria-label="Bring the idea. Direct the experience."
+>
+  <div className="tour-cover__copy">
+    <span className="tour-cover__kicker">Your next presentation</span>
+    <h1>
       <span>Bring the idea.</span>
       <span className="tour-cover__shift">Direct the experience.</span>
-    </>
-  }
-  deck="Write with AI. Present live. Share the exact moment. Keep the story useful after the room moves on."
-  meta={
-    <span className="drever-example-exit tour-cover__links">
+    </h1>
+    <p>AI shapes the first draft. You decide what the room experiences.</p>
+    <div className="drever-example-exit tour-cover__links">
       <a
         className="drever-example-exit__primary"
         data-drever-showcase-return=""
@@ -352,15 +374,18 @@ import "./tour.css";
       >
         Create your own <span aria-hidden="true">↗</span>
       </a>
-      <a className="drever-example-exit__secondary" href="https://drever.dev/showcase">
-        Explore more examples <span aria-hidden="true">→</span>
+      <a className="drever-example-exit__secondary" href="https://drever.dev/showcase/motion">
+        See motion in practice <span aria-hidden="true">→</span>
       </a>
-    </span>
-  }
-  tone="ink"
-/>
+      <a className="drever-example-exit__secondary" href="https://drever.dev/showcase/features">
+        Explore the feature gallery <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </div>
+  <RoomResponse phase="closing" />
+</section>
 
 <Note>
-  Close on agency and a concrete product promise. Drever is for anyone with a story to tell—not only
-  developers—and AI handles the first draft without taking away direction.
+  Close on agency and a concrete product promise. Drever is for anyone with a story to tell, while
+  AI handles the first draft without taking away direction.
 </Note>

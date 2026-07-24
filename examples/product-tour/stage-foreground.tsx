@@ -4,29 +4,35 @@ import type { ReactElement } from "react";
 const page = (value: number): string => String(value).padStart(2, "0");
 
 const chapter = (slideIndex: number): string => {
-  if (slideIndex < 2) return "01 · Start";
-  if (slideIndex < 5) return "02 · Direct";
-  if (slideIndex < 8) return "03 · Present & share";
-  if (slideIndex < 10) return "04 · One story";
+  if (slideIndex < 3) return "01 · Shape";
+  if (slideIndex < 6) return "02 · Direct";
+  if (slideIndex < 9) return "03 · Carry";
+  if (slideIndex < 11) return "04 · One story";
   return "05 · Begin";
+};
+
+const signalPosition = (slideIndex: number, slideCount: number): string => {
+  if (slideIndex === 0 || slideIndex === slideCount - 1) return "edge";
+  if (slideIndex === 3 || slideIndex === 4) return "room";
+  return "frame";
 };
 
 export default function ProductTourForeground({
   manifest,
   position,
 }: StageLayerProps): ReactElement {
-  const edgeSignal =
-    position.slideIndex === 0 || position.slideIndex === manifest.slides.length - 1;
   const storyState =
-    position.slideIndex === 8 ? "source" : position.slideIndex === 9 ? "result" : undefined;
+    position.slideIndex === 9 ? "source" : position.slideIndex === 10 ? "result" : undefined;
 
   return (
     <div
       aria-hidden="true"
       className="tour-stage-foreground"
-      data-signal-position={edgeSignal ? "edge" : "frame"}
+      data-signal-position={signalPosition(position.slideIndex, manifest.slides.length)}
     >
-      <span className="tour-stage-foreground__signal" data-testid="tour-stage-signal" />
+      <span className="tour-stage-foreground__signal" data-testid="tour-stage-signal">
+        <i />
+      </span>
       {storyState === undefined ? null : (
         <div
           className="tour-stage-foreground__story"

@@ -72,7 +72,7 @@ Catalog: https://drever.dev/showcase
 - Construct: https://drever.dev/demos/design/construct/
 
 Each demo is a complete static Drever build. Append `/speaker` for Speaker View or `/document` for
-Document View. Audience paths such as `/4/2` select an exact slide and sparse Step.
+Document View. Audience paths such as `/5/2` select an exact slide and sparse Step.
 
 ## Implemented capabilities
 

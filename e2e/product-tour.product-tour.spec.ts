@@ -1,4 +1,4 @@
-import { expect, test, type Locator } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import { expectStableBounds, readElementBounds } from "./support/element-bounds.ts";
 import { monitorPageHealth } from "./support/page-health.ts";
 import {
@@ -10,50 +10,83 @@ import {
 
 const activeSlide = '[data-drever-slide][data-slide-state="active"]';
 
-const readTranslate = (locator: Locator): Promise<readonly [number, number]> =>
+type ElementContract = Readonly<{
+  bounds: Readonly<{ height: number; width: number; x: number; y: number }>;
+  paint: Readonly<{
+    backgroundColor: string;
+    borderColor: string;
+    boxShadow: string;
+  }>;
+}>;
+
+const readElementContract = (locator: Locator): Promise<ElementContract> =>
   locator.evaluate((element) => {
-    const [x = "0", y = "0"] = getComputedStyle(element).translate.split(" ");
-    return [Number.parseFloat(x), Number.parseFloat(y)] as const;
+    const bounds = element.getBoundingClientRect();
+    const style = getComputedStyle(element);
+    return {
+      bounds: {
+        height: bounds.height,
+        width: bounds.width,
+        x: bounds.x,
+        y: bounds.y,
+      },
+      paint: {
+        backgroundColor: style.backgroundColor,
+        borderColor: style.borderColor,
+        boxShadow: style.boxShadow,
+      },
+    };
   });
 
-test("the product tour proves interaction, persistence, and the speaker workflow", async ({
-  page,
-}) => {
+const expectSameSize = (
+  actual: ElementContract["bounds"],
+  expected: ElementContract["bounds"],
+): void => {
+  expect(actual.width).toBeCloseTo(expected.width, 3);
+  expect(actual.height).toBeCloseTo(expected.height, 3);
+};
+
+const transitionPseudos = (page: Page): Promise<readonly string[]> =>
+  page.evaluate(() =>
+    document.documentElement.getAnimations({ subtree: true }).flatMap((animation) => {
+      const pseudo = Reflect.get(animation.effect ?? {}, "pseudoElement");
+      return typeof pseudo === "string" ? [pseudo] : [];
+    }),
+  );
+
+test("the audience choice persists and speaker view keeps private context", async ({ page }) => {
   const health = monitorPageHealth(page);
-  await page.goto("/3");
+  await page.goto("/4");
 
   await expect(page.locator(activeSlide)).toContainText("Ask the room.");
   const explore = page.getByRole("button", { name: "Let me try" });
   await explore.click();
   await expect(explore).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("status")).toContainText("Hand over control");
+  await expect(page.getByTestId("tour-stage-background")).toHaveAttribute("data-signal", "explore");
 
   await explore.blur();
   await page.keyboard.press("ArrowRight");
-  await expect(page).toHaveURL(/\/4$/u);
+  await expect(page).toHaveURL(/\/5$/u);
   await page.goBack();
-  await expect(page).toHaveURL(/\/3$/u);
+  await expect(page).toHaveURL(/\/4$/u);
   await expect(explore).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("status")).toContainText("Hand over control");
 
   const speakerPromise = page.waitForEvent("popup");
   await page.keyboard.press("p");
   const speaker = await speakerPromise;
   const speakerHealth = monitorPageHealth(speaker);
-  await expect(speaker).toHaveURL(/\/speaker\/3$/u);
+  await expect(speaker).toHaveURL(/\/speaker\/4$/u);
   await expect(speaker.locator("[data-drever-speaker]")).toBeVisible();
-  await expect(speaker.getByTestId("speaker-notes")).toContainText("keeps its state");
+  await expect(speaker.getByTestId("speaker-notes")).toContainText("choice remains");
   await expect(speaker.getByTestId("rehearsal-target")).toHaveValue("20");
 
   const relations = await speaker.evaluate(() => {
-    const references = [
-      ...Array.from(document.querySelectorAll(".tour-signal[aria-labelledby]"), (element) =>
-        element.getAttribute("aria-labelledby"),
-      ),
-      ...Array.from(
-        document.querySelectorAll(".tour-motion__button[aria-describedby]"),
-        (element) => element.getAttribute("aria-describedby"),
-      ),
-    ].filter((value): value is string => value !== null);
+    const references = Array.from(
+      document.querySelectorAll(".tour-signal[aria-labelledby]"),
+      (element) => element.getAttribute("aria-labelledby"),
+    ).filter((value): value is string => value !== null);
     const counts = new Map<string, number>();
     for (const { id } of document.querySelectorAll<HTMLElement>("[id]")) {
       counts.set(id, (counts.get(id) ?? 0) + 1);
@@ -72,43 +105,68 @@ test("the product tour proves interaction, persistence, and the speaker workflow
   health.expectHealthy();
 });
 
-test("the narrative connects an editable brief, exact routes, and local story motion", async ({
-  page,
-}) => {
+test("authored Steps and exact links restore the intended presentation state", async ({ page }) => {
   const health = monitorPageHealth(page);
-  await page.goto("/2");
 
-  await expect(page.locator(activeSlide)).toContainText("Tell your AI what must happen");
-  await expect(page.locator(`${activeSlide} .tour-brief__input`)).toContainText(
-    "Approve the launch pilot",
+  await page.goto("/3");
+  const directedBeat = page.locator(`${activeSlide} .tour-route__path [data-drever-step="1"]`);
+  await expect(directedBeat).toHaveAttribute("data-step-state", "pending");
+  await page.keyboard.press("ArrowRight");
+  await expect(page).toHaveURL(/\/3\/1$/u);
+  await expect(directedBeat).toHaveAttribute("data-step-state", "active");
+  await expect(directedBeat).toContainText("Ask the room");
+
+  await page.goto("/5");
+  const outcomeSteps = page.locator(`${activeSlide} .tour-outcome__beats > [data-drever-step]`);
+  await expect(outcomeSteps).toHaveCount(2);
+  await expect(outcomeSteps.first()).toHaveAttribute("data-step-state", "pending");
+  await page.keyboard.press("ArrowRight");
+  await expect(page).toHaveURL(/\/5\/1$/u);
+  await expect(outcomeSteps.first()).toHaveAttribute("data-step-state", "active");
+  await page.keyboard.press("ArrowRight");
+  await expect(page).toHaveURL(/\/5\/2$/u);
+  await expect(outcomeSteps.first()).toHaveAttribute("data-step-state", "complete");
+  await expect(outcomeSteps.nth(1)).toHaveAttribute("data-step-state", "active");
+  await expect(page.locator(activeSlide).getByTestId("decision-proof")).toBeVisible();
+  await page.reload();
+  await expect(page).toHaveURL(/\/5\/2$/u);
+  await expect(
+    page.locator(`${activeSlide} .tour-outcome__beats > [data-drever-step="2"]`),
+  ).toHaveAttribute("data-step-state", "active");
+
+  await page.goto("/6");
+  const decision = page.locator(
+    `${activeSlide} .tour-decision__confirmation [data-drever-step="1"]`,
   );
-  await expect(page.locator(`${activeSlide} .tour-brief__story`)).toContainText("Reveal the proof");
+  await expect(decision).toHaveAttribute("data-step-state", "pending");
+  await page.keyboard.press("ArrowRight");
+  await expect(page).toHaveURL(/\/6\/1$/u);
+  await expect(decision).toHaveAttribute("data-step-state", "active");
+  await expect(decision).toContainText("Approve the three-team pilot");
 
-  await page.goto("/7");
-  await expect(page.locator(activeSlide)).toContainText("Send the moment, not directions.");
-  const feature = page.locator(activeSlide).locator('[data-drever-layout="feature"]');
-  await expect(feature).toBeVisible();
-  await expect(feature.locator("figure")).toHaveCSS("margin-left", "0px");
-  await expect(feature.locator("figure")).toHaveCSS("margin-right", "0px");
-  const stateLink = page.getByRole("link", { name: "Open the shared slide state in a new tab" });
-  await expect(stateLink).toHaveAttribute("href", "4/2");
+  await page.goto("/8");
+  const stateLink = page.getByRole("link", {
+    name: "Open the shared slide state in a new tab",
+  });
+  await expect(stateLink).toHaveAttribute("href", "5/2");
   const statePopupPromise = page.waitForEvent("popup");
   await stateLink.click();
   const statePopup = await statePopupPromise;
-  await expect(statePopup).toHaveURL(/\/4\/2$/u);
+  await expect(statePopup).toHaveURL(/\/5\/2$/u);
   await expect(statePopup.locator(`${activeSlide} [data-drever-step="2"]`)).toHaveAttribute(
     "data-step-state",
     "active",
   );
+  await expect(statePopup.locator(activeSlide).getByTestId("decision-proof")).toBeVisible();
   await statePopup.reload();
-  await expect(statePopup).toHaveURL(/\/4\/2$/u);
+  await expect(statePopup).toHaveURL(/\/5\/2$/u);
   await expect(statePopup.locator(`${activeSlide} [data-drever-step="2"]`)).toHaveAttribute(
     "data-step-state",
     "active",
   );
   await statePopup.close();
 
-  await page.goto("/8");
+  await page.goto("/9");
   const documentLink = page.getByRole("link", { name: "Open Document View in a new tab" });
   await expect(documentLink).toHaveAttribute("href", "document");
   const documentPopupPromise = page.waitForEvent("popup");
@@ -118,42 +176,34 @@ test("the narrative connects an editable brief, exact routes, and local story mo
   await expect(documentPopup.locator("[data-drever-document]")).toBeVisible();
   await documentPopup.close();
 
-  await page.goto("/5");
-  const canvasModel = page.locator(".tour-motion__canvas");
-  await expect(canvasModel).toContainText("Question");
-  await page.getByRole("button", { name: "Show next moment" }).click();
-  await expect(canvasModel).toContainText("Evidence");
-  await expect(page.getByRole("status")).toContainText("96% of pilot teams");
-
   health.expectHealthy();
 });
 
-test("the global stage stays mounted while slides and Steps change independently", async ({
-  page,
-}) => {
+test("the global Stage keeps one identity while Steps and slides change", async ({ page }) => {
   const health = monitorPageHealth(page);
   await monitorViewTransitions(page);
-  await page.goto("/4");
+  await page.goto("/5");
 
   const canvas = page.locator("[data-drever-canvas]");
   const stage = page.locator("[data-drever-stage]");
   const backgroundLayer = page.locator('[data-drever-stage-layer="background"]');
   const background = page.getByTestId("tour-stage-background");
+  const signal = page.getByTestId("tour-stage-signal");
   const pageNumber = page.getByTestId("tour-stage-page-number");
   const initialBounds = await readElementBounds(stage);
 
   await expect(stage).toHaveCount(1);
-  await expect(stage).toHaveAttribute("data-page-number", "4");
+  await expect(stage).toHaveAttribute("data-page-number", "5");
   await expect(stage).toHaveAttribute("data-current-step", "0");
   await expect(backgroundLayer).toHaveAttribute("aria-hidden", "true");
   await expect(backgroundLayer).toHaveAttribute("inert", "");
   await expect(background).toHaveCSS("view-transition-name", "none");
-  await expect(pageNumber).toHaveText("04 / 11");
+  await expect(signal).toHaveCSS("view-transition-name", "none");
+  await expect(pageNumber).toHaveText("05 / 12");
   await expect(pageNumber).toHaveCSS("view-transition-name", "none");
   await expect(page.locator(activeSlide)).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
   expectStableBounds(await readElementBounds(canvas), initialBounds);
   expectStableBounds(await readElementBounds(backgroundLayer), initialBounds);
-  expectStableBounds(await readElementBounds(background), initialBounds);
 
   await page.evaluate(() => {
     const select = (selector: string): Element => {
@@ -165,6 +215,7 @@ test("the global stage stays mounted while slides and Steps change independently
       background: select('[data-testid="tour-stage-background"]'),
       backgroundLayer: select('[data-drever-stage-layer="background"]'),
       pageNumber: select('[data-testid="tour-stage-page-number"]'),
+      signal: select('[data-testid="tour-stage-signal"]'),
       stage: select("[data-drever-stage]"),
     });
   });
@@ -173,7 +224,7 @@ test("the global stage stays mounted while slides and Steps change independently
       const remembered = Reflect.get(globalThis, "__dreverProductTourStageNodes") as
         | Readonly<Record<string, Element>>
         | undefined;
-      if (remembered === undefined) throw new Error("The persistent stage nodes were not saved.");
+      if (remembered === undefined) throw new Error("The persistent Stage nodes were not saved.");
       return {
         background:
           remembered.background === document.querySelector('[data-testid="tour-stage-background"]'),
@@ -183,40 +234,38 @@ test("the global stage stays mounted while slides and Steps change independently
         pageNumber:
           remembered.pageNumber ===
           document.querySelector('[data-testid="tour-stage-page-number"]'),
+        signal: remembered.signal === document.querySelector('[data-testid="tour-stage-signal"]'),
         stage: remembered.stage === document.querySelector("[data-drever-stage]"),
       };
     });
 
   await page.keyboard.press("ArrowRight");
-  await expect(page).toHaveURL(/\/4\/1$/u);
+  await expect(page).toHaveURL(/\/5\/1$/u);
   await expect(stage).toHaveAttribute("data-current-step", "1");
-  await expect(pageNumber).toHaveText("04 / 11");
+  await expect(pageNumber).toHaveText("05 / 12");
   expect(await stageIdentity()).toEqual({
     background: true,
     backgroundLayer: true,
     pageNumber: true,
+    signal: true,
     stage: true,
   });
-  expectStableBounds(await readElementBounds(stage), initialBounds);
-  expectStableBounds(await readElementBounds(background), initialBounds);
   expect(await readViewTransitionCalls(page)).toEqual([]);
 
   const nextSlide = await captureNextViewTransition(page, () => page.keyboard.press("ArrowDown"));
   await waitForViewTransition(page, nextSlide, "ready");
-  await expect(page).toHaveURL(/\/5$/u);
-  await expect(stage).toHaveAttribute("data-page-number", "5");
+  await expect(page).toHaveURL(/\/6$/u);
+  await expect(stage).toHaveAttribute("data-page-number", "6");
   await expect(stage).toHaveAttribute("data-current-step", "0");
-  await expect(pageNumber).toHaveText("05 / 11");
-  await expect(page.locator(activeSlide)).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+  await expect(pageNumber).toHaveText("06 / 12");
   expect(await stageIdentity()).toEqual({
     background: true,
     backgroundLayer: true,
     pageNumber: true,
+    signal: true,
     stage: true,
   });
   expectStableBounds(await readElementBounds(stage), initialBounds);
-  expectStableBounds(await readElementBounds(backgroundLayer), initialBounds);
-  expectStableBounds(await readElementBounds(background), initialBounds);
   await waitForViewTransition(page, nextSlide, "finished");
 
   expect(await readViewTransitionCalls(page)).toEqual([
@@ -225,152 +274,69 @@ test("the global stage stays mounted while slides and Steps change independently
   health.expectHealthy();
 });
 
-test("the recurring Signal keeps one identity and geometry across the stage", async ({ page }) => {
-  const health = monitorPageHealth(page);
-  await monitorViewTransitions(page);
-  await page.goto("/");
-
-  const foreground = page.locator(".tour-stage-foreground");
-  const signal = page.getByTestId("tour-stage-signal");
-  const readSignalPaint = () =>
-    signal.evaluate((element) => {
-      const style = getComputedStyle(element);
-      return {
-        backgroundColor: style.backgroundColor,
-        borderRightColor: style.borderRightColor,
-        opacity: style.opacity,
-      };
-    });
-  const finishSignalMotion = () =>
-    signal.evaluate(async (element) => {
-      await Promise.all(element.getAnimations().map(({ finished }) => finished));
-    });
-
-  await expect(foreground).toHaveAttribute("data-signal-position", "edge");
-  await expect(signal).toHaveCSS("view-transition-name", "none");
-  const openingBounds = await readElementBounds(signal);
-  const openingPaint = await readSignalPaint();
-  await signal.evaluate((element) => {
-    Reflect.set(globalThis, "__dreverProductTourSignal", element);
-  });
-
-  const frameTransition = await captureNextViewTransition(page, () =>
-    page.keyboard.press("ArrowDown"),
-  );
-  await waitForViewTransition(page, frameTransition, "ready");
-  await expect(page).toHaveURL(/\/2$/u);
-  await expect(foreground).toHaveAttribute("data-signal-position", "frame");
-  expect(
-    await signal.evaluate(
-      (element) => element === Reflect.get(globalThis, "__dreverProductTourSignal"),
-    ),
-  ).toBe(true);
-  await expect(signal).toHaveCSS("transition-property", "translate");
-  await waitForViewTransition(page, frameTransition, "finished");
-  await finishSignalMotion();
-  const frameBounds = await readElementBounds(signal);
-  expect(frameBounds.width).toBeCloseTo(openingBounds.width, 3);
-  expect(frameBounds.height).toBeCloseTo(openingBounds.height, 3);
-  expect(frameBounds.x).not.toBeCloseTo(openingBounds.x, 3);
-  expect(frameBounds.y).not.toBeCloseTo(openingBounds.y, 3);
-  expect(await readSignalPaint()).toEqual(openingPaint);
-
-  const persistentTransition = await captureNextViewTransition(page, () =>
-    page.keyboard.press("ArrowDown"),
-  );
-  await waitForViewTransition(page, persistentTransition, "ready");
-  await expect(page).toHaveURL(/\/3$/u);
-  await expect(foreground).toHaveAttribute("data-signal-position", "frame");
-  expect(await signal.evaluate((element) => element.getAnimations().length)).toBe(0);
-  await waitForViewTransition(page, persistentTransition, "finished");
-  expectStableBounds(await readElementBounds(signal), frameBounds);
-
-  health.expectHealthy();
-});
-
-test("semantic focus and local replacement preserve stable geometry", async ({ page }) => {
-  const health = monitorPageHealth(page);
-  await monitorViewTransitions(page);
-
-  await page.goto("/4");
-  const focus = page.locator(`${activeSlide} [data-motion-intent="focus"]`);
-  const focusSteps = focus.locator(":scope > [data-drever-step]");
-  const focusBounds = await readElementBounds(focus);
-  await expect(focus).toHaveAttribute("data-motion-flow", "block");
-  await expect(focusSteps).toHaveCount(3);
-  await expect(focusSteps.first()).toHaveAttribute("data-step-state", "pending");
-  await expect(focusSteps.first()).toHaveAttribute("aria-hidden", "true");
-  expect(await readTranslate(focusSteps.first())).toEqual([0, 12]);
-  await expect(focusSteps.first()).toHaveCSS("scale", "1");
-
-  await page.keyboard.press("ArrowRight");
-  await expect(page).toHaveURL(/\/4\/1$/u);
-  expectStableBounds(await readElementBounds(focus), focusBounds);
-  await expect(focusSteps.first()).toHaveAttribute("data-step-state", "active");
-  await expect(focusSteps.first()).not.toHaveAttribute("aria-hidden", "true");
-
-  await page.keyboard.press("ArrowRight");
-  await expect(page).toHaveURL(/\/4\/2$/u);
-  expectStableBounds(await readElementBounds(focus), focusBounds);
-  await expect(focusSteps.first()).toHaveAttribute("data-step-state", "complete");
-  await expect(focusSteps.first()).not.toHaveAttribute("inert", "");
-  await expect(focusSteps.nth(1)).toHaveAttribute("data-step-state", "active");
-  await expect(focusSteps.first()).toHaveCSS("opacity", "1");
-  await expect(focusSteps.nth(1)).toHaveCSS("opacity", "1");
-  await expect
-    .poll(() =>
-      focusSteps
-        .first()
-        .locator(".tour-moment")
-        .evaluate((element) => getComputedStyle(element, "::before").opacity),
-    )
-    .toBe("0");
-  await expect
-    .poll(() =>
-      focusSteps
-        .nth(1)
-        .locator(".tour-moment")
-        .evaluate((element) => getComputedStyle(element, "::before").opacity),
-    )
-    .toBe("1");
-
-  await page.goto("/5");
-  const motionStage = page.locator(".tour-motion__stage");
-  const motionCanvas = page.locator(".tour-motion__canvas");
-  const stageBounds = await readElementBounds(motionStage);
-  const canvasBounds = await readElementBounds(motionCanvas);
-  await page.getByRole("button", { name: "Show next moment" }).click();
-  await expect(motionCanvas).toContainText("Evidence");
-  expectStableBounds(await readElementBounds(motionStage), stageBounds);
-  expectStableBounds(await readElementBounds(motionCanvas), canvasBounds);
-  await page.getByRole("button", { name: "Show next moment" }).click();
-  await expect(motionCanvas).toContainText("Decision");
-  expectStableBounds(await readElementBounds(motionStage), stageBounds);
-  expectStableBounds(await readElementBounds(motionCanvas), canvasBounds);
-
-  expect(await readViewTransitionCalls(page)).toEqual([]);
-  health.expectHealthy();
-});
-
-test("the one-story transition moves only related copy while its project card stays still", async ({
+test("the decision proof keeps stable geometry and paint through forward and reverse continuity", async ({
   page,
 }) => {
   const health = monitorPageHealth(page);
   await monitorViewTransitions(page);
-  await page.goto("/9");
+  await page.goto("/5/2");
 
-  const continuity = page.locator(`${activeSlide} [data-testid="motion-continuity"]`);
+  const group = page.locator(`${activeSlide} [data-motion-name="decision-proof"]`);
+  const proof = page.locator(`${activeSlide} [data-testid="decision-proof"]`);
+  await expect(group).toHaveAttribute("data-motion-intent", "continuity");
+  await expect(group).toHaveCSS("view-transition-name", "drever-decision-proof");
+  const sourceGroup = await readElementContract(group);
+  const sourceProof = await readElementContract(proof);
+
+  const forward = await captureNextViewTransition(page, () => page.keyboard.press("ArrowRight"));
+  await waitForViewTransition(page, forward, "ready");
+  await expect(page).toHaveURL(/\/6$/u);
+  expect(await transitionPseudos(page)).toContain("::view-transition-group(drever-decision-proof)");
+  await waitForViewTransition(page, forward, "finished");
+
+  const decisionGroup = await readElementContract(group);
+  const decisionProof = await readElementContract(proof);
+  expectSameSize(decisionGroup.bounds, sourceGroup.bounds);
+  expectSameSize(decisionProof.bounds, sourceProof.bounds);
+  expect(decisionProof.paint).toEqual(sourceProof.paint);
+  expect(decisionGroup.bounds.x).not.toBeCloseTo(sourceGroup.bounds.x, 3);
+
+  const backward = await captureNextViewTransition(page, () => page.keyboard.press("ArrowLeft"));
+  await waitForViewTransition(page, backward, "ready");
+  await expect(page).toHaveURL(/\/5\/2$/u);
+  expect(await transitionPseudos(page)).toContain("::view-transition-group(drever-decision-proof)");
+  await waitForViewTransition(page, backward, "finished");
+
+  const returnedGroup = await readElementContract(group);
+  const returnedProof = await readElementContract(proof);
+  expectStableBounds(returnedGroup.bounds, sourceGroup.bounds);
+  expectStableBounds(returnedProof.bounds, sourceProof.bounds);
+  expect(returnedProof.paint).toEqual(sourceProof.paint);
+  expect(await readViewTransitionCalls(page)).toEqual([
+    { kind: "element", target: "deck", types: ["drever-slide-forward"] },
+    { kind: "element", target: "deck", types: ["drever-slide-backward"] },
+  ]);
+  health.expectHealthy();
+});
+
+test("the story core and persistent headline preserve their continuity in both directions", async ({
+  page,
+}) => {
+  const health = monitorPageHealth(page);
+  await monitorViewTransitions(page);
+  await page.goto("/10");
+
+  const coreGroup = page.locator(`${activeSlide} [data-motion-name="story-core"]`);
+  const core = page.locator(`${activeSlide} [data-testid="story-core"]`);
   const story = page.getByTestId("tour-stage-story");
-  const readContinuityContract = () =>
-    continuity.evaluate((element) => {
+  const readStoryState = () =>
+    story.evaluate((element) => {
       const bounds = element.getBoundingClientRect();
-      const article = element.querySelector("article");
-      const text = element.querySelector("strong");
-      if (article === null || text === null) {
-        throw new Error("The continuity example requires an article and primary label.");
+      const source = element.querySelector<HTMLElement>('[data-story-copy="source"]');
+      const result = element.querySelector<HTMLElement>('[data-story-copy="result"]');
+      if (source === null || result === null) {
+        throw new Error("The persistent story slot requires both copies.");
       }
-      const articleStyle = getComputedStyle(article);
-      const textStyle = getComputedStyle(text);
       return {
         bounds: {
           height: bounds.height,
@@ -378,49 +344,14 @@ test("the one-story transition moves only related copy while its project card st
           x: bounds.x,
           y: bounds.y,
         },
-        label: element.textContent?.replace(/\s+/gu, " ").trim(),
-        paint: {
-          backgroundColor: articleStyle.backgroundColor,
-          borderColor: articleStyle.borderColor,
-          boxShadow: articleStyle.boxShadow,
+        result: {
+          opacity: getComputedStyle(result).opacity,
+          translate: getComputedStyle(result).translate,
         },
-        text: {
-          fontFamily: textStyle.fontFamily,
-          fontSize: textStyle.fontSize,
-          fontStretch: textStyle.fontStretch,
-          fontWeight: textStyle.fontWeight,
-          letterSpacing: textStyle.letterSpacing,
-          lineHeight: textStyle.lineHeight,
+        source: {
+          opacity: getComputedStyle(source).opacity,
+          translate: getComputedStyle(source).translate,
         },
-      };
-    });
-  const readStoryContract = () =>
-    story.evaluate((element) => {
-      const bounds = element.getBoundingClientRect();
-      const source = element.querySelector<HTMLElement>('[data-story-copy="source"]');
-      const result = element.querySelector<HTMLElement>('[data-story-copy="result"]');
-      if (source === null || result === null)
-        throw new Error("The story slot requires both copies.");
-      const readCopy = (copy: HTMLElement) => {
-        const style = getComputedStyle(copy);
-        return {
-          metrics: {
-            color: style.color,
-            fontFamily: style.fontFamily,
-            fontSize: style.fontSize,
-            fontStretch: style.fontStretch,
-            fontWeight: style.fontWeight,
-            letterSpacing: style.letterSpacing,
-            lineHeight: style.lineHeight,
-          },
-          opacity: style.opacity,
-          translate: style.translate,
-        };
-      };
-      return {
-        bounds: { height: bounds.height, width: bounds.width, x: bounds.x, y: bounds.y },
-        result: readCopy(result),
-        source: readCopy(source),
       };
     });
   const finishStoryMotion = () =>
@@ -428,63 +359,49 @@ test("the one-story transition moves only related copy while its project card st
       await Promise.all(element.getAnimations({ subtree: true }).map(({ finished }) => finished));
     });
 
-  await expect(continuity).toHaveAttribute("data-motion-name", "deck-contract");
-  await expect(continuity).toHaveCSS("view-transition-name", "drever-deck-contract");
+  await expect(coreGroup).toHaveCSS("view-transition-name", "drever-story-core");
   await expect(story).toHaveCSS("view-transition-name", "none");
   await expect(story).toHaveAttribute("data-story-state", "source");
-  const sourceContract = await readContinuityContract();
-  const sourceStory = await readStoryContract();
+  const sourceGroup = await readElementContract(coreGroup);
+  const sourceCore = await readElementContract(core);
+  const sourceStory = await readStoryState();
   await story.evaluate((element) => {
     Reflect.set(globalThis, "__dreverProductTourStory", element);
   });
 
-  const forwardTransition = await captureNextViewTransition(page, () =>
-    page.keyboard.press("ArrowRight"),
-  );
-  await waitForViewTransition(page, forwardTransition, "ready");
-  await expect(page).toHaveURL(/\/10$/u);
-  const pseudos = await page.evaluate(() =>
-    document.documentElement.getAnimations({ subtree: true }).flatMap((animation) => {
-      const pseudo = Reflect.get(animation.effect ?? {}, "pseudoElement");
-      return typeof pseudo === "string" ? [pseudo] : [];
-    }),
-  );
-  expect(pseudos).toContain("::view-transition-group(drever-deck-contract)");
-  expect(pseudos.some((pseudo) => pseudo.includes("story-signal"))).toBe(false);
+  const forward = await captureNextViewTransition(page, () => page.keyboard.press("ArrowRight"));
+  await waitForViewTransition(page, forward, "ready");
+  await expect(page).toHaveURL(/\/11$/u);
+  expect(await transitionPseudos(page)).toContain("::view-transition-group(drever-story-core)");
   await expect(story).toHaveAttribute("data-story-state", "result");
   expect(
     await story.evaluate(
       (element) => element === Reflect.get(globalThis, "__dreverProductTourStory"),
     ),
   ).toBe(true);
-  await waitForViewTransition(page, forwardTransition, "finished");
+  await waitForViewTransition(page, forward, "finished");
   await finishStoryMotion();
 
-  const resultContract = await readContinuityContract();
-  const resultStory = await readStoryContract();
-  expectStableBounds(resultContract.bounds, sourceContract.bounds);
-  expect(resultContract.label).toBe(sourceContract.label);
-  expect(resultContract.paint).toEqual(sourceContract.paint);
-  expect(resultContract.text).toEqual(sourceContract.text);
+  const resultGroup = await readElementContract(coreGroup);
+  const resultCore = await readElementContract(core);
+  const resultStory = await readStoryState();
+  expectStableBounds(resultGroup.bounds, sourceGroup.bounds);
+  expectStableBounds(resultCore.bounds, sourceCore.bounds);
+  expect(resultCore.paint).toEqual(sourceCore.paint);
   expectStableBounds(resultStory.bounds, sourceStory.bounds);
-  expect(resultStory.result.metrics).toEqual(resultStory.source.metrics);
   expect(resultStory.source.opacity).toBe("0");
   expect(resultStory.result.opacity).toBe("1");
   expect(resultStory.source.translate).not.toBe("0px");
   expect(resultStory.result.translate).toBe("0px");
 
-  const backwardTransition = await captureNextViewTransition(page, () =>
-    page.keyboard.press("ArrowLeft"),
-  );
-  await waitForViewTransition(page, backwardTransition, "ready");
-  await expect(page).toHaveURL(/\/9$/u);
-  await waitForViewTransition(page, backwardTransition, "finished");
+  const backward = await captureNextViewTransition(page, () => page.keyboard.press("ArrowLeft"));
+  await waitForViewTransition(page, backward, "ready");
+  await expect(page).toHaveURL(/\/10$/u);
+  await waitForViewTransition(page, backward, "finished");
   await finishStoryMotion();
   await expect(story).toHaveAttribute("data-story-state", "source");
-  const returnedContract = await readContinuityContract();
-  expectStableBounds(returnedContract.bounds, sourceContract.bounds);
-  expect(returnedContract.paint).toEqual(sourceContract.paint);
-  expectStableBounds((await readStoryContract()).bounds, sourceStory.bounds);
+  expectStableBounds((await readElementContract(coreGroup)).bounds, sourceGroup.bounds);
+  expectStableBounds((await readStoryState()).bounds, sourceStory.bounds);
 
   expect(await readViewTransitionCalls(page)).toEqual([
     { kind: "element", target: "deck", types: ["drever-slide-forward"] },
@@ -493,62 +410,57 @@ test("the one-story transition moves only related copy while its project card st
   health.expectHealthy();
 });
 
-test("reduced-motion audience state changes without motion capture", async ({ page }) => {
+test("reduced motion changes every authored state without capturing motion", async ({ page }) => {
   const health = monitorPageHealth(page);
   await monitorViewTransitions(page);
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/4");
 
+  await page.goto("/5");
   await page.getByRole("button", { name: "Next presentation state" }).click();
-  await expect(page).toHaveURL(/\/4\/1$/u);
+  await expect(page).toHaveURL(/\/5\/1$/u);
   await expect(page.locator(`${activeSlide} [data-drever-step="1"]`)).toHaveAttribute(
     "data-step-state",
     "active",
   );
   expect(await readViewTransitionCalls(page)).toEqual([]);
-  expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
 
-  await page.goto("/");
-  await page.getByRole("button", { name: "Next presentation state" }).click();
-  await expect(page).toHaveURL(/\/2$/u);
-  await expect(page.locator(".tour-stage-foreground")).toHaveAttribute(
-    "data-signal-position",
-    "frame",
-  );
-  expect(
-    await page
-      .getByTestId("tour-stage-signal")
-      .evaluate((element) => element.getAnimations().length),
-  ).toBe(0);
-
-  await page.goto("/9");
-  await expect(page.locator(`${activeSlide} [data-testid="motion-continuity"]`)).toHaveCSS(
+  await page.goto("/5/2");
+  await expect(page.locator(`${activeSlide} [data-motion-name="decision-proof"]`)).toHaveCSS(
     "view-transition-name",
     "none",
   );
   await page.getByRole("button", { name: "Next presentation state" }).click();
-  await expect(page).toHaveURL(/\/10$/u);
-  await expect(page.locator(activeSlide)).toHaveAttribute("id", "slide-10");
-  await expect(page.locator(`${activeSlide} [data-testid="motion-continuity"]`)).toHaveCSS(
+  await expect(page).toHaveURL(/\/6$/u);
+  await expect(page.locator(`${activeSlide} [data-motion-name="decision-proof"]`)).toHaveCSS(
     "view-transition-name",
     "none",
   );
+
+  await page.goto("/10");
+  await expect(page.locator(`${activeSlide} [data-motion-name="story-core"]`)).toHaveCSS(
+    "view-transition-name",
+    "none",
+  );
+  await page.getByRole("button", { name: "Next presentation state" }).click();
+  await expect(page).toHaveURL(/\/11$/u);
+  await expect(page.locator(`${activeSlide} [data-motion-name="story-core"]`)).toHaveCSS(
+    "view-transition-name",
+    "none",
+  );
+  await expect(page.getByTestId("tour-stage-story")).toHaveAttribute("data-story-state", "result");
   expect(await readViewTransitionCalls(page)).toEqual([]);
   expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
 
   health.expectHealthy();
 });
 
-test("speaker and document surfaces project static stages without motion identities", async ({
+test("speaker and document surfaces render the complete story without motion identities", async ({
   page,
 }) => {
   const health = monitorPageHealth(page);
   await page.emulateMedia({ reducedMotion: "no-preference" });
-  expect(await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches)).toBe(
-    false,
-  );
 
-  await page.goto("/speaker/9");
+  await page.goto("/speaker/7");
   const speakerCurrent = page.getByTestId("speaker-current");
   const speakerNext = page.getByTestId("speaker-next");
   await expect(speakerCurrent.locator("[data-drever-stage]")).toHaveAttribute(
@@ -559,38 +471,54 @@ test("speaker and document surfaces project static stages without motion identit
     "data-drever-render-mode",
     "speaker-next",
   );
-  await expect(speakerCurrent.getByTestId("tour-stage-background")).toHaveCount(1);
-  await expect(speakerNext.getByTestId("tour-stage-background")).toHaveCount(1);
-  await expect(speakerCurrent.getByTestId("tour-stage-page-number")).toHaveText("09 / 11");
-  await expect(speakerNext.getByTestId("tour-stage-page-number")).toHaveText("10 / 11");
-  await expect(speakerCurrent.locator('[data-drever-stage-layer="background"]')).toHaveAttribute(
-    "inert",
-    "",
+  await expect(speakerCurrent.getByTestId("tour-stage-page-number")).toHaveText("07 / 12");
+  await expect(speakerNext.getByTestId("tour-stage-page-number")).toHaveText("08 / 12");
+  await expect(speakerCurrent.locator(activeSlide).getByTestId("decision-proof")).toBeVisible();
+  await expect(speakerNext.locator(activeSlide).getByTestId("decision-proof")).toBeVisible();
+  await expect(
+    speakerCurrent.locator(activeSlide).locator('[data-motion-name="decision-proof"]'),
+  ).toHaveCSS("view-transition-name", "none");
+  await expect(
+    speakerNext.locator(activeSlide).locator('[data-motion-name="decision-proof"]'),
+  ).toHaveCSS("view-transition-name", "none");
+
+  await page.goto("/speaker/10");
+  await expect(
+    page.getByTestId("speaker-current").getByTestId("tour-stage-page-number"),
+  ).toHaveText("10 / 12");
+  await expect(page.getByTestId("speaker-next").getByTestId("tour-stage-page-number")).toHaveText(
+    "11 / 12",
   );
-  await expect(speakerCurrent.getByTestId("tour-stage-background")).toHaveCSS(
-    "view-transition-name",
-    "none",
-  );
-  await expect(speakerCurrent.locator(activeSlide).getByTestId("motion-continuity")).toHaveCSS(
-    "view-transition-name",
-    "none",
-  );
-  await expect(speakerNext.locator(activeSlide).getByTestId("motion-continuity")).toHaveCSS(
-    "view-transition-name",
-    "none",
-  );
+  await expect(
+    page.getByTestId("speaker-current").locator(activeSlide).getByTestId("story-core"),
+  ).toBeVisible();
+  await expect(
+    page.getByTestId("speaker-next").locator(activeSlide).getByTestId("story-core"),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByTestId("speaker-current")
+      .locator(activeSlide)
+      .locator('[data-motion-name="story-core"]'),
+  ).toHaveCSS("view-transition-name", "none");
+  await expect(
+    page
+      .getByTestId("speaker-next")
+      .locator(activeSlide)
+      .locator('[data-motion-name="story-core"]'),
+  ).toHaveCSS("view-transition-name", "none");
 
   await page.goto("/document");
   const documentPages = page.locator("[data-drever-document-page]");
   const documentStages = documentPages.locator("[data-drever-stage]");
   const documentBackgrounds = documentPages.getByTestId("tour-stage-background");
   const documentPageNumbers = documentPages.getByTestId("tour-stage-page-number");
-  await expect(documentPages).toHaveCount(11);
-  await expect(documentStages).toHaveCount(11);
-  await expect(documentBackgrounds).toHaveCount(11);
-  await expect(documentPageNumbers).toHaveCount(11);
-  await expect(documentPages.first().getByTestId("tour-stage-page-number")).toHaveText("01 / 11");
-  await expect(documentPages.last().getByTestId("tour-stage-page-number")).toHaveText("11 / 11");
+  await expect(documentPages).toHaveCount(12);
+  await expect(documentStages).toHaveCount(12);
+  await expect(documentBackgrounds).toHaveCount(12);
+  await expect(documentPageNumbers).toHaveCount(12);
+  await expect(documentPages.first().getByTestId("tour-stage-page-number")).toHaveText("01 / 12");
+  await expect(documentPages.last().getByTestId("tour-stage-page-number")).toHaveText("12 / 12");
   await expect(documentStages.first()).toHaveAttribute("data-drever-render-mode", "document");
   await expect(documentStages.last()).toHaveAttribute("data-drever-render-mode", "document");
   await expect(documentBackgrounds.first()).toHaveCSS("view-transition-name", "none");
@@ -599,20 +527,25 @@ test("speaker and document surfaces project static stages without motion identit
     await readElementBounds(documentPages.first()),
   );
 
-  const documentContinuity = page
-    .locator("[data-drever-document]")
-    .getByTestId("motion-continuity");
-  await expect(documentContinuity).toHaveCount(2);
-  await expect(documentContinuity.first()).toHaveCSS("view-transition-name", "none");
-  await expect(documentContinuity.last()).toHaveCSS("view-transition-name", "none");
+  const documentProof = documentPages.nth(8).getByTestId("decision-proof");
+  await expect(documentProof).toBeVisible();
+  await expect(documentPages.nth(8).locator('[data-motion-name="decision-proof"]')).toHaveCSS(
+    "view-transition-name",
+    "none",
+  );
 
-  const documentFocusSteps = page
+  const documentStoryCores = page
     .locator("[data-drever-document]")
-    .locator('[data-motion-intent="focus"] > [data-drever-step]');
-  await expect(documentFocusSteps).toHaveCount(3);
-  for (let index = 0; index < 3; index += 1) {
-    await expect(documentFocusSteps.nth(index)).toBeVisible();
-    await expect(documentFocusSteps.nth(index)).not.toHaveAttribute("aria-hidden", "true");
+    .locator('[data-motion-name="story-core"]');
+  await expect(documentStoryCores).toHaveCount(2);
+  await expect(documentStoryCores.first()).toHaveCSS("view-transition-name", "none");
+  await expect(documentStoryCores.last()).toHaveCSS("view-transition-name", "none");
+
+  const documentSteps = page.locator("[data-drever-document] [data-drever-step]");
+  await expect(documentSteps).toHaveCount(4);
+  for (let index = 0; index < 4; index += 1) {
+    await expect(documentSteps.nth(index)).toBeVisible();
+    await expect(documentSteps.nth(index)).not.toHaveAttribute("aria-hidden", "true");
   }
   expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
 

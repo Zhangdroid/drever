@@ -39,7 +39,7 @@ export const documentationNavigation = [
 
 const demoContent = {
   product: {
-    meta: "Editorial · 11 slides",
+    meta: "Editorial · 12 slides",
   },
   features: {
     meta: "Studio · 12 slides",

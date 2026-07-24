@@ -17,7 +17,7 @@ export const siteRoutes = ["/", ...documentationRoutes, "/showcase"] as const;
 export const demoMounts = [
   {
     description:
-      "A complete story of creating, directing, sharing, and keeping a presentation useful.",
+      "A launch decision shaped with AI, directed by the room, grounded in proof, and kept useful afterward.",
     id: "product",
     label: "Product tour",
     slug: "product",

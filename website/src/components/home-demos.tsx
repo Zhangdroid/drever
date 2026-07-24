@@ -10,7 +10,7 @@ export function RoomMomentDemo() {
             <i aria-hidden="true" />
             Live room
           </span>
-          <code>/4/2</code>
+          <code>/5/2</code>
         </header>
 
         <div className="home-room-demo__canvas">
@@ -62,7 +62,7 @@ export function RoomMomentDemo() {
 
           <div className="home-room-demo__address">
             <span>Exact moment</span>
-            <strong>drever.dev/4/2</strong>
+            <strong>drever.dev/5/2</strong>
             <i aria-hidden="true" />
           </div>
         </div>
@@ -140,7 +140,7 @@ export function ConnectedSourceDemo() {
         <div className="home-connected-demo__surface" data-surface="document">
           <header>
             <span>Document</span>
-            <small>/4/2</small>
+            <small>/5/2</small>
           </header>
           <div>
             <strong>Make the decision clear.</strong>

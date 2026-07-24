@@ -1,20 +1,24 @@
 # Drever product tour
 
-An eleven-slide, network-free product story for people meeting Drever for the first
-time. It follows one launch decision from an AI-assisted brief through live interaction,
-speaker context, exact-state sharing, and post-meeting reading.
+A twelve-slide, network-free product story for people meeting Drever for the
+first time. It follows one concrete launch decision from a plain-language AI
+brief through human direction, a live room response, requested evidence, an
+explicit decision, exact-state sharing, and post-meeting reading.
 
 The deck demonstrates:
 
-- the official Editorial theme through its `Masthead` and `Feature` layouts;
-- the MDX, `---`, `Step`, and `Note` authoring contract behind a user-facing story;
-- accumulated Step states, clean path URLs, and exact-moment link copying;
-- React interaction whose state survives inactive slides;
-- content-driven local motion with a stable stage boundary;
+- a natural-language brief becoming an editable presentation route;
+- human direction added to an AI-authored outline with an addressable `Step`;
+- React interaction whose room response remains available to later slides;
+- a concrete concern-to-proof-to-decision sequence rather than a feature inventory;
+- stable continuity as the requested proof moves through audience, decision,
+  speaker, exact-link, and document contexts;
+- the exact `/5/2` evidence state, clean path URLs, and canonical link copying;
 - the searchable, fully revealed `/document` reading view;
-- speaker notes, focus tools, and the `/speaker` rehearsal view with a 20-minute target;
-- direct links to exact slide state, Document View, and the standalone feature and motion galleries;
-- one editable project projected into audience, speaker, and document surfaces.
+- speaker notes, focus tools, and the `/speaker` rehearsal view with a
+  20-minute target;
+- one editable story projected into audience, speaker, document, and export
+  surfaces.
 
 All visuals are CSS and local React components. There are no fonts, images,
 analytics, or network requests.
@@ -49,13 +53,17 @@ accessibility report without starting the presentation server.
 
 ## Delivery notes
 
-The third slide contains the main audience interaction; change its signal, navigate away,
-and return to show preserved React state. The fourth slide reveals three addressable
-Steps. On the fifth, use the local control to show motion following a changing idea while
-the global stage remains calm. Press `P` on the sixth slide to open the speaker surface,
-open the exact-state link on the seventh, or follow `/document` on the eighth to turn the
-post-meeting promise into a real reading surface. Slides nine and ten deliberately spend
-their entire motion budget on one related headline change; the shared project card and
-brand decoration remain still. The final slide links to the standalone Feature Gallery
-and Motion Recipes decks. Speaker guidance for every slide is authored in `<Note>` and
-intentionally absent from the audience DOM.
+The second slide turns a plain-language prompt into explicit presentation
+constraints. Advance once on slide three to direct the AI-authored route, then
+choose a room response on slide four. Slide five acknowledges that concern
+before revealing the requested proof at `/5/2`; slide six keeps the proof
+visible while the room records its decision.
+
+Press `P` on slide seven to open the real speaker surface. Slide eight links
+back to `/5/2`, while slide nine turns the same evidence into a real
+`/document` reading surface. Slides ten and eleven keep one story core stable
+while the related headline changes from “made once” to “alive everywhere” and
+its audience, speaker, document, and export surfaces appear. The final slide
+links to Getting Started, Motion Stories, and the Feature Gallery. Speaker
+guidance for every slide is authored in `<Note>` and intentionally absent from
+the audience DOM.
