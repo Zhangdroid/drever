@@ -126,7 +126,6 @@ export function ArtDirectionCover({ theme }: { theme: ThemeId }) {
       <div className="art-cover art-cover--fieldnote" aria-hidden="true">
         <header>
           <span>Research debrief · 02</span>
-          <small>Observed / 14:20</small>
         </header>
         <div className="fieldnote-cover__note">
           <i />
@@ -137,15 +136,6 @@ export function ArtDirectionCover({ theme }: { theme: ThemeId }) {
           </strong>
           <span>People stopped here</span>
         </div>
-        <div className="fieldnote-cover__trace">
-          <i />
-          <i />
-          <i />
-        </div>
-        <footer>
-          <span>Evidence → recommendation</span>
-          <small>03 / 05</small>
-        </footer>
       </div>
     );
   }
@@ -155,10 +145,8 @@ export function ArtDirectionCover({ theme }: { theme: ThemeId }) {
       <div className="art-cover art-cover--atlas" aria-hidden="true">
         <header>
           <span>Restoration corridor</span>
-          <small>37.8° N / 122.4° W</small>
         </header>
         <div className="atlas-cover__terrain">
-          <i />
           <i />
           <i />
           <i />
@@ -170,13 +158,8 @@ export function ArtDirectionCover({ theme }: { theme: ThemeId }) {
           <b />
         </div>
         <div className="atlas-cover__label">
-          <span>Current waypoint</span>
           <strong>Open the river edge</strong>
         </div>
-        <footer>
-          <span>Evidence along a route</span>
-          <small>03 / 05</small>
-        </footer>
       </div>
     );
   }
@@ -186,10 +169,8 @@ export function ArtDirectionCover({ theme }: { theme: ThemeId }) {
       <div className="art-cover art-cover--ledger" aria-hidden="true">
         <header>
           <span>Operating review / Q3</span>
-          <small>Verified close</small>
         </header>
         <div className="ledger-cover__metric">
-          <span>Completion rate</span>
           <strong>18.4%</strong>
           <b>+3.2 pts</b>
         </div>
@@ -200,14 +181,6 @@ export function ArtDirectionCover({ theme }: { theme: ThemeId }) {
           <i />
           <i />
         </div>
-        <div className="ledger-cover__decision">
-          <span>Decision boundary</span>
-          <strong>Fund the next 2 cohorts</strong>
-        </div>
-        <footer>
-          <span>Source · cohort_07.csv</span>
-          <small>04 / 06</small>
-        </footer>
       </div>
     );
   }
@@ -217,7 +190,6 @@ export function ArtDirectionCover({ theme }: { theme: ThemeId }) {
       <div className="art-cover art-cover--cinema" aria-hidden="true">
         <header>
           <span>Scene 04</span>
-          <small>00:42:18</small>
         </header>
         <div className="cinema-cover__frame">
           <div className="cinema-cover__window">
@@ -227,16 +199,11 @@ export function ArtDirectionCover({ theme }: { theme: ThemeId }) {
           </div>
           <div className="cinema-cover__route">
             <i />
-            <span>Last bus · 00:51</span>
           </div>
         </div>
         <div className="cinema-cover__caption">
-          <strong>The final hour should still feel connected.</strong>
+          <strong>The final hour stays connected.</strong>
         </div>
-        <footer>
-          <span>Service story</span>
-          <small>Case study / 05</small>
-        </footer>
       </div>
     );
   }
@@ -246,28 +213,19 @@ export function ArtDirectionCover({ theme }: { theme: ThemeId }) {
       <div className="art-cover art-cover--construct" aria-hidden="true">
         <header>
           <span>Handoff workshop · 03</span>
-          <small>Assembly board</small>
         </header>
         <div className="construct-cover__assembly">
           <div>
-            <span>01</span>
             <strong>Owner</strong>
           </div>
           <div>
-            <span>02</span>
             <strong>Proof</strong>
           </div>
           <div>
-            <span>03</span>
             <strong>Next move</strong>
           </div>
           <i />
         </div>
-        <strong className="construct-cover__answer">A handoff people can test.</strong>
-        <footer>
-          <span>01 + 02 + 03</span>
-          <small>Built together</small>
-        </footer>
       </div>
     );
   }
@@ -277,11 +235,9 @@ export function ArtDirectionCover({ theme }: { theme: ThemeId }) {
       <div className="art-cover art-cover--editorial" aria-hidden="true">
         <header>
           <span>Essay · issue 04</span>
-          <small>Field notes</small>
         </header>
         <div className="editorial-cover__folio">04</div>
         <div className="editorial-cover__statement">
-          <span>The pause before the proof</span>
           <strong>
             Give the idea
             <br />
@@ -289,11 +245,6 @@ export function ArtDirectionCover({ theme }: { theme: ThemeId }) {
           </strong>
           <i />
         </div>
-        <blockquote>“A measured reveal can carry more conviction than another chart.”</blockquote>
-        <footer>
-          <span>Point of view, set in type</span>
-          <small>2 min read</small>
-        </footer>
       </div>
     );
   }
@@ -303,7 +254,6 @@ export function ArtDirectionCover({ theme }: { theme: ThemeId }) {
       <div className="art-cover art-cover--studio" aria-hidden="true">
         <header>
           <span>System trace / 03</span>
-          <small>All boundaries healthy</small>
         </header>
         <div className="studio-cover__artifact">
           <div className="studio-cover__core">
@@ -318,17 +268,6 @@ export function ArtDirectionCover({ theme }: { theme: ThemeId }) {
           </div>
           <b />
         </div>
-        <div className="studio-cover__status">
-          <span>Compile</span>
-          <i />
-          <span>Route</span>
-          <i />
-          <span>Deliver</span>
-        </div>
-        <footer>
-          <span>One system · every surface</span>
-          <small>11.8 ms</small>
-        </footer>
       </div>
     );
   }
@@ -337,33 +276,24 @@ export function ArtDirectionCover({ theme }: { theme: ThemeId }) {
     <div className="art-cover art-cover--default" aria-hidden="true">
       <header>
         <span>Quarterly review</span>
-        <small>03 / 12</small>
       </header>
       <div className="default-cover__question">
-        <span>Decision</span>
         <strong>What should happen next?</strong>
       </div>
       <div className="default-cover__steps">
         <div>
           <span>01</span>
           <i />
-          <small>Signal</small>
         </div>
         <div>
           <span>02</span>
           <i />
-          <small>Evidence</small>
         </div>
         <div>
           <span>03</span>
           <i />
-          <small>Move</small>
         </div>
       </div>
-      <footer>
-        <span>Make the next step obvious</span>
-        <small>Ready</small>
-      </footer>
     </div>
   );
 }

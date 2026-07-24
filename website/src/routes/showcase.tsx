@@ -165,19 +165,12 @@ function ShowcasePage() {
         </header>
 
         <div className="theme-strip">
-          {themes.map((theme, index) => (
+          {themes.map((theme) => (
             <a className="theme-card" href={theme.liveHref} id={theme.id} key={theme.id}>
               <ArtDirectionCover theme={theme.id} />
               <div>
-                <span>
-                  Direction 0{index + 1} · {theme.voice}
-                </span>
                 <h3>{theme.label}</h3>
                 <strong>{theme.statement}</strong>
-                <p>{theme.description}</p>
-                <small>
-                  Open live study <ArrowUpRightIcon />
-                </small>
               </div>
             </a>
           ))}

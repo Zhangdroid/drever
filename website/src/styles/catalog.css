@@ -157,27 +157,21 @@
   scroll-margin-top: 6rem;
 }
 
+.showcase-designs .theme-card > div:last-child {
+  padding-block-start: 1rem;
+}
+
+.showcase-designs .theme-card h3 {
+  margin-block-start: 0;
+  font-size: 1rem;
+}
+
 .showcase-designs .theme-card > div:last-child > strong {
   display: block;
-  margin-block-start: 0.75rem;
-  font-size: 0.88rem;
+  margin-block-start: 0.4rem;
+  font-size: 0.72rem;
   letter-spacing: -0.01em;
   line-height: 1.35;
-}
-
-.showcase-designs .theme-card small {
-  display: inline-flex;
-  margin-block-start: 1rem;
-  align-items: center;
-  gap: 0.35rem;
-  color: var(--site-continuity);
-  font-size: 0.7rem;
-  font-weight: 650;
-}
-
-.showcase-designs .theme-card small svg {
-  width: 0.8rem;
-  height: 0.8rem;
 }
 
 .featured-demo {

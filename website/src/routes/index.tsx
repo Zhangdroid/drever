@@ -4,7 +4,8 @@ import { AIHandoff, CopyAIHandoff } from "../components/ai-handoff";
 import { CopyButton } from "../components/copy-button";
 import { ConnectedSourceDemo, RoomMomentDemo } from "../components/home-demos";
 import { ArrowIcon, ArrowUpRightIcon, PlayIcon } from "../components/icons";
-import { HeroStage, HomeShowcaseCover, ThemePreview } from "../components/showcase";
+import { HeroStage, HomeShowcaseCover } from "../components/showcase";
+import { ArtDirectionCover } from "../components/showcase-covers";
 import { demos, themes } from "../site-data";
 
 const title = "Drever — Slides that move with your ideas";
@@ -157,11 +158,11 @@ function HomePage() {
           ))}
 
           <Link className="theme-card home-showcase__direction" hash={direction.id} to="/showcase">
-            <ThemePreview theme={direction.id} />
+            <ArtDirectionCover theme={direction.id} />
             <div>
-              <span>Art direction · {direction.voice}</span>
+              <span>Art direction</span>
               <h3>{direction.label}</h3>
-              <p>{direction.description}</p>
+              <p>{direction.statement}</p>
             </div>
           </Link>
         </div>

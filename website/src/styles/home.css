@@ -746,7 +746,7 @@
 
 .home-room-demo__prompt {
   animation: home-room-prompt linear both;
-  animation-range: entry 88% cover 70%;
+  animation-range: entry 74% cover 68%;
   animation-timeline: --home-room;
 }
 
@@ -807,7 +807,7 @@
   opacity: 0;
   transform: translateY(0.8rem);
   animation: home-room-proof linear both;
-  animation-range: entry 88% cover 70%;
+  animation-range: entry 74% cover 68%;
   animation-timeline: --home-room;
 }
 
@@ -1792,17 +1792,6 @@
   translate: 0 -50%;
 }
 
-.home-showcase__direction .theme-preview--fieldnote > i,
-.home-showcase__direction .theme-preview--fieldnote small {
-  transition:
-    opacity 320ms ease,
-    transform 520ms var(--drever-brand-motion-easing-emphasized);
-}
-
-.home-showcase__direction .theme-preview--fieldnote > i {
-  transform-origin: left;
-}
-
 @media (hover: hover) {
   .demo-card[data-demo="product"]:is(:hover, :focus-visible) .home-product-cover__statement {
     transform: translateY(-0.2rem);
@@ -1845,29 +1834,6 @@
 
   .demo-card[data-demo="motion"]:is(:hover, :focus-visible) .home-motion-cover__route > b {
     animation: home-motion-route-active 3s var(--drever-brand-motion-easing-emphasized) both;
-  }
-
-  .home-showcase__direction .theme-preview--fieldnote > i {
-    transform: scaleX(0.18) rotate(-1deg);
-  }
-
-  .home-showcase__direction .theme-preview--fieldnote small {
-    opacity: 0.55;
-    transform: translate(0.35rem, 0.15rem) rotate(1deg);
-  }
-
-  .home-showcase__direction:is(:hover, :focus-visible) .theme-preview {
-    transform: translateY(-0.15rem);
-  }
-
-  .home-showcase__direction:is(:hover, :focus-visible) .theme-preview--fieldnote > i {
-    transform: scaleX(1) rotate(-1deg);
-  }
-
-  .home-showcase__direction:is(:hover, :focus-visible) .theme-preview--fieldnote small {
-    opacity: 1;
-    transform: translate(0) rotate(-0.5deg);
-    transition-delay: 180ms;
   }
 }
 
@@ -1949,433 +1915,16 @@
   line-height: 1.5;
 }
 
-.theme-preview {
-  position: relative;
-  display: flex;
-  aspect-ratio: 16 / 10;
-  padding: clamp(1.4rem, 3vw, 2.5rem);
-  overflow: hidden;
-  flex-direction: column;
-  justify-content: center;
-  box-shadow:
-    0 0 0 1px rgb(25 23 43 / 7%),
-    0 1.2rem 3rem rgb(25 23 43 / 8%);
-  transition: transform var(--drever-brand-motion-duration-standard)
-    var(--drever-brand-motion-easing-standard);
+.home-showcase__direction > div:last-child {
+  padding-block-start: 1.2rem;
 }
 
-.theme-card:is(:hover, :focus-visible) .theme-preview {
-  transform: translateY(-0.5rem);
+.home-showcase__direction h3 {
+  font-size: 1.08rem;
 }
 
-.theme-preview > span,
-.theme-preview > small {
-  font-size: clamp(0.48rem, 0.8vw, 0.64rem);
-}
-
-.theme-preview > strong {
-  display: block;
-  margin-block-start: 0.75rem;
-  font-size: clamp(1.45rem, 3vw, 3rem);
-  letter-spacing: -0.05em;
-  line-height: 0.94;
-}
-
-.theme-preview--default {
-  border-left: 0.45rem solid #2855e7;
-  background: #f7f7f2;
-  color: #171816;
-}
-
-.theme-preview--default > span {
-  color: #62665f;
-  font-weight: 650;
-}
-
-.theme-preview--default > div {
-  display: flex;
-  margin-block-start: 1.4rem;
-  gap: 0.3rem;
-}
-
-.theme-preview--default i {
-  width: 2.4rem;
-  height: 0.28rem;
-  background: #2855e7;
-}
-
-.theme-preview--default i:nth-child(2) {
-  opacity: 0.5;
-}
-
-.theme-preview--default i:nth-child(3) {
-  opacity: 0.2;
-}
-
-.theme-preview--default small {
-  position: absolute;
-  right: 1.2rem;
-  bottom: 1rem;
-  color: #62665f;
-}
-
-.theme-preview--editorial {
-  border-top: 1px solid #191814;
-  border-bottom: 1px solid #cfc7b8;
-  background: #f3efe4;
-  color: #191814;
-}
-
-.theme-preview--editorial > span {
-  color: #9d302f;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.theme-preview--editorial > strong {
-  font-family:
-    Iowan Old Style,
-    Palatino Linotype,
-    Georgia,
-    serif;
-  font-weight: 500;
-}
-
-.theme-preview--editorial i {
-  width: 4rem;
-  height: 1px;
-  margin-block-start: 1.1rem;
-  background: #9d302f;
-}
-
-.theme-preview--editorial small {
-  position: absolute;
-  right: 1.2rem;
-  bottom: 1rem;
-  color: #686157;
-  font-family:
-    Iowan Old Style,
-    Georgia,
-    serif;
-  font-style: italic;
-}
-
-.theme-preview--studio {
-  background: #101311;
-  color: #f2f4ed;
-}
-
-.theme-preview--studio::before {
-  position: absolute;
-  top: 1.2rem;
-  left: 1.5rem;
-  width: 2.8rem;
-  height: 0.28rem;
-  background: #dcff4f;
-  content: "";
-}
-
-.theme-preview--studio > span,
-.theme-preview--studio > small {
-  color: #9da59d;
-  font-family: var(--drever-brand-font-family-mono);
-  letter-spacing: 0.08em;
-}
-
-.theme-preview--studio > div {
-  display: flex;
-  margin-block-start: 1.2rem;
-  gap: 0.45rem;
-}
-
-.theme-preview--studio i {
-  width: 0.55rem;
-  height: 0.55rem;
-  background: #dcff4f;
-}
-
-.theme-preview--studio i:nth-child(2) {
-  background: #8ddfcd;
-}
-
-.theme-preview--studio i:nth-child(3) {
-  border: 1px solid #9da59d;
-  background: transparent;
-}
-
-.theme-preview--studio small {
-  position: absolute;
-  right: 1.2rem;
-  bottom: 1rem;
-}
-
-.theme-preview--fieldnote {
-  border-left: 0.18rem solid rgb(158 59 50 / 64%);
-  background:
-    repeating-linear-gradient(
-      to bottom,
-      transparent 0 1.55rem,
-      rgb(39 95 150 / 11%) 1.55rem 1.6rem
-    ),
-    #f7f1dd;
-  color: #26231e;
-}
-
-.theme-preview--fieldnote::before {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 1.45rem;
-  width: 1px;
-  background: rgb(158 59 50 / 48%);
-  content: "";
-}
-
-.theme-preview--fieldnote > span {
-  color: #696153;
-  font-family: var(--drever-brand-font-family-mono);
-  letter-spacing: 0.06em;
-}
-
-.theme-preview--fieldnote > strong {
-  width: fit-content;
-  font-family: Caveat, "Kaiti SC", STKaiti, KaiTi, "Bradley Hand", "Segoe Print", cursive;
-  font-weight: 600;
-  letter-spacing: -0.025em;
-  line-height: 0.9;
-}
-
-.theme-preview--fieldnote > i {
-  width: 7rem;
-  height: 0.28rem;
-  margin-block-start: 0.8rem;
-  background: #275f96;
-  opacity: 0.72;
-  transform: rotate(-1deg);
-}
-
-.theme-preview--fieldnote small {
-  position: absolute;
-  right: 1rem;
-  bottom: 0.85rem;
-  color: #9e3b32;
-  font-family: Caveat, "Kaiti SC", STKaiti, KaiTi, "Bradley Hand", "Segoe Print", cursive;
-  font-size: 0.72rem;
-}
-
-.theme-preview--atlas {
-  border: 1px solid #c9c0aa;
-  background:
-    linear-gradient(90deg, transparent 49.8%, rgb(30 102 129 / 8%) 50%, transparent 50.2%),
-    linear-gradient(transparent 49.8%, rgb(30 102 129 / 8%) 50%, transparent 50.2%), #f1ebdd;
-  color: #142c38;
-}
-
-.theme-preview--atlas::before {
-  position: absolute;
-  inset: 0.75rem;
-  border: 1px solid rgb(20 44 56 / 28%);
-  content: "";
-  pointer-events: none;
-}
-
-.theme-preview--atlas > span,
-.theme-preview--atlas > small {
-  color: #1e6681;
-  font-family: var(--drever-brand-font-family-mono);
-  letter-spacing: 0.06em;
-}
-
-.theme-preview--atlas > strong {
-  font-family:
-    Iowan Old Style,
-    Palatino Linotype,
-    Georgia,
-    serif;
-  font-weight: 540;
-  letter-spacing: -0.035em;
-}
-
-.theme-preview--atlas > div {
-  position: relative;
-  display: flex;
-  width: 8rem;
-  height: 1px;
-  margin-block-start: 1.1rem;
-  justify-content: space-between;
-  background: #1e6681;
-}
-
-.theme-preview--atlas i {
-  width: 0.55rem;
-  height: 0.55rem;
-  border: 2px solid #1e6681;
-  border-radius: 50%;
-  background: #f1ebdd;
-  transform: translateY(-50%);
-}
-
-.theme-preview--atlas i:nth-child(2) {
-  background: #a64b1a;
-  border-color: #a64b1a;
-}
-
-.theme-preview--atlas small {
-  position: absolute;
-  right: 1.15rem;
-  bottom: 0.9rem;
-}
-
-.theme-preview--ledger {
-  border-top: 0.28rem solid #1e5fbf;
-  background:
-    repeating-linear-gradient(to bottom, transparent 0 2rem, rgb(23 33 42 / 8%) 2rem 2.05rem),
-    #f4f0e6;
-  color: #17212a;
-  font-variant-numeric: tabular-nums;
-}
-
-.theme-preview--ledger > span,
-.theme-preview--ledger > small {
-  color: #59636b;
-  font-family: var(--drever-brand-font-family-mono);
-  letter-spacing: 0.06em;
-}
-
-.theme-preview--ledger > strong {
-  margin-block-start: 0.6rem;
-  color: #17212a;
-  font-size: clamp(2.8rem, 5vw, 5.4rem);
-  font-weight: 720;
-  letter-spacing: -0.07em;
-}
-
-.theme-preview--ledger > div {
-  display: flex;
-  width: fit-content;
-  margin-block-start: 0.6rem;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.theme-preview--ledger i {
-  width: 4.4rem;
-  height: 0.2rem;
-  background: #1e5fbf;
-}
-
-.theme-preview--ledger b {
-  color: #176b4d;
-  font-family: var(--drever-brand-font-family-mono);
-  font-size: 0.7rem;
-}
-
-.theme-preview--ledger small {
-  position: absolute;
-  right: 1rem;
-  bottom: 0.85rem;
-}
-
-.theme-preview--cinema {
-  border-top: 0.7rem solid #050607;
-  border-bottom: 0.7rem solid #050607;
-  background: radial-gradient(circle at 78% 28%, rgb(243 182 66 / 13%), transparent 26%), #0b0d10;
-  color: #f4eedc;
-}
-
-.theme-preview--cinema::before {
-  position: absolute;
-  inset: 1rem;
-  border: 1px solid rgb(244 238 220 / 16%);
-  content: "";
-}
-
-.theme-preview--cinema > span,
-.theme-preview--cinema > small {
-  color: #bbb7aa;
-  font-family: var(--drever-brand-font-family-mono);
-  letter-spacing: 0.09em;
-}
-
-.theme-preview--cinema > strong {
-  max-width: 9ch;
-  color: #f4eedc;
-  font-weight: 640;
-  letter-spacing: -0.045em;
-}
-
-.theme-preview--cinema > i {
-  width: 3.2rem;
-  height: 0.22rem;
-  margin-block-start: 1rem;
-  background: #f3b642;
-}
-
-.theme-preview--cinema small {
-  position: absolute;
-  right: 1.15rem;
-  bottom: 0.8rem;
-}
-
-.theme-preview--construct {
-  border: 1px solid rgb(36 34 44 / 16%);
-  background: #fff7e8;
-  color: #24222c;
-}
-
-.theme-preview--construct::before {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 1.15rem;
-  height: 3.6rem;
-  background: #2466a8;
-  content: "";
-}
-
-.theme-preview--construct > span,
-.theme-preview--construct > small {
-  color: #615c68;
-  font-family: var(--drever-brand-font-family-mono);
-  letter-spacing: 0.07em;
-}
-
-.theme-preview--construct > strong {
-  max-width: 10ch;
-  font-family: var(--drever-brand-font-family-display);
-  font-weight: 650;
-  letter-spacing: -0.045em;
-}
-
-.theme-preview--construct > div {
-  display: flex;
-  margin-block-start: 1rem;
-  align-items: flex-end;
-  gap: 0.28rem;
-}
-
-.theme-preview--construct i {
-  width: 2.5rem;
-  height: 0.45rem;
-  border: 2px solid #2466a8;
-}
-
-.theme-preview--construct i:nth-child(2) {
-  width: 1.8rem;
-  height: 0.8rem;
-  background: rgb(36 102 168 / 24%);
-}
-
-.theme-preview--construct i:nth-child(3) {
-  width: 3.5rem;
-  height: 1.05rem;
-  background: #2466a8;
-}
-
-.theme-preview--construct small {
-  position: absolute;
-  right: 1rem;
-  bottom: 0.85rem;
+.home-showcase__direction p {
+  font-size: 0.74rem;
 }
 
 .home-ai {
@@ -2842,15 +2391,6 @@
   .home-motion-cover__route > b {
     left: calc(100% - 0.42rem);
     animation: none;
-  }
-
-  .home-showcase__direction .theme-preview--fieldnote > i {
-    transform: scaleX(1) rotate(-1deg);
-  }
-
-  .home-showcase__direction .theme-preview--fieldnote small {
-    opacity: 1;
-    transform: none;
   }
 }
 

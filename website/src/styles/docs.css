@@ -884,8 +884,8 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
 
 .doc-theme-gallery {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.8rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2rem 0.9rem;
 }
 
 .doc-theme-gallery > a {
@@ -894,13 +894,23 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   text-decoration: none;
 }
 
-.doc-theme-gallery .theme-preview {
-  padding: 1.2rem;
+.doc-theme-gallery .art-cover {
+  width: 100%;
 }
 
-.doc-theme-gallery > a > span {
-  display: block;
-  margin-block-start: 1rem;
+.doc-theme-gallery .art-cover strong {
+  color: inherit;
+}
+
+.doc-theme-gallery .theme-card > div:last-child {
+  padding: 0.8rem 0.1rem 0;
+}
+
+.doc-theme-gallery .theme-card > div:last-child > span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
   color: var(--site-continuity);
   font-size: 0.62rem;
   font-weight: 680;
@@ -908,26 +918,16 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   text-transform: uppercase;
 }
 
-.doc-theme-gallery > a > strong {
-  display: block;
-  min-height: 2.8rem;
-  margin-block-start: 0.45rem;
-  font-size: 0.86rem;
-  line-height: 1.4;
-}
-
-.doc-theme-gallery > a > small {
-  display: inline-flex;
-  margin-block-start: 0.8rem;
-  align-items: center;
-  gap: 0.35rem;
-  color: var(--site-muted);
-  font-size: 0.68rem;
-}
-
-.doc-theme-gallery > a > small svg {
+.doc-theme-gallery .theme-card > div:last-child > span svg {
   width: 0.75rem;
   height: 0.75rem;
+}
+
+.doc-theme-gallery .theme-card > div:last-child > strong {
+  display: block;
+  margin-block-start: 0.35rem;
+  font-size: 0.74rem;
+  line-height: 1.4;
 }
 
 .manual-setup {
@@ -1545,7 +1545,6 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .doc-theme-gallery > a > strong,
   .plugin-gallery p {
     min-height: 0;
   }

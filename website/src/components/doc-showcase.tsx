@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 
 import { themes } from "../site-data";
 import { ArrowIcon, ArrowUpRightIcon } from "./icons";
-import { ThemePreview } from "./showcase";
+import { ArtDirectionCover } from "./showcase-covers";
 
 function MotionVisual() {
   return (
@@ -270,13 +270,14 @@ export function ThemeGallery() {
       </header>
       <div className="doc-theme-gallery">
         {themes.map((theme) => (
-          <a href={theme.liveHref} key={theme.id}>
-            <ThemePreview theme={theme.id} />
-            <span>{theme.id}</span>
-            <strong>{theme.statement}</strong>
-            <small>
-              Open live study <ArrowUpRightIcon />
-            </small>
+          <a className="theme-card" href={theme.liveHref} key={theme.id}>
+            <ArtDirectionCover theme={theme.id} />
+            <div>
+              <span>
+                {theme.label} <ArrowUpRightIcon />
+              </span>
+              <strong>{theme.statement}</strong>
+            </div>
           </a>
         ))}
       </div>
