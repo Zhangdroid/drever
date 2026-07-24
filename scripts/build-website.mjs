@@ -157,17 +157,31 @@ const verifyOutput = async () => {
     }),
   );
 
+  const websiteJavaScript = (
+    await Promise.all(
+      (
+        await collectFiles(join(websiteOutput, "assets"), ".js")
+      ).map((path) => readFile(path, "utf8")),
+    )
+  ).join("\n");
+  if (
+    !websiteJavaScript.includes("data-browser-support-notice") ||
+    !websiteJavaScript.includes("Full presentation motion uses Chrome.")
+  ) {
+    throw new Error("Website assets are missing the non-blocking browser support notice.");
+  }
+
   for (const path of siteEntryFiles) {
     const html = await readFile(join(websiteOutput, path), "utf8");
     if (html.includes("noindex")) {
       throw new Error(`Production page must be indexable: ${path}`);
     }
     if (
-      !html.includes('data-browser-support="checking"') ||
-      !html.includes("data-browser-support-gate") ||
-      !html.includes("window.Element.prototype.startViewTransition")
+      !html.includes('<div class="site-application">') ||
+      html.includes('data-browser-support="checking"') ||
+      html.includes("data-browser-support-gate")
     ) {
-      throw new Error(`Production page is missing the browser capability gate: ${path}`);
+      throw new Error(`Production page does not preserve the non-blocking site shell: ${path}`);
     }
   }
 

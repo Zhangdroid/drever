@@ -1,4 +1,4 @@
-import { brandTokens } from "@drever/brand";
+import brandTokenSource from "@drever/brand/tokens.json" with { type: "json" };
 
 const syntax = {
   comment: "#8F8A9B",
@@ -7,20 +7,25 @@ const syntax = {
   iris: "#A193E0",
   string: "#D9A08D",
 };
+const brandColor = {
+  night: brandTokenSource.color.night.$value.hex,
+  nightText: brandTokenSource.color.nightText.$value.hex,
+  signal: brandTokenSource.color.signal.$value.hex,
+};
 
 export const dreverShikiTheme = {
-  bg: brandTokens.color.night,
+  bg: brandColor.night,
   colors: {
-    "editor.background": brandTokens.color.night,
-    "editor.foreground": brandTokens.color.nightText,
+    "editor.background": brandColor.night,
+    "editor.foreground": brandColor.nightText,
   },
-  fg: brandTokens.color.nightText,
+  fg: brandColor.nightText,
   name: "drever-night",
   tokenColors: [
     {
       settings: {
-        background: brandTokens.color.night,
-        foreground: brandTokens.color.nightText,
+        background: brandColor.night,
+        foreground: brandColor.nightText,
       },
     },
     {
@@ -39,7 +44,7 @@ export const dreverShikiTheme = {
         "storage.modifier",
         "storage.type",
       ],
-      settings: { foreground: brandTokens.color.signal },
+      settings: { foreground: brandColor.signal },
     },
     {
       scope: [
@@ -67,11 +72,11 @@ export const dreverShikiTheme = {
     },
     {
       scope: ["markup.bold", "markup.heading"],
-      settings: { fontStyle: "bold", foreground: brandTokens.color.signal },
+      settings: { fontStyle: "bold", foreground: brandColor.signal },
     },
     {
       scope: "markup.italic",
-      settings: { fontStyle: "italic", foreground: brandTokens.color.nightText },
+      settings: { fontStyle: "italic", foreground: brandColor.nightText },
     },
   ],
   type: "dark" as const,
