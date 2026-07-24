@@ -888,6 +888,9 @@ importers:
       '@mdx-js/rollup':
         specifier: 'catalog:'
         version: 3.1.1(rollup@4.62.2)
+      '@shikijs/rehype':
+        specifier: 'catalog:'
+        version: 4.3.1
       '@types/node':
         specifier: 'catalog:'
         version: 24.13.3

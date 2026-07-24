@@ -471,9 +471,11 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
 .code-block {
   margin: 1.7rem 0;
   overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--drever-brand-color-night-line), white 4%);
   border-radius: 0.7rem;
   background: var(--site-night);
   box-shadow: 0 1rem 2.5rem rgb(25 23 43 / 9%);
+  color-scheme: dark;
   color: var(--site-night-text);
 }
 
@@ -484,14 +486,27 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   border-bottom: 1px solid var(--drever-brand-color-night-line);
   align-items: center;
   justify-content: space-between;
+  background: color-mix(in srgb, var(--site-night-surface), transparent 42%);
 }
 
 .code-block__bar > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.48rem;
   color: var(--site-night-muted);
   font-family: var(--drever-brand-font-family-mono);
   font-size: 0.62rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
+}
+
+.code-block__bar > span::before {
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 50%;
+  background: var(--site-signal);
+  box-shadow: 0 0 0 0.18rem color-mix(in srgb, var(--site-signal), transparent 84%);
+  content: "";
 }
 
 .code-block__bar button {
@@ -505,11 +520,33 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   overflow: auto;
 }
 
+.code-block pre:focus-visible {
+  outline: 2px solid var(--site-signal);
+  outline-offset: -2px;
+}
+
 .code-block code {
+  display: block;
+  min-width: max-content;
   font-family: var(--drever-brand-font-family-mono);
   font-size: 0.78rem;
+  font-variant-ligatures: none;
   line-height: 1.75;
   tab-size: 2;
+}
+
+.code-block code .line {
+  display: block;
+  min-height: 1.75em;
+}
+
+.code-block code .line:empty::after {
+  content: " ";
+}
+
+.code-block code ::selection {
+  background: color-mix(in srgb, var(--site-continuity), transparent 58%);
+  color: var(--site-night-text);
 }
 
 .doc-callout {

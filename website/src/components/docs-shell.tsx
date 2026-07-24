@@ -244,8 +244,13 @@ function MdxPre({ children }: { children?: ReactNode }) {
     ? ((code.props as { className?: string }).className ?? "")
     : "";
   const language = className.match(/language-([\w-]+)/u)?.[1];
+  const source = textContent(children).trimEnd();
 
-  return <CodeBlock label={language ?? "Code"}>{textContent(children).trimEnd()}</CodeBlock>;
+  return (
+    <CodeBlock label={language ?? "Code"} renderedCode={code}>
+      {source}
+    </CodeBlock>
+  );
 }
 
 export function DocMdx({

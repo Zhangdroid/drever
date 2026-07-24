@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 import { CopyButton } from "./copy-button";
 
@@ -380,15 +380,23 @@ export function CopyCommand({ command }: { command: string }) {
   );
 }
 
-export function CodeBlock({ children, label }: { children: string; label?: string }) {
+export function CodeBlock({
+  children,
+  label,
+  renderedCode,
+}: {
+  children: string;
+  label?: string;
+  renderedCode?: ReactNode;
+}) {
   return (
     <div className="code-block">
       <div className="code-block__bar">
         <span>{label ?? "Code"}</span>
         <CopyButton label="code" value={children} />
       </div>
-      <pre>
-        <code>{children}</code>
+      <pre aria-label={`${label ?? "Code"} example`} tabIndex={0}>
+        {renderedCode ?? <code>{children}</code>}
       </pre>
     </div>
   );

@@ -1,4 +1,5 @@
 import mdx from "@mdx-js/rollup";
+import rehypeShiki from "@shikijs/rehype";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import react from "@vitejs/plugin-react";
 import remarkGfm from "remark-gfm";
@@ -8,7 +9,22 @@ import { publicPresentationMounts, siteRoutes } from "./site-manifest";
 
 export default defineConfig({
   plugins: [
-    { enforce: "pre", ...mdx({ remarkPlugins: [remarkGfm] }) },
+    {
+      enforce: "pre",
+      ...mdx({
+        rehypePlugins: [
+          [
+            rehypeShiki,
+            {
+              addLanguageClass: true,
+              langs: ["bash", "json", "md", "mdx", "ts"],
+              theme: "vitesse-dark",
+            },
+          ],
+        ],
+        remarkPlugins: [remarkGfm],
+      }),
+    },
     tanstackStart({
       pages: [
         ...siteRoutes.map((path) => ({ path })),
