@@ -1,14 +1,16 @@
 import lockupDarkHref from "@drever/brand/assets/drever-lockup-dark.svg";
 import lockupHref from "@drever/brand/assets/drever-lockup.svg";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 
 import { githubURL, primaryNavigation } from "../site-data";
+import { CopyAIHandoff } from "./ai-handoff";
 import { ArrowUpRightIcon, GithubIcon } from "./icons";
 
 export function SiteHeader() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const headerRef = useRef<HTMLElement>(null);
+  const navigationRef = useRef<HTMLElement>(null);
   const [tone, setTone] = useState<"dark" | "light">("light");
 
   useEffect(() => {
@@ -48,6 +50,45 @@ export function SiteHeader() {
       ?.setAttribute("content", tone === "dark" ? "#111018" : "#f6f3e9");
   }, [tone]);
 
+  useLayoutEffect(() => {
+    const navigation = navigationRef.current;
+    if (!navigation) return;
+
+    let frame = 0;
+    const updateIndicator = (animate: boolean) => {
+      const activeLink = navigation.querySelector<HTMLElement>("a.is-active");
+      if (!activeLink) {
+        delete navigation.dataset.hasActive;
+        return;
+      }
+
+      const navigationBounds = navigation.getBoundingClientRect();
+      const activeBounds = activeLink.getBoundingClientRect();
+      const nextPosition = {
+        width: activeBounds.width,
+        x: activeBounds.left - navigationBounds.left,
+      };
+
+      navigation.dataset.hasActive = "true";
+      navigation.style.setProperty("--site-nav-indicator-width", `${nextPosition.width}px`);
+      navigation.style.setProperty("--site-nav-indicator-x", `${nextPosition.x}px`);
+
+      if (!animate || navigation.dataset.indicatorReady === "true") return;
+      frame = requestAnimationFrame(() => {
+        navigation.dataset.indicatorReady = "true";
+      });
+    };
+
+    updateIndicator(true);
+    const handleResize = () => updateIndicator(false);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [pathname]);
+
   return (
     <header className="site-header" data-tone={tone} ref={headerRef}>
       <div className="site-header__inner">
@@ -55,9 +96,9 @@ export function SiteHeader() {
           <img alt="" src={tone === "dark" ? lockupDarkHref : lockupHref} />
         </Link>
 
-        <nav aria-label="Primary navigation" className="site-header__nav">
+        <nav aria-label="Primary navigation" className="site-header__nav" ref={navigationRef}>
           {primaryNavigation.map((item) => {
-            const isParentLocation = item.href === "/docs" && pathname.startsWith("/docs/");
+            const isParentLocation = pathname !== item.href && pathname.startsWith(`${item.href}/`);
             return (
               <Link
                 activeOptions={{ exact: true }}
@@ -71,18 +112,22 @@ export function SiteHeader() {
               </Link>
             );
           })}
+          <i className="site-header__indicator" aria-hidden="true" />
         </nav>
 
-        <a
-          aria-label="Drever on GitHub"
-          className="site-header__github"
-          href={githubURL}
-          rel="noreferrer"
-          target="_blank"
-        >
-          <GithubIcon />
-          <span>GitHub</span>
-        </a>
+        <div className="site-header__utility">
+          <CopyAIHandoff className="site-header__ai" />
+          <a
+            aria-label="Drever on GitHub"
+            className="site-header__github"
+            href={githubURL}
+            rel="noreferrer"
+            target="_blank"
+          >
+            <GithubIcon />
+            <span>GitHub</span>
+          </a>
+        </div>
       </div>
     </header>
   );
@@ -102,11 +147,8 @@ export function SiteFooter() {
           <Link activeOptions={{ exact: true }} to="/docs">
             Documentation
           </Link>
-          <Link activeOptions={{ exact: true }} to="/demos">
-            Demos
-          </Link>
-          <Link activeOptions={{ exact: true }} to="/themes">
-            Design studies
+          <Link activeOptions={{ exact: true }} to="/showcase">
+            Showcase
           </Link>
         </div>
         <div>

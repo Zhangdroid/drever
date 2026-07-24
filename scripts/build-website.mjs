@@ -126,6 +126,7 @@ const routeOutput = (route) => (route === "/" ? "index.html" : `${route.slice(1)
 const siteEntryFiles = siteRoutes.map(routeOutput);
 
 const requiredFiles = [
+  "_redirects",
   "404.html",
   "favicon.svg",
   "robots.txt",

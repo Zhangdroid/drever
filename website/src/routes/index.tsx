@@ -1,8 +1,8 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { AIHandoff, CopyAIHandoff } from "../components/ai-handoff";
+import { CopyButton } from "../components/copy-button";
 import { ArrowIcon, ArrowUpRightIcon, PlayIcon } from "../components/icons";
-import { SiteShell } from "../components/site-shell";
 import { HeroStage, ThemePreview } from "../components/showcase";
 import { demos, themes } from "../site-data";
 
@@ -29,215 +29,215 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
+  const story = demos.find((demo) => demo.id === "product");
+  const motion = demos.find((demo) => demo.id === "motion");
+  const direction = themes.find((theme) => theme.id === "fieldnote");
+
+  if (story === undefined || motion === undefined || direction === undefined) {
+    throw new Error("The home showcase requires a story, motion study, and art direction.");
+  }
+
   return (
-    <SiteShell>
-      <main id="main">
-        <section className="home-hero">
-          <div className="home-hero__copy">
-            <h1>
-              Slides that <span>move</span>
-              <br />
-              with your ideas.
-            </h1>
-            <p>
-              Tell your AI what the room should understand. Drever shapes the story, design, and
-              motion—ready for the room, web, or PDF.
-            </p>
-            <div className="home-hero__actions">
-              <CopyAIHandoff className="button button--primary" />
-              <a className="button button--quiet" href="/demos/product/">
-                <PlayIcon /> Watch the product tour
-              </a>
-            </div>
+    <main id="main">
+      <section className="home-hero">
+        <div className="home-hero__copy">
+          <h1>
+            Slides that <span>move</span>
+            <br />
+            with your ideas.
+          </h1>
+          <p>
+            Tell your AI what the room should understand. Drever shapes the story, design, and
+            motion—ready for the room, web, or PDF.
+          </p>
+          <div className="home-hero__actions">
+            <CopyAIHandoff className="button button--primary" />
+            <a className="button home-hero__demo" href="/demos/product/">
+              <PlayIcon /> Try the live demo
+            </a>
+          </div>
+          <div aria-label="More ways to get started" className="home-hero__secondary">
             <Link className="home-hero__manual" to="/docs/getting-started">
-              See how the handoff works <ArrowIcon />
+              How AI creation works <ArrowIcon />
             </Link>
+            <div className="home-hero__manual-setup">
+              <span>Manual setup</span>
+              <CopyButton
+                className="home-hero__command"
+                copiedText="Command copied"
+                idleText="npm create drever@latest"
+                label="setup command"
+                value="npm create drever@latest my-slides"
+              />
+            </div>
           </div>
+        </div>
 
-          <div className="home-hero__visual">
-            <HeroStage />
-          </div>
-        </section>
+        <div className="home-hero__visual">
+          <HeroStage />
+        </div>
+      </section>
 
-        <section className="home-contract" aria-label="Drever product contract">
-          <div>
-            <span>01</span>
-            <strong>Designed from the subject.</strong>
-            <p>
-              Topic, audience, and real visual references shape the type, color, motif, and motion.
-            </p>
-          </div>
-          <div>
-            <span>02</span>
-            <strong>Alive in the room.</strong>
-            <p>Reveal, respond, annotate, and return to any exact presentation state.</p>
-          </div>
-          <div>
-            <span>03</span>
-            <strong>Useful after the room.</strong>
-            <p>
-              The same story becomes a live presentation, searchable document, website, and PDF.
-            </p>
-          </div>
-        </section>
+      <section className="home-contract" aria-label="Drever product contract">
+        <div>
+          <span>01</span>
+          <strong>Designed from the subject.</strong>
+          <p>
+            Topic, audience, and real visual references shape the type, color, motif, and motion.
+          </p>
+        </div>
+        <div>
+          <span>02</span>
+          <strong>Alive in the room.</strong>
+          <p>Reveal, respond, annotate, and return to any exact presentation state.</p>
+        </div>
+        <div>
+          <span>03</span>
+          <strong>Useful after the room.</strong>
+          <p>The same story becomes a live presentation, searchable document, website, and PDF.</p>
+        </div>
+      </section>
 
-        <section className="home-story" data-header-tone="dark">
-          <header className="home-story__heading">
-            <span>A presentation is a conversation</span>
-            <h2>A good slide knows what the room needs next.</h2>
-            <p>
-              Each meaningful reveal has a real place in the story—not just a timer. Pause, revisit,
-              or share the exact moment without losing your place.
-            </p>
-          </header>
+      <section className="home-story" data-header-tone="dark">
+        <header className="home-story__heading">
+          <span>A presentation is a conversation</span>
+          <h2>A good slide knows what the room needs next.</h2>
+          <p>
+            Each meaningful reveal has a real place in the story—not just a timer. Pause, revisit,
+            or share the exact moment without losing your place.
+          </p>
+        </header>
 
-          <div className="home-story__sequence">
-            <article>
-              <span>Ask</span>
-              <div>
-                <strong>What would help you decide?</strong>
-                <p>Follow the concern the room chooses.</p>
-              </div>
-              <small>Interactive</small>
-            </article>
-            <article>
-              <span>Reveal</span>
-              <div>
-                <strong>96% completed setup unaided.</strong>
-                <p>Bring in evidence when it can change the decision.</p>
-              </div>
-              <small>Step / 02</small>
-            </article>
-            <article>
-              <span>Return</span>
-              <div>
-                <strong>The exact moment has a URL.</strong>
-                <p>Share it, revisit it, or open it in Document View.</p>
-              </div>
-              <small>/4/2</small>
-            </article>
-          </div>
-        </section>
+        <div className="home-story__sequence">
+          <article>
+            <span>Ask</span>
+            <div>
+              <strong>What would help you decide?</strong>
+              <p>Follow the concern the room chooses.</p>
+            </div>
+            <small>Interactive</small>
+          </article>
+          <article>
+            <span>Reveal</span>
+            <div>
+              <strong>96% completed setup unaided.</strong>
+              <p>Bring in evidence when it can change the decision.</p>
+            </div>
+            <small>Step / 02</small>
+          </article>
+          <article>
+            <span>Return</span>
+            <div>
+              <strong>The exact moment has a URL.</strong>
+              <p>Share it, revisit it, or open it in Document View.</p>
+            </div>
+            <small>/4/2</small>
+          </article>
+        </div>
+      </section>
 
-        <section className="home-source">
-          <div className="home-source__copy">
-            <span>One story, made once</span>
-            <h2>Write clearly. Keep everything else connected.</h2>
-            <p>
-              Your content, interactions, speaker notes, theme, and motion live together. AI can
-              work with the source because a person can read it too.
-            </p>
-            <Link className="text-link" to="/docs/authoring">
-              Why Drever uses MDX <ArrowIcon />
-            </Link>
-          </div>
+      <section className="home-source">
+        <div className="home-source__copy">
+          <span>One story, made once</span>
+          <h2>Write clearly. Keep everything else connected.</h2>
+          <p>
+            Your content, interactions, speaker notes, theme, and motion live together. AI can work
+            with the source because a person can read it too.
+          </p>
+          <Link className="text-link" to="/docs/authoring">
+            Why Drever uses MDX <ArrowIcon />
+          </Link>
+        </div>
 
-          <div className="home-source__artifact">
-            <div className="home-source__code">
-              <span>slides.mdx</span>
-              <pre>
-                <code>{`# Make the decision clear.
+        <div className="home-source__artifact">
+          <div className="home-source__code">
+            <span>slides.mdx</span>
+            <pre>
+              <code>{`# Make the decision clear.
 
 What does the room need next?
 
 <Step>Reveal the evidence.</Step>
 
 <Note>Pause before the result.</Note>`}</code>
-              </pre>
+            </pre>
+          </div>
+          <div className="home-source__surfaces">
+            <div>
+              <span>Audience</span>
+              <strong>Live and interactive</strong>
             </div>
-            <div className="home-source__surfaces">
-              <div>
-                <span>Audience</span>
-                <strong>Live and interactive</strong>
-              </div>
-              <div>
-                <span>Speaker</span>
-                <strong>Notes and timing</strong>
-              </div>
-              <div>
-                <span>Document</span>
-                <strong>Readable and searchable</strong>
-              </div>
-              <div>
-                <span>Delivery</span>
-                <strong>Static site and PDF</strong>
-              </div>
+            <div>
+              <span>Speaker</span>
+              <strong>Notes and timing</strong>
+            </div>
+            <div>
+              <span>Document</span>
+              <strong>Readable and searchable</strong>
+            </div>
+            <div>
+              <span>Delivery</span>
+              <strong>Static site and PDF</strong>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="home-demos">
-          <header className="section-heading">
-            <div>
-              <span>Built with Drever</span>
-              <h2>See the product, not a mockup.</h2>
-            </div>
-            <Link className="text-link" to="/demos">
-              All demos <ArrowIcon />
-            </Link>
-          </header>
-
-          <div className="demo-grid">
-            {demos.slice(0, 3).map((demo, index) => (
-              <a className="demo-card" data-demo={demo.id} href={demo.href} key={demo.id}>
-                <div className="demo-card__visual">
-                  <span>0{index + 1}</span>
-                  <strong>{demo.label}</strong>
-                  <i />
-                </div>
-                <div className="demo-card__copy">
-                  <div>
-                    <span>{demo.meta}</span>
-                    <h3>{demo.label}</h3>
-                    <p>{demo.description}</p>
-                  </div>
-                  <ArrowUpRightIcon />
-                </div>
-              </a>
-            ))}
+      <section className="home-showcase">
+        <header className="section-heading">
+          <div>
+            <span>Story · capability · art direction</span>
+            <h2>See what Drever can make.</h2>
           </div>
-        </section>
+          <Link className="text-link" to="/showcase">
+            Explore the showcase <ArrowIcon />
+          </Link>
+        </header>
 
-        <section className="home-themes">
-          <header className="section-heading">
-            <div>
-              <span>Eight design studies</span>
-              <h2>Start from the subject, not a preset.</h2>
-            </div>
-            <Link className="text-link" to="/themes">
-              Explore design studies <ArrowIcon />
-            </Link>
-          </header>
-
-          <div className="theme-strip">
-            {themes.map((theme) => (
-              <Link className="theme-card" hash={theme.id} key={theme.id} to="/themes">
-                <ThemePreview theme={theme.id} />
+        <div className="demo-grid">
+          {[story, motion].map((demo, index) => (
+            <a className="demo-card" data-demo={demo.id} href={demo.href} key={demo.id}>
+              <div className="demo-card__visual">
+                <span>{index === 0 ? "Complete story" : "Motion study"}</span>
+                <strong>{demo.label}</strong>
+                <i />
+              </div>
+              <div className="demo-card__copy">
                 <div>
-                  <span>{theme.voice}</span>
-                  <h3>{theme.label}</h3>
-                  <p>{theme.description}</p>
+                  <span>{demo.meta}</span>
+                  <h3>{demo.label}</h3>
+                  <p>{demo.description}</p>
                 </div>
-              </Link>
-            ))}
-          </div>
-        </section>
+                <ArrowUpRightIcon />
+              </div>
+            </a>
+          ))}
 
-        <section className="home-ai" data-header-tone="dark">
-          <div className="home-ai__copy">
-            <span>One brief · a complete handoff</span>
-            <h2>Tell AI what the room should change.</h2>
-            <p>
-              The public prompt handles setup. Version-matched project skills shape the story,
-              derive a visual language from the subject, and check the finished deck.
-            </p>
-            <Link className="button button--light" to="/docs/ai">
-              Explore AI workflows <ArrowIcon />
-            </Link>
-          </div>
-          <AIHandoff defaultBrief="A 10-minute React 19 update for frontend teams. Draw its visual language from current official React sources, then deliver a live deck and PDF." />
-        </section>
-      </main>
-    </SiteShell>
+          <Link className="theme-card" hash={direction.id} to="/showcase">
+            <ThemePreview theme={direction.id} />
+            <div>
+              <span>Art direction · {direction.voice}</span>
+              <h3>{direction.label}</h3>
+              <p>{direction.description}</p>
+            </div>
+          </Link>
+        </div>
+      </section>
+
+      <section className="home-ai" data-header-tone="dark">
+        <div className="home-ai__copy">
+          <span>One brief · a complete handoff</span>
+          <h2>Tell AI what the room should change.</h2>
+          <p>
+            The public prompt handles setup. Version-matched project skills shape the story, derive
+            a visual language from the subject, and check the finished deck.
+          </p>
+          <Link className="button button--light" to="/docs/ai">
+            Explore AI workflows <ArrowIcon />
+          </Link>
+        </div>
+        <AIHandoff defaultBrief="A 10-minute React 19 update for frontend teams. Draw its visual language from current official React sources, then deliver a live deck and PDF." />
+      </section>
+    </main>
   );
 }

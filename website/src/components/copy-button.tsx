@@ -37,11 +37,33 @@ export function CopyButton({
   };
 
   const text = status === "copied" ? copiedText : status === "failed" ? "Copy failed" : idleText;
+  const feedbackText = status === "failed" ? "Copy failed" : copiedText;
 
   return (
-    <button aria-label={`${text} ${label}`} className={className} onClick={copy} type="button">
-      {status === "copied" ? <CheckIcon /> : <CopyIcon />}
-      <span aria-live="polite">{text}</span>
+    <button
+      aria-label={`${text} ${label}`}
+      className={className}
+      data-copy-state={status}
+      onClick={copy}
+      type="button"
+    >
+      <span aria-hidden="true" className="copy-button__icon">
+        <span className="copy-button__glyph copy-button__glyph--copy">
+          <CopyIcon />
+        </span>
+        <span className="copy-button__glyph copy-button__glyph--success">
+          <CheckIcon />
+        </span>
+      </span>
+      <span aria-hidden="true" className="copy-button__text">
+        <span className="copy-button__text-track">
+          <span>{idleText}</span>
+          <span>{feedbackText}</span>
+        </span>
+      </span>
+      <span aria-live="polite" className="copy-button__announcement">
+        {status === "idle" ? "" : feedbackText}
+      </span>
     </button>
   );
 }

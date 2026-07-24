@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from "./routes/__root";
 import { Route as IndexRouteImport } from "./routes/index";
 import { Route as DemosRouteImport } from "./routes/demos";
 import { Route as DocsRouteImport } from "./routes/docs";
+import { Route as ShowcaseRouteImport } from "./routes/showcase";
 import { Route as ThemesRouteImport } from "./routes/themes";
 import { Route as DocsIndexRouteImport } from "./routes/docs.index";
 import { Route as DocsAiRouteImport } from "./routes/docs.ai";
@@ -38,6 +39,11 @@ const DemosRoute = DemosRouteImport.update({
 const DocsRoute = DocsRouteImport.update({
   id: "/docs",
   path: "/docs",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const ShowcaseRoute = ShowcaseRouteImport.update({
+  id: "/showcase",
+  path: "/showcase",
   getParentRoute: () => rootRouteImport,
 } as any);
 const ThemesRoute = ThemesRouteImport.update({
@@ -105,6 +111,7 @@ export interface FileRoutesByFullPath {
   "/": typeof IndexRoute;
   "/demos": typeof DemosRoute;
   "/docs": typeof DocsRouteWithChildren;
+  "/showcase": typeof ShowcaseRoute;
   "/themes": typeof ThemesRoute;
   "/docs/ai": typeof DocsAiRoute;
   "/docs/authoring": typeof DocsAuthoringRoute;
@@ -121,6 +128,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   "/": typeof IndexRoute;
   "/demos": typeof DemosRoute;
+  "/showcase": typeof ShowcaseRoute;
   "/themes": typeof ThemesRoute;
   "/docs/ai": typeof DocsAiRoute;
   "/docs/authoring": typeof DocsAuthoringRoute;
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   "/": typeof IndexRoute;
   "/demos": typeof DemosRoute;
   "/docs": typeof DocsRouteWithChildren;
+  "/showcase": typeof ShowcaseRoute;
   "/themes": typeof ThemesRoute;
   "/docs/ai": typeof DocsAiRoute;
   "/docs/authoring": typeof DocsAuthoringRoute;
@@ -158,6 +167,7 @@ export interface FileRouteTypes {
     | "/"
     | "/demos"
     | "/docs"
+    | "/showcase"
     | "/themes"
     | "/docs/ai"
     | "/docs/authoring"
@@ -174,6 +184,7 @@ export interface FileRouteTypes {
   to:
     | "/"
     | "/demos"
+    | "/showcase"
     | "/themes"
     | "/docs/ai"
     | "/docs/authoring"
@@ -191,6 +202,7 @@ export interface FileRouteTypes {
     | "/"
     | "/demos"
     | "/docs"
+    | "/showcase"
     | "/themes"
     | "/docs/ai"
     | "/docs/authoring"
@@ -209,6 +221,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
   DemosRoute: typeof DemosRoute;
   DocsRoute: typeof DocsRouteWithChildren;
+  ShowcaseRoute: typeof ShowcaseRoute;
   ThemesRoute: typeof ThemesRoute;
 }
 
@@ -233,6 +246,13 @@ declare module "@tanstack/react-router" {
       path: "/docs";
       fullPath: "/docs";
       preLoaderRoute: typeof DocsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/showcase": {
+      id: "/showcase";
+      path: "/showcase";
+      fullPath: "/showcase";
+      preLoaderRoute: typeof ShowcaseRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/themes": {
@@ -356,6 +376,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DemosRoute: DemosRoute,
   DocsRoute: DocsRouteWithChildren,
+  ShowcaseRoute: ShowcaseRoute,
   ThemesRoute: ThemesRoute,
 };
 export const routeTree = rootRouteImport

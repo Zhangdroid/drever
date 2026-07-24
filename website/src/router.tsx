@@ -6,7 +6,13 @@ export const getRouter = () =>
   createRouter({
     defaultPreload: "intent",
     defaultViewTransition: {
-      types: ({ pathChanged }) => (pathChanged ? ["site-page"] : false),
+      types: ({ fromLocation, pathChanged, toLocation }) => {
+        if (!pathChanged) return false;
+
+        const fromDocs = fromLocation?.pathname.startsWith("/docs") ?? false;
+        const toDocs = toLocation.pathname.startsWith("/docs");
+        return [fromDocs && toDocs ? "docs-page" : "site-page"];
+      },
     },
     routeTree,
     scrollRestoration: true,

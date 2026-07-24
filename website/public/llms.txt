@@ -28,7 +28,8 @@ One project produces:
 - Build and export: https://drever.dev/docs/delivery
 - AI workflows: https://drever.dev/docs/ai
 - Credits: https://drever.dev/docs/credits
-- Design-study gallery: https://drever.dev/themes
+- Showcase of complete stories, focused capabilities, and art directions:
+  https://drever.dev/showcase
 - GitHub: https://github.com/Zhangdroid/drever
 
 For an AI agent, start with:
@@ -49,7 +50,11 @@ npm create drever@latest my-slides -- --open codex
 npm create drever@latest my-slides -- --open claude
 ```
 
-## Live demos
+## Live showcase
+
+Catalog: https://drever.dev/showcase
+
+### Complete stories and capability studies
 
 - Product tour: https://drever.dev/demos/product/
 - Feature gallery: https://drever.dev/demos/features/
@@ -58,7 +63,7 @@ npm create drever@latest my-slides -- --open claude
 - Architecture: https://drever.dev/demos/architecture/
 - Minimal reference: https://drever.dev/demos/basic/
 
-## Live design studies
+### Art-direction studies
 
 - Fieldnote: https://drever.dev/demos/design/fieldnote/
 - Atlas: https://drever.dev/demos/design/atlas/

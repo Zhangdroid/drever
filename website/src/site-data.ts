@@ -1,7 +1,8 @@
+import { demoMounts } from "../site-manifest";
+
 export const primaryNavigation = [
+  { href: "/showcase", label: "Showcase" },
   { href: "/docs", label: "Docs" },
-  { href: "/demos", label: "Demos" },
-  { href: "/themes", label: "Design" },
 ] as const;
 
 export const documentationNavigation = [
@@ -44,7 +45,7 @@ const demoContent = {
     meta: "Studio · 9 slides",
   },
   motion: {
-    meta: "Editorial · 17 slides",
+    meta: "Editorial · 16 slides",
   },
   scenes: {
     meta: "Cinema · 5 slides",
@@ -71,7 +72,8 @@ export const themes = [
       "A clear, adaptable system for everyday stories, product reviews, lessons, and proposals.",
     id: "default",
     label: "Default",
-    packageName: "@drever/theme-default",
+    liveHref: "/demos/basic/",
+    statement: "Clear, spacious, ready for almost any story.",
     voice: "Direct · calm · versatile",
   },
   {
@@ -79,7 +81,8 @@ export const themes = [
       "Typographic pacing and warm editorial structure for narratives that need a point of view.",
     id: "editorial",
     label: "Editorial",
-    packageName: "@drever/theme-editorial",
+    liveHref: "/demos/product/",
+    statement: "A point of view, set in type.",
     voice: "Measured · literary · assured",
   },
   {
@@ -87,7 +90,8 @@ export const themes = [
       "A precise dark canvas for systems, technical arguments, product architecture, and data.",
     id: "studio",
     label: "Studio",
-    packageName: "@drever/theme-studio",
+    liveHref: "/demos/features/",
+    statement: "Let the artifact take the stage.",
     voice: "Technical · focused · exact",
   },
   {
@@ -95,7 +99,8 @@ export const themes = [
       "Ruled-paper structure and restrained handwriting for workshops, lessons, tutorials, and reflection.",
     id: "fieldnote",
     label: "Fieldnote",
-    packageName: "@drever/theme-fieldnote",
+    liveHref: "/demos/design/fieldnote/",
+    statement: "Think in ink, explain in plain language.",
     voice: "Warm · handwritten · instructional",
   },
   {
@@ -103,7 +108,8 @@ export const themes = [
       "Routes, coordinates, and evidence frames for strategy, history, travel, systems, and change over time.",
     id: "atlas",
     label: "Atlas",
-    packageName: "@drever/theme-atlas",
+    liveHref: "/demos/design/atlas/",
+    statement: "Show where the story is going.",
     voice: "Spatial · exploratory · grounded",
   },
   {
@@ -111,7 +117,8 @@ export const themes = [
       "A rigorous grid for metrics, policy, financial results, research findings, and traceable decisions.",
     id: "ledger",
     label: "Ledger",
-    packageName: "@drever/theme-ledger",
+    liveHref: "/demos/design/ledger/",
+    statement: "Make the number answerable.",
     voice: "Analytical · sober · accountable",
   },
   {
@@ -119,7 +126,8 @@ export const themes = [
       "A dark, media-led canvas for photography, portfolios, case studies, and visual product stories.",
     id: "cinema",
     label: "Cinema",
-    packageName: "@drever/theme-cinema",
+    liveHref: "/demos/design/cinema/",
+    statement: "Let one image carry the moment.",
     voice: "Immersive · restrained · narrative",
   },
   {
@@ -127,7 +135,8 @@ export const themes = [
       "Purposeful building blocks for teaching, collaborative prompts, product concepts, and clear explanations.",
     id: "construct",
     label: "Construct",
-    packageName: "@drever/theme-construct",
+    liveHref: "/demos/design/construct/",
+    statement: "Build the explanation from real parts.",
     voice: "Modular · lively · explanatory",
   },
 ] as const;
@@ -135,4 +144,3 @@ export const themes = [
 export type ThemeId = (typeof themes)[number]["id"];
 
 export const githubURL = "https://github.com/Zhangdroid/drever";
-import { demoMounts } from "../site-manifest";

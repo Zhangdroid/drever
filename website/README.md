@@ -1,7 +1,7 @@
 # Drever website
 
-The public website combines the Drever product story, curated documentation,
-official theme previews, and complete executable example builds.
+The public website combines the Drever product story, curated documentation, a unified showcase,
+and complete executable example builds.
 
 It uses TanStack Start for file-based routing and build-time prerendering. Only the generated files in `dist/client` are deployed. There is no production server, server function, Pages Function, or Worker runtime.
 
@@ -11,20 +11,20 @@ The site has four primary surfaces:
 
 - `/` contains the product website.
 - `/docs/*` contains prerendered documentation routes.
+- `/showcase` curates complete stories, focused capability studies, and art directions.
 - `/demos/*` hosts real Drever builds selected from `examples/`.
-- `/themes` presents representative design previews and links to live studies.
 
-TanStack Start owns the website, documentation, demo catalog, and theme catalog
-routes. The root build compiles each curated example in its own project and
-copies its complete output to `dist/client/demos/<slug>`. The website does not
-duplicate a demo's MDX or React components. Every published demo is executable
-with the same Drever code users receive.
+TanStack Start owns the website, documentation, and showcase routes. The root build compiles each
+curated example in its own project and copies its complete output to
+`dist/client/demos/<slug>`. The website does not duplicate a demo's MDX or React components. Every
+published demo is executable with the same Drever code users receive.
 
 The curated set is:
 
 - `examples/product-tour` at `/demos/product/`
 - `examples/feature-gallery` at `/demos/features/`
 - `examples/motion-recipes` at `/demos/motion/`
+- `examples/room-scenes` at `/demos/scenes/`
 - `examples/architecture` at `/demos/architecture/`
 - `examples/basic` at `/demos/basic/`
 

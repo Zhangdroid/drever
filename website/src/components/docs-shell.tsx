@@ -11,61 +11,96 @@ import {
 import { documentationNavigation } from "../site-data";
 import { ArrowUpRightIcon } from "./icons";
 import { CodeBlock } from "./showcase";
-import { SiteShell } from "./site-shell";
 
 export function DocsShell() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const navigationRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const frame = requestAnimationFrame(() => {
-      navigationRef.current
-        ?.querySelector('[aria-current="page"]')
-        ?.scrollIntoView({ block: "nearest", inline: "center" });
-    });
-    return () => cancelAnimationFrame(frame);
+    const navigation = navigationRef.current;
+    if (!navigation) return;
+
+    let frame = 0;
+    const updateIndicator = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const activeLink = navigation.querySelector<HTMLElement>('[aria-current="page"]');
+        if (!activeLink) {
+          delete navigation.dataset.hasActive;
+          return;
+        }
+
+        activeLink.scrollIntoView({ block: "nearest", inline: "center" });
+        const navigationBounds = navigation.getBoundingClientRect();
+        const activeBounds = activeLink.getBoundingClientRect();
+        navigation.style.setProperty(
+          "--docs-indicator-x",
+          `${activeBounds.left - navigationBounds.left + navigation.scrollLeft}px`,
+        );
+        navigation.style.setProperty(
+          "--docs-indicator-y",
+          `${activeBounds.top - navigationBounds.top + navigation.scrollTop}px`,
+        );
+        navigation.style.setProperty("--docs-indicator-width", `${activeBounds.width}px`);
+        navigation.style.setProperty("--docs-indicator-height", `${activeBounds.height}px`);
+        navigation.dataset.hasActive = "true";
+        frame = requestAnimationFrame(() => {
+          navigation.dataset.indicatorReady = "true";
+        });
+      });
+    };
+
+    const resizeObserver = new ResizeObserver(updateIndicator);
+    resizeObserver.observe(navigation);
+    updateIndicator();
+
+    return () => {
+      cancelAnimationFrame(frame);
+      resizeObserver.disconnect();
+    };
   }, [pathname]);
 
   return (
-    <SiteShell>
-      <main className="docs" id="main">
-        <aside className="docs-nav">
-          <Link activeOptions={{ exact: true }} className="docs-nav__home" to="/docs">
-            Documentation
-          </Link>
-          <div className="docs-nav__scroll" ref={navigationRef}>
-            {documentationNavigation.map((section) => (
-              <section key={section.label}>
-                <h2>{section.label}</h2>
-                <nav aria-label={`${section.label} documentation`}>
-                  {section.pages.map((page) => (
+    <main className="docs" id="main">
+      <aside className="docs-nav">
+        <Link activeOptions={{ exact: true }} className="docs-nav__home" to="/docs">
+          Documentation
+        </Link>
+        <div className="docs-nav__scroll" ref={navigationRef}>
+          <i className="docs-nav__indicator" aria-hidden="true" />
+          {documentationNavigation.map((section) => (
+            <section key={section.label}>
+              <h2>{section.label}</h2>
+              <nav aria-label={`${section.label} documentation`}>
+                {section.pages.map((page) => {
+                  return (
                     <Link
                       activeOptions={{ exact: true }}
                       activeProps={{ "aria-current": "page", className: "is-active" }}
                       key={page.href}
                       to={page.href}
                     >
-                      {page.label}
+                      <span>{page.label}</span>
                     </Link>
-                  ))}
-                </nav>
-              </section>
-            ))}
-            <a
-              className="docs-nav__source"
-              href="https://github.com/Zhangdroid/drever/tree/main/website/content/docs"
-              rel="noreferrer"
-              target="_blank"
-            >
-              Source on GitHub <ArrowUpRightIcon />
-            </a>
-          </div>
-        </aside>
-        <div className="docs-content">
-          <Outlet />
+                  );
+                })}
+              </nav>
+            </section>
+          ))}
+          <a
+            className="docs-nav__source"
+            href="https://github.com/Zhangdroid/drever/tree/main/website/content/docs"
+            rel="noreferrer"
+            target="_blank"
+          >
+            Source on GitHub <ArrowUpRightIcon />
+          </a>
         </div>
-      </main>
-    </SiteShell>
+      </aside>
+      <div className="docs-content">
+        <Outlet />
+      </div>
+    </main>
   );
 }
 

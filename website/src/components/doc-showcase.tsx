@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 
-import type { ThemeId } from "../site-data";
+import { themes } from "../site-data";
 import { ArrowIcon, ArrowUpRightIcon } from "./icons";
 import { ThemePreview } from "./showcase";
 
@@ -86,7 +86,7 @@ const capabilities = [
     body: "Study eight subject-led systems, then generate and persist the direction this story needs.",
     guide: "/docs/themes",
     label: "Art direction",
-    live: "/themes",
+    live: "/showcase#art-directions",
     liveLabel: "Explore design studies",
     title: "Design begins with the subject.",
     visual: <ThemeVisual />,
@@ -257,49 +257,6 @@ export function PluginGallery() {
   );
 }
 
-const themeDemos = {
-  default: {
-    action: "Open live study",
-    href: "/demos/basic/",
-    statement: "Clear, spacious, ready for almost any story.",
-  },
-  editorial: {
-    action: "Open live study",
-    href: "/demos/product/",
-    statement: "A point of view, set in type.",
-  },
-  studio: {
-    action: "Open live study",
-    href: "/demos/features/",
-    statement: "Let the artifact take the stage.",
-  },
-  fieldnote: {
-    action: "Open live study",
-    href: "/demos/design/fieldnote/",
-    statement: "Think in ink, explain in plain language.",
-  },
-  atlas: {
-    action: "Open live study",
-    href: "/demos/design/atlas/",
-    statement: "Show where the story is going.",
-  },
-  ledger: {
-    action: "Open live study",
-    href: "/demos/design/ledger/",
-    statement: "Make the number answerable.",
-  },
-  cinema: {
-    action: "Open live study",
-    href: "/demos/design/cinema/",
-    statement: "Let one image carry the moment.",
-  },
-  construct: {
-    action: "Open live study",
-    href: "/demos/design/construct/",
-    statement: "Build the explanation from real parts.",
-  },
-} as const;
-
 export function ThemeGallery() {
   return (
     <section className="doc-visual-intro" aria-labelledby="theme-gallery-title">
@@ -312,13 +269,13 @@ export function ThemeGallery() {
         </p>
       </header>
       <div className="doc-theme-gallery">
-        {Object.entries(themeDemos).map(([id, theme]) => (
-          <a href={theme.href} key={id}>
-            <ThemePreview theme={id as ThemeId} />
-            <span>{id}</span>
+        {themes.map((theme) => (
+          <a href={theme.liveHref} key={theme.id}>
+            <ThemePreview theme={theme.id} />
+            <span>{theme.id}</span>
             <strong>{theme.statement}</strong>
             <small>
-              {theme.action} <ArrowUpRightIcon />
+              Open live study <ArrowUpRightIcon />
             </small>
           </a>
         ))}

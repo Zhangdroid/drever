@@ -46,6 +46,13 @@ html:active-view-transition-type(site-page)::view-transition-new(root) {
   animation: site-page-in 190ms 90ms var(--drever-brand-motion-easing-emphasized) both;
 }
 
+html:active-view-transition-type(docs-page)::view-transition-group(root),
+html:active-view-transition-type(docs-page)::view-transition-old(root),
+html:active-view-transition-type(docs-page)::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
 ::view-transition-group(site-header),
 ::view-transition-new(site-header) {
   animation: none;
@@ -164,12 +171,15 @@ main h1[tabindex="-1"]:focus {
 }
 
 .site-header__inner {
+  position: relative;
+  isolation: isolate;
   display: grid;
   width: fit-content;
   max-width: 100%;
   min-height: 3.1rem;
   margin-inline: auto;
   padding: 0.32rem 0.38rem 0.32rem 0.68rem;
+  overflow: clip;
   border: 1px solid rgb(25 23 43 / 6%);
   border-radius: 0.92rem;
   grid-template-columns: auto auto auto;
@@ -186,6 +196,21 @@ main h1[tabindex="-1"]:focus {
     border-color var(--drever-brand-motion-duration-standard),
     box-shadow var(--drever-brand-motion-duration-standard);
   view-transition-name: site-header;
+}
+
+.site-header__inner::after {
+  position: absolute;
+  z-index: -1;
+  bottom: -1.5rem;
+  left: -1.2rem;
+  width: 8.5rem;
+  height: 3.2rem;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse, rgb(199 240 58 / 10%), transparent 62%),
+    radial-gradient(ellipse at 68% 60%, rgb(91 69 216 / 5%), transparent 58%);
+  content: "";
+  pointer-events: none;
 }
 
 .site-header[data-tone="dark"] .site-header__inner {
@@ -206,7 +231,10 @@ main h1[tabindex="-1"]:focus {
 }
 
 .site-header__nav {
+  --site-nav-indicator-width: 0px;
+  --site-nav-indicator-x: 0px;
   display: flex;
+  position: relative;
   align-items: center;
   gap: clamp(0.75rem, 1.8vw, 1.25rem);
 }
@@ -222,19 +250,17 @@ main h1[tabindex="-1"]:focus {
     var(--drever-brand-motion-easing-standard);
 }
 
-.site-header__nav a::after {
+.site-header__indicator {
   position: absolute;
-  right: 0.1rem;
   bottom: 0.25rem;
-  left: 0.1rem;
+  left: 0;
+  width: var(--site-nav-indicator-width);
   height: 2px;
+  border-radius: 999px;
   background: var(--site-continuity);
-  content: "";
   opacity: 0;
-  transform: scaleX(0.5);
-  transition:
-    opacity var(--drever-brand-motion-duration-quick),
-    transform var(--drever-brand-motion-duration-quick) var(--drever-brand-motion-easing-standard);
+  pointer-events: none;
+  transform: translateX(var(--site-nav-indicator-x));
 }
 
 .site-header__nav a:hover,
@@ -251,33 +277,90 @@ main h1[tabindex="-1"]:focus {
   color: var(--site-night-text);
 }
 
-.site-header[data-tone="dark"] .site-header__nav a::after {
+.site-header[data-tone="dark"] .site-header__indicator {
   background: var(--site-signal);
 }
 
-.site-header__nav a.is-active::after {
+.site-header__nav[data-has-active="true"] .site-header__indicator {
   opacity: 1;
-  transform: scaleX(1);
+}
+
+.site-header__nav[data-indicator-ready="true"] .site-header__indicator {
+  transition:
+    width 320ms var(--drever-brand-motion-easing-emphasized),
+    transform 380ms var(--drever-brand-motion-easing-emphasized),
+    opacity 140ms ease;
+}
+
+.site-header__utility {
+  display: inline-flex;
+  min-width: 2.35rem;
+  min-height: 2.35rem;
+  align-items: center;
+  gap: 0.2rem;
+  justify-content: flex-end;
+}
+
+.site-header__ai {
+  display: inline-flex;
+  min-height: 2.05rem;
+  padding: 0.5rem 0.68rem;
+  border: 0;
+  border-radius: 0.62rem;
+  align-items: center;
+  gap: 0.38rem;
+  background: var(--site-continuity);
+  color: var(--site-night-text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 680;
+  transition:
+    background var(--drever-brand-motion-duration-quick),
+    color var(--drever-brand-motion-duration-quick),
+    transform var(--drever-brand-motion-duration-quick) var(--drever-brand-motion-easing-standard);
+}
+
+.site-header__ai:hover {
+  background: color-mix(in srgb, var(--site-continuity), black 10%);
+  transform: translateY(-1px);
+}
+
+.site-header__ai .copy-button__icon {
+  width: 0.82rem;
+  height: 0.82rem;
+}
+
+.site-header__ai svg {
+  width: 0.82rem;
+  height: 0.82rem;
 }
 
 .site-header__github {
   display: inline-flex;
-  width: 2.35rem;
-  height: 2.35rem;
+  width: 2.05rem;
+  height: 2.05rem;
   padding: 0;
+  border: 1px solid transparent;
+  border-radius: 0.62rem;
   align-items: center;
   justify-content: center;
-  border-radius: 0.62rem;
-  background: var(--site-ink);
-  color: var(--site-night-text);
+  background: transparent;
+  color: color-mix(in srgb, var(--site-muted), transparent 14%);
   font-size: 0.78rem;
   font-weight: 620;
   text-decoration: none;
-  transition: transform var(--drever-brand-motion-duration-quick)
-    var(--drever-brand-motion-easing-standard);
+  transition:
+    border-color var(--drever-brand-motion-duration-quick),
+    background var(--drever-brand-motion-duration-quick),
+    color var(--drever-brand-motion-duration-quick),
+    transform var(--drever-brand-motion-duration-quick) var(--drever-brand-motion-easing-standard);
 }
 
 .site-header__github:hover {
+  border-color: color-mix(in srgb, var(--site-line), transparent 8%);
+  background: color-mix(in srgb, var(--site-continuity-soft) 24%, transparent);
+  color: var(--site-ink);
   transform: translateY(-1px);
 }
 
@@ -291,8 +374,22 @@ main h1[tabindex="-1"]:focus {
 }
 
 .site-header[data-tone="dark"] .site-header__github {
+  color: var(--site-night-muted);
+}
+
+.site-header[data-tone="dark"] .site-header__github:hover {
+  border-color: rgb(255 255 255 / 12%);
+  background: rgb(255 255 255 / 7%);
+  color: var(--site-night-text);
+}
+
+.site-header[data-tone="dark"] .site-header__ai {
   background: var(--site-signal);
   color: var(--site-ink);
+}
+
+.site-header[data-tone="dark"] .site-header__ai:hover {
+  background: color-mix(in srgb, var(--site-signal), white 12%);
 }
 
 .button {
@@ -346,6 +443,79 @@ main h1[tabindex="-1"]:focus {
 .button--light {
   background: var(--site-signal);
   color: var(--site-ink);
+}
+
+.copy-button__icon {
+  position: relative;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  flex: none;
+}
+
+.copy-button__glyph {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  transition:
+    opacity 180ms ease,
+    transform 260ms var(--drever-brand-motion-easing-emphasized);
+}
+
+.copy-button__glyph--copy {
+  opacity: 1;
+  transform: translateY(0) rotate(0) scale(1);
+}
+
+.copy-button__glyph--success {
+  opacity: 0;
+  transform: translateY(45%) rotate(-18deg) scale(0.58);
+}
+
+[data-copy-state="copied"] .copy-button__glyph--copy {
+  opacity: 0;
+  transform: translateY(-48%) rotate(16deg) scale(0.62);
+}
+
+[data-copy-state="copied"] .copy-button__glyph--success {
+  opacity: 1;
+  transform: translateY(0) rotate(0) scale(1);
+}
+
+.copy-button__text {
+  display: inline-block;
+  height: 1em;
+  overflow: hidden;
+  line-height: 1;
+}
+
+.copy-button__text-track {
+  display: grid;
+  transition: transform 260ms var(--drever-brand-motion-easing-emphasized);
+}
+
+.copy-button__text-track > span {
+  display: flex;
+  height: 1em;
+  align-items: center;
+  white-space: nowrap;
+}
+
+[data-copy-state="copied"] .copy-button__text-track,
+[data-copy-state="failed"] .copy-button__text-track {
+  transform: translateY(-1em);
+}
+
+.copy-button__announcement {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .text-link {
@@ -708,9 +878,8 @@ main h1[tabindex="-1"]:focus {
     font-size: 0.74rem;
   }
 
-  .site-header__github {
-    width: 2.15rem;
-    height: 2.15rem;
+  .site-header__utility {
+    min-width: auto;
   }
 
   .section-heading,
@@ -739,7 +908,28 @@ main h1[tabindex="-1"]:focus {
   }
 }
 
+@media (max-width: 36rem) {
+  .site-header__ai {
+    width: 2.05rem;
+    padding-inline: 0;
+    justify-content: center;
+  }
+
+  .site-header__ai .copy-button__text {
+    display: none;
+  }
+}
+
 @media (max-width: 25rem) {
+  .site-header__inner {
+    padding-inline: 0.55rem 0.32rem;
+    gap: 0.55rem;
+  }
+
+  .site-header__brand {
+    width: 5.1rem;
+  }
+
   .site-header__nav a {
     padding-inline: 0;
     font-size: 0.68rem;
