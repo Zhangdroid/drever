@@ -312,6 +312,8 @@ describe("generated private application", () => {
       expect(source).toContain('const routePath = relativePath.replace(/\\/+$/u, "");');
       expect(source).toContain('routePath === "document"');
       expect(source).toContain("? await createDocument(presentationOptions)");
+      expect(source).toContain('container.removeAttribute("data-drever-ready")');
+      expect(source).toContain('container.setAttribute("data-drever-ready", "")');
       expect(source).not.toContain("console.error");
       expect(html).not.toContain("data-drever-export-bootstrap");
 

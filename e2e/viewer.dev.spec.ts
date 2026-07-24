@@ -421,6 +421,7 @@ test("audience shortcuts skip Steps, search slides, and jump by number", async (
   const health = monitorPageHealth(page);
   await monitorViewTransitions(page);
   await page.goto("/2/2");
+  await expect(page.locator("#drever-root")).toHaveAttribute("data-drever-ready", "");
 
   await page.keyboard.press("ArrowDown");
   await expect(page).toHaveURL(/\/3$/u);

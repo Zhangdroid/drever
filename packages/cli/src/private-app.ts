@@ -143,6 +143,7 @@ if (!(container instanceof Element)) {
 if (!(base instanceof HTMLMetaElement)) {
   throw new Error("Drever could not find its route base.");
 }
+container.removeAttribute("data-drever-ready");
 
 const reportPresentationError = (error) => globalThis.reportError(error);
 const baseURL = new URL(base.content, document.baseURI);
@@ -170,6 +171,7 @@ const presentation = routePath === "document"
   : routePath === "speaker" || routePath.startsWith("speaker/")
     ? await createSpeaker(${speakerOptions})
     : await createViewer(interactiveOptions);
+container.setAttribute("data-drever-ready", "");
 
 if (import.meta.hot) {
   let stopPublishingCurrentPosition;
