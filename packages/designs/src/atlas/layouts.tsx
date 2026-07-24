@@ -51,20 +51,27 @@ export const Route = ({
         </h1>
       </header>
       <ol className="drever-atlas-route__track">
-        {stops.map((stop, index) => (
-          <li
-            className="drever-atlas-route__stop"
-            data-stop={
-              index === 0 ? "origin" : index === stops.length - 1 ? "destination" : "waypoint"
-            }
-            key={index}
-          >
-            <span className="drever-atlas-route__index" aria-hidden="true">
-              {String(index).padStart(2, "0")}
-            </span>
-            <div className="drever-atlas-route__stop-content">{stop}</div>
-          </li>
-        ))}
+        {stops.map((stop, index) => {
+          const routeIndex = index === 0 ? undefined : String(index).padStart(2, "0");
+
+          return (
+            <li
+              className="drever-atlas-route__stop"
+              data-route-index={routeIndex}
+              data-stop={
+                index === 0 ? "origin" : index === stops.length - 1 ? "destination" : "waypoint"
+              }
+              key={index}
+            >
+              {routeIndex === undefined ? null : (
+                <span className="drever-atlas-route__index" aria-hidden="true">
+                  {routeIndex}
+                </span>
+              )}
+              <div className="drever-atlas-route__stop-content">{stop}</div>
+            </li>
+          );
+        })}
       </ol>
       {caption === undefined ? null : <p className="drever-atlas-route__caption">{caption}</p>}
     </section>

@@ -3,6 +3,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vite-plus/test";
 import { resolveMusicEmbed, RoomCountdown, Soundtrack } from "./index.ts";
+import { deactivateSoundtrackPlayback, pauseSoundtrackPlayback } from "./soundtrack.tsx";
 
 describe("music links", () => {
   it("turns supported provider links into official embed URLs without preserving trackers", () => {
@@ -45,6 +46,63 @@ describe("scene render surfaces", () => {
     expect(markup).toContain("<audio");
     expect(markup).not.toContain("autoplay");
     expect(markup).toContain("Start room");
+  });
+
+  it("pauses local media and cancels its analyzer frame when a slide becomes inactive", () => {
+    let pauses = 0;
+    const cancelled: number[] = [];
+    const graph = { frame: 42 };
+
+    pauseSoundtrackPlayback(
+      {
+        pause: () => {
+          pauses += 1;
+        },
+      },
+      graph,
+      (frame) => cancelled.push(frame),
+    );
+
+    expect(pauses).toBe(1);
+    expect(cancelled).toEqual([42]);
+    expect(graph.frame).toBeUndefined();
+
+    pauseSoundtrackPlayback(null, graph, (frame) => cancelled.push(frame));
+    expect(cancelled).toEqual([42]);
+  });
+
+  it("preserves the media graph when an inactive slide pauses playback", () => {
+    let closures = 0;
+    let pauses = 0;
+    let suspensions = 0;
+    const graph = {
+      context: {
+        close: () => {
+          closures += 1;
+          return Promise.resolve();
+        },
+        suspend: () => {
+          suspensions += 1;
+          return Promise.resolve();
+        },
+      },
+      frame: 21,
+    };
+
+    deactivateSoundtrackPlayback(
+      {
+        pause: () => {
+          pauses += 1;
+        },
+      },
+      graph,
+      () => undefined,
+    );
+
+    expect(pauses).toBe(1);
+    expect(suspensions).toBe(1);
+    expect(closures).toBe(0);
+    expect(graph.frame).toBeUndefined();
   });
 
   it.each(["document", "export", "speaker-current", "speaker-next"] as const)(

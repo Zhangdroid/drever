@@ -1,10 +1,12 @@
 import { Counter } from "./Counter.tsx";
+import "../showcase-return.css";
+import "./basic.css";
 import "./counter.css";
 
 <Cover
   eyebrow="Drever / interactive MDX"
-  title="Slides can be software."
-  supporting="Designed with taste. Built to interact. Tested like a product."
+  title="Slides can stay useful."
+  supporting="Start with a readable story. Add interaction only where the room needs it."
   footer="A small, runnable introduction"
   tone="accent"
 />
@@ -15,41 +17,20 @@ import "./counter.css";
 
 A presentation is a sequence of intentional states—not a pile of pages.
 
-<MotionGroup flow="block" intent="focus">
+<MotionGroup className="basic-state-path" flow="block" intent="focus">
   <Step at={2} data-testid="step-2">
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "84px 1fr",
-        alignItems: "center",
-        marginTop: 34,
-        padding: "24px 30px",
-        borderRadius: 22,
-        background: "var(--drever-theme-accent-soft)",
-        gap: 22,
-      }}
-    >
-      <strong style={{ fontSize: 40 }}>02</strong>
-      <span style={{ fontSize: 26 }}>Reveal the decision when the audience is ready.</span>
-    </div>
+    <article>
+      <code>/2/2</code>
+      <strong>Reveal the decision</strong>
+      <span>Only when the audience is ready.</span>
+    </article>
   </Step>
   <Step at={5} data-testid="step-5">
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "84px 1fr",
-        alignItems: "center",
-        marginTop: 18,
-        padding: "24px 30px",
-        border: "2px solid var(--drever-theme-border)",
-        borderRadius: 22,
-        background: "var(--drever-theme-surface)",
-        gap: 22,
-      }}
-    >
-      <strong style={{ fontSize: 40 }}>05</strong>
-      <span style={{ fontSize: 26 }}>Let the URL describe that exact moment.</span>
-    </div>
+    <article>
+      <code>/2/5</code>
+      <strong>Keep the exact moment</strong>
+      <span>The URL can reopen it later.</span>
+    </article>
   </Step>
 </MotionGroup>
 
@@ -63,18 +44,34 @@ A presentation is a sequence of intentional states—not a pile of pages.
 <TwoColumn
   aria-label="Static output and living interface"
   primary={
-    <>
-      <span style={{ color: "var(--drever-theme-muted)", fontWeight: 760 }}>DOCUMENT</span>
-      <h2>Static output</h2>
-      <p>Export, attach, repeat. Interaction ends when the file leaves your hands.</p>
-    </>
+    <section className="basic-artifact basic-artifact--document">
+      <header>
+        <span>PDF</span>
+        <code>final.pdf</code>
+      </header>
+      <div className="basic-artifact__page" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+      </div>
+      <strong>One finished frame</strong>
+      <small>Portable · fixed · complete</small>
+    </section>
   }
   secondary={
-    <>
-      <span style={{ color: "var(--drever-theme-accent-strong)", fontWeight: 760 }}>PRODUCT</span>
-      <h2>Living interface</h2>
-      <p>State, components, navigation and motion remain part of the story.</p>
-    </>
+    <section className="basic-artifact basic-artifact--live">
+      <header>
+        <span>LIVE</span>
+        <code>/3/2</code>
+      </header>
+      <div className="basic-artifact__route" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+      </div>
+      <strong>One exact state</strong>
+      <small>Reloadable · interactive · shareable</small>
+    </section>
   }
 />
 
@@ -93,9 +90,9 @@ A presentation is a sequence of intentional states—not a pile of pages.
 >
   <Counter />
   <div style={{ display: "grid", gap: 26 }}>
-    <blockquote>Change the number. Leave this slide. Then come back.</blockquote>
+    <blockquote>Try the number. Leave this slide. Then come back.</blockquote>
     <p style={{ color: "var(--drever-theme-muted)" }}>
-      {"The slide becomes inactive, but its React state survives."}
+      {"The interaction stays with the story while this slide is inactive."}
     </p>
   </div>
 </div>
@@ -110,7 +107,20 @@ A presentation is a sequence of intentional states—not a pile of pages.
 <Cover
   eyebrow="The next presentation"
   title="Ship the story."
-  supporting="Write it with AI. Review it as code. Deliver it as an experience."
-  footer="drever · modern browser presentations"
+  supporting="Bring the idea. Let AI help shape it. Keep directing every useful moment."
+  footer={
+    <span className="drever-example-exit">
+      <a
+        className="drever-example-exit__primary"
+        data-drever-showcase-return=""
+        href="https://drever.dev/docs/getting-started"
+      >
+        Create your own <span aria-hidden="true">↗</span>
+      </a>
+      <a className="drever-example-exit__secondary" href="https://drever.dev/showcase">
+        Explore more examples <span aria-hidden="true">→</span>
+      </a>
+    </span>
+  }
   tone="dark"
 />

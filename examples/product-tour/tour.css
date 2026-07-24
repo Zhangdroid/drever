@@ -146,15 +146,23 @@
 
 [data-drever-render-mode="audience"] .tour-stage-foreground__story-slot strong {
   transition:
-    translate var(--drever-brand-motion-duration-expressive)
-      var(--drever-brand-motion-easing-standard),
-    opacity var(--drever-brand-motion-duration-standard) ease-out;
+    translate 260ms var(--drever-brand-motion-easing-standard),
+    opacity 160ms ease-out;
 }
 
 .tour-stage-foreground__story[data-story-state="source"] [data-story-copy="source"],
 .tour-stage-foreground__story[data-story-state="result"] [data-story-copy="result"] {
   opacity: 1;
   translate: 0 0;
+}
+
+[data-drever-render-mode="audience"]
+  .tour-stage-foreground__story[data-story-state="source"]
+  [data-story-copy="source"],
+[data-drever-render-mode="audience"]
+  .tour-stage-foreground__story[data-story-state="result"]
+  [data-story-copy="result"] {
+  transition-delay: 240ms;
 }
 
 .tour-stage-foreground__story[data-story-state="source"] [data-story-copy="result"] {
@@ -294,12 +302,21 @@
   -webkit-box-decoration-break: clone;
 }
 
-.tour-cover .drever-editorial-masthead__title mark::before {
+.tour-cover .drever-editorial-masthead__title mark::before,
+.tour-cover .drever-editorial-masthead__title mark::after {
   position: absolute;
-  z-index: -1;
   inset: 0 -0.02em;
-  background: var(--tour-signal);
   content: "";
+}
+
+.tour-cover .drever-editorial-masthead__title mark::before {
+  z-index: -2;
+  background: color-mix(in srgb, var(--tour-paper), var(--tour-ink) 9%);
+}
+
+.tour-cover .drever-editorial-masthead__title mark::after {
+  z-index: -1;
+  background: var(--tour-signal);
   transform: scaleX(1);
   transform-origin: left center;
 }
@@ -308,7 +325,7 @@
   [data-drever-slide][data-slide-state="active"]
   .tour-cover
   .drever-editorial-masthead__title
-  mark::before {
+  mark::after {
   animation: tour-cover-mark-draw 820ms var(--drever-brand-motion-easing-standard) 1s both;
 }
 
@@ -636,7 +653,9 @@
   gap: 10px;
 }
 
-[data-drever-render-mode="audience"] .tour-motion__thought {
+[data-drever-render-mode="audience"]
+  .tour-motion__canvas[data-animate="true"]
+  .tour-motion__thought {
   animation: tour-thought-enter var(--drever-brand-motion-duration-standard)
     var(--drever-brand-motion-easing-standard) both;
 }
@@ -1193,34 +1212,7 @@
 }
 
 .tour-cover__links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-}
-
-.tour-cover__links .tour-showcase-link {
-  display: inline-flex;
-  min-height: 44px;
-  padding: 0 14px;
-  border: 1px solid color-mix(in srgb, var(--tour-paper), transparent 64%);
-  border-radius: var(--drever-brand-radius-small);
-  align-items: center;
   color: var(--tour-paper);
-  gap: 9px;
-  text-decoration: none;
-  transition:
-    border-color var(--drever-brand-motion-duration-quick) ease,
-    background var(--drever-brand-motion-duration-quick) ease;
-}
-
-.tour-cover__links .tour-showcase-link:hover {
-  border-color: var(--tour-signal);
-  background: color-mix(in srgb, var(--tour-signal), transparent 88%);
-}
-
-.tour-cover__links .tour-showcase-link:focus-visible {
-  outline: 2px solid var(--tour-signal);
-  outline-offset: 3px;
 }
 
 /* These moments are carried by the persistent Stage, so the root slide stays visually still. */
@@ -1262,7 +1254,7 @@
   [data-drever-slide][data-slide-state="active"]
     .tour-cover
     .drever-editorial-masthead__title
-    mark::before {
+    mark::after {
     animation: none;
   }
 }

@@ -27,3 +27,20 @@
   font-size: 23px;
   line-height: 1.28;
 }
+
+[data-drever-slide] .theme-showcase-construct-commitment {
+  display: grid;
+  max-width: none;
+  padding-top: 18px;
+  border-top: 2px solid var(--drever-theme-ink);
+  margin-top: 8px;
+  grid-template-columns: minmax(250px, 0.58fr) minmax(0, 1.42fr);
+  align-items: baseline;
+  gap: 26px;
+  font-size: 22px;
+  line-height: 1.3;
+}
+
+.theme-showcase-construct-commitment > strong {
+  color: var(--drever-theme-accent-strong);
+}

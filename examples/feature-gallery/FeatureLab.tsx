@@ -18,17 +18,6 @@ const DIRECTIONS = [
   },
 ] as const;
 
-const demoURL = (localPort: number, publishedPath: string, filePath: string): string => {
-  if (typeof window === "undefined") return publishedPath;
-  if (window.location.protocol === "file:") {
-    return new URL(filePath, window.location.href).href;
-  }
-  if (window.location.port === "4324") {
-    return `${window.location.protocol}//${window.location.hostname}:${localPort}/`;
-  }
-  return new URL(publishedPath, window.location.origin).href;
-};
-
 /** A compact proof that ordinary React state can direct authored slide content. */
 export const FeatureLab = (): ReactElement => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -50,7 +39,7 @@ export const FeatureLab = (): ReactElement => {
         ))}
       </div>
       <div className="gallery-lab__result" role="status" aria-live="polite">
-        <span>Live React state</span>
+        <span>Live React state · illustrative</span>
         <strong>{active.result}</strong>
         <p>{active.detail}</p>
       </div>
@@ -59,22 +48,18 @@ export const FeatureLab = (): ReactElement => {
 };
 
 export const ShowcaseNav = (): ReactElement => (
-  <nav className="gallery-showcases" aria-label="Related Drever showcases">
+  <nav className="drever-example-exit gallery-showcases" aria-label="Continue with Drever">
     <a
-      href={demoURL(4320, "/demos/product/", "../../product-tour/dist/index.html")}
-      rel="noopener"
-      target="_blank"
+      className="drever-example-exit__primary"
+      data-drever-showcase-return=""
+      href="https://drever.dev/docs/getting-started"
     >
-      <span>Product tour</span>
+      <span>Create your own</span>
       <span aria-hidden="true">↗</span>
     </a>
-    <a
-      href={demoURL(4322, "/demos/motion/", "../../motion-recipes/dist/index.html")}
-      rel="noopener"
-      target="_blank"
-    >
-      <span>Motion recipes</span>
-      <span aria-hidden="true">↗</span>
+    <a className="drever-example-exit__secondary" href="https://drever.dev/showcase">
+      <span>Explore more examples</span>
+      <span aria-hidden="true">→</span>
     </a>
   </nav>
 );

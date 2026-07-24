@@ -34,6 +34,36 @@ type AudioGraph = {
   source: MediaElementAudioSourceNode;
 };
 
+type PlaybackFrame = {
+  frame: number | undefined;
+};
+
+type ActivePlayback = PlaybackFrame & {
+  context: Pick<AudioContext, "suspend">;
+};
+
+/** Pauses local media and cancels its analyzer frame without discarding preserved component state. */
+export const pauseSoundtrackPlayback = (
+  audio: Pick<HTMLAudioElement, "pause"> | null,
+  graph: PlaybackFrame | undefined,
+  cancelFrame: (frame: number) => void,
+): void => {
+  audio?.pause();
+  if (graph?.frame === undefined) return;
+  cancelFrame(graph.frame);
+  graph.frame = undefined;
+};
+
+/** Stops inactive-slide work while preserving the media graph required when the slide returns. */
+export const deactivateSoundtrackPlayback = (
+  audio: Pick<HTMLAudioElement, "pause"> | null,
+  graph: ActivePlayback | undefined,
+  cancelFrame: (frame: number) => void,
+): void => {
+  pauseSoundtrackPlayback(audio, graph, cancelFrame);
+  if (graph !== undefined) void graph.context.suspend();
+};
+
 const average = (data: Uint8Array, start: number, end: number): number => {
   let total = 0;
   for (let index = start; index < end; index += 1) {
@@ -89,11 +119,13 @@ export function Soundtrack({
   };
 
   const stopFrame = (): void => {
-    const graph = graphRef.current;
-    if (graph?.frame !== undefined) {
-      window.cancelAnimationFrame(graph.frame);
-      graph.frame = undefined;
-    }
+    pauseSoundtrackPlayback(null, graphRef.current, (frame) => window.cancelAnimationFrame(frame));
+  };
+
+  const pausePlayback = (): void => {
+    pauseSoundtrackPlayback(audioRef.current, graphRef.current, (frame) =>
+      window.cancelAnimationFrame(frame),
+    );
   };
 
   const draw = (graph: AudioGraph): void => {
@@ -139,8 +171,7 @@ export function Soundtrack({
     if (audio === null) return;
 
     if (!audio.paused) {
-      audio.pause();
-      stopFrame();
+      pausePlayback();
       setPlaying(false);
       return;
     }
@@ -159,18 +190,14 @@ export function Soundtrack({
     }
   };
 
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    const audio = audioRef.current;
+    setPlaying(audio !== null && !audio.paused);
+    return () => {
       const graph = graphRef.current;
-      audioRef.current?.pause();
-      stopFrame();
-      graph?.source.disconnect();
-      graph?.analyser.disconnect();
-      if (graph !== undefined) void graph.context.close();
-      graphRef.current = undefined;
-    },
-    [],
-  );
+      deactivateSoundtrackPlayback(audio, graph, (frame) => window.cancelAnimationFrame(frame));
+    };
+  }, []);
 
   useEffect(() => {
     const player = playerRef.current;
@@ -246,6 +273,10 @@ export function Soundtrack({
               crossOrigin={crossOrigin}
               loop={loop}
               onEnded={() => {
+                stopFrame();
+                setPlaying(false);
+              }}
+              onPause={() => {
                 stopFrame();
                 setPlaying(false);
               }}

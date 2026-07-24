@@ -433,38 +433,16 @@
 }
 
 .gallery-showcases {
-  display: flex;
   margin-top: 34px;
-  gap: 14px;
 }
 
-.gallery-showcases a {
-  display: inline-flex;
-  min-height: 46px;
-  padding-inline: 16px;
-  border: 1px solid color-mix(in srgb, var(--gallery-signal), transparent 50%);
-  border-radius: var(--drever-brand-radius-small);
-  align-items: center;
-  color: var(--gallery-paper);
-  font-size: 15px;
-  font-weight: 700;
-  gap: 10px;
-  text-decoration: none;
-}
-
-.gallery-showcases a:hover {
-  background: color-mix(in srgb, var(--gallery-signal), transparent 88%);
-}
-
-.gallery-showcases a:focus-visible,
 .gallery-lab__choices button:focus-visible {
   outline: 2px solid var(--gallery-signal);
   outline-offset: 3px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .gallery-lab__choices button,
-  .gallery-showcases a {
+  .gallery-lab__choices button {
     transition: none;
   }
 }

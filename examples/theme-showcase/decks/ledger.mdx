@@ -1,5 +1,7 @@
+import "../../showcase-return.css";
+
 <Metric
-  label="Activation rate"
+  label="Illustrative activation rate"
   value="68.4"
   unit="%"
   period="Q2 · New team accounts"
@@ -17,7 +19,7 @@
 ---
 
 <Evidence
-  label="Cohort audit / 02"
+  label="Illustrative cohort audit / 02"
   claim="The gain comes from guided setup—not easier traffic."
   interpretation={
     <p>
@@ -57,7 +59,7 @@
       </tbody>
     </table>
   }
-  source="Experiment events · 1 Apr–30 Jun 2026 · 12,480 eligible accounts"
+  source="Illustrative experiment events · 1 Apr–30 Jun 2026 · 12,480 eligible accounts"
   balance="evidence-led"
 />
 
@@ -68,22 +70,37 @@
 
 ---
 
-## Decision: make guided setup the default.
+## Illustrative decision: make guided setup the default.
 
 <MotionGroup flow="block" intent="focus">
   <Step at={1}>
-    <strong>Ship</strong> to new team accounts on 5 August.
+    <strong>Ship</strong> — Activation team rolls out to new team accounts on 5 August.
   </Step>
   <Step at={2}>
-    <strong>Guard</strong> completion time and seven-day retention.
+    <strong>Guard</strong> — Pause if completion time rises &gt;10% or seven-day retention falls
+    &gt;2 pp versus control.
   </Step>
   <Step at={3}>
-    <strong>Review</strong> after 20,000 additional eligible accounts.
+    <strong>Review</strong> — Activation team returns after 20,000 additional eligible accounts.
   </Step>
 </MotionGroup>
 
 > The metric authorizes the rollout; the guardrails decide whether it remains.
 
+<nav aria-label="Continue with Drever" className="drever-example-exit">
+  <a
+    className="drever-example-exit__primary"
+    data-drever-showcase-return=""
+    href="https://drever.dev/docs/getting-started"
+  >
+    {"Start a deck"}
+  </a>
+  <a className="drever-example-exit__secondary" href="https://drever.dev/showcase">
+    {"More design studies"}
+  </a>
+</nav>
+
 <Note>
-  Close the audit trail with owner-ready actions. This is a decision slide, not a dashboard summary.
+  Close the audit trail with a named owner, numeric stop conditions, and a fixed review sample. This
+  is a decision slide, not a dashboard summary.
 </Note>

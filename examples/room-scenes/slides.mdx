@@ -4,6 +4,7 @@ import "@drever/brand/fonts.css";
 import "@drever/brand/tokens.css";
 import "@drever/scenes/styles.css";
 import "./room-scenes.css";
+import "../showcase-return.css";
 
 <OpeningRoom aria-label="Before the room speaks" />
 
@@ -67,38 +68,28 @@ import "./room-scenes.css";
     <h2>Every Scene needs a narrative job.</h2>
   </header>
 
-  <div className="scene-board__grid">
-    <article data-state="ready">
-      <span>Available</span>
-      <strong>Soundtrack</strong>
-      <p>Turn the pre-show wait into an intentional opening ritual.</p>
-    </article>
-    <article data-state="ready">
-      <span>Available</span>
-      <strong>AmbientStage</strong>
-      <p>Carry one visual atmosphere across the deck without moving every page.</p>
-    </article>
-    <article data-state="ready">
-      <span>Available</span>
-      <strong>RoomCountdown</strong>
-      <p>Give a live room a clear start while exports remain deterministic.</p>
-    </article>
-    <article>
-      <span>Next</span>
-      <strong>BrowserJourney</strong>
-      <p>Introduce evidence, inspect it, then dock the same object as context.</p>
-    </article>
-    <article>
-      <span>Next</span>
-      <strong>CompareLens</strong>
-      <p>Reveal one meaningful before-and-after without competing motion.</p>
-    </article>
-    <article>
-      <span>Later</span>
-      <strong>AudiencePulse</strong>
-      <p>Bring a room’s response into the story with explicit privacy.</p>
-    </article>
-  </div>
+<ol className="scene-board__moments" aria-label="Shipped Scenes by narrative moment">
+  <li>
+    <span>Before the first word</span>
+    <strong>Soundtrack</strong>
+    <p>Turn the pre-show wait into an intentional opening ritual.</p>
+  </li>
+  <li>
+    <span>While the story moves</span>
+    <strong>AmbientStage</strong>
+    <p>Carry one visual atmosphere across the deck without moving every page.</p>
+  </li>
+  <li>
+    <span>At the shared start</span>
+    <strong>RoomCountdown</strong>
+    <p>Give a live room a clear start while exports remain deterministic.</p>
+  </li>
+</ol>
+
+  <p className="scene-board__roadmap">
+    <span>On the roadmap</span>
+    {"BrowserJourney · CompareLens · AudiencePulse"}
+  </p>
 </div>
 
 <Note>
@@ -116,6 +107,20 @@ import "./room-scenes.css";
       "Slides carry the argument. Scenes shape the moments around it—only when those moments matter."
     }
   </p>
+  <nav aria-label="Continue with Drever" className="drever-example-exit">
+    <a
+      className="drever-example-exit__primary"
+      data-drever-showcase-return=""
+      href="https://drever.dev/docs/getting-started"
+    >
+      <span>Start with Drever</span>
+      <span aria-hidden="true">↗</span>
+    </a>
+    <a className="drever-example-exit__secondary" href="https://drever.dev/showcase">
+      <span>Explore the showcase</span>
+      <span aria-hidden="true">↗</span>
+    </a>
+  </nav>
   <div className="scene-ending__signal" aria-hidden="true">
     <i />
     <i />
@@ -125,5 +130,6 @@ import "./room-scenes.css";
 
 <Note>
   The opening signal returns in a smaller, quieter form to close the loop. One visual callback is
-  enough; the final page does not introduce another effect.
+  enough; the final page does not introduce another effect. Leave the room with a direct path to the
+  getting-started guide and the wider showcase.
 </Note>

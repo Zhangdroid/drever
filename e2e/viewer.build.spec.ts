@@ -167,7 +167,7 @@ test("the production document route exposes every fully revealed slide as a land
   await expect(page.locator("[data-drever-document] [data-drever-slide][aria-hidden]")).toHaveCount(
     0,
   );
-  await expect(slides.nth(0)).toHaveAttribute("aria-label", "Slides can be software.");
+  await expect(slides.nth(0)).toHaveAttribute("aria-label", "Slides can stay useful.");
   await expect(slides.nth(1)).toHaveAttribute("aria-label", "Motion should carry meaning.");
   await expect(slides.nth(1).getByTestId("step-5")).toHaveAttribute("data-step-state", "active");
 

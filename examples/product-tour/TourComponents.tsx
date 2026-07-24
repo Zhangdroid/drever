@@ -1,42 +1,4 @@
-import { useId, useState, type ReactElement, type ReactNode } from "react";
-
-const SHOWCASE_ROUTES = {
-  features: {
-    filePath: "../../feature-gallery/dist/index.html",
-    localPort: 4324,
-    publishedPath: "/demos/features/",
-  },
-  motion: {
-    filePath: "../../motion-recipes/dist/index.html",
-    localPort: 4322,
-    publishedPath: "/demos/motion/",
-  },
-} as const;
-
-export type ShowcaseLinkProps = Readonly<{
-  children: ReactNode;
-  showcase: keyof typeof SHOWCASE_ROUTES;
-}>;
-
-const showcaseURL = (showcase: ShowcaseLinkProps["showcase"]): string => {
-  const route = SHOWCASE_ROUTES[showcase];
-  if (typeof window === "undefined") return route.publishedPath;
-  if (window.location.protocol === "file:") {
-    return new URL(route.filePath, window.location.href).href;
-  }
-  if (window.location.port === "4320") {
-    return `${window.location.protocol}//${window.location.hostname}:${route.localPort}/`;
-  }
-  return new URL(route.publishedPath, window.location.origin).href;
-};
-
-/** Keeps showcase links useful in both local development and published demo routes. */
-export const ShowcaseLink = ({ children, showcase }: ShowcaseLinkProps): ReactElement => (
-  <a className="tour-showcase-link" href={showcaseURL(showcase)} rel="noopener" target="_blank">
-    <span>{children}</span>
-    <span aria-hidden="true">↗</span>
-  </a>
-);
+import { useId, useState, type ReactElement } from "react";
 
 const SIGNALS = [
   {
@@ -114,8 +76,14 @@ const MOMENTS = [
 /** An interactive example of motion following a changing thought. */
 export const MotionBoundary = (): ReactElement => {
   const stateId = useId();
+  const [hasAdvanced, setHasAdvanced] = useState(false);
   const [moment, setMoment] = useState(0);
   const activeMoment = MOMENTS[moment] ?? MOMENTS[0];
+
+  const advance = (): void => {
+    setHasAdvanced(true);
+    setMoment((current) => (current + 1) % MOMENTS.length);
+  };
 
   return (
     <section className="tour-motion" aria-label="Story moment motion example">
@@ -123,6 +91,7 @@ export const MotionBoundary = (): ReactElement => {
         <span className="tour-motion__stage-label">Stage · stays still</span>
         <div
           className="tour-motion__canvas"
+          data-animate={hasAdvanced ? "true" : "false"}
           data-moment={moment}
           id={stateId}
           role="status"
@@ -144,7 +113,7 @@ export const MotionBoundary = (): ReactElement => {
       <button
         aria-describedby={stateId}
         className="tour-motion__button"
-        onClick={() => setMoment((current) => (current + 1) % MOMENTS.length)}
+        onClick={advance}
         type="button"
       >
         Show next moment

@@ -1,0 +1,64 @@
+.drever-example-exit {
+  --drever-example-exit-primary: var(
+    --drever-theme-accent-strong,
+    var(--drever-theme-accent, currentcolor)
+  );
+  display: flex;
+  width: fit-content;
+  margin-block-start: 28px;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  color: inherit;
+}
+
+.drever-example-exit a {
+  display: inline-flex;
+  min-width: 44px;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 10px 16px;
+  border: 1px solid color-mix(in srgb, currentcolor, transparent 48%);
+  border-radius: var(--drever-theme-radius, 10px);
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  font: inherit;
+  font-size: 17px;
+  font-weight: 720;
+  gap: 10px;
+  line-height: 1.2;
+  text-decoration: none;
+  print-color-adjust: exact;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease;
+}
+
+.drever-example-exit__primary {
+  border-width: 2px;
+  border-color: currentcolor;
+  background: color-mix(in srgb, currentcolor, transparent 88%);
+  color: var(--drever-example-exit-primary);
+}
+
+.drever-example-exit__primary:hover {
+  background: color-mix(in srgb, currentcolor, transparent 78%);
+}
+
+.drever-example-exit__secondary:hover {
+  border-color: currentcolor;
+  background: color-mix(in srgb, currentcolor, transparent 90%);
+}
+
+.drever-example-exit a:focus-visible {
+  outline: 3px solid var(--drever-theme-accent, currentcolor);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drever-example-exit a {
+    transition: none;
+  }
+}

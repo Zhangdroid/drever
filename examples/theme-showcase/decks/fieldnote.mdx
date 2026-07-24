@@ -1,5 +1,8 @@
+import "../../showcase-return.css";
+import "../components/fieldnote-study.css";
+
 <Notebook
-  eyebrow="Research notebook / Session 03"
+  eyebrow="Illustrative research notebook / Session 03"
   title="Confusion starts one screen earlier."
   note="The payment form is not the problem; the missing promise is."
   footer="Checkout study · 18 July 2026"
@@ -14,7 +17,7 @@
 
 ## Write the observation before the explanation.
 
-<MotionGroup flow="block" intent="stagger">
+<MotionGroup className="theme-showcase-fieldnote-observations" flow="block" intent="stagger">
   <Step at={1}>
     <strong>00:18</strong> — The participant rereads “Continue” twice.
   </Step>
@@ -64,16 +67,49 @@
     </table>
   }
   annotations={
-    <ol>
-      <li>Name the next action.</li>
-      <li>Say when charging happens.</li>
-      <li>Test the promise, not new form styling.</li>
-    </ol>
+    <>
+      <ol>
+        <li>Name the next action.</li>
+        <li>Say when charging happens.</li>
+        <li>Test the promise, not new form styling.</li>
+      </ol>
+      <section
+        aria-label="Next checkout experiment"
+        className="theme-showcase-fieldnote-next-experiment"
+      >
+        <strong>Next experiment · 25 July</strong>
+        <p>Prototype the delivery-summary promise with five mobile participants.</p>
+        <dl>
+          <div>
+            <dt>Owner</dt>
+            <dd>Checkout content</dd>
+          </div>
+          <div>
+            <dt>Success</dt>
+            <dd>4 of 5 explain the next action and charge timing without going back.</dd>
+          </div>
+        </dl>
+      </section>
+    </>
   }
-  caption="Moderated checkout study · n=8 · mobile prototype"
+  caption="Illustrative moderated checkout study · n=8 · mobile prototype"
 />
+
+<nav aria-label="Continue with Drever" className="drever-example-exit">
+  <a
+    className="drever-example-exit__primary"
+    data-drever-showcase-return=""
+    href="https://drever.dev/docs/getting-started"
+  >
+    {"Start a deck"}
+  </a>
+  <a className="drever-example-exit__secondary" href="https://drever.dev/showcase">
+    {"More design studies"}
+  </a>
+</nav>
 
 <Note>
   The annotation layout connects a bounded set of recommendations to one inspectable artifact. The
-  small sample is labelled so the deck does not imply false precision.
+  small sample is labelled so the deck does not imply false precision. The close names the next
+  experiment, its owner, and the outcome that would count as progress.
 </Note>

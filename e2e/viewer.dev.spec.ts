@@ -18,7 +18,7 @@ test("the public dev command runs the complete interactive presentation workflow
 
   await expect(page.locator("[data-drever-slide]")).toHaveCount(5);
   await expect(page.locator(activeSlide)).toHaveAttribute("id", "slide-1");
-  await expect(page.locator(activeSlide)).toContainText("Slides can be software.");
+  await expect(page.locator(activeSlide)).toContainText("Slides can stay useful.");
   await expect(page.getByText("Pause at step 2", { exact: false })).toHaveCount(0);
 
   await page.keyboard.press("ArrowRight");

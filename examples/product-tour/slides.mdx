@@ -1,6 +1,7 @@
-import { AudienceSignal, MomentCard, MotionBoundary, ShowcaseLink } from "./TourComponents.tsx";
+import { AudienceSignal, MomentCard, MotionBoundary } from "./TourComponents.tsx";
 import "@drever/brand/fonts.css";
 import "@drever/brand/tokens.css";
+import "../showcase-return.css";
 import "./tour.css";
 
 <Masthead
@@ -59,7 +60,7 @@ import "./tour.css";
       <li><span>03</span><strong>Reveal the proof</strong></li>
       <li><span>04</span><strong>Leave a next move</strong></li>
     </ol>
-    <small>Readable direction, not a locked export.</small>
+    <small>Illustrative launch-pilot scenario · readable direction, not a locked export.</small>
   </section>
 </div>
 
@@ -190,7 +191,7 @@ import "./tour.css";
         <span aria-hidden="true">↗</span>
       </a>
       <footer>
-        <span>Slide 04</span>
+        <span>Illustrative scenario</span>
         <span>Reveal 02</span>
       </footer>
     </div>
@@ -343,9 +344,17 @@ import "./tour.css";
   }
   deck="Write with AI. Present live. Share the exact moment. Keep the story useful after the room moves on."
   meta={
-    <span className="tour-cover__links">
-      <ShowcaseLink showcase="features">Explore features</ShowcaseLink>
-      <ShowcaseLink showcase="motion">Explore motion</ShowcaseLink>
+    <span className="drever-example-exit tour-cover__links">
+      <a
+        className="drever-example-exit__primary"
+        data-drever-showcase-return=""
+        href="https://drever.dev/docs/getting-started"
+      >
+        Create your own <span aria-hidden="true">↗</span>
+      </a>
+      <a className="drever-example-exit__secondary" href="https://drever.dev/showcase">
+        Explore more examples <span aria-hidden="true">→</span>
+      </a>
     </span>
   }
   tone="ink"

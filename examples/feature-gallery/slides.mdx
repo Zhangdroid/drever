@@ -1,6 +1,7 @@
 import { FeatureLab, ShowcaseNav } from "./FeatureLab.tsx";
 import "@drever/brand/fonts.css";
 import "@drever/brand/tokens.css";
+import "../showcase-return.css";
 import "./gallery.css";
 
 <Statement
@@ -112,34 +113,37 @@ export default defineConfig({
 
 ---
 
-## Compose quickly without surrendering the theme.
+## Compose quickly without surrendering the design.
 
 Tailwind v4 is available by default. Utilities compose the artifact; Drever keeps typography and
 reset ownership.
 
-<div className="grid grid-cols-3 gap-5" data-testid="tailwind-gallery">
-  <article className="min-h-64 rounded-2xl border border-white/15 bg-white/5 p-7">
+<div className="grid grid-cols-5 gap-5" data-testid="tailwind-gallery">
+  <article className="col-span-3 flex min-h-64 flex-col justify-between rounded-2xl border border-lime-300/35 bg-lime-300/10 p-8">
     <span className="text-sm font-bold tracking-widest text-lime-300 uppercase">Signal</span>
-    <h3 className="mt-16 text-3xl font-semibold text-white">Current decision</h3>
-    <p className="mt-3 text-lg text-white/65">
-      Use utilities where they make the composition clearer.
-    </p>
+    <div>
+      <span className="text-6xl font-semibold tracking-tight text-white">Ready</span>
+      <h3 className="mt-3 text-3xl font-semibold text-white">One current decision</h3>
+      <p className="mt-3 text-lg text-white/65">Utilities describe this composition in place.</p>
+    </div>
   </article>
-  <article className="min-h-64 rounded-2xl border border-white/15 bg-white/5 p-7">
-    <span className="text-sm font-bold tracking-widest text-teal-200 uppercase">Theme</span>
-    <h3 className="mt-16 text-3xl font-semibold text-white">Visual baseline</h3>
-    <p className="mt-3 text-lg text-white/65">No Preflight replaces the deck's design language.</p>
-  </article>
-  <article className="min-h-64 rounded-2xl border border-white/15 bg-white/5 p-7">
-    <span className="text-sm font-bold tracking-widest text-violet-300 uppercase">Source</span>
-    <h3 className="mt-16 text-3xl font-semibold text-white">Detected locally</h3>
-    <p className="mt-3 text-lg text-white/65">The generated stylesheet scans only this project.</p>
-  </article>
+  <div className="col-span-2 grid gap-5">
+    <article className="rounded-2xl border border-white/15 bg-white/5 p-6">
+      <span className="text-sm font-bold tracking-widest text-teal-200 uppercase">Design</span>
+      <h3 className="mt-8 text-2xl font-semibold text-white">Still in charge</h3>
+      <p className="mt-2 text-base text-white/65">No Preflight replaces the deck's language.</p>
+    </article>
+    <article className="rounded-2xl border border-white/15 bg-white/5 p-6">
+      <span className="text-sm font-bold tracking-widest text-violet-300 uppercase">Source</span>
+      <h3 className="mt-8 text-2xl font-semibold text-white">Scanned locally</h3>
+      <p className="mt-2 text-base text-white/65">Only this presentation feeds the stylesheet.</p>
+    </article>
+  </div>
 </div>
 
 <Note>
   These cards use real Tailwind utilities. Drever deliberately omits Preflight so enabling a plugin
-  cannot silently replace the selected theme's typography or semantic defaults.
+  cannot silently replace the selected design's typography or semantic defaults.
 </Note>
 
 ---

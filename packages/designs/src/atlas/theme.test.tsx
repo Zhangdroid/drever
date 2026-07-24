@@ -99,6 +99,13 @@ describe("@drever/designs/atlas", () => {
     expect(route.match(/<li/g)).toHaveLength(4);
     expect(route).toContain('data-stop="origin"');
     expect(route).toContain('data-stop="destination"');
+    expect(route).not.toContain('data-route-index="00"');
+    expect(route.match(/data-route-index="\d{2}"/gu)).toEqual([
+      'data-route-index="01"',
+      'data-route-index="02"',
+      'data-route-index="03"',
+    ]);
+    expect(route.match(/drever-atlas-route__index/g)).toHaveLength(3);
 
     expect(survey).toContain("<article");
     expect(survey).toContain('data-drever-layout="survey"');

@@ -240,6 +240,12 @@
   gap: 20px;
 }
 
+.arch-ownership-workbench {
+  min-height: 465px;
+  margin-top: 26px;
+  grid-template-rows: 1fr;
+}
+
 .drever-studio-workbench .arch-boundaries {
   margin-top: 0;
 }
@@ -395,6 +401,18 @@
   overflow-wrap: anywhere;
   color: var(--arch-blue);
   font-size: 24px;
+}
+
+.arch-live-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .arch-commit {

@@ -1,0 +1,19 @@
+[data-drever-slide] .theme-showcase-cinema-epilogue {
+  margin-bottom: 18px;
+  color: var(--drever-theme-accent);
+  font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
+  font-size: 16px;
+  font-weight: 720;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+[data-drever-slide] .theme-showcase-cinema-source {
+  margin-top: 10px;
+  color: var(--drever-theme-muted);
+  font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  line-height: 1.35;
+  text-transform: uppercase;
+}

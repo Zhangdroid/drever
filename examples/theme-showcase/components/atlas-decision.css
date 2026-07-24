@@ -1,0 +1,29 @@
+.theme-showcase-atlas-provenance {
+  margin-bottom: 10px;
+  color: var(--drever-theme-accent);
+  font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
+  font-size: 15px;
+  font-weight: 720;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.theme-showcase-atlas-decision {
+  display: grid;
+  margin-top: 22px;
+  padding-top: 15px;
+  border-top: 3px solid var(--drever-theme-accent);
+  grid-template-columns: minmax(250px, 0.62fr) minmax(0, 1.38fr);
+  align-items: baseline;
+  gap: 28px;
+}
+
+[data-drever-slide] .theme-showcase-atlas-decision > strong {
+  color: var(--drever-theme-accent-strong);
+  font-size: 21px;
+}
+
+.theme-showcase-atlas-decision > span {
+  font-size: 21px;
+  line-height: 1.35;
+}

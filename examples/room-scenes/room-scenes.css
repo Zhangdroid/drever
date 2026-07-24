@@ -215,51 +215,70 @@
   text-align: right;
 }
 
-.scene-board__grid {
+.scene-board__moments {
   display: grid;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+  padding: 0;
+  border-block: 1px solid color-mix(in srgb, var(--drever-cinema-cue), transparent 54%);
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  list-style: none;
 }
 
-.scene-board__grid article {
-  min-height: 174px;
-  padding: 24px;
-  border: 1px solid var(--drever-cinema-border);
-  background: color-mix(in srgb, var(--drever-cinema-surface), transparent 16%);
+.scene-board__moments li {
+  min-width: 0;
+  min-height: 230px;
+  box-sizing: border-box;
+  padding: 30px;
+  border-left: 1px solid var(--drever-cinema-border);
+  background: color-mix(in srgb, var(--drever-cinema-cue-soft), transparent 50%);
 }
 
-.scene-board__grid article[data-state="ready"] {
-  border-color: color-mix(in srgb, var(--drever-cinema-cue), transparent 54%);
-  background: color-mix(in srgb, var(--drever-cinema-cue-soft), transparent 38%);
+.scene-board__moments li:first-child {
+  border-left: 0;
 }
 
-.scene-board__grid article > span {
-  color: var(--drever-cinema-muted);
-  font-size: 12px;
+.scene-board__moments li > span {
+  color: var(--drever-cinema-cue);
+  font-size: 13px;
   font-weight: 650;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-.scene-board__grid article[data-state="ready"] > span {
-  color: var(--drever-cinema-cue);
-}
-
-.scene-board__grid article > strong {
+.scene-board__moments li > strong {
   display: block;
-  margin-top: 18px;
+  margin-top: 26px;
   font-family: var(--drever-brand-font-family-display);
-  font-size: 30px;
+  font-size: 36px;
   font-weight: 570;
   letter-spacing: -0.035em;
 }
 
-.scene-board__grid article > p {
-  max-width: 31ch;
-  margin-top: 10px;
+.scene-board__moments li > p {
+  max-width: 28ch;
+  margin-top: 16px;
   color: color-mix(in srgb, var(--drever-cinema-ink), transparent 28%);
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1.42;
+}
+
+.scene-board__roadmap {
+  display: flex;
+  width: 100%;
+  max-width: none;
+  margin: -18px 0 0;
+  color: var(--drever-cinema-muted);
+  font-size: 15px;
+  gap: 16px;
+}
+
+.scene-board__roadmap > span {
+  color: color-mix(in srgb, var(--drever-cinema-cue), transparent 20%);
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .scene-ending {

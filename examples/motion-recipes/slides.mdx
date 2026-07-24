@@ -12,6 +12,7 @@ import {
 import "@drever/brand/fonts.css";
 import "@drever/brand/tokens.css";
 import "./motion.css";
+import "../showcase-return.css";
 
 <div aria-label="Move what changed" className="motion-intro">
   <header>
@@ -384,6 +385,20 @@ import "./motion.css";
     <i />
     <span>recede</span>
   </div>
+  <nav aria-label="Continue with Drever" className="drever-example-exit">
+    <a
+      className="drever-example-exit__primary"
+      data-drever-showcase-return=""
+      href="https://drever.dev/docs/getting-started"
+    >
+      <span>Start with Drever</span>
+      <span aria-hidden="true">↗</span>
+    </a>
+    <a className="drever-example-exit__secondary" href="https://drever.dev/showcase">
+      <span>Explore the showcase</span>
+      <span aria-hidden="true">↗</span>
+    </a>
+  </nav>
 </div>
 
 <Note>

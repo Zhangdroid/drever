@@ -1,5 +1,8 @@
+import "../../showcase-return.css";
+import "../components/atlas-decision.css";
+
 <Route
-  label="Alder River / Restoration plan"
+  label="Illustrative restoration plan / Alder River"
   title="Give the salmon a continuous cold-water path."
   origin="Tidal reach"
   waypoints={["Remove Mill Road culvert", "Replant the exposed bend", "Reconnect North Marsh"]}
@@ -16,7 +19,7 @@
 ---
 
 <Survey
-  label="Thermal survey / August"
+  label="Illustrative thermal survey / August"
   title="One exposed bend breaks the cold corridor."
   finding={
     <p>Water warms 3.8 °C between stations B and C, where the channel loses canopy for 1.2 km.</p>
@@ -91,6 +94,8 @@
 
 ---
 
+<p className="theme-showcase-atlas-provenance">Illustrative restoration scenario</p>
+
 ## Restore continuity, then measure passage.
 
 <table aria-label="Restoration evidence gates">
@@ -120,9 +125,29 @@
   </tbody>
 </table>
 
-**The route is complete only when the fish complete it.**
+<section aria-label="Next restoration decision" className="theme-showcase-atlas-decision">
+  <strong>Next decision · 15 September 2026</strong>
+  <span>
+    {
+      "Alder River restoration lead authorizes the Mill Road culvert design after spring flow confirms the gate below 0.8 m/s."
+    }
+  </span>
+</section>
+
+<nav aria-label="Continue with Drever" className="drever-example-exit">
+  <a
+    className="drever-example-exit__primary"
+    data-drever-showcase-return=""
+    href="https://drever.dev/docs/getting-started"
+  >
+    {"Start a deck"}
+  </a>
+  <a className="drever-example-exit__secondary" href="https://drever.dev/showcase">
+    {"More design studies"}
+  </a>
+</nav>
 
 <Note>
   End with the evidence gates rather than an ornamental map. The table turns the geographic story
-  into an accountable restoration sequence.
+  into an accountable restoration sequence, then names the owner and date of the next decision.
 </Note>

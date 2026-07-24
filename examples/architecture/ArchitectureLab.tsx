@@ -115,7 +115,10 @@ export const ArtifactExplorer = (): ReactElement => {
         </div>
       </div>
 
-      <div className="arch-explorer__artifact" role="status" aria-live="polite">
+      <p className="arch-live-status" role="status">
+        Showing {artifact.label}, owned by {artifact.owner}.
+      </p>
+      <div className="arch-explorer__artifact">
         <div className="arch-explorer__meta">
           <span>{artifact.label}</span>
           <span>Owner · {artifact.owner}</span>
@@ -215,7 +218,10 @@ export const RouteCompiler = (): ReactElement => {
         </fieldset>
       </div>
 
-      <div className="arch-route-lab__output" role="status" aria-live="polite">
+      <p className="arch-live-status" role="status">
+        Route {route}; output {file}.
+      </p>
+      <div className="arch-route-lab__output">
         <span>Valid stops in this projection</span>
         <code>{validSteps.join(" · ")}</code>
         <span>Canonical URL</span>

@@ -146,7 +146,7 @@ test("the built CLI exposes the canonical basic-deck authoring context", async (
       index: 0,
       speakerNoteCount: 0,
       stepStops: [],
-      title: "Slides can be software.",
+      title: "Slides can stay useful.",
     },
     {
       id: "slide-2",

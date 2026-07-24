@@ -1,0 +1,48 @@
+.theme-showcase-fieldnote-observations {
+  display: grid;
+  min-height: 132px;
+  grid-template-rows: repeat(3, 40px);
+  align-content: start;
+  gap: 4px;
+}
+
+.theme-showcase-fieldnote-next-experiment {
+  display: grid;
+  padding-top: 16px;
+  border-top: 3px solid var(--drever-theme-accent);
+  margin-top: 20px;
+  gap: 8px;
+}
+
+[data-drever-slide] .theme-showcase-fieldnote-next-experiment > strong {
+  color: var(--drever-theme-accent-strong);
+  font-size: 25px;
+}
+
+[data-drever-slide] .theme-showcase-fieldnote-next-experiment > p {
+  font-size: 24px;
+  line-height: 1.18;
+}
+
+.theme-showcase-fieldnote-next-experiment dl {
+  display: grid;
+  margin: 2px 0 0;
+  gap: 6px;
+}
+
+.theme-showcase-fieldnote-next-experiment dl > div {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: 10px;
+}
+
+.theme-showcase-fieldnote-next-experiment :where(dt, dd) {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.18;
+}
+
+.theme-showcase-fieldnote-next-experiment dt {
+  color: var(--drever-theme-accent-strong);
+  font-weight: 760;
+}
