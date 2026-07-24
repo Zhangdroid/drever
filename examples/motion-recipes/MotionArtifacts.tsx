@@ -42,37 +42,22 @@ const ENDPOINT_STAGES = [
 export function MotionPrimer(): ReactElement {
   return (
     <figure
-      aria-label="One evidence card moves from supporting detail to decision evidence while every other element stays still"
+      aria-label="One signal moves across a quiet field while every surrounding form stays still"
       className="motion-primer"
     >
       <div aria-hidden="true" className="motion-primer__canvas">
-        <div className="motion-primer__fixed-copy">
+        <div className="motion-primer__orbit">
           <i />
           <i />
-          <small>Fixed context</small>
+          <i />
         </div>
-        <div className="motion-primer__origin">
-          <small>Supporting detail</small>
-        </div>
-        <div className="motion-primer__target">
-          <small>Decision evidence</small>
-        </div>
-        <div className="motion-primer__fixed-data">
-          <i />
-          <i />
-          <i />
-          <small>Unchanged data</small>
-        </div>
+        <div className="motion-primer__axis" />
+        <div className="motion-primer__origin" />
+        <div className="motion-primer__target" />
         <div className="motion-primer__mover">
-          <span>Evidence</span>
-          <strong>31%</strong>
-          <small>fewer teams stopped</small>
+          <i />
         </div>
       </div>
-      <figcaption>
-        <span>One object gets a new job.</span>
-        <small>Everything else stays still.</small>
-      </figcaption>
     </figure>
   );
 }
