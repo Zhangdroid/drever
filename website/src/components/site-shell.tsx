@@ -116,7 +116,6 @@ export function SiteHeader() {
         </nav>
 
         <div className="site-header__utility">
-          <CopyAIHandoff className="site-header__ai" />
           <a
             aria-label="Drever on GitHub"
             className="site-header__github"
@@ -127,6 +126,8 @@ export function SiteHeader() {
             <GithubIcon />
             <span>GitHub</span>
           </a>
+          <i aria-hidden="true" className="site-header__divider" />
+          <CopyAIHandoff className="site-header__ai" />
         </div>
       </div>
     </header>
