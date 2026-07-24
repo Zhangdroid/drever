@@ -106,5 +106,6 @@ Pair a text-heavy narrative region with a primarily visual supporting region: a 
 3. Inspect representative slides for every layout, then every affected slide and Step state at the configured canvas size. Check intermediate motion frames in both directions, not only endpoints.
 4. Check `/document`, reduced motion, and relevant speaker and export surfaces. Verify fonts and localized assets load without network-dependent generation.
 5. Review the result against `art-direction.md`: remove any prominent choice that cannot be justified as subject-led or clearly acknowledged as fallback.
+6. When the design is applied to a deck, use the project-local `drever-review-deck` skill as the rendered completion gate. Reinspect the whole deck after changing shared tokens, layouts, Stage layers, or components; successful generation and build commands do not prove the design is ready.
 
 Report the design premise, generated files, approved assets and licenses, subject-led decisions, fallback decisions, and validation evidence.

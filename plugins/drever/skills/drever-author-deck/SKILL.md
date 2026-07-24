@@ -39,4 +39,6 @@ When changing React components, preserve keyboard and screen-reader semantics, s
 
 Run `drever context --json`, `drever check --json`, and `drever build`. Inspect every affected exact slide and Step route. For motion, inspect intermediate frames and the finished handoff in both directions; verify stable geometry and pointer focus. Check reduced motion and `/document`; check `/speaker` when notes or presentation behavior changed, and export when Stage output or readiness changed. Verify reload and history after slide or Step topology changes.
 
+Before treating a material edit as complete, use the project-local `drever-review-deck` skill as a completion gate for the affected slides, their adjacent handoffs, and every surface the change can reach. Expand the gate to the whole deck when the edit changes its claims, story order, navigation topology, or a shared theme, layout, Stage layer, or component. Fix material issues and repeat the affected review passes; do not stop at source inspection or successful commands.
+
 Report the narrative or behavior changed, affected routes, and validation evidence.

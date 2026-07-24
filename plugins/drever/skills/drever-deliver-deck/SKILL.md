@@ -19,4 +19,6 @@ Translate the requested outcome into Drever's deterministic checks, build, and e
 
 Before handoff, inspect the actual requested artifacts. Confirm that fonts, images, video fallbacks, Stage layers, motion end states, notes, and export-ready media behave correctly in the relevant surface. A successful command is necessary but not sufficient evidence of presentation readiness.
 
+When the user asks for a finished or presentation-ready deliverable, use the project-local `drever-review-deck` skill as the completion gate before handoff and fix material issues within scope. For an explicitly mechanical draft build or export, respect that narrower scope but do not imply that the deck passed presentation-readiness review.
+
 Report a compact artifact receipt containing the source entry, validation performed, exact build directory or preview URL, exact PDF path and page selection when applicable, and any remaining judgment calls. Never invent a URL, path, or successful export.
