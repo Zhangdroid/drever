@@ -315,15 +315,24 @@ test("semantic focus and local replacement preserve stable geometry", async ({ p
   await expect(focusSteps.first()).toHaveAttribute("data-step-state", "complete");
   await expect(focusSteps.first()).not.toHaveAttribute("inert", "");
   await expect(focusSteps.nth(1)).toHaveAttribute("data-step-state", "active");
+  await expect(focusSteps.first()).toHaveCSS("opacity", "1");
   await expect(focusSteps.nth(1)).toHaveCSS("opacity", "1");
-  const completedOpacity = Number(
-    await focusSteps.first().evaluate((element) => getComputedStyle(element).opacity),
-  );
-  const activeOpacity = Number(
-    await focusSteps.nth(1).evaluate((element) => getComputedStyle(element).opacity),
-  );
-  expect(completedOpacity).toBeGreaterThanOrEqual(0.5);
-  expect(completedOpacity).toBeLessThan(activeOpacity);
+  await expect
+    .poll(() =>
+      focusSteps
+        .first()
+        .locator(".tour-moment")
+        .evaluate((element) => getComputedStyle(element, "::before").opacity),
+    )
+    .toBe("0");
+  await expect
+    .poll(() =>
+      focusSteps
+        .nth(1)
+        .locator(".tour-moment")
+        .evaluate((element) => getComputedStyle(element, "::before").opacity),
+    )
+    .toBe("1");
 
   await page.goto("/5");
   const motionStage = page.locator(".tour-motion__stage");
