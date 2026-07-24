@@ -191,7 +191,9 @@ export function SiteShell({ children }: { children: ReactNode }) {
         Skip to content
       </a>
       <SiteHeader />
-      {children}
+      <div className="site-shell__surface" data-header-tone="light">
+        {children}
+      </div>
       <SiteFooter />
     </>
   );

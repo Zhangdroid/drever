@@ -63,6 +63,16 @@ html:active-view-transition-type(docs-page)::view-transition-new(root) {
   opacity: 0;
 }
 
+::view-transition-group(site-footer),
+::view-transition-new(site-footer) {
+  animation: none;
+}
+
+::view-transition-old(site-footer) {
+  animation: none;
+  opacity: 0;
+}
+
 body {
   min-width: 20rem;
   margin: 0;
@@ -754,10 +764,20 @@ main[tabindex="-1"]:focus {
   height: 0.9rem;
 }
 
+.site-shell__surface {
+  position: relative;
+  z-index: 1;
+  min-height: 100svh;
+  background: var(--site-paper);
+}
+
 .site-footer {
+  position: relative;
+  z-index: 0;
   padding: clamp(4rem, 8vw, 7rem) var(--site-gutter) 2rem;
   background: var(--site-night);
   color: var(--site-night-text);
+  view-transition-name: site-footer;
 }
 
 .site-footer__primary {
@@ -834,6 +854,17 @@ main[tabindex="-1"]:focus {
   gap: 1rem;
   color: var(--site-night-muted);
   font-size: 0.72rem;
+}
+
+@media (min-width: 68rem) and (min-height: 38rem) {
+  .site-shell__surface {
+    box-shadow: 0 1.5rem 3.5rem rgb(8 6 22 / 16%);
+  }
+
+  .site-footer {
+    position: sticky;
+    bottom: 0;
+  }
 }
 
 .page-hero {
