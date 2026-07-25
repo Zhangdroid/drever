@@ -16,6 +16,15 @@ on:
         description: SemVer for next/latest with a matching CHANGELOG.md section; empty for commit
         required: false
         type: string
+      ai_smoke:
+        description: Run the post-release AI user journeys
+        required: true
+        default: auto
+        type: choice
+        options:
+          - auto
+          - always
+          - never
 
 permissions:
   contents: read
@@ -225,6 +234,9 @@ jobs:
   smoke:
     name: Queue Codex release smoke
     needs: [audit, record]
+    if: >
+      inputs.ai_smoke == 'always' ||
+      (inputs.ai_smoke == 'auto' && inputs.channel == 'latest')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:

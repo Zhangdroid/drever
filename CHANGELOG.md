@@ -5,6 +5,15 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+### Changed
+
+- Changed release automation to accumulate small fixes into intentional batches, run AI smoke by
+  default only for stable releases, and let maintainers explicitly opt prereleases or commit
+  snapshots in or out.
+- Pinned AI release smoke to `gpt-5.4-mini` with medium reasoning so the two real user journeys
+  retain their coverage while using the higher complimentary-token tier when the project is
+  eligible.
+
 ## [0.2.3] - 2026-07-25
 
 ### Added
