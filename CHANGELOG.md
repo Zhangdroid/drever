@@ -5,6 +5,8 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-07-24
+
 ### Changed
 
 - Reduced the Architecture showcase's persistent topology contrast and strengthened its content
