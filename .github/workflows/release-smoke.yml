@@ -119,7 +119,7 @@ jobs:
       CODEX_HOME: ${{ github.workspace }}/release-smoke-work/codex-${{ matrix.case }}
       PROJECT_ROOT: ${{ github.workspace }}/release-smoke-work/active-${{ matrix.case }}/project
       QUARANTINE_ROOT: ${{ github.workspace }}/release-smoke-work/quarantine-${{ matrix.case }}
-      RELEASE_SMOKE_MODEL: gpt-5.4-mini
+      RELEASE_SMOKE_MODEL: gpt-5.6-sol
       RELEASE_SMOKE_VERSION: ${{ inputs.version }}
     steps:
       - name: Check out the trusted automation source

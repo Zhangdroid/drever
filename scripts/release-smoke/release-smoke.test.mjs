@@ -502,7 +502,7 @@ test("keeps the OpenAI key inside the generation job and pins the Codex action",
   );
   assert.match(workflow, /allow-bots: true/u);
   assert.match(workflow, /permission-profile: ":workspace"/u);
-  assert.match(workflow, /RELEASE_SMOKE_MODEL: gpt-5\.4-mini/u);
+  assert.match(workflow, /RELEASE_SMOKE_MODEL: gpt-5\.6-sol/u);
   const generateJob = workflow.slice(
     workflow.indexOf("\n  generate:"),
     workflow.indexOf("\n  build:"),

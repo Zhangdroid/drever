@@ -155,8 +155,10 @@ Maintainers can also dispatch the smoke manually for any published version.
 
 The smoke is intentionally separate from npm publication: a nondeterministic AI
 failure remains visible without making an already verified registry release
-appear to have failed. Generation uses `gpt-5.4-mini` with medium reasoning to
-keep this quality gate proportionate. It may qualify for OpenAI's complimentary
+appear to have failed. Generation uses the quality-first `gpt-5.6-sol` model
+with medium reasoning. Cost is controlled by running this expensive evidence
+once for stable releases by default, not by weakening the model that authors
+and judges the visual result. It may qualify for OpenAI's complimentary
 shared-traffic allowance only when project data sharing is enabled, the
 organization is eligible, and daily quota remains; otherwise normal API billing
 applies. See
