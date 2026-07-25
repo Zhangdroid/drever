@@ -5,6 +5,8 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+## [0.2.3] - 2026-07-25
+
 ### Changed
 
 - Re-composed prominent website and showcase headings around complete semantic phrases, and taught
@@ -169,7 +171,8 @@ section, while commit snapshots use the current Unreleased section.
 - Added parallel source, unit, package, browser, export, and website checks in CI.
 - Deployed the prerendered public website and per-branch previews through Cloudflare Pages.
 
-[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.2.3...HEAD
+[0.2.3]: https://github.com/Zhangdroid/drever/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/Zhangdroid/drever/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/Zhangdroid/drever/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Zhangdroid/drever/compare/v0.1.1...v0.2.0
