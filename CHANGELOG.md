@@ -5,6 +5,11 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+### Fixed
+
+- Made project-name normalization linear for separator-heavy directory names, preventing crafted
+  create-command input from causing excessive regular-expression backtracking.
+
 ## [0.2.0] - 2026-07-24
 
 ### Added

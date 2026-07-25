@@ -90,6 +90,31 @@ describe("create command arguments", () => {
 });
 
 describe("project creation", () => {
+  it("normalizes separator-heavy project directory names", async () => {
+    const parent = await temporaryDirectory();
+    const separators = "-".repeat(180);
+    const namedRoot = join(parent, `a${separators}b`);
+    const fallbackRoot = join(parent, `.${separators}_`);
+
+    await Promise.all(
+      [namedRoot, fallbackRoot].map((root) =>
+        createDreverProject({
+          agent: "none",
+          dreverVersion: "1.2.3",
+          install: false,
+          root,
+        }),
+      ),
+    );
+
+    await expect(readFile(join(namedRoot, "package.json"), "utf8")).resolves.toContain(
+      `"name": "a${separators}b"`,
+    );
+    await expect(readFile(join(fallbackRoot, "package.json"), "utf8")).resolves.toContain(
+      '"name": "drever-presentation"',
+    );
+  });
+
   it("creates a zero-config deck and both project-local agent adapters", async () => {
     const parent = await temporaryDirectory();
     const root = join(parent, "Product Story");

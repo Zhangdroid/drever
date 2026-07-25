@@ -243,18 +243,36 @@ const readTemplates = async (templateRoot: string): Promise<ReadonlyMap<string, 
   }
 };
 
-const packageName = (root: string): string => {
-  const normalized = basename(root)
-    .toLowerCase()
-    .replace(/[^a-z0-9._-]+/gu, "-")
-    .replace(/^[._-]+|[._-]+$/gu, "");
+const isPackageNameEdge = (character: string): boolean =>
+  character === "." || character === "_" || character === "-";
+
+const trimPackageNameEdges = (value: string): string => {
+  let start = 0;
+  let end = value.length;
+
+  while (start < end && isPackageNameEdge(value.charAt(start))) {
+    start += 1;
+  }
+  while (end > start && isPackageNameEdge(value.charAt(end - 1))) {
+    end -= 1;
+  }
+
+  return value.slice(start, end);
+};
+
+const projectPackageName = (root: string): string => {
+  const normalized = trimPackageNameEdges(
+    basename(root)
+      .toLowerCase()
+      .replace(/[^a-z0-9._-]+/gu, "-"),
+  );
   return normalized.length === 0 ? "drever-presentation" : normalized;
 };
 
 const projectPackage = (root: string, dreverVersion: string): string =>
   `${JSON.stringify(
     {
-      name: packageName(root),
+      name: projectPackageName(root),
       version: "0.0.0",
       private: true,
       type: "module",
