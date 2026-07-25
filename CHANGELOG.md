@@ -34,6 +34,9 @@ section, while commit snapshots use the current Unreleased section.
 
 ### Fixed
 
+- Made generated creation, design, authoring, and review workflows treat unreadable rendered text
+  as a blocking defect, including descendant colors that override an inherited custom-surface
+  foreground.
 - Gave the Feature Gallery opening a static accessible title and preserved semantic spacing in the
   Product Tour cover title used by navigation and search.
 - Used endpoint-appropriate media types when release-smoke provenance checks query npm and GitHub.

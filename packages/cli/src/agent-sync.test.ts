@@ -90,6 +90,22 @@ describe("agent kit sync", () => {
     );
   });
 
+  it("installs the blocking rendered-readability contract across the authoring workflow", async () => {
+    const root = await temporaryDirectory("drever-agent-project-");
+    await syncAgentKit({ root });
+
+    for (const skill of [
+      "drever-create-deck",
+      "drever-create-design",
+      "drever-author-deck",
+      "drever-review-deck",
+    ] as const) {
+      const contents = await read(root, `.agents/skills/${skill}/SKILL.md`);
+      expect(contents).toMatch(/not\s+immediately legible[^.]*blocking P0 defect/iu);
+      expect(contents).toMatch(/ancestor's `color` is not\s+proof/iu);
+    }
+  });
+
   it("installs the complete kit and reports a stable idempotent result", async () => {
     const root = await temporaryDirectory("drever-agent-project-");
     const templateRoot = await createTemplateKit("v1");

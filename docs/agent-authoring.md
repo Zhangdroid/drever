@@ -172,6 +172,14 @@ Preflight inside the report analyzes the authored source. Runtime components
 remain responsible for their generated semantics, and visual claims require
 rendered evidence at the configured canvas and exact Step route.
 
+Rendered readability is a delivery gate. Treat any essential text that is not
+immediately legible as a blocking P0 defect. Do not infer contrast from a
+wrapper's `color`: Theme element rules can set different foregrounds on
+headings, paragraphs, links, code, and table descendants. Inspect the computed
+foregrounds on the actual rendered elements against the worst-case background,
+motion frame, and Step state. Reduce or dim background layers and decoration,
+not a container that also contains required text.
+
 ## Follow the live presentation
 
 While `npm run dev` is running, each audience or speaker window publishes its

@@ -90,8 +90,19 @@ the document view; review the speaker view when notes or timing are involved. Ex
 when requested.
 
 Treat syntax-highlighted code, topic-specific visuals, stable motion, contrast, alignment, and
-overflow as rendered requirements rather than assumptions. Fix proven errors before finishing.
-Leave the local preview running when that helps the user review the result.
+overflow as rendered requirements rather than assumptions. Treat any heading, body copy, label,
+link, code sample, table cell, or control that is not immediately readable at the configured canvas
+as a blocking defect, even when checks and builds pass.
+
+Do not assume that setting `color` on a wrapper determines its descendant text. A Theme or component
+may assign explicit colors to `h1`, `h2`, `p`, links, code, or table elements. Inspect the rendered
+result and computed foreground styles on the actual descendants across every Step and the most
+disruptive frame of a moving, image, or gradient background. Dim decorative background layers
+instead of a container that also dims its text. Where a solid color pair can be measured, target at
+least WCAG AA contrast: 4.5:1 for normal text and 3:1 for large text and essential UI.
+
+Fix proven errors before finishing. Leave the local preview running when that helps the user review
+the result.
 
 ## Report the result
 

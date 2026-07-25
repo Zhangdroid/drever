@@ -12,4 +12,11 @@ describe("public bootstrap prompt", () => {
     expect(surpriseEscape).toBeGreaterThan(topicQuestion);
     expect(prompt).toMatch(/Never lead\s+with that option/u);
   });
+
+  it("makes rendered text readability a blocking contract", () => {
+    expect(prompt).toMatch(/not immediately readable[^.]*blocking defect/iu);
+    expect(prompt).toMatch(/Do not assume[^.]*wrapper[^.]*descendant text/iu);
+    expect(prompt).toMatch(/computed foreground styles/iu);
+    expect(prompt).toMatch(/across every Step/iu);
+  });
 });
