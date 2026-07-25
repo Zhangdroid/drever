@@ -89,7 +89,7 @@ export function HeroStage() {
       antialias: false,
       depth: false,
       powerPreference: "low-power",
-      premultipliedAlpha: false,
+      premultipliedAlpha: true,
     });
     if (!gl) return;
 
@@ -142,7 +142,8 @@ export function HeroStage() {
         color += vec3(0.48, 0.40, 0.98) * ribbon * 0.055;
 
         float vignette = smoothstep(1.42, 0.12, length(uv));
-        gl_FragColor = vec4(color, clamp(vignette * 0.48, 0.0, 0.48));
+        float alpha = clamp(vignette * 0.48, 0.0, 0.48);
+        gl_FragColor = vec4(color * alpha, alpha);
       }
     `;
 

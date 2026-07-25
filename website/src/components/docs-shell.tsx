@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import { documentationNavigation } from "../site-data";
+import { centerItem, keepItemVisible } from "./docs-navigation-scroll";
 import { ArrowUpRightIcon } from "./icons";
 import { CodeBlock } from "./showcase";
 
@@ -30,19 +31,41 @@ export function DocsShell() {
           return;
         }
 
-        activeLink.scrollIntoView({ block: "nearest", inline: "center" });
         const navigationBounds = navigation.getBoundingClientRect();
         const activeBounds = activeLink.getBoundingClientRect();
+        const activeLeft = activeBounds.left - navigationBounds.left + navigation.scrollLeft;
+        const activeTop = activeBounds.top - navigationBounds.top + navigation.scrollTop;
+
+        navigation.scrollTo({
+          behavior: "instant",
+          left:
+            navigation.scrollWidth > navigation.clientWidth
+              ? centerItem(
+                  navigation.clientWidth,
+                  navigation.scrollWidth,
+                  activeLeft,
+                  activeBounds.width,
+                )
+              : navigation.scrollLeft,
+          top: keepItemVisible(
+            navigation.scrollTop,
+            navigation.clientHeight,
+            activeTop,
+            activeBounds.height,
+          ),
+        });
+
+        const settledBounds = activeLink.getBoundingClientRect();
         navigation.style.setProperty(
           "--docs-indicator-x",
-          `${activeBounds.left - navigationBounds.left + navigation.scrollLeft}px`,
+          `${settledBounds.left - navigationBounds.left + navigation.scrollLeft}px`,
         );
         navigation.style.setProperty(
           "--docs-indicator-y",
-          `${activeBounds.top - navigationBounds.top + navigation.scrollTop}px`,
+          `${settledBounds.top - navigationBounds.top + navigation.scrollTop}px`,
         );
-        navigation.style.setProperty("--docs-indicator-width", `${activeBounds.width}px`);
-        navigation.style.setProperty("--docs-indicator-height", `${activeBounds.height}px`);
+        navigation.style.setProperty("--docs-indicator-width", `${settledBounds.width}px`);
+        navigation.style.setProperty("--docs-indicator-height", `${settledBounds.height}px`);
         navigation.dataset.hasActive = "true";
         frame = requestAnimationFrame(() => {
           navigation.dataset.indicatorReady = "true";

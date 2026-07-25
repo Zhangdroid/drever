@@ -8,18 +8,16 @@ Treat the user's accompanying message as the initial presentation brief. Reply i
 language, and use that language for the deck unless they request another one or the source material
 clearly requires it.
 
-If the topic itself is missing, ask for it before creating files and let the user answer **Surprise
-me** to delegate the subject too. Once the topic is known, infer everything the user already
-supplied.
-
-At the start of every question round, offer this escape:
-
-> **Skip remaining questions — surprise me.** I will choose the unresolved details, record the
-> assumptions, and start.
+If the topic itself is missing, ask for it before creating files. Make the topic the first question,
+then add one short option: **Or answer “Surprise me” and I will choose the subject too.** Never lead
+with that option, announce it as a decision, or imply that the user already selected it. Once the
+topic is known, infer everything the user already supplied.
 
 Questions may span multiple rounds when an earlier answer enables a useful topic-specific
 follow-up. Ask one to three concise questions at a time, highest-impact first, and continue only
-while another answer would materially improve the result. Draw from:
+while another answer would materially improve the result. Put the concrete questions first, then
+end each round with: **Or say “Skip remaining questions — surprise me” and I will choose the rest.**
+Draw from:
 
 1. What should the audience understand, decide, or do?
 2. How long is the presentation?

@@ -905,7 +905,6 @@ test("document transitions capture the deck while audience controls keep a stabl
   await monitorViewTransitions(page);
 
   await page.goto("/");
-  const next = page.getByRole("button", { name: "Next presentation state" });
   await page.evaluate(() => {
     Reflect.set(
       globalThis,
@@ -914,10 +913,9 @@ test("document transitions capture the deck while audience controls keep a stabl
     );
   });
 
-  const transition = await captureNextViewTransition(page, () => next.click());
+  const transition = await captureNextViewTransition(page, () => page.keyboard.press("ArrowRight"));
   await waitForViewTransition(page, transition, "ready");
   await expect(page).toHaveURL(/\/2$/u);
-  await expect(next).toBeFocused();
 
   expect(await readViewTransitionCalls(page)).toEqual([
     { kind: "document", target: "document", types: ["drever-slide-forward"] },
@@ -1055,5 +1053,20 @@ test("a second slide navigation supersedes an in-flight transition cleanly", asy
     { kind: "document", target: "document", types: ["drever-slide-forward"] },
     { kind: "document", target: "document", types: ["drever-slide-forward"] },
   ]);
+  health.expectHealthy();
+});
+
+test("audience toolbar supports immediate back-to-back slide navigation", async ({ page }) => {
+  const health = monitorPageHealth(page);
+  await monitorViewTransitions(page);
+  await page.goto("/2/5");
+
+  const next = page.getByRole("button", { name: "Next presentation state" });
+  await next.click();
+  await next.click();
+
+  await expect(page).toHaveURL(/\/4$/u);
+  await expect(next).toBeFocused();
+  expect(await readViewTransitionCalls(page)).toEqual([]);
   health.expectHealthy();
 });

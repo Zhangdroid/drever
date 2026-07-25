@@ -2,14 +2,13 @@ import { useId, useMemo, useState } from "react";
 
 import { CopyButton } from "./copy-button";
 
-const emptyHandoff =
-  "Fetch and follow https://drever.dev/prompt.md to create a Drever presentation.";
+const emptyHandoff = "Fetch https://drever.dev/prompt.md";
 
-const handoffFor = (brief: string) => {
+export const createAIHandoff = (brief: string) => {
   const normalized = brief.trim();
   if (normalized.length === 0) return emptyHandoff;
 
-  return `Fetch and follow https://drever.dev/prompt.md to create a Drever presentation. Brief: “${normalized}”`;
+  return `${emptyHandoff}. Brief: “${normalized}”`;
 };
 
 export function CopyAIHandoff({
@@ -28,7 +27,7 @@ export function CopyAIHandoff({
       describedBy={describedBy}
       idleText="Copy prompt"
       label="for Codex or Claude Code"
-      value={handoffFor(brief)}
+      value={createAIHandoff(brief)}
     />
   );
 }
@@ -42,7 +41,7 @@ export function AIHandoff({
 }) {
   const headingId = useId();
   const [brief, setBrief] = useState("");
-  const handoff = useMemo(() => handoffFor(brief), [brief]);
+  const handoff = useMemo(() => createAIHandoff(brief), [brief]);
 
   return (
     <section className="ai-handoff" aria-labelledby={headingId}>

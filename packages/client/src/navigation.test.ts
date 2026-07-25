@@ -239,6 +239,27 @@ describe("presentation Navigation API adapter", () => {
     ]);
   });
 
+  it("lets an in-process control skip the document transition without changing route semantics", async () => {
+    const { commit, controller, platform, store } = createRuntime();
+
+    await controller.navigate({ type: "next" }, { skipViewTransition: true });
+
+    expect(platform.navigateCalls[0]?.options.info).toEqual({
+      drever: "drever-navigation-v1",
+      skipViewTransition: true,
+      transitionType: "drever-step-forward",
+    });
+    expect(commit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: { slideId: "intro", slideIndex: 0, step: 2 },
+        transitionType: "drever-step-forward",
+      }),
+      expect.any(AbortSignal),
+      { skipViewTransition: true },
+    );
+    expect(store.getSnapshot()).toEqual({ slideId: "intro", slideIndex: 0, step: 2 });
+  });
+
   it("rejects an invalid in-process transition intent before creating history", async () => {
     const { controller, platform } = createRuntime();
 
@@ -295,6 +316,7 @@ describe("presentation Navigation API adapter", () => {
         transitionType: "drever-slide-forward",
       }),
       harness.event.signal,
+      { skipViewTransition: false },
     );
   });
 

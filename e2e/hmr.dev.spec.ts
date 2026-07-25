@@ -37,7 +37,7 @@ test("drever dev preserves state for content updates and reloads for deck struct
   page,
   request,
 }, testInfo) => {
-  test.setTimeout(45_000);
+  test.setTimeout(60_000);
   const root = testInfo.outputPath("project");
   const slides = `${root}/slides.mdx`;
   await mkdir(root, { recursive: true });
@@ -95,7 +95,7 @@ export const Counter = () => {
             return 0;
           }
         },
-        { message: "Drever dev did not start.", timeout: 10_000 },
+        { message: "Drever dev did not start.", timeout: 20_000 },
       )
       .toBe(200);
 

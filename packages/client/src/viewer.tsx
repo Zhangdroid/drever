@@ -23,7 +23,7 @@ import {
 import { AudienceControls } from "./audience-controls.tsx";
 import { CanvasViewport, DEFAULT_CANVAS } from "./canvas.tsx";
 import { DreverClientError, isAbortError } from "./client-error.ts";
-import type { PresentationCommit } from "./navigation.ts";
+import type { PresentationCommit, PresentationNavigationIntent } from "./navigation.ts";
 import type { PresentationFocusAppearance } from "./presentation-focus.ts";
 import type { PresentationFocusStore } from "./presentation-focus-store.ts";
 import type {
@@ -181,7 +181,7 @@ export type ViewerHostProps = Omit<ViewerProps, "manifest" | "onPositionCommitte
     onCopyShareURL(position: DeckPosition): Promise<void>;
     onError(error: unknown): void;
     onMounted(): void;
-    onNavigate(command: DeckCommand): void | Promise<void>;
+    onNavigate(command: DeckCommand, intent?: PresentationNavigationIntent): void | Promise<void>;
     onOpenDocument(): void;
     onOpenSpeaker(): void;
     registerCommit: ViewerCommitRegistrar;
@@ -235,7 +235,7 @@ export const ViewerHost = ({
   }, [store]);
 
   const commit = useCallback<PresentationCommit>(
-    (change, signal) => {
+    (change, signal, options) => {
       if (signal.aborted) {
         return Promise.reject(navigationAbortReason(signal));
       }
@@ -280,7 +280,7 @@ export const ViewerHost = ({
 
         const changesSlide = change.from.slideIndex !== change.to.slideIndex;
         const deck = deckRef.current;
-        if (reducedMotion || !changesSlide) {
+        if (reducedMotion || !changesSlide || options?.skipViewTransition === true) {
           if (deck !== null) {
             setLocalSlideTransitionMode(deck, undefined);
           }

@@ -325,7 +325,7 @@ describe("createViewer lifecycle", () => {
     await harness.navigationOptions.commit(change, new AbortController().signal);
 
     expect(harness.viewerCommit).toHaveBeenCalledOnce();
-    expect(harness.viewerCommit).toHaveBeenCalledWith(change, expect.any(AbortSignal));
+    expect(harness.viewerCommit).toHaveBeenCalledWith(change, expect.any(AbortSignal), undefined);
     expect(harness.navigationOptions.store.getSnapshot()).toEqual(change.to);
 
     const aborted = new AbortController();
@@ -567,9 +567,10 @@ describe("createViewer lifecycle", () => {
     harness.hostProps.onOpenSpeaker();
 
     expect(harness.navigationController.navigate).toHaveBeenCalledOnce();
-    expect(harness.navigationController.navigate).toHaveBeenCalledWith({
-      type: "previousSlide",
-    });
+    expect(harness.navigationController.navigate).toHaveBeenCalledWith(
+      { type: "previousSlide" },
+      undefined,
+    );
     expect(harness.open).toHaveBeenCalledWith(
       "https://slides.test/talk/document?theme=dark#details",
       "_blank",

@@ -16,6 +16,7 @@ export const getRouter = () =>
     },
     routeTree,
     scrollRestoration: true,
+    scrollRestorationBehavior: "instant",
     trailingSlash: "always",
   });
 

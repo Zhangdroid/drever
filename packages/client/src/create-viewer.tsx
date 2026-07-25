@@ -8,6 +8,7 @@ import {
   createPresentationNavigation,
   type PresentationCommit,
   type PresentationNavigation,
+  type PresentationNavigationIntent,
 } from "./navigation.ts";
 import { requireViewerPlatform } from "./platform-support.ts";
 import {
@@ -126,7 +127,7 @@ export const createViewer = async (options: CreateViewerOptions): Promise<Viewer
       }
     };
   };
-  const commitNavigation: PresentationCommit = (change, signal) => {
+  const commitNavigation: PresentationCommit = (change, signal, commitOptions) => {
     if (signal.aborted) {
       return Promise.reject(abortReason(signal));
     }
@@ -141,7 +142,7 @@ export const createViewer = async (options: CreateViewerOptions): Promise<Viewer
         ),
       );
     }
-    return viewerCommit(change, signal);
+    return viewerCommit(change, signal, commitOptions);
   };
 
   const subscribe = (listener: () => void): (() => void) => {
@@ -177,14 +178,17 @@ export const createViewer = async (options: CreateViewerOptions): Promise<Viewer
   let destroyPromise: Promise<void> | undefined;
   let fatalRenderError: unknown;
 
-  const navigateFromControls = async (command: DeckCommand): Promise<void> => {
+  const navigateFromControls = async (
+    command: DeckCommand,
+    intent?: PresentationNavigationIntent,
+  ): Promise<void> => {
     if (navigation === undefined) {
       throw new DreverClientError(
         "DREVER_CLIENT_VIEWER_NOT_READY",
         "The audience viewer is not ready to navigate.",
       );
     }
-    await navigation.navigate(command);
+    await navigation.navigate(command, intent);
   };
   const copyShareURL = async (position: DeckPosition): Promise<void> => {
     if (platform.clipboard === undefined) {

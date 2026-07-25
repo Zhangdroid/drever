@@ -3,17 +3,19 @@
 The public [`prompt.md`](/prompt.md) is a small bootstrap for an empty workspace. Give it a brief in
 ordinary language:
 
-> Follow https://drever.dev/prompt.md and create a short presentation that helps local residents
-> compare three proposals for a shared public space.
+> Fetch https://drever.dev/prompt.md. Brief: “Help local residents compare three proposals for a
+> shared public space.”
 
 The bootstrap checks the workspace, creates a safe project, and then hands control to the
 version-matched instructions installed inside that project. It does not duplicate the full
 authoring contract or silently change an existing Drever version.
 
-The website copies an even smaller handoff—just the prompt URL plus the brief. The fetched document
-owns the current workflow. If important choices are missing, the agent may ask adaptive follow-ups,
-but every round offers **Skip remaining questions — surprise me**. It matches the user's language
-by default and never silently guesses the duration outside surprise mode.
+The website copies an even smaller handoff—`Fetch https://drever.dev/prompt.md`, plus the brief when
+one was entered. This neutral fetch instruction avoids activating a competing generic presentation
+workflow before Drever's current contract is loaded. If important choices are missing, the agent
+may ask adaptive follow-ups. It puts concrete questions first, then offers **Skip remaining
+questions — surprise me** as an escape. It matches the user's language by default and never
+silently guesses the duration outside surprise mode.
 
 Command examples use npm. Project-local guidance detects pnpm, Yarn, and Bun and selects their
 equivalent local runner instead of assuming a global `drever` executable.

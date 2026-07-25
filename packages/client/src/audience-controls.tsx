@@ -15,6 +15,7 @@ import {
 import { DreverClientError } from "./client-error.ts";
 import { createFullscreenSession, PRESENTATION_IDLE_DELAY_MS } from "./fullscreen-session.ts";
 import { acceptsPresentationShortcut } from "./keyboard.ts";
+import type { PresentationNavigationIntent } from "./navigation.ts";
 import {
   CloseIcon,
   DocumentIcon,
@@ -50,7 +51,7 @@ export type AudienceControlsProps = Readonly<{
   manifest: DeckManifest;
   onCopyShareURL(position: DeckPosition): Promise<void>;
   onError(error: unknown): void;
-  onNavigate(command: DeckCommand): void | Promise<void>;
+  onNavigate(command: DeckCommand, intent?: PresentationNavigationIntent): void | Promise<void>;
   onOpenDocument(): void;
   onOpenSpeaker(): void;
   position: DeckPosition;
@@ -404,7 +405,8 @@ export const AudienceControls = ({
   );
 
   const navigate = useCallback(
-    (command: DeckCommand): void => run(() => onNavigate(command)),
+    (command: DeckCommand, intent?: PresentationNavigationIntent): void =>
+      run(() => onNavigate(command, intent)),
     [onNavigate, run],
   );
 
@@ -583,7 +585,7 @@ export const AudienceControls = ({
             aria-label="Previous presentation state"
             data-drever-tooltip="Previous step · ←"
             disabled={!progress.canGoPrevious}
-            onClick={() => navigate({ type: "previous" })}
+            onClick={() => navigate({ type: "previous" }, { skipViewTransition: true })}
             type="button"
           >
             <PreviousIcon />
@@ -607,7 +609,7 @@ export const AudienceControls = ({
             aria-label="Next presentation state"
             data-drever-tooltip="Next step · →"
             disabled={!progress.canGoNext}
-            onClick={() => navigate({ type: "next" })}
+            onClick={() => navigate({ type: "next" }, { skipViewTransition: true })}
             type="button"
           >
             <NextIcon />

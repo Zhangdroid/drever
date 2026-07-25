@@ -5,10 +5,20 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-07-24
+
 ### Fixed
 
 - Made project-name normalization linear for separator-heavy directory names, preventing crafted
   create-command input from causing excessive regular-expression backtracking.
+- Reduced the public AI handoff to a neutral prompt fetch and made adaptive interviews ask a real
+  question before offering the optional surprise escape.
+- Kept audience toolbar navigation immediately clickable by avoiding a document snapshot that
+  temporarily removes its controls from browser hit testing.
+- Kept documentation route changes pinned to the correct top or restored history position instead
+  of letting the navigation sidebar move the page.
+- Made the homepage light field composite consistently in Safari without its translucent canvas
+  becoming a bright white circle.
 
 ## [0.2.0] - 2026-07-24
 
@@ -115,7 +125,8 @@ section, while commit snapshots use the current Unreleased section.
 - Added parallel source, unit, package, browser, export, and website checks in CI.
 - Deployed the prerendered public website and per-branch previews through Cloudflare Pages.
 
-[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/Zhangdroid/drever/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Zhangdroid/drever/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/Zhangdroid/drever/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/Zhangdroid/drever/releases/tag/v0.1.0

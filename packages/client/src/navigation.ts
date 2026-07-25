@@ -61,7 +61,15 @@ export type NavigationLike = Readonly<{
   updateCurrentEntry(options: Readonly<{ state: unknown }>): void;
 }>;
 
-export type PresentationCommit = (change: PresentationChange, signal: AbortSignal) => Promise<void>;
+export type PresentationCommitOptions = Readonly<{
+  skipViewTransition?: boolean;
+}>;
+
+export type PresentationCommit = (
+  change: PresentationChange,
+  signal: AbortSignal,
+  options?: PresentationCommitOptions,
+) => Promise<void>;
 
 export type PresentationNavigation = Readonly<{
   dispose(): void;
@@ -69,9 +77,10 @@ export type PresentationNavigation = Readonly<{
   navigate(command: DeckCommand, intent?: PresentationNavigationIntent): Promise<void>;
 }>;
 
-/** A validated transition semantic supplied by an in-process navigation source. */
+/** Validated motion preferences supplied by an in-process navigation source. */
 export type PresentationNavigationIntent = Readonly<{
-  transitionType: PresentationTransitionType;
+  skipViewTransition?: boolean;
+  transitionType?: PresentationTransitionType;
 }>;
 
 export type CreatePresentationNavigationOptions = Readonly<{
@@ -93,11 +102,19 @@ const TRANSITION_TYPES: ReadonlySet<PresentationTransitionType> = new Set(
 
 type NavigationInfo = Readonly<{
   drever: typeof INFO_MARKER;
+  skipViewTransition?: true;
   transitionType: PresentationTransitionType;
 }>;
 
-const navigationInfo = (transitionType: PresentationTransitionType): NavigationInfo =>
-  Object.freeze({ drever: INFO_MARKER, transitionType });
+const navigationInfo = (
+  transitionType: PresentationTransitionType,
+  skipViewTransition: boolean,
+): NavigationInfo =>
+  Object.freeze({
+    drever: INFO_MARKER,
+    transitionType,
+    ...(skipViewTransition ? { skipViewTransition: true as const } : {}),
+  });
 
 const cachedState = (position: DeckPosition): unknown =>
   Object.freeze({
@@ -117,6 +134,12 @@ const readTransitionType = (value: unknown): PresentationTransitionType | undefi
     ? info.transitionType
     : undefined;
 };
+
+const shouldSkipViewTransition = (value: unknown): boolean =>
+  typeof value === "object" &&
+  value !== null &&
+  (value as Partial<NavigationInfo>).drever === INFO_MARKER &&
+  (value as Partial<NavigationInfo>).skipViewTransition === true;
 
 const directionOf = (type: PresentationTransitionType): "backward" | "forward" =>
   type.endsWith("-backward") ? "backward" : "forward";
@@ -138,15 +161,17 @@ const isCompatibleTransitionType = (
 
 const validateIntent = (
   intent: PresentationNavigationIntent | undefined,
-): PresentationTransitionType | undefined => {
+): PresentationNavigationIntent => {
   if (intent === undefined) {
-    return;
+    return Object.freeze({});
   }
   if (
     typeof intent !== "object" ||
     intent === null ||
-    typeof intent.transitionType !== "string" ||
-    !TRANSITION_TYPES.has(intent.transitionType as PresentationTransitionType)
+    (intent.transitionType !== undefined &&
+      (typeof intent.transitionType !== "string" ||
+        !TRANSITION_TYPES.has(intent.transitionType as PresentationTransitionType))) ||
+    (intent.skipViewTransition !== undefined && typeof intent.skipViewTransition !== "boolean")
   ) {
     throw new DreverClientError(
       "DREVER_CLIENT_TRANSITION_INVALID",
@@ -157,11 +182,15 @@ const validateIntent = (
             typeof intent === "object" && intent !== null && "transitionType" in intent
               ? String(intent.transitionType)
               : "missing",
+          skipViewTransition:
+            typeof intent === "object" && intent !== null && "skipViewTransition" in intent
+              ? String(intent.skipViewTransition)
+              : "missing",
         },
       },
     );
   }
-  return intent.transitionType;
+  return intent;
 };
 
 export const createPresentationNavigation = ({
@@ -234,7 +263,9 @@ export const createPresentationNavigation = ({
       scroll: "manual",
       handler: async () => {
         if (change !== undefined) {
-          await commit(change, event.signal);
+          await commit(change, event.signal, {
+            skipViewTransition: shouldSkipViewTransition(event.info),
+          });
         }
       },
     });
@@ -249,7 +280,8 @@ export const createPresentationNavigation = ({
       const routeBase =
         currentURL === null || currentURL === undefined ? baseURL : new URL(currentURL);
       const position = route.ownsURL(routeBase) ? route.decodeURL(routeBase) : store.getSnapshot();
-      const requestedTransitionType = validateIntent(intent);
+      const validatedIntent = validateIntent(intent);
+      const requestedTransitionType = validatedIntent.transitionType;
       const change = machine.transition(position, command);
       if (change === undefined) {
         return;
@@ -262,7 +294,7 @@ export const createPresentationNavigation = ({
       const url = route.encodeURL(change.to, route.ownsURL(routeBase) ? routeBase : baseURL);
       const result = navigation.navigate(url.href, {
         history: "push",
-        info: navigationInfo(intendedTransitionType),
+        info: navigationInfo(intendedTransitionType, validatedIntent.skipViewTransition === true),
         state: cachedState(change.to),
       });
       await result.finished;

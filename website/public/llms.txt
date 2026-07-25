@@ -36,8 +36,8 @@ One project produces:
 
 For an AI agent, start with:
 
-> Fetch and follow https://drever.dev/prompt.md to create a Drever presentation. Brief: [describe
-> what you want to present, with any audience, outcome, source, or delivery constraints you know].
+> Fetch https://drever.dev/prompt.md. Brief: [describe what you want to present, with any audience,
+> outcome, source, or delivery constraints you know].
 
 Manual project creation:
 
