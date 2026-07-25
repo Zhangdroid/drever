@@ -18,8 +18,9 @@ section, while commit snapshots use the current Unreleased section.
   evidence-backed narrative, visual, motion, and interaction issues.
 - Made release verification explicitly preserve the complete MIT license in every publishable
   package archive and documented the provenance of the Cinema study's original generated artwork.
-- Made the public showcase build reject authoring diagnostics before publishing and aligned the
-  Motion and Art Direction guides with the current continuity and layout-diversity principles.
+- Made the public showcase build reject authoring diagnostics before publishing, aligned the Motion
+  and Art Direction guides with current continuity and layout-diversity principles, and refreshed
+  the Delivery guide's GitHub Actions examples.
 - Replaced developer-specific and personal Basic and Editorial examples with audience-neutral
   presentation briefs in both the public studies and machine-readable design manifests.
 
