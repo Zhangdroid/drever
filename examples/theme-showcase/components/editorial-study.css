@@ -1,0 +1,115 @@
+.theme-showcase-editorial-study {
+  display: grid;
+  width: 100%;
+  min-height: 650px;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  align-items: center;
+  gap: 76px;
+}
+
+.theme-showcase-editorial-study__copy {
+  display: grid;
+  min-width: 0;
+  align-content: center;
+  gap: 24px;
+}
+
+.theme-showcase-editorial-study__kicker {
+  color: var(--drever-editorial-accent);
+  font-family: Aptos, Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 760;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+[data-drever-slide] .theme-showcase-editorial-study :where(h1, h2) {
+  max-width: 11ch;
+  font-size: 52px;
+  line-height: 0.96;
+}
+
+.theme-showcase-editorial-study :where(h1, h2) > span {
+  display: block;
+  white-space: nowrap;
+}
+
+[data-drever-slide] .theme-showcase-editorial-study__copy > p {
+  max-width: 32ch;
+  color: var(--drever-editorial-muted);
+  font-family:
+    Iowan Old Style,
+    "Palatino Linotype",
+    Georgia,
+    serif;
+  font-size: 23px;
+  line-height: 1.42;
+}
+
+.theme-showcase-editorial-study__artifact {
+  min-width: 0;
+}
+
+.theme-showcase-editorial-study__finding {
+  display: grid;
+  padding-block-start: 20px;
+  border-top: 1px solid var(--drever-editorial-ink);
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: 16px;
+}
+
+[data-drever-slide] .theme-showcase-editorial-study__finding strong {
+  color: var(--drever-editorial-accent);
+  font-family:
+    Iowan Old Style,
+    "Palatino Linotype",
+    Georgia,
+    serif;
+  font-size: 62px;
+  font-weight: 500;
+  letter-spacing: -0.05em;
+}
+
+.theme-showcase-editorial-study__finding span {
+  color: var(--drever-editorial-muted);
+  font-size: 17px;
+  line-height: 1.35;
+}
+
+.theme-showcase-editorial-study__decision {
+  display: grid;
+  margin: 0;
+  border-top: 1px solid var(--drever-editorial-ink);
+}
+
+.theme-showcase-editorial-study__decision > div {
+  display: grid;
+  padding-block: 11px;
+  border-bottom: 1px solid var(--drever-editorial-border);
+  grid-template-columns: 82px 1fr;
+  gap: 14px;
+}
+
+.theme-showcase-editorial-study__decision :where(dt, dd) {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.theme-showcase-editorial-study__decision dt {
+  color: var(--drever-editorial-accent);
+  font-size: 12px;
+  font-weight: 760;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.theme-showcase-editorial-study__decision dd {
+  color: var(--drever-editorial-ink);
+  font-weight: 650;
+}
+
+.theme-showcase-editorial-study .drever-example-exit {
+  margin-block-start: 0;
+}

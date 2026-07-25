@@ -4,7 +4,16 @@ import { spawn } from "node:child_process";
 
 const COMMANDS = new Set(["build", "check", "dev"]);
 const DEFAULT_THEME = "fieldnote";
-const THEMES = ["fieldnote", "atlas", "ledger", "cinema", "construct"];
+const THEMES = [
+  "basic",
+  "editorial",
+  "studio",
+  "fieldnote",
+  "atlas",
+  "ledger",
+  "cinema",
+  "construct",
+];
 
 const usage = `Theme showcase
 
@@ -122,7 +131,7 @@ const main = async () => {
     return fail(`Expected dev, check, or build; received "${options.command ?? ""}".`);
   }
   if (options.all && options.command === "dev") {
-    return fail("--all cannot start five development servers. Select one theme for dev.");
+    return fail("--all cannot start eight development servers. Select one theme for dev.");
   }
   if (options.all && options.requestedTheme !== undefined) {
     return fail("--all and --theme cannot be used together.");

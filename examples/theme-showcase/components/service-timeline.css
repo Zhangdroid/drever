@@ -1,27 +1,29 @@
 .theme-showcase-service-timeline {
+  position: relative;
   display: grid;
   width: 100%;
-  height: 100%;
+  min-height: 250px;
   box-sizing: border-box;
-  grid-template-rows: minmax(0, 1fr) auto;
-  padding: 72px 88px 58px;
+  grid-template-rows: 1fr auto;
+  padding: 58px 16px 22px;
   color: var(--drever-theme-ink);
 }
 
 .theme-showcase-service-timeline__track {
   position: relative;
   width: 100%;
-  height: 4px;
+  height: 3px;
   align-self: center;
-  background: currentcolor;
+  background: color-mix(in srgb, var(--drever-theme-ink), transparent 18%);
 }
 
 .theme-showcase-service-timeline__stop {
   position: absolute;
   top: 50%;
-  width: 28px;
-  height: 28px;
-  border: 4px solid var(--drever-theme-ink);
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 3px solid var(--drever-theme-ink);
   border-radius: 50%;
   background: var(--drever-theme-ink);
   translate: -50% -50%;
@@ -29,49 +31,98 @@
 
 .theme-showcase-service-timeline__time {
   position: absolute;
-  bottom: calc(100% + 18px);
+  bottom: calc(100% + 12px);
   left: 50%;
   color: var(--drever-theme-ink);
   font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
-  font-size: 25px;
+  font-size: 16px;
   font-weight: 700;
   line-height: 1;
   translate: -50% 0;
   white-space: nowrap;
 }
 
-.theme-showcase-service-timeline__stop--proposed {
-  width: 34px;
-  height: 34px;
-  border-color: var(--drever-theme-accent);
-  background: var(--drever-theme-accent);
-}
-
-.theme-showcase-service-timeline__stop--proposed .theme-showcase-service-timeline__time {
-  top: calc(100% + 22px);
-  bottom: auto;
-  color: var(--drever-theme-accent);
-  font-size: 27px;
-}
-
 .theme-showcase-service-timeline__gap {
   position: absolute;
-  top: 102px;
-  right: 7%;
-  left: 33%;
-  border-top: 4px dashed var(--drever-theme-accent);
+  top: 50%;
+  right: 12%;
+  left: 31%;
+  border-top: 3px dashed color-mix(in srgb, var(--drever-theme-accent), transparent 22%);
+  translate: 0 22px;
+}
+
+[data-drever-slide] .theme-showcase-service-timeline__finding,
+[data-drever-slide] .theme-showcase-service-timeline__proposal > p {
+  display: flex;
+  max-width: none;
+  margin: 0;
+  align-items: baseline;
+  justify-content: space-between;
+  color: var(--drever-theme-muted);
+  font-size: 15px;
+  letter-spacing: 0;
+  line-height: 1.3;
+}
+
+.theme-showcase-service-timeline__finding strong,
+.theme-showcase-service-timeline__proposal strong {
+  color: var(--drever-theme-ink);
+  font-family: Baskerville, "Iowan Old Style", Georgia, serif;
+  font-size: 26px;
+  font-weight: 600;
 }
 
 .theme-showcase-service-timeline__finding {
-  max-width: none;
-  margin: 0;
-  color: var(--drever-theme-ink);
-  font-size: 21px;
-  letter-spacing: -0.015em;
-  line-height: 1.3;
-  text-align: center;
+  transition: opacity 240ms ease;
 }
 
-.theme-showcase-service-timeline__finding strong {
+.theme-showcase-service-timeline:has(
+    .theme-showcase-service-timeline__proposal[data-step-state="active"]
+  )
+  .theme-showcase-service-timeline__finding {
+  opacity: 0;
+}
+
+.theme-showcase-service-timeline__proposal {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  pointer-events: none;
+}
+
+.theme-showcase-service-timeline__proposal > .theme-showcase-service-timeline__stop {
+  top: 50%;
+}
+
+.theme-showcase-service-timeline__stop--proposed {
+  width: 22px;
+  height: 22px;
+  border-color: var(--drever-theme-accent);
+  background: var(--drever-theme-accent);
+  translate: -50% -12px;
+}
+
+.theme-showcase-service-timeline__stop--proposed .theme-showcase-service-timeline__time {
+  top: auto;
+  bottom: calc(100% + 12px);
   color: var(--drever-theme-accent);
+  font-size: 16px;
+}
+
+[data-drever-slide] .theme-showcase-service-timeline__proposal > p {
+  position: absolute;
+  right: 16px;
+  bottom: 22px;
+  left: 16px;
+  color: var(--drever-theme-accent);
+}
+
+.theme-showcase-service-timeline__proposal strong {
+  color: var(--drever-theme-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-showcase-service-timeline__finding {
+    transition: none;
+  }
 }

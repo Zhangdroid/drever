@@ -1,0 +1,123 @@
+import { ReadingHours } from "../components/editorial-reading-hours.tsx";
+import "../../showcase-return.css";
+import "../components/editorial-study.css";
+
+<section
+  aria-label="The doors close at six. Demand peaks afterward."
+  className="theme-showcase-editorial-study"
+>
+  <div className="theme-showcase-editorial-study__copy">
+    <span className="theme-showcase-editorial-study__kicker">
+      Illustrative civic brief / Evening edition
+    </span>
+    <h1>
+      <span>The doors close at six.</span>
+      <span>Demand peaks afterward.</span>
+    </h1>
+    <p>A small opening-hours decision can determine who gets a quiet place to read.</p>
+  </div>
+  <MotionGroup
+    className="theme-showcase-editorial-study__artifact"
+    intent="continuity"
+    name="editorial-reading-hours"
+  >
+    <ReadingHours phase="framing" />
+  </MotionGroup>
+</section>
+
+<Note>
+  Begin with the service contradiction, not a generic statement about public space. The four-hour
+  time band is the evidence object the audience will follow.
+</Note>
+
+---
+
+<section
+  aria-label="Three arrive by six. Seven arrive later."
+  className="theme-showcase-editorial-study"
+>
+  <div className="theme-showcase-editorial-study__copy">
+    <span className="theme-showcase-editorial-study__kicker">
+      Illustrative arrival study / Weekdays
+    </span>
+    <h2>
+      <span>Three arrive by six.</span>
+      <span>Seven arrive later.</span>
+    </h2>
+    <p>
+      The observed pattern concentrates between 18:00 and 20:00, after the current service has
+      ended.
+    </p>
+    <div className="theme-showcase-editorial-study__finding">
+      <strong>70%</strong>
+      <span>of the illustrative arrivals fall beyond the closing line</span>
+    </div>
+  </div>
+  <MotionGroup
+    className="theme-showcase-editorial-study__artifact"
+    intent="continuity"
+    name="editorial-reading-hours"
+  >
+    <ReadingHours phase="evidence" />
+  </MotionGroup>
+</section>
+
+<Note>
+  Keep the claim exactly as narrow as the illustrative pattern. The arrival marks gain emphasis,
+  while the closing line and the time scale remain fixed.
+</Note>
+
+---
+
+<section
+  aria-label="Stay open until eight. Test it twice a week."
+  className="theme-showcase-editorial-study"
+>
+  <div className="theme-showcase-editorial-study__copy">
+    <span className="theme-showcase-editorial-study__kicker">
+      Illustrative service pilot / Four weeks
+    </span>
+    <h2>
+      <span>Stay open until eight.</span>
+      <span>Test it twice a week.</span>
+    </h2>
+    <dl className="theme-showcase-editorial-study__decision">
+      <div>
+        <dt>When</dt>
+        <dd>Tuesday and Thursday · 18:00–20:00</dd>
+      </div>
+      <div>
+        <dt>Owner</dt>
+        <dd>Neighborhood services lead</dd>
+      </div>
+      <div>
+        <dt>Review</dt>
+        <dd>Visits, occupied seats, and staffing after four weeks</dd>
+      </div>
+    </dl>
+    <nav aria-label="Continue with Drever" className="drever-example-exit">
+      <a
+        className="drever-example-exit__primary"
+        data-drever-showcase-return=""
+        href="https://drever.dev/docs/getting-started/"
+      >
+        {"Start a deck"}
+      </a>
+      <a className="drever-example-exit__secondary" href="https://drever.dev/showcase/">
+        {"More design studies"}
+      </a>
+    </nav>
+  </div>
+  <MotionGroup
+    className="theme-showcase-editorial-study__artifact"
+    intent="continuity"
+    name="editorial-reading-hours"
+  >
+    <ReadingHours phase="decision" />
+  </MotionGroup>
+</section>
+
+<Note>
+  Extend the same band rather than replacing it with a summary card. Close with a bounded schedule,
+  one owner, and the evidence that will decide whether the service continues.
+</Note>

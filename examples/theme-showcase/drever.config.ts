@@ -1,6 +1,15 @@
 import { defineConfig, type ThemeDefinition } from "drever";
 
-const themeNames = ["fieldnote", "atlas", "ledger", "cinema", "construct"] as const;
+const themeNames = [
+  "basic",
+  "editorial",
+  "studio",
+  "fieldnote",
+  "atlas",
+  "ledger",
+  "cinema",
+  "construct",
+] as const;
 type ThemeName = (typeof themeNames)[number];
 
 const isThemeName = (value: string): value is ThemeName =>
@@ -16,10 +25,13 @@ if (!isThemeName(requestedTheme)) {
 
 const themeLoaders = {
   atlas: () => import("@drever/designs/atlas"),
+  basic: () => import("@drever/designs/basic"),
   cinema: () => import("@drever/designs/cinema"),
   construct: () => import("@drever/designs/construct"),
+  editorial: () => import("@drever/designs/editorial"),
   fieldnote: () => import("@drever/designs/fieldnote"),
   ledger: () => import("@drever/designs/ledger"),
+  studio: () => import("@drever/designs/studio"),
 } satisfies Record<ThemeName, () => Promise<{ default: ThemeDefinition }>>;
 
 const selectedTheme = (await themeLoaders[requestedTheme]()).default;

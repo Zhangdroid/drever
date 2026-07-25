@@ -1,67 +1,102 @@
-import { ServiceTimeline } from "../components/service-timeline.tsx";
+import { CinemaNightVisual } from "../components/cinema-night-visual.tsx";
+import { ServiceProposal, ServiceTimeline } from "../components/service-timeline.tsx";
 import "../../showcase-return.css";
 import "../components/cinema-epilogue.css";
 
-<TitleCard
-  eyebrow="Act I / The missing hour"
-  title="The last bus left at 9:12."
-  logline="For night-shift workers, the city ended before work did."
-  credit="Route 14 · service story"
-  align="left"
-/>
+<section
+  aria-label="The last bus left at 9:12."
+  className="theme-showcase-cinema-story theme-showcase-cinema-story--opening"
+>
+  <TitleCard
+    className="theme-showcase-cinema-title"
+    eyebrow="Illustrative service story / 01"
+    title={
+      <>
+        <span>The last bus</span>
+        <br />
+        <span>left at 9:12.</span>
+      </>
+    }
+    logline="For night-shift workers, the city ended before work did."
+    credit="Route 14 · The missing hour"
+    align="left"
+  />
+  <CinemaNightVisual />
+</section>
 
 <Note>
-  Treat the opening as a story boundary. The title establishes the consequence before showing the
-  operational diagram.
+  This is an explicitly illustrative service scenario. Let the human consequence settle before
+  advancing. The night-bus image is the story's stable artifact and remains in the same geometry on
+  every slide.
 </Note>
 
 ---
 
-<Frame
-  heading="The timetable had a ninety-eight-minute hole."
-  media={<ServiceTimeline />}
-  caption="A single added departure reconnects the hospital shift change to the night network."
-  credit="Service plan / Weekdays"
-  ratio="widescreen"
-/>
+<section className="theme-showcase-cinema-story theme-showcase-cinema-story--evidence">
+  <header className="theme-showcase-cinema-copy">
+    <p className="theme-showcase-cinema-eyebrow">Illustrative weekday service gap / 02</p>
+    <h2>
+      <span>The schedule</span>
+      <br />
+      <span>loses an entire shift.</span>
+    </h2>
+    <p>The hospital closes one shift at 9:45. Route 14 does not return until 10:50.</p>
+  </header>
+  <div className="theme-showcase-cinema-timeline">
+    <ServiceTimeline>
+      <Step at={1} className="theme-showcase-service-timeline__proposal">
+        <ServiceProposal />
+      </Step>
+    </ServiceTimeline>
+  </div>
+  <CinemaNightVisual />
+</section>
 
 <Note>
-  Keep the frame stable while reading the existing and proposed departures. The diagram is evidence,
-  not a decorative backdrop.
+  All times are illustrative. Read the current 65-minute wait first, then advance once. The proposed
+  departure and shorter wait appear as one causal change while the image and timetable geometry
+  remain fixed.
 </Note>
 
 ---
 
-<p className="theme-showcase-cinema-epilogue">Epilogue / Illustrative service scenario</p>
-
-## The city stayed open.
-
-> “Before this bus, I chose between leaving patients early and paying for a ride home.”
-
-<p className="theme-showcase-cinema-source">
-  Illustrative composite quote and figures created for this design study.
-</p>
-
-In this illustrative scenario, the pilot carried **41 riders per night**. Missed hospital connections
-fell from **23% to 6%**.
-
-Route 14's added hour became permanent in the autumn timetable.
-
-<nav aria-label="Continue with Drever" className="drever-example-exit">
-  <a
-    className="drever-example-exit__primary"
-    data-drever-showcase-return=""
-    href="https://drever.dev/docs/getting-started/"
-  >
-    {"Start a deck"}
-  </a>
-  <a className="drever-example-exit__secondary" href="https://drever.dev/showcase/">
-    {"More design studies"}
-  </a>
-</nav>
+<section className="theme-showcase-cinema-story theme-showcase-cinema-story--epilogue">
+  <div className="theme-showcase-cinema-copy">
+    <p className="theme-showcase-cinema-eyebrow">Illustrative epilogue / 03</p>
+    <h2>The city stayed open.</h2>
+    <blockquote>
+      “Before this bus, I chose between leaving patients early and paying for a ride home.”
+    </blockquote>
+    <div className="theme-showcase-cinema-outcomes" aria-label="Illustrative pilot outcomes">
+      <p>
+        <strong>41</strong>
+        <span>riders per night</span>
+      </p>
+      <p>
+        <strong>23% → 6%</strong>
+        <span>missed connections</span>
+      </p>
+    </div>
+    <small className="theme-showcase-cinema-source">
+      Illustrative composite; no real service or reported data.
+    </small>
+    <nav aria-label="Continue with Drever" className="drever-example-exit">
+      <a
+        className="drever-example-exit__primary"
+        data-drever-showcase-return=""
+        href="https://drever.dev/docs/getting-started/"
+      >
+        {"Start a deck"}
+      </a>
+      <a className="drever-example-exit__secondary" href="https://drever.dev/showcase/">
+        {"More design studies"}
+      </a>
+    </nav>
+  </div>
+  <CinemaNightVisual />
+</section>
 
 <Note>
-  Treat this as an explicitly illustrative epilogue. End with the human outcome and only two
-  supporting measures; the resolution is concrete without presenting sample evidence as reported
-  fact.
+  End on the person affected, then use the two illustrative measures only as supporting resolution.
+  The image stays fixed; nothing else needs to move.
 </Note>

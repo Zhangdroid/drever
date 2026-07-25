@@ -1,99 +1,112 @@
+import { FieldnoteCheckout } from "../components/fieldnote-checkout.tsx";
 import "../../showcase-return.css";
 import "../components/fieldnote-study.css";
 
-<Notebook
-  eyebrow="Illustrative research notebook / Session 03"
-  title="Confusion starts one screen earlier."
-  note="The payment form is not the problem; the missing promise is."
-  footer="Checkout study · 18 July 2026"
-/>
+<section className="fieldnote-study fieldnote-study--opening">
+  <header className="fieldnote-study__opening-copy">
+    <p className="fieldnote-study__eyebrow">Illustrative research notebook / Session 03</p>
+    <h1>
+      Confusion starts
+      <br />
+      one screen earlier.
+    </h1>
+    <p className="fieldnote-study__dek">
+      The payment form is not the problem; the missing promise is.
+    </p>
+    <p className="fieldnote-study__footer">Checkout study · 18 July 2026</p>
+  </header>
+
+  <MotionGroup intent="continuity" name="fieldnote-checkout-flow">
+    <FieldnoteCheckout state="premise" />
+  </MotionGroup>
+</section>
 
 <Note>
-  This is a research debrief, so one handwritten voice carries the observation, evidence, and
-  annotations. The paper field stays quiet enough to disappear behind them.
+  Introduce the same checkout artifact that the research observations and decision will use. The
+  page stays quiet: one claim, one flow, and one missing promise.
 </Note>
 
 ---
 
-## Write the observation before the explanation.
+<section className="fieldnote-study fieldnote-study--observations">
+  <header className="fieldnote-study__observation-copy">
+    <p className="fieldnote-study__eyebrow">Illustrative moderated session / Participant 05</p>
+    <h2>
+      <span>Write what happened</span>
+      <span>before explaining why.</span>
+    </h2>
+    <blockquote>“I just want to know what happens when I press it.”</blockquote>
+  </header>
 
-<MotionGroup className="theme-showcase-fieldnote-observations" flow="block" intent="stagger">
-  <Step at={1}>
-    <strong>00:18</strong> — The participant rereads “Continue” twice.
-  </Step>
-  <Step at={2}>
-    <strong>00:31</strong> — They ask whether the card will be charged now.
-  </Step>
-  <Step at={3}>
-    <strong>00:46</strong> — They return to shipping to look for the answer.
-  </Step>
-</MotionGroup>
+  <div className="fieldnote-study__artifact">
+    <MotionGroup intent="continuity" name="fieldnote-checkout-flow">
+      <FieldnoteCheckout state="observations" />
+    </MotionGroup>
 
-> “I just want to know what happens when I press it.”
+    <MotionGroup
+      className="fieldnote-study__observation-layer"
+      flow="block"
+      intent="focus"
+    >
+      <Step at={1}>
+        <span className="fieldnote-study__observation" data-observation="delivery">
+          <strong>00:18</strong>
+          <span>Rereads “Continue” twice.</span>
+        </span>
+      </Step>
+      <Step at={2}>
+        <span className="fieldnote-study__observation" data-observation="payment">
+          <strong>00:31</strong>
+          <span>Asks whether the card will be charged now.</span>
+        </span>
+      </Step>
+      <Step at={3}>
+        <span className="fieldnote-study__observation" data-observation="review">
+          <strong>00:46</strong>
+          <span>Returns to shipping to look for the answer.</span>
+        </span>
+      </Step>
+    </MotionGroup>
+
+  </div>
+</section>
 
 <Note>
-  Reveal the observations in recording order. Keep the quote separate: it is the participant's
-  language, not the researcher's diagnosis.
+  Reveal one timestamp at a time. Each note lands on the screen the participant was trying to
+  understand; the quote remains their language, not the researcher's diagnosis.
 </Note>
 
 ---
 
-<Annotated
-  heading="The hesitation appears before payment."
-  annotationsLabel="Research recommendations"
-  balance="evidence-led"
-  evidence={
-    <table aria-label="Observed checkout hesitation by screen">
-      <thead>
-        <tr>
-          <th>Screen</th>
-          <th>Participants who paused</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Delivery summary</td>
-          <td>7 / 8</td>
-        </tr>
-        <tr>
-          <td>Payment details</td>
-          <td>2 / 8</td>
-        </tr>
-        <tr>
-          <td>Final review</td>
-          <td>1 / 8</td>
-        </tr>
-      </tbody>
-    </table>
-  }
-  annotations={
-    <>
-      <ol>
-        <li>Name the next action.</li>
-        <li>Say when charging happens.</li>
-        <li>Test the promise, not new form styling.</li>
-      </ol>
-      <section
-        aria-label="Next checkout experiment"
-        className="theme-showcase-fieldnote-next-experiment"
-      >
-        <strong>Next experiment · 25 July</strong>
-        <p>Prototype the delivery-summary promise with five mobile participants.</p>
-        <dl>
-          <div>
-            <dt>Owner</dt>
-            <dd>Checkout content</dd>
-          </div>
-          <div>
-            <dt>Success</dt>
-            <dd>4 of 5 explain the next action and charge timing without going back.</dd>
-          </div>
-        </dl>
-      </section>
-    </>
-  }
-  caption="Illustrative moderated checkout study · n=8 · mobile prototype"
-/>
+<section className="fieldnote-study fieldnote-study--finding">
+  <header className="fieldnote-study__finding-heading">
+    <p className="fieldnote-study__eyebrow">Illustrative synthesis / n=8 mobile participants</p>
+    <h2>The hesitation appears before payment.</h2>
+  </header>
+
+  <div className="fieldnote-study__finding-body">
+    <MotionGroup intent="continuity" name="fieldnote-checkout-flow">
+      <FieldnoteCheckout state="finding" />
+    </MotionGroup>
+
+    <aside aria-label="Next checkout experiment" className="fieldnote-study__experiment">
+      <p className="fieldnote-study__experiment-label">Next experiment · 25 July</p>
+      <strong>Name the next action and say when charging begins.</strong>
+      <p>Prototype that promise on the delivery summary with five mobile participants.</p>
+      <dl>
+        <div>
+          <dt>Owner</dt>
+          <dd>Checkout content</dd>
+        </div>
+        <div>
+          <dt>Success</dt>
+          <dd>4 of 5 explain both points without going back.</dd>
+        </div>
+      </dl>
+    </aside>
+
+  </div>
+</section>
 
 <nav aria-label="Continue with Drever" className="drever-example-exit">
   <a
@@ -109,7 +122,6 @@ import "../components/fieldnote-study.css";
 </nav>
 
 <Note>
-  The annotation layout connects a bounded set of recommendations to one inspectable artifact. The
-  small sample is labelled so the deck does not imply false precision. The close names the next
-  experiment, its owner, and the outcome that would count as progress.
+  Keep the finding attached to the same checkout artifact. The close records one change, one owner,
+  and one observable success threshold instead of turning the page into a recommendation dashboard.
 </Note>

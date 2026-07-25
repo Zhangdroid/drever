@@ -1,116 +1,115 @@
+import { LedgerRecord } from "../components/ledger-cohort.tsx";
 import "../../showcase-return.css";
 import "../components/ledger-decision.css";
 
-<Metric
-  label="Illustrative activation rate"
-  value="68.4"
-  unit="%"
-  period="Q2 · New team accounts"
-  change="+7.2 pp vs Q1"
-  context="Guided setup moved more teams to their first shared result within 24 hours."
-  benchmark="Decision line 65%"
-  tone="positive"
-/>
+<section className="ledger-study ledger-study--metric">
+  <header className="ledger-study__copy">
+    <p className="ledger-study__label">Illustrative activation review / 01</p>
+    <h1>
+      The measure clears
+      <br />
+      the decision line.
+    </h1>
+    <p>
+      Guided setup moved more teams to their first shared result within 24 hours.
+    </p>
+  </header>
+
+  <MotionGroup intent="continuity" name="ledger-activation-record">
+    <LedgerRecord stage="metric" />
+  </MotionGroup>
+</section>
 
 <Note>
-  Lead with the one measure that changes the decision. Read the period and comparison aloud; the
-  context explains the consequence instead of repeating the number.
+  Lead with the decision, then let the record prove it. The same sheet will open into cohort
+  evidence and finally become the guarded rollout record.
 </Note>
 
 ---
 
-<Evidence
-  className="ledger-cohort-evidence"
-  label="Illustrative cohort audit / 02"
-  claim={
-    <>
+<section className="ledger-study ledger-study--audit">
+  <header className="ledger-study__copy">
+    <p className="ledger-study__label">Illustrative cohort audit / 02</p>
+    <h2>
       <span>The gain comes from</span>
       <br />
       <span>guided setup—</span>
       <br />
       <span>not easier traffic.</span>
-    </>
-  }
-  interpretation={
+    </h2>
     <p>
       Guided accounts improved across every acquisition source while the control remained inside its
       historical range.
     </p>
-  }
-  evidence={
-    <table aria-label="Activation rate by acquisition source and setup experience">
-      <thead>
-        <tr>
-          <th>Source</th>
-          <th>Control</th>
-          <th>Guided</th>
-          <th>Difference</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Invited teams</td>
-          <td>63.8%</td>
-          <td>72.1%</td>
-          <td>+8.3 pp</td>
-        </tr>
-        <tr>
-          <td>Organic</td>
-          <td>57.4%</td>
-          <td>65.0%</td>
-          <td>+7.6 pp</td>
-        </tr>
-        <tr>
-          <td>Partner</td>
-          <td>60.1%</td>
-          <td>66.9%</td>
-          <td>+6.8 pp</td>
-        </tr>
-      </tbody>
-    </table>
-  }
-  source="Illustrative experiment events · 1 Apr–30 Jun 2026 · 12,480 eligible accounts"
-  balance="evidence-led"
-/>
+  </header>
+
+  <MotionGroup intent="continuity" name="ledger-activation-record">
+    <LedgerRecord stage="audit" />
+  </MotionGroup>
+</section>
 
 <Note>
-  Let the audience inspect the cohort table. The source provides time window and sample size, and
-  the claim stays narrower than the evidence.
+  Read the three paired shifts instead of treating them as a dashboard. Every cohort moves in the
+  same direction, so acquisition mix does not explain the aggregate gain.
 </Note>
 
 ---
 
-## Illustrative decision:<br />make guided setup<br />the default.
+<section className="ledger-study ledger-study--decision">
+  <header className="ledger-study__copy">
+    <p className="ledger-study__label">Illustrative decision / 03</p>
+    <h2>
+      <span>Make guided setup</span>
+      <br />
+      <span>the default.</span>
+    </h2>
+    <p>The metric authorizes the rollout; the guardrails decide whether it remains.</p>
 
-<MotionGroup flow="block" intent="focus">
-  <Step at={1}>
-    <strong>Ship</strong> — Activation team rolls out to new team accounts on 5 August.
-  </Step>
-  <Step at={2}>
-    <strong>Guard</strong> — Pause if completion time rises &gt;10% or seven-day retention falls
-    &gt;2 pp versus control.
-  </Step>
-  <Step at={3}>
-    <strong>Review</strong> — Activation team returns after 20,000 additional eligible accounts.
-  </Step>
-</MotionGroup>
+    <nav aria-label="Continue with Drever" className="drever-example-exit">
+      <a
+        className="drever-example-exit__primary"
+        data-drever-showcase-return=""
+        href="https://drever.dev/docs/getting-started/"
+      >
+        {"Start a deck"}
+      </a>
+      <a className="drever-example-exit__secondary" href="https://drever.dev/showcase/">
+        {"More design studies"}
+      </a>
+    </nav>
 
-> The metric authorizes the rollout; the guardrails decide whether it remains.
+  </header>
 
-<nav aria-label="Continue with Drever" className="drever-example-exit">
-  <a
-    className="drever-example-exit__primary"
-    data-drever-showcase-return=""
-    href="https://drever.dev/docs/getting-started/"
-  >
-    {"Start a deck"}
-  </a>
-  <a className="drever-example-exit__secondary" href="https://drever.dev/showcase/">
-    {"More design studies"}
-  </a>
-</nav>
+  <MotionGroup intent="continuity" name="ledger-activation-record">
+    <LedgerRecord stage="decision">
+      <MotionGroup className="ledger-record__decision-steps" flow="block" intent="focus">
+        <Step at={1}>
+          <div className="ledger-record__decision-row">
+            <strong>Ship</strong>
+            <span>Roll out to new team accounts.</span>
+            <b>5 Aug</b>
+          </div>
+        </Step>
+        <Step at={2}>
+          <div className="ledger-record__decision-row">
+            <strong>Guard</strong>
+            <span>Pause above +10% completion time or −2 pp seven-day retention.</span>
+            <b>vs control</b>
+          </div>
+        </Step>
+        <Step at={3}>
+          <div className="ledger-record__decision-row">
+            <strong>Review</strong>
+            <span>Return with 20,000 additional eligible accounts.</span>
+            <b>Activation</b>
+          </div>
+        </Step>
+      </MotionGroup>
+    </LedgerRecord>
+  </MotionGroup>
+</section>
 
 <Note>
-  Close the audit trail with a named owner, numeric stop conditions, and a fixed review sample. This
-  is a decision slide, not a dashboard summary.
+  Reveal one ruled decision row at a time. Ship names the immediate action, Guard defines numeric
+  stop conditions, and Review fixes the sample and owner for the next decision.
 </Note>

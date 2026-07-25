@@ -1,37 +1,246 @@
-.theme-showcase-atlas-provenance {
-  margin-bottom: 10px;
+.atlas-study {
+  display: grid;
+  width: 100%;
+  min-height: 620px;
+  box-sizing: border-box;
+  grid-template-columns: minmax(0, 480px) 850px;
+  align-items: center;
+  gap: 54px;
+}
+
+.atlas-study__copy {
+  display: grid;
+  min-width: 0;
+  align-content: center;
+  gap: 22px;
+}
+
+.atlas-study__label {
   color: var(--drever-theme-accent);
   font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
   font-size: 15px;
-  font-weight: 720;
+  font-weight: 740;
   letter-spacing: 0.1em;
+  line-height: 1.35;
   text-transform: uppercase;
 }
 
-.theme-showcase-atlas-decision {
+[data-drever-slide] .atlas-study h1 {
   display: grid;
-  margin-top: 22px;
-  padding-top: 15px;
-  border-top: 3px solid var(--drever-theme-accent);
-  grid-template-columns: minmax(250px, 0.62fr) minmax(0, 1.38fr);
+  max-width: none;
+  font-size: 68px;
+  line-height: 0.95;
+}
+
+[data-drever-slide] .atlas-study h2 {
+  display: grid;
+  max-width: none;
+  font-size: 54px;
+  line-height: 0.98;
+}
+
+[data-drever-slide] .atlas-study :is(h1, h2) > span {
+  display: block;
+  white-space: nowrap;
+}
+
+[data-drever-slide] .atlas-study__copy > p:not(.atlas-study__label) {
+  max-width: 31ch;
+  color: var(--drever-theme-muted);
+  font-size: 22px;
+  line-height: 1.45;
+}
+
+.atlas-study__finding {
+  display: grid;
+  max-width: 360px;
+  padding-top: 18px;
+  border-top: 2px solid var(--drever-theme-accent);
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: baseline;
-  gap: 28px;
+  gap: 14px;
 }
 
-[data-drever-slide] .theme-showcase-atlas-decision > strong {
-  color: var(--drever-theme-accent-strong);
-  font-size: 21px;
+[data-drever-slide] .atlas-study__finding > strong {
+  color: var(--drever-atlas-ember, #a64b1a);
+  font-family: "Avenir Next", Aptos, "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  font-size: 40px;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  white-space: nowrap;
 }
 
-.theme-showcase-atlas-decision > span {
-  font-size: 21px;
+[data-drever-slide] .atlas-study__finding > p {
+  color: var(--drever-theme-muted);
+  font-size: 19px;
   line-height: 1.35;
 }
 
-.atlas-thermal-survey {
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+.atlas-study__decision {
+  display: grid;
+  max-width: 420px;
+  padding-top: 18px;
+  border-top: 3px solid var(--drever-theme-accent);
+  gap: 10px;
 }
 
-.atlas-thermal-survey .drever-atlas-survey__title {
-  max-width: 16ch;
+[data-drever-slide] .atlas-study__decision > strong {
+  color: var(--drever-theme-ink);
+  font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Noto Serif", Georgia, serif;
+  font-size: 28px;
+  font-weight: 620;
+  line-height: 1.12;
+}
+
+[data-drever-slide] .atlas-study__decision > p {
+  color: var(--drever-theme-muted);
+  font-size: 20px;
+  line-height: 1.4;
+}
+
+.atlas-river {
+  display: grid;
+  width: 850px;
+  height: 526px;
+  box-sizing: border-box;
+  padding: 20px 22px 15px;
+  border: 1px solid color-mix(in srgb, var(--drever-theme-border), transparent 10%);
+  margin: 0;
+  background: color-mix(in srgb, var(--drever-theme-surface), transparent 28%);
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 6px;
+}
+
+.atlas-river__plot {
+  width: 100%;
+  height: 450px;
+  overflow: visible;
+  color: var(--drever-theme-ink);
+}
+
+.atlas-river__corridor-shadow,
+.atlas-river__corridor,
+.atlas-river__thermal-segment {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.atlas-river__corridor-shadow {
+  stroke: color-mix(in srgb, var(--drever-theme-accent-soft), transparent 10%);
+  stroke-width: 27px;
+}
+
+.atlas-river__corridor {
+  stroke: var(--drever-theme-ink);
+  stroke-width: 15px;
+}
+
+.atlas-river__thermal-segment {
+  stroke: var(--drever-atlas-ember, #a64b1a);
+  stroke-width: 17px;
+  opacity: 0;
+}
+
+.atlas-river__route-labels,
+.atlas-river__thermal-labels,
+.atlas-river__gate-labels {
+  opacity: 0;
+}
+
+.atlas-river[data-atlas-river-state="route"] .atlas-river__route-labels,
+.atlas-river[data-atlas-river-state="thermal"] .atlas-river__thermal-labels,
+.atlas-river[data-atlas-river-state="gates"] .atlas-river__gate-labels {
+  opacity: 1;
+}
+
+.atlas-river[data-atlas-river-state="thermal"] .atlas-river__thermal-segment {
+  opacity: 1;
+}
+
+.atlas-river[data-atlas-river-state="gates"] .atlas-river__corridor-shadow {
+  opacity: 0.42;
+}
+
+.atlas-river[data-atlas-river-state="gates"] .atlas-river__corridor {
+  opacity: 0.48;
+}
+
+.atlas-river__route-labels circle {
+  fill: var(--drever-theme-surface);
+  stroke: var(--drever-theme-accent);
+  stroke-width: 4px;
+}
+
+.atlas-river__route-labels .atlas-river__route-end {
+  fill: var(--drever-theme-accent);
+  stroke: var(--drever-theme-surface);
+  stroke-width: 2px;
+}
+
+.atlas-river__route-labels text {
+  fill: var(--drever-theme-ink);
+  font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Noto Serif", Georgia, serif;
+  font-size: 18px;
+  font-weight: 620;
+  line-height: 1.2;
+}
+
+.atlas-river__thermal-labels circle {
+  fill: var(--drever-theme-surface);
+  stroke: var(--drever-theme-ink);
+  stroke-width: 4px;
+}
+
+.atlas-river__thermal-labels text {
+  fill: var(--drever-theme-ink);
+  font-family: "Avenir Next", Aptos, "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  font-size: 20px;
+  font-weight: 720;
+  paint-order: stroke fill;
+  stroke: var(--drever-theme-surface);
+  stroke-linejoin: round;
+  stroke-width: 7px;
+}
+
+.atlas-river__thermal-labels .atlas-river__thermal-change {
+  fill: var(--drever-atlas-ember, #a64b1a);
+  font-size: 17px;
+  letter-spacing: 0.02em;
+}
+
+.atlas-river__gate-labels > path {
+  fill: none;
+  stroke: var(--drever-theme-accent);
+  stroke-width: 2px;
+}
+
+.atlas-river__gate-labels > rect {
+  fill: color-mix(in srgb, var(--drever-theme-surface), transparent 4%);
+  stroke: var(--drever-theme-border);
+  stroke-width: 1px;
+}
+
+.atlas-river__gate-labels text {
+  fill: var(--drever-theme-ink);
+  font-family: "Avenir Next", Aptos, "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 610;
+}
+
+.atlas-river__gate-labels .atlas-river__gate-name {
+  fill: var(--drever-theme-accent-strong);
+  font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 760;
+  letter-spacing: 0.08em;
+}
+
+.atlas-river > figcaption {
+  color: var(--drever-theme-muted);
+  font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
+  font-size: 14px;
+  font-weight: 620;
+  letter-spacing: 0.025em;
+  line-height: 1.3;
 }
