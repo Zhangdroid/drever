@@ -7,9 +7,9 @@
   "brief": "A fictional checkout experiment improved completion from 68% to 81%, while weekly support requests rose from 6 to 12. Help a product team decide whether to expand it.",
   "durationSeconds": 219,
   "deck": {
-    "audience": "https://codex-ai-release-smoke.drever-website.pages.dev/release-smoke/runs/2026072501/surprise-me/deck/",
-    "document": "https://codex-ai-release-smoke.drever-website.pages.dev/release-smoke/runs/2026072501/surprise-me/deck/document/",
-    "source": "https://codex-ai-release-smoke.drever-website.pages.dev/release-smoke/runs/2026072501/surprise-me/source/slides.mdx"
+    "audience": "https://97b796e2.drever-website.pages.dev/release-smoke/runs/2026072501/surprise-me/deck/",
+    "document": "https://97b796e2.drever-website.pages.dev/release-smoke/runs/2026072501/surprise-me/deck/document/",
+    "source": "https://97b796e2.drever-website.pages.dev/release-smoke/runs/2026072501/surprise-me/source/slides.mdx"
   },
   "checks": [
     "Installed create-drever@0.2.2 and drever@0.2.2",
