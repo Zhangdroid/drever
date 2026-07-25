@@ -460,7 +460,7 @@
 
 .architecture-study__pulse {
   position: absolute;
-  z-index: 4;
+  z-index: 1;
   top: 50%;
   left: 7%;
   width: 0.42rem;
@@ -468,7 +468,8 @@
   border: 2px solid #4a36ad;
   border-radius: 50%;
   background: #dbff4f;
-  box-shadow: 0 0 1.1rem rgb(219 255 79 / 62%);
+  box-shadow: 0 0 0.9rem rgb(219 255 79 / 32%);
+  opacity: 0.58;
   translate: -50% -50%;
 }
 

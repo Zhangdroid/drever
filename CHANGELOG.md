@@ -9,6 +9,8 @@ section, while commit snapshots use the current Unreleased section.
 
 - Made the public AI handoff explicitly continue after fetching `prompt.md` without naming a
   competing generic presentation workflow.
+- Slowed the Motion showcase cover's opening change and kept the Architecture signal behind its
+  labels instead of obscuring them.
 
 ## [0.2.1] - 2026-07-24
 

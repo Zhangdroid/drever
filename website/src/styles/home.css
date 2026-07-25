@@ -2036,18 +2036,18 @@
 
 @keyframes home-motion-lifecycle {
   0%,
-  10%,
+  12%,
   100% {
     opacity: 0.52;
     transform: translate(31%, -16%) scale(0.64);
   }
 
-  15% {
+  20% {
     opacity: 0;
     transform: translate(0, 62%) scale(0.9);
   }
 
-  36%,
+  44%,
   58% {
     opacity: 1;
     transform: translate(0) scale(1);
@@ -2061,13 +2061,13 @@
 
 @keyframes home-motion-answer {
   0%,
-  10%,
+  12%,
   100% {
     opacity: 1;
     transform: translateY(0);
   }
 
-  15%,
+  20%,
   60% {
     opacity: 0;
     transform: translateY(0.8rem);
@@ -2081,23 +2081,23 @@
 
 @keyframes home-motion-route-active {
   0%,
-  10%,
+  12%,
   100% {
     left: calc(100% - 0.42rem);
     opacity: 1;
   }
 
-  15% {
+  20% {
     left: 0;
     opacity: 0;
   }
 
-  20% {
+  25% {
     left: 0;
     opacity: 1;
   }
 
-  48%,
+  52%,
   58% {
     left: 48%;
   }
