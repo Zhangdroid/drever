@@ -1,0 +1,439 @@
+{
+  "version": 1,
+  "sourcePath": "<project>/slides.mdx",
+  "canvas": {
+    "width": 1600,
+    "height": 900
+  },
+  "deck": {
+    "version": 2,
+    "slides": [
+      {
+        "id": "slide-1",
+        "index": 0,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Timing — 0:45\n\nOpen with the thought experiment, not a definition: “It is two weeks after launch. The result is bad enough that we wish we had delayed. What happened?” Pause for a beat.\n\nExplain that a readiness review asks whether the plan is complete; a pre-mortem asks which failure mechanisms the plan is underestimating. The purpose is not pessimism or exhaustive risk logging. The purpose is to surface weak signals early enough to choose three launch controls.",
+            "value": "**Timing — 0:45**\n\nOpen with the thought experiment, not a definition: “It is two weeks after launch. The result is bad enough that we wish we had delayed. What happened?” Pause for a beat.\n\nExplain that a readiness review asks whether the plan is complete; a pre-mortem asks which failure mechanisms the plan is underestimating. The purpose is not pessimism or exhaustive risk logging. The purpose is to surface weak signals early enough to choose three launch controls."
+          }
+        ],
+        "stepStops": [],
+        "title": "Imagine the launch failed.",
+        "source": [
+          {
+            "value": "<section className=\"launch-slide\">\n  <div className=\"hero-grid\">\n    <div className=\"hero-copy\">\n      <p className=\"eyebrow\">Pre-mortem / T−14 days</p>\n      <h1>Imagine the launch <span className=\"danger-word\">failed.</span></h1>\n      <p className=\"dek\">A pre-mortem makes weak signals discussable—before they become incidents.</p>\n    </div>\n\n    <div className=\"radar-scope\" role=\"img\" aria-label=\"A launch radar acquiring several weak risk signals\">\n      <span className=\"radar-center\" aria-hidden=\"true\" />\n      <span className=\"blip blip-a\" data-label=\"adoption\" />\n      <span className=\"blip blip-b\" data-label=\"rollback\" />\n      <span className=\"blip blip-c\" data-label=\"support\" />\n      <span className=\"blip blip-d\" data-label=\"data\" />\n      <span className=\"scope-caption\">Scan for failure while there is still time to act</span>\n    </div>\n  </div>\n</section>\n\n<Note>\n**Timing — 0:45**\n\nOpen with the thought experiment, not a definition: “It is two weeks after launch. The result is bad enough that we wish we had delayed. What happened?” Pause for a beat.\n\nExplain that a readiness review asks whether the plan is complete; a pre-mortem asks which failure mechanisms the plan is underestimating. The purpose is not pessimism or exhaustive risk logging. The purpose is to surface weak signals early enough to choose three launch controls.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 3,
+                "column": 1,
+                "offset": 28
+              },
+              "end": {
+                "line": 28,
+                "column": 8,
+                "offset": 1395
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-2",
+        "index": 1,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Timing — 1:10\n\nThis is the whole working session. Name the two modes: the first seven minutes protect independent judgment; the remaining eighteen build shared judgment and commitment.\n\nFacilitator setup before the meeting: bring the launch goal, date, non-negotiable constraints, and a simple place to write one failure per note. Invite only people who can explain the product outcome, customer experience, and technical operation. Five to seven people is ideal; a larger room should split into smaller groups.\n\nOn the reveal, emphasize the mode change. Discussion is deliberately delayed. This prevents the most senior or fastest speaker from defining the risk field before others have contributed.",
+            "value": "**Timing — 1:10**\n\nThis is the whole working session. Name the two modes: the first seven minutes protect independent judgment; the remaining eighteen build shared judgment and commitment.\n\nFacilitator setup before the meeting: bring the launch goal, date, non-negotiable constraints, and a simple place to write one failure per note. Invite only people who can explain the product outcome, customer experience, and technical operation. Five to seven people is ideal; a larger room should split into smaller groups.\n\nOn the reveal, emphasize the mode change. Discussion is deliberately delayed. This prevents the most senior or fastest speaker from defining the risk field before others have contributed."
+          }
+        ],
+        "stepStops": [
+          1
+        ],
+        "title": "25 minutes. One decision.",
+        "source": [
+          {
+            "value": "<section className=\"launch-slide\">\n  <div className=\"slide-shell\">\n    <div className=\"slide-header\">\n      <div>\n        <p className=\"eyebrow\">The operating rhythm</p>\n        <h2>25 minutes. One decision.</h2>\n      </div>\n      <span className=\"timecode\">Room: product × design × engineering</span>\n    </div>\n\n    <div className=\"protocol-track\" aria-label=\"A 25-minute pre-mortem protocol\">\n      <div className=\"phase\"><span className=\"phase-minutes\">02 min</span><strong>Frame failure</strong></div>\n      <div className=\"phase\"><span className=\"phase-minutes\">05 min</span><strong>Write alone</strong></div>\n      <div className=\"phase\"><span className=\"phase-minutes\">06 min</span><strong>Cluster causes</strong></div>\n      <div className=\"phase\"><span className=\"phase-minutes\">06 min</span><strong>Choose three</strong></div>\n      <div className=\"phase\"><span className=\"phase-minutes\">06 min</span><strong>Assign controls</strong></div>\n    </div>\n\n    <Step>\n      <div className=\"mode-band\" aria-label=\"The session first diverges independently, then converges as a group\">\n        <div className=\"diverge-band\">Diverge independently</div>\n        <div className=\"converge-band\">Converge deliberately</div>\n      </div>\n    </Step>\n  </div>\n</section>\n\n<Note>\n**Timing — 1:10**\n\nThis is the whole working session. Name the two modes: the first seven minutes protect independent judgment; the remaining eighteen build shared judgment and commitment.\n\nFacilitator setup before the meeting: bring the launch goal, date, non-negotiable constraints, and a simple place to write one failure per note. Invite only people who can explain the product outcome, customer experience, and technical operation. Five to seven people is ideal; a larger room should split into smaller groups.\n\nOn the reveal, emphasize the mode change. Discussion is deliberately delayed. This prevents the most senior or fastest speaker from defining the risk field before others have contributed.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 32,
+                "column": 1,
+                "offset": 1402
+              },
+              "end": {
+                "line": 67,
+                "column": 8,
+                "offset": 3390
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-3",
+        "index": 2,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Timing — 1:15\n\nRead the prompt exactly. “Failed” must connect to the launch outcome: adoption, trust, reliability, revenue, or operational load. Ask for observable failure stories, not vague categories such as “technical risk.”\n\nGive everyone five silent minutes. One failure per note. Encourage product, design, and engineering leads to write outside their own function. Do not debate, defend the plan, or propose mitigations yet.\n\nIf the room stalls, use only one neutral probe at a time: “What would customers experience?”, “What would we see too late?”, or “Where are we relying on an untested assumption?” Do not seed the room with your favorite risk.\n\nOn the reveal, state the rules. Silence is the mechanism that preserves independent evidence; it is not merely a time-saving tactic.",
+            "value": "**Timing — 1:15**\n\nRead the prompt exactly. “Failed” must connect to the launch outcome: adoption, trust, reliability, revenue, or operational load. Ask for observable failure stories, not vague categories such as “technical risk.”\n\nGive everyone five silent minutes. One failure per note. Encourage product, design, and engineering leads to write outside their own function. Do not debate, defend the plan, or propose mitigations yet.\n\nIf the room stalls, use only one neutral probe at a time: “What would customers experience?”, “What would we see too late?”, or “Where are we relying on an untested assumption?” Do not seed the room with your favorite risk.\n\nOn the reveal, state the rules. Silence is the mechanism that preserves independent evidence; it is not merely a time-saving tactic."
+          }
+        ],
+        "stepStops": [
+          1
+        ],
+        "title": "Start with a specific failure.",
+        "source": [
+          {
+            "value": "<section className=\"launch-slide\">\n  <div className=\"prompt-stage\">\n    <div className=\"slide-header\">\n      <div>\n        <p className=\"eyebrow\">01 / Generate</p>\n        <h2>Start with a specific failure.</h2>\n      </div>\n      <div className=\"failure-prompt\">“It is two weeks after launch. We failed in a way we should have seen. What happened?”</div>\n    </div>\n\n    <div className=\"note-field\" role=\"group\" aria-label=\"Independent failure stories distributed across a shared field\">\n      <div className=\"failure-note note-1\">Customers never reach first value</div>\n      <div className=\"failure-note note-2\">Rollback takes longer than the incident</div>\n      <div className=\"failure-note note-3\">Support cannot identify affected users</div>\n      <div className=\"failure-note note-4\">The migration corrupts a small segment</div>\n      <div className=\"failure-note note-5\">The promise exceeds the shipped experience</div>\n      <div className=\"failure-note note-6\">Critical events are not instrumented</div>\n      <div className=\"failure-note note-7\">An edge case blocks account setup</div>\n\n      <Step>\n        <div className=\"writing-rule\" aria-label=\"Writing rules: silent, one failure per note, no solutions yet\">\n          <span>Silent</span><span>•</span><span>One failure / note</span><span>•</span><span>No solutions yet</span>\n        </div>\n      </Step>\n    </div>\n  </div>\n</section>\n\n<Note>\n**Timing — 1:15**\n\nRead the prompt exactly. “Failed” must connect to the launch outcome: adoption, trust, reliability, revenue, or operational load. Ask for observable failure stories, not vague categories such as “technical risk.”\n\nGive everyone five silent minutes. One failure per note. Encourage product, design, and engineering leads to write outside their own function. Do not debate, defend the plan, or propose mitigations yet.\n\nIf the room stalls, use only one neutral probe at a time: “What would customers experience?”, “What would we see too late?”, or “Where are we relying on an untested assumption?” Do not seed the room with your favorite risk.\n\nOn the reveal, state the rules. Silence is the mechanism that preserves independent evidence; it is not merely a time-saving tactic.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 71,
+                "column": 1,
+                "offset": 3397
+              },
+              "end": {
+                "line": 109,
+                "column": 8,
+                "offset": 5611
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-4",
+        "index": 3,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Timing — 1:30\n\nCluster duplicate stories by causal mechanism. “Onboarding,” “engineering,” or “operations” are buckets, not causes. Ask: “Would the same intervention reduce these failures?” If yes, they belong together. If no, split them.\n\nFor each serious cluster, write one sentence: “Because [mechanism], [failure] may cause [material impact]. Earliest signal: [observable evidence].” The signal can be a rehearsal result, missing instrumentation, an operational threshold, or a customer behavior—not a feeling.\n\nUse the example to show the difference. The original story is vivid but hard to compare. The risk track exposes a testable mechanism and a signal that can change a launch decision.\n\nDo not solve yet. Clarifying before mitigating keeps an attractive solution from making a weakly defined risk seem important.",
+            "value": "**Timing — 1:30**\n\nCluster duplicate stories by causal mechanism. “Onboarding,” “engineering,” or “operations” are buckets, not causes. Ask: “Would the same intervention reduce these failures?” If yes, they belong together. If no, split them.\n\nFor each serious cluster, write one sentence: “Because [mechanism], [failure] may cause [material impact]. Earliest signal: [observable evidence].” The signal can be a rehearsal result, missing instrumentation, an operational threshold, or a customer behavior—not a feeling.\n\nUse the example to show the difference. The original story is vivid but hard to compare. The risk track exposes a testable mechanism and a signal that can change a launch decision.\n\nDo not solve yet. Clarifying before mitigating keeps an attractive solution from making a weakly defined risk seem important."
+          }
+        ],
+        "stepStops": [
+          1
+        ],
+        "title": "Turn stories into risk signals.",
+        "source": [
+          {
+            "value": "<section className=\"launch-slide\">\n  <div className=\"translation-stage\">\n    <div className=\"slide-header\">\n      <div>\n        <p className=\"eyebrow\">02 / Clarify</p>\n        <h2>Turn stories into risk signals.</h2>\n      </div>\n      <span className=\"timecode\">Cluster by cause—not by department</span>\n    </div>\n\n    <div className=\"story-strip\">\n      <span className=\"strip-label\">Failure story</span>\n      <p>“A bad migration leaves customers locked out for hours.”</p>\n    </div>\n\n    <div className=\"translator-arrow\">Name the mechanism + earliest signal</div>\n\n    <Step>\n      <div className=\"risk-strip\" aria-label=\"A testable migration risk with its mechanism, impact, and earliest signal\">\n        <span className=\"strip-label\">Risk track</span>\n        <p>Because rollback is untested at production scale, a bad migration may extend customer lockout. <span className=\"signal-word\">Earliest signal: restore drill exceeds 15 minutes.</span></p>\n      </div>\n\n      <div className=\"risk-anatomy\" aria-label=\"The three parts of a useful risk statement\">\n        <div><strong>Mechanism</strong>Why failure could occur</div>\n        <div><strong>Impact</strong>What the launch would lose</div>\n        <div><strong>Signal</strong>What appears before harm</div>\n      </div>\n    </Step>\n  </div>\n</section>\n\n<Note>\n**Timing — 1:30**\n\nCluster duplicate stories by causal mechanism. “Onboarding,” “engineering,” or “operations” are buckets, not causes. Ask: “Would the same intervention reduce these failures?” If yes, they belong together. If no, split them.\n\nFor each serious cluster, write one sentence: “Because [mechanism], [failure] may cause [material impact]. Earliest signal: [observable evidence].” The signal can be a rehearsal result, missing instrumentation, an operational threshold, or a customer behavior—not a feeling.\n\nUse the example to show the difference. The original story is vivid but hard to compare. The risk track exposes a testable mechanism and a signal that can change a launch decision.\n\nDo not solve yet. Clarifying before mitigating keeps an attractive solution from making a weakly defined risk seem important.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 113,
+                "column": 1,
+                "offset": 5618
+              },
+              "end": {
+                "line": 155,
+                "column": 8,
+                "offset": 7777
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-5",
+        "index": 4,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Timing — 1:50\n\nThis is the decision point. First, each person privately marks the three risks they believe most deserve launch attention. Private marking keeps the first public argument from anchoring the vote.\n\nBring the five highest-marked risks into a six-minute challenge. For each, ask three questions:\n\n1. If this happens, is the harm material to the launch outcome or customer trust?\n2. Is there a credible mechanism or evidence—not merely an imaginable scenario?\n3. Can action before launch reduce the odds, reduce the harm, or improve detection?\n\nDo not multiply numeric scores; the precision is usually fictional. Surface disagreements instead. A split vote often exposes different evidence or assumptions.\n\nThen force-rank. If the group cannot choose, compare risks pairwise: “If we could only control one before launch, which would we regret ignoring?” Stop at three. The rejected risks are not erased; they can remain on a watch list, but they do not receive the meeting’s scarce ownership attention.\n\nThe named examples are illustrative, not universal answers.",
+            "value": "**Timing — 1:50**\n\nThis is the decision point. First, each person privately marks the three risks they believe most deserve launch attention. Private marking keeps the first public argument from anchoring the vote.\n\nBring the five highest-marked risks into a six-minute challenge. For each, ask three questions:\n\n1. If this happens, is the harm material to the launch outcome or customer trust?\n2. Is there a credible mechanism or evidence—not merely an imaginable scenario?\n3. Can action before launch reduce the odds, reduce the harm, or improve detection?\n\nDo not multiply numeric scores; the precision is usually fictional. Surface disagreements instead. A split vote often exposes different evidence or assumptions.\n\nThen force-rank. If the group cannot choose, compare risks pairwise: “If we could only control one before launch, which would we regret ignoring?” Stop at three. The rejected risks are not erased; they can remain on a watch list, but they do not receive the meeting’s scarce ownership attention.\n\nThe named examples are illustrative, not universal answers."
+          }
+        ],
+        "stepStops": [
+          1,
+          2
+        ],
+        "title": "Choose three—not every risk.",
+        "source": [
+          {
+            "value": "<section className=\"launch-slide\">\n  <div className=\"triage-stage\">\n    <div className=\"triage-copy\">\n      <p className=\"eyebrow\">03 / Decide</p>\n      <h2>Choose three—not every risk.</h2>\n      <p className=\"dek\">A priority risk combines <span className=\"signal-word\">material harm</span>, a credible mechanism, and an action window before launch.</p>\n\n      <Step>\n        <div className=\"triage-sequence\" aria-label=\"Three steps for choosing launch risks\">\n          <div><b>1</b><span>Privately mark three</span></div>\n          <div><b>2</b><span>Challenge the evidence</span></div>\n          <div><b>3</b><span>Force-rank the survivors</span></div>\n        </div>\n      </Step>\n    </div>\n\n    <div className=\"target-field\" role=\"group\" aria-label=\"Seven candidate risks positioned by material harm, credibility, and actionability\">\n      <span className=\"candidate c1\" data-short=\"rollback\" />\n      <span className=\"candidate c2\" data-short=\"instrumentation\" />\n      <span className=\"candidate c3\" data-short=\"support coverage\" />\n      <span className=\"candidate c4\" data-short=\"copy edge case\" />\n      <span className=\"candidate c5\" data-short=\"launch post\" />\n      <span className=\"candidate c6\" data-short=\"wishlist gap\" />\n      <span className=\"candidate c7\" data-short=\"internal demo\" />\n\n      <Step>\n        <div className=\"locked-target lock-1\" aria-label=\"Selected risk one\">1</div>\n        <div className=\"locked-target lock-2\" aria-label=\"Selected risk two\">2</div>\n        <div className=\"locked-target lock-3\" aria-label=\"Selected risk three\">3</div>\n        <div className=\"selection-caption\" aria-label=\"Selected examples: rollback, instrumentation, and support coverage\">\n          <span>Rollback</span><span>Instrumentation</span><span>Support coverage</span>\n        </div>\n      </Step>\n    </div>\n  </div>\n</section>\n\n<Note>\n**Timing — 1:50**\n\nThis is the decision point. First, each person privately marks the three risks they believe most deserve launch attention. Private marking keeps the first public argument from anchoring the vote.\n\nBring the five highest-marked risks into a six-minute challenge. For each, ask three questions:\n\n1. If this happens, is the harm material to the launch outcome or customer trust?\n2. Is there a credible mechanism or evidence—not merely an imaginable scenario?\n3. Can action before launch reduce the odds, reduce the harm, or improve detection?\n\nDo not multiply numeric scores; the precision is usually fictional. Surface disagreements instead. A split vote often exposes different evidence or assumptions.\n\nThen force-rank. If the group cannot choose, compare risks pairwise: “If we could only control one before launch, which would we regret ignoring?” Stop at three. The rejected risks are not erased; they can remain on a watch list, but they do not receive the meeting’s scarce ownership attention.\n\nThe named examples are illustrative, not universal answers.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 159,
+                "column": 1,
+                "offset": 7784
+              },
+              "end": {
+                "line": 212,
+                "column": 8,
+                "offset": 10730
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-6",
+        "index": 5,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Timing — 1:30\n\nClose by converting each selected risk into one owner card. The owner is a single accountable person, not a function. They may coordinate a team, but the room should know who returns with evidence.\n\nRequire five fields: the risk, the before-launch action, the earliest signal, the trigger that changes behavior, and the checkpoint when the room will review it. A mitigation without a trigger often becomes a task that never affects the launch decision.\n\nIf no useful action exists before launch, define monitoring and contingency. If neither is possible, ask whether the team is consciously accepting an unbounded risk. That may be valid, but it must be explicit.\n\nEnd with: “A useful pre-mortem does not predict every failure. It buys focus while the team can still act.” Then ask the leads to book the 25-minute session before go/no-go and bring the three completed owner cards into that meeting.",
+            "value": "**Timing — 1:30**\n\nClose by converting each selected risk into one owner card. The owner is a single accountable person, not a function. They may coordinate a team, but the room should know who returns with evidence.\n\nRequire five fields: the risk, the before-launch action, the earliest signal, the trigger that changes behavior, and the checkpoint when the room will review it. A mitigation without a trigger often becomes a task that never affects the launch decision.\n\nIf no useful action exists before launch, define monitoring and contingency. If neither is possible, ask whether the team is consciously accepting an unbounded risk. That may be valid, but it must be explicit.\n\nEnd with: “A useful pre-mortem does not predict every failure. It buys focus while the team can still act.” Then ask the leads to book the 25-minute session before go/no-go and bring the three completed owner cards into that meeting."
+          }
+        ],
+        "stepStops": [
+          1
+        ],
+        "title": "Leave with three owner cards.",
+        "source": [
+          {
+            "value": "<section className=\"launch-slide\">\n  <div className=\"handoff-stage\">\n    <div className=\"slide-header\">\n      <div>\n        <p className=\"eyebrow\">04 / Commit</p>\n        <h2>Leave with three owner cards.</h2>\n      </div>\n      <span className=\"timecode\">Done means actionable before go / no-go</span>\n    </div>\n\n    <div className=\"owner-row\" aria-label=\"Three completed launch risk owner cards\">\n      <article className=\"owner-card\">\n        <span className=\"owner-number\">Risk 01</span>\n        <h3>Rollback is too slow</h3>\n        <div className=\"owner-fields\">\n          <div><span className=\"owner-label\">Owner</span><span>One named person</span></div>\n          <div><span className=\"owner-label\">Before launch</span><span>Run restore drill</span></div>\n          <div><span className=\"owner-label\">Trigger</span><span>Drill &gt; 15 min</span></div>\n          <div><span className=\"owner-label\">Checkpoint</span><span>Before go / no-go</span></div>\n        </div>\n      </article>\n\n      <article className=\"owner-card\">\n        <span className=\"owner-number\">Risk 02</span>\n        <h3>Activation is invisible</h3>\n        <div className=\"owner-fields\">\n          <div><span className=\"owner-label\">Owner</span><span>One named person</span></div>\n          <div><span className=\"owner-label\">Before launch</span><span>Verify critical events</span></div>\n          <div><span className=\"owner-label\">Trigger</span><span>Signal gap &gt; 5%</span></div>\n          <div><span className=\"owner-label\">Checkpoint</span><span>Before go / no-go</span></div>\n        </div>\n      </article>\n\n      <article className=\"owner-card\">\n        <span className=\"owner-number\">Risk 03</span>\n        <h3>Support lacks coverage</h3>\n        <div className=\"owner-fields\">\n          <div><span className=\"owner-label\">Owner</span><span>One named person</span></div>\n          <div><span className=\"owner-label\">Before launch</span><span>Publish response rota</span></div>\n          <div><span className=\"owner-label\">Trigger</span><span>Queue exceeds threshold</span></div>\n          <div><span className=\"owner-label\">Checkpoint</span><span>Before go / no-go</span></div>\n        </div>\n      </article>\n    </div>\n\n    <Step>\n      <div className=\"completion-bar\">\n        <span><strong>Risk + owner + prevention + signal + trigger + checkpoint</strong></span>\n        <span>Book the pre-mortem before the go / no-go</span>\n      </div>\n    </Step>\n  </div>\n</section>\n\n<Note>\n**Timing — 1:30**\n\nClose by converting each selected risk into one owner card. The owner is a single accountable person, not a function. They may coordinate a team, but the room should know who returns with evidence.\n\nRequire five fields: the risk, the before-launch action, the earliest signal, the trigger that changes behavior, and the checkpoint when the room will review it. A mitigation without a trigger often becomes a task that never affects the launch decision.\n\nIf no useful action exists before launch, define monitoring and contingency. If neither is possible, ask whether the team is consciously accepting an unbounded risk. That may be valid, but it must be explicit.\n\nEnd with: “A useful pre-mortem does not predict every failure. It buys focus while the team can still act.” Then ask the leads to book the 25-minute session before go/no-go and bring the three completed owner cards into that meeting.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 216,
+                "column": 1,
+                "offset": 10737
+              },
+              "end": {
+                "line": 280,
+                "column": 8,
+                "offset": 14135
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "design": {
+    "theme": {
+      "id": "@drever/designs/basic",
+      "version": "0.2.2",
+      "tokens": {
+        "color": {
+          "canvas": "#f7f7f2",
+          "ink": "#171816",
+          "muted": "#62665f",
+          "accent": "#2855e7",
+          "accentStrong": "#1538a8",
+          "accentSoft": "#dce5ff",
+          "surface": "#ffffff",
+          "border": "#d9dcd4",
+          "codeCanvas": "#171a22",
+          "codeInk": "#f5f6f8"
+        },
+        "typography": {
+          "display": "ui-sans-serif, system-ui, sans-serif",
+          "body": "ui-sans-serif, system-ui, sans-serif",
+          "mono": "ui-monospace, SFMono-Regular, monospace",
+          "titleSize": 76,
+          "bodySize": 28
+        },
+        "space": {
+          "slideX": 112,
+          "slideY": 88,
+          "rhythm": 24
+        },
+        "shape": {
+          "radius": 24,
+          "borderWidth": 2
+        },
+        "motion": {
+          "duration": 380,
+          "easing": "cubic-bezier(0.22, 1, 0.36, 1)"
+        }
+      },
+      "manifest": {
+        "title": "Drever Basic",
+        "summary": "A neutral visual baseline with generous space, clear typography, and focused motion.",
+        "artDirection": {
+          "keywords": [
+            "neutral",
+            "clear",
+            "versatile",
+            "calm"
+          ],
+          "principles": [
+            "Give every slide one dominant idea",
+            "Use scale and space before decoration",
+            "Animate changes that clarify state or continuity",
+            "Prefer a meaningful visual over a longer list"
+          ],
+          "avoid": [
+            "Dense walls of text",
+            "More than two competing accent colors",
+            "Decorative animation without narrative purpose",
+            "Using a two-column layout when the ideas are unrelated"
+          ]
+        },
+        "choices": {
+          "tones": [
+            "light",
+            "dark",
+            "accent"
+          ],
+          "emphases": [
+            "typography",
+            "comparison",
+            "visual"
+          ],
+          "densities": [
+            "airy",
+            "balanced"
+          ]
+        }
+      },
+      "motion": {
+        "id": "basic",
+        "intents": [
+          "focus",
+          "replace",
+          "compare",
+          "stagger",
+          "continuity"
+        ],
+        "guidance": [
+          "Use focus to keep prior evidence visible while making the current Step unmistakable.",
+          "Use replace for one changing state, compare for cumulative evidence, and stagger for at most four tightly related items.",
+          "Set flow to block for a vertical reading sequence and inline for a horizontal process or comparison; leave it unset when neither axis explains the content.",
+          "Basic motion uses clean fades and short spatial travel, keeping the content more prominent than the choreography.",
+          "Reuse a continuity name only when the same visual object persists across adjacent slides."
+        ]
+      }
+    },
+    "layouts": [
+      {
+        "name": "Cover",
+        "description": "Open a presentation or major chapter with one concise title and restrained supporting context.",
+        "slots": [
+          {
+            "name": "eyebrow",
+            "purpose": "An optional short category, event, or chapter label.",
+            "accepts": [
+              "text"
+            ],
+            "maxItems": 1
+          },
+          {
+            "name": "title",
+            "purpose": "The single dominant statement for the slide.",
+            "accepts": [
+              "text"
+            ],
+            "required": true,
+            "maxItems": 1
+          },
+          {
+            "name": "supporting",
+            "purpose": "One short sentence that adds context without repeating the title.",
+            "accepts": [
+              "text"
+            ],
+            "maxItems": 1
+          },
+          {
+            "name": "footer",
+            "purpose": "Optional speaker, organization, date, or section metadata.",
+            "accepts": [
+              "text"
+            ],
+            "maxItems": 1
+          }
+        ],
+        "variants": [
+          "light",
+          "dark",
+          "accent"
+        ],
+        "constraints": {
+          "titleWords": {
+            "recommendedMaximum": 10
+          },
+          "supportingLines": {
+            "recommendedMaximum": 3
+          }
+        },
+        "example": "<Cover eyebrow=\"Drever\" title=\"Presentations can be software.\" supporting=\"Interactive, testable, and ready to ship.\" tone=\"accent\" />"
+      },
+      {
+        "name": "TwoColumn",
+        "description": "Place two related ideas side by side when their relationship is more important than either idea alone.",
+        "slots": [
+          {
+            "name": "primary",
+            "purpose": "The first argument, explanation, or visual group.",
+            "accepts": [
+              "text",
+              "media",
+              "code",
+              "component"
+            ],
+            "required": true,
+            "maxItems": 1
+          },
+          {
+            "name": "secondary",
+            "purpose": "The comparison, consequence, or complementary visual group.",
+            "accepts": [
+              "text",
+              "media",
+              "code",
+              "component"
+            ],
+            "required": true,
+            "maxItems": 1
+          }
+        ],
+        "variants": [
+          "equal",
+          "wide-primary",
+          "wide-secondary"
+        ],
+        "constraints": {
+          "nestedColumns": false,
+          "recommendedMaximumWordsPerColumn": 45
+        },
+        "example": "<TwoColumn primary={<><h2>Before</h2><p>Static output</p></>} secondary={<><h2>After</h2><p>Living interface</p></>} />"
+      }
+    ],
+    "components": [],
+    "elements": []
+  },
+  "plugins": [
+    {
+      "id": "@drever/plugin-gfm",
+      "version": "0.2.2",
+      "origin": "default",
+      "config": {
+        "singleTilde": true
+      }
+    },
+    {
+      "id": "@drever/plugin-shiki",
+      "version": "0.2.2",
+      "origin": "default",
+      "config": {
+        "darkTheme": "github-dark",
+        "lightTheme": "github-light"
+      }
+    },
+    {
+      "id": "@drever/plugin-tailwindcss",
+      "version": "0.2.2",
+      "origin": "default"
+    }
+  ],
+  "preflight": {
+    "version": 1,
+    "sourcePath": "<project>/slides.mdx",
+    "slideCount": 6,
+    "summary": {
+      "errors": 0,
+      "warnings": 0,
+      "info": 0
+    },
+    "diagnostics": []
+  }
+}

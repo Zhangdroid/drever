@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "guided",
+  "mode": "guided",
+  "startedAt": "2026-07-25T18:21:52.136Z",
+  "completedAt": "2026-07-25T18:25:15.351Z",
+  "durationSeconds": 203,
+  "messages": [
+    {
+      "content": "Fetch and follow https://drever.dev/prompt.md.\n\nThis isolated release test already fetched the exact response to\n`.release-smoke/prompt.md`. Read that local copy instead of accessing the\nnetwork. Also read `.release-smoke/constraints.md`, which defines the narrow\ngeneration-stage boundary for this run. Begin with the optional briefing from\nthe fetched prompt; do not assume that any question has already been answered.",
+      "role": "user"
+    },
+    {
+      "content": "What should the presentation be about?\n\n**Or answer “Surprise me” and I will choose the subject too.**",
+      "role": "assistant"
+    },
+    {
+      "content": "Create a presentation about running a useful pre-mortem before a product launch.",
+      "role": "user"
+    },
+    {
+      "content": "1. Who is the audience, and what should they do differently after the presentation?\n2. How long should it run?\n3. Should it be concise with fuller notes, balanced, or reference-dense?\n\n**Or say “Skip remaining questions — surprise me” and I will choose the rest.**",
+      "role": "assistant"
+    },
+    {
+      "content": "The audience is a small group of product, design, and engineering leads.\nI have eight minutes. By the end, they should be able to choose the three risks\nthat deserve owners before launch. Keep visible slides concise and put useful\nfacilitation detail in speaker notes.",
+      "role": "user"
+    },
+    {
+      "content": "1. Should motion be restrained or expressive?\n2. Should the exercise use a concrete fictional launch, or stay reusable for any product?\n\n**Or say “Skip remaining questions — surprise me” and I will choose the rest.**",
+      "role": "assistant"
+    },
+    {
+      "content": "Review the complete authored draft once more. Use expressive but purposeful motion and a\ncalm launch-control or risk-radar visual language. Preserve what already works, then refine the\nnarrative, composition, hierarchy, motion, and small details wherever the source reveals a clear\nimprovement. Do not run validation in this protected stage.",
+      "role": "user"
+    },
+    {
+      "content": "Created and source-reviewed a six-slide deck in [slides.mdx](<project>/slides.mdx).\n\nAlso added:\n\n- [brief.md](<project>/brief.md)\n- [art-direction.md](<project>/design/art-direction.md)\n- [deck.css](<project>/design/deck.css)\n\nThe narrative moves from scattered failure signals to exactly three owned launch controls, with concise slides, detailed facilitation notes, purposeful Step reveals, and reduced-motion support.\n\nPer the protected-stage boundary, I did not run checks, builds, previews, or visual validation. The separate validation job must verify rendering and overflow.",
+      "role": "assistant"
+    }
+  ],
+  "usage": [
+    {
+      "input_tokens": 23985,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 23982,
+      "output_tokens": 141,
+      "reasoning_output_tokens": 111
+    },
+    {
+      "input_tokens": 48133,
+      "cached_input_tokens": 23982,
+      "cache_write_input_tokens": 24145,
+      "output_tokens": 248,
+      "reasoning_output_tokens": 151
+    },
+    {
+      "input_tokens": 72450,
+      "cached_input_tokens": 48127,
+      "cache_write_input_tokens": 24314,
+      "output_tokens": 423,
+      "reasoning_output_tokens": 274
+    },
+    {
+      "input_tokens": 179896,
+      "cached_input_tokens": 137536,
+      "cache_write_input_tokens": 42342,
+      "output_tokens": 18531,
+      "reasoning_output_tokens": 5083
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "surprise-me",
+  "mode": "surprise-me",
+  "startedAt": "2026-07-25T18:21:46.301Z",
+  "completedAt": "2026-07-25T18:25:05.269Z",
+  "durationSeconds": 199,
+  "messages": [
+    {
+      "content": "Fetch and follow https://drever.dev/prompt.md.\n\nThis isolated release test already fetched the exact response to\n`.release-smoke/prompt.md`. Read that local copy instead of accessing the\nnetwork. Also read `.release-smoke/constraints.md`, which defines the narrow\ngeneration-stage boundary for this run. Begin with the optional briefing from\nthe fetched prompt; do not assume that any question has already been answered.",
+      "role": "user"
+    },
+    {
+      "content": "What topic should the presentation cover?\n\n**Or answer “Surprise me” and I will choose the subject too.**",
+      "role": "assistant"
+    },
+    {
+      "content": "Surprise me. Choose the topic and every remaining creative decision, then create the presentation now.",
+      "role": "user"
+    },
+    {
+      "content": "Created a six-slide Drever presentation, “Before it ships itself,” in the project root.\n\nFiles:\n\n- [slides.mdx](<project>/slides.mdx)\n- [brief.md](<project>/brief.md)\n- [art-direction.md](<project>/design/art-direction.md)\n- [theme.css](<project>/design/theme.css)\n\nI chose a seven-minute, balanced presentation for product and operations teams, with restrained Step reveals and an industrial decision-gate visual system.\n\nPer the generation boundary, checks, builds, preview URL, and browser review were not run. A source-level review and refinement pass was completed.",
+      "role": "assistant"
+    },
+    {
+      "content": "Review the complete authored draft once more. Keep its strongest idea, then refine the\nnarrative, composition, hierarchy, motion, and small details wherever the source reveals a\nclear improvement. Do not run validation in this protected stage.",
+      "role": "user"
+    },
+    {
+      "content": "Refined the complete draft while preserving the yellow decision-gate concept.\n\nKey improvements:\n\n- Made the customer-update example concrete.\n- Reworked Steps to reveal within fixed card geometry, avoiding layout shifts.\n- Tightened headings and supporting copy.\n- Simplified the decision-field axes.\n- Improved list and diagram semantics.\n- Strengthened terminology and closing-action consistency.\n\nUpdated [slides.mdx](<project>/slides.mdx) and [theme.css](<project>/design/theme.css).\n\nNo validation, build, or rendered review was run in this protected stage.",
+      "role": "assistant"
+    }
+  ],
+  "usage": [
+    {
+      "input_tokens": 24003,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 24000,
+      "output_tokens": 241,
+      "reasoning_output_tokens": 186
+    },
+    {
+      "input_tokens": 153643,
+      "cached_input_tokens": 117536,
+      "cache_write_input_tokens": 36092,
+      "output_tokens": 12162,
+      "reasoning_output_tokens": 2771
+    },
+    {
+      "input_tokens": 271446,
+      "cached_input_tokens": 230458,
+      "cache_write_input_tokens": 40964,
+      "output_tokens": 16691,
+      "reasoning_output_tokens": 5158
+    }
+  ]
+}

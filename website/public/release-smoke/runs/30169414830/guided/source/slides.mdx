@@ -1,0 +1,280 @@
+import "./design/deck.css"
+
+<section className="launch-slide">
+  <div className="hero-grid">
+    <div className="hero-copy">
+      <p className="eyebrow">Pre-mortem / T−14 days</p>
+      <h1>Imagine the launch <span className="danger-word">failed.</span></h1>
+      <p className="dek">A pre-mortem makes weak signals discussable—before they become incidents.</p>
+    </div>
+
+    <div className="radar-scope" role="img" aria-label="A launch radar acquiring several weak risk signals">
+      <span className="radar-center" aria-hidden="true" />
+      <span className="blip blip-a" data-label="adoption" />
+      <span className="blip blip-b" data-label="rollback" />
+      <span className="blip blip-c" data-label="support" />
+      <span className="blip blip-d" data-label="data" />
+      <span className="scope-caption">Scan for failure while there is still time to act</span>
+    </div>
+  </div>
+</section>
+
+<Note>
+**Timing — 0:45**
+
+Open with the thought experiment, not a definition: “It is two weeks after launch. The result is bad enough that we wish we had delayed. What happened?” Pause for a beat.
+
+Explain that a readiness review asks whether the plan is complete; a pre-mortem asks which failure mechanisms the plan is underestimating. The purpose is not pessimism or exhaustive risk logging. The purpose is to surface weak signals early enough to choose three launch controls.
+</Note>
+
+---
+
+<section className="launch-slide">
+  <div className="slide-shell">
+    <div className="slide-header">
+      <div>
+        <p className="eyebrow">The operating rhythm</p>
+        <h2>25 minutes. One decision.</h2>
+      </div>
+      <span className="timecode">Room: product × design × engineering</span>
+    </div>
+
+    <div className="protocol-track" aria-label="A 25-minute pre-mortem protocol">
+      <div className="phase"><span className="phase-minutes">02 min</span><strong>Frame failure</strong></div>
+      <div className="phase"><span className="phase-minutes">05 min</span><strong>Write alone</strong></div>
+      <div className="phase"><span className="phase-minutes">06 min</span><strong>Cluster causes</strong></div>
+      <div className="phase"><span className="phase-minutes">06 min</span><strong>Choose three</strong></div>
+      <div className="phase"><span className="phase-minutes">06 min</span><strong>Assign controls</strong></div>
+    </div>
+
+    <Step>
+      <div className="mode-band" aria-label="The session first diverges independently, then converges as a group">
+        <div className="diverge-band">Diverge independently</div>
+        <div className="converge-band">Converge deliberately</div>
+      </div>
+    </Step>
+  </div>
+</section>
+
+<Note>
+**Timing — 1:10**
+
+This is the whole working session. Name the two modes: the first seven minutes protect independent judgment; the remaining eighteen build shared judgment and commitment.
+
+Facilitator setup before the meeting: bring the launch goal, date, non-negotiable constraints, and a simple place to write one failure per note. Invite only people who can explain the product outcome, customer experience, and technical operation. Five to seven people is ideal; a larger room should split into smaller groups.
+
+On the reveal, emphasize the mode change. Discussion is deliberately delayed. This prevents the most senior or fastest speaker from defining the risk field before others have contributed.
+</Note>
+
+---
+
+<section className="launch-slide">
+  <div className="prompt-stage">
+    <div className="slide-header">
+      <div>
+        <p className="eyebrow">01 / Generate</p>
+        <h2>Start with a specific failure.</h2>
+      </div>
+      <div className="failure-prompt">“It is two weeks after launch. We failed in a way we should have seen. What happened?”</div>
+    </div>
+
+    <div className="note-field" role="group" aria-label="Independent failure stories distributed across a shared field">
+      <div className="failure-note note-1">Customers never reach first value</div>
+      <div className="failure-note note-2">Rollback takes longer than the incident</div>
+      <div className="failure-note note-3">Support cannot identify affected users</div>
+      <div className="failure-note note-4">The migration corrupts a small segment</div>
+      <div className="failure-note note-5">The promise exceeds the shipped experience</div>
+      <div className="failure-note note-6">Critical events are not instrumented</div>
+      <div className="failure-note note-7">An edge case blocks account setup</div>
+
+      <Step>
+        <div className="writing-rule" aria-label="Writing rules: silent, one failure per note, no solutions yet">
+          <span>Silent</span><span>•</span><span>One failure / note</span><span>•</span><span>No solutions yet</span>
+        </div>
+      </Step>
+    </div>
+  </div>
+</section>
+
+<Note>
+**Timing — 1:15**
+
+Read the prompt exactly. “Failed” must connect to the launch outcome: adoption, trust, reliability, revenue, or operational load. Ask for observable failure stories, not vague categories such as “technical risk.”
+
+Give everyone five silent minutes. One failure per note. Encourage product, design, and engineering leads to write outside their own function. Do not debate, defend the plan, or propose mitigations yet.
+
+If the room stalls, use only one neutral probe at a time: “What would customers experience?”, “What would we see too late?”, or “Where are we relying on an untested assumption?” Do not seed the room with your favorite risk.
+
+On the reveal, state the rules. Silence is the mechanism that preserves independent evidence; it is not merely a time-saving tactic.
+</Note>
+
+---
+
+<section className="launch-slide">
+  <div className="translation-stage">
+    <div className="slide-header">
+      <div>
+        <p className="eyebrow">02 / Clarify</p>
+        <h2>Turn stories into risk signals.</h2>
+      </div>
+      <span className="timecode">Cluster by cause—not by department</span>
+    </div>
+
+    <div className="story-strip">
+      <span className="strip-label">Failure story</span>
+      <p>“A bad migration leaves customers locked out for hours.”</p>
+    </div>
+
+    <div className="translator-arrow">Name the mechanism + earliest signal</div>
+
+    <Step>
+      <div className="risk-strip" aria-label="A testable migration risk with its mechanism, impact, and earliest signal">
+        <span className="strip-label">Risk track</span>
+        <p>Because rollback is untested at production scale, a bad migration may extend customer lockout. <span className="signal-word">Earliest signal: restore drill exceeds 15 minutes.</span></p>
+      </div>
+
+      <div className="risk-anatomy" aria-label="The three parts of a useful risk statement">
+        <div><strong>Mechanism</strong>Why failure could occur</div>
+        <div><strong>Impact</strong>What the launch would lose</div>
+        <div><strong>Signal</strong>What appears before harm</div>
+      </div>
+    </Step>
+  </div>
+</section>
+
+<Note>
+**Timing — 1:30**
+
+Cluster duplicate stories by causal mechanism. “Onboarding,” “engineering,” or “operations” are buckets, not causes. Ask: “Would the same intervention reduce these failures?” If yes, they belong together. If no, split them.
+
+For each serious cluster, write one sentence: “Because [mechanism], [failure] may cause [material impact]. Earliest signal: [observable evidence].” The signal can be a rehearsal result, missing instrumentation, an operational threshold, or a customer behavior—not a feeling.
+
+Use the example to show the difference. The original story is vivid but hard to compare. The risk track exposes a testable mechanism and a signal that can change a launch decision.
+
+Do not solve yet. Clarifying before mitigating keeps an attractive solution from making a weakly defined risk seem important.
+</Note>
+
+---
+
+<section className="launch-slide">
+  <div className="triage-stage">
+    <div className="triage-copy">
+      <p className="eyebrow">03 / Decide</p>
+      <h2>Choose three—not every risk.</h2>
+      <p className="dek">A priority risk combines <span className="signal-word">material harm</span>, a credible mechanism, and an action window before launch.</p>
+
+      <Step>
+        <div className="triage-sequence" aria-label="Three steps for choosing launch risks">
+          <div><b>1</b><span>Privately mark three</span></div>
+          <div><b>2</b><span>Challenge the evidence</span></div>
+          <div><b>3</b><span>Force-rank the survivors</span></div>
+        </div>
+      </Step>
+    </div>
+
+    <div className="target-field" role="group" aria-label="Seven candidate risks positioned by material harm, credibility, and actionability">
+      <span className="candidate c1" data-short="rollback" />
+      <span className="candidate c2" data-short="instrumentation" />
+      <span className="candidate c3" data-short="support coverage" />
+      <span className="candidate c4" data-short="copy edge case" />
+      <span className="candidate c5" data-short="launch post" />
+      <span className="candidate c6" data-short="wishlist gap" />
+      <span className="candidate c7" data-short="internal demo" />
+
+      <Step>
+        <div className="locked-target lock-1" aria-label="Selected risk one">1</div>
+        <div className="locked-target lock-2" aria-label="Selected risk two">2</div>
+        <div className="locked-target lock-3" aria-label="Selected risk three">3</div>
+        <div className="selection-caption" aria-label="Selected examples: rollback, instrumentation, and support coverage">
+          <span>Rollback</span><span>Instrumentation</span><span>Support coverage</span>
+        </div>
+      </Step>
+    </div>
+  </div>
+</section>
+
+<Note>
+**Timing — 1:50**
+
+This is the decision point. First, each person privately marks the three risks they believe most deserve launch attention. Private marking keeps the first public argument from anchoring the vote.
+
+Bring the five highest-marked risks into a six-minute challenge. For each, ask three questions:
+
+1. If this happens, is the harm material to the launch outcome or customer trust?
+2. Is there a credible mechanism or evidence—not merely an imaginable scenario?
+3. Can action before launch reduce the odds, reduce the harm, or improve detection?
+
+Do not multiply numeric scores; the precision is usually fictional. Surface disagreements instead. A split vote often exposes different evidence or assumptions.
+
+Then force-rank. If the group cannot choose, compare risks pairwise: “If we could only control one before launch, which would we regret ignoring?” Stop at three. The rejected risks are not erased; they can remain on a watch list, but they do not receive the meeting’s scarce ownership attention.
+
+The named examples are illustrative, not universal answers.
+</Note>
+
+---
+
+<section className="launch-slide">
+  <div className="handoff-stage">
+    <div className="slide-header">
+      <div>
+        <p className="eyebrow">04 / Commit</p>
+        <h2>Leave with three owner cards.</h2>
+      </div>
+      <span className="timecode">Done means actionable before go / no-go</span>
+    </div>
+
+    <div className="owner-row" aria-label="Three completed launch risk owner cards">
+      <article className="owner-card">
+        <span className="owner-number">Risk 01</span>
+        <h3>Rollback is too slow</h3>
+        <div className="owner-fields">
+          <div><span className="owner-label">Owner</span><span>One named person</span></div>
+          <div><span className="owner-label">Before launch</span><span>Run restore drill</span></div>
+          <div><span className="owner-label">Trigger</span><span>Drill &gt; 15 min</span></div>
+          <div><span className="owner-label">Checkpoint</span><span>Before go / no-go</span></div>
+        </div>
+      </article>
+
+      <article className="owner-card">
+        <span className="owner-number">Risk 02</span>
+        <h3>Activation is invisible</h3>
+        <div className="owner-fields">
+          <div><span className="owner-label">Owner</span><span>One named person</span></div>
+          <div><span className="owner-label">Before launch</span><span>Verify critical events</span></div>
+          <div><span className="owner-label">Trigger</span><span>Signal gap &gt; 5%</span></div>
+          <div><span className="owner-label">Checkpoint</span><span>Before go / no-go</span></div>
+        </div>
+      </article>
+
+      <article className="owner-card">
+        <span className="owner-number">Risk 03</span>
+        <h3>Support lacks coverage</h3>
+        <div className="owner-fields">
+          <div><span className="owner-label">Owner</span><span>One named person</span></div>
+          <div><span className="owner-label">Before launch</span><span>Publish response rota</span></div>
+          <div><span className="owner-label">Trigger</span><span>Queue exceeds threshold</span></div>
+          <div><span className="owner-label">Checkpoint</span><span>Before go / no-go</span></div>
+        </div>
+      </article>
+    </div>
+
+    <Step>
+      <div className="completion-bar">
+        <span><strong>Risk + owner + prevention + signal + trigger + checkpoint</strong></span>
+        <span>Book the pre-mortem before the go / no-go</span>
+      </div>
+    </Step>
+  </div>
+</section>
+
+<Note>
+**Timing — 1:30**
+
+Close by converting each selected risk into one owner card. The owner is a single accountable person, not a function. They may coordinate a team, but the room should know who returns with evidence.
+
+Require five fields: the risk, the before-launch action, the earliest signal, the trigger that changes behavior, and the checkpoint when the room will review it. A mitigation without a trigger often becomes a task that never affects the launch decision.
+
+If no useful action exists before launch, define monitoring and contingency. If neither is possible, ask whether the team is consciously accepting an unbounded risk. That may be valid, but it must be explicit.
+
+End with: “A useful pre-mortem does not predict every failure. It buys focus while the team can still act.” Then ask the leads to book the 25-minute session before go/no-go and bring the three completed owner cards into that meeting.
+</Note>

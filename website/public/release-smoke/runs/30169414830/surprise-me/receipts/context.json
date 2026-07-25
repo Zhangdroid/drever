@@ -1,0 +1,431 @@
+{
+  "version": 1,
+  "sourcePath": "<project>/slides.mdx",
+  "canvas": {
+    "width": 1600,
+    "height": 900
+  },
+  "deck": {
+    "version": 2,
+    "slides": [
+      {
+        "id": "slide-1",
+        "index": 0,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Open with the tension, not the technology: teams want the speed of automation without losing ownership of consequential actions. The argument today is not “put a human in every loop.” It is “put human judgment at the boundary that changes reality.”",
+            "value": "Open with the tension, not the technology: teams want the speed of automation without losing ownership of consequential actions. The argument today is not “put a human in every loop.” It is “put human judgment at the boundary that changes reality.”"
+          }
+        ],
+        "stepStops": [],
+        "title": "Before it ships itself",
+        "source": [
+          {
+            "value": "<div className=\"gate-slide cover\">\n  <div className=\"title-lockup\">\n    <p className=\"eyebrow\">Operating principle 01</p>\n    <h1>Before it ships itself</h1>\n    <p className=\"lead\">The safest AI workflows do not pause everywhere. They pause at the one boundary where a <strong>suggestion becomes an action.</strong></p>\n  </div>\n\n  <div className=\"cover-rail\" role=\"img\" aria-label=\"A workflow rail runs from generation to external action and stops at a human checkpoint.\">\n    <div className=\"track\"></div>\n    <span className=\"rail-label start\">Generate</span>\n    <span className=\"rail-label end\">Act in the world</span>\n    <div className=\"gate-marker\" aria-hidden=\"true\"></div>\n  </div>\n</div>\n\n<Note>\nOpen with the tension, not the technology: teams want the speed of automation without losing ownership of consequential actions. The argument today is not “put a human in every loop.” It is “put human judgment at the boundary that changes reality.”\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 3,
+                "column": 1,
+                "offset": 29
+              },
+              "end": {
+                "line": 20,
+                "column": 8,
+                "offset": 993
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-2",
+        "index": 1,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Use the field as a conversation tool, not a pseudo-precise scorecard. Drafting is cheap to reverse and usually contained. Sending, publishing, purchasing, deleting, or changing a system of record is different: the action reaches people or state outside the model’s sandbox.",
+            "value": "Use the field as a conversation tool, not a pseudo-precise scorecard. Drafting is cheap to reverse and usually contained. Sending, publishing, purchasing, deleting, or changing a system of record is different: the action reaches people or state outside the model’s sandbox."
+          }
+        ],
+        "stepStops": [],
+        "title": "Speed is cheap—until the action is hard to undo.",
+        "source": [
+          {
+            "value": "<div className=\"gate-slide\">\n  <div className=\"slide-grid\">\n    <div className=\"claim-column\">\n      <p className=\"eyebrow\">Locate the boundary</p>\n      <h2>Speed is cheap—until the action is hard to undo.</h2>\n      <p className=\"lead\">Review belongs where reversibility falls and the blast radius rises.</p>\n      <p className=\"margin-note\">Do not score the model first. Score the consequence.</p>\n    </div>\n\n    <div className=\"decision-field\" role=\"img\" aria-label=\"A field plots low-to-high reversibility loss and small-to-large blast radius. Drafting sits in the low-consequence corner; sending sits beyond the review boundary in the high-consequence corner.\">\n      <span className=\"axis-label y\">Harder to reverse ↑</span>\n      <span className=\"axis-label x\">Larger blast radius →</span>\n      <span className=\"field-point draft\">Draft copy</span>\n      <span className=\"field-point send\">Send to customers</span>\n    </div>\n  </div>\n</div>\n\n<Note>\nUse the field as a conversation tool, not a pseudo-precise scorecard. Drafting is cheap to reverse and usually contained. Sending, publishing, purchasing, deleting, or changing a system of record is different: the action reaches people or state outside the model’s sandbox.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 24,
+                "column": 1,
+                "offset": 1000
+              },
+              "end": {
+                "line": 44,
+                "column": 8,
+                "offset": 2241
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-3",
+        "index": 2,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "At Step 0, let the audience see the proposal as harmless and fast. Advance once: the yellow checkpoint appears, shifting responsibility from generation to ownership. Advance again: the broadcast state appears. The point is not that a human edits every word; the point is that someone knowingly commits the action.",
+            "value": "At Step 0, let the audience see the proposal as harmless and fast. Advance once: the yellow checkpoint appears, shifting responsibility from generation to ownership. Advance again: the broadcast state appears. The point is not that a human edits every word; the point is that someone knowingly commits the action."
+          }
+        ],
+        "stepStops": [
+          1,
+          2
+        ],
+        "title": "One message. Three owners.",
+        "source": [
+          {
+            "value": "<div className=\"gate-slide flow-slide\">\n  <div className=\"flow-head\">\n    <div>\n      <p className=\"eyebrow\">Follow one artifact</p>\n      <h2>One message. Three owners.</h2>\n    </div>\n    <p className=\"lead\"><strong>Example: a customer update.</strong><br />The words persist; responsibility changes.</p>\n  </div>\n\n  <div className=\"artifact-flow\" role=\"group\" aria-label=\"An AI-generated customer update moves from draft to human commit to external broadcast.\">\n    <article className=\"flow-stop\">\n      <span className=\"stop-code\">01 / Draft</span>\n      <h3>AI proposes</h3>\n      <p>Private, inspectable, replaceable.</p>\n      <span className=\"step-caption\">Default: keep moving</span>\n    </article>\n\n    <article className=\"flow-stop is-awaiting\">\n      <span className=\"stop-code\">02 / Boundary</span>\n      <h3>Decision gate</h3>\n      <p>Who will own the consequence?</p>\n      <span className=\"step-caption\">Next: transfer responsibility</span>\n      <Step at={1}>\n        <div className=\"flow-reveal is-gate\">\n          <span className=\"stop-code\">02 / Commit</span>\n          <h3>Human owns</h3>\n          <p>Intent, audience, and consequences are explicit.</p>\n          <span className=\"step-caption\">Checkpoint: require a decision</span>\n        </div>\n      </Step>\n    </article>\n\n    <article className=\"flow-stop is-awaiting\">\n      <span className=\"stop-code\">03 / Outcome</span>\n      <h3>Outside next</h3>\n      <p>The sandbox ends at this edge.</p>\n      <span className=\"step-caption\">Pending an explicit commit</span>\n      <Step at={2}>\n        <div className=\"flow-reveal is-action\">\n          <span className=\"stop-code\">03 / Broadcast</span>\n          <h3>System acts</h3>\n          <p>The message reaches customers.</p>\n          <span className=\"step-caption\">Record: who approved what</span>\n        </div>\n      </Step>\n    </article>\n  </div>\n</div>\n\n<Note>\nAt Step 0, let the audience see the proposal as harmless and fast. Advance once: the yellow checkpoint appears, shifting responsibility from generation to ownership. Advance again: the broadcast state appears. The point is not that a human edits every word; the point is that someone knowingly commits the action.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 48,
+                "column": 1,
+                "offset": 2248
+              },
+              "end": {
+                "line": 99,
+                "column": 8,
+                "offset": 4464
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-4",
+        "index": 3,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "A useful checkpoint is legible before the click. It states the action, exposes the affected scope, presents the evidence worth reviewing, and makes recovery concrete. If the interface cannot answer these questions, “Are you sure?” only performs safety.",
+            "value": "A useful checkpoint is legible before the click. It states the action, exposes the affected scope, presents the evidence worth reviewing, and makes recovery concrete. If the interface cannot answer these questions, “Are you sure?” only performs safety."
+          }
+        ],
+        "stepStops": [],
+        "title": "Make the pause answer four questions.",
+        "source": [
+          {
+            "value": "<div className=\"gate-slide contract-slide\">\n  <div className=\"claim-column\">\n    <p className=\"eyebrow\">The checkpoint contract</p>\n    <h2>Make the pause answer four questions.</h2>\n    <p className=\"lead\">A confirmation dialog is friction. A checkpoint transfers responsibility.</p>\n    <div className=\"contract-ring\" aria-hidden=\"true\"></div>\n  </div>\n\n  <div>\n    <div className=\"question-set\" role=\"list\" aria-label=\"Four questions for a meaningful human checkpoint.\">\n      <div className=\"question\" role=\"listitem\"><b>01 / Intent</b><span>What will happen?</span></div>\n      <div className=\"question\" role=\"listitem\"><b>02 / Scope</b><span>Who or what is affected?</span></div>\n      <div className=\"question\" role=\"listitem\"><b>03 / Evidence</b><span>What should I inspect?</span></div>\n      <div className=\"question\" role=\"listitem\"><b>04 / Recovery</b><span>How can we undo it?</span></div>\n    </div>\n  </div>\n</div>\n\n<Note>\nA useful checkpoint is legible before the click. It states the action, exposes the affected scope, presents the evidence worth reviewing, and makes recovery concrete. If the interface cannot answer these questions, “Are you sure?” only performs safety.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 103,
+                "column": 1,
+                "offset": 4471
+              },
+              "end": {
+                "line": 123,
+                "column": 8,
+                "offset": 5669
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-5",
+        "index": 4,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "This is the practical synthesis. The goal is not to slow the entire system to the speed of its riskiest step. Let reversible work move quickly. Spend scarce human attention only where the workflow crosses into consequential action—and make that attention high quality.",
+            "value": "This is the practical synthesis. The goal is not to slow the entire system to the speed of its riskiest step. Let reversible work move quickly. Spend scarce human attention only where the workflow crosses into consequential action—and make that attention high quality."
+          }
+        ],
+        "stepStops": [],
+        "title": "Run the workflow at two speeds.",
+        "source": [
+          {
+            "value": "<div className=\"gate-slide lane-slide\">\n  <div>\n    <p className=\"eyebrow\">Design the operating model</p>\n    <h2>Run the workflow at two speeds.</h2>\n  </div>\n\n  <div className=\"lane-system\" role=\"group\" aria-label=\"Two workflow lanes: a fast autonomous lane for reversible, contained work and a deliberate human-owned lane for consequential action.\">\n    <section className=\"lane fast\">\n      <h3>Fast lane</h3>\n      <div className=\"lane-rule\">Reversible work · contained scope · observable result</div>\n      <div className=\"lane-mode\">Autonomy by default</div>\n    </section>\n    <section className=\"lane deliberate\">\n      <h3>Deliberate lane</h3>\n      <div className=\"lane-rule\">External action · durable state · meaningful blast radius</div>\n      <div className=\"lane-mode\">Explicit approval</div>\n    </section>\n  </div>\n</div>\n\n<Note>\nThis is the practical synthesis. The goal is not to slow the entire system to the speed of its riskiest step. Let reversible work move quickly. Spend scarce human attention only where the workflow crosses into consequential action—and make that attention high quality.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 127,
+                "column": 1,
+                "offset": 5676
+              },
+              "end": {
+                "line": 149,
+                "column": 8,
+                "offset": 6799
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-6",
+        "index": 5,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Close on a small, specific action. Ask the team to choose one workflow—not the whole product—and trace one artifact end to end. The deliverable is a single marked gate plus the four questions that make it meaningful.",
+            "value": "Close on a small, specific action. Ask the team to choose one workflow—not the whole product—and trace one artifact end to end. The deliverable is a single marked gate plus the four questions that make it meaningful."
+          }
+        ],
+        "stepStops": [],
+        "title": "Mark one yellow gate.",
+        "source": [
+          {
+            "value": "<div className=\"gate-slide final-slide\">\n  <div>\n    <p className=\"eyebrow\">Tomorrow / 15 minutes</p>\n    <h2>Mark one yellow gate.</h2>\n    <p className=\"lead\">Take one live AI workflow and identify the first moment it changes the world outside its sandbox.</p>\n  </div>\n\n  <div>\n    <ol className=\"action-list\">\n      <li className=\"action-row\">Trace the artifact from generation to action.</li>\n      <li className=\"action-row\">Mark where reversal becomes difficult.</li>\n      <li className=\"action-row\">Write the four-question checkpoint.</li>\n    </ol>\n    <div className=\"commit-strip\">Keep the fast lane fast. Make the gate count.</div>\n  </div>\n</div>\n\n<Note>\nClose on a small, specific action. Ask the team to choose one workflow—not the whole product—and trace one artifact end to end. The deliverable is a single marked gate plus the four questions that make it meaningful.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 153,
+                "column": 1,
+                "offset": 6806
+              },
+              "end": {
+                "line": 172,
+                "column": 8,
+                "offset": 7699
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "design": {
+    "theme": {
+      "id": "@drever/designs/basic",
+      "version": "0.2.2",
+      "tokens": {
+        "color": {
+          "canvas": "#f7f7f2",
+          "ink": "#171816",
+          "muted": "#62665f",
+          "accent": "#2855e7",
+          "accentStrong": "#1538a8",
+          "accentSoft": "#dce5ff",
+          "surface": "#ffffff",
+          "border": "#d9dcd4",
+          "codeCanvas": "#171a22",
+          "codeInk": "#f5f6f8"
+        },
+        "typography": {
+          "display": "ui-sans-serif, system-ui, sans-serif",
+          "body": "ui-sans-serif, system-ui, sans-serif",
+          "mono": "ui-monospace, SFMono-Regular, monospace",
+          "titleSize": 76,
+          "bodySize": 28
+        },
+        "space": {
+          "slideX": 112,
+          "slideY": 88,
+          "rhythm": 24
+        },
+        "shape": {
+          "radius": 24,
+          "borderWidth": 2
+        },
+        "motion": {
+          "duration": 380,
+          "easing": "cubic-bezier(0.22, 1, 0.36, 1)"
+        }
+      },
+      "manifest": {
+        "title": "Drever Basic",
+        "summary": "A neutral visual baseline with generous space, clear typography, and focused motion.",
+        "artDirection": {
+          "keywords": [
+            "neutral",
+            "clear",
+            "versatile",
+            "calm"
+          ],
+          "principles": [
+            "Give every slide one dominant idea",
+            "Use scale and space before decoration",
+            "Animate changes that clarify state or continuity",
+            "Prefer a meaningful visual over a longer list"
+          ],
+          "avoid": [
+            "Dense walls of text",
+            "More than two competing accent colors",
+            "Decorative animation without narrative purpose",
+            "Using a two-column layout when the ideas are unrelated"
+          ]
+        },
+        "choices": {
+          "tones": [
+            "light",
+            "dark",
+            "accent"
+          ],
+          "emphases": [
+            "typography",
+            "comparison",
+            "visual"
+          ],
+          "densities": [
+            "airy",
+            "balanced"
+          ]
+        }
+      },
+      "motion": {
+        "id": "basic",
+        "intents": [
+          "focus",
+          "replace",
+          "compare",
+          "stagger",
+          "continuity"
+        ],
+        "guidance": [
+          "Use focus to keep prior evidence visible while making the current Step unmistakable.",
+          "Use replace for one changing state, compare for cumulative evidence, and stagger for at most four tightly related items.",
+          "Set flow to block for a vertical reading sequence and inline for a horizontal process or comparison; leave it unset when neither axis explains the content.",
+          "Basic motion uses clean fades and short spatial travel, keeping the content more prominent than the choreography.",
+          "Reuse a continuity name only when the same visual object persists across adjacent slides."
+        ]
+      }
+    },
+    "layouts": [
+      {
+        "name": "Cover",
+        "description": "Open a presentation or major chapter with one concise title and restrained supporting context.",
+        "slots": [
+          {
+            "name": "eyebrow",
+            "purpose": "An optional short category, event, or chapter label.",
+            "accepts": [
+              "text"
+            ],
+            "maxItems": 1
+          },
+          {
+            "name": "title",
+            "purpose": "The single dominant statement for the slide.",
+            "accepts": [
+              "text"
+            ],
+            "required": true,
+            "maxItems": 1
+          },
+          {
+            "name": "supporting",
+            "purpose": "One short sentence that adds context without repeating the title.",
+            "accepts": [
+              "text"
+            ],
+            "maxItems": 1
+          },
+          {
+            "name": "footer",
+            "purpose": "Optional speaker, organization, date, or section metadata.",
+            "accepts": [
+              "text"
+            ],
+            "maxItems": 1
+          }
+        ],
+        "variants": [
+          "light",
+          "dark",
+          "accent"
+        ],
+        "constraints": {
+          "titleWords": {
+            "recommendedMaximum": 10
+          },
+          "supportingLines": {
+            "recommendedMaximum": 3
+          }
+        },
+        "example": "<Cover eyebrow=\"Drever\" title=\"Presentations can be software.\" supporting=\"Interactive, testable, and ready to ship.\" tone=\"accent\" />"
+      },
+      {
+        "name": "TwoColumn",
+        "description": "Place two related ideas side by side when their relationship is more important than either idea alone.",
+        "slots": [
+          {
+            "name": "primary",
+            "purpose": "The first argument, explanation, or visual group.",
+            "accepts": [
+              "text",
+              "media",
+              "code",
+              "component"
+            ],
+            "required": true,
+            "maxItems": 1
+          },
+          {
+            "name": "secondary",
+            "purpose": "The comparison, consequence, or complementary visual group.",
+            "accepts": [
+              "text",
+              "media",
+              "code",
+              "component"
+            ],
+            "required": true,
+            "maxItems": 1
+          }
+        ],
+        "variants": [
+          "equal",
+          "wide-primary",
+          "wide-secondary"
+        ],
+        "constraints": {
+          "nestedColumns": false,
+          "recommendedMaximumWordsPerColumn": 45
+        },
+        "example": "<TwoColumn primary={<><h2>Before</h2><p>Static output</p></>} secondary={<><h2>After</h2><p>Living interface</p></>} />"
+      }
+    ],
+    "components": [],
+    "elements": []
+  },
+  "plugins": [
+    {
+      "id": "@drever/plugin-gfm",
+      "version": "0.2.2",
+      "origin": "default",
+      "config": {
+        "singleTilde": true
+      }
+    },
+    {
+      "id": "@drever/plugin-shiki",
+      "version": "0.2.2",
+      "origin": "default",
+      "config": {
+        "darkTheme": "github-dark",
+        "lightTheme": "github-light"
+      }
+    },
+    {
+      "id": "@drever/plugin-tailwindcss",
+      "version": "0.2.2",
+      "origin": "default"
+    }
+  ],
+  "preflight": {
+    "version": 1,
+    "sourcePath": "<project>/slides.mdx",
+    "slideCount": 6,
+    "summary": {
+      "errors": 0,
+      "warnings": 0,
+      "info": 0
+    },
+    "diagnostics": []
+  }
+}

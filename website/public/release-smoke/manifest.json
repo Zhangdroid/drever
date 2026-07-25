@@ -1,7 +1,13 @@
 {
   "schemaVersion": 1,
-  "latestRunId": "2026072501",
+  "latestRunId": "30169414830",
   "runs": [
+    {
+      "id": "30169414830",
+      "generatedAt": "2026-07-25T18:25:15.351Z",
+      "transcript": "/release-smoke/runs/30169414830/run.json",
+      "version": "0.2.2"
+    },
     {
       "id": "2026072501",
       "generatedAt": "2026-07-25T14:27:17.396Z",

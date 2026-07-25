@@ -1,0 +1,172 @@
+import './design/theme.css'
+
+<div className="gate-slide cover">
+  <div className="title-lockup">
+    <p className="eyebrow">Operating principle 01</p>
+    <h1>Before it ships itself</h1>
+    <p className="lead">The safest AI workflows do not pause everywhere. They pause at the one boundary where a <strong>suggestion becomes an action.</strong></p>
+  </div>
+
+  <div className="cover-rail" role="img" aria-label="A workflow rail runs from generation to external action and stops at a human checkpoint.">
+    <div className="track"></div>
+    <span className="rail-label start">Generate</span>
+    <span className="rail-label end">Act in the world</span>
+    <div className="gate-marker" aria-hidden="true"></div>
+  </div>
+</div>
+
+<Note>
+Open with the tension, not the technology: teams want the speed of automation without losing ownership of consequential actions. The argument today is not “put a human in every loop.” It is “put human judgment at the boundary that changes reality.”
+</Note>
+
+---
+
+<div className="gate-slide">
+  <div className="slide-grid">
+    <div className="claim-column">
+      <p className="eyebrow">Locate the boundary</p>
+      <h2>Speed is cheap—until the action is hard to undo.</h2>
+      <p className="lead">Review belongs where reversibility falls and the blast radius rises.</p>
+      <p className="margin-note">Do not score the model first. Score the consequence.</p>
+    </div>
+
+    <div className="decision-field" role="img" aria-label="A field plots low-to-high reversibility loss and small-to-large blast radius. Drafting sits in the low-consequence corner; sending sits beyond the review boundary in the high-consequence corner.">
+      <span className="axis-label y">Harder to reverse ↑</span>
+      <span className="axis-label x">Larger blast radius →</span>
+      <span className="field-point draft">Draft copy</span>
+      <span className="field-point send">Send to customers</span>
+    </div>
+  </div>
+</div>
+
+<Note>
+Use the field as a conversation tool, not a pseudo-precise scorecard. Drafting is cheap to reverse and usually contained. Sending, publishing, purchasing, deleting, or changing a system of record is different: the action reaches people or state outside the model’s sandbox.
+</Note>
+
+---
+
+<div className="gate-slide flow-slide">
+  <div className="flow-head">
+    <div>
+      <p className="eyebrow">Follow one artifact</p>
+      <h2>One message. Three owners.</h2>
+    </div>
+    <p className="lead"><strong>Example: a customer update.</strong><br />The words persist; responsibility changes.</p>
+  </div>
+
+  <div className="artifact-flow" role="group" aria-label="An AI-generated customer update moves from draft to human commit to external broadcast.">
+    <article className="flow-stop">
+      <span className="stop-code">01 / Draft</span>
+      <h3>AI proposes</h3>
+      <p>Private, inspectable, replaceable.</p>
+      <span className="step-caption">Default: keep moving</span>
+    </article>
+
+    <article className="flow-stop is-awaiting">
+      <span className="stop-code">02 / Boundary</span>
+      <h3>Decision gate</h3>
+      <p>Who will own the consequence?</p>
+      <span className="step-caption">Next: transfer responsibility</span>
+      <Step at={1}>
+        <div className="flow-reveal is-gate">
+          <span className="stop-code">02 / Commit</span>
+          <h3>Human owns</h3>
+          <p>Intent, audience, and consequences are explicit.</p>
+          <span className="step-caption">Checkpoint: require a decision</span>
+        </div>
+      </Step>
+    </article>
+
+    <article className="flow-stop is-awaiting">
+      <span className="stop-code">03 / Outcome</span>
+      <h3>Outside next</h3>
+      <p>The sandbox ends at this edge.</p>
+      <span className="step-caption">Pending an explicit commit</span>
+      <Step at={2}>
+        <div className="flow-reveal is-action">
+          <span className="stop-code">03 / Broadcast</span>
+          <h3>System acts</h3>
+          <p>The message reaches customers.</p>
+          <span className="step-caption">Record: who approved what</span>
+        </div>
+      </Step>
+    </article>
+  </div>
+</div>
+
+<Note>
+At Step 0, let the audience see the proposal as harmless and fast. Advance once: the yellow checkpoint appears, shifting responsibility from generation to ownership. Advance again: the broadcast state appears. The point is not that a human edits every word; the point is that someone knowingly commits the action.
+</Note>
+
+---
+
+<div className="gate-slide contract-slide">
+  <div className="claim-column">
+    <p className="eyebrow">The checkpoint contract</p>
+    <h2>Make the pause answer four questions.</h2>
+    <p className="lead">A confirmation dialog is friction. A checkpoint transfers responsibility.</p>
+    <div className="contract-ring" aria-hidden="true"></div>
+  </div>
+
+  <div>
+    <div className="question-set" role="list" aria-label="Four questions for a meaningful human checkpoint.">
+      <div className="question" role="listitem"><b>01 / Intent</b><span>What will happen?</span></div>
+      <div className="question" role="listitem"><b>02 / Scope</b><span>Who or what is affected?</span></div>
+      <div className="question" role="listitem"><b>03 / Evidence</b><span>What should I inspect?</span></div>
+      <div className="question" role="listitem"><b>04 / Recovery</b><span>How can we undo it?</span></div>
+    </div>
+  </div>
+</div>
+
+<Note>
+A useful checkpoint is legible before the click. It states the action, exposes the affected scope, presents the evidence worth reviewing, and makes recovery concrete. If the interface cannot answer these questions, “Are you sure?” only performs safety.
+</Note>
+
+---
+
+<div className="gate-slide lane-slide">
+  <div>
+    <p className="eyebrow">Design the operating model</p>
+    <h2>Run the workflow at two speeds.</h2>
+  </div>
+
+  <div className="lane-system" role="group" aria-label="Two workflow lanes: a fast autonomous lane for reversible, contained work and a deliberate human-owned lane for consequential action.">
+    <section className="lane fast">
+      <h3>Fast lane</h3>
+      <div className="lane-rule">Reversible work · contained scope · observable result</div>
+      <div className="lane-mode">Autonomy by default</div>
+    </section>
+    <section className="lane deliberate">
+      <h3>Deliberate lane</h3>
+      <div className="lane-rule">External action · durable state · meaningful blast radius</div>
+      <div className="lane-mode">Explicit approval</div>
+    </section>
+  </div>
+</div>
+
+<Note>
+This is the practical synthesis. The goal is not to slow the entire system to the speed of its riskiest step. Let reversible work move quickly. Spend scarce human attention only where the workflow crosses into consequential action—and make that attention high quality.
+</Note>
+
+---
+
+<div className="gate-slide final-slide">
+  <div>
+    <p className="eyebrow">Tomorrow / 15 minutes</p>
+    <h2>Mark one yellow gate.</h2>
+    <p className="lead">Take one live AI workflow and identify the first moment it changes the world outside its sandbox.</p>
+  </div>
+
+  <div>
+    <ol className="action-list">
+      <li className="action-row">Trace the artifact from generation to action.</li>
+      <li className="action-row">Mark where reversal becomes difficult.</li>
+      <li className="action-row">Write the four-question checkpoint.</li>
+    </ol>
+    <div className="commit-strip">Keep the fast lane fast. Make the gate count.</div>
+  </div>
+</div>
+
+<Note>
+Close on a small, specific action. Ask the team to choose one workflow—not the whole product—and trace one artifact end to end. The deliverable is a single marked gate plus the four questions that make it meaningful.
+</Note>
