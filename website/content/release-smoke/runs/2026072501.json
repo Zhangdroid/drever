@@ -34,9 +34,9 @@
         "4 allowlisted source files crossed the secret boundary"
       ],
       "deck": {
-        "audience": "https://codex-ai-release-smoke.drever-website.pages.dev/release-smoke/runs/2026072501/surprise-me/deck/",
-        "document": "https://codex-ai-release-smoke.drever-website.pages.dev/release-smoke/runs/2026072501/surprise-me/deck/document/",
-        "source": "https://codex-ai-release-smoke.drever-website.pages.dev/release-smoke/runs/2026072501/surprise-me/source/slides.mdx"
+        "audience": "https://97b796e2.drever-website.pages.dev/release-smoke/runs/2026072501/surprise-me/deck/",
+        "document": "https://97b796e2.drever-website.pages.dev/release-smoke/runs/2026072501/surprise-me/deck/document/",
+        "source": "https://97b796e2.drever-website.pages.dev/release-smoke/runs/2026072501/surprise-me/source/slides.mdx"
       },
       "durationSeconds": 219,
       "id": "surprise-me",
@@ -84,9 +84,9 @@
         "4 allowlisted source files crossed the secret boundary"
       ],
       "deck": {
-        "audience": "https://codex-ai-release-smoke.drever-website.pages.dev/release-smoke/runs/2026072501/guided/deck/",
-        "document": "https://codex-ai-release-smoke.drever-website.pages.dev/release-smoke/runs/2026072501/guided/deck/document/",
-        "source": "https://codex-ai-release-smoke.drever-website.pages.dev/release-smoke/runs/2026072501/guided/source/slides.mdx"
+        "audience": "https://97b796e2.drever-website.pages.dev/release-smoke/runs/2026072501/guided/deck/",
+        "document": "https://97b796e2.drever-website.pages.dev/release-smoke/runs/2026072501/guided/deck/document/",
+        "source": "https://97b796e2.drever-website.pages.dev/release-smoke/runs/2026072501/guided/source/slides.mdx"
       },
       "durationSeconds": 468,
       "id": "guided",
