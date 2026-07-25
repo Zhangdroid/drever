@@ -423,6 +423,11 @@ Every branded surface must meet these rules:
 
 - normal text reaches at least `4.5:1`; large text and essential graphics reach
   at least `3:1`;
+- every visible authored string remains immediately legible at presentation
+  distance; small print and sufficient contrast alone are not acceptable
+  substitutes for readable type;
+- every label remains inside the usable inner silhouette of the shape or
+  surface that owns it, with deliberate padding after borders and clipping;
 - focus is a visible `2px` ring with a `2px` offset: Continuity on light
   surfaces, Signal on Ink surfaces, and Ink on Signal surfaces;
 - focus, hover, active, selected, invalid, and disabled states remain distinct

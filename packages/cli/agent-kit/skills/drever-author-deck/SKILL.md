@@ -34,11 +34,20 @@ Use `stage.background` for persistent canvas decoration and `stage.foreground` f
 
 Keep persistent titles, layout anchors, Stage shells, backgrounds, page numbers, branding, dialogs, and audience controls outside slide motion. Move the smallest meaningful child. Treat cards, panels, and media frames as complete painted surfaces: never hard-clip a required shadow, glow, outline, or filter. Clip an inner content wrapper or use opacity with translate or scale, and interpolate matching shadow lists from transparent colors instead of switching from `none`. Never dim a whole completed Step or another text-containing container with opacity; mark the active Step with a contrast-safe rule, outline, or surface so nested text, links, and controls retain their authored contrast.
 
-Treat any essential rendered heading, body copy, label, link, code, or table text that is not
-immediately legible at the configured canvas as a blocking P0 defect. An ancestor's `color` is not
-proof: Theme element rules can override `h1`, `h2`, `p`, `a`, `code`, and table descendants. Set or
-override the actual foregrounds, then inspect their computed colors against the worst-case
-background, motion frame, and Step state.
+Every visible authored string is a reading promise. Treat any heading, body copy, label, caption,
+legend, annotation, link, code, table cell, or control that is not immediately legible at
+presentation distance on the configured canvas as a blocking P0 defect. If text is not meant to be
+read, use a non-text visual texture instead of fake microcopy. Check actual font size, weight,
+spacing, and computed foreground against the worst rendered background, Step state, and motion
+frame; passing a contrast ratio alone does not prove presentation legibility. An ancestor's
+`color` is not proof because Theme element rules can override rendered descendants.
+
+Keep every label and copy block fully contained within the shape or surface that visually owns it,
+with deliberate padding in every Step and intermediate frame. For circles, rings, clipped
+polygons, and other non-rectangular owners, validate the usable inner silhouette after borders and
+padding, not merely the rectangular bounding box. If the copy cannot fit, enlarge or reflow the
+owner, or move the label outside with an explicit association. Never repair it by clipping,
+overlap, or shrinking below presentation legibility.
 
 For continuity, carry clear correspondence rather than arbitrary resemblance. Share the smallest stable feature of either the same object or two adjacent objects whose semantic role or visual structure makes their relationship immediately legible. Evidence may become a decision, or one diagram detail may become its place in a larger system; matching color or shape alone is not enough. Give the shared shell the same explicit inline size, block size, aspect ratio, and `box-sizing` at both endpoints, then reposition that shell through its parent layout. A fixed width with a changing height is still unstable. If the endpoint silhouettes need incompatible proportions, do not reuse the identity: use a cut, replacement, restrained dissolve, or local live-DOM handoff. Keep typography, line wrapping, paint, and media crop explicit. Use `inline-size: fit-content` only for invariant non-wrapping text; give media intrinsic dimensions plus `object-fit` and `object-position`. Keep changing prose outside the shared bitmap or split independently moving parts into separate named boundaries. Count the handoff as the moment's primary motion, never stretch text, boxes, lines, or shadows to fake it, and use absolute positioning only when both endpoints share the same explicit containing block. End the shared sequence when that object stops carrying the argument instead of forcing it into every later composition.
 

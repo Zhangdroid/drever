@@ -101,13 +101,21 @@ topology, particle, glow, or ambient motion before the title or evidence, reduce
 opacity, sharpness, or motion amplitude. Give foreground cards enough opacity or a local scrim to
 separate them from the background before compromising legibility.
 
-Treat any essential rendered heading, body copy, label, link, code, or table text that is not
-immediately legible at the configured canvas as a blocking P0 defect. An ancestor's `color` is not
-proof: Theme element rules can override `h1`, `h2`, `p`, `a`, `code`, and table descendants. Define
-foreground roles on the actual rendered elements or through sufficiently specific semantic
-overrides, then inspect their computed colors against the worst-case light, dark, image, or
-gradient background and every Step state. Dim background layers or decoration, never a container
-that also contains required text.
+Every visible authored string is a reading promise. Treat any heading, body copy, label, caption,
+legend, annotation, link, code, table cell, or control that is not immediately legible at
+presentation distance on the configured canvas as a blocking P0 defect. If text is not meant to be
+read, use a non-text visual texture instead of fake microcopy. Check actual font size, weight,
+spacing, and computed foreground against the worst rendered background, Step state, and motion
+frame; passing a contrast ratio alone does not prove presentation legibility. An ancestor's
+`color` is not proof because Theme element rules can override rendered descendants. Dim background
+layers or decoration, never a container that also contains required text.
+
+Keep every label and copy block fully contained within the shape or surface that visually owns it,
+with deliberate padding in every Step and intermediate frame. For circles, rings, clipped
+polygons, and other non-rectangular owners, validate the usable inner silhouette after borders and
+padding, not merely the rectangular bounding box. If the copy cannot fit, enlarge or reflow the
+owner, or move the label outside with an explicit association. Never repair it by clipping,
+overlap, or shrinking below presentation legibility.
 
 Treat typography as one deliberate system. When the premise is intentionally all-handwritten, carry that voice through headings, body copy, labels, and data instead of accidentally mixing unrelated type voices. Make exceptions only when the content semantics require a specialized face, such as literal code or a protected brand mark.
 
@@ -153,7 +161,7 @@ decoration merely to make the second pass look different.
 
 1. Add tests only for meaningful contracts or component behavior; do not add snapshots that merely preserve CSS text.
 2. Run `npm exec -- drever context --json`, `npm exec -- drever check --json`, and `npm exec -- drever build`.
-3. Inspect representative slides for every layout, then every affected slide and Step state at the configured canvas size. Resolve every P0 readability defect before aesthetic polish, including computed descendant foregrounds on the most disruptive background frame. Check intermediate motion frames in both directions, not only endpoints.
+3. Inspect every slide at Step 0 and every exact Step state after the first applied design; representative sampling is not sufficient. For a narrowly scoped later edit, inspect every affected state and adjacent handoff. Changing shared tokens, layouts, Stage layers, or components requires the whole deck. Resolve every P0 readability defect before aesthetic polish, including computed descendant foregrounds on the most disruptive background frame. Check intermediate motion frames in both directions, not only endpoints.
 4. Check `/document`, reduced motion, and relevant speaker and export surfaces. Verify fonts and localized assets load without network-dependent generation.
 5. Review the result against `art-direction.md`: remove any prominent choice that cannot be justified as subject-led or clearly acknowledged as fallback.
 6. When the design is applied to a deck, use the project-local `drever-review-deck` skill as the rendered completion gate. Reinspect the whole deck after changing shared tokens, layouts, Stage layers, or components; successful generation and build commands do not prove the design is ready.

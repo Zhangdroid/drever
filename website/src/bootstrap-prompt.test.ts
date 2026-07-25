@@ -14,10 +14,16 @@ describe("public bootstrap prompt", () => {
   });
 
   it("makes rendered text readability a blocking contract", () => {
-    expect(prompt).toMatch(/not immediately readable[^.]*blocking defect/iu);
+    expect(prompt).toMatch(/Every visible authored string is a\s+reading promise/iu);
+    expect(prompt).toMatch(
+      /not immediately legible at presentation distance[^.]*blocking P0 defect/iu,
+    );
     expect(prompt).toMatch(/Do not assume[^.]*wrapper[^.]*descendant text/iu);
     expect(prompt).toMatch(/computed foreground styles/iu);
     expect(prompt).toMatch(/across every Step/iu);
+    expect(prompt).toMatch(/fully contained within the shape or surface that visually owns it/iu);
+    expect(prompt).toMatch(/usable inner silhouette[^.]*rectangular bounding box/iu);
+    expect(prompt).toMatch(/every slide at Step 0 and\s+every exact authored Step route/iu);
   });
 
   it("requires a varied transition vocabulary and structurally distinct references", () => {

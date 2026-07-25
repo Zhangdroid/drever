@@ -91,21 +91,31 @@ moments, routes, Steps, and design decisions. Do not regenerate wholesale or add
 to make the second version different; leave sound choices alone.
 
 Use the project-local workflow to check and build the presentation. Start the development server
-and inspect the audience view when browser tooling is available. Review every authored reveal and
-the document view; review the speaker view when notes or timing are involved. Export a PDF only
-when requested.
+and inspect the audience view when browser tooling is available. Inspect every slide at Step 0 and
+every exact authored Step route at the configured canvas; representative sampling is not
+sufficient. Review the document view as well, and review the speaker view when notes or timing are
+involved. Export a PDF only when requested.
 
 Treat syntax-highlighted code, topic-specific visuals, stable motion, contrast, alignment, and
-overflow as rendered requirements rather than assumptions. Treat any heading, body copy, label,
-link, code sample, table cell, or control that is not immediately readable at the configured canvas
-as a blocking defect, even when checks and builds pass.
+overflow as rendered requirements rather than assumptions. Every visible authored string is a
+reading promise. Treat any heading, body copy, label, caption, legend, annotation, link, code,
+table cell, or control that is not immediately legible at presentation distance on the configured
+canvas as a blocking P0 defect, even when checks and builds pass. If text is not meant to be read,
+use a non-text visual texture instead of fake microcopy.
 
-Do not assume that setting `color` on a wrapper determines its descendant text. A Theme or component
-may assign explicit colors to `h1`, `h2`, `p`, links, code, or table elements. Inspect the rendered
-result and computed foreground styles on the actual descendants across every Step and the most
-disruptive frame of a moving, image, or gradient background. Dim decorative background layers
-instead of a container that also dims its text. Where a solid color pair can be measured, target at
-least WCAG AA contrast: 4.5:1 for normal text and 3:1 for large text and essential UI.
+Check actual font size, weight, spacing, and computed foreground styles on the rendered descendants
+across every Step and the most disruptive frame of a moving, image, or gradient background.
+Passing a contrast ratio alone does not prove presentation legibility. Do not assume that setting
+`color` on a wrapper determines its descendant text. Dim decorative background layers instead of a
+container that also dims its text. Where a solid color pair can be measured, target at least WCAG
+AA contrast: 4.5:1 for normal text and 3:1 for large text and essential UI.
+
+Keep every label and copy block fully contained within the shape or surface that visually owns it,
+with deliberate padding in every Step and intermediate frame. For circles, rings, clipped
+polygons, and other non-rectangular owners, validate the usable inner silhouette after borders and
+padding, not merely the rectangular bounding box. If the copy cannot fit, enlarge or reflow the
+owner, or move the label outside with an explicit association. Never repair it by clipping,
+overlap, or shrinking below presentation legibility.
 
 Fix proven errors before finishing. Leave the local preview running when that helps the user review
 the result.

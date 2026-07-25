@@ -648,6 +648,10 @@ does not load a JavaScript motion module and there is no separate
 - Keep persistent headings and context outside Step-oriented MotionGroups.
 - Keep shadows, glows, and other overflow effects outside hard clip reveals;
   interpolate matching transparent and opaque shadow lists.
+- Keep text inside a moving surface fully contained throughout every
+  intermediate frame. Validate the surface's usable inner silhouette, not only
+  its rectangular bounds; reflow or resize the surface instead of clipping,
+  overlapping, or shrinking the text below presentation legibility.
 - Use `flow="block"` for vertical reading order and `flow="inline"` for a
   horizontal pipeline or comparison; omit it when the theme default fits.
 - Keep global backgrounds, branding, and page numbers in Stage layers. Animate

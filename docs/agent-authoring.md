@@ -172,13 +172,27 @@ Preflight inside the report analyzes the authored source. Runtime components
 remain responsible for their generated semantics, and visual claims require
 rendered evidence at the configured canvas and exact Step route.
 
-Rendered readability is a delivery gate. Treat any essential text that is not
-immediately legible as a blocking P0 defect. Do not infer contrast from a
-wrapper's `color`: Theme element rules can set different foregrounds on
-headings, paragraphs, links, code, and table descendants. Inspect the computed
-foregrounds on the actual rendered elements against the worst-case background,
-motion frame, and Step state. Reduce or dim background layers and decoration,
-not a container that also contains required text.
+Rendered readability is a delivery gate. Every visible authored string is a
+reading promise. Treat any heading, body copy, label, caption, legend,
+annotation, link, code, table cell, or control that is not immediately legible
+at presentation distance on the configured canvas as a blocking P0 defect. If
+text is not meant to be read, use a non-text visual texture instead of fake
+microcopy. Check actual font size, weight, spacing, and computed foregrounds on
+the rendered descendants against the worst background, motion frame, and Step
+state; passing a contrast ratio alone does not prove presentation legibility.
+Do not infer contrast from a wrapper's `color`. Reduce or dim background layers
+and decoration, not a container that also contains required text.
+
+Keep every label and copy block fully contained within the shape or surface
+that visually owns it, with deliberate padding in every Step and intermediate
+frame. For circles, rings, clipped polygons, and other non-rectangular owners,
+validate the usable inner silhouette after borders and padding, not merely the
+rectangular bounding box. If the copy cannot fit, enlarge or reflow the owner,
+or move the label outside with an explicit association. Never repair it by
+clipping, overlap, or shrinking below presentation legibility.
+
+After Draft 1, inspect every slide at Step 0 and every exact authored Step route
+at the configured canvas; representative sampling is not sufficient.
 
 ## Follow the live presentation
 

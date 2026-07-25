@@ -15,6 +15,9 @@ section, while commit snapshots use the current Unreleased section.
 - Taught generated creation, design, authoring, and review workflows to keep shared View Transition
   shells identical in width, height, aspect ratio, and box sizing, and to diagnose a
   grow-then-shrink handoff as endpoint geometry rather than easing.
+- Made every visible authored string a presentation-distance reading promise, required labels to
+  fit the usable inner silhouette of their visual owner, and replaced representative visual
+  sampling with exact slide and Step inspection after initial generation.
 
 ### Fixed
 

@@ -94,6 +94,7 @@ describe("agent kit sync", () => {
     const root = await temporaryDirectory("drever-agent-project-");
     await syncAgentKit({ root });
 
+    const installed = new Map<string, string>();
     for (const skill of [
       "drever-create-deck",
       "drever-create-design",
@@ -101,9 +102,33 @@ describe("agent kit sync", () => {
       "drever-review-deck",
     ] as const) {
       const contents = await read(root, `.agents/skills/${skill}/SKILL.md`);
-      expect(contents).toMatch(/not\s+immediately legible[^.]*blocking P0 defect/iu);
-      expect(contents).toMatch(/ancestor's `color` is not\s+proof/iu);
+      installed.set(skill, contents);
+      expect(contents).toMatch(/Every visible authored string is a reading promise/iu);
+      expect(contents).toMatch(
+        /not\s+immediately legible at\s+presentation distance[^.]*blocking P0 defect/iu,
+      );
+      expect(contents).toMatch(/ancestor's\s+`color`\s+is not\s+proof/iu);
+      expect(contents).toMatch(
+        /fully contained within the shape or surface that visually owns it/iu,
+      );
+      expect(contents).toMatch(/usable inner silhouette[^.]*rectangular bounding box/iu);
     }
+
+    expect(installed.get("drever-create-deck")).toMatch(
+      /every slide at Step 0 and every exact authored Step route/iu,
+    );
+    expect(installed.get("drever-create-design")).toMatch(
+      /every slide at Step 0 and every exact Step state/iu,
+    );
+    expect(installed.get("drever-review-deck")).toMatch(
+      /every slide at Step 0 and every exact sparse Step state/iu,
+    );
+    expect(installed.get("drever-author-deck")).toMatch(
+      /every affected exact slide and Step route/iu,
+    );
+    expect(installed.get("drever-author-deck")).toMatch(
+      /Expand the gate to the whole deck[^.]*shared theme/iu,
+    );
   });
 
   it("installs the varied transition and design-family contract", async () => {
