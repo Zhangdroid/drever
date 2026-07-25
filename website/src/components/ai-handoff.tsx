@@ -2,7 +2,7 @@ import { useId, useMemo, useState } from "react";
 
 import { CopyButton } from "./copy-button";
 
-const emptyHandoff = "Fetch https://drever.dev/prompt.md";
+const emptyHandoff = "Fetch and follow https://drever.dev/prompt.md";
 
 export const createAIHandoff = (brief: string) => {
   const normalized = brief.trim();

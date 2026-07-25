@@ -5,6 +5,11 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+### Fixed
+
+- Made the public AI handoff explicitly continue after fetching `prompt.md` without naming a
+  competing generic presentation workflow.
+
 ## [0.2.1] - 2026-07-24
 
 ### Fixed
