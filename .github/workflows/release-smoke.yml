@@ -153,7 +153,7 @@ jobs:
           allow-bots: true
           codex-version: 0.145.0
           codex-home: ${{ env.CODEX_HOME }}
-          openai-api-key: ${{ secrets.DREVER_RELEASE_SMOKE_OPENAI_API_KEY }}
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
           permission-profile: ":workspace"
           safety-strategy: drop-sudo
           working-directory: ${{ env.PROJECT_ROOT }}
