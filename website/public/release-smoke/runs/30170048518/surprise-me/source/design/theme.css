@@ -1,0 +1,208 @@
+:root {
+  --space: #061016;
+  --space-2: #0b1a22;
+  --moon: #f3f7f5;
+  --muted: #86a0ad;
+  --cyan: #72e6e1;
+  --amber: #ffc56e;
+  --red: #ff7d73;
+  --line: rgba(134, 160, 173, 0.25);
+}
+
+.cosmos-slide {
+  box-sizing: border-box;
+  min-block-size: 100%;
+  inline-size: 100%;
+  padding: 3.6rem 4.4rem 3rem;
+  color: var(--moon);
+  background:
+    linear-gradient(rgba(114, 230, 225, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(114, 230, 225, 0.035) 1px, transparent 1px),
+    radial-gradient(circle at 78% 28%, rgba(114, 230, 225, 0.09), transparent 27%),
+    var(--space);
+  background-size: 52px 52px, 52px 52px, auto, auto;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+
+.cosmos-slide::after {
+  content: "";
+  position: absolute;
+  inset: 1.2rem;
+  border: 1px solid rgba(134, 160, 173, 0.16);
+  pointer-events: none;
+}
+
+.cosmos-slide h1,
+.cosmos-slide h2,
+.cosmos-slide p,
+.cosmos-slide figure {
+  margin: 0;
+}
+
+.cosmos-slide h1 {
+  max-inline-size: 12ch;
+  font-size: clamp(3.6rem, 6.8vw, 6.8rem);
+  line-height: 0.92;
+  letter-spacing: -0.065em;
+  font-weight: 760;
+}
+
+.cosmos-slide h2 {
+  max-inline-size: 15ch;
+  font-size: clamp(2.7rem, 5vw, 5rem);
+  line-height: 0.96;
+  letter-spacing: -0.05em;
+  font-weight: 730;
+}
+
+.eyebrow {
+  color: var(--cyan);
+  font-size: 0.78rem;
+  font-weight: 760;
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
+  margin-block-end: 1.15rem !important;
+}
+
+.lede {
+  color: var(--muted);
+  font-size: 1.25rem;
+  line-height: 1.46;
+  max-inline-size: 38ch;
+  margin-block-start: 1.4rem !important;
+}
+
+.lede strong {
+  color: var(--moon);
+  font-weight: 650;
+}
+
+.two-up {
+  display: grid;
+  grid-template-columns: minmax(0, 0.86fr) minmax(26rem, 1.14fr);
+  gap: 4rem;
+  align-items: center;
+  min-block-size: calc(100% - 1rem);
+}
+
+.two-up--wide {
+  grid-template-columns: minmax(18rem, 0.68fr) minmax(34rem, 1.32fr);
+}
+
+.readout {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-block-start: 2rem;
+  color: var(--amber);
+  font-size: 0.76rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.readout::before {
+  content: "";
+  inline-size: 1.9rem;
+  block-size: 1px;
+  background: currentColor;
+}
+
+.lookback-dial svg,
+.photon-message svg,
+.redshift svg,
+.cosmic-timeline svg {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  overflow: visible;
+}
+
+.lookback-dial figcaption,
+.distance-ladder figcaption,
+.redshift figcaption,
+.cosmic-timeline figcaption {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  margin-block-start: 0.8rem;
+}
+
+.dial-ring { fill: none; stroke: rgba(114, 230, 225, 0.28); stroke-width: 1.5; stroke-dasharray: 3 7; }
+.dial-ring--far { stroke: rgba(255, 197, 110, 0.35); }
+.dial-tick { stroke: var(--muted); stroke-width: 1.5; }
+.observer-dot { fill: var(--moon); }
+.dial-you, .svg-label { fill: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: 0.18em; }
+.dial-label { fill: var(--moon); font-size: 11px; font-weight: 750; letter-spacing: 0.12em; }
+.dial-value { fill: var(--cyan); font-size: 12px; font-weight: 580; letter-spacing: 0.02em; }
+
+.photon-message { padding: 1.5rem; border: 1px solid var(--line); background: rgba(11, 26, 34, 0.76); border-radius: 1.2rem; }
+.photon-axis { stroke: rgba(134, 160, 173, 0.2); stroke-width: 2; }
+.photon-wave { fill: none; stroke-width: 4; stroke-linecap: round; }
+.star-core { fill: var(--amber); filter: drop-shadow(0 0 16px rgba(255, 197, 110, 0.52)); }
+.star-rays { stroke: var(--amber); stroke-width: 2; }
+.eye-orbit { fill: none; stroke: var(--cyan); stroke-width: 2; }
+.svg-caption { fill: var(--amber); font-size: 11px; font-weight: 700; letter-spacing: 0.18em; }
+
+.distance-ladder { border-block: 1px solid var(--line); padding-block: 0.8rem; }
+.ladder-row { display: grid; grid-template-columns: 2.3rem 7.2rem 1fr 9.6rem; gap: 1rem; align-items: center; min-block-size: 4.25rem; border-block-end: 1px solid rgba(134, 160, 173, 0.14); }
+.ladder-row:last-of-type { border-block-end: 0; }
+.ladder-index { color: var(--muted); font-size: 0.72rem; letter-spacing: 0.13em; }
+.ladder-name { font-size: 1.02rem; font-weight: 650; }
+.ladder-track { block-size: 0.45rem; background: rgba(134, 160, 173, 0.12); border-radius: 99px; overflow: hidden; }
+.ladder-fill { display: block; block-size: 100%; background: linear-gradient(90deg, var(--cyan), var(--amber)); border-radius: inherit; }
+.ladder-row strong { color: var(--amber); font-size: 0.92rem; font-variant-numeric: tabular-nums; text-align: end; }
+
+.redshift { border: 1px solid var(--line); border-radius: 1.2rem; padding: 1rem 1.4rem 1.2rem; background: rgba(11, 26, 34, 0.78); }
+.spectrum-label { fill: var(--muted); font-size: 10px; font-weight: 750; letter-spacing: 0.15em; writing-mode: vertical-rl; }
+.spectral-line { stroke: rgba(6, 16, 22, 0.88); stroke-width: 5; }
+.shift-axis { stroke: rgba(134, 160, 173, 0.36); stroke-width: 1.5; }
+.shift-arrow { fill: none; stroke: var(--amber); stroke-width: 2; }
+.shift-copy { fill: var(--amber); font-size: 10px; font-weight: 750; letter-spacing: 0.13em; }
+.axis-copy { fill: #8f9cff; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+.axis-copy--red { fill: var(--red); }
+
+.cosmic-timeline { padding: 0.9rem 1.4rem 1.2rem; border: 1px solid var(--line); border-radius: 1.2rem; background: rgba(11, 26, 34, 0.72); }
+.cosmic-timeline svg { max-block-size: 17.5rem; }
+.time-line { stroke-width: 4; }
+.time-origin { fill: var(--amber); }
+.time-cmb { fill: var(--cyan); stroke: var(--moon); stroke-width: 2; }
+.time-now { fill: var(--moon); }
+.time-marker { stroke: var(--cyan); stroke-width: 1.5; stroke-dasharray: 4 5; }
+.time-label { fill: var(--muted); font-size: 11px; font-weight: 720; letter-spacing: 0.13em; }
+.time-kicker { fill: var(--cyan); font-size: 10px; font-weight: 760; letter-spacing: 0.12em; }
+.time-value { fill: var(--moon); font-size: 13px; font-weight: 650; }
+.time-scale-note { fill: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: 0.12em; }
+
+.step-stack { display: grid; gap: 0.85rem; min-block-size: 7.4rem; margin-block-start: 1.8rem; }
+.step-card { padding: 0.95rem 1rem; border-inline-start: 2px solid var(--cyan); background: rgba(11, 26, 34, 0.72); color: var(--moon); font-size: 1rem; line-height: 1.4; }
+.step-card strong { color: var(--amber); }
+
+.horizon-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3rem; align-items: end; margin-block-end: 1.35rem; }
+.age-chip { inline-size: 12.5rem; padding: 1rem 1.1rem; border-block-start: 1px solid var(--cyan); background: rgba(11, 26, 34, 0.62); }
+.age-chip span { display: block; color: var(--muted); font-size: 0.68rem; font-weight: 720; letter-spacing: 0.14em; text-transform: uppercase; margin-block-end: 0.4rem; }
+.age-chip strong { display: block; color: var(--amber); font-size: 1.25rem; font-variant-numeric: tabular-nums; }
+
+.night-practice { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-block-start: 3rem; padding: 0; list-style: none; }
+.night-practice > li { min-block-size: 11.5rem; display: flex; flex-direction: column; justify-content: flex-end; padding: 1.3rem; border: 1px solid var(--line); border-radius: 1rem; background: linear-gradient(155deg, rgba(114, 230, 225, 0.08), rgba(11, 26, 34, 0.5)); }
+.night-practice span { color: var(--cyan); font-size: 0.7rem; letter-spacing: 0.15em; margin-block-end: auto; }
+.night-practice strong { font-size: 1.7rem; letter-spacing: -0.03em; }
+.night-practice p { color: var(--muted); font-size: 0.95rem; margin-block-start: 0.25rem; }
+
+.closing-line { margin-block-start: 2.5rem !important; font-size: 1.45rem; color: var(--amber); max-inline-size: 30ch; }
+
+@media (max-width: 900px) {
+  .cosmos-slide { padding: 2.6rem; }
+  .two-up, .two-up--wide { grid-template-columns: 1fr; gap: 1.8rem; align-content: center; }
+  .cosmos-slide h1 { font-size: 4.2rem; }
+  .cosmos-slide h2 { font-size: 3.4rem; }
+  .lookback-dial { max-inline-size: 31rem; }
+  .ladder-row { grid-template-columns: 2rem 6rem 1fr 8rem; }
+  .horizon-head { grid-template-columns: 1fr; gap: 1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+}
