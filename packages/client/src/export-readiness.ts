@@ -95,6 +95,44 @@ const waitForImages = async (container: Element, signal: AbortSignal): Promise<v
   );
 };
 
+const EXPORT_ANIMATION_EPSILON = 0.001;
+
+const exportAnimationTime = (effect: AnimationEffect): number => {
+  const { endTime } = effect.getComputedTiming();
+  if (typeof endTime === "number" && Number.isFinite(endTime)) {
+    return Math.max(0, endTime);
+  }
+
+  const { delay, duration } = effect.getTiming();
+  const resolvedDelay = typeof delay === "number" && Number.isFinite(delay) ? delay : 0;
+  const resolvedDuration =
+    typeof duration === "number" && Number.isFinite(duration) ? Math.max(0, duration) : 0;
+  if (resolvedDuration === 0) {
+    return Math.max(0, resolvedDelay);
+  }
+  return Math.max(
+    0,
+    resolvedDelay + resolvedDuration - Math.min(EXPORT_ANIMATION_EPSILON, resolvedDuration / 2),
+  );
+};
+
+/** Materializes one deterministic animation endpoint without firing a live export loop. */
+export const settleExportAnimation = (animation: Animation): void => {
+  const { effect } = animation;
+  animation.pause();
+  if (effect === null) {
+    return;
+  }
+  effect.updateTiming({ fill: "both" });
+  animation.currentTime = exportAnimationTime(effect);
+};
+
+const settleExportAnimations = (container: Element): void => {
+  for (const animation of container.getAnimations({ subtree: true })) {
+    settleExportAnimation(animation);
+  }
+};
+
 const assertUniqueIds = (container: Element): void => {
   const ids = new Set<string>();
   for (const element of container.querySelectorAll<HTMLElement>("[id]")) {
@@ -146,7 +184,9 @@ export const waitForExportReadiness = async (
   signal: AbortSignal,
 ): Promise<void> => {
   await Promise.all([waitForFonts(document, signal), waitForImages(container, signal)]);
+  settleExportAnimations(container);
   await waitForAnimationFrame(document, signal);
+  settleExportAnimations(container);
   await waitForAnimationFrame(document, signal);
   assertUniqueIds(container);
 };

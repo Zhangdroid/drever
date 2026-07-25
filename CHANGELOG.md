@@ -30,6 +30,8 @@ section, while commit snapshots use the current Unreleased section.
 
 ### Fixed
 
+- Materialized finite CSS and Web Animations at their final export state and froze infinite
+  decoration at a deterministic frame so animated text remains visible in generated PDFs.
 - Stabilized Cinema's changing media frame so its border, crop, and supporting composition no
   longer pop into place after the second-to-third-slide handoff.
 - Stabilized Atlas's shared river artifact in one fixed frame so it moves between compositions
