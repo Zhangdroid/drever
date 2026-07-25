@@ -37,6 +37,8 @@ section, while commit snapshots use the current Unreleased section.
 - Gave the Feature Gallery opening a static accessible title and preserved semantic spacing in the
   Product Tour cover title used by navigation and search.
 - Used endpoint-appropriate media types when release-smoke provenance checks query npm and GitHub.
+- Kept the guided release-smoke transcript coherent by completing its optional interview before
+  requesting a separate refinement pass.
 
 ## [0.2.2] - 2026-07-24
 

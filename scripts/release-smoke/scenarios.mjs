@@ -33,7 +33,11 @@ clear improvement. Do not run validation in this protected stage.`,
       `The audience is a small group of product, design, and engineering leads.
 I have eight minutes. By the end, they should be able to choose the three risks
 that deserve owners before launch. Keep visible slides concise and put useful
-facilitation detail in speaker notes.`,
+facilitation detail in speaker notes. Use expressive but purposeful motion and a
+calm launch-control or risk-radar visual language. Keep the exercise reusable
+for any product instead of inventing a fictional launch.
+
+Skip remaining questions — surprise me. Create the complete presentation now.`,
       `Review the complete authored draft once more. Use expressive but purposeful motion and a
 calm launch-control or risk-radar visual language. Preserve what already works, then refine the
 narrative, composition, hierarchy, motion, and small details wherever the source reveals a clear
