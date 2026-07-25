@@ -124,6 +124,8 @@ try {
     "create-template/slides.mdx",
     "dist/bin.mjs",
     "dist/create.mjs",
+    "dist/runtime.d.mts",
+    "dist/runtime.mjs",
   ]);
   await verifyPackedFiles("create-drever", ["README.md", "dist/bin.mjs"]);
   await verifyPackedFiles("@drever/designs", [

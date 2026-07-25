@@ -159,7 +159,28 @@ try {
   if (generatedPackage.devDependencies?.drever !== version || generatedDrever.version !== version) {
     throw new Error(`The public npm create command did not install Drever ${version}.`);
   }
+  await writeFile(
+    join(deckRoot, "slides.mdx"),
+    `import { Note, Step } from "drever";
 
+# Published root import
+
+<Step>Browser-safe runtime import.</Step>
+
+<Note>The registry consumer resolves authoring primitives from the root package.</Note>
+`,
+    "utf8",
+  );
+
+  const contextResult = await run("npm", ["exec", "--", "drever", "context", "--json"], deckRoot);
+  const context = JSON.parse(contextResult.stdout);
+  if (
+    context.version !== 1 ||
+    context.sourcePath !== join(deckRoot, "slides.mdx") ||
+    context.deck?.slides?.length !== 1
+  ) {
+    throw new Error("The project-local npm exec invocation returned invalid authoring context.");
+  }
   await run("npm", ["run", "check"], deckRoot);
   await run("npm", ["run", "build"], deckRoot);
   await stat(join(deckRoot, "dist", "index.html"));

@@ -21,7 +21,9 @@ describe("drever build", () => {
     await Promise.all([
       writeFile(
         join(root, "talk.mdx"),
-        `# A working Drever deck
+        `import { Note, Step } from "drever";
+
+# A working Drever deck
 
 ---
 
@@ -32,6 +34,8 @@ describe("drever build", () => {
 <Step at={3}>A sparse reveal</Step>
 
 <Badge />
+
+<Note>The facade stays browser-safe.</Note>
 `,
       ),
       writeFile(
@@ -88,6 +92,8 @@ describe("drever build", () => {
     const bundle = await readFile(join(outDir, "assets", script as string), "utf8");
     expect(bundle).toContain("A working Drever deck");
     expect(bundle).toContain("resolved-project-component");
+    expect(bundle).not.toContain("__vite-browser-external");
+    expect(bundle).not.toContain("vite-plus-core");
     expect(bundle).not.toContain("@react-refresh");
     expect(bundle).not.toContain("react-refresh");
     expect(bundle).not.toContain("dreverDeckManifestState");

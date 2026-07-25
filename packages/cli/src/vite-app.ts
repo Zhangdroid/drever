@@ -20,6 +20,7 @@ import { DreverCliError } from "./errors.ts";
 import { writeStaticDeckRoutes } from "./static-routes.ts";
 
 const workspaceFallbacks = Object.freeze({
+  "drever/runtime": "../src/runtime.ts",
   "@drever/client": "../../client/src/index.ts",
   "@drever/client/styles.css": "../../client/styles.css",
   "@drever/core": "../../core/src/index.ts",
@@ -33,6 +34,7 @@ const workspaceFallbacks = Object.freeze({
 }) satisfies Readonly<Record<string, string>>;
 
 const optimizedFrameworkDependencies = Object.freeze([
+  "drever",
   "@drever/client",
   "@drever/core",
   "@drever/designs/default/layouts",
@@ -62,6 +64,7 @@ const packageFile = (specifier: keyof typeof workspaceFallbacks): string => {
 };
 
 const frameworkAliases = (): readonly Alias[] => [
+  { find: /^drever$/u, replacement: packageFile("drever/runtime") },
   {
     find: /^@drever\/client\/styles\.css$/u,
     replacement: packageFile("@drever/client/styles.css"),

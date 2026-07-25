@@ -13,6 +13,7 @@ describe("resolveFrameworkViteConfig", () => {
 
     expect(config.dedupe).toEqual(["react", "react-dom"]);
     expect(config.optimize).toEqual([
+      "drever",
       "@drever/client",
       "@drever/core",
       "@drever/designs/default/layouts",
@@ -22,6 +23,9 @@ describe("resolveFrameworkViteConfig", () => {
       "react-dom",
       "react-dom/client",
     ]);
+    expect(
+      config.aliases.find(({ find }) => find instanceof RegExp && find.test("drever"))?.replacement,
+    ).toMatch(/packages\/cli\/(?:dist\/runtime\.mjs|src\/runtime\.ts)$/u);
     expect(
       config.aliases
         .filter(({ find }) => find instanceof RegExp && find.test("react"))

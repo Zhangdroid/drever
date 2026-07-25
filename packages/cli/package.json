@@ -21,11 +21,16 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.mts",
+      "browser": "./dist/runtime.mjs",
       "import": "./dist/index.mjs"
     },
     "./create": {
       "types": "./dist/create.d.mts",
       "import": "./dist/create.mjs"
+    },
+    "./runtime": {
+      "types": "./dist/runtime.d.mts",
+      "import": "./dist/runtime.mjs"
     },
     "./package.json": "./package.json"
   },

@@ -263,6 +263,17 @@ try {
   if (createReceipt.root !== deckRoot || createReceipt.version !== 1) {
     throw new Error("The packed create-drever binary returned an invalid receipt.");
   }
+  await writeFile(
+    join(deckRoot, "slides.mdx"),
+    `import { Note, Step } from "drever";
+
+# Packed root import
+
+<Step>Browser-safe runtime import.</Step>
+
+<Note>The packed consumer resolves authoring primitives from the root package.</Note>
+`,
+  );
 
   const checked = await run(process.execPath, [dreverCli, "check", "--json"], deckRoot);
   const checkReceipt = JSON.parse(checked.stdout);

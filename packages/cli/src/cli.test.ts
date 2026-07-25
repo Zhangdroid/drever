@@ -208,6 +208,27 @@ describe("runCli metadata", () => {
 
     expect(output).toBe(`${metadata.version}\n`);
   });
+
+  it("keeps browser imports on the runtime-only public entry", async () => {
+    const metadata = JSON.parse(
+      await readFile(new URL("../package.json", import.meta.url), "utf8"),
+    ) as {
+      exports: {
+        ".": Readonly<Record<string, string>>;
+        "./runtime": Readonly<Record<string, string>>;
+      };
+    };
+
+    expect(metadata.exports["."]).toEqual({
+      types: "./dist/index.d.mts",
+      browser: "./dist/runtime.mjs",
+      import: "./dist/index.mjs",
+    });
+    expect(metadata.exports["./runtime"]).toEqual({
+      types: "./dist/runtime.d.mts",
+      import: "./dist/runtime.mjs",
+    });
+  });
 });
 
 describe("runCli agent", () => {

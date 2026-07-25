@@ -27,7 +27,7 @@ export type {
   SpeakerNote,
   ThemeDefinition,
 } from "@drever/compiler";
-export { MotionGroup, Note, SlideTransition, Step } from "@drever/core";
+export { MotionGroup, Note, SlideTransition, Step, useStage } from "./runtime.ts";
 export type {
   MotionFlow,
   MotionGroupProps,
@@ -36,9 +36,10 @@ export type {
   SlideTransitionProps,
   StepProps,
   StepState,
-} from "@drever/core";
-export { useStage } from "@drever/client";
-export type { StageComponents, StageLayerComponent, StageLayerProps } from "@drever/client";
+  StageComponents,
+  StageLayerComponent,
+  StageLayerProps,
+} from "./runtime.ts";
 export { gfm, gfmPlugin } from "@drever/plugin-gfm";
 export type { GfmOptions } from "@drever/plugin-gfm";
 export { shiki, shikiPlugin } from "@drever/plugin-shiki";
