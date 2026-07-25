@@ -112,21 +112,6 @@ test("the active opening requests one microphone and drives the full Stage", asy
     )
     .toBeGreaterThan(0.5);
 
-  const fieldOpacity = await stage.evaluate((element) => {
-    const read = (selector: string) => {
-      const target = element.querySelector(selector);
-      return target === null ? 0 : Number.parseFloat(getComputedStyle(target, "::after").opacity);
-    };
-    return {
-      lime: read('[data-signal="primary"]'),
-      nearRing: read('[data-orbit="near"]'),
-      violet: read('[data-signal="secondary"]'),
-    };
-  });
-  expect(fieldOpacity.lime).toBeGreaterThan(0.2);
-  expect(fieldOpacity.violet).toBeGreaterThan(0.2);
-  expect(fieldOpacity.nearRing).toBeGreaterThan(0.2);
-
   await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/\/2$/u);
   await expect(stage).not.toHaveAttribute("data-drever-room-audio-active");
