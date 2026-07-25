@@ -49,6 +49,13 @@ export interface ReleaseSmokeRun {
   schemaVersion: 1;
 }
 
+export const readableReleaseSmokeMessage = (value: string): string =>
+  value
+    .replaceAll(/\[([^\]]+)\]\(<project>\/[^)\n]+\)/gu, "$1")
+    .replaceAll(/\*\*([^*\n]+)\*\*/gu, "$1")
+    .replaceAll(/`([^`\n]+)`/gu, "$1")
+    .replaceAll(/^-\s+/gmu, "• ");
+
 interface ReleaseSmokeManifest {
   latestRunId: string | null;
   runs: Array<{

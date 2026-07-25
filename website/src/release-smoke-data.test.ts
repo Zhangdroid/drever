@@ -3,6 +3,7 @@ import { describe, expect, it } from "vite-plus/test";
 import {
   parseReleaseSmokeData,
   parseReleaseSmokeRun,
+  readableReleaseSmokeMessage,
   releaseSmokeData,
 } from "./release-smoke-data";
 
@@ -65,6 +66,14 @@ describe("release smoke data", () => {
     expect(releaseSmokeData.latest?.kind).toBe("preview");
     expect(releaseSmokeData.latest?.cases.map(({ id }) => id)).toEqual(["surprise-me", "guided"]);
     expect(releaseSmokeData.latest?.cases.every(({ status }) => status === "passed")).toBe(true);
+  });
+
+  it("presents sanitized transcript Markdown as readable plain text", () => {
+    expect(
+      readableReleaseSmokeMessage(
+        "**Or say Surprise me.**\n\n- [slides.mdx](<project>/slides.mdx)\n- `brief.md`",
+      ),
+    ).toBe("Or say Surprise me.\n\n• slides.mdx\n• brief.md");
   });
 
   it("accepts an empty manifest without inventing release evidence", () => {
