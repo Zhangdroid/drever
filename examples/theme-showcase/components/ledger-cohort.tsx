@@ -13,32 +13,14 @@ type CohortStyle = CSSProperties &
     "--cohort-guided": string;
   }>;
 
-const cohorts = [
-  {
-    control: "63.8%",
-    controlPosition: "44%",
-    difference: "+8.3 pp",
-    guided: "72.1%",
-    guidedPosition: "85.5%",
-    source: "Invited teams",
-  },
-  {
-    control: "57.4%",
-    controlPosition: "12%",
-    difference: "+7.6 pp",
-    guided: "65.0%",
-    guidedPosition: "50%",
-    source: "Organic",
-  },
-  {
-    control: "60.1%",
-    controlPosition: "25.5%",
-    difference: "+6.8 pp",
-    guided: "66.9%",
-    guidedPosition: "59.5%",
-    source: "Partner",
-  },
-] as const;
+export type LedgerCohortRowProps = Readonly<{
+  control: string;
+  controlPosition: string;
+  difference: string;
+  guided: string;
+  guidedPosition: string;
+  source: string;
+}>;
 
 const labels: Record<LedgerRecordStage, string> = {
   audit: "Illustrative activation audit showing control and guided rates by acquisition source.",
@@ -48,7 +30,46 @@ const labels: Record<LedgerRecordStage, string> = {
     "Illustrative activation record showing Q1 at 61.2 percent, a 65 percent decision line, and Q2 at 68.4 percent.",
 };
 
-/** One flat decision record that evolves from metric to evidence to guarded action. */
+export const LedgerMetricResult = (): ReactElement => (
+  <div className="ledger-record__measure">
+    <strong>68.4</strong>
+    <span>%</span>
+    <b>+7.2 pp vs Q1</b>
+  </div>
+);
+
+export const LedgerCohortRow = ({
+  control,
+  controlPosition,
+  difference,
+  guided,
+  guidedPosition,
+  source,
+}: LedgerCohortRowProps): ReactElement => {
+  const style: CohortStyle = {
+    "--cohort-control": controlPosition,
+    "--cohort-guided": guidedPosition,
+  };
+
+  return (
+    <div
+      aria-label={`${source}: control ${control}; guided ${guided}; difference ${difference}.`}
+      className="ledger-record__audit-row"
+      role="listitem"
+      style={style}
+    >
+      <strong>{source}</strong>
+      <div aria-hidden="true" className="ledger-record__cohort-track">
+        <i />
+        <span data-cohort-point="control">{control}</span>
+        <span data-cohort-point="guided">{guided}</span>
+      </div>
+      <b>{difference}</b>
+    </div>
+  );
+};
+
+/** A compact analytical record with restrained, row-level reveals. */
 export const LedgerRecord = ({ children, stage }: LedgerRecordProps): ReactElement => {
   const labelId = useId();
 
@@ -61,11 +82,6 @@ export const LedgerRecord = ({ children, stage }: LedgerRecordProps): ReactEleme
 
       {stage === "metric" ? (
         <section aria-label={labels.metric} className="ledger-record__metric">
-          <div className="ledger-record__measure">
-            <strong>68.4</strong>
-            <span>%</span>
-            <b>+7.2 pp vs Q1</b>
-          </div>
           <div aria-hidden="true" className="ledger-record__threshold">
             <i className="ledger-record__threshold-line" />
             <span className="ledger-record__threshold-point" data-point="q1">
@@ -81,6 +97,13 @@ export const LedgerRecord = ({ children, stage }: LedgerRecordProps): ReactEleme
               <small>Q2</small>
             </span>
           </div>
+          <div className="ledger-record__metric-summary">
+            <div className="ledger-record__baseline">
+              <small>Prior quarter</small>
+              <strong>61.2%</strong>
+            </div>
+            {children}
+          </div>
         </section>
       ) : null}
 
@@ -90,26 +113,7 @@ export const LedgerRecord = ({ children, stage }: LedgerRecordProps): ReactEleme
             <span>Control</span>
             <span>Guided</span>
           </div>
-          <ul>
-            {cohorts.map((cohort) => {
-              const style: CohortStyle = {
-                "--cohort-control": cohort.controlPosition,
-                "--cohort-guided": cohort.guidedPosition,
-              };
-
-              return (
-                <li key={cohort.source} style={style}>
-                  <strong>{cohort.source}</strong>
-                  <div aria-hidden="true" className="ledger-record__cohort-track">
-                    <i />
-                    <span data-cohort-point="control">{cohort.control}</span>
-                    <span data-cohort-point="guided">{cohort.guided}</span>
-                  </div>
-                  <b>{cohort.difference}</b>
-                </li>
-              );
-            })}
-          </ul>
+          {children}
         </section>
       ) : null}
 

@@ -99,7 +99,7 @@ export const theme = defineTheme({
       "Use replace for one map or field artifact changing inside a stable survey frame.",
       "Use compare for alternate paths or adjacent regions and stagger for no more than four ordered observations.",
       "Follow geography and chronology: inline flow carries routes, while block flow carries strata, traces, and research observations.",
-      "Use continuity only when the same place, route, specimen, or visual crop persists across adjacent slides.",
+      "Reserve continuity for a short geographic handoff where the same place, route, specimen, or visual crop persists; cut to a new canvas when the argument leaves the map.",
     ],
   },
   layouts: [

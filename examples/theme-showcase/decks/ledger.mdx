@@ -1,97 +1,184 @@
-import { LedgerRecord } from "../components/ledger-cohort.tsx";
+import { LedgerCohortRow, LedgerMetricResult, LedgerRecord } from "../components/ledger-cohort.tsx";
+import { ShowcaseExit } from "../components/showcase-exit.tsx";
 import "../../showcase-return.css";
 import "../components/ledger-decision.css";
 
-<section className="ledger-study ledger-study--metric">
-  <header className="ledger-study__copy">
-    <p className="ledger-study__label">Illustrative activation review / 01</p>
-    <h1>
-      <span>The measure clears</span>
-      <span>the decision line.</span>
-    </h1>
-    <p>
-      Guided setup moved more teams to their first shared result within 24 hours.
-    </p>
-  </header>
+<SlideTransition from="next" mode="local" />
 
-  <MotionGroup
-    className="ledger-study__artifact"
-    intent="continuity"
-    name="ledger-activation-record"
-  >
-    <LedgerRecord stage="metric" />
-  </MotionGroup>
+<section className="ledger-study ledger-study--opening">
+  <div className="ledger-study__folio">
+    <p className="ledger-study__label">Illustrative activation review / 01</p>
+    <span>Decision docket · Q2</span>
+  </div>
+  <header className="ledger-study__copy">
+    <h1>
+      <span>Should guided setup become the default?</span>
+    </h1>
+    <p>One review. One threshold. One written decision.</p>
+  </header>
+  <aside aria-label="Review record" className="ledger-study__docket">
+    <p>
+      <span>Measure</span>
+      <strong>24-hour activation</strong>
+    </p>
+    <p>
+      <span>Decision line</span>
+      <strong>65.0%</strong>
+    </p>
+    <p>
+      <span>Eligible accounts</span>
+      <strong>12,480</strong>
+    </p>
+    <p>
+      <span>Status</span>
+      <strong>Ready to audit</strong>
+    </p>
+  </aside>
 </section>
 
 <Note>
-  Lead with the decision, then let the record prove it. The same sheet will open into cohort
-  evidence and finally become the guarded rollout record.
+  Open with the decision the room must make, not a dashboard. This deck behaves like an analytical
+  record: each following page adds only the evidence required to sign the decision.
 </Note>
 
 ---
+
+<SlideTransition from="previous" mode="local" />
+<SlideTransition from="next" mode="local" />
+
+<section className="ledger-study ledger-study--metric">
+  <header className="ledger-study__copy">
+    <p className="ledger-study__label">Illustrative threshold test / 02</p>
+    <h2>
+      <span>The result clears</span>
+      <span>the decision line.</span>
+    </h2>
+    <p>The prior quarter stopped at 61.2%. The decision line is 65.0%.</p>
+  </header>
+  <div className="ledger-study__artifact">
+    <LedgerRecord stage="metric">
+      <MotionGroup className="ledger-record__number-reveal" intent="focus">
+        <Step at={1}>
+          <LedgerMetricResult />
+        </Step>
+      </MotionGroup>
+    </LedgerRecord>
+  </div>
+</section>
+
+<Note>
+  Begin with the threshold and prior-quarter baseline. Advance once to reveal 68.4%. The motion is
+  deliberately limited to the new number because that is the only state change the audience needs to
+  notice.
+</Note>
+
+---
+
+<SlideTransition from="previous" mode="local" />
+<SlideTransition from="next" mode="local" />
 
 <section className="ledger-study ledger-study--audit">
   <header className="ledger-study__copy">
-    <p className="ledger-study__label">Illustrative cohort audit / 02</p>
+    <p className="ledger-study__label">Illustrative cohort audit / 03</p>
     <h2>
-      <span>The gain comes from</span>
-      <br />
-      <span>guided setup—</span>
-      <br />
-      <span>not easier traffic.</span>
+      <span>Every source moves in the same direction.</span>
     </h2>
-    <p>
-      Guided accounts improved across every acquisition source while the control remained inside its
-      historical range.
-    </p>
+    <p>A lift that depends on acquisition mix is not enough to ship.</p>
   </header>
-
-  <MotionGroup
-    className="ledger-study__artifact"
-    intent="continuity"
-    name="ledger-activation-record"
-  >
-    <LedgerRecord stage="audit" />
-  </MotionGroup>
+  <div className="ledger-study__artifact">
+    <LedgerRecord stage="audit">
+      <MotionGroup className="ledger-record__audit-rows" flow="block" intent="focus" role="list">
+        <Step at={1}>
+          <LedgerCohortRow
+            control="63.8%"
+            controlPosition="44%"
+            difference="+8.3 pp"
+            guided="72.1%"
+            guidedPosition="85.5%"
+            source="Invited teams"
+          />
+        </Step>
+        <Step at={2}>
+          <LedgerCohortRow
+            control="57.4%"
+            controlPosition="12%"
+            difference="+7.6 pp"
+            guided="65.0%"
+            guidedPosition="50%"
+            source="Organic"
+          />
+        </Step>
+        <Step at={3}>
+          <LedgerCohortRow
+            control="60.1%"
+            controlPosition="25.5%"
+            difference="+6.8 pp"
+            guided="66.9%"
+            guidedPosition="59.5%"
+            source="Partner"
+          />
+        </Step>
+      </MotionGroup>
+    </LedgerRecord>
+  </div>
 </section>
 
 <Note>
-  Read the three paired shifts instead of treating them as a dashboard. Every cohort moves in the
-  same direction, so acquisition mix does not explain the aggregate gain.
+  Reveal invited, organic, and partner accounts one row at a time. Pause after each row long enough
+  to compare control with guided setup. The repeated direction is the evidence, not decoration.
 </Note>
 
 ---
 
+<SlideTransition from="previous" mode="local" />
+<SlideTransition from="next" mode="local" />
+
+<section className="ledger-study ledger-study--guardrails">
+  <header className="ledger-study__guardrail-heading">
+    <p className="ledger-study__label">Illustrative counter-metric audit / 04</p>
+    <h2>
+      <span>The lift does not buy a worse week.</span>
+    </h2>
+    <p>Two guardrails remain inside their authored limits.</p>
+  </header>
+  <div className="ledger-study__guardrail-register" aria-label="Illustrative rollout guardrails">
+    <article>
+      <span>Counter-metric</span>
+      <strong>Completion time</strong>
+      <b>+4%</b>
+      <small>Ceiling +10%</small>
+      <em>Inside</em>
+    </article>
+    <article>
+      <span>Counter-metric</span>
+      <strong>Seven-day retention</strong>
+      <b>+0.8 pp</b>
+      <small>Floor −2 pp</small>
+      <em>Inside</em>
+    </article>
+  </div>
+</section>
+
+<Note>
+  Before making the decision, audit the two measures that could reverse it. This page is
+  intentionally dense and static: the audience should compare the observed values with their limits
+  without another entrance competing for attention.
+</Note>
+
+---
+
+<SlideTransition from="previous" mode="local" />
+<SlideTransition from="next" mode="local" />
+
 <section className="ledger-study ledger-study--decision">
   <header className="ledger-study__copy">
-    <p className="ledger-study__label">Illustrative decision / 03</p>
+    <p className="ledger-study__label">Illustrative decision record / 05</p>
     <h2>
-      <span>Make guided setup</span>
-      <br />
-      <span>the default.</span>
+      <span>Make guided setup the default.</span>
     </h2>
-    <p>The metric authorizes the rollout; the guardrails decide whether it remains.</p>
-
-    <nav aria-label="Continue with Drever" className="drever-example-exit">
-      <a
-        className="drever-example-exit__primary"
-        data-drever-showcase-return=""
-        href="https://drever.dev/docs/getting-started/"
-      >
-        {"Start a deck"}
-      </a>
-      <a className="drever-example-exit__secondary" href="https://drever.dev/showcase/">
-        {"More design studies"}
-      </a>
-    </nav>
-
+    <p>The result authorizes the rollout; the written guardrails decide whether it stays.</p>
   </header>
-
-  <MotionGroup
-    className="ledger-study__artifact"
-    intent="continuity"
-    name="ledger-activation-record"
-  >
+  <div className="ledger-study__artifact">
     <LedgerRecord stage="decision">
       <MotionGroup className="ledger-record__decision-steps" flow="block" intent="focus">
         <Step at={1}>
@@ -117,10 +204,35 @@ import "../components/ledger-decision.css";
         </Step>
       </MotionGroup>
     </LedgerRecord>
-  </MotionGroup>
+  </div>
 </section>
 
 <Note>
   Reveal one ruled decision row at a time. Ship names the immediate action, Guard defines numeric
   stop conditions, and Review fixes the sample and owner for the next decision.
+</Note>
+
+---
+
+<SlideTransition from="previous" mode="local" />
+
+<section className="ledger-study ledger-study--close">
+  <p className="ledger-study__label">Record closed / 06</p>
+  <h2>
+    <span>A result becomes useful when its decision is written down.</span>
+  </h2>
+  <div className="ledger-study__signoff" aria-label="Illustrative decision sign-off">
+    <span>Decision</span>
+    <strong>Ship with guardrails</strong>
+    <span>Owner</span>
+    <strong>Activation team</strong>
+    <span>Next review</span>
+    <strong>20,000 accounts</strong>
+  </div>
+  <ShowcaseExit />
+</section>
+
+<Note>
+  Close the record rather than repeating the analysis. The final page names the decision, owner, and
+  next review so the audience leaves knowing what happens after the presentation.
 </Note>

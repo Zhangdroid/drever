@@ -11,11 +11,11 @@ The public [`prompt.md`](/prompt.md) only starts the work. Once the project exis
 instructions and skills take over so the agent always follows the contract for the installed Drever
 version.
 
-When the brief is incomplete, the agent can ask a few adaptive rounds. Each round puts the useful
-questions first, then offers **Skip remaining questions — surprise me**. It collects only missing
-choices that materially affect the result, such as duration, audience outcome, slide density versus
-speaker notes, motion intensity, and topic-specific priorities. Selecting surprise mode ends the
-interview immediately.
+When the brief is incomplete, the agent starts with one useful round: the topic first when it is
+missing, then common missing context such as the audience outcome and duration. Each round puts the
+concrete questions first and offers one escape at the end: **Skip remaining questions — surprise
+me**. Later rounds ask only topic-specific choices that would materially improve the result. Using
+the escape ends the interview immediately.
 
 The work happens in ordinary files on your machine. Setup succeeds when the agent leaves a running
 local preview, a readable `slides.mdx`, and the requested web or PDF outputs ready for review.
@@ -39,5 +39,6 @@ source material when you know them:
 > Help them understand the trade-offs and decide which proposal to support. Use the planning brief
 > and survey results as source material.
 
-The agent can infer ordinary details and state its assumptions. Choose surprise mode at any point
-to let it resolve every remaining choice, or keep answering while the questions are useful.
+The agent can infer ordinary details and state its assumptions. Say **Skip remaining questions —
+surprise me** at any point to let it resolve every unanswered choice, or keep answering while the
+questions are useful.

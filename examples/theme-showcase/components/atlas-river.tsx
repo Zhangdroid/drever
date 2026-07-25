@@ -8,7 +8,7 @@ export type AtlasRiverProps = Readonly<{
 
 const descriptions: Record<AtlasRiverState, string> = {
   route:
-    "An illustrative Alder River corridor from the tidal reach through four restoration interventions to the Granite spawning beds.",
+    "An illustrative Alder River corridor from the tidal reach through three restoration interventions to the Granite spawning beds.",
   thermal:
     "The same illustrative river corridor with four temperature stations. The exposed bend between stations B and C warms from 13.4 to 17.2 degrees Celsius.",
   gates:
@@ -44,18 +44,18 @@ export const AtlasRiver = ({ state }: AtlasRiverProps): ReactElement => {
           <circle cx="560" cy="169" r="8" />
           <circle cx="754" cy="92" r="10" />
 
-          <text x="42" y="405">
+          <text x="42" y="335">
             <tspan x="42">Tidal reach</tspan>
           </text>
-          <text x="150" y="222">
+          <text x="150" y="190">
             <tspan x="150">Remove Mill Road</tspan>
-            <tspan x="150" dy="24">
+            <tspan x="150" dy="21">
               culvert
             </tspan>
           </text>
-          <text x="318" y="342">
+          <text x="318" y="320">
             <tspan x="318">Replant the</tspan>
-            <tspan x="318" dy="24">
+            <tspan x="318" dy="21">
               exposed bend
             </tspan>
           </text>
@@ -135,7 +135,7 @@ export const AtlasRiver = ({ state }: AtlasRiverProps): ReactElement => {
       </svg>
       <figcaption>
         {state === "route"
-          ? "Four ordered interventions · estuary to spawning beds"
+          ? "Three ordered interventions · estuary to spawning beds"
           : state === "thermal"
             ? "Seven-day afternoon mean · calibrated loggers · 4–10 Aug 2026"
             : "Evidence gates · illustrative restoration scenario"}

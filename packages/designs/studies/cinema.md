@@ -47,6 +47,12 @@ The media box keeps its aspect ratio throughout a slide. Direct images, video, S
 
 ## Motion
 
-Cinema uses short dissolves and directional edge reveals. It does not apply a default Ken Burns effect: still media is not scaled, panned, or re-cropped merely to create movement. Use `continuity` only for the same artifact with identical geometry across slides, and keep staggered sequences short enough to read as deliberate beats.
+Cinema cuts into close-ups and interventions, then reserves a short dissolve for
+return shots or credits. It does not apply a default Ken Burns effect: still
+media is not scaled, panned, or re-cropped merely to create movement. When a
+frame changes geometry, cut before capture and render its border, crop, and
+shadow in the destination's first frame. Use `continuity` only for the same
+artifact with identical geometry across slides, and keep staggered sequences
+short enough to read as deliberate beats.
 
 All typefaces use robust system-font stacks. The theme loads no remote fonts and requires no runtime image, texture, or video assets.

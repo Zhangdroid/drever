@@ -145,8 +145,8 @@ version.
 The workflow exercises two fixed user journeys against the public
 `https://drever.dev/prompt.md`:
 
-1. a user accepts the topic question's **Surprise me** path and delegates the
-   remaining creative decisions;
+1. a user uses the briefing's **Skip remaining questions** escape and delegates
+   the topic plus all remaining creative decisions;
 2. a user supplies a topic, answers the high-impact briefing questions, and
    gives concrete audience, duration, density, motion, and decision goals.
 

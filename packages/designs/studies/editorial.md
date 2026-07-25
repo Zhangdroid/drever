@@ -71,10 +71,11 @@ unrelated ideas on a slide.
 ## Motion
 
 Editorial supports `focus`, `replace`, `compare`, `stagger`, and `continuity`.
-Its choreography follows the theme's reading rhythm: restrained clipping and
-fades reveal an argument, while continuity carries a genuine image, quotation,
-or artifact into the next slide. Supported intents and concise author guidance
-are part of the theme's JSON-safe motion metadata.
+Its choreography follows the theme's reading rhythm: a restrained reading-edge
+reveal marks selected page turns, while other edges can cut directly and one
+meaningful Step can expose an interpretation. Continuity carries only a genuine
+image, quotation, or artifact into the next slide. Supported intents and concise
+author guidance are part of the theme's JSON-safe motion metadata.
 
 Intent explains why content moves; optional flow identifies its logical
 progression axis; Editorial turns that meaning into a publication-led visual voice. Use

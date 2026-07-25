@@ -94,6 +94,7 @@ describe("agent kit sync", () => {
     const root = await temporaryDirectory("drever-agent-project-");
     await syncAgentKit({ root });
 
+    const installed = new Map<string, string>();
     for (const skill of [
       "drever-create-deck",
       "drever-create-design",
@@ -101,9 +102,77 @@ describe("agent kit sync", () => {
       "drever-review-deck",
     ] as const) {
       const contents = await read(root, `.agents/skills/${skill}/SKILL.md`);
-      expect(contents).toMatch(/not\s+immediately legible[^.]*blocking P0 defect/iu);
-      expect(contents).toMatch(/ancestor's `color` is not\s+proof/iu);
+      installed.set(skill, contents);
+      expect(contents).toMatch(/Every visible authored string is a reading promise/iu);
+      expect(contents).toMatch(
+        /not\s+immediately legible at\s+presentation distance[^.]*blocking P0 defect/iu,
+      );
+      expect(contents).toMatch(/ancestor's\s+`color`\s+is not\s+proof/iu);
+      expect(contents).toMatch(
+        /fully contained within the shape or surface that visually owns it/iu,
+      );
+      expect(contents).toMatch(/usable inner silhouette[^.]*rectangular bounding box/iu);
     }
+
+    expect(installed.get("drever-create-deck")).toMatch(
+      /every slide at Step 0 and every exact authored Step route/iu,
+    );
+    expect(installed.get("drever-create-design")).toMatch(
+      /every slide at Step 0 and every exact Step state/iu,
+    );
+    expect(installed.get("drever-review-deck")).toMatch(
+      /every slide at Step 0 and every exact sparse Step state/iu,
+    );
+    expect(installed.get("drever-author-deck")).toMatch(
+      /every affected exact slide and Step route/iu,
+    );
+    expect(installed.get("drever-author-deck")).toMatch(
+      /Expand the gate to the whole deck[^.]*shared theme/iu,
+    );
+  });
+
+  it("installs the unified briefing and topic-specific signature contract", async () => {
+    const root = await temporaryDirectory("drever-agent-project-");
+    await syncAgentKit({ root });
+
+    const createDeck = await read(root, ".agents/skills/drever-create-deck/SKILL.md");
+    const createDesign = await read(root, ".agents/skills/drever-create-design/SKILL.md");
+    const reviewDeck = await read(root, ".agents/skills/drever-review-deck/SKILL.md");
+
+    expect(createDeck).toMatch(/same opening round/iu);
+    expect(createDeck).toMatch(/append exactly one escape/iu);
+    expect(createDeck).toContain("Skip remaining questions — surprise me");
+    expect(createDeck).not.toMatch(/choose the subject too|Or answer “Surprise me”/iu);
+    expect(createDeck).toMatch(/topic-fingerprint test/iu);
+    expect(createDeck).toMatch(
+      /claim[^→]*→ focal artifact[^→]*→ initial state[^→]*→ meaningful transformation[^→]*→ settled payoff[^→]*→ static or reduced-motion endpoint/iu,
+    );
+    expect(createDesign).toMatch(/Record each in `art-direction\.md`/iu);
+    expect(createDesign).toMatch(/generic fade or slide entrance alone/iu);
+    expect(reviewDeck).toMatch(/what one scene the audience will remember/iu);
+    expect(reviewDeck).toMatch(/redesign exactly one high-value beat/iu);
+  });
+
+  it("installs the varied transition and design-family contract", async () => {
+    const root = await temporaryDirectory("drever-agent-project-");
+    await syncAgentKit({ root });
+
+    const createDeck = await read(root, ".agents/skills/drever-create-deck/SKILL.md");
+    const createDesign = await read(root, ".agents/skills/drever-create-design/SKILL.md");
+    const authorDeck = await read(root, ".agents/skills/drever-author-deck/SKILL.md");
+    const reviewDeck = await read(root, ".agents/skills/drever-review-deck/SKILL.md");
+
+    expect(createDeck).toMatch(/do not mistake consistency for one effect on every edge/iu);
+    expect(createDesign).toMatch(/seven recolored versions[^.]*are one design,\s+not seven/iu);
+    expect(authorDeck).toMatch(/Do not apply native View Transitions to every edge/iu);
+    expect(authorDeck).not.toContain("one theme-led whole-slide transition voice");
+    expect(reviewDeck).toMatch(
+      /Flag both random effects and a View Transition applied to every edge/iu,
+    );
+    for (const contents of [createDeck, createDesign, authorDeck, reviewDeck]) {
+      expect(contents).toMatch(/explicit[^.]*inline size[^.]*block size[^.]*aspect ratio/iu);
+    }
+    expect(reviewDeck).toMatch(/grow-then-shrink/iu);
   });
 
   it("installs the complete kit and reports a stable idempotent result", async () => {

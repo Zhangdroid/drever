@@ -93,7 +93,7 @@ describe("@drever/designs/basic", () => {
       /\[data-drever-deck\]:not\(\[data-drever-render-mode="document"\]\)\s+\[data-drever-motion-group=""\]\[data-motion-intent="replace"\]\s*\{/u,
     );
     expect(css).toContain(":root:has(.drever-viewer),");
-    expect(css).toContain("--drever-motion-slide-offset: 2.4%;");
+    expect(css).toContain("--drever-motion-slide-offset: 0%;");
     expect(css).not.toContain("--drever-motion-slide-enter-animation");
     expect(css).not.toContain("--drever-motion-slide-exit-animation");
     expect(css).toContain("--drever-recipe-stagger-gap: 40ms;");

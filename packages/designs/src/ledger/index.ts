@@ -93,8 +93,8 @@ export const theme = defineTheme({
       "Use focus to isolate the current finding while keeping prior evidence available for audit.",
       "Use replace for one measure or model changing against a stable baseline, and compare for evidence that remains concurrently readable.",
       "Follow the evidence structure: use block flow for a vertical audit trail and inline flow for periods, cohorts, or side-by-side variance.",
-      "Ledger motion settles quickly onto a baseline with short, exact travel; it should feel recorded rather than performed.",
-      "Use continuity only when the same measure, chart, table, or source artifact persists into the adjacent slide.",
+      "Ledger favors direct page commits and row-level reveals that settle quickly onto a baseline; it should feel recorded rather than performed.",
+      "Use continuity only for a short audit where the same measure, chart, table, or source artifact persists into the adjacent slide.",
     ],
   },
   layouts: [

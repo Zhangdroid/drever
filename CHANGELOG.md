@@ -5,6 +5,31 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+### Changed
+
+- Gave all eight official design studies distinct motion vocabularies and cadences, then expanded
+  their reference decks beyond one repeated three-page, left-copy/right-artifact continuity formula.
+- Taught generated creation, design, authoring, and review workflows to treat motion consistency as
+  a shared vocabulary of cuts, fades, local handoffs, Steps, and selective continuity—not a View
+  Transition on every page.
+- Taught generated creation, design, authoring, and review workflows to keep shared View Transition
+  shells identical in width, height, aspect ratio, and box sizing, and to diagnose a
+  grow-then-shrink handoff as endpoint geometry rather than easing.
+- Made every visible authored string a presentation-distance reading promise, required labels to
+  fit the usable inner silhouette of their visual owner, and replaced representative visual
+  sampling with exact slide and Step inspection after initial generation.
+- Unified the AI briefing around one adaptive interview flow and one skip-remaining escape per
+  question round instead of advertising a second topic-level surprise mode.
+- Defined showcase-quality signature moments through a topic-fingerprint test, an explicit
+  claim-to-static-endpoint beat sheet, and a final memorable-scene refinement ceiling.
+
+### Fixed
+
+- Stabilized Cinema's changing media frame so its border, crop, and supporting composition no
+  longer pop into place after the second-to-third-slide handoff.
+- Stabilized Atlas's shared river artifact in one fixed frame so it moves between compositions
+  without stretching or settling after the transition.
+
 ## [0.2.3] - 2026-07-25
 
 ### Added
