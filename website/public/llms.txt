@@ -19,6 +19,7 @@ One project produces:
 
 - One-step AI bootstrap: https://drever.dev/prompt.md
 - Changelog: https://drever.dev/changelog/
+- Real post-release Codex smoke runs: https://drever.dev/release-smoke/
 - Documentation: https://drever.dev/docs/
 - Getting started: https://drever.dev/docs/getting-started/
 - Configuration: https://drever.dev/docs/configuration/

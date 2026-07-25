@@ -164,6 +164,9 @@ export function SiteFooter() {
             <Link activeOptions={{ exact: true }} to="/changelog/">
               Changelog
             </Link>
+            <Link activeOptions={{ exact: true }} to="/release-smoke/">
+              Release smoke
+            </Link>
             <a href={githubURL} rel="noreferrer" target="_blank">
               GitHub <ArrowUpRightIcon />
             </a>
