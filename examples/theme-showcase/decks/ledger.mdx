@@ -6,16 +6,19 @@ import "../components/ledger-decision.css";
   <header className="ledger-study__copy">
     <p className="ledger-study__label">Illustrative activation review / 01</p>
     <h1>
-      The measure clears
-      <br />
-      the decision line.
+      <span>The measure clears</span>
+      <span>the decision line.</span>
     </h1>
     <p>
       Guided setup moved more teams to their first shared result within 24 hours.
     </p>
   </header>
 
-  <MotionGroup intent="continuity" name="ledger-activation-record">
+  <MotionGroup
+    className="ledger-study__artifact"
+    intent="continuity"
+    name="ledger-activation-record"
+  >
     <LedgerRecord stage="metric" />
   </MotionGroup>
 </section>
@@ -43,7 +46,11 @@ import "../components/ledger-decision.css";
     </p>
   </header>
 
-  <MotionGroup intent="continuity" name="ledger-activation-record">
+  <MotionGroup
+    className="ledger-study__artifact"
+    intent="continuity"
+    name="ledger-activation-record"
+  >
     <LedgerRecord stage="audit" />
   </MotionGroup>
 </section>
@@ -80,7 +87,11 @@ import "../components/ledger-decision.css";
 
   </header>
 
-  <MotionGroup intent="continuity" name="ledger-activation-record">
+  <MotionGroup
+    className="ledger-study__artifact"
+    intent="continuity"
+    name="ledger-activation-record"
+  >
     <LedgerRecord stage="decision">
       <MotionGroup className="ledger-record__decision-steps" flow="block" intent="focus">
         <Step at={1}>

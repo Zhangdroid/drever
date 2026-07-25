@@ -67,9 +67,13 @@ an original interpretation instead of copying a website.
 
 Unless the user explicitly asks for a fast plain draft, use the project-local design workflow for a
 subject-led visual system rather than stopping at a generic preset. Plan a few signature moments
-that make the subject recognizable, then support them with quieter slides. A substantial local
-visual implementation is welcome when it earns its space through explanation, atmosphere, or
-interaction; do not reduce it merely to minimize generated code.
+that make the subject recognizable, then support them with quieter slides. Let each idea choose its
+composition instead of defaulting most slides to the same left-copy/right-artifact split. A
+substantial local visual implementation is welcome when it earns its space through explanation,
+atmosphere, or interaction; do not reduce it merely to minimize generated code. Shared transitions
+may connect the same object or clearly corresponding semantic or visual objects, but never an
+arbitrary morph: keep the shared feature and endpoint geometry deliberate, and spend the moment's
+attention budget on that handoff.
 
 ## Finish the job
 

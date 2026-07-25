@@ -236,15 +236,19 @@ change has one of Drever's five narrative jobs:
 
 - `focus`, `replace`, and `compare` use direct Step children;
 - `stagger` belongs inside one Step and has at most four direct visual children;
-- `continuity` requires the same unique lowercase kebab-case name for the same
-  object on adjacent slides.
+- `continuity` requires the same unique lowercase kebab-case name for the related
+  boundary on adjacent slides.
 
-Keep persistent titles outside motion groups. Never infer a shared identity,
-invent animation props, or add Step stops merely to create delay. Matching
-color or shape is not identity; recurring decoration keeps stable geometry and
-paint. If semantically linked copy transforms, use one local fixed slot after
-capture rather than sharing changing glyphs through a View Transition. The full
-grammar and accessibility semantics are in [Motion choreography](./motion.md).
+Keep persistent titles outside motion groups. Never infer a shared
+correspondence, invent animation props, or add Step stops merely to create
+delay. Continuity may connect the same object or clearly corresponding semantic
+or visual objects, but matching color or shape alone is insufficient. Share the
+smallest stable feature, keep endpoint geometry and paint deliberate, and count
+the handoff as the primary motion for that moment. Recurring decoration keeps
+stable geometry and paint. If semantically linked copy transforms, use one local
+fixed slot after capture rather than sharing changing glyphs through a View
+Transition. The full grammar and accessibility semantics are in
+[Motion choreography](./motion.md).
 
 ## Recommended loop
 

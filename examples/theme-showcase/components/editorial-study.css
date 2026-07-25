@@ -113,3 +113,90 @@
 .theme-showcase-editorial-study .drever-example-exit {
   margin-block-start: 0;
 }
+
+.theme-showcase-editorial-study--evidence {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  align-items: stretch;
+  gap: 28px;
+}
+
+.theme-showcase-editorial-study--evidence .theme-showcase-editorial-study__artifact {
+  grid-row: 1;
+}
+
+.theme-showcase-editorial-study--evidence .theme-showcase-editorial-reading-hours {
+  min-height: 318px;
+}
+
+.theme-showcase-editorial-study--evidence .theme-showcase-editorial-study__copy {
+  grid-row: 2;
+  grid-template-columns: minmax(0, 0.86fr) minmax(0, 0.78fr) minmax(260px, 0.36fr);
+  grid-template-areas:
+    "kicker kicker kicker"
+    "title summary finding";
+  align-items: end;
+  gap: 8px 38px;
+}
+
+.theme-showcase-editorial-study--evidence .theme-showcase-editorial-study__kicker {
+  grid-area: kicker;
+}
+
+.theme-showcase-editorial-study--evidence :where(h1, h2) {
+  grid-area: title;
+}
+
+[data-drever-slide]
+  .theme-showcase-editorial-study--evidence
+  .theme-showcase-editorial-study__copy
+  > p {
+  grid-area: summary;
+  margin-block-end: 4px;
+}
+
+.theme-showcase-editorial-study--evidence .theme-showcase-editorial-study__finding {
+  grid-area: finding;
+}
+
+.theme-showcase-editorial-study--decision {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: 28px;
+}
+
+.theme-showcase-editorial-study--decision .theme-showcase-editorial-study__copy {
+  grid-row: 1;
+  grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
+  grid-template-areas:
+    "kicker decision"
+    "title decision"
+    "title exit";
+  align-items: start;
+  gap: 8px 64px;
+}
+
+.theme-showcase-editorial-study--decision .theme-showcase-editorial-study__kicker {
+  grid-area: kicker;
+}
+
+.theme-showcase-editorial-study--decision :where(h1, h2) {
+  grid-area: title;
+}
+
+.theme-showcase-editorial-study--decision .theme-showcase-editorial-study__decision {
+  grid-area: decision;
+}
+
+.theme-showcase-editorial-study--decision .drever-example-exit {
+  grid-area: exit;
+}
+
+.theme-showcase-editorial-study--decision .theme-showcase-editorial-study__artifact {
+  grid-row: 2;
+}
+
+.theme-showcase-editorial-study--decision .theme-showcase-editorial-reading-hours {
+  min-height: 296px;
+}

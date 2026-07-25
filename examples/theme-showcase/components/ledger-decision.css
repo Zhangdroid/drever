@@ -23,6 +23,12 @@
   gap: 22px;
 }
 
+.ledger-study__artifact {
+  display: grid;
+  min-width: 0;
+  place-items: center;
+}
+
 .ledger-study__label {
   color: var(--drever-theme-accent-strong);
   font-family:
@@ -41,6 +47,11 @@
   line-height: 0.98;
 }
 
+[data-drever-slide] .ledger-study h1 > span {
+  display: block;
+  white-space: nowrap;
+}
+
 [data-drever-slide] .ledger-study h2 > span {
   display: inline-block;
   white-space: nowrap;
@@ -55,6 +66,60 @@
 
 .ledger-study--decision .drever-example-exit {
   margin-top: 16px;
+}
+
+.ledger-study--metric {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: 24px;
+}
+
+.ledger-study--metric .ledger-study__copy {
+  grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+  align-items: end;
+  gap: 10px 54px;
+}
+
+.ledger-study--metric .ledger-study__label {
+  grid-column: 1 / -1;
+}
+
+.ledger-study--metric .ledger-study__copy > :where(h1, p:not(.ledger-study__label)) {
+  margin: 0;
+}
+
+.ledger-study--metric .ledger-study__copy > p:not(.ledger-study__label) {
+  padding-bottom: 5px;
+}
+
+.ledger-study--metric .ledger-record {
+  width: min(1100px, 100%);
+  height: 430px;
+}
+
+.ledger-study--metric .ledger-record__metric {
+  grid-template-columns: minmax(0, 0.8fr) minmax(420px, 1.2fr);
+  align-items: center;
+  gap: 36px;
+}
+
+.ledger-study--metric .ledger-record__threshold {
+  margin-inline: 12px;
+}
+
+.ledger-study--audit {
+  grid-template-columns: 830px minmax(0, 470px);
+}
+
+.ledger-study--audit .ledger-study__copy {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.ledger-study--audit .ledger-study__artifact {
+  grid-column: 1;
+  grid-row: 1;
 }
 
 .ledger-record {

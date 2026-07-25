@@ -103,3 +103,96 @@
 .theme-showcase-basic-study .drever-example-exit {
   margin-block-start: 0;
 }
+
+.theme-showcase-basic-study--opening {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: 28px;
+}
+
+.theme-showcase-basic-study--opening .theme-showcase-basic-study__copy {
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  grid-template-areas:
+    "eyebrow eyebrow"
+    "title summary";
+  align-items: end;
+  gap: 8px 64px;
+}
+
+.theme-showcase-basic-study--opening .theme-showcase-basic-study__eyebrow {
+  grid-area: eyebrow;
+}
+
+.theme-showcase-basic-study--opening :where(h1, h2) {
+  grid-area: title;
+}
+
+[data-drever-slide] .theme-showcase-basic-study--opening .theme-showcase-basic-study__copy > p {
+  grid-area: summary;
+  margin-block-end: 4px;
+}
+
+.theme-showcase-basic-study--opening .theme-showcase-basic-study__artifact {
+  grid-row: 2;
+}
+
+.theme-showcase-basic-study--opening .theme-showcase-basic-focus-week {
+  min-height: 378px;
+}
+
+.theme-showcase-basic-study--evidence {
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  grid-template-areas: "artifact copy";
+  gap: 64px;
+}
+
+.theme-showcase-basic-study--evidence .theme-showcase-basic-study__copy {
+  grid-area: copy;
+}
+
+.theme-showcase-basic-study--evidence .theme-showcase-basic-study__artifact {
+  grid-area: artifact;
+}
+
+.theme-showcase-basic-study--decision {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  align-items: stretch;
+  gap: 28px;
+}
+
+.theme-showcase-basic-study--decision .theme-showcase-basic-study__artifact {
+  grid-row: 1;
+}
+
+.theme-showcase-basic-study--decision .theme-showcase-basic-focus-week {
+  min-height: 350px;
+}
+
+.theme-showcase-basic-study--decision .theme-showcase-basic-study__copy {
+  grid-row: 2;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  grid-template-areas:
+    "eyebrow decision"
+    "title decision"
+    "title exit";
+  align-items: start;
+  gap: 8px 64px;
+}
+
+.theme-showcase-basic-study--decision .theme-showcase-basic-study__eyebrow {
+  grid-area: eyebrow;
+}
+
+.theme-showcase-basic-study--decision :where(h1, h2) {
+  grid-area: title;
+}
+
+.theme-showcase-basic-study--decision .theme-showcase-basic-study__decision {
+  grid-area: decision;
+}
+
+.theme-showcase-basic-study--decision .drever-example-exit {
+  grid-area: exit;
+}

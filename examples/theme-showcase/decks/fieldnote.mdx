@@ -16,7 +16,11 @@ import "../components/fieldnote-study.css";
     <p className="fieldnote-study__footer">Checkout study · 18 July 2026</p>
   </header>
 
-  <MotionGroup intent="continuity" name="fieldnote-checkout-flow">
+  <MotionGroup
+    className="fieldnote-study__opening-artifact"
+    intent="continuity"
+    name="fieldnote-checkout-flow"
+  >
     <FieldnoteCheckout state="premise" />
   </MotionGroup>
 </section>

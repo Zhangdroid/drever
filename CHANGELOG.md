@@ -9,6 +9,10 @@ section, while commit snapshots use the current Unreleased section.
 
 - Re-composed prominent website and showcase headings around complete semantic phrases, and taught
   generated design, authoring, and review skills to treat line breaks as editorial structure.
+- Varied the eight design studies with content-led full-canvas, stacked, reversed, and asymmetric
+  compositions, restored their website catalog to a four-by-two grid, and taught generated
+  authoring guidance to connect clearly corresponding objects without treating resemblance alone
+  as continuity.
 
 ## [0.2.2] - 2026-07-24
 

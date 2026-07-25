@@ -83,3 +83,56 @@
   width: 100%;
   justify-content: flex-start;
 }
+
+.theme-showcase-studio-study--overview .drever-studio-workbench__grid {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 142px minmax(0, 1fr);
+}
+
+.theme-showcase-studio-study--overview .drever-studio-workbench__main {
+  grid-row: 2;
+  padding: 18px 24px;
+}
+
+.theme-showcase-studio-study--overview .drever-studio-workbench__rail {
+  grid-row: 1;
+  padding: 20px 26px;
+  border-top-width: 1px;
+  border-left: 6px solid var(--drever-studio-signal);
+}
+
+.theme-showcase-studio-study--overview .theme-showcase-studio-study__rail {
+  grid-template-columns: auto minmax(250px, 0.7fr) minmax(320px, 1fr);
+  align-items: center;
+  gap: 28px;
+}
+
+[data-drever-slide] .theme-showcase-studio-study--overview .theme-showcase-studio-study__rail > h2 {
+  display: flex;
+  max-width: none;
+  margin: 0;
+  gap: 0.25em;
+  font-size: 34px;
+}
+
+.theme-showcase-studio-study--overview .theme-showcase-studio-study__rail :where(h2, p) {
+  margin: 0;
+}
+
+.theme-showcase-studio-study--overview .theme-showcase-studio-request-trace {
+  min-height: 348px;
+}
+
+.theme-showcase-studio-study--diagnosis .drever-studio-workbench__grid {
+  grid-template-columns: minmax(380px, 0.52fr) minmax(0, 1.48fr);
+}
+
+.theme-showcase-studio-study--diagnosis .drever-studio-workbench__main {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.theme-showcase-studio-study--diagnosis .drever-studio-workbench__rail {
+  grid-column: 1;
+  grid-row: 1;
+}
