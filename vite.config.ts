@@ -5,9 +5,14 @@ const source = (path: string): string => fileURLToPath(new URL(path, import.meta
 
 export default defineConfig({
   fmt: {
-    ignorePatterns: ["plugins/drever/.claude-plugin/**", "plugins/drever/.codex-plugin/**"],
+    ignorePatterns: [
+      "plugins/drever/.claude-plugin/**",
+      "plugins/drever/.codex-plugin/**",
+      "website/public/release-smoke/**",
+    ],
   },
   lint: {
+    ignorePatterns: ["website/public/release-smoke/**"],
     jsPlugins: [{ name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
     options: {
       typeAware: true,

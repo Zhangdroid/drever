@@ -13,6 +13,10 @@ const runSource = {
   id: "0.2.3-abc123",
   kind: "release",
   generatedAt: "2026-07-25T19:00:00.000Z",
+  harness: {
+    commit: "feed123def456",
+    url: "https://github.com/Zhangdroid/drever/tree/feed123def456",
+  },
   release: {
     version: "0.2.3",
     commit: "abc123def456",
@@ -34,8 +38,10 @@ const runSource = {
       brief: "Help a team choose a launch direction.",
       durationSeconds: 92,
       deck: {
-        audience: "/release-smoke/runs/0.2.3-abc123/surprise-me/",
-        document: "/release-smoke/runs/0.2.3-abc123/surprise-me/document/",
+        audience:
+          "https://automation-release-smoke-1.drever-website.pages.dev/release-smoke/runs/0.2.3-abc123/surprise-me/",
+        document:
+          "https://automation-release-smoke-1.drever-website.pages.dev/release-smoke/runs/0.2.3-abc123/surprise-me/document/",
         source: "https://github.com/Zhangdroid/drever/tree/ai-smoke/0.2.3-abc123/surprise-me",
       },
       checks: ["Production build completed"],
@@ -54,25 +60,35 @@ const manifestSource = {
 };
 
 describe("release smoke data", () => {
-  it("loads the checked-in preview with interactive audience and document surfaces", () => {
-    expect(releaseSmokeData.latest.kind).toBe("fixture");
-    expect(releaseSmokeData.latest.cases).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          deck: expect.objectContaining({
-            audience: expect.stringMatching(/^\//),
-            document: expect.stringMatching(/\/document\/$/),
-          }),
-        }),
-      ]),
-    );
+  it("loads the checked-in real preview without substituting showcase fixtures", () => {
+    expect(releaseSmokeData.latest?.id).toBe("2026072501");
+    expect(releaseSmokeData.latest?.kind).toBe("preview");
+    expect(releaseSmokeData.latest?.cases.map(({ id }) => id)).toEqual(["surprise-me", "guided"]);
+    expect(releaseSmokeData.latest?.cases.every(({ status }) => status === "passed")).toBe(true);
+  });
+
+  it("accepts an empty manifest without inventing release evidence", () => {
+    expect(parseReleaseSmokeData({ schemaVersion: 1, latestRunId: null, runs: [] }, {})).toEqual({
+      latest: null,
+      runs: [],
+    });
   });
 
   it("joins a manifest to its transcript and exposes the requested latest run", () => {
     const data = parseReleaseSmokeData(manifestSource, { [transcriptPath]: runSource });
 
-    expect(data.latest.id).toBe("0.2.3-abc123");
-    expect(data.latest.cases[0]?.durationSeconds).toBe(92);
+    expect(data.latest?.id).toBe("0.2.3-abc123");
+    expect(data.latest?.cases[0]?.durationSeconds).toBe(92);
+  });
+
+  it("rejects fixture transcripts", () => {
+    expect(() => parseReleaseSmokeRun({ ...runSource, kind: "fixture" })).toThrow(
+      "release smoke transcript.kind must be one of: preview, release",
+    );
+  });
+
+  it("accepts a preview backed by a real generated deck", () => {
+    expect(parseReleaseSmokeRun({ ...runSource, kind: "preview" }).kind).toBe("preview");
   });
 
   it("fails the website build when the manifest and transcript disagree", () => {
@@ -82,6 +98,15 @@ describe("release smoke data", () => {
         { [transcriptPath]: runSource },
       ),
     ).toThrow("Latest release smoke run not found");
+
+    expect(() =>
+      parseReleaseSmokeData(
+        { ...manifestSource, latestRunId: null },
+        {
+          [transcriptPath]: runSource,
+        },
+      ),
+    ).toThrow("A populated release smoke manifest must select a latest run");
 
     expect(() =>
       parseReleaseSmokeData(
@@ -99,7 +124,16 @@ describe("release smoke data", () => {
     unsafeRun.cases[0]!.deck.audience = "javascript:alert(1)";
 
     expect(() => parseReleaseSmokeRun(unsafeRun)).toThrow(
-      "must be an HTTPS URL or an absolute site path",
+      "must use an isolated Drever Pages preview origin",
+    );
+  });
+
+  it("rejects generated decks on the trusted website origin", () => {
+    const sameOriginRun = structuredClone(runSource);
+    sameOriginRun.cases[0]!.deck.audience = "/release-smoke/runs/1/guided/deck/";
+
+    expect(() => parseReleaseSmokeRun(sameOriginRun)).toThrow(
+      "must use an isolated Drever Pages preview origin",
     );
   });
 });

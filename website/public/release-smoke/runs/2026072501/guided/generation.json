@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "guided",
+  "version": "0.2.2",
+  "model": "Codex default",
+  "codexVersion": "codex-cli 0.145.0",
+  "nodeVersion": "v24.18.0",
+  "executionBoundary": {
+    "publication": "allowlisted-source-only",
+    "shell": "pre-tool-use-deny-configured"
+  },
+  "source": {
+    "bytes": 30582,
+    "files": [
+      "brief.md",
+      "design/art-direction.md",
+      "design/theme.css",
+      "slides.mdx"
+    ]
+  }
+}

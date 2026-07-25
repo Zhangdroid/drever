@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "surprise-me",
+  "mode": "surprise-me",
+  "startedAt": "2026-07-25T14:19:20.263Z",
+  "completedAt": "2026-07-25T14:22:58.993Z",
+  "durationSeconds": 219,
+  "messages": [
+    {
+      "content": "Fetch and follow https://drever.dev/prompt.md.\n\nThis isolated release test already fetched the exact response to\n`.release-smoke/prompt.md`. Read that local copy instead of accessing the\nnetwork. Also read `.release-smoke/constraints.md`, which defines the narrow\ngeneration-stage boundary for this run. Begin with the optional briefing from\nthe fetched prompt; do not assume that any question has already been answered.",
+      "role": "user"
+    },
+    {
+      "content": "What topic should the presentation cover?\n\n**Or answer “Surprise me” and I will choose the subject too.**",
+      "role": "assistant"
+    },
+    {
+      "content": "Create a short presentation for a product team reviewing a fictional checkout experiment.\nCompletion improved from 68% to 81%, while weekly support requests rose from 6 to 12.\nThe room needs to decide whether to expand the experiment.",
+      "role": "user"
+    },
+    {
+      "content": "1. How long should the presentation run?\n2. Should slides be concise with fuller notes, balanced, or reference-dense?\n3. Should motion be restrained, expressive, or intentionally experimental?\n\n**Or say “Skip remaining questions — surprise me” and I will choose the rest.**",
+      "role": "assistant"
+    },
+    {
+      "content": "Skip remaining questions — surprise me. Choose the rest and create the presentation now.",
+      "role": "user"
+    },
+    {
+      "content": "Created a five-slide guarded-expansion decision deck:\n\n- [slides.mdx](<project>/slides.mdx)\n- [deck.css](<project>/deck.css)\n- [brief.md](<project>/brief.md)\n- [art-direction.md](<project>/design/art-direction.md)\n\nAssumed a six-minute presentation, restrained motion, a 50% staged ramp, and proposed—not observed—promotion thresholds.\n\nPer the generation boundary, validation and rendered review were not run.",
+      "role": "assistant"
+    }
+  ],
+  "usage": [
+    {
+      "input_tokens": 27247,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 27244,
+      "output_tokens": 157,
+      "reasoning_output_tokens": 127
+    },
+    {
+      "input_tokens": 54704,
+      "cached_input_tokens": 27244,
+      "cache_write_input_tokens": 27454,
+      "output_tokens": 281,
+      "reasoning_output_tokens": 187
+    },
+    {
+      "input_tokens": 119361,
+      "cached_input_tokens": 82298,
+      "cache_write_input_tokens": 37051,
+      "output_tokens": 10385,
+      "reasoning_output_tokens": 3242
+    }
+  ]
+}

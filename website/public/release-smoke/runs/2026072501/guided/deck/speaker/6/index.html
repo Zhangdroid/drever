@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en"
+  data-drever-browser-support="checking"
+  data-drever-browser-missing="navigation document-view-transition broadcast-channel resize-observer">
+  <head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'self'; connect-src 'none'; font-src 'self' data:; form-action 'none'; frame-src 'none'; img-src 'self' data: blob:; media-src 'none'; object-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; worker-src 'none'" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="drever-base" content="./" />
+    <script data-drever-static-route>
+      (() => {
+        const routeDepth = 2;
+        const pageURL = new URL(location.href);
+        const hasIndexDocument = pageURL.pathname.endsWith("/index.html");
+        const routePathname = hasIndexDocument
+          ? pageURL.pathname.slice(0, -"index.html".length)
+          : pageURL.pathname;
+        const segments = routePathname.split("/").filter((segment) => segment.length > 0);
+        if (routeDepth > segments.length) {
+          throw new Error("Drever could not resolve the static presentation root.");
+        }
+        const mountSegments = segments.slice(0, segments.length - routeDepth);
+        const mountURL = new URL("/", pageURL);
+        mountURL.pathname = "/" + (mountSegments.length === 0 ? "" : mountSegments.join("/") + "/");
+        const base = document.createElement("base");
+        base.href = mountURL.href;
+        document.head.append(base);
+        const canonicalPathname = routeDepth > 0 && routePathname.endsWith("/")
+          ? routePathname.slice(0, -1)
+          : routePathname;
+        if (pageURL.pathname !== canonicalPathname) {
+          pageURL.pathname = canonicalPathname;
+          history.replaceState(history.state, "", pageURL);
+        }
+      })();
+    </script>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" />
+    <title>Drever</title>
+    <style data-drever-browser-support>
+html:not([data-drever-browser-support="supported"]),
+html:not([data-drever-browser-support="supported"]) body {
+  min-height: 100%;
+  background: #111018;
+}
+html:not([data-drever-browser-support="supported"]) body {
+  margin: 0;
+}
+html:not([data-drever-browser-support="supported"]) #drever-root {
+  display: none;
+}
+html[data-drever-browser-support="supported"] .drever-browser-gate {
+  display: none;
+}
+.drever-browser-gate {
+  box-sizing: border-box;
+  display: grid;
+  min-height: 100svh;
+  padding: clamp(1.5rem, 5vw, 4rem);
+  align-content: space-between;
+  gap: 5rem;
+  background:
+    radial-gradient(circle at 78% 72%, rgb(111 91 255 / 18%), transparent 30rem),
+    #111018;
+  color: #f6f3e9;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+.drever-browser-gate * {
+  box-sizing: border-box;
+}
+.drever-browser-gate header,
+.drever-browser-gate__layout {
+  width: min(100%, 88rem);
+  margin-inline: auto;
+}
+.drever-browser-gate header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+.drever-browser-gate header strong {
+  font-size: 1rem;
+  letter-spacing: -0.03em;
+}
+.drever-browser-gate header span,
+.drever-browser-gate__status > span {
+  color: #9f9cae;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.drever-browser-gate__layout {
+  display: grid;
+  align-items: end;
+  grid-template-columns: minmax(0, 1.3fr) minmax(17rem, 0.7fr);
+  gap: clamp(3rem, 9vw, 9rem);
+}
+.drever-browser-gate__copy > span {
+  color: #c7f03a;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.drever-browser-gate h1 {
+  max-width: 10ch;
+  margin: 1.2rem 0 0;
+  font-size: clamp(3.2rem, 8vw, 7rem);
+  font-weight: 580;
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+  text-wrap: balance;
+}
+.drever-browser-gate p {
+  max-width: 38rem;
+  margin: 1.8rem 0 0;
+  color: #aaa7b7;
+  font-size: clamp(1rem, 1.5vw, 1.16rem);
+  line-height: 1.55;
+}
+.drever-browser-gate p:last-child {
+  color: #f6f3e9;
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+.drever-browser-gate__status {
+  padding: 1rem;
+  border: 1px solid rgb(246 243 233 / 12%);
+  border-radius: 0.9rem;
+  background: rgb(246 243 233 / 5%);
+}
+.drever-browser-gate ul {
+  display: grid;
+  margin: 1rem 0 0;
+  padding: 0;
+  gap: 0.35rem;
+  list-style: none;
+}
+.drever-browser-gate li {
+  display: none;
+  min-height: 2.5rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.5rem;
+  align-items: center;
+  gap: 0.65rem;
+  background: rgb(246 243 233 / 4%);
+  font-size: 0.76rem;
+}
+.drever-browser-gate li::before {
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 50%;
+  background: #c7f03a;
+  box-shadow: 0 0 0 0.22rem rgb(199 240 58 / 10%);
+  content: "";
+}
+html[data-drever-browser-missing~="navigation"] [data-drever-browser-feature="navigation"],
+html[data-drever-browser-missing~="document-view-transition"]
+  [data-drever-browser-feature="document-view-transition"],
+html[data-drever-browser-missing~="broadcast-channel"]
+  [data-drever-browser-feature="broadcast-channel"],
+html[data-drever-browser-missing~="resize-observer"]
+  [data-drever-browser-feature="resize-observer"] {
+  display: flex;
+}
+@media (max-width: 48rem) {
+  .drever-browser-gate header span {
+    display: none;
+  }
+  .drever-browser-gate__layout {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+    <style data-drever-loading-styles>
+.drever-loading {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  padding: 2rem;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 54% 120%, rgb(93 72 214 / 20%), transparent 32rem),
+    #111018;
+  color: #f6f3e9;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  animation: drever-loading-appear 180ms ease 180ms both;
+}
+.drever-loading__content {
+  width: min(100%, 19rem);
+}
+.drever-loading__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.72rem;
+  font-size: 0.88rem;
+  font-weight: 680;
+  letter-spacing: -0.025em;
+}
+.drever-loading__brand svg {
+  width: 1.55rem;
+  height: 1.55rem;
+}
+.drever-loading p {
+  margin: 1.35rem 0 0.7rem;
+  color: #aaa7b7;
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.085em;
+  text-transform: uppercase;
+}
+.drever-loading__track {
+  position: relative;
+  height: 2px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(246 243 233 / 10%);
+}
+.drever-loading__track::after {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 42%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #5d48d6, #c7f03a);
+  content: "";
+  animation: drever-loading-progress 1.15s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+html:not([data-drever-browser-support="supported"]) .drever-loading {
+  display: none;
+}
+@keyframes drever-loading-appear {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes drever-loading-progress {
+  from {
+    translate: -115% 0;
+  }
+  to {
+    translate: 275% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .drever-loading {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+  }
+  .drever-loading__track::after {
+    width: 100%;
+    animation: none;
+  }
+}
+</style>
+    <script data-drever-browser-support>
+(function () {
+  var missing = [];
+  var root = document.documentElement;
+  var navigation = window.navigation;
+
+  if (
+    typeof navigation !== "object" ||
+    navigation === null ||
+    typeof navigation.addEventListener !== "function" ||
+    typeof navigation.navigate !== "function" ||
+    typeof navigation.removeEventListener !== "function" ||
+    typeof navigation.updateCurrentEntry !== "function" ||
+    typeof window.NavigateEvent !== "function" ||
+    !("signal" in window.NavigateEvent.prototype)
+  ) {
+    missing.push("navigation");
+  }
+  if (typeof document.startViewTransition !== "function") {
+    missing.push("document-view-transition");
+  }
+  if (typeof window.BroadcastChannel !== "function") {
+    missing.push("broadcast-channel");
+  }
+  if (typeof window.ResizeObserver !== "function") {
+    missing.push("resize-observer");
+  }
+
+  root.setAttribute("data-drever-browser-missing", missing.join(" "));
+  root.setAttribute(
+    "data-drever-browser-support",
+    missing.length === 0 ? "supported" : "unsupported"
+  );
+})();
+</script>
+    <script type="module" crossorigin data-drever-src="./assets/index-rJnAyL4M.js"></script>
+    <link rel="stylesheet" crossorigin data-drever-href="./assets/index-CqstejPd.css">
+
+    <script data-drever-static-assets>
+      (() => {
+        const deferredAttributes = ["src","href","poster","srcset","imagesrcset"];
+        const resolveSourceSet = (value) => value
+          .split(",")
+          .map((candidate) => {
+            const normalized = candidate.trim();
+            const descriptorOffset = normalized.search(/\s/u);
+            const reference = descriptorOffset < 0
+              ? normalized
+              : normalized.slice(0, descriptorOffset);
+            const descriptor = descriptorOffset < 0
+              ? ""
+              : normalized.slice(descriptorOffset).trim();
+            const resolved = new URL(reference, document.baseURI).href;
+            return descriptor.length === 0 ? resolved : resolved + " " + descriptor;
+          })
+          .join(", ");
+        const selector = deferredAttributes.map((attribute) => "[data-drever-" + attribute + "]").join(", ");
+        for (const placeholder of document.querySelectorAll(selector)) {
+          const resource = document.createElement(placeholder.localName);
+          for (const attribute of placeholder.attributes) {
+            if (!attribute.name.startsWith("data-drever-") || !deferredAttributes.includes(attribute.name.slice(12))) {
+              resource.setAttribute(attribute.name, attribute.value);
+            }
+          }
+          while (placeholder.firstChild !== null) {
+            resource.append(placeholder.firstChild);
+          }
+          for (const attribute of deferredAttributes) {
+            const reference = placeholder.getAttribute("data-drever-" + attribute);
+            if (reference !== null) {
+              const resolved = attribute === "srcset" || attribute === "imagesrcset"
+                ? resolveSourceSet(reference)
+                : new URL(reference, document.baseURI).href;
+              resource.setAttribute(attribute, resolved);
+            }
+          }
+          placeholder.replaceWith(resource);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <main
+      class="drever-browser-gate"
+      data-drever-browser-support-gate
+      data-nosnippet
+      aria-labelledby="drever-browser-support-title"
+    >
+      <header>
+        <strong>Drever</strong>
+        <span>Modern browser required</span>
+      </header>
+      <div class="drever-browser-gate__layout">
+        <section class="drever-browser-gate__copy">
+          <span>The browser is part of the canvas.</span>
+          <h1 id="drever-browser-support-title">This browser can’t run this deck.</h1>
+          <p>
+            Drever uses native navigation and document-level View Transitions without a legacy
+            fallback.
+          </p>
+          <p>Open this presentation in a current Safari or Chromium-family browser to continue.</p>
+        </section>
+        <aside class="drever-browser-gate__status" aria-label="Required browser capabilities">
+          <span>Missing capability</span>
+          <ul>
+            <li data-drever-browser-feature="navigation">
+              Navigation API with NavigateEvent.signal
+            </li>
+            <li data-drever-browser-feature="document-view-transition">
+              Document View Transitions
+            </li>
+            <li data-drever-browser-feature="broadcast-channel">BroadcastChannel</li>
+            <li data-drever-browser-feature="resize-observer">ResizeObserver</li>
+          </ul>
+        </aside>
+      </div>
+    </main>
+    <main id="drever-root"></main>
+    <div class="drever-loading" data-drever-loading role="status">
+      <div class="drever-loading__content">
+        <div class="drever-loading__brand">
+          <svg aria-hidden="true" viewBox="0 0 64 64">
+            <path fill="#c7f03a" d="M4 13h12v6H4zm16 0h12v6H20z" />
+            <path fill="currentColor" d="M36 13h22v39H6V30h8v14h36V21H36z" />
+          </svg>
+          <span>Drever</span>
+        </div>
+        <p>Preparing the presentation</p>
+        <div class="drever-loading__track" aria-hidden="true"></div>
+      </div>
+    </div>
+
+
+    <script data-drever-static-assets>
+      (() => {
+        const deferredAttributes = ["src","href","poster","srcset","imagesrcset"];
+        const resolveSourceSet = (value) => value
+          .split(",")
+          .map((candidate) => {
+            const normalized = candidate.trim();
+            const descriptorOffset = normalized.search(/\s/u);
+            const reference = descriptorOffset < 0
+              ? normalized
+              : normalized.slice(0, descriptorOffset);
+            const descriptor = descriptorOffset < 0
+              ? ""
+              : normalized.slice(descriptorOffset).trim();
+            const resolved = new URL(reference, document.baseURI).href;
+            return descriptor.length === 0 ? resolved : resolved + " " + descriptor;
+          })
+          .join(", ");
+        const selector = deferredAttributes.map((attribute) => "[data-drever-" + attribute + "]").join(", ");
+        for (const placeholder of document.querySelectorAll(selector)) {
+          const resource = document.createElement(placeholder.localName);
+          for (const attribute of placeholder.attributes) {
+            if (!attribute.name.startsWith("data-drever-") || !deferredAttributes.includes(attribute.name.slice(12))) {
+              resource.setAttribute(attribute.name, attribute.value);
+            }
+          }
+          while (placeholder.firstChild !== null) {
+            resource.append(placeholder.firstChild);
+          }
+          for (const attribute of deferredAttributes) {
+            const reference = placeholder.getAttribute("data-drever-" + attribute);
+            if (reference !== null) {
+              const resolved = attribute === "srcset" || attribute === "imagesrcset"
+                ? resolveSourceSet(reference)
+                : new URL(reference, document.baseURI).href;
+              resource.setAttribute(attribute, resolved);
+            }
+          }
+          placeholder.replaceWith(resource);
+        }
+      })();
+    </script>
+  </body>
+</html>

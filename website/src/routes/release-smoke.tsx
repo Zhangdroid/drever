@@ -11,7 +11,7 @@ import {
 import { pageHead } from "../seo";
 
 const description =
-  "After each Drever release, Codex creates fixed presentations in clean projects. Inspect the conversation and use the real result.";
+  "Codex creates new presentations from fixed briefs in clean projects. Inspect each real conversation and use the generated result.";
 
 export const Route = createFileRoute("/release-smoke")({
   component: ReleaseSmokePage,
@@ -44,8 +44,9 @@ function RunStatus({ run }: { run: ReleaseSmokeRun }) {
 
 function RunMetadata({ run }: { run: ReleaseSmokeRun }) {
   const metadata = [
-    ["Release", run.release.version],
-    ["Commit", run.release.commit === "fixture" ? "Preview data" : run.release.commit.slice(0, 8)],
+    ["Package", `drever@${run.release.version}`],
+    ["Release", run.release.commit.slice(0, 8)],
+    ["Harness", run.harness.commit.slice(0, 8)],
     ["Generated", `${formatDate(run.generatedAt)} UTC`],
     ["Model", run.runner.model],
     ["Codex", run.runner.codexVersion],
@@ -81,7 +82,9 @@ function CasePreview({ run, scenario }: { run: ReleaseSmokeRun; scenario: Releas
             allowFullScreen
             key={`${run.id}:${scenario.id}`}
             loading="lazy"
-            src={scenario.deck.audience}
+            referrerPolicy="no-referrer"
+            sandbox="allow-presentation allow-same-origin allow-scripts"
+            src={`${scenario.deck.audience}index.html`}
             title={`${scenario.title} live Drever presentation`}
           />
         </div>
@@ -89,7 +92,7 @@ function CasePreview({ run, scenario }: { run: ReleaseSmokeRun; scenario: Releas
         <div className="release-smoke__actions">
           <a
             className="button button--primary"
-            href={scenario.deck.audience}
+            href={`${scenario.deck.audience}index.html`}
             rel="noreferrer"
             target="_blank"
           >
@@ -97,7 +100,7 @@ function CasePreview({ run, scenario }: { run: ReleaseSmokeRun; scenario: Releas
           </a>
           <a
             className="button button--quiet"
-            href={scenario.deck.document}
+            href={`${scenario.deck.document}index.html`}
             rel="noreferrer"
             target="_blank"
           >
@@ -166,14 +169,59 @@ function CasePreview({ run, scenario }: { run: ReleaseSmokeRun; scenario: Releas
   );
 }
 
-function ReleaseSmokePage() {
-  const [selectedRunId, setSelectedRunId] = useState(releaseSmokeData.latest.id);
-  const selectedRun =
-    releaseSmokeData.runs.find((run) => run.id === selectedRunId) ?? releaseSmokeData.latest;
+function EmptyReleaseSmokePage() {
+  return (
+    <main className="release-smoke" id="main" tabIndex={-1}>
+      <PageHero
+        description={description}
+        eyebrow="Built in public"
+        title="Watch the prompt become a real deck."
+      >
+        <div className="release-smoke__hero-proof">
+          <span className="release-smoke__status" data-status="pending">
+            <i aria-hidden="true" />
+            Awaiting first run
+          </span>
+          <span>0 published journeys</span>
+          <span>No fixture decks</span>
+        </div>
+      </PageHero>
+
+      <section aria-labelledby="release-smoke-pending-title" className="release-smoke__pending">
+        <div>
+          <span>Pending evidence</span>
+          <h2 id="release-smoke-pending-title">Nothing has been generated yet.</h2>
+        </div>
+        <div className="release-smoke__pending-copy">
+          <p>
+            The first release run will ask Codex to create two presentations from clean projects:
+            one with guided answers and one in surprise-me mode.
+          </p>
+          <p>
+            This page stays empty until the generated source has been installed, checked, built,
+            opened in a browser, and published with its real conversation.
+          </p>
+          <a
+            className="button button--quiet"
+            href="https://github.com/Zhangdroid/drever/actions/workflows/release-smoke.yml"
+            rel="noreferrer"
+            target="_blank"
+          >
+            View workflow <ArrowUpRightIcon />
+          </a>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function PublishedReleaseSmokePage({ latest }: { latest: ReleaseSmokeRun }) {
+  const [selectedRunId, setSelectedRunId] = useState(latest.id);
+  const selectedRun = releaseSmokeData.runs.find((run) => run.id === selectedRunId) ?? latest;
   const [selectedCaseId, setSelectedCaseId] = useState(selectedRun.cases[0]?.id ?? "");
   const selectedCase =
     selectedRun.cases.find((scenario) => scenario.id === selectedCaseId) ?? selectedRun.cases[0];
-  const archivedRuns = releaseSmokeData.runs.filter((run) => run.id !== releaseSmokeData.latest.id);
+  const archivedRuns = releaseSmokeData.runs.filter((run) => run.id !== latest.id);
 
   if (selectedCase === undefined)
     throw new Error("A release smoke run requires at least one case.");
@@ -192,34 +240,31 @@ function ReleaseSmokePage() {
       >
         <div className="release-smoke__hero-proof">
           <RunStatus run={selectedRun} />
-          <span>{selectedRun.cases.length} fixed scenarios</span>
-          <span>No screenshots</span>
+          <span>{selectedRun.cases.length} real journeys</span>
+          <span>Generated builds</span>
         </div>
       </PageHero>
-
-      {selectedRun.kind === "fixture" ? (
-        <aside className="release-smoke__fixture">
-          <strong>Preview fixture</strong>
-          <p>
-            This record demonstrates the reporting surface with existing Drever examples. The first
-            release smoke workflow will replace it with the real Codex transcript and generated
-            builds.
-          </p>
-        </aside>
-      ) : null}
 
       <section aria-labelledby="release-smoke-latest-title" className="release-smoke__run">
         <header className="release-smoke__run-heading">
           <div>
             <span>
-              {selectedRun.id === releaseSmokeData.latest.id ? "Latest run" : "Archived run"}
+              {selectedRun.id === latest.id
+                ? selectedRun.kind === "preview"
+                  ? "Preview run"
+                  : "Latest run"
+                : "Archived run"}
             </span>
-            <h2 id="release-smoke-latest-title">{selectedRun.release.version}</h2>
+            <h2 id="release-smoke-latest-title">
+              {selectedRun.kind === "preview"
+                ? `drever@${selectedRun.release.version}`
+                : selectedRun.release.version}
+            </h2>
           </div>
           <div className="release-smoke__run-links">
             <RunStatus run={selectedRun} />
             <a href={selectedRun.runner.workflowUrl} rel="noreferrer" target="_blank">
-              Workflow <ArrowUpRightIcon />
+              {selectedRun.kind === "preview" ? "Harness" : "Workflow"} <ArrowUpRightIcon />
             </a>
             <a href={selectedRun.release.url} rel="noreferrer" target="_blank">
               Release <ArrowUpRightIcon />
@@ -271,5 +316,13 @@ function ReleaseSmokePage() {
         )}
       </section>
     </main>
+  );
+}
+
+function ReleaseSmokePage() {
+  return releaseSmokeData.latest === null ? (
+    <EmptyReleaseSmokePage />
+  ) : (
+    <PublishedReleaseSmokePage latest={releaseSmokeData.latest} />
   );
 }

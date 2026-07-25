@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "vp build && tsc --noEmit",
-    "deploy": "pnpm --dir .. run build:website && wrangler pages deploy dist/client --project-name drever-website --branch main",
+    "deploy": "DREVER_WEBSITE_PRODUCTION=true pnpm --dir .. run build:website && wrangler pages deploy dist/client --project-name drever-website --branch main",
     "dev": "vp dev",
     "preview": "vp preview",
     "preview:pages": "pnpm --dir .. run build:website && wrangler pages dev dist/client --port 4318 --compatibility-date 2026-07-22",

@@ -1,0 +1,397 @@
+{
+  "version": 1,
+  "sourcePath": "<project>/slides.mdx",
+  "canvas": {
+    "width": 1600,
+    "height": 900
+  },
+  "deck": {
+    "version": 2,
+    "slides": [
+      {
+        "id": "slide-1",
+        "index": 0,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Open with the tension, not the recommendation. Both numbers are real outcomes of the same experiment. The completion gain is large enough to keep learning, but the support increase is large enough to rule out an unguarded rollout. The decision requested today is a controlled ramp, not blanket approval.",
+            "value": "Open with the tension, not the recommendation. Both numbers are real outcomes of the same experiment. The completion gain is large enough to keep learning, but the support increase is large enough to rule out an unguarded rollout. The decision requested today is a controlled ramp, not blanket approval."
+          }
+        ],
+        "stepStops": [],
+        "title": "More customers finished. More customers asked for help.",
+        "source": [
+          {
+            "value": "<section className=\"exp-slide\" aria-labelledby=\"opening-title\">\n  <p className=\"eyebrow\">Checkout experiment review · decision brief</p>\n  <h1 id=\"opening-title\">More customers finished. More customers asked for help.</h1>\n\n  <div className=\"hero-ledger\" aria-label=\"Observed experiment outcomes\">\n    <div className=\"hero-metric success\">\n      <span className=\"metric-label\">Checkout completion</span>\n      <div className=\"metric-path\">\n        <span>68%</span><span className=\"arrow\" aria-hidden=\"true\">→</span><span>81%</span>\n      </div>\n      <span className=\"metric-delta\">+13 percentage points</span>\n    </div>\n\n    <div className=\"hero-metric risk\">\n      <span className=\"metric-label\">Weekly support requests</span>\n      <div className=\"metric-path\">\n        <span>6</span><span className=\"arrow\" aria-hidden=\"true\">→</span><span>12</span>\n      </div>\n      <span className=\"metric-delta\">+6 requests · 2× volume</span>\n    </div>\n  </div>\n\n  <div className=\"verdict-strip\">\n    <strong>Recommendation: expand one step—with guardrails.</strong>\n    <span>Not a full rollout today.</span>\n  </div>\n</section>\n\n<Note>\nOpen with the tension, not the recommendation. Both numbers are real outcomes of the same experiment. The completion gain is large enough to keep learning, but the support increase is large enough to rule out an unguarded rollout. The decision requested today is a controlled ramp, not blanket approval.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 3,
+                "column": 1,
+                "offset": 22
+              },
+              "end": {
+                "line": 33,
+                "column": 8,
+                "offset": 1465
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-2",
+        "index": 1,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Translate the percentage-point change into a concrete customer outcome. This is a 13-point absolute lift and roughly a 19% relative lift. Do not claim statistical significance: the brief does not include sample size, variance, duration, or confidence intervals.",
+            "value": "Translate the percentage-point change into a concrete customer outcome. This is a 13-point absolute lift and roughly a 19% relative lift. Do not claim statistical significance: the brief does not include sample size, variance, duration, or confidence intervals."
+          }
+        ],
+        "stepStops": [],
+        "title": "For every 100 checkout starts, 13 more finished.",
+        "source": [
+          {
+            "value": "<section className=\"exp-slide\" aria-labelledby=\"completion-title\">\n  <p className=\"eyebrow\">01 · The benefit</p>\n  <h1 id=\"completion-title\">For every 100 checkout starts, 13 more finished.</h1>\n  <p className=\"lede\">The experiment moved the primary outcome from 68 completions to 81.</p>\n\n  <div className=\"outcome-grid\">\n    <div aria-label=\"Completion comparison: baseline 68 percent, experiment 81 percent\">\n      <div className=\"bar-row\">\n        <div className=\"bar-header\"><span>Baseline</span><span>68 of 100</span></div>\n        <div className=\"bar-track\"><div className=\"bar-fill baseline\">68%</div></div>\n      </div>\n      <div className=\"bar-row\">\n        <div className=\"bar-header\"><span>Experiment</span><span>81 of 100</span></div>\n        <div className=\"bar-track\"><div className=\"bar-fill experiment\">81%</div></div>\n      </div>\n    </div>\n\n    <aside className=\"receipt-callout\">\n      <span className=\"mini-label\">Incremental outcome</span>\n      <p className=\"big\">+13</p>\n      <p>completed checkouts per 100 starts</p>\n    </aside>\n  </div>\n</section>\n\n<Note>\nTranslate the percentage-point change into a concrete customer outcome. This is a 13-point absolute lift and roughly a 19% relative lift. Do not claim statistical significance: the brief does not include sample size, variance, duration, or confidence intervals.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 37,
+                "column": 1,
+                "offset": 1472
+              },
+              "end": {
+                "line": 64,
+                "column": 8,
+                "offset": 2827
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-3",
+        "index": 2,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Raw weekly volume is not automatically a support rate. If more customers saw or completed the experiment, some increase may reflect exposure rather than added friction. Before the ramp, tag the 12 requests, identify any payment failure, duplicate charge, or customer lockout, and normalize both variants to requests per 1,000 checkout attempts.",
+            "value": "Raw weekly volume is not automatically a support rate. If more customers saw or completed the experiment, some increase may reflect exposure rather than added friction. Before the ramp, tag the 12 requests, identify any payment failure, duplicate charge, or customer lockout, and normalize both variants to requests per 1,000 checkout attempts."
+          }
+        ],
+        "stepStops": [],
+        "title": "Support volume doubled. The rate may not have.",
+        "source": [
+          {
+            "value": "<section className=\"exp-slide\" aria-labelledby=\"support-title\">\n  <p className=\"eyebrow\">02 · The cost signal</p>\n  <h1 id=\"support-title\">Support volume doubled. The rate may not have.</h1>\n  <p className=\"lede\">Six additional weekly requests are confirmed. Their cause, severity, and exposure-adjusted rate are not.</p>\n\n  <div className=\"support-layout\">\n    <div className=\"support-bars\" aria-label=\"Weekly support requests increased from 6 to 12\">\n      <div className=\"support-row\">\n        <strong>Baseline</strong>\n        <div className=\"support-track\"><div className=\"support-fill six\"></div></div>\n        <span className=\"support-number\">6</span>\n      </div>\n      <div className=\"support-row\">\n        <strong>Experiment</strong>\n        <div className=\"support-track\"><div className=\"support-fill twelve\"></div></div>\n        <span className=\"support-number\">12</span>\n      </div>\n      <p className=\"bottom-truth\"><strong>Observed:</strong> +6 requests per week, or 2× raw volume.</p>\n    </div>\n\n    <aside className=\"missing-card\">\n      <h2>Three blanks block a full rollout</h2>\n      <ul className=\"missing-list\">\n        <li>Requests per 1,000 exposed checkouts</li>\n        <li>Issue category and customer severity</li>\n        <li>Variant exposure and statistical confidence</li>\n      </ul>\n    </aside>\n  </div>\n</section>\n\n<Note>\nRaw weekly volume is not automatically a support rate. If more customers saw or completed the experiment, some increase may reflect exposure rather than added friction. Before the ramp, tag the 12 requests, identify any payment failure, duplicate charge, or customer lockout, and normalize both variants to requests per 1,000 checkout attempts.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 68,
+                "column": 1,
+                "offset": 2834
+              },
+              "end": {
+                "line": 101,
+                "column": 8,
+                "offset": 4544
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-4",
+        "index": 3,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "These thresholds are proposed guardrails, not findings. The 78% completion floor preserves most of the observed gain while allowing normal regression. The support gate deliberately uses a rate, not a weekly count. The team should adjust either numeric threshold now if its risk tolerance or statistical standard differs.",
+            "value": "These thresholds are proposed guardrails, not findings. The 78% completion floor preserves most of the observed gain while allowing normal regression. The support gate deliberately uses a rate, not a weekly count. The team should adjust either numeric threshold now if its risk tolerance or statistical standard differs."
+          }
+        ],
+        "stepStops": [],
+        "title": "Expand only through a measured ramp.",
+        "source": [
+          {
+            "value": "<section className=\"exp-slide\" aria-labelledby=\"ramp-title\">\n  <p className=\"eyebrow\">03 · The controlled path</p>\n  <h1 id=\"ramp-title\">Expand only through a measured ramp.</h1>\n  <p className=\"lede\">Convert today’s uncertainty into promotion gates the team can observe and enforce.</p>\n\n  <div className=\"ramp\" aria-label=\"Proposed rollout: triage, 50 percent traffic, then full scale if gates pass\">\n    <div className=\"ramp-node\">\n      <span className=\"mini-label\">Now · 48 hours</span>\n      <h2>Classify</h2>\n      <p>Tag support issues, normalize exposure, and confirm the completion result is credible.</p>\n    </div>\n    <div className=\"ramp-arrow\" aria-hidden=\"true\">→</div>\n    <div className=\"ramp-node active\">\n      <span className=\"mini-label\">Next · 2 weeks</span>\n      <h2>Ramp to 50%</h2>\n      <p>Watch completion and support rate together. Assign a named rollback owner.</p>\n    </div>\n    <div className=\"ramp-arrow\" aria-hidden=\"true\">→</div>\n    <div className=\"ramp-node final\">\n      <span className=\"mini-label\">Then</span>\n      <h2>Scale or stop</h2>\n      <p>Expand only if every agreed gate passes at the review date.</p>\n    </div>\n  </div>\n\n  <div className=\"gate-row\" aria-label=\"Proposed promotion gates\">\n    <div className=\"gate\"><strong>Completion</strong>At least 78%</div>\n    <div className=\"gate\"><strong>Support rate</strong>No more than 25% above baseline per 1,000 attempts</div>\n    <div className=\"gate\"><strong>Severity</strong>Zero critical payment or lockout incidents</div>\n  </div>\n</section>\n\n<Note>\nThese thresholds are proposed guardrails, not findings. The 78% completion floor preserves most of the observed gain while allowing normal regression. The support gate deliberately uses a rate, not a weekly count. The team should adjust either numeric threshold now if its risk tolerance or statistical standard differs.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 105,
+                "column": 1,
+                "offset": 4551
+              },
+              "end": {
+                "line": 139,
+                "column": 8,
+                "offset": 6433
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-5",
+        "index": 4,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Ask for the decision directly. If the room approves, capture the owner, review date, and any revised thresholds before leaving. If the room cannot classify severity or normalize the support rate within 48 hours, hold current exposure rather than expanding. A rejection of full rollout is not a rejection of the experiment; it is a choice to buy the missing evidence safely.",
+            "value": "Ask for the decision directly. If the room approves, capture the owner, review date, and any revised thresholds before leaving. If the room cannot classify severity or normalize the support rate within 48 hours, hold current exposure rather than expanding. A rejection of full rollout is not a rejection of the experiment; it is a choice to buy the missing evidence safely."
+          }
+        ],
+        "stepStops": [],
+        "title": "Expand one step, not all the way.",
+        "source": [
+          {
+            "value": "<section className=\"exp-slide\" aria-labelledby=\"decision-title\">\n  <p className=\"eyebrow\">04 · Decision</p>\n  <h1 id=\"decision-title\">Expand one step, not all the way.</h1>\n\n  <div className=\"decision-layout\">\n    <div className=\"decision-stamp\" aria-label=\"Recommendation: yes, with conditions\">\n      <div>\n        <strong>Yes</strong>\n        <span>with conditions</span>\n      </div>\n    </div>\n\n    <div>\n      <ul className=\"decision-list\">\n        <li>\n          <div><strong>Approve a 50% traffic ramp</strong><span>after a 48-hour support triage and confidence check</span></div>\n        </li>\n        <li>\n          <div><strong>Adopt the three promotion gates</strong><span>completion, exposure-adjusted support, and critical severity</span></div>\n        </li>\n        <li>\n          <div><strong>Name the rollback owner and review date</strong><span>stop automatically if any gate is breached</span></div>\n        </li>\n      </ul>\n\n      <div className=\"owner-line\">\n        <span>Owner: __________</span>\n        <span>Review: __________</span>\n        <span>Decision: approve / revise / hold</span>\n      </div>\n    </div>\n  </div>\n</section>\n\n<Note>\nAsk for the decision directly. If the room approves, capture the owner, review date, and any revised thresholds before leaving. If the room cannot classify severity or normalize the support rate within 48 hours, hold current exposure rather than expanding. A rejection of full rollout is not a rejection of the experiment; it is a choice to buy the missing evidence safely.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 143,
+                "column": 1,
+                "offset": 6440
+              },
+              "end": {
+                "line": 179,
+                "column": 8,
+                "offset": 7988
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "design": {
+    "theme": {
+      "id": "@drever/designs/basic",
+      "version": "0.2.2",
+      "tokens": {
+        "color": {
+          "canvas": "#f7f7f2",
+          "ink": "#171816",
+          "muted": "#62665f",
+          "accent": "#2855e7",
+          "accentStrong": "#1538a8",
+          "accentSoft": "#dce5ff",
+          "surface": "#ffffff",
+          "border": "#d9dcd4",
+          "codeCanvas": "#171a22",
+          "codeInk": "#f5f6f8"
+        },
+        "typography": {
+          "display": "ui-sans-serif, system-ui, sans-serif",
+          "body": "ui-sans-serif, system-ui, sans-serif",
+          "mono": "ui-monospace, SFMono-Regular, monospace",
+          "titleSize": 76,
+          "bodySize": 28
+        },
+        "space": {
+          "slideX": 112,
+          "slideY": 88,
+          "rhythm": 24
+        },
+        "shape": {
+          "radius": 24,
+          "borderWidth": 2
+        },
+        "motion": {
+          "duration": 380,
+          "easing": "cubic-bezier(0.22, 1, 0.36, 1)"
+        }
+      },
+      "manifest": {
+        "title": "Drever Basic",
+        "summary": "A neutral visual baseline with generous space, clear typography, and focused motion.",
+        "artDirection": {
+          "keywords": [
+            "neutral",
+            "clear",
+            "versatile",
+            "calm"
+          ],
+          "principles": [
+            "Give every slide one dominant idea",
+            "Use scale and space before decoration",
+            "Animate changes that clarify state or continuity",
+            "Prefer a meaningful visual over a longer list"
+          ],
+          "avoid": [
+            "Dense walls of text",
+            "More than two competing accent colors",
+            "Decorative animation without narrative purpose",
+            "Using a two-column layout when the ideas are unrelated"
+          ]
+        },
+        "choices": {
+          "tones": [
+            "light",
+            "dark",
+            "accent"
+          ],
+          "emphases": [
+            "typography",
+            "comparison",
+            "visual"
+          ],
+          "densities": [
+            "airy",
+            "balanced"
+          ]
+        }
+      },
+      "motion": {
+        "id": "basic",
+        "intents": [
+          "focus",
+          "replace",
+          "compare",
+          "stagger",
+          "continuity"
+        ],
+        "guidance": [
+          "Use focus to keep prior evidence visible while making the current Step unmistakable.",
+          "Use replace for one changing state, compare for cumulative evidence, and stagger for at most four tightly related items.",
+          "Set flow to block for a vertical reading sequence and inline for a horizontal process or comparison; leave it unset when neither axis explains the content.",
+          "Basic motion uses clean fades and short spatial travel, keeping the content more prominent than the choreography.",
+          "Reuse a continuity name only when the same visual object persists across adjacent slides."
+        ]
+      }
+    },
+    "layouts": [
+      {
+        "name": "Cover",
+        "description": "Open a presentation or major chapter with one concise title and restrained supporting context.",
+        "slots": [
+          {
+            "name": "eyebrow",
+            "purpose": "An optional short category, event, or chapter label.",
+            "accepts": [
+              "text"
+            ],
+            "maxItems": 1
+          },
+          {
+            "name": "title",
+            "purpose": "The single dominant statement for the slide.",
+            "accepts": [
+              "text"
+            ],
+            "required": true,
+            "maxItems": 1
+          },
+          {
+            "name": "supporting",
+            "purpose": "One short sentence that adds context without repeating the title.",
+            "accepts": [
+              "text"
+            ],
+            "maxItems": 1
+          },
+          {
+            "name": "footer",
+            "purpose": "Optional speaker, organization, date, or section metadata.",
+            "accepts": [
+              "text"
+            ],
+            "maxItems": 1
+          }
+        ],
+        "variants": [
+          "light",
+          "dark",
+          "accent"
+        ],
+        "constraints": {
+          "titleWords": {
+            "recommendedMaximum": 10
+          },
+          "supportingLines": {
+            "recommendedMaximum": 3
+          }
+        },
+        "example": "<Cover eyebrow=\"Drever\" title=\"Presentations can be software.\" supporting=\"Interactive, testable, and ready to ship.\" tone=\"accent\" />"
+      },
+      {
+        "name": "TwoColumn",
+        "description": "Place two related ideas side by side when their relationship is more important than either idea alone.",
+        "slots": [
+          {
+            "name": "primary",
+            "purpose": "The first argument, explanation, or visual group.",
+            "accepts": [
+              "text",
+              "media",
+              "code",
+              "component"
+            ],
+            "required": true,
+            "maxItems": 1
+          },
+          {
+            "name": "secondary",
+            "purpose": "The comparison, consequence, or complementary visual group.",
+            "accepts": [
+              "text",
+              "media",
+              "code",
+              "component"
+            ],
+            "required": true,
+            "maxItems": 1
+          }
+        ],
+        "variants": [
+          "equal",
+          "wide-primary",
+          "wide-secondary"
+        ],
+        "constraints": {
+          "nestedColumns": false,
+          "recommendedMaximumWordsPerColumn": 45
+        },
+        "example": "<TwoColumn primary={<><h2>Before</h2><p>Static output</p></>} secondary={<><h2>After</h2><p>Living interface</p></>} />"
+      }
+    ],
+    "components": [],
+    "elements": []
+  },
+  "plugins": [
+    {
+      "id": "@drever/plugin-gfm",
+      "version": "0.2.2",
+      "origin": "default",
+      "config": {
+        "singleTilde": true
+      }
+    },
+    {
+      "id": "@drever/plugin-shiki",
+      "version": "0.2.2",
+      "origin": "default",
+      "config": {
+        "darkTheme": "github-dark",
+        "lightTheme": "github-light"
+      }
+    },
+    {
+      "id": "@drever/plugin-tailwindcss",
+      "version": "0.2.2",
+      "origin": "default"
+    }
+  ],
+  "preflight": {
+    "version": 1,
+    "sourcePath": "<project>/slides.mdx",
+    "slideCount": 5,
+    "summary": {
+      "errors": 0,
+      "warnings": 0,
+      "info": 0
+    },
+    "diagnostics": []
+  }
+}

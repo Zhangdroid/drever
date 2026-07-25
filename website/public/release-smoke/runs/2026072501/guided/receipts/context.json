@@ -1,0 +1,436 @@
+{
+  "version": 1,
+  "sourcePath": "<project>/slides.mdx",
+  "canvas": {
+    "width": 1600,
+    "height": 900
+  },
+  "deck": {
+    "version": 2,
+    "slides": [
+      {
+        "id": "slide-1",
+        "index": 0,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Open with the outcome, not the ritual: “In eight minutes, you’ll have a method for deciding which three launch risks need names next to them.”\n\nA pre-mortem is not pessimism and it is not prediction. It is a temporary change of tense that lets people say what they may hesitate to say in a normal readiness review.\n\nTell the group that the example is reusable across product, design, and engineering. The goal is not a complete risk register; it is a short list that changes launch behavior.",
+            "value": "Open with the outcome, not the ritual: “In eight minutes, you’ll have a method for deciding which three launch risks need names next to them.”\n\nA pre-mortem is not pessimism and it is not prediction. It is a temporary change of tense that lets people say what they may hesitate to say in a normal readiness review.\n\nTell the group that the example is reusable across product, design, and engineering. The goal is not a complete risk register; it is a short list that changes launch behavior."
+          }
+        ],
+        "stepStops": [],
+        "title": "Fail early—on purpose.",
+        "source": [
+          {
+            "value": "<div className=\"pm pm--cover\">\n  <div>\n    <p className=\"eyebrow\">Launch pre-mortem · 8 minutes</p>\n    <h1>Fail early—<span className=\"accent\">on purpose.</span></h1>\n    <p className=\"dek\">Turn a roomful of launch anxiety into <strong className=\"confirm\">three owned risks.</strong></p>\n  </div>\n\n  <div className=\"signal-field\">\n    <svg viewBox=\"0 0 620 460\" role=\"img\" aria-labelledby=\"signal-title signal-desc\">\n      <title id=\"signal-title\">Many warning signals converge into three owned risks</title>\n      <desc id=\"signal-desc\">Seven possible launch risks narrow through a selection gate into three risks labeled owned.</desc>\n      <path className=\"signal-path\" d=\"M60 56 C190 56 205 176 322 176 M60 112 C190 112 205 198 322 198 M60 168 C190 168 205 220 322 220 M60 224 C190 224 205 242 322 242 M60 280 C190 280 205 264 322 264 M60 336 C190 336 205 286 322 286 M60 392 C190 392 205 308 322 308\" />\n      <path className=\"signal-path\" d=\"M322 176 C410 176 422 118 520 118 M322 242 C410 242 422 230 520 230 M322 308 C410 308 422 342 520 342\" />\n      <circle className=\"signal-node signal-node--dim\" cx=\"60\" cy=\"56\" r=\"11\" />\n      <circle className=\"signal-node\" cx=\"60\" cy=\"112\" r=\"11\" />\n      <circle className=\"signal-node signal-node--dim\" cx=\"60\" cy=\"168\" r=\"11\" />\n      <circle className=\"signal-node\" cx=\"60\" cy=\"224\" r=\"11\" />\n      <circle className=\"signal-node signal-node--dim\" cx=\"60\" cy=\"280\" r=\"11\" />\n      <circle className=\"signal-node\" cx=\"60\" cy=\"336\" r=\"11\" />\n      <circle className=\"signal-node signal-node--dim\" cx=\"60\" cy=\"392\" r=\"11\" />\n      <rect x=\"305\" y=\"154\" width=\"34\" height=\"176\" rx=\"17\" fill=\"#102327\" stroke=\"#ffb547\" strokeWidth=\"2\" />\n      <text x=\"322\" y=\"358\" textAnchor=\"middle\">select</text>\n      <rect className=\"owner-node\" x=\"482\" y=\"84\" width=\"92\" height=\"68\" rx=\"8\" />\n      <rect className=\"owner-node\" x=\"482\" y=\"196\" width=\"92\" height=\"68\" rx=\"8\" />\n      <rect className=\"owner-node\" x=\"482\" y=\"308\" width=\"92\" height=\"68\" rx=\"8\" />\n      <text className=\"owner-label\" x=\"528\" y=\"123\" textAnchor=\"middle\">owned 01</text>\n      <text className=\"owner-label\" x=\"528\" y=\"235\" textAnchor=\"middle\">owned 02</text>\n      <text className=\"owner-label\" x=\"528\" y=\"347\" textAnchor=\"middle\">owned 03</text>\n    </svg>\n  </div>\n\n  <div className=\"countdown\" aria-hidden=\"true\">\n    <span>T−30 · Imagine failure</span>\n    <span className=\"countdown-line\"></span>\n    <span>T−0 · Assign owners</span>\n  </div>\n</div>\n\n<Note>\nOpen with the outcome, not the ritual: “In eight minutes, you’ll have a method for deciding which three launch risks need names next to them.”\n\nA pre-mortem is not pessimism and it is not prediction. It is a temporary change of tense that lets people say what they may hesitate to say in a normal readiness review.\n\nTell the group that the example is reusable across product, design, and engineering. The goal is not a complete risk register; it is a short list that changes launch behavior.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 3,
+                "column": 1,
+                "offset": 29
+              },
+              "end": {
+                "line": 47,
+                "column": 8,
+                "offset": 3009
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-2",
+        "index": 1,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "At Step 0, let the “+30 days” frame settle before anyone starts solving. Advance once, then read the revealed prompt exactly and give the room a beat of silence.\n\nWhy “30 days later”? It is far enough away for consequences to be visible but close enough that people can picture the launch mechanics. Adjust the horizon for the product, but keep the failure concrete.\n\nThe three rules matter:\n\n- Past tense makes the imagined failure feel discussable.\n- No defending keeps seniority and functional identity from suppressing weak signals.\n- No solving yet prevents the first plausible idea from swallowing the room.\n\nIf someone says, “That would never happen,” respond: “Great—capture why. Evidence comes in the selection round.”",
+            "value": "At Step 0, let the “+30 days” frame settle before anyone starts solving. Advance once, then read the revealed prompt exactly and give the room a beat of silence.\n\nWhy “30 days later”? It is far enough away for consequences to be visible but close enough that people can picture the launch mechanics. Adjust the horizon for the product, but keep the failure concrete.\n\nThe three rules matter:\n\n- Past tense makes the imagined failure feel discussable.\n- No defending keeps seniority and functional identity from suppressing weak signals.\n- No solving yet prevents the first plausible idea from swallowing the room.\n\nIf someone says, “That would never happen,” respond: “Great—capture why. Evidence comes in the selection round.”"
+          }
+        ],
+        "stepStops": [
+          1
+        ],
+        "title": "Assume the launch failed.",
+        "source": [
+          {
+            "value": "<div className=\"pm pm--failure\">\n  <div>\n    <p className=\"eyebrow\">01 · Change the tense</p>\n    <h1>Assume the launch <span className=\"accent\">failed.</span></h1>\n  </div>\n\n  <div className=\"failure-scene\">\n    <div className=\"failure-date\" aria-label=\"Thirty days after launch\">\n      <div className=\"mono\">\n        <strong>+30</strong>\n        <span>days after launch</span>\n      </div>\n    </div>\n\n    <Step>\n      <div className=\"failure-prompt\">\n        <p className=\"dek\">“It is 30 days later. The launch was a disappointment. What happened?”</p>\n        <div className=\"failure-rules\" aria-label=\"Pre-mortem ground rules\">\n          <span className=\"tag\">past tense</span>\n          <span className=\"tag\">no defending</span>\n          <span className=\"tag\">no solving yet</span>\n        </div>\n      </div>\n    </Step>\n  </div>\n\n  <div className=\"countdown\" aria-hidden=\"true\">\n    <span>T−30 · Imagine failure</span>\n    <span className=\"countdown-line\"></span>\n    <span>T−0 · Assign owners</span>\n  </div>\n</div>\n\n<Note>\nAt Step 0, let the “+30 days” frame settle before anyone starts solving. Advance once, then read the revealed prompt exactly and give the room a beat of silence.\n\nWhy “30 days later”? It is far enough away for consequences to be visible but close enough that people can picture the launch mechanics. Adjust the horizon for the product, but keep the failure concrete.\n\nThe three rules matter:\n\n- Past tense makes the imagined failure feel discussable.\n- No defending keeps seniority and functional identity from suppressing weak signals.\n- No solving yet prevents the first plausible idea from swallowing the room.\n\nIf someone says, “That would never happen,” respond: “Great—capture why. Evidence comes in the selection round.”\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 51,
+                "column": 1,
+                "offset": 3016
+              },
+              "end": {
+                "line": 96,
+                "column": 8,
+                "offset": 4785
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-3",
+        "index": 2,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "At Step 0, establish “silent first” and point to the five-minute timer. Advance once to fan out the three scanning lenses.\n\nGive everyone five quiet minutes. Silent generation reduces anchoring and gives design, product, and engineering equal airtime before hierarchy enters.\n\nAsk for one failure per note. Quantity first: target three to five notes per person.\n\nUse the lanes as prompts, not ownership boundaries. A designer may spot an operational risk; an engineer may spot a trust failure. Cross-functional duplication is useful evidence.\n\nAfter five minutes, cluster duplicates quickly without wordsmithing. Do not ask authors to present every note. Read cluster labels aloud and allow one clarifying sentence only when the meaning is unclear.",
+            "value": "At Step 0, establish “silent first” and point to the five-minute timer. Advance once to fan out the three scanning lenses.\n\nGive everyone five quiet minutes. Silent generation reduces anchoring and gives design, product, and engineering equal airtime before hierarchy enters.\n\nAsk for one failure per note. Quantity first: target three to five notes per person.\n\nUse the lanes as prompts, not ownership boundaries. A designer may spot an operational risk; an engineer may spot a trust failure. Cross-functional duplication is useful evidence.\n\nAfter five minutes, cluster duplicates quickly without wordsmithing. Do not ask authors to present every note. Read cluster labels aloud and allow one clarifying sentence only when the meaning is unclear."
+          }
+        ],
+        "stepStops": [
+          1
+        ],
+        "title": "Generate before you debate.",
+        "source": [
+          {
+            "value": "<div className=\"pm pm--generate\">\n  <div className=\"generate-header\">\n    <div>\n      <p className=\"eyebrow\">02 · Diverge</p>\n      <h1>Generate before you debate.</h1>\n      <p className=\"dek\">Silent first. One failure per note.</p>\n    </div>\n    <div className=\"timer mono\" aria-label=\"Five minutes\">05:00</div>\n  </div>\n\n  <Step>\n    <div className=\"lanes\" aria-label=\"Cross-functional prompts\">\n      <section className=\"lane lane--product\">\n        <p className=\"lane-label mono\">Product</p>\n        <h2>Value, adoption, positioning</h2>\n      </section>\n      <section className=\"lane lane--design\">\n        <p className=\"lane-label mono\">Design</p>\n        <h2>Comprehension, trust, access</h2>\n      </section>\n      <section className=\"lane lane--engineering\">\n        <p className=\"lane-label mono\">Engineering</p>\n        <h2>Scale, recovery, observability</h2>\n      </section>\n    </div>\n  </Step>\n\n  <div className=\"countdown\" aria-hidden=\"true\">\n    <span>T−30 · Imagine failure</span>\n    <span className=\"countdown-line\"></span>\n    <span>T−0 · Assign owners</span>\n  </div>\n</div>\n\n<Note>\nAt Step 0, establish “silent first” and point to the five-minute timer. Advance once to fan out the three scanning lenses.\n\nGive everyone five quiet minutes. Silent generation reduces anchoring and gives design, product, and engineering equal airtime before hierarchy enters.\n\nAsk for one failure per note. Quantity first: target three to five notes per person.\n\nUse the lanes as prompts, not ownership boundaries. A designer may spot an operational risk; an engineer may spot a trust failure. Cross-functional duplication is useful evidence.\n\nAfter five minutes, cluster duplicates quickly without wordsmithing. Do not ask authors to present every note. Read cluster labels aloud and allow one clarifying sentence only when the meaning is unclear.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 100,
+                "column": 1,
+                "offset": 4792
+              },
+              "end": {
+                "line": 144,
+                "column": 8,
+                "offset": 6656
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-4",
+        "index": 3,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "At Step 0, build the grammar from left to right: cause, failure, impact. Advance once to resolve the template into a concrete risk slip.\n\nVague risks cannot be owned. Convert each serious cluster into a causal statement:\n\n“Because [cause], [failure] may happen, causing [material impact].”\n\nThe example spans all three disciplines: permission design, admin workflow, and activation outcome. That is intentional. The statement is specific enough to test without prematurely prescribing a fix.\n\nWatch for three failure modes:\n\n- “Users might be confused” has no cause or consequence.\n- “We need better onboarding” is already a solution.\n- “The launch could fail” is circular.\n\nSpend roughly a minute tightening only the clusters that could plausibly become top risks. Leave the rest rough.",
+            "value": "At Step 0, build the grammar from left to right: cause, failure, impact. Advance once to resolve the template into a concrete risk slip.\n\nVague risks cannot be owned. Convert each serious cluster into a causal statement:\n\n“Because [cause], [failure] may happen, causing [material impact].”\n\nThe example spans all three disciplines: permission design, admin workflow, and activation outcome. That is intentional. The statement is specific enough to test without prematurely prescribing a fix.\n\nWatch for three failure modes:\n\n- “Users might be confused” has no cause or consequence.\n- “We need better onboarding” is already a solution.\n- “The launch could fail” is circular.\n\nSpend roughly a minute tightening only the clusters that could plausibly become top risks. Leave the rest rough."
+          }
+        ],
+        "stepStops": [
+          1
+        ],
+        "title": "Name the chain.",
+        "source": [
+          {
+            "value": "<div className=\"pm pm--chain\">\n  <div>\n    <p className=\"eyebrow\">03 · Make it testable</p>\n    <h1>Name the <span className=\"accent\">chain.</span></h1>\n  </div>\n\n  <div className=\"chain-wrap\">\n    <div className=\"chain\" aria-label=\"Risk statement structure\">\n      <div className=\"chain-card\">\n        <span className=\"chain-index mono\">01 · Cause</span>\n        <strong>Because…</strong>\n      </div>\n      <span className=\"chain-arrow\" aria-hidden=\"true\">→</span>\n      <div className=\"chain-card\">\n        <span className=\"chain-index mono\">02 · Failure</span>\n        <strong>…may happen…</strong>\n      </div>\n      <span className=\"chain-arrow\" aria-hidden=\"true\">→</span>\n      <div className=\"chain-card\">\n        <span className=\"chain-index mono\">03 · Impact</span>\n        <strong>…causing…</strong>\n      </div>\n    </div>\n\n    <Step>\n      <div className=\"risk-slip\">\n        <span className=\"risk-id mono\">R-07</span>\n        <p>Because permissions are unclear, admins may stall setup, causing launch accounts to miss first value.</p>\n      </div>\n    </Step>\n  </div>\n\n  <div className=\"countdown\" aria-hidden=\"true\">\n    <span>T−30 · Imagine failure</span>\n    <span className=\"countdown-line\"></span>\n    <span>T−0 · Assign owners</span>\n  </div>\n</div>\n\n<Note>\nAt Step 0, build the grammar from left to right: cause, failure, impact. Advance once to resolve the template into a concrete risk slip.\n\nVague risks cannot be owned. Convert each serious cluster into a causal statement:\n\n“Because [cause], [failure] may happen, causing [material impact].”\n\nThe example spans all three disciplines: permission design, admin workflow, and activation outcome. That is intentional. The statement is specific enough to test without prematurely prescribing a fix.\n\nWatch for three failure modes:\n\n- “Users might be confused” has no cause or consequence.\n- “We need better onboarding” is already a solution.\n- “The launch could fail” is circular.\n\nSpend roughly a minute tightening only the clusters that could plausibly become top risks. Leave the rest rough.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 148,
+                "column": 1,
+                "offset": 6663
+              },
+              "end": {
+                "line": 203,
+                "column": 8,
+                "offset": 8738
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-5",
+        "index": 4,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Do not average a complicated score. Discuss each cluster through three filters:\n\n1. Would the impact materially change launch success, trust, revenue, support load, or recovery?\n2. Is there evidence that makes the risk plausible: research, incidents, unknown dependencies, load tests, or repeated disagreement?\n3. Would the team detect it early enough to recover? Weak or late signals raise ownership priority.\n\nAt Step 0, hold on the filters. Ask: “Which risks are both consequential and easy to discover too late?”\n\nAdvance once to reveal three example owner slots. The examples are intentionally cross-functional. Replace them with the team’s actual risks in a live session.\n\nUse dot votes only to surface preference, not to decide automatically. Discuss the top five and make an explicit call. If the team cannot stop at three, ask which fourth risk would displace one already selected. That forces a real priority decision.",
+            "value": "Do not average a complicated score. Discuss each cluster through three filters:\n\n1. Would the impact materially change launch success, trust, revenue, support load, or recovery?\n2. Is there evidence that makes the risk plausible: research, incidents, unknown dependencies, load tests, or repeated disagreement?\n3. Would the team detect it early enough to recover? Weak or late signals raise ownership priority.\n\nAt Step 0, hold on the filters. Ask: “Which risks are both consequential and easy to discover too late?”\n\nAdvance once to reveal three example owner slots. The examples are intentionally cross-functional. Replace them with the team’s actual risks in a live session.\n\nUse dot votes only to surface preference, not to decide automatically. Discuss the top five and make an explicit call. If the team cannot stop at three, ask which fourth risk would displace one already selected. That forces a real priority decision."
+          }
+        ],
+        "stepStops": [
+          1
+        ],
+        "title": "Choose the three worth owning.",
+        "source": [
+          {
+            "value": "<div className=\"pm pm--select\">\n  <div>\n    <p className=\"eyebrow\">04 · Converge</p>\n    <h1>Choose the three worth owning.</h1>\n  </div>\n\n  <div className=\"select-grid\">\n    <div>\n      <div className=\"filters\" aria-label=\"Three selection filters\">\n        <div className=\"filter\"><b>1</b><span>Material impact?</span></div>\n        <div className=\"filter\"><b>2</b><span>Plausible evidence?</span></div>\n        <div className=\"filter\"><b>3</b><span>Weak early signal?</span></div>\n      </div>\n      <p className=\"threshold mono\">High impact · plausible · late to detect</p>\n    </div>\n\n    <Step>\n      <div className=\"owner-stack\" aria-label=\"Three risks selected for ownership\">\n        <div className=\"owner-slot\">\n          <span className=\"slot-number\">01</span>\n          <span className=\"slot-copy\">Admin setup stalls before first value</span>\n          <span className=\"slot-owner mono\">owner</span>\n        </div>\n        <div className=\"owner-slot\">\n          <span className=\"slot-number\">02</span>\n          <span className=\"slot-copy\">Irreversible action breaks user trust</span>\n          <span className=\"slot-owner mono\">owner</span>\n        </div>\n        <div className=\"owner-slot\">\n          <span className=\"slot-number\">03</span>\n          <span className=\"slot-copy\">Launch load degrades the critical path</span>\n          <span className=\"slot-owner mono\">owner</span>\n        </div>\n      </div>\n    </Step>\n  </div>\n\n  <div className=\"countdown\" aria-hidden=\"true\">\n    <span>T−30 · Imagine failure</span>\n    <span className=\"countdown-line\"></span>\n    <span>T−0 · Assign owners</span>\n  </div>\n</div>\n\n<Note>\nDo not average a complicated score. Discuss each cluster through three filters:\n\n1. Would the impact materially change launch success, trust, revenue, support load, or recovery?\n2. Is there evidence that makes the risk plausible: research, incidents, unknown dependencies, load tests, or repeated disagreement?\n3. Would the team detect it early enough to recover? Weak or late signals raise ownership priority.\n\nAt Step 0, hold on the filters. Ask: “Which risks are both consequential and easy to discover too late?”\n\nAdvance once to reveal three example owner slots. The examples are intentionally cross-functional. Replace them with the team’s actual risks in a live session.\n\nUse dot votes only to surface preference, not to decide automatically. Discuss the top five and make an explicit call. If the team cannot stop at three, ask which fourth risk would displace one already selected. That forces a real priority decision.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 207,
+                "column": 1,
+                "offset": 8745
+              },
+              "end": {
+                "line": 263,
+                "column": 8,
+                "offset": 11322
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-6",
+        "index": 5,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Close with the complete facilitation plan.\n\nFor each selected risk, capture:\n\n- One directly responsible owner—not a function or committee.\n- One trigger or leading indicator that can be checked before launch.\n- One next mitigation or information-gathering action with a date.\n\nSuggested close: “The pre-mortem is useful only if it changes who watches what before launch. Book 25 minutes, stop at three, and put names next to them.”\n\nIf time is tight in the live session, protect silent writing and the final ownership step. Shorten clustering; do not turn the exercise into an unprioritized brainstorm.",
+            "value": "Close with the complete facilitation plan.\n\nFor each selected risk, capture:\n\n- One directly responsible owner—not a function or committee.\n- One trigger or leading indicator that can be checked before launch.\n- One next mitigation or information-gathering action with a date.\n\nSuggested close: “The pre-mortem is useful only if it changes who watches what before launch. Book 25 minutes, stop at three, and put names next to them.”\n\nIf time is tight in the live session, protect silent writing and the final ownership step. Shorten clustering; do not turn the exercise into an unprioritized brainstorm."
+          }
+        ],
+        "stepStops": [],
+        "title": "25 minutes to three owned risks.",
+        "source": [
+          {
+            "value": "<div className=\"pm pm--runbook\">\n  <div className=\"runbook-heading\">\n    <div>\n      <p className=\"eyebrow\">05 · Run it</p>\n      <h1>25 minutes to three owned risks.</h1>\n    </div>\n    <div className=\"runbook-total\">\n      03\n      <small className=\"mono\">risks leave with names</small>\n    </div>\n  </div>\n\n  <div className=\"runbook\" aria-label=\"Twenty-five minute pre-mortem agenda\">\n    <div className=\"runbook-step\"><strong>2</strong><span>Frame the failure</span></div>\n    <div className=\"runbook-step\"><strong>5</strong><span>Write silently</span></div>\n    <div className=\"runbook-step\"><strong>6</strong><span>Cluster + clarify</span></div>\n    <div className=\"runbook-step\"><strong>7</strong><span>Select three</span></div>\n    <div className=\"runbook-step\"><strong>5</strong><span>Owner + trigger + next move</span></div>\n  </div>\n\n  <p className=\"closing-line\">Leave with <span className=\"confirm\">three owners</span>—not thirty anxieties.</p>\n\n  <div className=\"countdown\" aria-hidden=\"true\">\n    <span>T−30 · Imagine failure</span>\n    <span className=\"countdown-line\"></span>\n    <span>T−0 · Assign owners</span>\n  </div>\n</div>\n\n<Note>\nClose with the complete facilitation plan.\n\nFor each selected risk, capture:\n\n- One directly responsible owner—not a function or committee.\n- One trigger or leading indicator that can be checked before launch.\n- One next mitigation or information-gathering action with a date.\n\nSuggested close: “The pre-mortem is useful only if it changes who watches what before launch. Book 25 minutes, stop at three, and put names next to them.”\n\nIf time is tight in the live session, protect silent writing and the final ownership step. Shorten clustering; do not turn the exercise into an unprioritized brainstorm.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 267,
+                "column": 1,
+                "offset": 11329
+              },
+              "end": {
+                "line": 308,
+                "column": 8,
+                "offset": 13094
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "design": {
+    "theme": {
+      "id": "@drever/designs/basic",
+      "version": "0.2.2",
+      "tokens": {
+        "color": {
+          "canvas": "#f7f7f2",
+          "ink": "#171816",
+          "muted": "#62665f",
+          "accent": "#2855e7",
+          "accentStrong": "#1538a8",
+          "accentSoft": "#dce5ff",
+          "surface": "#ffffff",
+          "border": "#d9dcd4",
+          "codeCanvas": "#171a22",
+          "codeInk": "#f5f6f8"
+        },
+        "typography": {
+          "display": "ui-sans-serif, system-ui, sans-serif",
+          "body": "ui-sans-serif, system-ui, sans-serif",
+          "mono": "ui-monospace, SFMono-Regular, monospace",
+          "titleSize": 76,
+          "bodySize": 28
+        },
+        "space": {
+          "slideX": 112,
+          "slideY": 88,
+          "rhythm": 24
+        },
+        "shape": {
+          "radius": 24,
+          "borderWidth": 2
+        },
+        "motion": {
+          "duration": 380,
+          "easing": "cubic-bezier(0.22, 1, 0.36, 1)"
+        }
+      },
+      "manifest": {
+        "title": "Drever Basic",
+        "summary": "A neutral visual baseline with generous space, clear typography, and focused motion.",
+        "artDirection": {
+          "keywords": [
+            "neutral",
+            "clear",
+            "versatile",
+            "calm"
+          ],
+          "principles": [
+            "Give every slide one dominant idea",
+            "Use scale and space before decoration",
+            "Animate changes that clarify state or continuity",
+            "Prefer a meaningful visual over a longer list"
+          ],
+          "avoid": [
+            "Dense walls of text",
+            "More than two competing accent colors",
+            "Decorative animation without narrative purpose",
+            "Using a two-column layout when the ideas are unrelated"
+          ]
+        },
+        "choices": {
+          "tones": [
+            "light",
+            "dark",
+            "accent"
+          ],
+          "emphases": [
+            "typography",
+            "comparison",
+            "visual"
+          ],
+          "densities": [
+            "airy",
+            "balanced"
+          ]
+        }
+      },
+      "motion": {
+        "id": "basic",
+        "intents": [
+          "focus",
+          "replace",
+          "compare",
+          "stagger",
+          "continuity"
+        ],
+        "guidance": [
+          "Use focus to keep prior evidence visible while making the current Step unmistakable.",
+          "Use replace for one changing state, compare for cumulative evidence, and stagger for at most four tightly related items.",
+          "Set flow to block for a vertical reading sequence and inline for a horizontal process or comparison; leave it unset when neither axis explains the content.",
+          "Basic motion uses clean fades and short spatial travel, keeping the content more prominent than the choreography.",
+          "Reuse a continuity name only when the same visual object persists across adjacent slides."
+        ]
+      }
+    },
+    "layouts": [
+      {
+        "name": "Cover",
+        "description": "Open a presentation or major chapter with one concise title and restrained supporting context.",
+        "slots": [
+          {
+            "name": "eyebrow",
+            "purpose": "An optional short category, event, or chapter label.",
+            "accepts": [
+              "text"
+            ],
+            "maxItems": 1
+          },
+          {
+            "name": "title",
+            "purpose": "The single dominant statement for the slide.",
+            "accepts": [
+              "text"
+            ],
+            "required": true,
+            "maxItems": 1
+          },
+          {
+            "name": "supporting",
+            "purpose": "One short sentence that adds context without repeating the title.",
+            "accepts": [
+              "text"
+            ],
+            "maxItems": 1
+          },
+          {
+            "name": "footer",
+            "purpose": "Optional speaker, organization, date, or section metadata.",
+            "accepts": [
+              "text"
+            ],
+            "maxItems": 1
+          }
+        ],
+        "variants": [
+          "light",
+          "dark",
+          "accent"
+        ],
+        "constraints": {
+          "titleWords": {
+            "recommendedMaximum": 10
+          },
+          "supportingLines": {
+            "recommendedMaximum": 3
+          }
+        },
+        "example": "<Cover eyebrow=\"Drever\" title=\"Presentations can be software.\" supporting=\"Interactive, testable, and ready to ship.\" tone=\"accent\" />"
+      },
+      {
+        "name": "TwoColumn",
+        "description": "Place two related ideas side by side when their relationship is more important than either idea alone.",
+        "slots": [
+          {
+            "name": "primary",
+            "purpose": "The first argument, explanation, or visual group.",
+            "accepts": [
+              "text",
+              "media",
+              "code",
+              "component"
+            ],
+            "required": true,
+            "maxItems": 1
+          },
+          {
+            "name": "secondary",
+            "purpose": "The comparison, consequence, or complementary visual group.",
+            "accepts": [
+              "text",
+              "media",
+              "code",
+              "component"
+            ],
+            "required": true,
+            "maxItems": 1
+          }
+        ],
+        "variants": [
+          "equal",
+          "wide-primary",
+          "wide-secondary"
+        ],
+        "constraints": {
+          "nestedColumns": false,
+          "recommendedMaximumWordsPerColumn": 45
+        },
+        "example": "<TwoColumn primary={<><h2>Before</h2><p>Static output</p></>} secondary={<><h2>After</h2><p>Living interface</p></>} />"
+      }
+    ],
+    "components": [],
+    "elements": []
+  },
+  "plugins": [
+    {
+      "id": "@drever/plugin-gfm",
+      "version": "0.2.2",
+      "origin": "default",
+      "config": {
+        "singleTilde": true
+      }
+    },
+    {
+      "id": "@drever/plugin-shiki",
+      "version": "0.2.2",
+      "origin": "default",
+      "config": {
+        "darkTheme": "github-dark",
+        "lightTheme": "github-light"
+      }
+    },
+    {
+      "id": "@drever/plugin-tailwindcss",
+      "version": "0.2.2",
+      "origin": "default"
+    }
+  ],
+  "preflight": {
+    "version": 1,
+    "sourcePath": "<project>/slides.mdx",
+    "slideCount": 6,
+    "summary": {
+      "errors": 0,
+      "warnings": 0,
+      "info": 0
+    },
+    "diagnostics": []
+  }
+}

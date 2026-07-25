@@ -1,13 +1,16 @@
 import { spawn } from "node:child_process";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  assertReleaseSmokeGenerationTree,
   collectReleaseSmokeSource,
   createCodexExecArguments,
   json,
   parseCodexJsonl,
+  readFirstExistingFile,
   sanitizeTranscriptText,
+  snapshotReleaseSmokeGenerationTree,
 } from "./contract.mjs";
 import { getReleaseSmokeScenario } from "./scenarios.mjs";
 
@@ -26,12 +29,18 @@ const scenario = getReleaseSmokeScenario(scenarioId);
 const projectRoot = resolve(projectArgument);
 const artifactRoot = resolve(artifactArgument);
 const privateRoot = join(projectRoot, ".release-smoke");
+const rawRoot = join(dirname(artifactRoot), `.raw-${scenarioId}`);
 const model = process.env.RELEASE_SMOKE_MODEL?.trim();
 if (process.env.CODEX_HOME === undefined || process.env.CODEX_HOME.trim() === "") {
   throw new Error("CODEX_HOME must match the directory bootstrapped by openai/codex-action.");
 }
 const codexHome = resolve(process.env.CODEX_HOME);
 const shellGuardPath = fileURLToPath(new URL("./deny-shell.mjs", import.meta.url));
+const configuration = await readFirstExistingFile(projectRoot, [
+  "drever.config.ts",
+  "drever.config.mjs",
+  "drever.config.js",
+]);
 const harnessFiles = [
   [".release-smoke/prompt.md", "Public prompt"],
   [".release-smoke/constraints.md", "Generation boundary"],
@@ -41,7 +50,7 @@ const harnessFiles = [
   [".agents/skills/drever-author-deck/SKILL.md", "Authoring skill"],
   [".agents/skills/drever-review-deck/SKILL.md", "Review skill"],
   ["package.json", "Scaffold package"],
-  ["drever.config.ts", "Scaffold configuration"],
+  ...(configuration === undefined ? [] : [[configuration.path, "Scaffold configuration"]]),
   ["brief.md", "Scaffold brief"],
 ];
 const harnessContext = (
@@ -55,6 +64,10 @@ const harnessContext = (
 if (Buffer.byteLength(harnessContext) > 500_000) {
   throw new Error("The release smoke harness context exceeds 500 kB.");
 }
+const immutableSnapshot = await snapshotReleaseSmokeGenerationTree(
+  projectRoot,
+  harnessFiles.map(([path]) => path).filter((path) => path !== "brief.md"),
+);
 await writeFile(
   join(codexHome, "hooks.json"),
   json({
@@ -130,14 +143,19 @@ const runCodex = (arguments_, outputPath) =>
     });
   });
 
-await mkdir(privateRoot, { recursive: true });
+await Promise.all([
+  mkdir(privateRoot, { recursive: true }),
+  rm(rawRoot, { force: true, recursive: true }),
+]);
+await mkdir(rawRoot, { recursive: true });
+await assertReleaseSmokeGenerationTree(projectRoot, immutableSnapshot);
 const startedAt = new Date();
 const messages = [];
 const usage = [];
 let threadId;
 
 for (const [index, turn] of scenario.turns.entries()) {
-  const rawPath = join(privateRoot, `turn-${String(index + 1)}.jsonl`);
+  const rawPath = join(rawRoot, `turn-${String(index + 1)}.jsonl`);
   const modelTurn =
     index === 0
       ? `${turn}
@@ -157,6 +175,7 @@ ${harnessContext}
       : turn;
   const arguments_ = createCodexExecArguments({ model, threadId, turn: modelTurn });
   const result = parseCodexJsonl(await runCodex(arguments_, rawPath));
+  await assertReleaseSmokeGenerationTree(projectRoot, immutableSnapshot);
   threadId ??= result.threadId;
   if (result.threadId !== threadId) {
     throw new Error("Codex changed thread id during the release smoke conversation.");
@@ -208,12 +227,15 @@ await Promise.all([
       codexVersion,
       nodeVersion: process.version,
       executionBoundary: {
-        shell: "denied-by-pre-tool-use-hook",
-        writes: "apply-patch-only",
+        publication: "allowlisted-source-only",
+        shell: "pre-tool-use-deny-configured",
       },
       source,
     }),
     "utf8",
   ),
 ]);
-await rm(privateRoot, { force: true, recursive: true });
+await Promise.all([
+  rm(privateRoot, { force: true, recursive: true }),
+  rm(rawRoot, { force: true, recursive: true }),
+]);

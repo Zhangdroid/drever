@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "latestRunId": "2026072501",
+  "runs": [
+    {
+      "id": "2026072501",
+      "generatedAt": "2026-07-25T14:27:17.396Z",
+      "transcript": "/release-smoke/runs/2026072501/run.json",
+      "version": "0.2.2"
+    }
+  ]
+}

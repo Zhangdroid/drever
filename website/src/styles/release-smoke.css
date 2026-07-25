@@ -63,41 +63,69 @@
   color: #a43b46;
 }
 
+.release-smoke__status[data-status="pending"] {
+  color: var(--site-muted);
+}
+
 .release-smoke__status[data-status="failed"] i {
   background: #e46b74;
   box-shadow: 0 0 0 0.22rem rgb(228 107 116 / 17%);
+}
+
+.release-smoke__status[data-status="pending"] i {
+  background: color-mix(in srgb, var(--site-continuity), white 32%);
+  box-shadow: 0 0 0 0.22rem color-mix(in srgb, var(--site-continuity), transparent 88%);
 }
 
 .release-smoke__hero-proof > .release-smoke__status {
   grid-column: 1 / -1;
 }
 
-.release-smoke__fixture {
+.release-smoke__pending {
   display: grid;
   max-width: var(--site-max);
-  margin: 0 auto clamp(2.5rem, 5vw, 4rem);
-  padding: 1.1rem 1.25rem;
-  border: 1px solid color-mix(in srgb, var(--site-continuity), transparent 82%);
-  border-radius: 0.8rem;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 1rem 2rem;
-  background: color-mix(in srgb, var(--site-continuity-soft) 42%, transparent);
+  margin-inline: auto;
+  padding-block: clamp(3rem, 7vw, 6rem) var(--site-section);
+  border-top: 1px solid var(--site-line);
+  grid-template-columns: minmax(0, 0.8fr) minmax(20rem, 1fr);
+  gap: 3rem 7rem;
 }
 
-.release-smoke__fixture strong {
+.release-smoke__pending > div:first-child > span {
   color: var(--site-continuity);
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
-.release-smoke__fixture p {
-  max-width: 65rem;
+.release-smoke__pending h2 {
+  max-width: 10ch;
+  margin: 0.7rem 0 0;
+  font-family: var(--drever-brand-font-family-display);
+  font-size: clamp(2.8rem, 6vw, 5.5rem);
+  font-weight: 590;
+  letter-spacing: -0.055em;
+  line-height: 0.94;
+}
+
+.release-smoke__pending-copy {
+  display: grid;
+  max-width: 37rem;
+  align-content: start;
+  gap: 1rem;
+}
+
+.release-smoke__pending-copy p {
   margin: 0;
   color: var(--site-muted);
-  font-size: 0.78rem;
-  line-height: 1.55;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.release-smoke__pending-copy .button {
+  width: fit-content;
+  margin-block-start: 0.5rem;
 }
 
 .release-smoke__run {
@@ -564,10 +592,14 @@
     min-height: 36rem;
   }
 
-  .release-smoke__fixture,
+  .release-smoke__pending,
   .release-smoke__preview > header,
   .release-smoke__archive {
     grid-template-columns: 1fr;
+  }
+
+  .release-smoke__pending {
+    gap: 2rem;
   }
 
   .release-smoke__run-heading,

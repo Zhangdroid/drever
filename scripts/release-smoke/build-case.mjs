@@ -2,12 +2,19 @@ import { execFile } from "node:child_process";
 import { createServer } from "node:http";
 import { cp, mkdir, readFile, realpath, rm, stat, writeFile } from "node:fs/promises";
 import { extname, join, resolve, sep } from "node:path";
+import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { assertReleaseVersion } from "../release.mjs";
+import {
+  assertSafeReleaseSmokeBuildOutput,
+  resolveIsolatedProjectPath,
+  runReleaseSmokeBuildInContainer,
+} from "./build-isolation.mjs";
 import {
   assertReleaseSmokeContext,
   copyReleaseSmokeSource,
   json,
+  redactStructuredPaths,
   relativeMountedPathname,
   releaseSmokeDeckMount,
   RELEASE_SMOKE_SCHEMA_VERSION,
@@ -148,7 +155,7 @@ const startStaticServer = async (directory, mountPath) => {
 const runBrowserSmoke = async (distRoot, slideCount, mountPath) => {
   const { chromium } = await import("@playwright/test");
   const server = await startStaticServer(distRoot, mountPath);
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({ channel: "chromium", headless: true });
   const failures = [];
   const page = await browser.newPage({ viewport: { height: 900, width: 1600 } });
   page.on("console", (message) => {
@@ -160,7 +167,7 @@ const runBrowserSmoke = async (distRoot, slideCount, mountPath) => {
   );
   await page.route("**/*", async (route) => {
     const url = new URL(route.request().url());
-    if (url.hostname === "127.0.0.1") {
+    if (url.origin === server.origin) {
       await route.continue();
     } else {
       failures.push(`external request: ${url.href}`);
@@ -253,8 +260,8 @@ if (
   throw new Error("Generation artifact does not match the requested release smoke case.");
 }
 if (
-  generation.executionBoundary?.shell !== "denied-by-pre-tool-use-hook" ||
-  generation.executionBoundary?.writes !== "apply-patch-only"
+  generation.executionBoundary?.shell !== "pre-tool-use-deny-configured" ||
+  generation.executionBoundary?.publication !== "allowlisted-source-only"
 ) {
   throw new Error("Generation artifact does not declare the required non-executable boundary.");
 }
@@ -289,40 +296,48 @@ if (
 }
 
 const sourceFiles = await copyReleaseSmokeSource(join(generationRoot, "source"), projectRoot);
-const contextResult = await run("npm", ["exec", "--", "drever", "context", "--json"]);
-const context = parseJsonOutput(contextResult.stdout, "drever context");
+const { build, check, context } = await runReleaseSmokeBuildInContainer({
+  projectRoot,
+  runnerPath: fileURLToPath(new URL("./isolated-build.mjs", import.meta.url)),
+});
 const { slideCount, speakerNoteCount } = assertReleaseSmokeContext(context);
 if (scenario.mode === "guided" && speakerNoteCount === 0) {
   throw new Error("The guided release smoke deck must include at least one speaker note.");
 }
-const checkResult = await run("npm", ["exec", "--", "drever", "check", "--json"]);
-const check = parseJsonOutput(checkResult.stdout, "drever check");
 if (check?.version !== 1 || check?.summary?.errors !== 0 || check.slideCount !== slideCount) {
   throw new Error("Drever check did not return a clean release smoke receipt.");
 }
-const buildResult = await run("npm", ["exec", "--", "drever", "build", "--json"]);
-const build = parseJsonOutput(buildResult.stdout, "drever build");
 const website = build?.artifacts?.find((artifact) => artifact.kind === "website");
 if (build?.version !== 1 || build.ok !== true || typeof website?.path !== "string") {
   throw new Error("Drever build did not return a website artifact.");
 }
+const websitePath = resolveIsolatedProjectPath(projectRoot, website.path);
+const buildOutput = await assertSafeReleaseSmokeBuildOutput(websitePath);
 const deckMount = releaseSmokeDeckMount(runId, scenarioId);
-const browser = await runBrowserSmoke(website.path, slideCount, deckMount);
+const browser = await runBrowserSmoke(websitePath, slideCount, deckMount);
+const publicReceipt = (value) =>
+  redactStructuredPaths(value, [
+    [projectRoot, "<project>"],
+    [workspaceRoot, "<workspace>"],
+    [generationRoot, "<generation>"],
+    [outputRoot, "<output>"],
+    ["/project", "<project>"],
+  ]);
 
 await Promise.all([
   mkdir(receiptsRoot, { recursive: true }),
-  cp(website.path, join(caseRoot, "deck"), { recursive: true }),
+  cp(websitePath, join(caseRoot, "deck"), { recursive: true }),
   cp(join(generationRoot, "source"), join(caseRoot, "source"), { recursive: true }),
   cp(join(generationRoot, "transcript.json"), join(caseRoot, "transcript.json")),
   cp(join(generationRoot, "generation.json"), join(caseRoot, "generation.json")),
   cp(join(generationRoot, "prompt.json"), join(caseRoot, "prompt.json")),
 ]);
 await Promise.all([
-  writeFile(join(receiptsRoot, "scaffold.json"), json(scaffold), "utf8"),
-  writeFile(join(receiptsRoot, "context.json"), json(context), "utf8"),
-  writeFile(join(receiptsRoot, "check.json"), json(check), "utf8"),
-  writeFile(join(receiptsRoot, "build.json"), json(build), "utf8"),
-  writeFile(join(receiptsRoot, "browser.json"), json(browser), "utf8"),
+  writeFile(join(receiptsRoot, "scaffold.json"), json(publicReceipt(scaffold)), "utf8"),
+  writeFile(join(receiptsRoot, "context.json"), json(publicReceipt(context)), "utf8"),
+  writeFile(join(receiptsRoot, "check.json"), json(publicReceipt(check)), "utf8"),
+  writeFile(join(receiptsRoot, "build.json"), json(publicReceipt(build)), "utf8"),
+  writeFile(join(receiptsRoot, "browser.json"), json(publicReceipt(browser)), "utf8"),
 ]);
 
 const basePath = `/release-smoke/runs/${runId}/${scenarioId}`;
@@ -346,9 +361,10 @@ await writeFile(
       `Authoring context reported ${slideCount} slides`,
       `Authoring context reported ${speakerNoteCount} speaker notes`,
       "Drever check passed without errors",
-      "Production website build completed",
+      `Production website build completed with ${buildOutput.files} bounded output files`,
       "Audience, document, and speaker browser smoke passed",
-      "Secret-bearing generation denied shell execution and allowed apply_patch only",
+      "Generated source executed as a non-root user in a no-network container without the repository or runner environment",
+      "Secret-bearing generation configured a shell-denial hook; only allowlisted authoring source was retained",
       `${sourceFiles.length} allowlisted source files crossed the secret boundary`,
     ],
     messages: transcript.messages,
