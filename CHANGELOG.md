@@ -37,6 +37,7 @@ section, while commit snapshots use the current Unreleased section.
   response to nearby sound.
 - Reworked the Feature Gallery chart chapter around one decision story so each chart form answers a
   distinct comparison, trend, ranking, or part-to-whole question.
+- Made website presentation briefs start empty, with broad examples shown only as placeholders.
 - Made post-publish verification exercise the public `npm create drever` command, dependency
   installation, validation, and build exactly as a new user would.
 

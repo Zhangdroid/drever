@@ -36,7 +36,7 @@ function DocsOverview() {
             See the one-step workflow <ArrowIcon />
           </Link>
         </div>
-        <AIHandoff defaultBrief="A concise proposal that helps our leadership team decide whether to fund the next phase." />
+        <AIHandoff placeholder="Help a group compare its options and agree on what to do next." />
       </section>
 
       <header className="docs-overview__reference">

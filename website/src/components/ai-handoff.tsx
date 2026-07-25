@@ -25,14 +25,14 @@ export function CopyAIHandoff({ brief = "", className }: { brief?: string; class
 }
 
 export function AIHandoff({
-  defaultBrief = "",
   heading = "What should this presentation help people understand, decide, or do?",
+  placeholder = "Help a team understand a new direction and decide what to do next.",
 }: {
-  defaultBrief?: string;
   heading?: string;
+  placeholder?: string;
 }) {
   const headingId = useId();
-  const [brief, setBrief] = useState(defaultBrief);
+  const [brief, setBrief] = useState("");
   const handoff = useMemo(() => handoffFor(brief), [brief]);
 
   return (
@@ -45,7 +45,7 @@ export function AIHandoff({
         <span>Presentation brief</span>
         <textarea
           onChange={(event) => setBrief(event.target.value)}
-          placeholder="A 10-minute presentation that helps design leaders decide whether to adopt our product."
+          placeholder={placeholder}
           rows={4}
           value={brief}
         />

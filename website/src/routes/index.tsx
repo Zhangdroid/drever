@@ -187,7 +187,7 @@ function HomePage() {
             Explore AI workflows <ArrowIcon />
           </Link>
         </div>
-        <AIHandoff defaultBrief="A 10-minute React 19 update for frontend teams. Draw its visual language from current official React sources, then deliver a live deck and PDF." />
+        <AIHandoff />
       </section>
     </main>
   );
