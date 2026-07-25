@@ -1,0 +1,14 @@
+{
+  "agentFiles": [],
+  "files": [
+    "package.json",
+    "README.md",
+    "brief.md",
+    "slides.mdx",
+    ".gitignore"
+  ],
+  "installed": true,
+  "packageManager": "npm",
+  "root": "<project>",
+  "version": 1
+}

@@ -1,0 +1,435 @@
+{
+  "version": 1,
+  "sourcePath": "<project>/slides.mdx",
+  "canvas": {
+    "width": 1600,
+    "height": 900
+  },
+  "deck": {
+    "version": 2,
+    "slides": [
+      {
+        "id": "slide-1",
+        "index": 0,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Timing: 45 seconds. Open with: “It is two weeks after launch. We missed the outcome, surprised users, or created an operational mess. What happened?” Pause long enough for the room to picture it.\n\nClarify that a pre-mortem is not pessimism and not a comprehensive risk register. The useful output is a decision: which three failure modes deserve scarce attention and named ownership before launch?",
+            "value": "**Timing: 45 seconds.** Open with: “It is two weeks after launch. We missed the outcome, surprised users, or created an operational mess. What happened?” Pause long enough for the room to picture it.\n\nClarify that a pre-mortem is not pessimism and not a comprehensive risk register. The useful output is a decision: which three failure modes deserve scarce attention and named ownership before launch?"
+          }
+        ],
+        "stepStops": [],
+        "title": "Imagine the launch failed.",
+        "source": [
+          {
+            "value": "<div className=\"launch-slide launch-hero\">\n  <div className=\"launch-hero__copy\">\n    <p className=\"launch-kicker\">Launch pre-mortem</p>\n    <h1>Imagine the launch failed.</h1>\n    <p className=\"launch-subtitle\">Not to predict the future. To find the few failures worth preventing now.</p>\n    <p className=\"launch-subtitle launch-hero__turn\">Work backward → leave with three owners.</p>\n  </div>\n  <div className=\"radar\" role=\"img\" aria-label=\"A calm risk radar showing three unresolved signals around a launch point\">\n    <span className=\"radar__center\" aria-hidden=\"true\"></span>\n    <span className=\"radar__pip radar__pip--one\" aria-hidden=\"true\"></span>\n    <span className=\"radar__pip radar__pip--two\" aria-hidden=\"true\"></span>\n    <span className=\"radar__pip radar__pip--three\" aria-hidden=\"true\"></span>\n  </div>\n</div>\n\n<Note>\n**Timing: 45 seconds.** Open with: “It is two weeks after launch. We missed the outcome, surprised users, or created an operational mess. What happened?” Pause long enough for the room to picture it.\n\nClarify that a pre-mortem is not pessimism and not a comprehensive risk register. The useful output is a decision: which three failure modes deserve scarce attention and named ownership before launch?\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 3,
+                "column": 1,
+                "offset": 29
+              },
+              "end": {
+                "line": 22,
+                "column": 8,
+                "offset": 1274
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-2",
+        "index": 1,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Timing: 1 minute 15 seconds. Advance once per phase. The sequence matters: private generation before group discussion prevents the loudest function from defining the risk landscape.\n\nFacilitation script: “For twenty minutes, we are not fixing everything. First we expose signals, then compress them, then choose, then assign.”\n\nKeep the timeboxes visible. If the group starts solving during writing or clustering, capture the proposed action off to the side and return to the current phase. The last three minutes are protected; do not let discussion consume ownership time.",
+            "value": "**Timing: 1 minute 15 seconds.** Advance once per phase. The sequence matters: private generation before group discussion prevents the loudest function from defining the risk landscape.\n\nFacilitation script: “For twenty minutes, we are not fixing everything. First we expose signals, then compress them, then choose, then assign.”\n\nKeep the timeboxes visible. If the group starts solving during writing or clustering, capture the proposed action off to the side and return to the current phase. The last three minutes are protected; do not let discussion consume ownership time."
+          }
+        ],
+        "stepStops": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "title": "Run it in 20 minutes",
+        "source": [
+          {
+            "value": "<div className=\"launch-slide protocol\">\n  <div className=\"protocol__header\">\n    <div>\n      <p className=\"launch-kicker\">One controlled sequence</p>\n      <h2>Run it in <span className=\"protocol__time\">20 minutes</span></h2>\n    </div>\n    <span className=\"launch-status launch-status--blue\">Premise set</span>\n  </div>\n  <div className=\"protocol__track\" aria-label=\"A 20-minute pre-mortem sequence\">\n    <div className=\"phase\">\n      <span className=\"phase__time\">2 min</span>\n      <span className=\"phase__name\">Frame</span>\n      <span className=\"phase__verb\">Assume failure</span>\n    </div>\n    <Step at={1}>\n      <div className=\"phase\">\n        <span className=\"phase__time\">5 min</span>\n        <span className=\"phase__name\">Write</span>\n        <span className=\"phase__verb\">Silent signals</span>\n      </div>\n    </Step>\n    <Step at={2}>\n      <div className=\"phase\">\n        <span className=\"phase__time\">5 min</span>\n        <span className=\"phase__name\">Cluster</span>\n        <span className=\"phase__verb\">Same failure, one label</span>\n      </div>\n    </Step>\n    <Step at={3}>\n      <div className=\"phase\">\n        <span className=\"phase__time\">5 min</span>\n        <span className=\"phase__name\">Choose</span>\n        <span className=\"phase__verb\">Two-pass filter</span>\n      </div>\n    </Step>\n    <Step at={4}>\n      <div className=\"phase phase--commit\">\n        <span className=\"phase__time\">3 min</span>\n        <span className=\"phase__name\">Own</span>\n        <span className=\"phase__verb\">Three contracts</span>\n      </div>\n    </Step>\n  </div>\n</div>\n\n<Note>\n**Timing: 1 minute 15 seconds.** Advance once per phase. The sequence matters: private generation before group discussion prevents the loudest function from defining the risk landscape.\n\nFacilitation script: “For twenty minutes, we are not fixing everything. First we expose signals, then compress them, then choose, then assign.”\n\nKeep the timeboxes visible. If the group starts solving during writing or clustering, capture the proposed action off to the side and return to the current phase. The last three minutes are protected; do not let discussion consume ownership time.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 26,
+                "column": 1,
+                "offset": 1281
+              },
+              "end": {
+                "line": 77,
+                "column": 8,
+                "offset": 3454
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-3",
+        "index": 2,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Timing: 1 minute 30 seconds. Read the prompts, then explain the writing standard. “Adoption might be bad” is a concern. “The target user cannot complete the first critical task” is observable failure evidence.\n\nAsk each person to write across functions, not only inside their discipline. Aim for roughly three to five notes per person. Anonymous notes are useful when hierarchy is strong.\n\nDuring clustering, participants silently move similar notes together first. Then the facilitator gives each cluster a short failure label that describes the outcome, not a root-cause theory. Keep genuinely distinct failure modes separate even if one mitigation could affect both.",
+            "value": "**Timing: 1 minute 30 seconds.** Read the prompts, then explain the writing standard. “Adoption might be bad” is a concern. “The target user cannot complete the first critical task” is observable failure evidence.\n\nAsk each person to write across functions, not only inside their discipline. Aim for roughly three to five notes per person. Anonymous notes are useful when hierarchy is strong.\n\nDuring clustering, participants silently move similar notes together first. Then the facilitator gives each cluster a short failure label that describes the outcome, not a root-cause theory. Keep genuinely distinct failure modes separate even if one mitigation could affect both."
+          }
+        ],
+        "stepStops": [],
+        "title": "Write failure evidence—not concerns.",
+        "source": [
+          {
+            "value": "<div className=\"launch-slide signals\">\n  <div>\n    <p className=\"launch-kicker\">Generate independently</p>\n    <h2>Write failure evidence—not concerns.</h2>\n    <p className=\"launch-subtitle\">One observable failure per note. Specific enough to cluster; broad enough to stay product-agnostic.</p>\n    <p className=\"signals__rule\"><strong>No debate.</strong> Silent writing gives product, design, and engineering equal bandwidth.</p>\n  </div>\n  <div className=\"prompt-field\" aria-label=\"Four prompts for generating launch failure evidence\">\n    <div className=\"prompt\">\n      <span className=\"prompt__number\">01 · Outcome</span>\n      <span className=\"prompt__question\">What important result did not happen?</span>\n    </div>\n    <div className=\"prompt\">\n      <span className=\"prompt__number\">02 · Customer</span>\n      <span className=\"prompt__question\">Where were people blocked, confused, or harmed?</span>\n    </div>\n    <div className=\"prompt\">\n      <span className=\"prompt__number\">03 · Signal</span>\n      <span className=\"prompt__question\">What did we learn too late?</span>\n    </div>\n    <div className=\"prompt\">\n      <span className=\"prompt__number\">04 · System</span>\n      <span className=\"prompt__question\">Which dependency or operation failed under launch conditions?</span>\n    </div>\n  </div>\n</div>\n\n<Note>\n**Timing: 1 minute 30 seconds.** Read the prompts, then explain the writing standard. “Adoption might be bad” is a concern. “The target user cannot complete the first critical task” is observable failure evidence.\n\nAsk each person to write across functions, not only inside their discipline. Aim for roughly three to five notes per person. Anonymous notes are useful when hierarchy is strong.\n\nDuring clustering, participants silently move similar notes together first. Then the facilitator gives each cluster a short failure label that describes the outcome, not a root-cause theory. Keep genuinely distinct failure modes separate even if one mitigation could affect both.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 81,
+                "column": 1,
+                "offset": 3461
+              },
+              "end": {
+                "line": 114,
+                "column": 8,
+                "offset": 5468
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-4",
+        "index": 3,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Timing: 2 minutes. This is the decision slide.\n\nPass 1: place clusters quickly using two questions: “If this happened, how much would it damage the launch outcome?” and “Given what we know today, how plausible is it?” Use relative placement, not invented numeric precision. The upper-right is the candidate set.\n\nAdvance for Pass 2. Ask of each candidate: “Can a named person materially change the likelihood, impact, or detection time before launch?” Actionability does not make a risk more important; it determines the response. If no, log it for monitoring or escalation rather than pretending an owner can control it.\n\nIf more than three remain, give each lead three votes, with no more than two votes on one risk. Resolve ties with the question: “Which risk becomes expensive fastest if we wait?” Cap the selection at three. The cap forces focus and makes ownership credible.",
+            "value": "**Timing: 2 minutes.** This is the decision slide.\n\nPass 1: place clusters quickly using two questions: “If this happened, how much would it damage the launch outcome?” and “Given what we know today, how plausible is it?” Use relative placement, not invented numeric precision. The upper-right is the candidate set.\n\nAdvance for Pass 2. Ask of each candidate: “Can a named person materially change the likelihood, impact, or detection time before launch?” Actionability does not make a risk more important; it determines the response. If no, log it for monitoring or escalation rather than pretending an owner can control it.\n\nIf more than three remain, give each lead three votes, with no more than two votes on one risk. Resolve ties with the question: “Which risk becomes expensive fastest if we wait?” Cap the selection at three. The cap forces focus and makes ownership credible."
+          }
+        ],
+        "stepStops": [
+          1
+        ],
+        "title": "Choose what matters—and can still change.",
+        "source": [
+          {
+            "value": "<div className=\"launch-slide triage\">\n  <div className=\"triage__main\">\n    <div>\n      <p className=\"launch-kicker\">Two-pass selection</p>\n      <h2>Choose what matters—and can still change.</h2>\n    </div>\n    <div className=\"matrix-wrap\">\n      <div className=\"matrix-y\">Launch damage →</div>\n      <div className=\"matrix\" aria-label=\"Risk matrix comparing launch damage and plausibility\">\n        <div className=\"matrix__cell\">High damage<br />Low plausibility</div>\n        <div className=\"matrix__cell matrix__cell--watch\">\n          <span>High damage<br />High plausibility</span>\n          <span className=\"matrix__tag\">Candidate zone</span>\n        </div>\n        <div className=\"matrix__cell\">Low damage<br />Low plausibility</div>\n        <div className=\"matrix__cell\">Low damage<br />High plausibility</div>\n      </div>\n      <div></div>\n      <div className=\"matrix-x\">Plausibility →</div>\n    </div>\n  </div>\n  <Step at={1}>\n    <aside className=\"gate\" aria-label=\"Final risk selection gate\">\n      <div>\n        <p className=\"launch-label\">Pass 2 · Actionability</p>\n        <p className=\"gate__question\">Can an owner materially change the outcome before launch?</p>\n        <div className=\"gate__no\">\n          <span>No</span>\n          <strong>Monitor or escalate</strong>\n        </div>\n      </div>\n      <div className=\"gate__yes\">\n        <span>Yes → rank, then cap</span>\n        <span className=\"gate__three\" aria-label=\"Choose three risks\">3</span>\n      </div>\n    </aside>\n  </Step>\n</div>\n\n<Note>\n**Timing: 2 minutes.** This is the decision slide.\n\nPass 1: place clusters quickly using two questions: “If this happened, how much would it damage the launch outcome?” and “Given what we know today, how plausible is it?” Use relative placement, not invented numeric precision. The upper-right is the candidate set.\n\nAdvance for Pass 2. Ask of each candidate: “Can a named person materially change the likelihood, impact, or detection time before launch?” Actionability does not make a risk more important; it determines the response. If no, log it for monitoring or escalation rather than pretending an owner can control it.\n\nIf more than three remain, give each lead three votes, with no more than two votes on one risk. Resolve ties with the question: “Which risk becomes expensive fastest if we wait?” Cap the selection at three. The cap forces focus and makes ownership credible.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 118,
+                "column": 1,
+                "offset": 5475
+              },
+              "end": {
+                "line": 165,
+                "column": 8,
+                "offset": 7891
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-5",
+        "index": 4,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Timing: 1 minute 30 seconds. Complete this contract three times, once for each selected risk.\n\nThe owner is not necessarily the person doing every task; they are accountable for driving the risk down or surfacing a decision. Use a person’s name, not “Engineering,” “Design,” or a committee.\n\nThe action must happen before launch and should change likelihood, impact, or detection time. The early signal needs a threshold, not “monitor metrics.” The revisit date is when the leads decide whether the current launch plan still holds.\n\nIf the group cannot name an action, the risk may be a monitoring item rather than an owned mitigation. If no one can own it, that is an escalation—not an empty field to fix later.",
+            "value": "**Timing: 1 minute 30 seconds.** Complete this contract three times, once for each selected risk.\n\nThe owner is not necessarily the person doing every task; they are accountable for driving the risk down or surfacing a decision. Use a person’s name, not “Engineering,” “Design,” or a committee.\n\nThe action must happen before launch and should change likelihood, impact, or detection time. The early signal needs a threshold, not “monitor metrics.” The revisit date is when the leads decide whether the current launch plan still holds.\n\nIf the group cannot name an action, the risk may be a monitoring item rather than an owned mitigation. If no one can own it, that is an escalation—not an empty field to fix later."
+          }
+        ],
+        "stepStops": [],
+        "title": "Turn each winner into a contract.",
+        "source": [
+          {
+            "value": "<div className=\"launch-slide contract-slide\">\n  <div className=\"contract-slide__header\">\n    <div>\n      <p className=\"launch-kicker\">Make ownership operational</p>\n      <h2>Turn each winner into a contract.</h2>\n    </div>\n    <span className=\"launch-status launch-status--ready\">3 slots only</span>\n  </div>\n  <div className=\"contract\" aria-label=\"Reusable owner contract for a selected launch risk\">\n    <div className=\"contract__risk\">\n      <p className=\"launch-label\">Risk statement</p>\n      <p className=\"contract__sentence\">If <span className=\"contract__blank\">failure mode</span>, then <span className=\"contract__blank\">launch outcome</span>.</p>\n      <span className=\"launch-status launch-status--ready\">Decision-ready</span>\n    </div>\n    <div className=\"contract__meta\">\n      <div className=\"contract__field\">\n        <span className=\"launch-label\">Owner</span>\n        <strong>One named person</strong>\n      </div>\n      <div className=\"contract__field\">\n        <span className=\"launch-label\">Before launch</span>\n        <strong>Next action + due date</strong>\n      </div>\n      <div className=\"contract__field\">\n        <span className=\"launch-label\">Early signal</span>\n        <strong>Threshold + revisit date</strong>\n      </div>\n    </div>\n  </div>\n</div>\n\n<Note>\n**Timing: 1 minute 30 seconds.** Complete this contract three times, once for each selected risk.\n\nThe owner is not necessarily the person doing every task; they are accountable for driving the risk down or surfacing a decision. Use a person’s name, not “Engineering,” “Design,” or a committee.\n\nThe action must happen before launch and should change likelihood, impact, or detection time. The early signal needs a threshold, not “monitor metrics.” The revisit date is when the leads decide whether the current launch plan still holds.\n\nIf the group cannot name an action, the risk may be a monitoring item rather than an owned mitigation. If no one can own it, that is an escalation—not an empty field to fix later.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 169,
+                "column": 1,
+                "offset": 7898
+              },
+              "end": {
+                "line": 208,
+                "column": 8,
+                "offset": 9914
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-6",
+        "index": 5,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Timing: 1 minute. Close by asking the leads to schedule the 20-minute session before the next irreversible launch decision.\n\nFinal line: “The pre-mortem is useful when it changes who does what before launch—not when it produces the longest list of things that could go wrong.”\n\nThe facilitator should send the three contracts immediately after the session and place the revisit date on the same calendar used for launch readiness. New risks can enter later only by displacing one of the three or through explicit escalation; this protects the focus the group just created.",
+            "value": "**Timing: 1 minute.** Close by asking the leads to schedule the 20-minute session before the next irreversible launch decision.\n\nFinal line: “The pre-mortem is useful when it changes who does what before launch—not when it produces the longest list of things that could go wrong.”\n\nThe facilitator should send the three contracts immediately after the session and place the revisit date on the same calendar used for launch readiness. New risks can enter later only by displacing one of the three or through explicit escalation; this protects the focus the group just created."
+          }
+        ],
+        "stepStops": [],
+        "title": "Stop when the room can say:",
+        "source": [
+          {
+            "value": "<div className=\"launch-slide close-slide\">\n  <div>\n    <p className=\"launch-kicker\">Exit criterion</p>\n    <h2>Stop when the room can say:</h2>\n  </div>\n  <div className=\"readout\" aria-label=\"The three outputs of a useful pre-mortem\">\n    <div className=\"readout__item\">\n      <span className=\"readout__number\">3</span>\n      <span className=\"readout__text\">risks we agree matter most</span>\n    </div>\n    <div className=\"readout__item readout__item--owners\">\n      <span className=\"readout__number\">3</span>\n      <span className=\"readout__text\">named owners taking action</span>\n    </div>\n    <div className=\"readout__item\">\n      <span className=\"readout__number\">1</span>\n      <span className=\"readout__text\">date to review the signals</span>\n    </div>\n  </div>\n  <div className=\"close-slide__footer\">\n    <span>Not a risk inventory.</span>\n    <strong>A launch decision with owners.</strong>\n  </div>\n</div>\n\n<Note>\n**Timing: 1 minute.** Close by asking the leads to schedule the 20-minute session before the next irreversible launch decision.\n\nFinal line: “The pre-mortem is useful when it changes who does what before launch—not when it produces the longest list of things that could go wrong.”\n\nThe facilitator should send the three contracts immediately after the session and place the revisit date on the same calendar used for launch readiness. New risks can enter later only by displacing one of the three or through explicit escalation; this protects the focus the group just created.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 212,
+                "column": 1,
+                "offset": 9921
+              },
+              "end": {
+                "line": 243,
+                "column": 8,
+                "offset": 11430
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "design": {
+    "theme": {
+      "id": "@drever/designs/basic",
+      "version": "0.2.3",
+      "tokens": {
+        "color": {
+          "canvas": "#f7f7f2",
+          "ink": "#171816",
+          "muted": "#62665f",
+          "accent": "#2855e7",
+          "accentStrong": "#1538a8",
+          "accentSoft": "#dce5ff",
+          "surface": "#ffffff",
+          "border": "#d9dcd4",
+          "codeCanvas": "#171a22",
+          "codeInk": "#f5f6f8"
+        },
+        "typography": {
+          "display": "ui-sans-serif, system-ui, sans-serif",
+          "body": "ui-sans-serif, system-ui, sans-serif",
+          "mono": "ui-monospace, SFMono-Regular, monospace",
+          "titleSize": 76,
+          "bodySize": 28
+        },
+        "space": {
+          "slideX": 112,
+          "slideY": 88,
+          "rhythm": 24
+        },
+        "shape": {
+          "radius": 24,
+          "borderWidth": 2
+        },
+        "motion": {
+          "duration": 380,
+          "easing": "cubic-bezier(0.22, 1, 0.36, 1)"
+        }
+      },
+      "manifest": {
+        "title": "Drever Basic",
+        "summary": "A neutral visual baseline with generous space, clear typography, and focused motion.",
+        "artDirection": {
+          "keywords": [
+            "neutral",
+            "clear",
+            "versatile",
+            "calm"
+          ],
+          "principles": [
+            "Give every slide one dominant idea",
+            "Use scale and space before decoration",
+            "Animate changes that clarify state or continuity",
+            "Prefer a meaningful visual over a longer list"
+          ],
+          "avoid": [
+            "Dense walls of text",
+            "More than two competing accent colors",
+            "Decorative animation without narrative purpose",
+            "Using a two-column layout when the ideas are unrelated"
+          ]
+        },
+        "choices": {
+          "tones": [
+            "light",
+            "dark",
+            "accent"
+          ],
+          "emphases": [
+            "typography",
+            "comparison",
+            "visual"
+          ],
+          "densities": [
+            "airy",
+            "balanced"
+          ]
+        }
+      },
+      "motion": {
+        "id": "basic",
+        "intents": [
+          "focus",
+          "replace",
+          "compare",
+          "stagger",
+          "continuity"
+        ],
+        "guidance": [
+          "Use focus to keep prior evidence visible while making the current Step unmistakable.",
+          "Use replace for one changing state, compare for cumulative evidence, and stagger for at most four tightly related items.",
+          "Set flow to block for a vertical reading sequence and inline for a horizontal process or comparison; leave it unset when neither axis explains the content.",
+          "Basic motion uses clean fades and short spatial travel, keeping the content more prominent than the choreography.",
+          "Reuse a continuity name only when the same visual object persists across adjacent slides."
+        ]
+      }
+    },
+    "layouts": [
+      {
+        "name": "Cover",
+        "description": "Open a presentation or major chapter with one concise title and restrained supporting context.",
+        "slots": [
+          {
+            "name": "eyebrow",
+            "purpose": "An optional short category, event, or chapter label.",
+            "accepts": [
+              "text"
+            ],
+            "maxItems": 1
+          },
+          {
+            "name": "title",
+            "purpose": "The single dominant statement for the slide.",
+            "accepts": [
+              "text"
+            ],
+            "required": true,
+            "maxItems": 1
+          },
+          {
+            "name": "supporting",
+            "purpose": "One short sentence that adds context without repeating the title.",
+            "accepts": [
+              "text"
+            ],
+            "maxItems": 1
+          },
+          {
+            "name": "footer",
+            "purpose": "Optional speaker, organization, date, or section metadata.",
+            "accepts": [
+              "text"
+            ],
+            "maxItems": 1
+          }
+        ],
+        "variants": [
+          "light",
+          "dark",
+          "accent"
+        ],
+        "constraints": {
+          "titleWords": {
+            "recommendedMaximum": 10
+          },
+          "supportingLines": {
+            "recommendedMaximum": 3
+          }
+        },
+        "example": "<Cover eyebrow=\"Quarterly planning\" title=\"Choose what happens next.\" supporting=\"The evidence, tradeoffs, and one decision the room can act on.\" tone=\"accent\" />"
+      },
+      {
+        "name": "TwoColumn",
+        "description": "Place two related ideas side by side when their relationship is more important than either idea alone.",
+        "slots": [
+          {
+            "name": "primary",
+            "purpose": "The first argument, explanation, or visual group.",
+            "accepts": [
+              "text",
+              "media",
+              "code",
+              "component"
+            ],
+            "required": true,
+            "maxItems": 1
+          },
+          {
+            "name": "secondary",
+            "purpose": "The comparison, consequence, or complementary visual group.",
+            "accepts": [
+              "text",
+              "media",
+              "code",
+              "component"
+            ],
+            "required": true,
+            "maxItems": 1
+          }
+        ],
+        "variants": [
+          "equal",
+          "wide-primary",
+          "wide-secondary"
+        ],
+        "constraints": {
+          "nestedColumns": false,
+          "recommendedMaximumWordsPerColumn": 45
+        },
+        "example": "<TwoColumn primary={<><h2>Before</h2><p>Static output</p></>} secondary={<><h2>After</h2><p>Living interface</p></>} />"
+      }
+    ],
+    "components": [],
+    "elements": []
+  },
+  "plugins": [
+    {
+      "id": "@drever/plugin-gfm",
+      "version": "0.2.3",
+      "origin": "default",
+      "config": {
+        "singleTilde": true
+      }
+    },
+    {
+      "id": "@drever/plugin-shiki",
+      "version": "0.2.3",
+      "origin": "default",
+      "config": {
+        "darkTheme": "github-dark",
+        "lightTheme": "github-light"
+      }
+    },
+    {
+      "id": "@drever/plugin-tailwindcss",
+      "version": "0.2.3",
+      "origin": "default"
+    }
+  ],
+  "preflight": {
+    "version": 1,
+    "sourcePath": "<project>/slides.mdx",
+    "slideCount": 6,
+    "summary": {
+      "errors": 0,
+      "warnings": 0,
+      "info": 0
+    },
+    "diagnostics": []
+  }
+}
