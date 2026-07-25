@@ -76,6 +76,33 @@ export const demoMounts = [
 export const designStudyMounts = [
   {
     description:
+      "A calm decision brief that turns a fragmented week into one bounded team experiment.",
+    id: "basic",
+    label: "Basic design study",
+    output: "dist/basic",
+    slug: "design/basic",
+    source: "theme-showcase",
+  },
+  {
+    description:
+      "An editorial civic-service story that follows one late-hour demand signal into a measured pilot.",
+    id: "editorial",
+    label: "Editorial design study",
+    output: "dist/editorial",
+    slug: "design/editorial",
+    source: "theme-showcase",
+  },
+  {
+    description:
+      "A technical trace that follows one slow request across system boundaries to a verified fix.",
+    id: "studio",
+    label: "Studio design study",
+    output: "dist/studio",
+    slug: "design/studio",
+    source: "theme-showcase",
+  },
+  {
+    description:
       "A research debrief that turns observed hesitation into a precise, annotated recommendation.",
     id: "fieldnote",
     label: "Fieldnote design study",

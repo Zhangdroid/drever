@@ -30,15 +30,18 @@ The curated set is:
 - `examples/architecture` at `/showcase/architecture/`
 - `examples/basic` at `/showcase/basic/`
 
-Five focused decks from `examples/theme-showcase` extend the design catalog:
+Eight focused decks from `examples/theme-showcase` form the design catalog:
 
+- Basic at `/showcase/design/basic/`
+- Editorial at `/showcase/design/editorial/`
+- Studio at `/showcase/design/studio/`
 - Fieldnote at `/showcase/design/fieldnote/`
 - Atlas at `/showcase/design/atlas/`
 - Ledger at `/showcase/design/ledger/`
 - Cinema at `/showcase/design/cinema/`
 - Construct at `/showcase/design/construct/`
 
-The theme-showcase project builds all five studies once and keeps their output
+The theme-showcase project builds all eight studies once and keeps their output
 isolated under `dist/<study>`. The website mounts those outputs independently
 without adding them to the main demo catalog.
 

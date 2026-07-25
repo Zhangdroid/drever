@@ -72,8 +72,8 @@ export const themes = [
       "A clear, adaptable system for everyday stories, product reviews, lessons, and proposals.",
     id: "basic",
     label: "Basic",
-    liveHref: "/showcase/basic/",
-    statement: "Clear, spacious, ready for almost any story.",
+    liveHref: "/showcase/design/basic/",
+    statement: "A quiet brief with one decision in view.",
     voice: "Direct · calm · versatile",
   },
   {
@@ -81,8 +81,8 @@ export const themes = [
       "Typographic pacing and warm editorial structure for narratives that need a point of view.",
     id: "editorial",
     label: "Editorial",
-    liveHref: "/showcase/product/",
-    statement: "A point of view, set in type.",
+    liveHref: "/showcase/design/editorial/",
+    statement: "Let evidence arrive at reading pace.",
     voice: "Measured · literary · assured",
   },
   {
@@ -90,8 +90,8 @@ export const themes = [
       "A precise dark canvas for systems, technical arguments, product architecture, and data.",
     id: "studio",
     label: "Studio",
-    liveHref: "/showcase/features/",
-    statement: "Let the artifact take the stage.",
+    liveHref: "/showcase/design/studio/",
+    statement: "Trace one signal until the cause is visible.",
     voice: "Technical · focused · exact",
   },
   {
