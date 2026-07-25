@@ -7,9 +7,9 @@
   "brief": "Codex chooses a useful presentation topic and makes the remaining narrative, visual, and motion decisions without further briefing.",
   "durationSeconds": 223,
   "deck": {
-    "audience": "https://automation-release-smoke-30170048518.drever-website.pages.dev/release-smoke/runs/30170048518/surprise-me/deck/",
-    "document": "https://automation-release-smoke-30170048518.drever-website.pages.dev/release-smoke/runs/30170048518/surprise-me/deck/document/",
-    "source": "https://automation-release-smoke-30170048518.drever-website.pages.dev/release-smoke/runs/30170048518/surprise-me/source/slides.mdx"
+    "audience": "https://cf8339b5.drever-website.pages.dev/release-smoke/runs/30170048518/surprise-me/deck/",
+    "document": "https://cf8339b5.drever-website.pages.dev/release-smoke/runs/30170048518/surprise-me/deck/document/",
+    "source": "https://cf8339b5.drever-website.pages.dev/release-smoke/runs/30170048518/surprise-me/source/slides.mdx"
   },
   "checks": [
     "Installed create-drever@0.2.2 and drever@0.2.2",
