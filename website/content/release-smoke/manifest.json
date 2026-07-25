@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "latestRunId": "preview-fixture",
+  "runs": [
+    {
+      "id": "preview-fixture",
+      "transcript": "preview-fixture.json"
+    }
+  ]
+}

@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from "./routes/index";
 import { Route as ChangelogRouteImport } from "./routes/changelog";
 import { Route as DemosRouteImport } from "./routes/demos";
 import { Route as DocsRouteImport } from "./routes/docs";
+import { Route as ReleaseSmokeRouteImport } from "./routes/release-smoke";
 import { Route as ShowcaseRouteImport } from "./routes/showcase";
 import { Route as ThemesRouteImport } from "./routes/themes";
 import { Route as DocsIndexRouteImport } from "./routes/docs.index";
@@ -45,6 +46,11 @@ const DemosRoute = DemosRouteImport.update({
 const DocsRoute = DocsRouteImport.update({
   id: "/docs",
   path: "/docs",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const ReleaseSmokeRoute = ReleaseSmokeRouteImport.update({
+  id: "/release-smoke",
+  path: "/release-smoke",
   getParentRoute: () => rootRouteImport,
 } as any);
 const ShowcaseRoute = ShowcaseRouteImport.update({
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   "/changelog": typeof ChangelogRoute;
   "/demos": typeof DemosRoute;
   "/docs": typeof DocsRouteWithChildren;
+  "/release-smoke": typeof ReleaseSmokeRoute;
   "/showcase": typeof ShowcaseRoute;
   "/themes": typeof ThemesRoute;
   "/docs/ai": typeof DocsAiRoute;
@@ -136,6 +143,7 @@ export interface FileRoutesByTo {
   "/": typeof IndexRoute;
   "/changelog": typeof ChangelogRoute;
   "/demos": typeof DemosRoute;
+  "/release-smoke": typeof ReleaseSmokeRoute;
   "/showcase": typeof ShowcaseRoute;
   "/themes": typeof ThemesRoute;
   "/docs/ai": typeof DocsAiRoute;
@@ -156,6 +164,7 @@ export interface FileRoutesById {
   "/changelog": typeof ChangelogRoute;
   "/demos": typeof DemosRoute;
   "/docs": typeof DocsRouteWithChildren;
+  "/release-smoke": typeof ReleaseSmokeRoute;
   "/showcase": typeof ShowcaseRoute;
   "/themes": typeof ThemesRoute;
   "/docs/ai": typeof DocsAiRoute;
@@ -177,6 +186,7 @@ export interface FileRouteTypes {
     | "/changelog"
     | "/demos"
     | "/docs"
+    | "/release-smoke"
     | "/showcase"
     | "/themes"
     | "/docs/ai"
@@ -195,6 +205,7 @@ export interface FileRouteTypes {
     | "/"
     | "/changelog"
     | "/demos"
+    | "/release-smoke"
     | "/showcase"
     | "/themes"
     | "/docs/ai"
@@ -214,6 +225,7 @@ export interface FileRouteTypes {
     | "/changelog"
     | "/demos"
     | "/docs"
+    | "/release-smoke"
     | "/showcase"
     | "/themes"
     | "/docs/ai"
@@ -234,6 +246,7 @@ export interface RootRouteChildren {
   ChangelogRoute: typeof ChangelogRoute;
   DemosRoute: typeof DemosRoute;
   DocsRoute: typeof DocsRouteWithChildren;
+  ReleaseSmokeRoute: typeof ReleaseSmokeRoute;
   ShowcaseRoute: typeof ShowcaseRoute;
   ThemesRoute: typeof ThemesRoute;
 }
@@ -266,6 +279,13 @@ declare module "@tanstack/react-router" {
       path: "/docs";
       fullPath: "/docs";
       preLoaderRoute: typeof DocsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/release-smoke": {
+      id: "/release-smoke";
+      path: "/release-smoke";
+      fullPath: "/release-smoke";
+      preLoaderRoute: typeof ReleaseSmokeRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/showcase": {
@@ -397,6 +417,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChangelogRoute: ChangelogRoute,
   DemosRoute: DemosRoute,
   DocsRoute: DocsRouteWithChildren,
+  ReleaseSmokeRoute: ReleaseSmokeRoute,
   ShowcaseRoute: ShowcaseRoute,
   ThemesRoute: ThemesRoute,
 };
