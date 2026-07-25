@@ -1,0 +1,236 @@
+import './design/theme.css'
+
+<section className="launch-slide">
+  <div className="title-grid">
+    <div>
+      <p className="eyebrow">Launch control · pre-mortem</p>
+      <h1>Fail safely <span className="accent">before</span> launch.</h1>
+      <p className="lede">Eight minutes to find the three risks that deserve owners.</p>
+    </div>
+    <div className="radar" role="img" aria-label="A calm radar display with three unresolved risk contacts">
+      <span className="contact contact--one" aria-hidden="true"></span>
+      <span className="contact contact--two" aria-hidden="true"></span>
+      <span className="contact contact--three" aria-hidden="true"></span>
+      <span className="radar-label">Scan question<br />What could make this launch fail?</span>
+    </div>
+  </div>
+</section>
+
+<Note>
+Open with the decision, not the ritual: “In eight minutes, we will leave with exactly three risks, each with one owner.” A pre-mortem is not a prediction and not a broad status review. It is a short way to make weak signals discussable before launch pressure makes them expensive.
+
+Set the tone: calm, specific, and blameless. The fictional event is only the failure frame; do not invent a fictional product or fill the room with hypothetical details.
+</Note>
+
+---
+
+<section className="launch-slide protocol-slide">
+  <div className="protocol-header">
+    <div>
+      <p className="eyebrow">Protocol · one facilitator · hard stops</p>
+      <h2>Eight minutes. One decision.</h2>
+    </div>
+    <div className="time-total" aria-label="Eight minutes total">08:00</div>
+  </div>
+
+  <div className="timeline" aria-label="Eight-minute pre-mortem sequence">
+    <div className="phase">
+      <strong>Frame failure</strong>
+      <span>00:00 · 1 min</span>
+    </div>
+    <div className="phase">
+      <strong>Write silently</strong>
+      <span>01:00 · 2 min</span>
+    </div>
+    <div className="phase">
+      <strong>Cluster + map</strong>
+      <span>03:00 · 2 min</span>
+    </div>
+    <div className="phase phase--decision">
+      <strong>Choose three</strong>
+      <span>05:00 · 2 min</span>
+    </div>
+    <div className="phase">
+      <strong>Assign owners</strong>
+      <span>07:00 · 1 min</span>
+    </div>
+  </div>
+</section>
+
+<Note>
+Start a visible timer. Keep each phase separate: generation first, judgment second, ownership last. If the group debates a solution during writing or clustering, park it beside the risk and move on.
+
+The final minute is protected. If earlier conversation runs long, shorten clustering—not ownership. A risk without an owner and a next move is only a worry.
+</Note>
+
+---
+
+<section className="launch-slide">
+  <div className="prompt-grid">
+    <div className="prompt-card">
+      <p className="eyebrow warning">Failure frame · 30 days later</p>
+      <h2>Write three ways it failed.</h2>
+      <blockquote>“The launch failed.”</blockquote>
+      <p>One plausible mechanism per note.</p>
+      <Step>
+        <div className="formula">
+          Because [condition], [failure] happened,<br />visible as [early signal].
+        </div>
+      </Step>
+    </div>
+
+    <div className="writing-rules" aria-label="Rules for silent risk writing">
+      <div className="rule-card">
+        <strong>Silent first</strong>
+        <span>Protect independent judgment.</span>
+      </div>
+      <div className="rule-card">
+        <strong>Specific</strong>
+        <span>Name a mechanism, not “execution.”</span>
+      </div>
+      <div className="rule-card">
+        <strong>Cross-functional</strong>
+        <span>Think value, reach, readiness, trust.</span>
+      </div>
+      <div className="rule-card">
+        <strong>Observable</strong>
+        <span>Add the earliest signal you could detect.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<Note>
+Read the frame once, then give the room silence. Ask each person for three short failure statements. Silent writing reduces anchoring by the most senior or fastest speaker.
+
+Advance once to reveal the sentence structure if the notes are vague. “Because a dependency had no rollback path, recovery stalled, visible as an unresolved rehearsal failure” is useful structure; keep any real content grounded in this launch.
+
+Do not organize by product, design, and engineering. That turns risks into territorial handoffs. Prompt across value, reach, readiness, and trust, then cluster by the failure mechanism the notes share.
+</Note>
+
+---
+
+<section className="launch-slide map-slide">
+  <div className="map-header">
+    <div>
+      <p className="eyebrow">Risk radar · shared coordinates</p>
+      <h2>Map before you rank.</h2>
+    </div>
+    <p className="lede">Merge duplicates. Keep the sharper wording.</p>
+  </div>
+
+  <div className="risk-map-wrap">
+    <div className="risk-map" role="img" aria-label="Two-by-two risk map. Launch impact increases upward and evidence of plausibility increases to the right. High-impact risks with stronger evidence are candidates to own now; high-impact risks with weaker evidence should receive a trigger to watch.">
+      <div className="map-zone map-zone--watch">Watch with a trigger</div>
+      <div className="map-zone map-zone--own">Own now</div>
+      <div className="map-zone">Defer</div>
+      <div className="map-zone">Contain cheaply</div>
+      <span className="axis-x">Evidence of plausibility →</span>
+      <span className="axis-y">Launch impact →</span>
+    </div>
+    <Step>
+      <div className="map-lock" aria-hidden="true"><span>Priority scan</span></div>
+    </Step>
+  </div>
+  <p className="map-caption">Position by evidence—not volume, certainty, or job title.</p>
+</section>
+
+<Note>
+Ask the group to cluster notes that describe the same failure mechanism. Read each cluster aloud in neutral language, then place it quickly on two axes: launch impact and evidence of plausibility.
+
+“Evidence” can be a dependency, prior incident, unresolved test, customer signal, or missing capability. The map is directional, not a scoring model. Spend seconds, not minutes, on exact placement.
+
+Once the clusters settle, advance once to lock the upper-right sector and shift the room from mapping to decision. High-impact items with stronger evidence become candidates for ownership. High-impact items with weak evidence may deserve a tripwire rather than immediate mitigation. This prevents a dramatic but ungrounded risk from crowding out a plausible one.
+</Note>
+
+---
+
+<section className="launch-slide choice-slide">
+  <div className="decision-grid">
+    <div>
+      <p className="eyebrow">Decision gate · 05:00</p>
+      <h2>Choose <span className="warning">exactly three.</span></h2>
+      <p className="lede">A risk earns an owner only if it passes all three gates.</p>
+      <div className="gates" aria-label="Three gates for selecting a launch risk">
+        <div className="gate"><b>01</b><span>Plausible before launch</span></div>
+        <div className="gate"><b>02</b><span>Material to the outcome</span></div>
+        <div className="gate"><b>03</b><span>Action or tripwire is possible</span></div>
+      </div>
+    </div>
+
+    <div className="commit-sequence" aria-label="Three-step decision sequence">
+      <Step>
+        <div className="commit-step">
+          <strong>Private vote</strong>
+          <span>Three dots each. One dot per risk.</span>
+        </div>
+      </Step>
+      <Step>
+        <div className="commit-step">
+          <strong>Tie-break</strong>
+          <span>Impact first, then harder to detect, then stronger evidence.</span>
+        </div>
+      </Step>
+      <Step>
+        <div className="commit-step">
+          <strong>Commit</strong>
+          <span>Stop at three. Name the rest as watch items.</span>
+        </div>
+      </Step>
+    </div>
+  </div>
+</section>
+
+<Note>
+Reveal the decision sequence one action at a time. First, each person votes privately with three dots and may place only one dot on a risk. Private voting prevents the first argument from setting the ranking.
+
+If the boundary around third place is tied, use the same order every time: greater impact, then harder-to-detect failure, then stronger evidence of plausibility. Do not split the difference by adding a fourth owner. The constraint is the value: it forces a portfolio decision the group can actually staff.
+
+Check the three gates before committing. If no action or observable tripwire can be named, rewrite the risk until it is operational—or move it to the watch list.
+</Note>
+
+---
+
+<section className="launch-slide ownership-slide">
+  <div>
+    <p className="eyebrow">Ownership contract · 07:00</p>
+    <h2>Turn three risks into three moves.</h2>
+  </div>
+
+  <div className="ownership-board" aria-label="Ownership board for the three selected risks">
+    <div className="ownership-row">
+      <span className="risk-number">01</span>
+      <span><small className="field-label">Risk</small><span className="field-value">Sharp failure statement</span></span>
+      <span><small className="field-label">Signal</small><span className="field-value">Earliest evidence</span></span>
+      <span><small className="field-label">Owner</small><span className="field-value">One person</span></span>
+      <span><small className="field-label">Next move</small><span className="field-value">Action + date</span></span>
+    </div>
+    <div className="ownership-row">
+      <span className="risk-number">02</span>
+      <span><small className="field-label">Risk</small><span className="field-value">Sharp failure statement</span></span>
+      <span><small className="field-label">Signal</small><span className="field-value">Earliest evidence</span></span>
+      <span><small className="field-label">Owner</small><span className="field-value">One person</span></span>
+      <span><small className="field-label">Next move</small><span className="field-value">Action + date</span></span>
+    </div>
+    <div className="ownership-row">
+      <span className="risk-number">03</span>
+      <span><small className="field-label">Risk</small><span className="field-value">Sharp failure statement</span></span>
+      <span><small className="field-label">Signal</small><span className="field-value">Earliest evidence</span></span>
+      <span><small className="field-label">Owner</small><span className="field-value">One person</span></span>
+      <span><small className="field-label">Next move</small><span className="field-value">Action + date</span></span>
+    </div>
+  </div>
+
+  <div className="closing-line">
+    <strong>No owner, no mitigation.</strong>
+    <span>Run the scan before launch</span>
+  </div>
+</section>
+
+<Note>
+For each of the three risks, capture four things: the sharp risk statement, the earliest observable signal, one accountable person, and the next move with a date. A team is not an owner. The owner coordinates; they do not have to do all the work.
+
+If mitigation is premature, record a tripwire and the decision it will trigger: “If signal X appears by date Y, we do Z.” Confirm each owner aloud before closing.
+
+End by repeating the reusable loop: frame failure, write independently, map together, choose three, assign one person to each. Schedule the next scan when the launch meaningfully changes—not merely because the calendar moved.
+</Note>

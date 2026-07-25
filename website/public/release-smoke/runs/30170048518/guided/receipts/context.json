@@ -1,0 +1,436 @@
+{
+  "version": 1,
+  "sourcePath": "<project>/slides.mdx",
+  "canvas": {
+    "width": 1600,
+    "height": 900
+  },
+  "deck": {
+    "version": 2,
+    "slides": [
+      {
+        "id": "slide-1",
+        "index": 0,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Open with the decision, not the ritual: “In eight minutes, we will leave with exactly three risks, each with one owner.” A pre-mortem is not a prediction and not a broad status review. It is a short way to make weak signals discussable before launch pressure makes them expensive.\n\nSet the tone: calm, specific, and blameless. The fictional event is only the failure frame; do not invent a fictional product or fill the room with hypothetical details.",
+            "value": "Open with the decision, not the ritual: “In eight minutes, we will leave with exactly three risks, each with one owner.” A pre-mortem is not a prediction and not a broad status review. It is a short way to make weak signals discussable before launch pressure makes them expensive.\n\nSet the tone: calm, specific, and blameless. The fictional event is only the failure frame; do not invent a fictional product or fill the room with hypothetical details."
+          }
+        ],
+        "stepStops": [],
+        "title": "Fail safely before launch.",
+        "source": [
+          {
+            "value": "<section className=\"launch-slide\">\n  <div className=\"title-grid\">\n    <div>\n      <p className=\"eyebrow\">Launch control · pre-mortem</p>\n      <h1>Fail safely <span className=\"accent\">before</span> launch.</h1>\n      <p className=\"lede\">Eight minutes to find the three risks that deserve owners.</p>\n    </div>\n    <div className=\"radar\" role=\"img\" aria-label=\"A calm radar display with three unresolved risk contacts\">\n      <span className=\"contact contact--one\" aria-hidden=\"true\"></span>\n      <span className=\"contact contact--two\" aria-hidden=\"true\"></span>\n      <span className=\"contact contact--three\" aria-hidden=\"true\"></span>\n      <span className=\"radar-label\">Scan question<br />What could make this launch fail?</span>\n    </div>\n  </div>\n</section>\n\n<Note>\nOpen with the decision, not the ritual: “In eight minutes, we will leave with exactly three risks, each with one owner.” A pre-mortem is not a prediction and not a broad status review. It is a short way to make weak signals discussable before launch pressure makes them expensive.\n\nSet the tone: calm, specific, and blameless. The fictional event is only the failure frame; do not invent a fictional product or fill the room with hypothetical details.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 3,
+                "column": 1,
+                "offset": 29
+              },
+              "end": {
+                "line": 23,
+                "column": 8,
+                "offset": 1261
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-2",
+        "index": 1,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Start a visible timer. Keep each phase separate: generation first, judgment second, ownership last. If the group debates a solution during writing or clustering, park it beside the risk and move on.\n\nThe final minute is protected. If earlier conversation runs long, shorten clustering—not ownership. A risk without an owner and a next move is only a worry.",
+            "value": "Start a visible timer. Keep each phase separate: generation first, judgment second, ownership last. If the group debates a solution during writing or clustering, park it beside the risk and move on.\n\nThe final minute is protected. If earlier conversation runs long, shorten clustering—not ownership. A risk without an owner and a next move is only a worry."
+          }
+        ],
+        "stepStops": [],
+        "title": "Eight minutes. One decision.",
+        "source": [
+          {
+            "value": "<section className=\"launch-slide protocol-slide\">\n  <div className=\"protocol-header\">\n    <div>\n      <p className=\"eyebrow\">Protocol · one facilitator · hard stops</p>\n      <h2>Eight minutes. One decision.</h2>\n    </div>\n    <div className=\"time-total\" aria-label=\"Eight minutes total\">08:00</div>\n  </div>\n\n  <div className=\"timeline\" aria-label=\"Eight-minute pre-mortem sequence\">\n    <div className=\"phase\">\n      <strong>Frame failure</strong>\n      <span>00:00 · 1 min</span>\n    </div>\n    <div className=\"phase\">\n      <strong>Write silently</strong>\n      <span>01:00 · 2 min</span>\n    </div>\n    <div className=\"phase\">\n      <strong>Cluster + map</strong>\n      <span>03:00 · 2 min</span>\n    </div>\n    <div className=\"phase phase--decision\">\n      <strong>Choose three</strong>\n      <span>05:00 · 2 min</span>\n    </div>\n    <div className=\"phase\">\n      <strong>Assign owners</strong>\n      <span>07:00 · 1 min</span>\n    </div>\n  </div>\n</section>\n\n<Note>\nStart a visible timer. Keep each phase separate: generation first, judgment second, ownership last. If the group debates a solution during writing or clustering, park it beside the risk and move on.\n\nThe final minute is protected. If earlier conversation runs long, shorten clustering—not ownership. A risk without an owner and a next move is only a worry.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 27,
+                "column": 1,
+                "offset": 1268
+              },
+              "end": {
+                "line": 64,
+                "column": 8,
+                "offset": 2607
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-3",
+        "index": 2,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Read the frame once, then give the room silence. Ask each person for three short failure statements. Silent writing reduces anchoring by the most senior or fastest speaker.\n\nAdvance once to reveal the sentence structure if the notes are vague. “Because a dependency had no rollback path, recovery stalled, visible as an unresolved rehearsal failure” is useful structure; keep any real content grounded in this launch.\n\nDo not organize by product, design, and engineering. That turns risks into territorial handoffs. Prompt across value, reach, readiness, and trust, then cluster by the failure mechanism the notes share.",
+            "value": "Read the frame once, then give the room silence. Ask each person for three short failure statements. Silent writing reduces anchoring by the most senior or fastest speaker.\n\nAdvance once to reveal the sentence structure if the notes are vague. “Because a dependency had no rollback path, recovery stalled, visible as an unresolved rehearsal failure” is useful structure; keep any real content grounded in this launch.\n\nDo not organize by product, design, and engineering. That turns risks into territorial handoffs. Prompt across value, reach, readiness, and trust, then cluster by the failure mechanism the notes share."
+          }
+        ],
+        "stepStops": [
+          1
+        ],
+        "title": "Write three ways it failed.",
+        "source": [
+          {
+            "value": "<section className=\"launch-slide\">\n  <div className=\"prompt-grid\">\n    <div className=\"prompt-card\">\n      <p className=\"eyebrow warning\">Failure frame · 30 days later</p>\n      <h2>Write three ways it failed.</h2>\n      <blockquote>“The launch failed.”</blockquote>\n      <p>One plausible mechanism per note.</p>\n      <Step>\n        <div className=\"formula\">\n          Because [condition], [failure] happened,<br />visible as [early signal].\n        </div>\n      </Step>\n    </div>\n\n    <div className=\"writing-rules\" aria-label=\"Rules for silent risk writing\">\n      <div className=\"rule-card\">\n        <strong>Silent first</strong>\n        <span>Protect independent judgment.</span>\n      </div>\n      <div className=\"rule-card\">\n        <strong>Specific</strong>\n        <span>Name a mechanism, not “execution.”</span>\n      </div>\n      <div className=\"rule-card\">\n        <strong>Cross-functional</strong>\n        <span>Think value, reach, readiness, trust.</span>\n      </div>\n      <div className=\"rule-card\">\n        <strong>Observable</strong>\n        <span>Add the earliest signal you could detect.</span>\n      </div>\n    </div>\n  </div>\n</section>\n\n<Note>\nRead the frame once, then give the room silence. Ask each person for three short failure statements. Silent writing reduces anchoring by the most senior or fastest speaker.\n\nAdvance once to reveal the sentence structure if the notes are vague. “Because a dependency had no rollback path, recovery stalled, visible as an unresolved rehearsal failure” is useful structure; keep any real content grounded in this launch.\n\nDo not organize by product, design, and engineering. That turns risks into territorial handoffs. Prompt across value, reach, readiness, and trust, then cluster by the failure mechanism the notes share.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 68,
+                "column": 1,
+                "offset": 2614
+              },
+              "end": {
+                "line": 109,
+                "column": 8,
+                "offset": 4412
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-4",
+        "index": 3,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Ask the group to cluster notes that describe the same failure mechanism. Read each cluster aloud in neutral language, then place it quickly on two axes: launch impact and evidence of plausibility.\n\n“Evidence” can be a dependency, prior incident, unresolved test, customer signal, or missing capability. The map is directional, not a scoring model. Spend seconds, not minutes, on exact placement.\n\nOnce the clusters settle, advance once to lock the upper-right sector and shift the room from mapping to decision. High-impact items with stronger evidence become candidates for ownership. High-impact items with weak evidence may deserve a tripwire rather than immediate mitigation. This prevents a dramatic but ungrounded risk from crowding out a plausible one.",
+            "value": "Ask the group to cluster notes that describe the same failure mechanism. Read each cluster aloud in neutral language, then place it quickly on two axes: launch impact and evidence of plausibility.\n\n“Evidence” can be a dependency, prior incident, unresolved test, customer signal, or missing capability. The map is directional, not a scoring model. Spend seconds, not minutes, on exact placement.\n\nOnce the clusters settle, advance once to lock the upper-right sector and shift the room from mapping to decision. High-impact items with stronger evidence become candidates for ownership. High-impact items with weak evidence may deserve a tripwire rather than immediate mitigation. This prevents a dramatic but ungrounded risk from crowding out a plausible one."
+          }
+        ],
+        "stepStops": [
+          1
+        ],
+        "title": "Map before you rank.",
+        "source": [
+          {
+            "value": "<section className=\"launch-slide map-slide\">\n  <div className=\"map-header\">\n    <div>\n      <p className=\"eyebrow\">Risk radar · shared coordinates</p>\n      <h2>Map before you rank.</h2>\n    </div>\n    <p className=\"lede\">Merge duplicates. Keep the sharper wording.</p>\n  </div>\n\n  <div className=\"risk-map-wrap\">\n    <div className=\"risk-map\" role=\"img\" aria-label=\"Two-by-two risk map. Launch impact increases upward and evidence of plausibility increases to the right. High-impact risks with stronger evidence are candidates to own now; high-impact risks with weaker evidence should receive a trigger to watch.\">\n      <div className=\"map-zone map-zone--watch\">Watch with a trigger</div>\n      <div className=\"map-zone map-zone--own\">Own now</div>\n      <div className=\"map-zone\">Defer</div>\n      <div className=\"map-zone\">Contain cheaply</div>\n      <span className=\"axis-x\">Evidence of plausibility →</span>\n      <span className=\"axis-y\">Launch impact →</span>\n    </div>\n    <Step>\n      <div className=\"map-lock\" aria-hidden=\"true\"><span>Priority scan</span></div>\n    </Step>\n  </div>\n  <p className=\"map-caption\">Position by evidence—not volume, certainty, or job title.</p>\n</section>\n\n<Note>\nAsk the group to cluster notes that describe the same failure mechanism. Read each cluster aloud in neutral language, then place it quickly on two axes: launch impact and evidence of plausibility.\n\n“Evidence” can be a dependency, prior incident, unresolved test, customer signal, or missing capability. The map is directional, not a scoring model. Spend seconds, not minutes, on exact placement.\n\nOnce the clusters settle, advance once to lock the upper-right sector and shift the room from mapping to decision. High-impact items with stronger evidence become candidates for ownership. High-impact items with weak evidence may deserve a tripwire rather than immediate mitigation. This prevents a dramatic but ungrounded risk from crowding out a plausible one.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 113,
+                "column": 1,
+                "offset": 4419
+              },
+              "end": {
+                "line": 144,
+                "column": 8,
+                "offset": 6391
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-5",
+        "index": 4,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Reveal the decision sequence one action at a time. First, each person votes privately with three dots and may place only one dot on a risk. Private voting prevents the first argument from setting the ranking.\n\nIf the boundary around third place is tied, use the same order every time: greater impact, then harder-to-detect failure, then stronger evidence of plausibility. Do not split the difference by adding a fourth owner. The constraint is the value: it forces a portfolio decision the group can actually staff.\n\nCheck the three gates before committing. If no action or observable tripwire can be named, rewrite the risk until it is operational—or move it to the watch list.",
+            "value": "Reveal the decision sequence one action at a time. First, each person votes privately with three dots and may place only one dot on a risk. Private voting prevents the first argument from setting the ranking.\n\nIf the boundary around third place is tied, use the same order every time: greater impact, then harder-to-detect failure, then stronger evidence of plausibility. Do not split the difference by adding a fourth owner. The constraint is the value: it forces a portfolio decision the group can actually staff.\n\nCheck the three gates before committing. If no action or observable tripwire can be named, rewrite the risk until it is operational—or move it to the watch list."
+          }
+        ],
+        "stepStops": [
+          1,
+          2,
+          3
+        ],
+        "title": "Choose exactly three.",
+        "source": [
+          {
+            "value": "<section className=\"launch-slide choice-slide\">\n  <div className=\"decision-grid\">\n    <div>\n      <p className=\"eyebrow\">Decision gate · 05:00</p>\n      <h2>Choose <span className=\"warning\">exactly three.</span></h2>\n      <p className=\"lede\">A risk earns an owner only if it passes all three gates.</p>\n      <div className=\"gates\" aria-label=\"Three gates for selecting a launch risk\">\n        <div className=\"gate\"><b>01</b><span>Plausible before launch</span></div>\n        <div className=\"gate\"><b>02</b><span>Material to the outcome</span></div>\n        <div className=\"gate\"><b>03</b><span>Action or tripwire is possible</span></div>\n      </div>\n    </div>\n\n    <div className=\"commit-sequence\" aria-label=\"Three-step decision sequence\">\n      <Step>\n        <div className=\"commit-step\">\n          <strong>Private vote</strong>\n          <span>Three dots each. One dot per risk.</span>\n        </div>\n      </Step>\n      <Step>\n        <div className=\"commit-step\">\n          <strong>Tie-break</strong>\n          <span>Impact first, then harder to detect, then stronger evidence.</span>\n        </div>\n      </Step>\n      <Step>\n        <div className=\"commit-step\">\n          <strong>Commit</strong>\n          <span>Stop at three. Name the rest as watch items.</span>\n        </div>\n      </Step>\n    </div>\n  </div>\n</section>\n\n<Note>\nReveal the decision sequence one action at a time. First, each person votes privately with three dots and may place only one dot on a risk. Private voting prevents the first argument from setting the ranking.\n\nIf the boundary around third place is tied, use the same order every time: greater impact, then harder-to-detect failure, then stronger evidence of plausibility. Do not split the difference by adding a fourth owner. The constraint is the value: it forces a portfolio decision the group can actually staff.\n\nCheck the three gates before committing. If no action or observable tripwire can be named, rewrite the risk until it is operational—or move it to the watch list.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 148,
+                "column": 1,
+                "offset": 6398
+              },
+              "end": {
+                "line": 190,
+                "column": 8,
+                "offset": 8429
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-6",
+        "index": 5,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "For each of the three risks, capture four things: the sharp risk statement, the earliest observable signal, one accountable person, and the next move with a date. A team is not an owner. The owner coordinates; they do not have to do all the work.\n\nIf mitigation is premature, record a tripwire and the decision it will trigger: “If signal X appears by date Y, we do Z.” Confirm each owner aloud before closing.\n\nEnd by repeating the reusable loop: frame failure, write independently, map together, choose three, assign one person to each. Schedule the next scan when the launch meaningfully changes—not merely because the calendar moved.",
+            "value": "For each of the three risks, capture four things: the sharp risk statement, the earliest observable signal, one accountable person, and the next move with a date. A team is not an owner. The owner coordinates; they do not have to do all the work.\n\nIf mitigation is premature, record a tripwire and the decision it will trigger: “If signal X appears by date Y, we do Z.” Confirm each owner aloud before closing.\n\nEnd by repeating the reusable loop: frame failure, write independently, map together, choose three, assign one person to each. Schedule the next scan when the launch meaningfully changes—not merely because the calendar moved."
+          }
+        ],
+        "stepStops": [],
+        "title": "Turn three risks into three moves.",
+        "source": [
+          {
+            "value": "<section className=\"launch-slide ownership-slide\">\n  <div>\n    <p className=\"eyebrow\">Ownership contract · 07:00</p>\n    <h2>Turn three risks into three moves.</h2>\n  </div>\n\n  <div className=\"ownership-board\" aria-label=\"Ownership board for the three selected risks\">\n    <div className=\"ownership-row\">\n      <span className=\"risk-number\">01</span>\n      <span><small className=\"field-label\">Risk</small><span className=\"field-value\">Sharp failure statement</span></span>\n      <span><small className=\"field-label\">Signal</small><span className=\"field-value\">Earliest evidence</span></span>\n      <span><small className=\"field-label\">Owner</small><span className=\"field-value\">One person</span></span>\n      <span><small className=\"field-label\">Next move</small><span className=\"field-value\">Action + date</span></span>\n    </div>\n    <div className=\"ownership-row\">\n      <span className=\"risk-number\">02</span>\n      <span><small className=\"field-label\">Risk</small><span className=\"field-value\">Sharp failure statement</span></span>\n      <span><small className=\"field-label\">Signal</small><span className=\"field-value\">Earliest evidence</span></span>\n      <span><small className=\"field-label\">Owner</small><span className=\"field-value\">One person</span></span>\n      <span><small className=\"field-label\">Next move</small><span className=\"field-value\">Action + date</span></span>\n    </div>\n    <div className=\"ownership-row\">\n      <span className=\"risk-number\">03</span>\n      <span><small className=\"field-label\">Risk</small><span className=\"field-value\">Sharp failure statement</span></span>\n      <span><small className=\"field-label\">Signal</small><span className=\"field-value\">Earliest evidence</span></span>\n      <span><small className=\"field-label\">Owner</small><span className=\"field-value\">One person</span></span>\n      <span><small className=\"field-label\">Next move</small><span className=\"field-value\">Action + date</span></span>\n    </div>\n  </div>\n\n  <div className=\"closing-line\">\n    <strong>No owner, no mitigation.</strong>\n    <span>Run the scan before launch</span>\n  </div>\n</section>\n\n<Note>\nFor each of the three risks, capture four things: the sharp risk statement, the earliest observable signal, one accountable person, and the next move with a date. A team is not an owner. The owner coordinates; they do not have to do all the work.\n\nIf mitigation is premature, record a tripwire and the decision it will trigger: “If signal X appears by date Y, we do Z.” Confirm each owner aloud before closing.\n\nEnd by repeating the reusable loop: frame failure, write independently, map together, choose three, assign one person to each. Schedule the next scan when the launch meaningfully changes—not merely because the calendar moved.\n</Note>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 194,
+                "column": 1,
+                "offset": 8436
+              },
+              "end": {
+                "line": 236,
+                "column": 8,
+                "offset": 11203
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "design": {
+    "theme": {
+      "id": "@drever/designs/basic",
+      "version": "0.2.2",
+      "tokens": {
+        "color": {
+          "canvas": "#f7f7f2",
+          "ink": "#171816",
+          "muted": "#62665f",
+          "accent": "#2855e7",
+          "accentStrong": "#1538a8",
+          "accentSoft": "#dce5ff",
+          "surface": "#ffffff",
+          "border": "#d9dcd4",
+          "codeCanvas": "#171a22",
+          "codeInk": "#f5f6f8"
+        },
+        "typography": {
+          "display": "ui-sans-serif, system-ui, sans-serif",
+          "body": "ui-sans-serif, system-ui, sans-serif",
+          "mono": "ui-monospace, SFMono-Regular, monospace",
+          "titleSize": 76,
+          "bodySize": 28
+        },
+        "space": {
+          "slideX": 112,
+          "slideY": 88,
+          "rhythm": 24
+        },
+        "shape": {
+          "radius": 24,
+          "borderWidth": 2
+        },
+        "motion": {
+          "duration": 380,
+          "easing": "cubic-bezier(0.22, 1, 0.36, 1)"
+        }
+      },
+      "manifest": {
+        "title": "Drever Basic",
+        "summary": "A neutral visual baseline with generous space, clear typography, and focused motion.",
+        "artDirection": {
+          "keywords": [
+            "neutral",
+            "clear",
+            "versatile",
+            "calm"
+          ],
+          "principles": [
+            "Give every slide one dominant idea",
+            "Use scale and space before decoration",
+            "Animate changes that clarify state or continuity",
+            "Prefer a meaningful visual over a longer list"
+          ],
+          "avoid": [
+            "Dense walls of text",
+            "More than two competing accent colors",
+            "Decorative animation without narrative purpose",
+            "Using a two-column layout when the ideas are unrelated"
+          ]
+        },
+        "choices": {
+          "tones": [
+            "light",
+            "dark",
+            "accent"
+          ],
+          "emphases": [
+            "typography",
+            "comparison",
+            "visual"
+          ],
+          "densities": [
+            "airy",
+            "balanced"
+          ]
+        }
+      },
+      "motion": {
+        "id": "basic",
+        "intents": [
+          "focus",
+          "replace",
+          "compare",
+          "stagger",
+          "continuity"
+        ],
+        "guidance": [
+          "Use focus to keep prior evidence visible while making the current Step unmistakable.",
+          "Use replace for one changing state, compare for cumulative evidence, and stagger for at most four tightly related items.",
+          "Set flow to block for a vertical reading sequence and inline for a horizontal process or comparison; leave it unset when neither axis explains the content.",
+          "Basic motion uses clean fades and short spatial travel, keeping the content more prominent than the choreography.",
+          "Reuse a continuity name only when the same visual object persists across adjacent slides."
+        ]
+      }
+    },
+    "layouts": [
+      {
+        "name": "Cover",
+        "description": "Open a presentation or major chapter with one concise title and restrained supporting context.",
+        "slots": [
+          {
+            "name": "eyebrow",
+            "purpose": "An optional short category, event, or chapter label.",
+            "accepts": [
+              "text"
+            ],
+            "maxItems": 1
+          },
+          {
+            "name": "title",
+            "purpose": "The single dominant statement for the slide.",
+            "accepts": [
+              "text"
+            ],
+            "required": true,
+            "maxItems": 1
+          },
+          {
+            "name": "supporting",
+            "purpose": "One short sentence that adds context without repeating the title.",
+            "accepts": [
+              "text"
+            ],
+            "maxItems": 1
+          },
+          {
+            "name": "footer",
+            "purpose": "Optional speaker, organization, date, or section metadata.",
+            "accepts": [
+              "text"
+            ],
+            "maxItems": 1
+          }
+        ],
+        "variants": [
+          "light",
+          "dark",
+          "accent"
+        ],
+        "constraints": {
+          "titleWords": {
+            "recommendedMaximum": 10
+          },
+          "supportingLines": {
+            "recommendedMaximum": 3
+          }
+        },
+        "example": "<Cover eyebrow=\"Drever\" title=\"Presentations can be software.\" supporting=\"Interactive, testable, and ready to ship.\" tone=\"accent\" />"
+      },
+      {
+        "name": "TwoColumn",
+        "description": "Place two related ideas side by side when their relationship is more important than either idea alone.",
+        "slots": [
+          {
+            "name": "primary",
+            "purpose": "The first argument, explanation, or visual group.",
+            "accepts": [
+              "text",
+              "media",
+              "code",
+              "component"
+            ],
+            "required": true,
+            "maxItems": 1
+          },
+          {
+            "name": "secondary",
+            "purpose": "The comparison, consequence, or complementary visual group.",
+            "accepts": [
+              "text",
+              "media",
+              "code",
+              "component"
+            ],
+            "required": true,
+            "maxItems": 1
+          }
+        ],
+        "variants": [
+          "equal",
+          "wide-primary",
+          "wide-secondary"
+        ],
+        "constraints": {
+          "nestedColumns": false,
+          "recommendedMaximumWordsPerColumn": 45
+        },
+        "example": "<TwoColumn primary={<><h2>Before</h2><p>Static output</p></>} secondary={<><h2>After</h2><p>Living interface</p></>} />"
+      }
+    ],
+    "components": [],
+    "elements": []
+  },
+  "plugins": [
+    {
+      "id": "@drever/plugin-gfm",
+      "version": "0.2.2",
+      "origin": "default",
+      "config": {
+        "singleTilde": true
+      }
+    },
+    {
+      "id": "@drever/plugin-shiki",
+      "version": "0.2.2",
+      "origin": "default",
+      "config": {
+        "darkTheme": "github-dark",
+        "lightTheme": "github-light"
+      }
+    },
+    {
+      "id": "@drever/plugin-tailwindcss",
+      "version": "0.2.2",
+      "origin": "default"
+    }
+  ],
+  "preflight": {
+    "version": 1,
+    "sourcePath": "<project>/slides.mdx",
+    "slideCount": 6,
+    "summary": {
+      "errors": 0,
+      "warnings": 0,
+      "info": 0
+    },
+    "diagnostics": []
+  }
+}
