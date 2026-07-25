@@ -45,6 +45,7 @@ Author with these rules:
 - Prefer Markdown and documented theme layouts over custom markup.
 - Author code examples as fenced code blocks with an explicit language or through a documented highlighted code component. Never hand-build an unhighlighted `<pre>` for showcase code. Verify that multiple token classes are visibly distinct in the rendered deck and remain readable against the subject-led palette.
 - Keep titles concise and remove prose that does not support the slide's claim.
+- Break display headings at semantic boundaries: keep short clauses and verb phrases intact before balancing line lengths, and verify authored breaks at the canvas and responsive widths.
 - Pair a text-heavy narrative region with a primarily visual supporting region: a diagram, artifact, media frame, data mark, spatial form, or quiet subject-led abstraction. Do not put another prose-heavy panel beside it; keep supporting text to functional labels or captions unless comparing the texts is the claim.
 - Use static `Step` elements only for meaningful progressive disclosure. Use positive integer `at` values only for intentional sparse stops.
 - Use motion only to explain focus, order, replacement, comparison, continuity, or a real Stage state change. Match its direction to the content flow and its visual voice to the theme. A sparse draw-on emphasis, signal travel, or small Stage shift may add quiet contextual delight; repeated generic entrances may not.

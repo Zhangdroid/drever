@@ -175,8 +175,10 @@ function HomePage() {
       <section className="home-source">
         <div className="home-source__copy">
           <span>One story, made once</span>
-          <h2>
-            Write clearly. Keep everything else <span>connected.</span>
+          <h2 className="home-source__title">
+            <span className="home-source__title-line">Write clearly.</span>
+            <span className="home-source__title-line">Keep everything else</span>
+            <span className="home-source__title-accent">connected.</span>
           </h2>
           <p>
             Your content, interactions, speaker notes, theme, and motion live together. AI can work

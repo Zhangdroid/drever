@@ -27,7 +27,11 @@ function DocsOverview() {
       <section className="docs-overview__start">
         <div>
           <span>Start with AI</span>
-          <h2>Tell your agent what the presentation must achieve.</h2>
+          <h2 className="docs-overview__start-heading">
+            <span>Tell your agent</span>
+            <span>what the presentation</span>
+            <span>must achieve.</span>
+          </h2>
           <p>
             One handoff gives Codex or Claude Code the setup instructions and a clear definition of
             done. The generated project supplies the version-matched contract.
@@ -74,7 +78,10 @@ function DocsOverview() {
 
       <section className="docs-overview__ai" data-header-tone="dark">
         <span>Working with AI</span>
-        <h2>One prompt starts the work. Project-local skills carry the contract.</h2>
+        <h2 className="docs-overview__ai-heading">
+          <span>One prompt starts the work.</span>
+          <span>Project-local skills carry the contract.</span>
+        </h2>
         <p>
           Versioned project skills, exact source context, stable JSON diagnostics, and optional
           read-only MCP keep every change visible in normal files and Git.

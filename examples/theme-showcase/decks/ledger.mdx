@@ -1,4 +1,5 @@
 import "../../showcase-return.css";
+import "../components/ledger-decision.css";
 
 <Metric
   label="Illustrative activation rate"
@@ -19,8 +20,17 @@ import "../../showcase-return.css";
 ---
 
 <Evidence
+  className="ledger-cohort-evidence"
   label="Illustrative cohort audit / 02"
-  claim="The gain comes from guided setup—not easier traffic."
+  claim={
+    <>
+      <span>The gain comes from</span>
+      <br />
+      <span>guided setup—</span>
+      <br />
+      <span>not easier traffic.</span>
+    </>
+  }
   interpretation={
     <p>
       Guided accounts improved across every acquisition source while the control remained inside its
@@ -70,7 +80,7 @@ import "../../showcase-return.css";
 
 ---
 
-## Illustrative decision: make guided setup the default.
+## Illustrative decision:<br />make guided setup<br />the default.
 
 <MotionGroup flow="block" intent="focus">
   <Step at={1}>

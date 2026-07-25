@@ -25,6 +25,11 @@
   font-family: var(--drever-brand-font-family-display);
 }
 
+[data-drever-slide] .gallery-opening-statement .drever-studio-statement__title {
+  max-width: 18ch;
+  font-size: 82px;
+}
+
 [data-drever-slide] > h2 {
   max-width: 17ch;
   font-size: 68px;

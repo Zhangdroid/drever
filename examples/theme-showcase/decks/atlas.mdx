@@ -19,8 +19,15 @@ import "../components/atlas-decision.css";
 ---
 
 <Survey
+  className="atlas-thermal-survey"
   label="Illustrative thermal survey / August"
-  title="One exposed bend breaks the cold corridor."
+  title={
+    <>
+      <span>One exposed bend</span>
+      <br />
+      <span>breaks the cold corridor.</span>
+    </>
+  }
   finding={
     <p>Water warms 3.8 °C between stations B and C, where the channel loses canopy for 1.2 km.</p>
   }

@@ -58,6 +58,10 @@
   scroll-margin-top: 6rem;
 }
 
+.showcase-page .page-hero h1 {
+  max-width: 14ch;
+}
+
 .showcase-section__heading {
   display: grid;
   max-width: var(--site-max);

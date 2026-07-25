@@ -140,7 +140,10 @@ export function SiteFooter() {
       <div className="site-footer__primary">
         <div className="site-footer__lead">
           <img alt="Drever" src={lockupDarkHref} />
-          <p>Clear ideas. Expressive slides. One editable source.</p>
+          <p>
+            <span>Clear ideas.</span> <span>Expressive slides.</span>{" "}
+            <span>One editable source.</span>
+          </p>
         </div>
 
         <div className="site-footer__links">

@@ -1,0 +1,7 @@
+.ledger-cohort-evidence {
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+}
+
+[data-drever-slide] .ledger-cohort-evidence .drever-ledger-evidence__claim {
+  max-width: 16ch;
+}
