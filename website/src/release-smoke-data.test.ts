@@ -61,11 +61,16 @@ const manifestSource = {
 };
 
 describe("release smoke data", () => {
-  it("loads the checked-in real preview without substituting showcase fixtures", () => {
-    expect(releaseSmokeData.latest?.id).toBe("2026072501");
-    expect(releaseSmokeData.latest?.kind).toBe("preview");
-    expect(releaseSmokeData.latest?.cases.map(({ id }) => id)).toEqual(["surprise-me", "guided"]);
-    expect(releaseSmokeData.latest?.cases.every(({ status }) => status === "passed")).toBe(true);
+  it("loads the selected real run without substituting showcase fixtures", () => {
+    const latest = releaseSmokeData.latest;
+
+    if (latest === null) throw new Error("Expected checked-in release smoke evidence.");
+    expect(releaseSmokeData.runs.some(({ id }) => id === latest.id)).toBe(true);
+    expect(latest.cases.map(({ id }) => id)).toEqual(["surprise-me", "guided"]);
+    expect(latest.cases.every(({ status }) => status === "passed")).toBe(true);
+    expect(
+      latest.cases.every(({ deck }) => deck.audience.includes(`/release-smoke/runs/${latest.id}/`)),
+    ).toBe(true);
   });
 
   it("presents sanitized transcript Markdown as readable plain text", () => {
