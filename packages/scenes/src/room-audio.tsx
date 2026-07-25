@@ -31,6 +31,16 @@ type RoomAudioSignal = RoomAudioBands &
     level: number;
   }>;
 
+type RoomAudioRange = Readonly<{
+  ceiling: number;
+  floor: number;
+}>;
+
+type RoomAudioFrame = Readonly<{
+  range: RoomAudioRange;
+  signal: RoomAudioSignal;
+}>;
+
 type RoomAudioPhase = "active" | "idle" | "requesting";
 
 type RoomAudioGraph = {
@@ -38,6 +48,8 @@ type RoomAudioGraph = {
   context: AudioContext;
   data: Uint8Array<ArrayBuffer>;
   frame: number | undefined;
+  lastFrameAt: number | undefined;
+  range: RoomAudioRange;
   source?: AudioNode;
   stream?: MediaStream;
 };
@@ -77,6 +89,23 @@ const SIGNAL_PROPERTIES = [
   "--drever-audio-low",
   "--drever-audio-mid",
 ] as const;
+
+const AUDIO_RANGE = Object.freeze({
+  floor: 0.012,
+  floorFallMs: 180,
+  floorLimit: 0.08,
+  floorRiseMs: 5000,
+  headroom: 1.18,
+  initialCeiling: 0.35,
+  minimumCeiling: 0.18,
+  minimumSpan: 0.1,
+  outputLimit: 0.94,
+  releaseMs: 1400,
+});
+const INITIAL_AUDIO_RANGE = Object.freeze({
+  ceiling: AUDIO_RANGE.initialCeiling,
+  floor: AUDIO_RANGE.floor,
+});
 
 /** Disconnects the microphone and releases every permissioned media track. */
 const releaseRoomAudioInput = (
@@ -147,21 +176,49 @@ const average = (data: Uint8Array, start: number, end: number): number => {
   return total / Math.max(1, end - start) / 255;
 };
 
-const normalizeSignal = (value: number): number => {
-  const noiseFloor = 0.012;
-  if (value <= noiseFloor) return 0;
-  const audibleRange = Math.min(1, (value - noiseFloor) / 0.338);
-  return Math.min(1, audibleRange ** 0.62);
+const approach = (value: number, target: number, elapsedMs: number, durationMs: number): number =>
+  value + (target - value) * (1 - Math.exp(-elapsedMs / durationMs));
+
+const normalizeSignal = (value: number, range: RoomAudioRange): number => {
+  if (value <= range.floor) return 0;
+  const position = Math.min(1, (value - range.floor) / (range.ceiling - range.floor));
+  return position ** 0.62 * AUDIO_RANGE.outputLimit;
 };
 
-/** Converts analyser bands into the four stable Stage signals used by scenes. */
-export const resolveRoomAudioSignal = ({ high, low, mid }: RoomAudioBands): RoomAudioSignal =>
-  Object.freeze({
-    high: normalizeSignal(high),
-    level: normalizeSignal((low + mid + high) / 3),
-    low: normalizeSignal(low),
-    mid: normalizeSignal(mid),
+/** Adapts the analyser range while preserving the relative energy of every band. */
+export const resolveRoomAudioFrame = (
+  { high, low, mid }: RoomAudioBands,
+  previousRange: RoomAudioRange = INITIAL_AUDIO_RANGE,
+  elapsedMs = 1000 / 60,
+): RoomAudioFrame => {
+  const peak = Math.max(high, low, mid);
+  const ceilingTarget = Math.max(AUDIO_RANGE.minimumCeiling, peak * AUDIO_RANGE.headroom);
+  const ceiling =
+    ceilingTarget > previousRange.ceiling
+      ? ceilingTarget
+      : approach(previousRange.ceiling, ceilingTarget, elapsedMs, AUDIO_RANGE.releaseMs);
+  const floorTarget = Math.max(AUDIO_RANGE.floor, Math.min(AUDIO_RANGE.floorLimit, high, low, mid));
+  const floor = Math.min(
+    ceiling - AUDIO_RANGE.minimumSpan,
+    approach(
+      previousRange.floor,
+      floorTarget,
+      elapsedMs,
+      floorTarget < previousRange.floor ? AUDIO_RANGE.floorFallMs : AUDIO_RANGE.floorRiseMs,
+    ),
+  );
+  const range = Object.freeze({ ceiling, floor });
+
+  return Object.freeze({
+    range,
+    signal: Object.freeze({
+      high: normalizeSignal(high, range),
+      level: normalizeSignal((low + mid + high) / 3, range),
+      low: normalizeSignal(low, range),
+      mid: normalizeSignal(mid, range),
+    }),
   });
+};
 
 const errorMessage = (cause: unknown): string => {
   if (cause instanceof DOMException && cause.name === "NotAllowedError") {
@@ -213,8 +270,7 @@ export function RoomAudio({
   }, []);
 
   const setSignal = useCallback(
-    (bands: RoomAudioBands): void => {
-      const { high, level, low, mid } = resolveRoomAudioSignal(bands);
+    ({ high, level, low, mid }: RoomAudioSignal): void => {
       const values = {
         "--drever-audio-high": high,
         "--drever-audio-level": level,
@@ -249,6 +305,7 @@ export function RoomAudio({
     const analyser = context.createAnalyser();
     const silentOutput = context.createGain();
     analyser.fftSize = 256;
+    analyser.maxDecibels = -10;
     analyser.smoothingTimeConstant = 0.78;
     silentOutput.gain.value = 0;
     analyser.connect(silentOutput);
@@ -258,6 +315,8 @@ export function RoomAudio({
       context,
       data: new Uint8Array(analyser.frequencyBinCount),
       frame: undefined,
+      lastFrameAt: undefined,
+      range: INITIAL_AUDIO_RANGE,
     };
     graphRef.current = graph;
     return graph;
@@ -269,11 +328,21 @@ export function RoomAudio({
       const binHz = graph.context.sampleRate / graph.analyser.fftSize;
       const indexFor = (frequency: number): number =>
         Math.min(graph.data.length, Math.max(0, Math.round(frequency / binHz)));
-      setSignal({
-        high: average(graph.data, indexFor(2_000), indexFor(8_000)),
-        low: average(graph.data, indexFor(40), indexFor(220)),
-        mid: average(graph.data, indexFor(220), indexFor(2_000)),
-      });
+      const now = performance.now();
+      const elapsedMs =
+        graph.lastFrameAt === undefined ? 1000 / 60 : Math.min(250, now - graph.lastFrameAt);
+      graph.lastFrameAt = now;
+      const frame = resolveRoomAudioFrame(
+        {
+          high: average(graph.data, indexFor(2_000), indexFor(8_000)),
+          low: average(graph.data, indexFor(40), indexFor(220)),
+          mid: average(graph.data, indexFor(220), indexFor(2_000)),
+        },
+        graph.range,
+        elapsedMs,
+      );
+      graph.range = frame.range;
+      setSignal(frame.signal);
       graph.frame = window.requestAnimationFrame(() => draw(graph));
     },
     [setSignal],
@@ -319,6 +388,8 @@ export function RoomAudio({
 
         const graph = ensureGraph();
         releaseRoomAudioInput(graph, (frame) => window.cancelAnimationFrame(frame));
+        graph.lastFrameAt = undefined;
+        graph.range = INITIAL_AUDIO_RANGE;
         clearStageSignal();
         const activeStream = stream;
         graph.stream = activeStream;

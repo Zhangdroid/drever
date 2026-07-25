@@ -9,7 +9,7 @@ import {
   isRoomAudioOwnerActive,
   requestPendingRoomMicrophone,
   requestRoomMicrophone,
-  resolveRoomAudioSignal,
+  resolveRoomAudioFrame,
 } from "./room-audio.tsx";
 import { deactivateSoundtrackPlayback, pauseSoundtrackPlayback } from "./soundtrack.tsx";
 
@@ -136,26 +136,67 @@ describe("scene render surfaces", () => {
     await third;
   });
 
-  it("maps silence and frequency bands to stable Stage signals", () => {
-    expect(resolveRoomAudioSignal({ high: 0.01, low: 0.01, mid: 0.01 })).toEqual({
+  it("maps silence and relative frequency energy to stable Stage signals", () => {
+    expect(resolveRoomAudioFrame({ high: 0.01, low: 0.01, mid: 0.01 }).signal).toEqual({
       high: 0,
       level: 0,
       low: 0,
       mid: 0,
     });
-    const signal = resolveRoomAudioSignal({ high: 0.3, low: 0.1, mid: 0.2 });
-    expect(signal.high).toBeCloseTo(0.905);
-    expect(signal.level).toBeCloseTo(0.695);
-    expect(signal.low).toBeCloseTo(0.434);
-    expect(signal.mid).toBeCloseTo(0.695);
-    expect(signal.low).toBeGreaterThan(0.4);
-    expect(resolveRoomAudioSignal({ high: 0, low: 0.013, mid: 0 }).low).toBeGreaterThan(0);
-    expect(resolveRoomAudioSignal({ high: 0, low: 0, mid: 0 })).toEqual({
+    const signal = resolveRoomAudioFrame({ high: 0.3, low: 0.1, mid: 0.2 }).signal;
+    expect(signal.high).toBeGreaterThan(signal.mid);
+    expect(signal.mid).toBeGreaterThan(signal.low);
+    expect(signal.low).toBeGreaterThan(0.3);
+    expect(resolveRoomAudioFrame({ high: 0, low: 0.013, mid: 0 }).signal.low).toBeGreaterThan(0);
+    expect(resolveRoomAudioFrame({ high: 0, low: 0, mid: 0 }).signal).toEqual({
       high: 0,
       level: 0,
       low: 0,
       mid: 0,
     });
+  });
+
+  it("keeps loud music below saturation and preserves its changing energy", () => {
+    const first = resolveRoomAudioFrame({ high: 0.74, low: 0.92, mid: 0.84 });
+    const quieterBeat = resolveRoomAudioFrame({ high: 0.46, low: 0.62, mid: 0.54 }, first.range);
+    const nextBeat = resolveRoomAudioFrame({ high: 0.78, low: 0.96, mid: 0.88 }, quieterBeat.range);
+
+    expect(Math.max(...Object.values(first.signal))).toBeLessThan(0.94);
+    expect(new Set(Object.values(first.signal)).size).toBeGreaterThan(2);
+    expect(quieterBeat.signal.level).toBeLessThan(first.signal.level);
+    expect(nextBeat.signal.level).toBeGreaterThan(quieterBeat.signal.level);
+    expect(nextBeat.signal.level).toBeLessThan(0.94);
+    expect(nextBeat.range.ceiling).toBeGreaterThan(1);
+  });
+
+  it("recovers sensitivity after the room becomes quieter", () => {
+    let frame = resolveRoomAudioFrame({ high: 0.72, low: 0.9, mid: 0.8 });
+    const firstQuietFrame = resolveRoomAudioFrame(
+      { high: 0.08, low: 0.16, mid: 0.12 },
+      frame.range,
+    );
+
+    frame = firstQuietFrame;
+    for (let index = 0; index < 120; index += 1) {
+      frame = resolveRoomAudioFrame({ high: 0.08, low: 0.16, mid: 0.12 }, frame.range, 1000 / 60);
+    }
+
+    expect(frame.range.ceiling).toBeLessThan(firstQuietFrame.range.ceiling);
+    expect(frame.signal.level).toBeGreaterThan(firstQuietFrame.signal.level);
+  });
+
+  it("settles constant room noise without hiding the next sound", () => {
+    let frame = resolveRoomAudioFrame({ high: 0.04, low: 0.04, mid: 0.04 });
+    const initialLevel = frame.signal.level;
+
+    for (let index = 0; index < 300; index += 1) {
+      frame = resolveRoomAudioFrame({ high: 0.04, low: 0.04, mid: 0.04 }, frame.range, 1000 / 60);
+    }
+    const nextSound = resolveRoomAudioFrame({ high: 0.12, low: 0.18, mid: 0.15 }, frame.range);
+
+    expect(frame.range.floor).toBeGreaterThan(0.02);
+    expect(frame.signal.level).toBeLessThan(initialLevel);
+    expect(nextSound.signal.level).toBeGreaterThan(frame.signal.level);
   });
 
   it("starts automatic capture only while its owning slide is active", () => {
