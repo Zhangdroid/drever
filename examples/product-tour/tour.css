@@ -44,11 +44,24 @@
   background: var(--tour-paper);
 }
 
+.drever-viewer
+  [data-drever-stage-layer="background"]:has(
+    .tour-stage-background:is([data-scene="opening"], [data-scene="closing"])
+  ) {
+  background: var(--tour-ink);
+}
+
+.drever-stage[data-drever-render-mode="audience"] > [data-drever-stage-layer="background"] {
+  transition: background-color 520ms var(--drever-brand-motion-easing-standard);
+}
+
 .drever-viewer [data-drever-stage-layer="background"]::before,
 .drever-viewer [data-drever-stage-layer="background"]::after {
   right: 108px;
   left: 108px;
   height: 1px;
+  opacity: 1;
+  transition: opacity 240ms ease-out;
 }
 
 .drever-viewer [data-drever-stage-layer="background"]::before {
@@ -59,6 +72,17 @@
 .drever-viewer [data-drever-stage-layer="background"]::after {
   bottom: 48px;
   background: var(--tour-line);
+}
+
+.drever-viewer
+  [data-drever-stage-layer="background"]:has(
+    .tour-stage-background:is([data-scene="opening"], [data-scene="closing"])
+  )::before,
+.drever-viewer
+  [data-drever-stage-layer="background"]:has(
+    .tour-stage-background:is([data-scene="opening"], [data-scene="closing"])
+  )::after {
+  opacity: 0;
 }
 
 .tour-stage-background,
@@ -139,6 +163,11 @@
 .tour-stage-background[data-scene="closing"] .tour-stage-background__wash {
   opacity: 0;
   transform: translate3d(220px, 70px, 0) scale(1.12);
+}
+
+.tour-stage-background:is([data-scene="opening"], [data-scene="closing"])
+  .tour-stage-background__orbit {
+  opacity: 0;
 }
 
 .tour-stage-background[data-scene="shape"] .tour-stage-background__wash {
@@ -401,7 +430,7 @@
   align-items: center;
   padding: 116px 140px 94px;
   overflow: hidden;
-  background: var(--tour-ink);
+  background: transparent;
   color: var(--tour-paper);
   grid-template-columns: minmax(0, 1fr) 560px;
   gap: 80px;

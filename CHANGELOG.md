@@ -11,6 +11,8 @@ section, while commit snapshots use the current Unreleased section.
   competing generic presentation workflow.
 - Slowed the Motion showcase cover's opening change and kept the Architecture signal behind its
   labels instead of obscuring them.
+- Kept the Product Tour cover color in its persistent Stage so foreground fades no longer fade the
+  full-canvas background between the opening and the first content slide.
 
 ## [0.2.1] - 2026-07-24
 
