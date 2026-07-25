@@ -75,10 +75,11 @@ artifact stays primary.
 ## Motion
 
 Studio supports `focus`, `replace`, `compare`, `stagger`, and `continuity`. Its
-mapping uses precise axis movement and a subtle scale-lock for system states;
-continuity is reserved for a diagram node, interface, or object that genuinely
-persists. The theme exposes supported intents and author guidance as JSON-safe
-metadata.
+page changes are usually direct so the workbench feels stable; precise axis
+movement and state commits belong to diagnostic Steps and local artifact
+changes. Continuity is reserved for a diagram node, interface, or object that
+genuinely persists. The theme exposes supported intents and author guidance as
+JSON-safe metadata.
 
 Intent explains why content moves; optional flow identifies its logical
 progression axis; Studio turns both into a precise technical visual voice. Use `flow="block"` for a

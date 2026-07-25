@@ -67,9 +67,10 @@ exports typed `fieldnoteRecipes` for tools that import it directly.
 
 ## Motion
 
-Fieldnote follows writing order with short, restrained movement. It never
-simulates handwriting across whole paragraphs. Use continuity only for the same
-note, sketch, image, or worked object on adjacent slides.
+Fieldnote may turn one page when a new observation sheet arrives, then uses
+direct cuts and presenter-led annotation Steps for the rest of the notebook.
+It never simulates handwriting across whole paragraphs. Use continuity only for
+the same note, sketch, image, or worked object on adjacent slides.
 
 ## Font license
 

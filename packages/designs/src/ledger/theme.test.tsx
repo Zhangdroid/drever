@@ -194,7 +194,9 @@ describe("@drever/designs/ledger", () => {
       /\[data-drever-deck\]:not\(\[data-drever-render-mode="document"\]\)\s+\[data-drever-motion-group=""\]\[data-motion-intent="replace"\]\s*\{/u,
     );
     expect(css).toContain(":root:has(.drever-viewer),");
-    expect(css).toContain("--drever-motion-slide-offset: 2%;");
+    expect(css).toContain("--drever-motion-slide-offset: 0%;");
+    expect(css).toContain("--drever-motion-slide-enter-animation: none;");
+    expect(css).toContain("--drever-motion-slide-exit-animation: none;");
     expect(css).toContain("--drever-recipe-stagger-gap: 36ms;");
     expect(css).toContain("--drever-recipe-step-block-from-translate: 0 8px;");
     expect(css).toContain("--drever-recipe-step-inline-from-translate: 10px 0;");
@@ -206,6 +208,7 @@ describe("@drever/designs/ledger", () => {
     expect(css).not.toMatch(/data-step-state="complete"\]\s*\{\s*opacity: 0\./u);
     expect(css).toContain("@keyframes drever-ledger-step-inline-enter");
     expect(css).toContain("@keyframes drever-ledger-stagger-block-enter");
+    expect(css).toContain("clip-path: inset(0 100% 0 0);");
     expect(css).toContain("[data-drever-reduced-motion]");
     expect(css).not.toContain("--drever-recipe-step-from-transform");
     expect(css).not.toMatch(/@import|url\(/u);

@@ -84,7 +84,7 @@ export const createCodexExecArguments = ({ model, threadId, turn }) => {
     "-c",
     'web_search="disabled"',
     "-c",
-    'model_reasoning_effort="high"',
+    'model_reasoning_effort="medium"',
     "-c",
     "project_doc_fallback_filenames=[]",
     ...(model === undefined || model === "" ? [] : ["-m", model]),

@@ -423,6 +423,11 @@ Every branded surface must meet these rules:
 
 - normal text reaches at least `4.5:1`; large text and essential graphics reach
   at least `3:1`;
+- every visible authored string remains immediately legible at presentation
+  distance; small print and sufficient contrast alone are not acceptable
+  substitutes for readable type;
+- every label remains inside the usable inner silhouette of the shape or
+  surface that owns it, with deliberate padding after borders and clipping;
 - focus is a visible `2px` ring with a `2px` offset: Continuity on light
   surfaces, Signal on Ink surfaces, and Ink on Signal surfaces;
 - focus, hover, active, selected, invalid, and disabled states remain distinct
@@ -468,6 +473,14 @@ Fieldnote, Atlas, Ledger, Cinema, and Construct may reuse a font or selected
 primitive without adopting the brand palette or product type scale. Themes must not
 extend one another, import another theme's CSS, or place product UI rules
 inside a slide stylesheet.
+
+The studies must also remain structurally distinct. Their reference decks should
+not all converge on one page count, left-copy/right-artifact skeleton,
+persistent object, or View Transition cadence with only cosmetic substitutions.
+Each study needs its own composition rhythm, density range, Step grammar, and
+motion vocabulary; traditional directions may use mostly direct cuts while
+spatial or artifact-led directions reserve continuity for a short meaningful
+sequence.
 
 Theme metadata should expose resolved literal values for people and AI. Theme
 CSS may map those values to brand custom properties, but authoring context must

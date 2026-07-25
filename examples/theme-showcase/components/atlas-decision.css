@@ -17,7 +17,11 @@
 
 .atlas-study__artifact {
   display: grid;
+  width: 850px;
+  height: 396px;
   min-width: 0;
+  box-sizing: border-box;
+  justify-self: center;
   place-items: center;
 }
 
@@ -115,13 +119,8 @@
   padding-bottom: 5px;
 }
 
-.atlas-study--route .atlas-river {
-  width: 100%;
-  height: 396px;
-}
-
-.atlas-study--route .atlas-river__plot {
-  height: 324px;
+.atlas-study--route .atlas-river__route-labels text {
+  font-size: 16px;
 }
 
 .atlas-study--thermal {
@@ -168,15 +167,6 @@
   grid-row: 1;
 }
 
-.atlas-study--gates .atlas-river {
-  width: 100%;
-  height: 410px;
-}
-
-.atlas-study--gates .atlas-river__plot {
-  height: 338px;
-}
-
 [data-drever-slide] .atlas-study__decision > strong {
   color: var(--drever-theme-ink);
   font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Noto Serif", Georgia, serif;
@@ -191,10 +181,224 @@
   line-height: 1.4;
 }
 
+.atlas-study--sequence {
+  position: relative;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  align-items: stretch;
+  align-content: center;
+  gap: 56px;
+}
+
+.atlas-study__sequence-heading {
+  display: grid;
+  max-width: 930px;
+  gap: 16px;
+}
+
+.atlas-study__sequence-heading > :where(h2, p) {
+  margin: 0;
+}
+
+[data-drever-slide] .atlas-study__sequence-heading > h2 {
+  max-width: 12ch;
+  font-size: 62px;
+  line-height: 0.94;
+}
+
+[data-drever-slide] .atlas-study__sequence-heading > p:not(.atlas-study__label) {
+  max-width: 49ch;
+  color: var(--drever-theme-muted);
+  font-size: 21px;
+  line-height: 1.42;
+}
+
+.atlas-study__sequence-steps {
+  position: relative;
+  display: grid;
+  min-height: 210px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.atlas-study__sequence-steps::before {
+  position: absolute;
+  top: -3px;
+  right: 4%;
+  left: 4%;
+  height: 3px;
+  background: color-mix(in srgb, var(--drever-theme-accent), transparent 54%);
+  content: "";
+}
+
+.atlas-study__sequence-steps > [data-drever-step] {
+  min-width: 0;
+}
+
+.atlas-study__sequence-steps > [data-drever-step][data-step-state="active"]::before {
+  content: none;
+}
+
+.atlas-study__sequence-steps article {
+  position: relative;
+  display: grid;
+  height: 100%;
+  min-height: 210px;
+  box-sizing: border-box;
+  align-content: end;
+  padding: 38px 28px 28px;
+  border: 1px solid var(--drever-theme-border);
+  background: color-mix(in srgb, var(--drever-theme-surface), transparent 8%);
+  gap: 10px;
+}
+
+.atlas-study__sequence-steps article::before {
+  position: absolute;
+  top: -14px;
+  left: 28px;
+  width: 22px;
+  height: 22px;
+  border: 4px solid var(--drever-theme-surface);
+  border-radius: 50%;
+  background: var(--drever-theme-accent);
+  box-shadow: 0 0 0 2px var(--drever-theme-accent);
+  content: "";
+}
+
+.atlas-study__sequence-steps article > span {
+  color: var(--drever-theme-accent-strong);
+  font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 760;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+[data-drever-slide] .atlas-study__sequence-steps article > strong {
+  color: var(--drever-theme-ink);
+  font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Noto Serif", Georgia, serif;
+  font-size: 29px;
+  font-weight: 620;
+  line-height: 1.08;
+}
+
+[data-drever-slide] .atlas-study__sequence-steps article > p {
+  color: var(--drever-theme-muted);
+  font-size: 18px;
+  line-height: 1.36;
+}
+
+.atlas-study--commit {
+  display: grid;
+  min-height: 640px;
+  box-sizing: border-box;
+  align-content: stretch;
+  padding: 52px 56px 46px;
+  border: 1px solid color-mix(in srgb, var(--drever-theme-accent-soft), transparent 58%);
+  background:
+    linear-gradient(
+      132deg,
+      color-mix(in srgb, var(--drever-theme-accent), transparent 84%),
+      transparent 42%
+    ),
+    var(--drever-theme-ink);
+  color: #f5f0e5;
+  grid-template-columns: minmax(0, 1.18fr) minmax(440px, 0.82fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 26px 58px;
+}
+
+.atlas-study--commit > .atlas-study__label {
+  color: #b6d8e2;
+  grid-column: 1 / -1;
+}
+
+.atlas-study__commit-copy {
+  display: grid;
+  align-content: center;
+  gap: 18px;
+}
+
+.atlas-study__commit-copy > span {
+  color: #91c4d2;
+  font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
+  font-size: 14px;
+  font-weight: 760;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+[data-drever-slide] .atlas-study__commit-copy > h2 {
+  max-width: 12ch;
+  color: #f5f0e5;
+  font-size: 58px;
+  line-height: 0.97;
+}
+
+[data-drever-slide] .atlas-study__commit-copy > p {
+  max-width: 48ch;
+  color: #cad7d7;
+  font-size: 20px;
+  line-height: 1.42;
+}
+
+.atlas-study__commit-gates {
+  display: grid;
+  margin: 0;
+  align-content: center;
+  padding: 0;
+  gap: 2px;
+  list-style: none;
+}
+
+.atlas-study__commit-gates > li {
+  display: grid;
+  padding: 18px 20px;
+  border: 1px solid rgb(245 240 229 / 15%);
+  background: rgb(245 240 229 / 5%);
+  grid-template-columns: 58px minmax(0, 1fr);
+  align-items: baseline;
+  gap: 5px 14px;
+}
+
+.atlas-study__commit-gates > li[data-state="ready"] {
+  border-color: #71b2c4;
+  background: rgb(30 102 129 / 34%);
+}
+
+.atlas-study__commit-gates span {
+  color: #91c4d2;
+  font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 760;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.atlas-study__commit-gates strong {
+  color: #f5f0e5;
+  font-size: 25px;
+  font-weight: 650;
+}
+
+.atlas-study__commit-gates small {
+  color: #aebdbe;
+  font-size: 15px;
+  grid-column: 2;
+}
+
+.atlas-study--commit .drever-example-exit {
+  --drever-example-exit-primary: #f5f0e5;
+  margin: 0;
+  align-self: end;
+  color: #f5f0e5;
+  grid-column: 1 / -1;
+}
+
 .atlas-river {
   display: grid;
   width: 850px;
-  height: 526px;
+  height: 396px;
   box-sizing: border-box;
   padding: 20px 22px 15px;
   border: 1px solid color-mix(in srgb, var(--drever-theme-border), transparent 10%);
@@ -206,7 +410,7 @@
 
 .atlas-river__plot {
   width: 100%;
-  height: 450px;
+  height: 324px;
   overflow: visible;
   color: var(--drever-theme-ink);
 }

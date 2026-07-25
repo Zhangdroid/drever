@@ -65,7 +65,10 @@ test("defines one real surprise journey and one fully guided journey", () => {
     assert.match(scenario.turns[0], /^Fetch and follow https:\/\/drever\.dev\/prompt\.md\./u);
     assert.match(scenario.turns.at(-1), /refine the\s+narrative/iu);
   }
-  assert.match(getReleaseSmokeScenario("surprise-me").turns[1], /^Surprise me\./iu);
+  assert.match(
+    getReleaseSmokeScenario("surprise-me").turns[1],
+    /^Skip remaining questions — surprise me\./iu,
+  );
   assert.match(getReleaseSmokeScenario("guided").turns[2], /reusable\s+for any product/iu);
   assert.match(
     getReleaseSmokeScenario("guided").turns[2],
@@ -123,6 +126,8 @@ test("keeps permission flags before resume and leaves model selection optional",
   ]);
   assert.ok(initial.includes('default_permissions=":workspace"'));
   assert.ok(initial.includes("project_doc_fallback_filenames=[]"));
+  assert.ok(initial.includes('model_reasoning_effort="medium"'));
+  assert.equal(initial.includes('model_reasoning_effort="high"'), false);
   assert.equal(initial.includes("-m"), false);
   assert.ok(resumed.indexOf("--json") < resumed.indexOf("resume"));
   assert.deepEqual(resumed.slice(-3), ["resume", "thread-1", "Continue"]);
@@ -500,6 +505,7 @@ test("keeps the OpenAI key inside the generation job and pins the Codex action",
   );
   assert.match(workflow, /allow-bots: true/u);
   assert.match(workflow, /permission-profile: ":workspace"/u);
+  assert.match(workflow, /RELEASE_SMOKE_MODEL: gpt-5\.6-sol/u);
   const generateJob = workflow.slice(
     workflow.indexOf("\n  generate:"),
     workflow.indexOf("\n  build:"),
@@ -541,6 +547,24 @@ test("keeps the OpenAI key inside the generation job and pins the Codex action",
   const buildJob = workflow.slice(workflow.indexOf("\n  build:"));
   assert.doesNotMatch(buildJob, /OPENAI_API_KEY/u);
   assert.doesNotMatch(workflow, /screenshot|export pdf/iu);
+});
+
+test("runs the costly AI smoke only when the publishing policy opts in", async () => {
+  const workflow = await readFile(
+    new URL("../../.github/workflows/publish.yml", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(
+    workflow,
+    /ai_smoke:\s+description:[^\n]+\s+required: true\s+default: auto\s+type: choice\s+options:\s+- auto\s+- always\s+- never/u,
+  );
+  const smokeJob = workflow.slice(workflow.indexOf("\n  smoke:"));
+  assert.match(
+    smokeJob,
+    /inputs\.ai_smoke == 'always'[\s\S]+inputs\.ai_smoke == 'auto' && inputs\.channel == 'latest'/u,
+  );
+  assert.equal(workflow.match(/release-smoke\.yml\/dispatches/gu)?.length, 1);
 });
 
 test("requires main and matches npm, GitHub release, tag, and source provenance", () => {

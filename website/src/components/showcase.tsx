@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode } from "react";
 
+import { creationStory } from "./creation-story-data";
 import { CopyButton } from "./copy-button";
 
 export function HeroStage() {
@@ -271,6 +272,11 @@ export function HeroStage() {
               <i />
               <i />
             </div>
+            <div className="hero-stage__story">
+              <small>Brief → visual direction</small>
+              <strong>{creationStory.title}</strong>
+              <span>{creationStory.question}</span>
+            </div>
             <div className="hero-stage__orbit hero-stage__orbit--wide">
               <i />
             </div>
@@ -286,7 +292,7 @@ export function HeroStage() {
               <i />
               <i />
             </div>
-            <div className="hero-stage__coordinate">04 / 12</div>
+            <div className="hero-stage__coordinate">01 / 08</div>
           </div>
         </div>
         <div className="hero-stage__satellite hero-stage__satellite--one">
@@ -299,7 +305,9 @@ export function HeroStage() {
           <i />
         </div>
       </div>
-      <figcaption>Intent becomes visual direction, motion, and a complete deck.</figcaption>
+      <figcaption>
+        One product-team brief becoming a visual direction, live story, and complete deck.
+      </figcaption>
     </figure>
   );
 }

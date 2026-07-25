@@ -146,7 +146,9 @@ describe("@drever/designs/cinema", () => {
       /\[data-drever-deck\]:not\(\[data-drever-render-mode="document"\]\)\s+\[data-drever-motion-group=""\]\[data-motion-intent="replace"\]\s*\{/u,
     );
     expect(css).toContain(":root:has(.drever-viewer),");
-    expect(css).toContain("--drever-motion-slide-offset: 1.2%;");
+    expect(css).toContain("--drever-motion-slide-offset: 0%;");
+    expect(css).toContain("--drever-motion-slide-enter-animation: drever-cinema-slide-enter;");
+    expect(css).toContain("--drever-motion-slide-exit-animation: drever-cinema-slide-exit;");
     expect(css).toContain("--drever-recipe-stagger-gap: 40ms;");
     expect(css).toContain("--drever-recipe-step-block-from-translate: 0 6px;");
     expect(css).toContain("--drever-recipe-step-inline-from-translate: 8px 0;");

@@ -173,6 +173,9 @@ describe("@drever/designs/construct", () => {
     ]);
     expect(css).toContain("grid-area: 1 / 1;");
     expect(css).toContain("@keyframes drever-construct-stagger-enter");
+    expect(css).toContain("--drever-motion-slide-enter-animation: drever-construct-slide-enter;");
+    expect(css).toContain("--drever-motion-slide-exit-animation: drever-construct-slide-exit;");
+    expect(css).toContain("--drever-motion-slide-offset: 0%;");
     expect(css).toContain(`--drever-motion-duration: ${theme.tokens.motion.duration}ms;`);
     expect(css).toContain('data-step-state="active"]::before');
     expect(css).toContain(

@@ -1,20 +1,26 @@
-import { MotionGroup } from "drever";
 import type { ReactElement } from "react";
 
 import cinemaNightBus from "../assets/cinema-night-bus.jpg";
 
-/** One geometry-stable illustrative artifact carried through the complete service story. */
-export const CinemaNightVisual = (): ReactElement => (
-  <MotionGroup
+export type CinemaNightVisualProps = Readonly<{
+  label?: string;
+  shot?: "insert" | "return" | "wide";
+}>;
+
+/** One illustrative scene recut at deliberate shot scales without shared-element morphing. */
+export const CinemaNightVisual = ({
+  label = "Illustrative scene · Route 14",
+  shot = "wide",
+}: CinemaNightVisualProps): ReactElement => (
+  <figure
     aria-label="Illustrative night-bus scene with a hospital worker riding through the city after dark."
     className="theme-showcase-cinema-visual"
-    intent="continuity"
-    name="cinema-night-bus"
+    data-cinema-shot={shot}
     role="img"
   >
     <img alt="" aria-hidden="true" src={cinemaNightBus} />
-    <span aria-hidden="true" className="theme-showcase-cinema-visual__label">
-      Illustrative scene · Route 14
-    </span>
-  </MotionGroup>
+    <figcaption aria-hidden="true" className="theme-showcase-cinema-visual__label">
+      {label}
+    </figcaption>
+  </figure>
 );

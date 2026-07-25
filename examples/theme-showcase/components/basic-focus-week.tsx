@@ -43,7 +43,28 @@ const descriptions: Record<FocusWeekPhase, string> = {
     "An illustrative team calendar showing the weekday mornings before a focus-time decision.",
 };
 
-/** One stable weekly calendar whose Wednesday state changes as the decision develops. */
+const captions: Record<
+  FocusWeekPhase,
+  Readonly<{
+    detail: string;
+    label: string;
+  }>
+> = {
+  decision: {
+    detail: "Proposed 09:00–12:00",
+    label: "Protected focus",
+  },
+  evidence: {
+    detail: "Three interruptions",
+    label: "Wednesday morning",
+  },
+  framing: {
+    detail: "Current pattern",
+    label: "Wednesday morning",
+  },
+};
+
+/** A compact weekly calendar that can show the current pattern, evidence, or proposal. */
 export const FocusWeek = ({ phase }: Readonly<{ phase: FocusWeekPhase }>): ReactElement => (
   <div
     aria-label={descriptions[phase]}
@@ -73,8 +94,8 @@ export const FocusWeek = ({ phase }: Readonly<{ phase: FocusWeekPhase }>): React
     </div>
     <footer>
       <span aria-hidden="true" />
-      <strong>Wednesday morning</strong>
-      <small>One decision window</small>
+      <strong>{captions[phase].label}</strong>
+      <small>{captions[phase].detail}</small>
     </footer>
   </div>
 );

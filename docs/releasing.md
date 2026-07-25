@@ -19,6 +19,16 @@ be renamed to a stable version. A stable release rebuilds the same source
 revision with its final version. GitHub Releases are written only after npm
 publication and public-registry verification succeed.
 
+## Release cadence
+
+`Unreleased` is an accumulation buffer, not a signal to publish immediately.
+Merge completed package changes with their tests, documentation, and changelog
+entries, then release a coherent batch. Prefer one patch containing several
+small compatible fixes over a sequence of patches. Exceptions are an explicit
+maintainer request, a security issue, or a serious public regression. Commit
+snapshots are reserved for intentional installability checks and do not
+automatically run the AI smoke.
+
 ## Release notes
 
 [`CHANGELOG.md`](../CHANGELOG.md) is the canonical release history for the
@@ -75,8 +85,9 @@ missing package dependencies and native bindings.
 
 [`.github/workflows/publish.yml`](../.github/workflows/publish.yml) is the only
 recurring lockstep publishing identity. Run it manually from `main`, choose
-`commit`, `next`, or `latest`, and provide a version only for a named release.
-Publications are queued rather than replaced and run as four jobs:
+`commit`, `next`, or `latest`, provide a version only for a named release, and
+choose whether its AI smoke should follow the default policy, always run, or
+never run. Publications are queued rather than replaced and run as four jobs:
 
 1. an unprivileged audit job installs, tests, versions, packs, extracts the
    required changelog section, retains the release artifact, checks the
@@ -88,7 +99,7 @@ Publications are queued rather than replaced and run as four jobs:
 3. an isolated record job receives `contents: write` only after publication
    succeeds and creates the matching GitHub Release with the audited receipt
    and release notes;
-4. a minimal dispatch job receives `actions: write` only after the GitHub
+4. a conditional dispatch job receives `actions: write` only after the GitHub
    Release exists and queues the independent post-release Codex smoke run.
 
 The workflow verifies the unmodified source revision first. It then applies an
@@ -134,19 +145,30 @@ Claude plugin versions.
 
 ## Post-release Codex smoke
 
-Every completed publication dispatches
-[`release-smoke.yml`](../.github/workflows/release-smoke.yml) with the exact
-published version and audited source commit. The smoke is intentionally
-separate from npm publication: a nondeterministic AI failure remains visible
-without making an already verified registry release appear to have failed.
-Maintainers can also dispatch the workflow manually to repeat one published
-version.
+The publishing workflow's `ai_smoke` input defaults to `auto`: stable `latest`
+releases dispatch [`release-smoke.yml`](../.github/workflows/release-smoke.yml)
+with the exact published version and audited source commit, while `commit`
+snapshots and `next` prereleases stop after registry and GitHub Release
+verification. Choose `always` when a prerelease or intentional commit snapshot
+needs full AI evidence, or `never` when a stable release must omit it.
+Maintainers can also dispatch the smoke manually for any published version.
+
+The smoke is intentionally separate from npm publication: a nondeterministic AI
+failure remains visible without making an already verified registry release
+appear to have failed. Generation uses the quality-first `gpt-5.6-sol` model
+with medium reasoning. Cost is controlled by running this expensive evidence
+once for stable releases by default, not by weakening the model that authors
+and judges the visual result. It may qualify for OpenAI's complimentary
+shared-traffic allowance only when project data sharing is enabled, the
+organization is eligible, and daily quota remains; otherwise normal API billing
+applies. See
+[OpenAI's data-sharing and complimentary-token policy](https://help.openai.com/en/articles/10306912-sharing-feedback-and-api-inputs-and-outputs-with-openai).
 
 The workflow exercises two fixed user journeys against the public
 `https://drever.dev/prompt.md`:
 
-1. a user accepts the topic question's **Surprise me** path and delegates the
-   remaining creative decisions;
+1. a user uses the briefing's **Skip remaining questions** escape and delegates
+   the topic plus all remaining creative decisions;
 2. a user supplies a topic, answers the high-impact briefing questions, and
    gives concrete audience, duration, density, motion, and decision goals.
 

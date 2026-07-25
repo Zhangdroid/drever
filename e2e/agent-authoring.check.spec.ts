@@ -114,8 +114,9 @@ test("the built CLI installs an idempotent agent kit without loading project con
       throw new Error("Agent sync did not create the deck creation skill.");
     }
     expect(createDeck).toContain("Skip remaining questions — surprise me");
-    expect(createDeck).toContain("Put the questions first");
-    expect(createDeck).toContain("Never lead with that option");
+    expect(createDeck).toContain("same opening round");
+    expect(createDeck).toContain("append exactly one escape");
+    expect(createDeck).not.toContain("choose the subject too");
     expect(createDeck).toContain("Never ask for supplied facts");
     expect(createDeck).toContain("Never hand-build an unhighlighted `<pre>`");
 
@@ -220,7 +221,7 @@ test("the built CLI exposes the canonical basic-deck authoring context", async (
       id: "basic",
       intents: ["focus", "replace", "compare", "stagger", "continuity"],
       guidance: expect.arrayContaining([
-        "Reuse a continuity name only when the same visual object persists across adjacent slides.",
+        "Reuse a continuity name only when the same visual object persists across adjacent slides, then end the sequence as soon as it stops carrying the argument.",
       ]),
     },
   });

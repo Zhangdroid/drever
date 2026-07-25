@@ -1,5 +1,6 @@
 import { CinemaNightVisual } from "../components/cinema-night-visual.tsx";
 import { ServiceProposal, ServiceTimeline } from "../components/service-timeline.tsx";
+import { ShowcaseExit } from "../components/showcase-exit.tsx";
 import "../../showcase-return.css";
 import "../components/cinema-epilogue.css";
 
@@ -25,79 +26,158 @@ import "../components/cinema-epilogue.css";
 </section>
 
 <Note>
-  This is an explicitly illustrative service scenario. Let the human consequence settle before
-  advancing. The night-bus image is the story's stable visual thread: it begins as the room, narrows
-  beside the evidence, then returns behind the resolution.
+  This is an explicitly illustrative service scenario. Hold the wide establishing shot long enough
+  for the human consequence to settle. The next page cuts into the schedule rather than morphing the
+  same composition.
 </Note>
 
 ---
 
-<section className="theme-showcase-cinema-story theme-showcase-cinema-story--evidence">
+<SlideTransition from="previous" mode="local" />
+<SlideTransition from="next" mode="local" />
+
+<section className="theme-showcase-cinema-story theme-showcase-cinema-story--closeup">
   <header className="theme-showcase-cinema-copy">
-    <p className="theme-showcase-cinema-eyebrow">Illustrative weekday service gap / 02</p>
+    <p className="theme-showcase-cinema-eyebrow">Schedule close-up / 02</p>
     <h2>
-      <span>The schedule</span>
-      <br />
-      <span>loses an entire shift.</span>
+      <span>The missing hour is 65 minutes long.</span>
     </h2>
-    <p>The hospital closes one shift at 9:45. Route 14 does not return until 10:50.</p>
+    <p>The hospital shift ends at 9:45. Route 14 does not return until 10:50.</p>
   </header>
-  <div className="theme-showcase-cinema-timeline">
+  <div className="theme-showcase-cinema-gap" aria-label="Illustrative wait of 65 minutes">
+    <strong>65</strong>
+    <span>minutes</span>
+  </div>
+  <CinemaNightVisual label="Insert shot · 9:45 shift end" shot="insert" />
+  <div className="theme-showcase-cinema-timeline theme-showcase-cinema-timeline--current">
+    <ServiceTimeline />
+  </div>
+</section>
+
+<Note>
+  All times are illustrative. This is a hard cut from the wide scene to a schedule close-up. Read
+  the 65-minute wait first, then trace the line from the 9:45 shift end to the 10:50 departure.
+</Note>
+
+---
+
+<SlideTransition from="previous" mode="local" />
+
+<section className="theme-showcase-cinema-story theme-showcase-cinema-story--proposal">
+  <header className="theme-showcase-cinema-copy">
+    <p className="theme-showcase-cinema-eyebrow">The intervention / 03</p>
+    <h2>
+      <span>One departure changes the ending.</span>
+    </h2>
+    <p>The timetable needs one added departure at 10:02.</p>
+  </header>
+  <aside className="theme-showcase-cinema-call-sheet" aria-label="Illustrative service change">
+    <p>
+      <span>Current wait</span>
+      <strong>65 min</strong>
+    </p>
+    <p>
+      <span>Proposed wait</span>
+      <strong>17 min</strong>
+    </p>
+    <p>
+      <span>Added service</span>
+      <strong>1 departure</strong>
+    </p>
+  </aside>
+  <div className="theme-showcase-cinema-timeline theme-showcase-cinema-timeline--proposal">
     <ServiceTimeline>
       <Step at={1} className="theme-showcase-service-timeline__proposal">
         <ServiceProposal />
       </Step>
     </ServiceTimeline>
   </div>
-  <CinemaNightVisual />
 </section>
 
 <Note>
-  All times are illustrative. Read the current 65-minute wait first, then advance once. The proposed
-  departure and shorter wait appear as one causal change. The timetable takes the full width because
-  it now carries the argument; the image becomes supporting context.
+  Keep the timeline frame present from the first rendered state. Advance once to add only the
+  proposed departure and its 17-minute result. No shared-element transition connects this page to
+  the prior image, so neither a border nor a shadow can pop in after a scale morph.
 </Note>
 
 ---
 
-<section className="theme-showcase-cinema-story theme-showcase-cinema-story--epilogue">
+<section className="theme-showcase-cinema-story theme-showcase-cinema-story--return">
+  <CinemaNightVisual label="Return shot · Route 14 after 10:00" shot="return" />
   <div className="theme-showcase-cinema-copy">
-    <p className="theme-showcase-cinema-eyebrow">Illustrative epilogue / 03</p>
-    <h2>The city stayed open.</h2>
-    <blockquote>
-      “Before this bus, I chose between leaving patients early and paying for a ride home.”
-    </blockquote>
-    <div className="theme-showcase-cinema-outcomes" aria-label="Illustrative pilot outcomes">
-      <p>
-        <strong>41</strong>
-        <span>riders per night</span>
-      </p>
-      <p>
-        <strong>23% → 6%</strong>
-        <span>missed connections</span>
-      </p>
-    </div>
-    <small className="theme-showcase-cinema-source">
-      Illustrative composite; no real service or reported data.
-    </small>
-    <nav aria-label="Continue with Drever" className="drever-example-exit">
-      <a
-        className="drever-example-exit__primary"
-        data-drever-showcase-return=""
-        href="https://drever.dev/docs/getting-started/"
-      >
-        {"Start a deck"}
-      </a>
-      <a className="drever-example-exit__secondary" href="https://drever.dev/showcase/">
-        {"More design studies"}
-      </a>
-    </nav>
+    <p className="theme-showcase-cinema-eyebrow">The return shot / 04</p>
+    <h2>
+      <span>The city stayed open past the shift.</span>
+    </h2>
+    <p className="theme-showcase-cinema-rider-outcome">
+      A full shift can now end with a ride home.
+    </p>
+    <p className="theme-showcase-cinema-return-note">
+      The route is no longer scenery. It is the resolution.
+    </p>
   </div>
-  <CinemaNightVisual />
 </section>
 
 <Note>
-  End on the person affected, then use the two illustrative measures only as supporting resolution.
-  The same night scene returns behind the quotation, connecting the measured result to the person it
-  serves.
+  Dissolve back to the wide night scene and let the illustrative human outcome carry the page.
+</Note>
+
+---
+
+<SlideTransition from="next" mode="local" />
+
+<section className="theme-showcase-cinema-story theme-showcase-cinema-story--outcomes">
+  <header className="theme-showcase-cinema-copy">
+    <p className="theme-showcase-cinema-eyebrow">Illustrative outcomes / 05</p>
+    <h2>
+      <span>A schedule can change the whole ending.</span>
+    </h2>
+  </header>
+  <div className="theme-showcase-cinema-outcomes" aria-label="Illustrative pilot outcomes">
+    <p>
+      <strong>41</strong>
+      <span>riders per night</span>
+    </p>
+    <p>
+      <strong>23% → 6%</strong>
+      <span>missed connections</span>
+    </p>
+    <p>
+      <strong>17 min</strong>
+      <span>wait after the shift</span>
+    </p>
+  </div>
+  <small className="theme-showcase-cinema-source">
+    <span>Illustrative composite; no real service or reported data.</span>
+  </small>
+</section>
+
+<Note>
+  Let the illustrative measures read as one outcome card after the human resolution. This page
+  dissolves in; the following end card cuts to black instead of stacking another animated effect.
+</Note>
+
+---
+
+<SlideTransition from="previous" mode="local" />
+
+<section className="theme-showcase-cinema-story theme-showcase-cinema-story--credits">
+  <div className="theme-showcase-cinema-credit-line">
+    <span>Route 14</span>
+    <span>Illustrative service story</span>
+    <span>End</span>
+  </div>
+  <header className="theme-showcase-cinema-copy">
+    <p className="theme-showcase-cinema-eyebrow">Closing card / 06</p>
+    <h2>
+      <span>Change the service.</span>
+      <span>Change the ending.</span>
+    </h2>
+  </header>
+  <ShowcaseExit />
+</section>
+
+<Note>
+  Cut to a restrained closing card. The two lines resolve the opening without repeating the
+  measures, and the links give the audience a clear next action.
 </Note>

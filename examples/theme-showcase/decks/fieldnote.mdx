@@ -1,57 +1,51 @@
 import { FieldnoteCheckout } from "../components/fieldnote-checkout.tsx";
+import { ShowcaseExit } from "../components/showcase-exit.tsx";
 import "../../showcase-return.css";
 import "../components/fieldnote-study.css";
 
-<section className="fieldnote-study fieldnote-study--opening">
-  <header className="fieldnote-study__opening-copy">
-    <p className="fieldnote-study__eyebrow">Illustrative research notebook / Session 03</p>
+<section
+  aria-label="An illustrative checkout research notebook"
+  className="fieldnote-study fieldnote-study--cover"
+>
+  <p className="fieldnote-study__eyebrow">Illustrative field notes / Session 03</p>
+  <div className="fieldnote-study__cover-sheet">
+    <span>Checkout study</span>
     <h1>
-      Confusion starts
-      <br />
-      one screen earlier.
+      <span>The pause began</span>
+      <span>one screen earlier.</span>
     </h1>
-    <p className="fieldnote-study__dek">
-      The payment form is not the problem; the missing promise is.
-    </p>
-    <p className="fieldnote-study__footer">Checkout study · 18 July 2026</p>
-  </header>
-
-  <MotionGroup
-    className="fieldnote-study__opening-artifact"
-    intent="continuity"
-    name="fieldnote-checkout-flow"
-  >
-    <FieldnoteCheckout state="premise" />
-  </MotionGroup>
+    <p>The payment form was not the problem. The missing promise was.</p>
+    <small>18 July 2026 · mobile prototype</small>
+  </div>
+  <p className="fieldnote-study__cover-mark" aria-hidden="true">
+    observe first
+  </p>
 </section>
 
 <Note>
-  Introduce the same checkout artifact that the research observations and decision will use. The
-  page stays quiet: one claim, one flow, and one missing promise.
+  This is an illustrative research notebook. Open with the finding as a handwritten conclusion, then
+  leave enough quiet paper around it. No persistent artifact or transition is needed yet.
 </Note>
 
 ---
 
-<section className="fieldnote-study fieldnote-study--observations">
-  <header className="fieldnote-study__observation-copy">
+<SlideTransition from="previous" mode="local" />
+
+<section
+  aria-label="Observe an illustrative checkout session"
+  className="fieldnote-study fieldnote-study--watch"
+>
+  <header>
     <p className="fieldnote-study__eyebrow">Illustrative moderated session / Participant 05</p>
     <h2>
-      <span>Write what happened</span>
-      <span>before explaining why.</span>
+      <span>Write what happened.</span>
+      <span>Explain why later.</span>
     </h2>
-    <blockquote>“I just want to know what happens when I press it.”</blockquote>
   </header>
 
-  <div className="fieldnote-study__artifact">
-    <MotionGroup intent="continuity" name="fieldnote-checkout-flow">
-      <FieldnoteCheckout state="observations" />
-    </MotionGroup>
-
-    <MotionGroup
-      className="fieldnote-study__observation-layer"
-      flow="block"
-      intent="focus"
-    >
+  <div className="fieldnote-study__watch-board">
+    <FieldnoteCheckout state="observations" />
+    <MotionGroup className="fieldnote-study__observation-layer" flow="block" intent="focus">
       <Step at={1}>
         <span className="fieldnote-study__observation" data-observation="delivery">
           <strong>00:18</strong>
@@ -67,65 +61,116 @@ import "../components/fieldnote-study.css";
       <Step at={3}>
         <span className="fieldnote-study__observation" data-observation="review">
           <strong>00:46</strong>
-          <span>Returns to shipping to look for the answer.</span>
+          <span>Returns to shipping to find the answer.</span>
         </span>
       </Step>
     </MotionGroup>
-
   </div>
 </section>
 
 <Note>
-  Reveal one timestamp at a time. Each note lands on the screen the participant was trying to
-  understand; the quote remains their language, not the researcher's diagnosis.
+  This page turns in as a new observation sheet. Reveal one timestamp at a time. Each note stays
+  attached to the exact screen the participant was trying to understand, and every value remains
+  explicitly illustrative.
 </Note>
 
 ---
 
-<section className="fieldnote-study fieldnote-study--finding">
-  <header className="fieldnote-study__finding-heading">
+<SlideTransition from="previous" mode="local" />
+
+<section
+  aria-label="Separate an observation from its interpretation"
+  className="fieldnote-study fieldnote-study--transcript"
+>
+  <aside className="fieldnote-study__transcript-margin">
+    <span>Session 03</span>
+    <strong>00:31</strong>
+    <span>illustrative note</span>
+  </aside>
+  <blockquote>“I just want to know what happens when I press it.”</blockquote>
+  <div className="fieldnote-study__transcript-rule" aria-hidden="true" />
+  <Step at={1} className="fieldnote-study__interpretation">
+    <p>
+      <span>Observation</span>
+      <strong>The participant asks about the next action.</strong>
+    </p>
+    <p>
+      <span>Interpretation</span>
+      <strong>The delivery summary does not state when charging begins.</strong>
+    </p>
+  </Step>
+  <p className="fieldnote-study__transcript-note">Keep those two lines separate.</p>
+</section>
+
+<Note>
+  This is a direct cut to a transcript page. Read the quote first. Advance once to separate
+  observable behavior from interpretation; the paired annotations appear together instead of moving
+  a shared layout across slides.
+</Note>
+
+---
+
+<section
+  aria-label="Synthesize the illustrative checkout finding"
+  className="fieldnote-study fieldnote-study--synthesis"
+>
+  <header>
     <p className="fieldnote-study__eyebrow">Illustrative synthesis / n=8 mobile participants</p>
     <h2>The hesitation appears before payment.</h2>
   </header>
 
-  <div className="fieldnote-study__finding-body">
-    <MotionGroup intent="continuity" name="fieldnote-checkout-flow">
-      <FieldnoteCheckout state="finding" />
-    </MotionGroup>
-
-    <aside aria-label="Next checkout experiment" className="fieldnote-study__experiment">
-      <p className="fieldnote-study__experiment-label">Next experiment · 25 July</p>
-      <strong>Name the next action and say when charging begins.</strong>
-      <p>Prototype that promise on the delivery summary with five mobile participants.</p>
-      <dl>
-        <div>
-          <dt>Owner</dt>
-          <dd>Checkout content</dd>
-        </div>
-        <div>
-          <dt>Success</dt>
-          <dd>4 of 5 explain both points without going back.</dd>
-        </div>
-      </dl>
+  <div className="fieldnote-study__synthesis-board">
+    <FieldnoteCheckout state="finding" />
+    <aside className="fieldnote-study__tally" aria-label="Illustrative observation tally">
+      <span>Paused at delivery</span>
+      <strong>|||| |||</strong>
+      <small>7 of 8 sessions · illustrative</small>
     </aside>
-
+    <MotionGroup className="fieldnote-study__experiment-note" flow="block" intent="focus">
+      <Step at={1}>
+        <span>Next experiment</span>
+        <strong>Name the next action and say when charging begins.</strong>
+      </Step>
+    </MotionGroup>
   </div>
 </section>
 
-<nav aria-label="Continue with Drever" className="drever-example-exit">
-  <a
-    className="drever-example-exit__primary"
-    data-drever-showcase-return=""
-    href="https://drever.dev/docs/getting-started/"
-  >
-    {"Start a deck"}
-  </a>
-  <a className="drever-example-exit__secondary" href="https://drever.dev/showcase/">
-    {"More design studies"}
-  </a>
-</nav>
+<Note>
+  The synthesis returns to the checkout only after the transcript has been understood. Advance once
+  to attach one experiment to the visible gap. The tally and sample are illustrative, not reported
+  research.
+</Note>
+
+---
+
+<SlideTransition from="previous" mode="local" />
+
+<section
+  aria-label="Close the illustrative study with a testable next page"
+  className="fieldnote-study fieldnote-study--next-page"
+>
+  <p className="fieldnote-study__eyebrow">Next page / 25 July</p>
+  <h2>Turn the note into a test.</h2>
+  <div className="fieldnote-study__experiment-sheet">
+    <p>
+      <span>Change</span>
+      <strong>Explain “Continue” on the delivery summary.</strong>
+    </p>
+    <p>
+      <span>Owner</span>
+      <strong>Checkout content</strong>
+    </p>
+    <p>
+      <span>Success</span>
+      <strong>4 of 5 explain both points without going back.</strong>
+    </p>
+    <small>Illustrative experiment plan</small>
+  </div>
+  <ShowcaseExit />
+</section>
 
 <Note>
-  Keep the finding attached to the same checkout artifact. The close records one change, one owner,
-  and one observable success threshold instead of turning the page into a recommendation dashboard.
+  Close with a fresh experiment page rather than carrying the checkout forward again. The direct cut
+  marks a change from evidence to action. Name one change, one owner, and one observable success
+  threshold.
 </Note>

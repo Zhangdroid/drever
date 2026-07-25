@@ -15,7 +15,7 @@ export const releaseSmokeScenarios = Object.freeze([
     mode: "surprise-me",
     turns: Object.freeze([
       sharedFirstTurn,
-      "Surprise me. Choose the topic and every remaining creative decision, then create the presentation now.",
+      "Skip remaining questions — surprise me. Choose the topic and every remaining creative decision, then create the presentation now.",
       `Review the complete authored draft once more. Keep its strongest idea, then refine the
 narrative, composition, hierarchy, motion, and small details wherever the source reveals a
 clear improvement. Do not run validation in this protected stage.`,

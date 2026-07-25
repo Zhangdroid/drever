@@ -69,10 +69,15 @@ design/
 `art-direction.md` records the brief, subject-led evidence, fallback choices, source URLs, licenses, and the reason for each recurring motif. Keep it concise enough to review in a diff.
 
 Define a one-sentence visual premise and two or three signature moments before styling every slide.
-Each signature moment should prove an important claim through a bespoke diagram, artifact, spatial
-composition, data scene, media treatment, or meaningful interaction. Use quieter supporting slides
-between them so the deck has rhythm. A repeated stack of generic cards, gradients, and text columns
-is not a custom direction even when its colors match the subject.
+Record each in `art-direction.md` as **claim → focal artifact → initial state → meaningful
+transformation → settled payoff → static or reduced-motion endpoint**. Put at least one in the
+opening third. Its transformation must clarify causality, comparison, reveal, or role change; a
+generic fade or slide entrance alone is not a signature moment.
+
+Apply the topic-fingerprint test: with the title and branding hidden, the focal artifact and its
+relationship should still plausibly belong to this subject. A recolored card grid, generic
+gradient, or ordinary entrance does not pass. Use quieter supporting slides between signature beats
+so the deck has rhythm.
 
 Plan composition across the deck rather than repeating one convenient template. Do not default
 most slides to a left-copy/right-artifact split. Let the content structure justify centered
@@ -101,13 +106,21 @@ topology, particle, glow, or ambient motion before the title or evidence, reduce
 opacity, sharpness, or motion amplitude. Give foreground cards enough opacity or a local scrim to
 separate them from the background before compromising legibility.
 
-Treat any essential rendered heading, body copy, label, link, code, or table text that is not
-immediately legible at the configured canvas as a blocking P0 defect. An ancestor's `color` is not
-proof: Theme element rules can override `h1`, `h2`, `p`, `a`, `code`, and table descendants. Define
-foreground roles on the actual rendered elements or through sufficiently specific semantic
-overrides, then inspect their computed colors against the worst-case light, dark, image, or
-gradient background and every Step state. Dim background layers or decoration, never a container
-that also contains required text.
+Every visible authored string is a reading promise. Treat any heading, body copy, label, caption,
+legend, annotation, link, code, table cell, or control that is not immediately legible at
+presentation distance on the configured canvas as a blocking P0 defect. If text is not meant to be
+read, use a non-text visual texture instead of fake microcopy. Check actual font size, weight,
+spacing, and computed foreground against the worst rendered background, Step state, and motion
+frame; passing a contrast ratio alone does not prove presentation legibility. An ancestor's
+`color` is not proof because Theme element rules can override rendered descendants. Dim background
+layers or decoration, never a container that also contains required text.
+
+Keep every label and copy block fully contained within the shape or surface that visually owns it,
+with deliberate padding in every Step and intermediate frame. For circles, rings, clipped
+polygons, and other non-rectangular owners, validate the usable inner silhouette after borders and
+padding, not merely the rectangular bounding box. If the copy cannot fit, enlarge or reflow the
+owner, or move the label outside with an explicit association. Never repair it by clipping,
+overlap, or shrinking below presentation legibility.
 
 Treat typography as one deliberate system. When the premise is intentionally all-handwritten, carry that voice through headings, body copy, labels, and data instead of accidentally mixing unrelated type voices. Make exceptions only when the content semantics require a specialized face, such as literal code or a protected brand mark.
 
@@ -126,13 +139,15 @@ When a slide pairs a text-heavy narrative region with supporting content, make t
 
 - Give each moment one primary motion and at most one quieter cue in the same causal chain. Count native transitions, Steps, kinetic type, video, 3D, and third-party animation against that one budget.
 - Establish a concrete claim, evidence, and decision before adding choreography. Motion cannot rescue abstract copy.
-- Give the deck one theme-led whole-slide transition voice. Use directional travel only when spatial progression matters; otherwise choose a restrained reading-edge reveal, precise state commit, or quiet fade that fits the subject. Do not randomize page transitions slide by slide.
+- Give the deck one theme-led transition vocabulary, not one mandatory effect. Its cadence may mix direct cuts, restrained fades, local live-DOM handoffs, Steps, and a few continuity transitions when those choices share the subject's timing and gesture. A traditional or minimal deck may use mostly cuts and almost no navigation animation. Use directional travel only when spatial progression matters, and never run a View Transition on every edge merely to make the deck feel consistent.
+- When designing a catalog or a family of reference decks, distinguish the systems structurally as well as cosmetically. Vary narrative length, density, composition silhouettes, transition cadence, Step grammar, and signature moments; seven recolored versions of one three-slide, left-copy/right-artifact continuity sequence are one design, not seven.
 - Plan a key object's narrative lifecycle instead of a series of entrances. It may begin completely off-stage, enter as evidence, dock at lower contrast when it becomes context, and retire when it stops supporting the claim. When one concrete artifact keeps carrying the argument, build a short connected sequence around it: let the surrounding context or surface change while the artifact remains recognizable, and give it a distinct narrative job on every slide. Show a fragment only when that fragment creates useful anticipation; never leave a meaningless clipped sliver.
 - Animate the smallest object whose meaning changed. Keep the Stage shell, controls, page information, backgrounds, and persistent anchors stationary.
 - Match direction, timing, and gesture to reading order, spatial structure, or narrative causality. Let an initial state settle when the audience must perceive it; choose timing from the reading job instead of applying a fixed delay. Keep quiet cues perceptible at presentation distance.
 - Animate only properties that express the same semantic change. Serialize multiple techniques around one focal object instead of running competing cues.
 - Use `Step` when presentation navigation owns a reveal. Keep an inline control only when direct manipulation is itself the lesson.
-- Use continuity for the same object or for adjacent objects with a clear semantic or visual correspondence. Share the smallest stable feature that makes the relationship legible; color or shape alone is insufficient. Keep endpoint geometry, type metrics, wrapping, paint, shadows, and media crop explicit, and count the handoff as the moment's primary motion.
+- Use continuity for the same object or for adjacent objects with a clear semantic or visual correspondence. Share the smallest stable feature that makes the relationship legible; color or shape alone is insufficient. Keep endpoint geometry, type metrics, wrapping, paint, shadows, and media crop explicit, and count the handoff as the moment's primary motion. A shared snapshot must not interpolate between incompatible boxes: give both endpoints the same explicit inline size, block size, aspect ratio, and `box-sizing`, then move that fixed shell through parent layout. If preserving the two silhouettes matters more than invariant geometry, stop sharing the identity and use a cut, replacement, or restrained dissolve. A grow-then-shrink impression is a geometry mismatch, not an easing problem.
+- Do not preserve an artifact across every slide simply because continuity is available. End a continuity sequence when its object stops carrying the argument, and use `SlideTransition mode="local"` for an exact edge that should cut directly or let destination-side live DOM own the change.
 - Give each moving indicator one visual role. A cursor or focus reticle has a recognizable hotspot that lands exactly on a target; anchor a text caret inside the same inline wrapper as the final word instead of positioning it against the surrounding panel. A route signal remains centered on its path and reaches the real endpoint. Keep the marker and milestones in one local positioned coordinate system instead of using travel distances measured from another container.
 - Never stretch text or boxes, hard-clip painted shadows, switch a shadow from `none`, or animate a recurring motif merely because it exists. Treat repeated accents as layout anchors: keep their position and geometry identical across adjacent slides unless a meaningful chapter, comparison, or state change requires a move. Make that exception legible and hold its new position long enough to read as intentional.
 - Size every animated or spatial component for its largest transformed and painted footprint across the whole sequence. At maximum expansion, 2D or 3D layers must retain clear space from tracks, labels, and adjacent copy.
@@ -151,7 +166,7 @@ decoration merely to make the second pass look different.
 
 1. Add tests only for meaningful contracts or component behavior; do not add snapshots that merely preserve CSS text.
 2. Run `npm exec -- drever context --json`, `npm exec -- drever check --json`, and `npm exec -- drever build`.
-3. Inspect representative slides for every layout, then every affected slide and Step state at the configured canvas size. Resolve every P0 readability defect before aesthetic polish, including computed descendant foregrounds on the most disruptive background frame. Check intermediate motion frames in both directions, not only endpoints.
+3. Inspect every slide at Step 0 and every exact Step state after the first applied design; representative sampling is not sufficient. For a narrowly scoped later edit, inspect every affected state and adjacent handoff. Changing shared tokens, layouts, Stage layers, or components requires the whole deck. Resolve every P0 readability defect before aesthetic polish, including computed descendant foregrounds on the most disruptive background frame. Check intermediate motion frames in both directions, not only endpoints.
 4. Check `/document`, reduced motion, and relevant speaker and export surfaces. Verify fonts and localized assets load without network-dependent generation.
 5. Review the result against `art-direction.md`: remove any prominent choice that cannot be justified as subject-led or clearly acknowledged as fallback.
 6. When the design is applied to a deck, use the project-local `drever-review-deck` skill as the rendered completion gate. Reinspect the whole deck after changing shared tokens, layouts, Stage layers, or components; successful generation and build commands do not prove the design is ready.
