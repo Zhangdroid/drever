@@ -3,7 +3,7 @@
 A five-slide, network-free deck that exercises Drever's primary authoring and
 runtime paths:
 
-- semantic `Cover` and `TwoColumn` layouts from the default theme;
+- semantic `Cover` and `TwoColumn` layouts from the Basic theme;
 - sparse `Step` stops at 2 and 5;
 - browser history and exact path URLs;
 - an interactive React counter whose state survives inactive slides;

@@ -1,6 +1,6 @@
 import { defineTheme } from "@drever/compiler";
 
-const PACKAGE = "@drever/designs/default";
+const PACKAGE = "@drever/designs/basic";
 
 export const theme = defineTheme({
   kind: "theme",
@@ -45,13 +45,13 @@ export const theme = defineTheme({
   },
   styles: [{ specifier: `${PACKAGE}/theme.css`, layer: "theme" }],
   motion: {
-    id: "default",
+    id: "basic",
     intents: ["focus", "replace", "compare", "stagger", "continuity"],
     guidance: [
       "Use focus to keep prior evidence visible while making the current Step unmistakable.",
       "Use replace for one changing state, compare for cumulative evidence, and stagger for at most four tightly related items.",
       "Set flow to block for a vertical reading sequence and inline for a horizontal process or comparison; leave it unset when neither axis explains the content.",
-      "Default motion uses clean fades and short spatial travel, keeping the content more prominent than the choreography.",
+      "Basic motion uses clean fades and short spatial travel, keeping the content more prominent than the choreography.",
       "Reuse a continuity name only when the same visual object persists across adjacent slides.",
     ],
   },
@@ -127,7 +127,7 @@ export const theme = defineTheme({
     },
   ],
   manifest: {
-    title: "Drever Default",
+    title: "Drever Basic",
     summary: "A neutral visual baseline with generous space, clear typography, and focused motion.",
     artDirection: {
       keywords: ["neutral", "clear", "versatile", "calm"],

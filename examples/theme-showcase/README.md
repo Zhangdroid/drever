@@ -3,7 +3,7 @@
 One real Drever project for reviewing five additional official design studies
 without maintaining five duplicate example packages. `DREVER_THEME` selects
 both the Theme contract and a short deck written specifically for that visual
-language. Default, Editorial, and Studio are treated the same way in the main
+language. Basic, Editorial, and Studio are treated the same way in the main
 design-study catalog; this project concentrates the five newer studies:
 
 | Value       | Entry                 | Story                                                      |

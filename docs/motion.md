@@ -32,7 +32,11 @@ deck, and review Skill:
    delight, but it must reinforce the current idea and remain subordinate to
    reading. Quiet does not mean imperceptible: the cue must still communicate
    its job at presentation distance. Repeated generic entrances are not a
-   visual voice.
+   visual voice. Give the deck one theme-led whole-slide transition voice:
+   directional travel only when space matters, a reading-edge reveal for
+   editorial progression, a precise state commit for technical work, or a
+   quiet fade when the page change is not the subject. Do not randomize
+   transitions slide by slide.
 4. **Move the smallest meaningful object.** Persistent titles, layout anchors,
    Stage shells, backgrounds, page numbers, branding, dialogs, and audience
    controls stay live and stationary. Animate only the child whose narrative
@@ -57,6 +61,11 @@ deck, and review Skill:
    transition completion, forward and backward navigation, repeated Step
    changes, pointer focus, reduced motion, speaker, document, and export modes.
 
+For a keynote-style card wall or other breadth montage, author a fixed,
+non-linear reveal order so the composition can feel organic without becoming
+runtime-random. Keep labels terse, give the wall one collective claim, and
+provide a complete deterministic reduced-motion and export state.
+
 The rest of this document defines the primitives and implementation details
 that satisfy those principles.
 
@@ -79,9 +88,9 @@ appropriate.
 `continuity` rejects `flow` because shared-object motion comes from the two
 authored layouts instead of a reveal direction.
 
-Official themes have distinct motion voices. Default favors unadorned fades and
-short travel; Editorial uncovers content from its reading edge; Studio uses a
-brief scale-lock for precise system states; Fieldnote follows writing order;
+Official themes have distinct motion voices. Basic favors unadorned fades and
+short travel; Editorial fades through a subtle reading-edge cue; Studio uses a
+brief, precise state commit; Fieldnote follows writing order;
 Atlas advances along a declared route; Ledger preserves row and column
 alignment; Cinema uses stable cuts and restrained dissolves; Construct adds one
 meaningful part at a time. These mappings stay theme-owned; authors never

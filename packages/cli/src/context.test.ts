@@ -1,5 +1,5 @@
 import { definePlugin, parseDeck } from "@drever/compiler";
-import defaultTheme from "@drever/designs/default";
+import basicTheme from "@drever/designs/basic";
 import {
   DECK_MANIFEST_VERSION,
   DREVER_AUTHORING_CONTEXT_VERSION,
@@ -115,7 +115,7 @@ export default {
         canvas: { height: 810, width: 1_440 },
         plugins: [fixturePlugin],
         theme: {
-          ...defaultTheme,
+          ...basicTheme,
           id: "fixture:theme",
           baseURL: fixtureBaseURL,
           elements: { p: { specifier: "./fixture-component.mjs" } },
@@ -157,7 +157,7 @@ export default {
       design: {
         theme: {
           id: "fixture:theme",
-          manifest: { title: "Drever Default" },
+          manifest: { title: "Drever Basic" },
         },
         layouts: [{ name: "Cover" }, { name: "TwoColumn" }],
         components: [

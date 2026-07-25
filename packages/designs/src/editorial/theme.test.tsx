@@ -167,6 +167,8 @@ describe("@drever/designs/editorial", () => {
     );
     expect(css).toContain(":root:has(.drever-viewer),");
     expect(css).toContain("--drever-motion-slide-offset: 1.8%;");
+    expect(css).toContain("--drever-motion-slide-enter-animation: drever-editorial-slide-enter;");
+    expect(css).toContain("--drever-motion-slide-exit-animation: drever-editorial-slide-exit;");
     expect(css).toContain("--drever-recipe-stagger-gap: 44ms;");
     expect(css).toContain("--drever-recipe-replace-block-from-translate: 0 8px;");
     expect(css).toContain("--drever-recipe-replace-inline-from-translate: 10px 0;");
@@ -179,6 +181,8 @@ describe("@drever/designs/editorial", () => {
     expect(css).toContain("[data-drever-slide] ::selection");
     expect(css).not.toMatch(/^::selection/mu);
     expect(css).toContain("@keyframes drever-editorial-stagger-block-enter");
+    expect(css).toContain("@keyframes drever-editorial-slide-enter");
+    expect(css).toContain("@keyframes drever-editorial-slide-exit");
     expect(css).toContain("clip-path: inset(0 12% 0 0);");
     expect(css).not.toContain("--drever-recipe-step-from-transform");
     expect(css).toContain("[data-drever-reduced-motion]");

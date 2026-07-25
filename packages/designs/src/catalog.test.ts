@@ -5,9 +5,9 @@ describe("@drever/designs", () => {
   it("publishes one explicit runtime namespace for every official design study", () => {
     expect(Object.keys(officialDesigns)).toEqual([
       "atlas",
+      "basic",
       "cinema",
       "construct",
-      "default",
       "editorial",
       "fieldnote",
       "ledger",

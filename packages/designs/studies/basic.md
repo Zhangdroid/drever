@@ -1,6 +1,6 @@
-# Default
+# Basic
 
-The default Drever theme is a complete visual baseline for a real presentation,
+The Basic Drever study is a complete visual baseline for a real presentation,
 not a reset stylesheet. It combines decisive typography, a restrained blue
 accent, generous spacing, semantic layouts, and motion tuned for Drever's View
 Transition navigation.
@@ -8,7 +8,7 @@ Transition navigation.
 Treat it as the neutral fallback among Drever's eight official design studies
 and as a deterministic Theme contract. The primary authoring workflow derives
 art direction from the subject, audience, venue, and source material, then
-persists that result locally; Default is appropriate only when the brief does
+persists that result locally; Basic is appropriate only when the brief does
 not justify a more specific visual premise.
 
 It has no font, image, or component-library dependency. The only browser
@@ -18,7 +18,7 @@ runtime dependency is React when a deck uses one of its two layouts.
 
 ```ts
 // drever.config.ts
-import theme from "@drever/designs/default";
+import theme from "@drever/designs/basic";
 
 export default {
   theme,
@@ -103,7 +103,7 @@ Public props:
 
 ## Motion
 
-Default supports Drever's complete semantic motion grammar: `focus`, `replace`,
+Basic supports Drever's complete semantic motion grammar: `focus`, `replace`,
 `compare`, `stagger`, and `continuity`. Its mapping uses quiet fades and short
 spatial movement so the current decision is clear without competing with the
 content. The exported theme definition exposes the same supported intents and
@@ -113,7 +113,7 @@ Intent explains why content moves; optional flow identifies its logical
 progression axis; the theme supplies the visual voice. Use `flow="block"` for a
 vertical reading order and `flow="inline"` for a horizontal pipeline,
 comparison, or successive state, or omit it
-to keep Default's balanced direction. Use direct Step children for focus,
+to keep Basic's balanced direction. Use direct Step children for focus,
 replacement, and comparison. Put a stagger group inside one Step with no more
 than four direct children. Continuity alone requires an explicit lowercase
 kebab-case name shared by the same object on adjacent slides and rejects flow.
@@ -129,7 +129,7 @@ behavior, and the reduced-motion contract.
 This can be pasted after the presentation brief:
 
 ```text
-Use @drever/designs/default. Give every slide one dominant idea. Prefer ordinary
+Use @drever/designs/basic. Give every slide one dominant idea. Prefer ordinary
 Markdown. Use Cover only for the opening or a true chapter break, and use
 TwoColumn only when the relationship between two ideas is the point. Keep titles
 under 10 words, body copy under 45 words per region, and avoid more than one

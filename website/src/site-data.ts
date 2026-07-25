@@ -45,7 +45,7 @@ const demoContent = {
     meta: "Studio · 14 slides",
   },
   motion: {
-    meta: "Editorial · 16 slides",
+    meta: "Editorial · 18 slides",
   },
   scenes: {
     meta: "Incubating source study · 4 slides",
@@ -54,7 +54,7 @@ const demoContent = {
     meta: "Studio · 11 slides",
   },
   basic: {
-    meta: "Default · 5 slides",
+    meta: "Basic · 5 slides",
   },
 } as const;
 
@@ -70,8 +70,8 @@ export const themes = [
   {
     description:
       "A clear, adaptable system for everyday stories, product reviews, lessons, and proposals.",
-    id: "default",
-    label: "Default",
+    id: "basic",
+    label: "Basic",
     liveHref: "/showcase/basic/",
     statement: "Clear, spacious, ready for almost any story.",
     voice: "Direct · calm · versatile",

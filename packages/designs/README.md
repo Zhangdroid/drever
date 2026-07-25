@@ -31,7 +31,7 @@ import "@drever/designs/editorial/theme.css";
 
 | Study     | Best suited to                                              | Layouts                  |
 | --------- | ----------------------------------------------------------- | ------------------------ |
-| Default   | A neutral fallback with restrained hierarchy                | `Cover`, `TwoColumn`     |
+| Basic     | A neutral fallback with restrained hierarchy                | `Cover`, `TwoColumn`     |
 | Editorial | Publication-led narratives and typographic evidence         | `Masthead`, `Feature`    |
 | Studio    | Technical systems, interfaces, code, and live artifacts     | `Statement`, `Workbench` |
 | Fieldnote | Workshops, lessons, annotations, and reflective stories     | `Notebook`, `Annotated`  |

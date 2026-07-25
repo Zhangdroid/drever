@@ -1,4 +1,4 @@
-import defaultTheme from "@drever/designs/default";
+import basicTheme from "@drever/designs/basic";
 import gfmPlugin from "@drever/plugin-gfm";
 import shikiPlugin from "@drever/plugin-shiki";
 import tailwindCssPlugin from "@drever/plugin-tailwindcss";
@@ -170,7 +170,7 @@ export const resolveDreverPlan = async ({
     root,
   });
   const planResult = createCompilePlan({
-    theme: config.theme ?? defaultTheme,
+    theme: config.theme ?? basicTheme,
     plugins: resolvePluginRegistrations(config.plugins),
   });
   if (!planResult.ok) {

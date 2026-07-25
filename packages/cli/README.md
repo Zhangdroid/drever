@@ -102,8 +102,8 @@ export default defineConfig({
 });
 ```
 
-The default theme is used when `theme` is omitted. GFM, Shiki, and Tailwind CSS
-are ordered defaults; the first matching config entry can configure or disable
+The Basic theme is the automatic fallback when `theme` is omitted. GFM, Shiki,
+and Tailwind CSS are ordered defaults; the first matching config entry can configure or disable
 one in place. Other plugins are explicit `PluginRegistration` values. Vite
 remains available to plugin developers through the Drever plugin contract
 rather than through this config.

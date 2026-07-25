@@ -73,7 +73,7 @@ export const theme = defineTheme({
       "Prefer focus and compare when the audience should retain the argument's reading order.",
       "Use replace for a revised claim or artifact, and stagger no more than four related details.",
       "Follow editorial reading order: use block flow for stacked evidence and inline flow for a page-like revision or side-by-side argument.",
-      "Editorial motion uses a restrained reading-edge crop so evidence feels uncovered rather than mechanically translated.",
+      "Editorial slide changes use a separated reading-edge reveal so the previous thought clears before the next becomes legible.",
       "Use continuity only for an image, quotation, or artifact that genuinely carries into the next slide.",
     ],
   },

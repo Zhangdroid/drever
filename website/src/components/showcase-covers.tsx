@@ -268,14 +268,14 @@ export function ArtDirectionCover({ theme }: { theme: ThemeId }) {
   }
 
   return (
-    <div className="art-cover art-cover--default" aria-hidden="true">
+    <div className="art-cover art-cover--basic" aria-hidden="true">
       <header>
         <span>Quarterly review</span>
       </header>
-      <div className="default-cover__question">
+      <div className="basic-cover__question">
         <strong>What should happen next?</strong>
       </div>
-      <div className="default-cover__steps">
+      <div className="basic-cover__steps">
         <div>
           <span>01</span>
           <i />

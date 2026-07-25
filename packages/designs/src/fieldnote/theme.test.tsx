@@ -136,6 +136,10 @@ describe("@drever/designs/fieldnote", () => {
       easing: "cubic-bezier(0.22, 1, 0.36, 1)",
     });
     expect(css).toContain("--drever-motion-duration: 420ms;");
+    expect(css).toContain("--drever-motion-slide-enter-animation: drever-fieldnote-slide-enter;");
+    expect(css).toContain("--drever-motion-slide-exit-animation: drever-fieldnote-slide-exit;");
+    expect(css).toContain("@keyframes drever-fieldnote-slide-enter");
+    expect(css).toContain("@keyframes drever-fieldnote-slide-exit");
     expect(css).toContain('data-step-state="active"]::before');
     expect(css).toContain(
       '[data-drever-deck]:not([data-drever-render-mode="document"])\n  [data-drever-motion-group=""]:is(',

@@ -21,7 +21,7 @@ together. Their local links use the same hostname with ports `4320`, `4322`, and
 sibling `dist` builds also link to one another when opened from the filesystem.
 
 The theme showcase concentrates five new design studies in one project while
-Default, Editorial, and Studio remain exercised by the established demos. Run
+Basic, Editorial, and Studio remain exercised by the established demos. Run
 `vp run -F @drever/example-theme-showcase check:all` or `build:all` to validate
 every new subject-led deck.
 

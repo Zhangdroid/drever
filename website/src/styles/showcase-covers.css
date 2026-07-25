@@ -560,23 +560,23 @@
   justify-content: flex-start;
 }
 
-.art-cover--default {
+.art-cover--basic {
   border-left: 0.35rem solid #2855e7;
   background: radial-gradient(circle at 80% 12%, rgb(40 85 231 / 8%), transparent 30%), #f7f7f2;
   color: #171816;
 }
 
-.art-cover--default > header {
+.art-cover--basic > header {
   color: #5f655e;
 }
 
-.default-cover__question {
+.basic-cover__question {
   position: absolute;
   top: 31%;
   left: 10%;
 }
 
-.default-cover__question strong {
+.basic-cover__question strong {
   display: block;
   max-width: 12ch;
   font-family: var(--drever-brand-font-family-display);
@@ -586,7 +586,7 @@
   line-height: 0.96;
 }
 
-.default-cover__steps {
+.basic-cover__steps {
   position: absolute;
   right: 9%;
   bottom: 27%;
@@ -596,7 +596,7 @@
   gap: 0.35rem;
 }
 
-.default-cover__steps > div {
+.basic-cover__steps > div {
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: center;
@@ -606,23 +606,23 @@
   font-size: 0.42rem;
 }
 
-.default-cover__steps i {
+.basic-cover__steps i {
   height: 2px;
   background: #cdd1ca;
 }
 
-.default-cover__steps > div:last-child {
+.basic-cover__steps > div:last-child {
   color: #2855e7;
 }
 
-.default-cover__steps > div:last-child i {
+.basic-cover__steps > div:last-child i {
   background: #2855e7;
   transform: scaleX(0.28);
   transform-origin: left;
   transition: transform 560ms var(--drever-brand-motion-easing-emphasized);
 }
 
-.theme-card:is(:hover, :focus-visible) .default-cover__steps > div:last-child i {
+.theme-card:is(:hover, :focus-visible) .basic-cover__steps > div:last-child i {
   transform: scaleX(1);
 }
 

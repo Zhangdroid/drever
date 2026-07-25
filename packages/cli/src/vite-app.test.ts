@@ -12,11 +12,12 @@ describe("resolveFrameworkViteConfig", () => {
     const config = resolveFrameworkViteConfig();
 
     expect(config.dedupe).toEqual(["react", "react-dom"]);
+    expect(config.warmup).toEqual(["./entry.js"]);
     expect(config.optimize).toEqual([
       "drever",
       "@drever/client",
       "@drever/core",
-      "@drever/designs/default/layouts",
+      "@drever/designs/basic/layouts",
       "react",
       "react/jsx-dev-runtime",
       "react/jsx-runtime",

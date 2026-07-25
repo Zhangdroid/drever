@@ -1,7 +1,7 @@
 import atlasTheme from "./atlas/index.ts";
+import basicTheme from "./basic/index.ts";
 import cinemaTheme from "./cinema/index.ts";
 import constructTheme from "./construct/index.ts";
-import defaultTheme from "./default/index.ts";
 import editorialTheme from "./editorial/index.ts";
 import fieldnoteTheme from "./fieldnote/index.ts";
 import ledgerTheme from "./ledger/index.ts";
@@ -24,9 +24,9 @@ export type { StudioRecipe } from "./studio/index.ts";
 
 export {
   atlasTheme,
+  basicTheme,
   cinemaTheme,
   constructTheme,
-  defaultTheme,
   editorialTheme,
   fieldnoteTheme,
   ledgerTheme,
@@ -35,9 +35,9 @@ export {
 
 export const officialDesigns = Object.freeze({
   atlas: atlasTheme,
+  basic: basicTheme,
   cinema: cinemaTheme,
   construct: constructTheme,
-  default: defaultTheme,
   editorial: editorialTheme,
   fieldnote: fieldnoteTheme,
   ledger: ledgerTheme,

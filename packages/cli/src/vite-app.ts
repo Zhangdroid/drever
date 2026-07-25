@@ -24,8 +24,8 @@ const workspaceFallbacks = Object.freeze({
   "@drever/client": "../../client/src/index.ts",
   "@drever/client/styles.css": "../../client/styles.css",
   "@drever/core": "../../core/src/index.ts",
-  "@drever/designs/default/layouts": "../../designs/src/default/layouts.tsx",
-  "@drever/designs/default/theme.css": "../../designs/themes/default/theme.css",
+  "@drever/designs/basic/layouts": "../../designs/src/basic/layouts.tsx",
+  "@drever/designs/basic/theme.css": "../../designs/themes/basic/theme.css",
   react: "../../client/node_modules/react/index.js",
   "react/jsx-dev-runtime": "../../client/node_modules/react/jsx-dev-runtime.js",
   "react/jsx-runtime": "../../client/node_modules/react/jsx-runtime.js",
@@ -37,7 +37,7 @@ const optimizedFrameworkDependencies = Object.freeze([
   "drever",
   "@drever/client",
   "@drever/core",
-  "@drever/designs/default/layouts",
+  "@drever/designs/basic/layouts",
   "react",
   "react/jsx-dev-runtime",
   "react/jsx-runtime",
@@ -72,12 +72,12 @@ const frameworkAliases = (): readonly Alias[] => [
   { find: /^@drever\/client$/u, replacement: packageFile("@drever/client") },
   { find: /^@drever\/core$/u, replacement: packageFile("@drever/core") },
   {
-    find: /^@drever\/designs\/default\/layouts$/u,
-    replacement: packageFile("@drever/designs/default/layouts"),
+    find: /^@drever\/designs\/basic\/layouts$/u,
+    replacement: packageFile("@drever/designs/basic/layouts"),
   },
   {
-    find: /^@drever\/designs\/default\/theme\.css$/u,
-    replacement: packageFile("@drever/designs/default/theme.css"),
+    find: /^@drever\/designs\/basic\/theme\.css$/u,
+    replacement: packageFile("@drever/designs/basic/theme.css"),
   },
   { find: /^react$/u, replacement: packageFile("react") },
   { find: /^react\/jsx-dev-runtime$/u, replacement: packageFile("react/jsx-dev-runtime") },
@@ -94,11 +94,13 @@ export const resolveFrameworkViteConfig = (): Readonly<{
   aliases: readonly Alias[];
   dedupe: readonly string[];
   optimize: readonly string[];
+  warmup: readonly string[];
 }> =>
   Object.freeze({
     aliases: frameworkAliases(),
     dedupe: Object.freeze(["react", "react-dom"]),
     optimize: optimizedFrameworkDependencies,
+    warmup: Object.freeze(["./entry.js"]),
   });
 
 const projectModuleResolver = (root: string): Plugin => {
@@ -155,6 +157,7 @@ const inlineConfig = (
           aliases.map(({ replacement }) => replacement),
         ),
       },
+      warmup: { clientFiles: [...framework.warmup] },
       ...project.config.server,
     },
   };

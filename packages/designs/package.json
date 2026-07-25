@@ -17,9 +17,9 @@
   "type": "module",
   "sideEffects": [
     "./themes/atlas/theme.css",
+    "./themes/basic/theme.css",
     "./themes/cinema/theme.css",
     "./themes/construct/theme.css",
-    "./themes/default/theme.css",
     "./themes/editorial/theme.css",
     "./themes/fieldnote/theme.css",
     "./themes/ledger/theme.css",
@@ -39,6 +39,15 @@
       "import": "./dist/atlas-layouts.mjs"
     },
     "./atlas/theme.css": "./themes/atlas/theme.css",
+    "./basic": {
+      "types": "./dist/basic.d.mts",
+      "import": "./dist/basic.mjs"
+    },
+    "./basic/layouts": {
+      "types": "./dist/basic-layouts.d.mts",
+      "import": "./dist/basic-layouts.mjs"
+    },
+    "./basic/theme.css": "./themes/basic/theme.css",
     "./cinema": {
       "types": "./dist/cinema.d.mts",
       "import": "./dist/cinema.mjs"
@@ -57,15 +66,6 @@
       "import": "./dist/construct-layouts.mjs"
     },
     "./construct/theme.css": "./themes/construct/theme.css",
-    "./default": {
-      "types": "./dist/default.d.mts",
-      "import": "./dist/default.mjs"
-    },
-    "./default/layouts": {
-      "types": "./dist/default-layouts.d.mts",
-      "import": "./dist/default-layouts.mjs"
-    },
-    "./default/theme.css": "./themes/default/theme.css",
     "./editorial": {
       "types": "./dist/editorial.d.mts",
       "import": "./dist/editorial.mjs"

@@ -349,8 +349,8 @@ Keep stable decoration stable. If a background scene changes, animate only the
 glow, shape, number, or other sub-element that actually changed; do not put the
 complete background or foreground into the slide transition.
 
-The default theme is active when `theme` is omitted. It styles ordinary Markdown
-and registers the semantic `Cover` and `TwoColumn` layouts:
+The Basic theme is the automatic fallback when `theme` is omitted. It styles
+ordinary Markdown and registers the semantic `Cover` and `TwoColumn` layouts:
 
 ```mdx
 <Cover

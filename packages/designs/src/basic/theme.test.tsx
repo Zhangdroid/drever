@@ -2,12 +2,12 @@ import { readFileSync } from "node:fs";
 import { createCompilePlan } from "@drever/compiler";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vite-plus/test";
-import defaultTheme, { theme } from "./index.ts";
+import basicTheme, { theme } from "./index.ts";
 import { Cover, TwoColumn } from "./layouts.tsx";
 
-describe("@drever/designs/default", () => {
+describe("@drever/designs/basic", () => {
   it("is a valid public theme contribution with resolvable package subpaths", () => {
-    expect(defaultTheme).toBe(theme);
+    expect(basicTheme).toBe(theme);
 
     const result = createCompilePlan({ theme });
 
@@ -17,27 +17,27 @@ describe("@drever/designs/default", () => {
     }
     expect(result.diagnostics).toEqual([]);
     expect(result.value.theme).toMatchObject({
-      id: "@drever/designs/default",
+      id: "@drever/designs/basic",
       canvas: { width: 1600, height: 900 },
       motion: {
-        id: "default",
+        id: "basic",
         intents: ["focus", "replace", "compare", "stagger", "continuity"],
       },
     });
     expect(result.value.runtime.styles).toEqual([
       {
-        owner: { kind: "theme", id: "@drever/designs/default" },
-        style: { specifier: "@drever/designs/default/theme.css", layer: "theme" },
+        owner: { kind: "theme", id: "@drever/designs/basic" },
+        style: { specifier: "@drever/designs/basic/theme.css", layer: "theme" },
       },
     ]);
     expect(result.value.runtime.layouts.map(({ module, name }) => ({ module, name }))).toEqual([
       {
         name: "Cover",
-        module: { specifier: "@drever/designs/default/layouts", exportName: "Cover" },
+        module: { specifier: "@drever/designs/basic/layouts", exportName: "Cover" },
       },
       {
         name: "TwoColumn",
-        module: { specifier: "@drever/designs/default/layouts", exportName: "TwoColumn" },
+        module: { specifier: "@drever/designs/basic/layouts", exportName: "TwoColumn" },
       },
     ]);
     expect(theme.manifest?.artDirection.keywords).toContain("neutral");
@@ -67,7 +67,7 @@ describe("@drever/designs/default", () => {
   });
 
   it("implements every declared semantic motion recipe with bounded choreography", () => {
-    const css = readFileSync(new URL("../../themes/default/theme.css", import.meta.url), "utf8");
+    const css = readFileSync(new URL("../../themes/basic/theme.css", import.meta.url), "utf8");
 
     expect(css).toMatch(/\[data-drever-stage-layer="background"\] \{[^}]*background:/su);
     expect(css).toMatch(/\[data-drever-slide\] \{[^}]*background: transparent;/su);
@@ -94,6 +94,8 @@ describe("@drever/designs/default", () => {
     );
     expect(css).toContain(":root:has(.drever-viewer),");
     expect(css).toContain("--drever-motion-slide-offset: 2.4%;");
+    expect(css).not.toContain("--drever-motion-slide-enter-animation");
+    expect(css).not.toContain("--drever-motion-slide-exit-animation");
     expect(css).toContain("--drever-recipe-stagger-gap: 40ms;");
     expect(css).toContain("--drever-recipe-step-block-from-translate: 0 12px;");
     expect(css).toContain("--drever-recipe-step-inline-from-translate: 12px 0;");

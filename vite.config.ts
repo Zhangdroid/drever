@@ -27,7 +27,7 @@ export default defineConfig({
       "@drever/compiler/internal": source("./packages/compiler/src/internal.ts"),
       "@drever/compiler": source("./packages/compiler/src/index.ts"),
       "@drever/core": source("./packages/core/src/index.ts"),
-      "@drever/designs/default": source("./packages/designs/src/default/index.ts"),
+      "@drever/designs/basic": source("./packages/designs/src/basic/index.ts"),
       "@drever/plugin": source("./packages/plugin/src/index.ts"),
       "@drever/plugin-gfm": source("./packages/plugin-gfm/src/index.ts"),
       "@drever/plugin-shiki": source("./packages/plugin-shiki/src/index.ts"),

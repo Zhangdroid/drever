@@ -2,7 +2,7 @@ import { createCompilePlan } from "@drever/compiler";
 import gfmPlugin from "@drever/plugin-gfm";
 import shikiPlugin from "@drever/plugin-shiki";
 import tailwindCssPlugin, { tailwindCss } from "@drever/plugin-tailwindcss";
-import defaultTheme from "@drever/designs/default";
+import basicTheme from "@drever/designs/basic";
 import { describe, expect, it } from "vite-plus/test";
 import { resolvePluginRegistrations } from "./project.ts";
 
@@ -17,7 +17,7 @@ describe("default plugin registrations", () => {
 
   it("lets config disable or configure a default without registering it twice", () => {
     const result = createCompilePlan({
-      theme: defaultTheme,
+      theme: basicTheme,
       plugins: resolvePluginRegistrations([
         { plugin: shikiPlugin, enabled: false },
         tailwindCss({ optimize: false }),
@@ -45,7 +45,7 @@ describe("default plugin registrations", () => {
 
   it("keeps a second override visible to the compiler's duplicate diagnostic", () => {
     const result = createCompilePlan({
-      theme: defaultTheme,
+      theme: basicTheme,
       plugins: resolvePluginRegistrations([shikiPlugin, shikiPlugin]),
     });
 

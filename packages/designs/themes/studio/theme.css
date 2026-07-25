@@ -7,6 +7,8 @@
   --drever-canvas-color-scheme: dark;
   --drever-motion-duration: 340ms;
   --drever-motion-easing: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --drever-motion-slide-enter-animation: drever-studio-slide-enter;
+  --drever-motion-slide-exit-animation: drever-studio-slide-exit;
   --drever-motion-slide-offset: 2.8%;
   --drever-recipe-enter-duration: 250ms;
   --drever-recipe-stagger-duration: 240ms;
@@ -606,6 +608,28 @@
 [data-drever-slide] ::selection {
   background: var(--drever-studio-signal);
   color: var(--drever-studio-signal-ink);
+}
+
+@keyframes drever-studio-slide-exit {
+  from {
+    opacity: 1;
+  }
+
+  40%,
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes drever-studio-slide-enter {
+  from,
+  40% {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

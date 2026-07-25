@@ -159,6 +159,8 @@ describe("@drever/designs/studio", () => {
     );
     expect(css).toContain(":root:has(.drever-viewer),");
     expect(css).toContain("--drever-motion-slide-offset: 2.8%;");
+    expect(css).toContain("--drever-motion-slide-enter-animation: drever-studio-slide-enter;");
+    expect(css).toContain("--drever-motion-slide-exit-animation: drever-studio-slide-exit;");
     expect(css).toContain("--drever-recipe-stagger-gap: 32ms;");
     expect(css).toContain("--drever-recipe-step-block-from-translate: 0 10px;");
     expect(css).toContain("--drever-recipe-step-inline-from-translate: 10px 0;");
@@ -171,6 +173,8 @@ describe("@drever/designs/studio", () => {
     expect(css).toContain("[data-drever-slide] ::selection");
     expect(css).not.toMatch(/^::selection/mu);
     expect(css).toContain("@keyframes drever-studio-stagger-enter");
+    expect(css).toContain("@keyframes drever-studio-slide-enter");
+    expect(css).toContain("@keyframes drever-studio-slide-exit");
     expect(css).toContain("scale: 0.985;");
     expect(css).not.toContain("--drever-recipe-step-from-transform");
     expect(css).toContain("[data-drever-reduced-motion]");

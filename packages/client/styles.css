@@ -201,7 +201,10 @@
   }
 
   :root::view-transition-old(drever-deck) {
-    animation: none;
+    animation-duration: var(--drever-motion-duration, 420ms);
+    animation-fill-mode: both;
+    animation-name: var(--drever-motion-slide-exit-animation, none);
+    animation-timing-function: var(--drever-motion-easing, cubic-bezier(0.22, 1, 0.36, 1));
     opacity: 0;
   }
 
@@ -217,7 +220,7 @@
     :active-view-transition-type(drever-jump-forward)
   )::view-transition-new(drever-deck) {
     --drever-motion-slide-x: var(--drever-motion-slide-offset, 2.5%);
-    animation-name: drever-slide-cover;
+    animation-name: var(--drever-motion-slide-enter-animation, drever-slide-cover);
   }
 
   :root:is(
@@ -225,7 +228,7 @@
     :active-view-transition-type(drever-jump-backward)
   )::view-transition-new(drever-deck) {
     --drever-motion-slide-x: calc(var(--drever-motion-slide-offset, 2.5%) * -1);
-    animation-name: drever-slide-cover;
+    animation-name: var(--drever-motion-slide-enter-animation, drever-slide-cover);
   }
 
   :root:is(
