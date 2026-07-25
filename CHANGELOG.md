@@ -5,6 +5,8 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-07-24
+
 ### Added
 
 - Rebuilt the Architecture showcase as a visual tour of compilation, routing, extensions, runtime
@@ -80,5 +82,6 @@ section, while commit snapshots use the current Unreleased section.
 - Added parallel source, unit, package, browser, export, and website checks in CI.
 - Deployed the prerendered public website and per-branch previews through Cloudflare Pages.
 
-[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/Zhangdroid/drever/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/Zhangdroid/drever/releases/tag/v0.1.0
