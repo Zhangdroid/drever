@@ -195,8 +195,8 @@ export function EvidenceReveal({ children }: PropsWithChildren): ReactElement {
         <span aria-live="polite" className="evidence-reveal__finding">
           <i aria-hidden="true">████ █████ ████████ ████ █████ █████</i>
           {children}
+          <span className="evidence-reveal__quote">”</span>
         </span>
-        ”
       </blockquote>
       <small>Advance once to uncover the finding.</small>
     </section>

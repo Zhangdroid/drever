@@ -328,8 +328,110 @@ import "../showcase-return.css";
 
 ---
 
+<div
+  aria-label="A choreographed card wall reveals the breadth of motion patterns"
+  className="motion-wall-scene"
+>
+  <header>
+    <span className="motion-kicker">13 · Choreographed breadth</span>
+    <h2>Many possibilities. One controlled reveal.</h2>
+    <p>Advance once. The wall expands the vocabulary without turning every card into a headline.</p>
+  </header>
+
+  <Step at={1} className="motion-card-wall-step">
+    <section
+      aria-label="Eight Drever motion patterns appear in a deliberate sequence"
+      className="motion-card-wall"
+    >
+      <article data-pattern="continuity">
+        <span>Continuity</span>
+        <strong>Keep the object</strong>
+        <svg aria-hidden="true" viewBox="0 0 180 54">
+          <rect className="wall-line" x="4" y="10" width="42" height="34" rx="10" />
+          <path className="wall-line wall-line--continuity" d="M50 27h80" strokeDasharray="4 3" />
+          <rect className="wall-soft" x="134" y="10" width="42" height="34" rx="10" />
+        </svg>
+      </article>
+      <article data-pattern="reveal">
+        <span>Reveal</span>
+        <strong>Uncover evidence</strong>
+        <svg aria-hidden="true" viewBox="0 0 120 54">
+          <path className="wall-line wall-line--muted" d="M4 9h112" />
+          <path className="wall-line wall-line--signal" d="M4 27h88" />
+          <path className="wall-line wall-line--muted" d="M4 45h101" />
+        </svg>
+      </article>
+      <article data-pattern="sequence">
+        <span>Sequence</span>
+        <strong>Carry the thought</strong>
+        <svg aria-hidden="true" viewBox="0 0 80 220">
+          <path className="wall-line wall-line--continuity" d="M40 14v192" />
+          <circle className="wall-node" cx="40" cy="14" r="10" />
+          <circle className="wall-soft" cx="40" cy="110" r="10" />
+          <circle className="wall-signal" cx="40" cy="206" r="10" />
+        </svg>
+      </article>
+      <article data-pattern="data">
+        <span>Data</span>
+        <strong>Move the measure</strong>
+        <svg aria-hidden="true" viewBox="0 0 100 54">
+          <rect className="wall-bar" x="5" y="32" width="24" height="18" rx="5" />
+          <rect className="wall-bar" x="38" y="20" width="24" height="30" rx="5" />
+          <rect className="wall-bar" x="71" y="5" width="24" height="45" rx="5" />
+        </svg>
+      </article>
+      <article data-pattern="type">
+        <span>Kinetic type</span>
+        <strong>Correct the idea</strong>
+        <svg aria-hidden="true" viewBox="0 0 220 54">
+          <path className="wall-line wall-line--muted" d="M6 9h156" />
+          <path className="wall-line wall-line--continuity" d="M6 27h208" />
+          <path className="wall-line wall-line--signal" d="M6 45h122" />
+        </svg>
+      </article>
+      <article data-pattern="depth">
+        <span>Depth</span>
+        <strong>Expose structure</strong>
+        <svg aria-hidden="true" viewBox="0 0 160 70">
+          <path className="wall-node" d="m43 42 46-18 30 12-46 18z" />
+          <path className="wall-soft" d="m51 34 46-18 30 12-46 18z" />
+          <path className="wall-signal" d="m59 26 46-18 30 12-46 18z" />
+        </svg>
+      </article>
+      <article data-pattern="focus">
+        <span>Focus</span>
+        <strong>Direct the eye</strong>
+        <svg aria-hidden="true" viewBox="0 0 100 54">
+          <circle className="wall-line wall-line--continuity" cx="50" cy="27" r="22" />
+          <circle className="wall-line wall-line--continuity" cx="50" cy="27" r="13" />
+          <circle className="wall-signal" cx="50" cy="27" r="5" />
+        </svg>
+      </article>
+      <article data-pattern="network">
+        <span>Background</span>
+        <strong>Carry the subject</strong>
+        <svg aria-hidden="true" viewBox="0 0 120 54">
+          <path className="wall-line wall-line--continuity" d="M8 9 62 31l50 18" />
+          <path className="wall-line wall-line--signal" d="m8 49 54-18 50-26" />
+          <circle className="wall-node" cx="8" cy="9" r="5" />
+          <circle className="wall-signal" cx="62" cy="31" r="5" />
+          <circle className="wall-node" cx="112" cy="49" r="5" />
+        </svg>
+      </article>
+    </section>
+  </Step>
+</div>
+
+<Note>
+  Advance once. Eight cards arrive in a fixed but non-linear order: the composition feels organic,
+  while navigation, replay, reduced motion, and export remain deterministic. The wall communicates
+  breadth only after the focused examples have established what each kind of movement is for.
+</Note>
+
+---
+
 <div aria-label="Let the room read and then direct the eye" className="timing-scene">
-  <span className="motion-kicker">13 · Timing</span>
+  <span className="motion-kicker">14 · Timing</span>
   <Step at={1} as="span" className="timing-scene__step">
     {"The reading cue is now active."}
   </Step>
@@ -353,7 +455,7 @@ import "../showcase-return.css";
 
 <div aria-label="Every animation system spends the same attention" className="budget-scene">
   <header>
-    <span className="motion-kicker">14 · Attention budget</span>
+    <span className="motion-kicker">15 · Attention budget</span>
     <h2>Spend attention on the idea that changed.</h2>
     <p>Primary motion leads. Support follows once. Everything else holds still.</p>
   </header>
@@ -400,7 +502,7 @@ import "../showcase-return.css";
 
 <div aria-label="The meaning survives when motion disappears" className="endpoint-scene">
   <header>
-    <span className="motion-kicker">15 · Accessible endpoint</span>
+    <span className="motion-kicker">16 · Accessible endpoint</span>
     <h2>The motion may disappear. The meaning may not.</h2>
     <p>Live presentation and static export must arrive at the same authored conclusion.</p>
   </header>
