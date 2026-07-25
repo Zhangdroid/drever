@@ -743,6 +743,7 @@ main[tabindex="-1"]:focus {
   font-weight: 610;
   letter-spacing: -0.035em;
   line-height: 1.08;
+  text-wrap: balance;
 }
 
 .ai-handoff label {
@@ -872,6 +873,10 @@ main[tabindex="-1"]:focus {
   line-height: 1.02;
 }
 
+.site-footer__lead p span {
+  display: inline-block;
+}
+
 .site-footer__links {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -952,6 +957,10 @@ main[tabindex="-1"]:focus {
   letter-spacing: -0.055em;
   line-height: 0.9;
   text-wrap: balance;
+}
+
+.display-line {
+  display: block;
 }
 
 .page-hero p {

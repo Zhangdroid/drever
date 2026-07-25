@@ -9,7 +9,7 @@ export function PageHero({
   children?: ReactNode;
   description: string;
   eyebrow: string;
-  title: string;
+  title: ReactNode;
 }) {
   return (
     <header className="page-hero">

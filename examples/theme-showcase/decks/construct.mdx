@@ -4,7 +4,13 @@ import "../../showcase-return.css";
 <Prompt
   aria-label="Handoff workshop: could the next person act without asking you?"
   eyebrow="Handoff workshop / 01"
-  question="Could the next person act without asking you?"
+  question={
+    <>
+      <span>Could the next person</span>
+      <br />
+      <span>act without asking you?</span>
+    </>
+  }
   context="Choose one real task that changes owner this week."
   cue="Write the first missing fact."
   footer="Two minutes · work independently"

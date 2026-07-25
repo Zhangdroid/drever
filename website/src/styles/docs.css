@@ -1535,9 +1535,9 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   display: grid;
   margin-block-start: clamp(4rem, 8vw, 7rem);
   padding: clamp(2rem, 5vw, 4rem);
-  grid-template-columns: minmax(16rem, 0.72fr) minmax(22rem, 1.28fr);
+  grid-template-columns: repeat(2, minmax(20rem, 1fr));
   align-items: start;
-  gap: clamp(2rem, 4vw, 4rem);
+  gap: clamp(2rem, 3vw, 3rem);
   background: var(--site-continuity-soft);
 }
 
@@ -1558,6 +1558,15 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   font-weight: 610;
   letter-spacing: -0.045em;
   line-height: 1;
+}
+
+.docs-overview__start > div > .docs-overview__start-heading {
+  font-size: clamp(2rem, 3vw, 2.55rem);
+}
+
+.docs-overview__start-heading > span,
+.docs-overview__ai-heading > span {
+  display: block;
 }
 
 .docs-overview__start > div > p,

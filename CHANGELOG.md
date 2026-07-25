@@ -5,6 +5,11 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+### Changed
+
+- Re-composed prominent website and showcase headings around complete semantic phrases, and taught
+  generated design, authoring, and review skills to treat line breaks as editorial structure.
+
 ## [0.2.2] - 2026-07-24
 
 ### Changed

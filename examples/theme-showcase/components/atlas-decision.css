@@ -27,3 +27,11 @@
   font-size: 21px;
   line-height: 1.35;
 }
+
+.atlas-thermal-survey {
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+}
+
+.atlas-thermal-survey .drever-atlas-survey__title {
+  max-width: 16ch;
+}

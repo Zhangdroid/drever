@@ -30,7 +30,13 @@ function ShowcasePage() {
       <PageHero
         description={description}
         eyebrow="Built with Drever"
-        title="See the story, the system, and the visual voice."
+        title={
+          <>
+            <span className="display-line">See the story,</span>
+            <span className="display-line">the system,</span>
+            <span className="display-line">and the visual voice.</span>
+          </>
+        }
       >
         <nav aria-label="Showcase sections" className="showcase-index">
           <a href="#stories">
@@ -52,7 +58,10 @@ function ShowcasePage() {
         <header className="showcase-section__heading">
           <div>
             <span>Complete story</span>
-            <h2 id="showcase-story-title">Enter the room, not a recording of it.</h2>
+            <h2 id="showcase-story-title">
+              <span className="display-line">Enter the room,</span>
+              <span className="display-line">not a recording of it.</span>
+            </h2>
           </div>
           <p>
             Navigate every reveal, draw on the canvas, open Speaker View, read the document, or
@@ -180,7 +189,10 @@ function ShowcasePage() {
       <section className="catalog-proof" data-header-tone="dark">
         <div>
           <span>No capture tricks</span>
-          <h2>Everything here is a production build.</h2>
+          <h2>
+            <span className="display-line">Everything here is a</span>
+            <span className="display-line">production build.</span>
+          </h2>
         </div>
         <p>
           Each presentation is rebuilt from repository source and mounted as a standalone app. Clean

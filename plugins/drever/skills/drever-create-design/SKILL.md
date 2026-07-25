@@ -98,6 +98,11 @@ separate them from the background before compromising legibility.
 
 Treat typography as one deliberate system. When the premise is intentionally all-handwritten, carry that voice through headings, body copy, labels, and data instead of accidentally mixing unrelated type voices. Make exceptions only when the content semantics require a specialized face, such as literal code or a protected brand mark.
 
+Treat display-heading line breaks as editorial structure. Preserve complete short clauses and verb
+phrases before optimizing visual rhythm; never strand a conjunction, a governing verb, or the
+opening word of the next clause on the wrong line. Check authored breaks at the configured canvas
+and responsive widths, and use responsive variants when one break cannot remain natural.
+
 Define highlighted code as part of the typography and color system. Use fenced code with an explicit
 language or a documented highlighted component, provide distinct readable token roles, and never
 let a centerpiece example render as monochrome source unless that is a deliberate semantic claim.
