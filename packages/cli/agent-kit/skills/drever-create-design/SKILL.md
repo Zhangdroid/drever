@@ -135,6 +135,12 @@ When a slide pairs a text-heavy narrative region with supporting content, make t
 
 ## Validate the result
 
+Treat the first applied design as Draft 1. Render it before polishing further, then perform a separate
+refinement pass against the actual deck. Preserve the visual premise, signature moments, and
+subject-led choices that work. Correct evidence-backed problems in hierarchy, composition rhythm,
+readability, background emphasis, motion, and consistency; do not restyle the deck wholesale or add
+decoration merely to make the second pass look different.
+
 1. Add tests only for meaningful contracts or component behavior; do not add snapshots that merely preserve CSS text.
 2. Run `npm exec -- drever context --json`, `npm exec -- drever check --json`, and `npm exec -- drever build`.
 3. Inspect representative slides for every layout, then every affected slide and Step state at the configured canvas size. Check intermediate motion frames in both directions, not only endpoints.

@@ -19,6 +19,13 @@ Respect the requested scope. Report findings without editing for review-only req
 
 Treat review as an iterative completion gate, not a final glance. A clean check and successful build prove structural validity, not narrative, visual, or interaction quality. Work through these passes:
 
+When this is the completion gate after creation or a material edit, begin from the actual complete
+first render as a fresh audience member. Do not rationalize a weak result from author intent.
+Preserve successful claims, signature moments, routes, Steps, and design decisions while fixing
+evidence-backed material issues. The goal is a better deck, not a visibly different second version;
+leave sound choices untouched and never manufacture novelty or decoration to prove that review
+happened.
+
 1. **Narrative reasonableness:** Read the deck as an audience member. Verify that every slide advances the argument, relates concretely to the subject, supports its claim with useful evidence, and avoids abstract slogans, obvious filler, unexplained labels, and unnecessary density.
 2. **Static visual quality:** Inspect every rendered state at the configured canvas size. Check hierarchy, alignment, spacing, type, contrast, backgrounds, recurring motifs, link and control affordances, composition rhythm across the deck, and the largest painted footprint. Backgrounds remain subordinate unless they are the evidence. Apply a first-glance test: if a grid, topology, particle, glow, or ambient motion wins attention before the title or evidence, reduce it and strengthen the foreground surface separation. Repeated elements remain intentionally consistent.
 3. **Motion and continuity:** Inspect the initial state, intermediate frames, settled state, and reverse handoff for every transition and Step change. Require one clear focal object and a narrative reason for every cue. Flag flashes, jitter, ghosting, stretched text or rules, abrupt shadow or filter changes, clipped paint, premature timing, and movement that competes with the claim.

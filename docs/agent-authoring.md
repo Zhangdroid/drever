@@ -261,9 +261,13 @@ For a new project:
 3. Run `npm exec -- drever context --json` to inspect the exact result and available design
    vocabulary.
 4. Run `npm exec -- drever check --json` and fix proven source defects.
-5. Build and inspect every authored Step state plus `/document`; inspect
+5. Treat the complete first build as Draft 1. Inspect every authored Step state plus `/document`;
    `/speaker` when notes, motion, or presentation behavior changed.
-6. For motion edits, verify forward and backward movement, persistent geometry,
+6. Use the review skill for a separate audience-minded refinement pass. Preserve
+   successful choices, fix evidence-backed material issues, rebuild, and recheck
+   affected states; do not regenerate or add decoration merely to create a visible
+   second version.
+7. For motion edits, verify forward and backward movement, persistent geometry,
    reduced motion, and the affected continuity boundary in a real browser.
 
 For an existing deck, start with `context --json`, read the complete affected

@@ -13,6 +13,9 @@ section, while commit snapshots use the current Unreleased section.
   compositions, restored their website catalog to a four-by-two grid, and taught generated
   authoring guidance to connect clearly corresponding objects without treating resemblance alone
   as continuity.
+- Made generated creation, design, authoring, and review workflows require a separate rendered
+  refinement pass after the complete first draft, preserving successful choices while fixing
+  evidence-backed narrative, visual, motion, and interaction issues.
 
 ## [0.2.2] - 2026-07-24
 

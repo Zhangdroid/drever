@@ -77,6 +77,13 @@ attention budget on that handoff.
 
 ## Finish the job
 
+Do not deliver the first complete build by default. Treat it as Draft 1: render the full story, then
+start a separate refinement pass based on what the audience can actually see and use. Prioritize
+high-impact improvements to narrative clarity, focus, density, composition, subject fit,
+readability, motion meaning, timing, continuity, and finish. Preserve successful ideas, signature
+moments, routes, Steps, and design decisions. Do not regenerate wholesale or add decoration merely
+to make the second version different; leave sound choices alone.
+
 Use the project-local workflow to check and build the presentation. Start the development server
 and inspect the audience view when browser tooling is available. Review every authored reveal and
 the document view; review the speaker view when notes or timing are involved. Export a PDF only
