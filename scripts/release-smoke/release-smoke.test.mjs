@@ -65,7 +65,10 @@ test("defines one real surprise journey and one fully guided journey", () => {
     assert.match(scenario.turns[0], /^Fetch and follow https:\/\/drever\.dev\/prompt\.md\./u);
     assert.match(scenario.turns.at(-1), /refine the\s+narrative/iu);
   }
-  assert.match(getReleaseSmokeScenario("surprise-me").turns[1], /^Surprise me\./iu);
+  assert.match(
+    getReleaseSmokeScenario("surprise-me").turns[1],
+    /^Skip remaining questions — surprise me\./iu,
+  );
   assert.match(getReleaseSmokeScenario("guided").turns[2], /reusable\s+for any product/iu);
   assert.match(
     getReleaseSmokeScenario("guided").turns[2],

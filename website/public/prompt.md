@@ -8,15 +8,16 @@ Treat the user's accompanying message as the initial presentation brief. Reply i
 language, and use that language for the deck unless they request another one or the source material
 clearly requires it.
 
-If the topic itself is missing, ask for it before creating files. Make the topic the first question,
-then add one short option: **Or answer “Surprise me” and I will choose the subject too.** Never lead
-with that option, announce it as a decision, or imply that the user already selected it. Once the
-topic is known, infer everything the user already supplied.
+If the topic is missing, make it the first question. In the same opening round, ask up to two
+high-impact common questions that do not depend on knowing the topic, usually the audience outcome
+and duration. Do not advertise choosing the topic as a separate “Surprise me” mode. Infer
+everything the user already supplied before choosing questions.
 
 Questions may span multiple rounds when an earlier answer enables a useful topic-specific
 follow-up. Ask one to three concise questions at a time, highest-impact first, and continue only
-while another answer would materially improve the result. Put the concrete questions first, then
-end each round with: **Or say “Skip remaining questions — surprise me” and I will choose the rest.**
+while another answer would materially improve the result. In each round, put every concrete
+question first, then append exactly one escape: **Or say “Skip remaining questions — surprise me”
+and I will choose the rest.**
 Draw from:
 
 1. What should the audience understand, decide, or do?
@@ -27,7 +28,7 @@ Draw from:
    comparison versus recommendation, or overview versus migration.
 
 Do not ask for information the user already gave. Never silently choose a duration unless the user
-selected surprise mode. If they select surprise mode at any point, stop asking, make reasonable
+uses the skip-remaining escape. If they use it at any point, stop asking, make reasonable
 assumptions, and continue. If the initial brief is already complete, proceed immediately.
 
 ## Prepare a safe workspace
@@ -67,19 +68,26 @@ an original interpretation instead of copying a website.
 
 Unless the user explicitly asks for a fast plain draft, use the project-local design workflow for a
 subject-led visual system rather than stopping at a generic preset. Plan a few signature moments
-that make the subject recognizable, then support them with quieter slides. Let each idea choose its
-composition instead of defaulting most slides to the same left-copy/right-artifact split. A
-substantial local visual implementation is welcome when it earns its space through explanation,
-atmosphere, or interaction; do not reduce it merely to minimize generated code. Shared transitions
-may connect the same object or clearly corresponding semantic or visual objects, but never an
-arbitrary morph. Give the shared shell identical explicit width, height, aspect ratio, and box
-sizing at both endpoints, then reposition it through parent layout. If the two compositions require
-incompatible bounds, use a cut, replacement, or restrained dissolve instead. Spend the moment's
-attention budget on that handoff. Use a theme-led transition vocabulary rather than one effect on
-every page: direct cuts, restrained fades, local live-DOM changes, Steps, and a few continuity
-handoffs may coexist when they fit the subject. End a shared-object sequence when the object stops
-carrying the argument. When producing several reference directions, vary their narrative length,
-density, composition rhythm, Step grammar, and motion cadence—not merely palette and typography.
+that make the subject recognizable, then support them with quieter slides. A signature scene must
+have a topic fingerprint: with its title and branding hidden, its focal artifact and relationship
+should still plausibly belong to this subject. Record each signature beat as **claim → focal
+artifact → initial state → meaningful transformation → settled payoff → static or reduced-motion
+endpoint**, and place at least one in the opening third. The transformation must clarify causality,
+comparison, reveal, or role change; a generic fade or slide entrance alone does not count.
+
+Let each idea choose its composition instead of defaulting most slides to the same
+left-copy/right-artifact split. A substantial local visual implementation is welcome when it earns
+its space through explanation, atmosphere, or interaction; do not reduce it merely to minimize
+generated code. Shared transitions may connect the same object or clearly corresponding semantic
+or visual objects, but never an arbitrary morph. Give the shared shell identical explicit width,
+height, aspect ratio, and box sizing at both endpoints, then reposition it through parent layout.
+If the two compositions require incompatible bounds, use a cut, replacement, or restrained
+dissolve instead. Spend the moment's attention budget on that handoff. Use a theme-led transition
+vocabulary rather than one effect on every page: direct cuts, restrained fades, local live-DOM
+changes, Steps, and a few continuity handoffs may coexist when they fit the subject. End a
+shared-object sequence when the object stops carrying the argument. When producing several
+reference directions, vary their narrative length, density, composition rhythm, Step grammar, and
+motion cadence—not merely palette and typography.
 
 ## Finish the job
 
@@ -88,7 +96,10 @@ start a separate refinement pass based on what the audience can actually see and
 high-impact improvements to narrative clarity, focus, density, composition, subject fit,
 readability, motion meaning, timing, continuity, and finish. Preserve successful ideas, signature
 moments, routes, Steps, and design decisions. Do not regenerate wholesale or add decoration merely
-to make the second version different; leave sound choices alone.
+to make the second version different; leave sound choices alone. After blocking defects are fixed,
+ask what one scene the audience will remember and why it could not belong to an unrelated topic. If
+there is no defensible answer, redesign exactly one high-value beat instead of decorating the whole
+deck.
 
 Use the project-local workflow to check and build the presentation. Start the development server
 and inspect the audience view when browser tooling is available. Inspect every slide at Step 0 and

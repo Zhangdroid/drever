@@ -131,6 +131,28 @@ describe("agent kit sync", () => {
     );
   });
 
+  it("installs the unified briefing and topic-specific signature contract", async () => {
+    const root = await temporaryDirectory("drever-agent-project-");
+    await syncAgentKit({ root });
+
+    const createDeck = await read(root, ".agents/skills/drever-create-deck/SKILL.md");
+    const createDesign = await read(root, ".agents/skills/drever-create-design/SKILL.md");
+    const reviewDeck = await read(root, ".agents/skills/drever-review-deck/SKILL.md");
+
+    expect(createDeck).toMatch(/same opening round/iu);
+    expect(createDeck).toMatch(/append exactly one escape/iu);
+    expect(createDeck).toContain("Skip remaining questions — surprise me");
+    expect(createDeck).not.toMatch(/choose the subject too|Or answer “Surprise me”/iu);
+    expect(createDeck).toMatch(/topic-fingerprint test/iu);
+    expect(createDeck).toMatch(
+      /claim[^→]*→ focal artifact[^→]*→ initial state[^→]*→ meaningful transformation[^→]*→ settled payoff[^→]*→ static or reduced-motion endpoint/iu,
+    );
+    expect(createDesign).toMatch(/Record each in `art-direction\.md`/iu);
+    expect(createDesign).toMatch(/generic fade or slide entrance alone/iu);
+    expect(reviewDeck).toMatch(/what one scene the audience will remember/iu);
+    expect(reviewDeck).toMatch(/redesign exactly one high-value beat/iu);
+  });
+
   it("installs the varied transition and design-family contract", async () => {
     const root = await temporaryDirectory("drever-agent-project-");
     await syncAgentKit({ root });

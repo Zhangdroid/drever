@@ -69,10 +69,15 @@ design/
 `art-direction.md` records the brief, subject-led evidence, fallback choices, source URLs, licenses, and the reason for each recurring motif. Keep it concise enough to review in a diff.
 
 Define a one-sentence visual premise and two or three signature moments before styling every slide.
-Each signature moment should prove an important claim through a bespoke diagram, artifact, spatial
-composition, data scene, media treatment, or meaningful interaction. Use quieter supporting slides
-between them so the deck has rhythm. A repeated stack of generic cards, gradients, and text columns
-is not a custom direction even when its colors match the subject.
+Record each in `art-direction.md` as **claim → focal artifact → initial state → meaningful
+transformation → settled payoff → static or reduced-motion endpoint**. Put at least one in the
+opening third. Its transformation must clarify causality, comparison, reveal, or role change; a
+generic fade or slide entrance alone is not a signature moment.
+
+Apply the topic-fingerprint test: with the title and branding hidden, the focal artifact and its
+relationship should still plausibly belong to this subject. A recolored card grid, generic
+gradient, or ordinary entrance does not pass. Use quieter supporting slides between signature beats
+so the deck has rhythm.
 
 Plan composition across the deck rather than repeating one convenient template. Do not default
 most slides to a left-copy/right-artifact split. Let the content structure justify centered
