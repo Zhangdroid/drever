@@ -46,9 +46,9 @@ jobs:
           - surprise-me
           - guided
     env:
-      ARTIFACT_ROOT: ${{ runner.temp }}/drever-release-smoke-generated-${{ matrix.case }}
-      CODEX_HOME: ${{ runner.temp }}/drever-release-smoke-codex-${{ matrix.case }}
-      PROJECT_ROOT: ${{ runner.temp }}/drever-release-smoke-project-${{ matrix.case }}
+      ARTIFACT_ROOT: ${{ github.workspace }}/release-smoke-work/generated-${{ matrix.case }}
+      CODEX_HOME: ${{ github.workspace }}/release-smoke-work/codex-${{ matrix.case }}
+      PROJECT_ROOT: ${{ github.workspace }}/release-smoke-work/project-${{ matrix.case }}
       RELEASE_SMOKE_SOURCE_COMMIT: ${{ inputs.source_commit || github.sha }}
       RELEASE_SMOKE_VERSION: ${{ inputs.version }}
     steps:
@@ -113,8 +113,8 @@ jobs:
           - surprise-me
           - guided
     env:
-      BUILT_ROOT: ${{ runner.temp }}/drever-release-smoke-built
-      GENERATED_ROOT: ${{ runner.temp }}/drever-release-smoke-generated
+      BUILT_ROOT: ${{ github.workspace }}/release-smoke-work/built
+      GENERATED_ROOT: ${{ github.workspace }}/release-smoke-work/generated
       RELEASE_SMOKE_SOURCE_COMMIT: ${{ inputs.source_commit || github.sha }}
       RELEASE_SMOKE_VERSION: ${{ inputs.version }}
     steps:
@@ -172,11 +172,11 @@ jobs:
       pull-requests: write
     env:
       AUTOMATION_ROOT: ${{ github.workspace }}/automation
-      PR_BODY: ${{ runner.temp }}/drever-release-smoke-pr.md
+      PR_BODY: ${{ github.workspace }}/release-smoke-work/result-pr.md
       RELEASE_SMOKE_SOURCE_COMMIT: ${{ inputs.source_commit || github.sha }}
       RELEASE_SMOKE_VERSION: ${{ inputs.version }}
       REPOSITORY_ROOT: ${{ github.workspace }}/repository
-      RESULTS_ROOT: ${{ runner.temp }}/drever-release-smoke-results
+      RESULTS_ROOT: ${{ github.workspace }}/release-smoke-work/results
       RESULT_BRANCH: automation-release-smoke-${{ github.run_id }}
     steps:
       - name: Check out the automation source
