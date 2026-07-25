@@ -126,7 +126,7 @@
 }
 
 .arch-stage-background__graph {
-  opacity: 0.34;
+  opacity: 0.24;
   transform: translate3d(0, 0, 0) scale(1);
   transform-box: fill-box;
   transform-origin: center;
@@ -175,7 +175,7 @@
 }
 
 .arch-stage-background[data-scene="contract"] .arch-stage-background__graph {
-  opacity: 0.23;
+  opacity: 0.16;
   transform: translate3d(-52px, 34px, 0) scale(0.96);
 }
 
@@ -189,7 +189,7 @@
 }
 
 .arch-stage-background[data-scene="pipeline"] .arch-stage-background__graph {
-  opacity: 0.27;
+  opacity: 0.19;
   transform: translate3d(-18px, -42px, 0) scale(1.02);
 }
 
@@ -203,7 +203,7 @@
 }
 
 .arch-stage-background[data-scene="delivery"] .arch-stage-background__graph {
-  opacity: 0.2;
+  opacity: 0.14;
   transform: translate3d(40px, 20px, 0) scale(0.98);
 }
 
@@ -217,7 +217,7 @@
 }
 
 .arch-stage-background[data-scene="proof"] .arch-stage-background__graph {
-  opacity: 0.25;
+  opacity: 0.18;
   transform: translate3d(78px, -20px, 0) scale(0.94);
 }
 
@@ -227,7 +227,7 @@
 
 .arch-stage-background:is([data-scene="opening"], [data-scene="closing"])
   .arch-stage-background__graph {
-  opacity: 0.4;
+  opacity: 0.28;
 }
 
 .arch-stage-background[data-scene="opening"] .arch-stage-background__signal {

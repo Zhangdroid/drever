@@ -89,7 +89,12 @@ canvas, or React can be appropriate when the result materially improves explanat
 Require clear ownership, shared tokens, deterministic states, reduced-motion behavior where
 applicable, and rendered review; remove code only when its visual job is weak or redundant.
 
-Keep backgrounds subordinate to the current claim. They should normally recede behind content and become prominent only when the background itself is evidence or the meaningful scene. Reduce background contrast, texture, and movement before compromising foreground legibility.
+Keep backgrounds subordinate to the current claim. They may be intricate, distinctive, and gently
+animated, but should normally sit one visual level behind the content and become prominent only
+when the background itself is evidence or the meaningful scene. If a first glance lands on a grid,
+topology, particle, glow, or ambient motion before the title or evidence, reduce its contrast,
+opacity, sharpness, or motion amplitude. Give foreground cards enough opacity or a local scrim to
+separate them from the background before compromising legibility.
 
 Treat typography as one deliberate system. When the premise is intentionally all-handwritten, carry that voice through headings, body copy, labels, and data instead of accidentally mixing unrelated type voices. Make exceptions only when the content semantics require a specialized face, such as literal code or a protected brand mark.
 

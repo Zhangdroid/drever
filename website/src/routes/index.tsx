@@ -1,3 +1,4 @@
+import { useState, type AnimationEvent } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { AIHandoff, CopyAIHandoff } from "../components/ai-handoff";
@@ -11,6 +12,53 @@ import { pageHead } from "../seo";
 
 const description =
   "An open-source presentation framework for creating expressive, interactive slides with AI, then presenting live, publishing to the web, or exporting PDF.";
+
+type HomeDemo = (typeof demos)[number];
+
+function HomeDemoCard({ demo }: { demo: HomeDemo }) {
+  const [motionCycleRunning, setMotionCycleRunning] = useState(false);
+
+  const startMotionCycle = () => {
+    if (demo.id !== "motion" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+    setMotionCycleRunning(true);
+  };
+
+  const finishMotionCycle = (event: AnimationEvent<HTMLAnchorElement>) => {
+    if (event.animationName === "home-motion-lifecycle") {
+      setMotionCycleRunning(false);
+    }
+  };
+
+  return (
+    <a
+      className="demo-card"
+      data-demo={demo.id}
+      data-motion-cycle={motionCycleRunning ? "running" : undefined}
+      href={demo.href}
+      onAnimationEnd={finishMotionCycle}
+      onFocus={startMotionCycle}
+      onPointerEnter={startMotionCycle}
+    >
+      <div className="demo-card__visual demo-card__visual--rich">
+        {demo.id === "architecture" ? (
+          <StudyCover study="architecture" />
+        ) : (
+          <HomeShowcaseCover kind={demo.id === "product" ? "product" : "motion"} />
+        )}
+      </div>
+      <div className="demo-card__copy">
+        <div>
+          <span>{demo.meta}</span>
+          <h3>{demo.label}</h3>
+          <p>{demo.description}</p>
+        </div>
+        <ArrowUpRightIcon />
+      </div>
+    </a>
+  );
+}
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -155,23 +203,7 @@ function HomePage() {
 
         <div className="demo-grid">
           {[story, motion, architecture].map((demo) => (
-            <a className="demo-card" data-demo={demo.id} href={demo.href} key={demo.id}>
-              <div className="demo-card__visual demo-card__visual--rich">
-                {demo.id === "architecture" ? (
-                  <StudyCover study="architecture" />
-                ) : (
-                  <HomeShowcaseCover kind={demo.id === "product" ? "product" : "motion"} />
-                )}
-              </div>
-              <div className="demo-card__copy">
-                <div>
-                  <span>{demo.meta}</span>
-                  <h3>{demo.label}</h3>
-                  <p>{demo.description}</p>
-                </div>
-                <ArrowUpRightIcon />
-              </div>
-            </a>
+            <HomeDemoCard demo={demo} key={demo.id} />
           ))}
         </div>
       </section>

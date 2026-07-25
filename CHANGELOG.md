@@ -5,10 +5,19 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+### Changed
+
+- Reduced the Architecture showcase's persistent topology contrast and strengthened its content
+  surfaces so the background supports rather than competes with the explanation.
+- Taught generated design and review skills to apply a first-glance hierarchy test to decorative
+  backgrounds and foreground surfaces.
+
 ### Fixed
 
 - Made the public AI handoff explicitly continue after fetching `prompt.md` without naming a
   competing generic presentation workflow.
+- Let the homepage Motion showcase finish its active lifecycle after pointer exit, removed its
+  unnecessary vertical detour, and moved its route marker off the labels.
 - Slowed the Motion showcase cover's opening change and kept the Architecture signal behind its
   labels instead of obscuring them.
 - Kept the Product Tour cover color in its persistent Stage so foreground fades no longer fade the
