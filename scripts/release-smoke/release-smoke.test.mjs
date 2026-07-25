@@ -241,6 +241,11 @@ test("keeps the OpenAI key inside the generation job and pins the Codex action",
     new URL("../../.github/workflows/release-smoke.yml", import.meta.url),
     "utf8",
   );
+  assert.doesNotMatch(
+    workflow,
+    /\$\{\{\s*runner\.temp\s*\}\}/u,
+    "runner context is unavailable in job-level env declarations",
+  );
   assert.match(workflow, /openai\/codex-action@52fe01ec70a42f454c9d2ebd47598f9fd6893d56/u);
   assert.match(workflow, /allow-bots: true/u);
   assert.match(workflow, /permission-profile: ":workspace"/u);
