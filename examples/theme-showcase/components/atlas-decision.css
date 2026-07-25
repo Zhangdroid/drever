@@ -17,7 +17,11 @@
 
 .atlas-study__artifact {
   display: grid;
+  width: 850px;
+  height: 396px;
   min-width: 0;
+  box-sizing: border-box;
+  justify-self: center;
   place-items: center;
 }
 
@@ -115,15 +119,6 @@
   padding-bottom: 5px;
 }
 
-.atlas-study--route .atlas-river {
-  width: 100%;
-  height: 396px;
-}
-
-.atlas-study--route .atlas-river__plot {
-  height: 324px;
-}
-
 .atlas-study--route .atlas-river__route-labels text {
   font-size: 16px;
 }
@@ -170,15 +165,6 @@
 
 .atlas-study--gates .atlas-study__artifact {
   grid-row: 1;
-}
-
-.atlas-study--gates .atlas-river {
-  width: 100%;
-  height: 410px;
-}
-
-.atlas-study--gates .atlas-river__plot {
-  height: 338px;
 }
 
 [data-drever-slide] .atlas-study__decision > strong {
@@ -412,7 +398,7 @@
 .atlas-river {
   display: grid;
   width: 850px;
-  height: 526px;
+  height: 396px;
   box-sizing: border-box;
   padding: 20px 22px 15px;
   border: 1px solid color-mix(in srgb, var(--drever-theme-border), transparent 10%);
@@ -424,7 +410,7 @@
 
 .atlas-river__plot {
   width: 100%;
-  height: 450px;
+  height: 324px;
   overflow: visible;
   color: var(--drever-theme-ink);
 }

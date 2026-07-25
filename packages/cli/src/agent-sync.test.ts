@@ -122,6 +122,10 @@ describe("agent kit sync", () => {
     expect(reviewDeck).toMatch(
       /Flag both random effects and a View Transition applied to every edge/iu,
     );
+    for (const contents of [createDeck, createDesign, authorDeck, reviewDeck]) {
+      expect(contents).toMatch(/explicit[^.]*inline size[^.]*block size[^.]*aspect ratio/iu);
+    }
+    expect(reviewDeck).toMatch(/grow-then-shrink/iu);
   });
 
   it("installs the complete kit and reports a stable idempotent result", async () => {

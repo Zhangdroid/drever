@@ -23,6 +23,12 @@ describe("public bootstrap prompt", () => {
   it("requires a varied transition vocabulary and structurally distinct references", () => {
     expect(prompt).toMatch(/transition vocabulary rather than one effect on\s+every page/iu);
     expect(prompt).toMatch(/direct cuts[^.]*restrained fades[^.]*local live-DOM/iu);
+    expect(prompt).toMatch(
+      /shared shell identical explicit width,\s+height,\s+aspect ratio,\s+and box\s+sizing/iu,
+    );
+    expect(prompt).toMatch(
+      /incompatible bounds,\s+use a cut,\s+replacement,\s+or\s+restrained dissolve/iu,
+    );
     expect(prompt).toMatch(/vary their narrative length,\s+density,\s+composition rhythm/iu);
   });
 });

@@ -12,11 +12,16 @@ section, while commit snapshots use the current Unreleased section.
 - Taught generated creation, design, authoring, and review workflows to treat motion consistency as
   a shared vocabulary of cuts, fades, local handoffs, Steps, and selective continuity—not a View
   Transition on every page.
+- Taught generated creation, design, authoring, and review workflows to keep shared View Transition
+  shells identical in width, height, aspect ratio, and box sizing, and to diagnose a
+  grow-then-shrink handoff as endpoint geometry rather than easing.
 
 ### Fixed
 
 - Stabilized Cinema's changing media frame so its border, crop, and supporting composition no
   longer pop into place after the second-to-third-slide handoff.
+- Stabilized Atlas's shared river artifact in one fixed frame so it moves between compositions
+  without stretching or settling after the transition.
 
 ## [0.2.3] - 2026-07-25
 

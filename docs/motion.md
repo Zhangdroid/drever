@@ -45,8 +45,11 @@ deck, and review Skill:
    controls stay live and stationary. Animate only the child whose narrative
    state changed and only the properties that express that change. A draw-on
    highlight does not also need to recolor its type or move an unrelated accent.
-5. **Keep geometry deliberate.** Stable objects need stable size, aspect ratio,
-   typography, wrapping, and media crop. Recurring motifs retain their
+5. **Keep geometry deliberate.** Stable objects need identical explicit inline
+   size, block size, aspect ratio, and `box-sizing` at both endpoints, plus
+   stable typography, wrapping, and media crop. Reposition a fixed shared shell
+   through parent layout; a fixed width alone does not help when height still
+   changes. Recurring motifs retain their
    thickness, opacity, paint, orientation, and cross-axis alignment. Animate
    only the axis or property that changed; never stretch text, boxes, lines, or
    shadows to fake continuity. A transition must not create layout shift, title
@@ -410,7 +413,12 @@ correspondence, then keep its captured geometry deliberate:
 
 - Give both endpoints the same `box-sizing`, explicit inline and block size, or
   at least the same aspect ratio. A fixed shell that only changes position is
-  the most reliable default.
+  the most reliable default. Fixing only width while height still changes does
+  not prevent snapshot scaling.
+- Treat an apparent grow-then-shrink or zoom-then-settle handoff as a geometry
+  mismatch first, not an easing problem. Compare endpoint
+  `getBoundingClientRect()` width, height, and aspect ratio. Normalize both
+  states into one fixed shell or discontinue the shared identity.
 - Keep changing prose, badges, and annotations outside the shared bitmap. If a
   shell and persistent child genuinely need different motion, give them
   separate continuity names instead of capturing one large subtree.

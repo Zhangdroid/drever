@@ -92,4 +92,19 @@ describe("@drever/designs", () => {
     expect(cinemaSlides[1]).toContain('<SlideTransition from="next" mode="local" />');
     expect(cinemaSlides[2]).toContain('<SlideTransition from="previous" mode="local" />');
   });
+
+  it("keeps the Atlas continuity snapshot in one invariant frame", async () => {
+    const css = await readFile(
+      new URL("../../../examples/theme-showcase/components/atlas-decision.css", import.meta.url),
+      "utf8",
+    );
+
+    expect(css).toMatch(
+      /\.atlas-study__artifact\s*\{[^}]*width:\s*850px;[^}]*height:\s*396px;[^}]*box-sizing:\s*border-box;/su,
+    );
+    expect(css).toMatch(/\.atlas-river\s*\{[^}]*width:\s*850px;[^}]*height:\s*396px;/su);
+    expect(css).not.toMatch(
+      /\.atlas-study--(?:route|gates)\s+\.atlas-river\s*\{[^}]*\b(?:width|height):/su,
+    );
+  });
 });

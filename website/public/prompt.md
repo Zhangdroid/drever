@@ -72,7 +72,9 @@ composition instead of defaulting most slides to the same left-copy/right-artifa
 substantial local visual implementation is welcome when it earns its space through explanation,
 atmosphere, or interaction; do not reduce it merely to minimize generated code. Shared transitions
 may connect the same object or clearly corresponding semantic or visual objects, but never an
-arbitrary morph: keep the shared feature and endpoint geometry deliberate, and spend the moment's
+arbitrary morph. Give the shared shell identical explicit width, height, aspect ratio, and box
+sizing at both endpoints, then reposition it through parent layout. If the two compositions require
+incompatible bounds, use a cut, replacement, or restrained dissolve instead. Spend the moment's
 attention budget on that handoff. Use a theme-led transition vocabulary rather than one effect on
 every page: direct cuts, restrained fades, local live-DOM changes, Steps, and a few continuity
 handoffs may coexist when they fit the subject. End a shared-object sequence when the object stops
