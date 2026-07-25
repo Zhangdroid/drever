@@ -36,7 +36,7 @@ import { removeReleaseSmokeGeneratedArtifacts } from "./production-boundary.mjs"
 import { immutablePagesOrigin, resolvePagesPreview } from "./resolve-pages-preview.mjs";
 import { getReleaseSmokeScenario, releaseSmokeScenarios } from "./scenarios.mjs";
 import { verifyPagesPreview } from "./verify-pages-preview.mjs";
-import { assertReleaseSmokeProvenance } from "./verify-provenance.mjs";
+import { assertReleaseSmokeProvenance, requestJson } from "./verify-provenance.mjs";
 
 const temporaryRoots = [];
 const execute = promisify(execFile);
@@ -588,6 +588,40 @@ test("requires main and matches npm, GitHub release, tag, and source provenance"
       }),
     /npm drever/u,
   );
+});
+
+test("uses endpoint-appropriate media types for provenance requests", async (context) => {
+  const requests = [];
+  context.mock.method(globalThis, "fetch", async (url, init) => {
+    requests.push({
+      accept: init.headers.accept,
+      authorization: init.headers.authorization,
+      url,
+      userAgent: init.headers["user-agent"],
+    });
+    return Response.json({});
+  });
+
+  await requestJson("https://registry.npmjs.org/drever/0.2.2");
+  await requestJson("https://api.github.com/repos/Zhangdroid/drever/releases/tags/v0.2.2", {
+    accept: "application/vnd.github+json",
+    token: "test-token",
+  });
+
+  assert.deepEqual(requests, [
+    {
+      accept: "application/json",
+      authorization: undefined,
+      url: "https://registry.npmjs.org/drever/0.2.2",
+      userAgent: "drever-release-smoke",
+    },
+    {
+      accept: "application/vnd.github+json",
+      authorization: "Bearer test-token",
+      url: "https://api.github.com/repos/Zhangdroid/drever/releases/tags/v0.2.2",
+      userAgent: "drever-release-smoke",
+    },
+  ]);
 });
 
 test("scaffolds outside the repository and isolates generated project execution", async () => {

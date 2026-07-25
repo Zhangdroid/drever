@@ -2,10 +2,12 @@ import { pathToFileURL } from "node:url";
 import { assertReleaseVersion } from "../release.mjs";
 import { json } from "./contract.mjs";
 
-const requestJson = async (url, token) => {
+const GITHUB_JSON = "application/vnd.github+json";
+
+export const requestJson = async (url, { accept = "application/json", token } = {}) => {
   const response = await fetch(url, {
     headers: {
-      accept: "application/vnd.github+json",
+      accept,
       ...(token === undefined || token === "" ? {} : { authorization: `Bearer ${token}` }),
       "user-agent": "drever-release-smoke",
     },
@@ -20,13 +22,13 @@ const requestJson = async (url, token) => {
 const resolveTagCommit = async ({ repository, tag, token }) => {
   const reference = await requestJson(
     `https://api.github.com/repos/${repository}/git/ref/tags/${encodeURIComponent(tag)}`,
-    token,
+    { accept: GITHUB_JSON, token },
   );
   let object = reference.object;
   for (let depth = 0; depth < 4 && object?.type === "tag"; depth += 1) {
     const annotatedTag = await requestJson(
       `https://api.github.com/repos/${repository}/git/tags/${object.sha}`,
-      token,
+      { accept: GITHUB_JSON, token },
     );
     object = annotatedTag.object;
   }
@@ -94,7 +96,10 @@ export const verifyReleaseSmokeProvenance = async ({
   const tag = `v${version}`;
   const [npmPackage, release, tagCommit] = await Promise.all([
     requestJson(`https://registry.npmjs.org/drever/${encodeURIComponent(version)}`),
-    requestJson(`https://api.github.com/repos/${repository}/releases/tags/${tag}`, token),
+    requestJson(`https://api.github.com/repos/${repository}/releases/tags/${tag}`, {
+      accept: GITHUB_JSON,
+      token,
+    }),
     resolveTagCommit({ repository, tag, token }),
   ]);
   return assertReleaseSmokeProvenance({
