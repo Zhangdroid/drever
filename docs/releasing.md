@@ -154,11 +154,10 @@ Both projects start from the exact published `create-drever` version. The
 preparation job installs the release and reduces it to inert authoring context.
 A fresh secret-bearing runner downloads that context into quarantine and
 rebuilds it again from an exact regular-file allowlist before starting the
-official Codex Action. It receives
-`DREVER_RELEASE_SMOKE_OPENAI_API_KEY` through the Action input and installs a
-`PreToolUse` hook configured to deny shell calls while the protected
-credential proxy is active. Codex receives the exact prompt, project contract,
-and skills as preloaded context and authors through `apply_patch`.
+official Codex Action. It receives `OPENAI_API_KEY` through the Action input
+and installs a `PreToolUse` hook configured to deny shell calls while the
+protected credential proxy is active. Codex receives the exact prompt, project
+contract, and skills as preloaded context and authors through `apply_patch`.
 Before every resumed turn, the harness rejects new executable configuration,
 symlinks, or changes to its immutable instructions. Generated project code
 cannot execute in this job. A separate job with no OpenAI secret installs the
@@ -189,14 +188,13 @@ combines permission for Actions to create pull requests with permission to
 approve them, so Drever deliberately leaves both disabled.
 
 Create a protected GitHub environment named `ai-release-smoke`, limit it to
-the `main` branch, and configure `DREVER_RELEASE_SMOKE_OPENAI_API_KEY` as an
-environment secret there. Drever's environment uses a required reviewer, with
-self-review allowed for the sole maintainer, so every smoke run has one
-explicit approval before the key becomes available. Do not configure the key
-as a repository secret, expose it as a job-level environment variable, or
-reuse it in preparation, build, and publishing jobs. The result publisher uses
-a Markdown summary file rather than raw terminal output so ANSI control
-sequences and raw logs cannot enter the workflow summary.
+the `main` branch, and add a required reviewer. Drever currently reuses the
+repository's existing `OPENAI_API_KEY`, but only the protected generation job
+references it; preparation, build, and publishing jobs do not. A same-name
+environment secret can later narrow the credential scope without changing the
+workflow. Do not expose the key as a job-level environment variable. The
+result publisher uses a Markdown summary file rather than raw terminal output
+so ANSI control sequences and raw logs cannot enter the workflow summary.
 
 ## One-time npm bootstrap
 

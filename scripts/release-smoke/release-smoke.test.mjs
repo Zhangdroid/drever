@@ -507,8 +507,7 @@ test("keeps the OpenAI key inside the generation job and pins the Codex action",
   );
   assert.doesNotMatch(generateJob, /PREPARED_ROOT:/u);
   assert.match(generateJob, /node "\$AUTOMATION_ROOT\/scripts\/release-smoke\/run-session\.mjs"/u);
-  assert.equal(workflow.match(/secrets\.DREVER_RELEASE_SMOKE_OPENAI_API_KEY/gu)?.length, 1);
-  assert.doesNotMatch(workflow, /secrets\.OPENAI_API_KEY/gu);
+  assert.equal(workflow.match(/secrets\.OPENAI_API_KEY/gu)?.length, 1);
   assert.equal(workflow.match(/overwrite: true/gu)?.length, 3);
   assert.doesNotMatch(workflow, /run_attempt/u);
   assert.match(
