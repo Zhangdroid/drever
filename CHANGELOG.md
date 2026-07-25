@@ -7,6 +7,11 @@ section, while commit snapshots use the current Unreleased section.
 
 ### Changed
 
+- Changed release automation to accumulate small fixes into intentional batches, run AI smoke by
+  default only for stable releases, and let maintainers explicitly opt prereleases or commit
+  snapshots in or out.
+- Pinned AI release smoke to quality-first `gpt-5.6-sol` with medium reasoning, controlling cost
+  through release-level batching rather than a lower-capability generation model.
 - Gave all eight official design studies distinct motion vocabularies and cadences, then expanded
   their reference decks beyond one repeated three-page, left-copy/right-artifact continuity formula.
 - Taught generated creation, design, authoring, and review workflows to treat motion consistency as
