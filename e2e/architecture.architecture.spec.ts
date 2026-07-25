@@ -102,7 +102,7 @@ test("the architecture tour demonstrates deterministic routes and valid manifest
 
   await page.goto("/4/5");
   const pipeline = page.locator(`${activeSlide} .arch-compiler-rail`);
-  await expect(page.locator(activeSlide)).toContainText(
+  await expect(page.locator(`${activeSlide} .arch-slide-heading h1`)).toHaveAccessibleName(
     "Five owned passes turn intent into certainty.",
   );
   await expect(page.locator('[data-drever-step="5"]')).toHaveAttribute("data-step-state", "active");
