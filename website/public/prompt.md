@@ -67,11 +67,22 @@ an original interpretation instead of copying a website.
 
 Unless the user explicitly asks for a fast plain draft, use the project-local design workflow for a
 subject-led visual system rather than stopping at a generic preset. Plan a few signature moments
-that make the subject recognizable, then support them with quieter slides. A substantial local
-visual implementation is welcome when it earns its space through explanation, atmosphere, or
-interaction; do not reduce it merely to minimize generated code.
+that make the subject recognizable, then support them with quieter slides. Let each idea choose its
+composition instead of defaulting most slides to the same left-copy/right-artifact split. A
+substantial local visual implementation is welcome when it earns its space through explanation,
+atmosphere, or interaction; do not reduce it merely to minimize generated code. Shared transitions
+may connect the same object or clearly corresponding semantic or visual objects, but never an
+arbitrary morph: keep the shared feature and endpoint geometry deliberate, and spend the moment's
+attention budget on that handoff.
 
 ## Finish the job
+
+Do not deliver the first complete build by default. Treat it as Draft 1: render the full story, then
+start a separate refinement pass based on what the audience can actually see and use. Prioritize
+high-impact improvements to narrative clarity, focus, density, composition, subject fit,
+readability, motion meaning, timing, continuity, and finish. Preserve successful ideas, signature
+moments, routes, Steps, and design decisions. Do not regenerate wholesale or add decoration merely
+to make the second version different; leave sound choices alone.
 
 Use the project-local workflow to check and build the presentation. Start the development server
 and inspect the audience view when browser tooling is available. Review every authored reveal and

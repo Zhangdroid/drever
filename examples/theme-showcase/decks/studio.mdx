@@ -1,0 +1,97 @@
+import { RequestTrace } from "../components/studio-request-trace.tsx";
+import "../../showcase-return.css";
+import "../components/studio-study.css";
+
+<Workbench
+  className="theme-showcase-studio-study theme-showcase-studio-study--overview"
+  label="Illustrative request trace / 01"
+  main={
+    <MotionGroup intent="continuity" name="studio-request-trace">
+      <RequestTrace phase="overview" />
+    </MotionGroup>
+  }
+  rail={
+    <div className="theme-showcase-studio-study__rail">
+      <span className="theme-showcase-studio-study__kicker">Question</span>
+      <h2>
+        <span>One request.</span>
+        <span>One owner.</span>
+      </h2>
+      <p>Follow one request from the client to the rendered response.</p>
+    </div>
+  }
+/>
+
+<Note>
+  Start with the complete topology. Do not ask the audience to follow several dashboards; one trace
+  contains the question and remains the visual thread through the diagnosis.
+</Note>
+
+---
+
+<Workbench
+  className="theme-showcase-studio-study theme-showcase-studio-study--diagnosis"
+  label="Illustrative request trace / 02"
+  main={
+    <MotionGroup intent="continuity" name="studio-request-trace">
+      <RequestTrace phase="diagnosis" />
+    </MotionGroup>
+  }
+  rail={
+    <div className="theme-showcase-studio-study__rail">
+      <span className="theme-showcase-studio-study__kicker">Finding</span>
+      <h3>Transform: 640 ms.</h3>
+      <p>Theme discovery repeats inside the request path instead of compiling once.</p>
+      <code>await resolveTheme()</code>
+    </div>
+  }
+/>
+
+<Note>
+  The signal color moves to one owning boundary. Keep the other nodes readable but quiet, and use
+  the code label only to name the work that must leave the request path.
+</Note>
+
+---
+
+<Workbench
+  className="theme-showcase-studio-study theme-showcase-studio-study--verified"
+  label="Illustrative verification / 03"
+  main={
+    <MotionGroup intent="continuity" name="studio-request-trace">
+      <RequestTrace phase="verified" />
+    </MotionGroup>
+  }
+  rail={
+    <div className="theme-showcase-studio-study__rail">
+      <span className="theme-showcase-studio-study__kicker">Decision</span>
+      <h3>
+        <span>Compile once.</span>
+        <span>Serve the plan.</span>
+      </h3>
+      <p>The diagnosed trace remains visible while a same-route verification records the result.</p>
+      <div className="theme-showcase-studio-study__result">
+        <strong>774 → 176 ms</strong>
+        <span>Illustrative verification · same four boundaries</span>
+      </div>
+      <nav aria-label="Continue with Drever" className="drever-example-exit">
+        <a
+          className="drever-example-exit__primary"
+          data-drever-showcase-return=""
+          href="https://drever.dev/docs/getting-started/"
+        >
+          {"Start a deck"}
+        </a>
+        <a className="drever-example-exit__secondary" href="https://drever.dev/showcase/">
+          {"More design studies"}
+        </a>
+      </nav>
+    </div>
+  }
+/>
+
+<Note>
+  Close with one implementation decision and one same-route measurement. The trace stays in the
+  workbench as the baseline artifact; the verification result is separate fixed-width text, so
+  changing numerals never become a stretched continuity snapshot.
+</Note>

@@ -1,13 +1,14 @@
 # Drever theme showcase
 
-One real Drever project for reviewing five additional official design studies
-without maintaining five duplicate example packages. `DREVER_THEME` selects
-both the Theme contract and a short deck written specifically for that visual
-language. Basic, Editorial, and Studio are treated the same way in the main
-design-study catalog; this project concentrates the five newer studies:
+One real Drever project for reviewing all eight official design studies without
+maintaining eight duplicate example packages. `DREVER_THEME` selects both the
+Theme contract and a short deck written specifically for that visual language:
 
 | Value       | Entry                 | Story                                                      |
 | ----------- | --------------------- | ---------------------------------------------------------- |
+| `basic`     | `decks/basic.mdx`     | A bounded no-meeting pilot shaped as a calm decision brief |
+| `editorial` | `decks/editorial.mdx` | A library's late-hour demand signal and measured pilot     |
+| `studio`    | `decks/studio.mdx`    | A slow request traced across four system boundaries        |
 | `fieldnote` | `decks/fieldnote.mdx` | Usability-research observations and annotations            |
 | `atlas`     | `decks/atlas.mdx`     | Restoring a river corridor through place and progression   |
 | `ledger`    | `decks/ledger.mdx`    | An activation review with a metric, evidence, and decision |
@@ -52,7 +53,7 @@ vp run -F @drever/example-theme-showcase check:all
 vp run -F @drever/example-theme-showcase build:all
 ```
 
-`check:all` prints one compiler JSON report per theme. `build:all` leaves five
+`check:all` prints one compiler JSON report per theme. `build:all` leaves eight
 independent static projects under `dist/`.
 
 For a visual review, inspect:

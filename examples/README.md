@@ -13,17 +13,18 @@ sparse-Step PDF export fixture.
 | `motion-recipes`   | Story-led examples of meaningful object lifecycles, local motion, data, and spatial ideas.   | `http://localhost:4322` | `vp run demo:motion`       |
 | `feature-gallery`  | Executable gallery of MDX, React, official plugins, Steps, and delivery surfaces.            | `http://localhost:4324` | `vp run demo:features`     |
 | `room-scenes`      | Microphone-reactive rooms and a persistent ambient Stage.                                    | `http://localhost:4325` | `vp run demo:scenes`       |
-| `theme-showcase`   | Five new design studies complementing the three systems exercised by established demos.      | `http://localhost:4326` | See its local README       |
+| `theme-showcase`   | Eight subject-led studies for the official design systems.                                   | `http://localhost:4326` | See its local README       |
 | `motion-contracts` | Internal geometry fixtures for shared shells, text, media, and motion intents.               | `http://localhost:4328` | See its local README       |
 
 Use `vp run demo:showcases` to start Product Tour, Motion Recipes, and Feature Gallery
 together. Their local links use the same hostname with ports `4320`, `4322`, and `4324`;
 sibling `dist` builds also link to one another when opened from the filesystem.
 
-The theme showcase concentrates five new design studies in one project while
-Basic, Editorial, and Studio remain exercised by the established demos. Run
+The theme showcase concentrates all eight design studies in one project. The
+established Basic, Product, and Feature Gallery demos keep their separate roles
+as references for authoring, product storytelling, and plugin coverage. Run
 `vp run -F @drever/example-theme-showcase check:all` or `build:all` to validate
-every new subject-led deck.
+every subject-led study.
 
 Build the workspace packages once before starting an example:
 

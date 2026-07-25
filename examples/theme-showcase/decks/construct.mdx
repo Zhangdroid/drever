@@ -2,8 +2,9 @@ import "../components/construct-routine.css";
 import "../../showcase-return.css";
 
 <Prompt
+  className="theme-showcase-handoff-prompt"
   aria-label="Handoff workshop: could the next person act without asking you?"
-  eyebrow="Handoff workshop / 01"
+  eyebrow="Illustrative handoff workshop / 01"
   question={
     <>
       <span>Could the next person</span>
@@ -14,18 +15,19 @@ import "../../showcase-return.css";
   context="Choose one real task that changes owner this week."
   cue="Write the first missing fact."
   footer="Two minutes · work independently"
-  tone="yellow"
+  tone="blue"
   align="left"
 />
 
 <Note>
-  Pause here. The question is concrete and answerable; participants should use a real handoff rather
-  than discuss collaboration in general.
+  This is an illustrative workshop. Pause here: participants should test one real handoff rather
+  than discuss collaboration in general. The single blue system remains stable across the story.
 </Note>
 
 ---
 
 <Assembly
+  className="theme-showcase-handoff-assembly"
   label="Reliable handoff"
   title="Three named parts create one actionable transfer."
   parts={[
@@ -47,60 +49,88 @@ import "../../showcase-return.css";
   ]}
   result={<strong>The next person can continue without reconstructing intent.</strong>}
   caption="Each part is independently checkable before the task changes hands."
-  tone="green"
+  tone="blue"
 />
 
 <Note>
-  These are peer parts of one mechanism, not unrelated cards. Assemble them in order and read the
-  result only after all three are visible.
+  These are peer parts of one illustrative mechanism, not unrelated cards. Read across the joined
+  beam, then read the result it creates below.
 </Note>
 
 ---
 
-## Test the handoff before sending it.
-
-<MotionGroup className="theme-showcase-construct-routine" flow="inline" intent="stagger">
-  <Step at={1}>
-    <section>
-      <h3>Point</h3>
-      <p>Ask the recipient to name the next decision.</p>
-    </section>
-  </Step>
-  <Step at={2}>
-    <section>
-      <h3>Probe</h3>
-      <p>Remove one detail and see whether action stops.</p>
-    </section>
-  </Step>
-  <Step at={3}>
-    <section>
-      <h3>Patch</h3>
-      <p>Add only the context that unblocks the task.</p>
-    </section>
-  </Step>
-</MotionGroup>
-
-<div className="theme-showcase-construct-commitment">
-  <strong>Run it now · 3 minutes.</strong>
-  <span>
-    {"Send only when the recipient can name the next decision and how done will be recognized."}
-  </span>
-</div>
-
-<nav aria-label="Continue with Drever" className="drever-example-exit">
-  <a
-    className="drever-example-exit__primary"
-    data-drever-showcase-return=""
-    href="https://drever.dev/docs/getting-started/"
-  >
-    {"Start a deck"}
-  </a>
-  <a className="drever-example-exit__secondary" href="https://drever.dev/showcase/">
-    {"More design studies"}
-  </a>
-</nav>
+<section className="theme-showcase-construct-test">
+  <header>
+    <p>Illustrative handoff test / 03</p>
+    <h2>Test the handoff before sending it.</h2>
+  </header>
+  <div className="theme-showcase-construct-routine-scene">
+    <div className="theme-showcase-construct-routine-board">
+      <div aria-hidden="true" className="theme-showcase-construct-routine-track">
+        <span>
+          <b>01</b>
+          Point
+        </span>
+        <span>
+          <b>02</b>
+          Probe
+        </span>
+        <span>
+          <b>03</b>
+          Patch
+        </span>
+      </div>
+      <MotionGroup className="theme-showcase-construct-routine" flow="inline" intent="stagger">
+        <Step at={1}>
+          <section>
+            <span>01</span>
+            <h3>Point</h3>
+            <p>Ask the recipient to name the next decision.</p>
+          </section>
+        </Step>
+        <Step at={2}>
+          <section>
+            <span>02</span>
+            <h3>Probe</h3>
+            <p>Remove one detail and see whether action stops.</p>
+          </section>
+        </Step>
+        <Step at={3}>
+          <section>
+            <span>03</span>
+            <h3>Patch</h3>
+            <p>Add only the context that unblocks the task.</p>
+          </section>
+        </Step>
+      </MotionGroup>
+    </div>
+    <div className="theme-showcase-construct-gate">
+      <span>Send gate</span>
+      <strong>
+        <span>Blocked</span>
+        <span>Ready</span>
+      </strong>
+    </div>
+  </div>
+  <div className="theme-showcase-construct-commitment">
+    <strong>Run it now · 3 minutes.</strong>
+    <span>Send only when the recipient can name the next decision and recognize done.</span>
+  </div>
+  <nav aria-label="Continue with Drever" className="drever-example-exit">
+    <a
+      className="drever-example-exit__primary"
+      data-drever-showcase-return=""
+      href="https://drever.dev/docs/getting-started/"
+    >
+      {"Start a deck"}
+    </a>
+    <a className="drever-example-exit__secondary" href="https://drever.dev/showcase/">
+      {"More design studies"}
+    </a>
+  </nav>
+</section>
 
 <Note>
-  Close with a timed facilitation routine and an observable send criterion. The blocks represent
-  explicit steps, so the modular visual language carries real instructional structure.
+  The empty rail is a meaningful starting state. Each advance fills one test segment; when Patch
+  lands, the send gate becomes ready as the quieter consequence of the same action.
 </Note>

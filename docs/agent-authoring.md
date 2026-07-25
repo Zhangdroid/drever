@@ -236,15 +236,19 @@ change has one of Drever's five narrative jobs:
 
 - `focus`, `replace`, and `compare` use direct Step children;
 - `stagger` belongs inside one Step and has at most four direct visual children;
-- `continuity` requires the same unique lowercase kebab-case name for the same
-  object on adjacent slides.
+- `continuity` requires the same unique lowercase kebab-case name for the related
+  boundary on adjacent slides.
 
-Keep persistent titles outside motion groups. Never infer a shared identity,
-invent animation props, or add Step stops merely to create delay. Matching
-color or shape is not identity; recurring decoration keeps stable geometry and
-paint. If semantically linked copy transforms, use one local fixed slot after
-capture rather than sharing changing glyphs through a View Transition. The full
-grammar and accessibility semantics are in [Motion choreography](./motion.md).
+Keep persistent titles outside motion groups. Never infer a shared
+correspondence, invent animation props, or add Step stops merely to create
+delay. Continuity may connect the same object or clearly corresponding semantic
+or visual objects, but matching color or shape alone is insufficient. Share the
+smallest stable feature, keep endpoint geometry and paint deliberate, and count
+the handoff as the primary motion for that moment. Recurring decoration keeps
+stable geometry and paint. If semantically linked copy transforms, use one local
+fixed slot after capture rather than sharing changing glyphs through a View
+Transition. The full grammar and accessibility semantics are in
+[Motion choreography](./motion.md).
 
 ## Recommended loop
 
@@ -257,9 +261,13 @@ For a new project:
 3. Run `npm exec -- drever context --json` to inspect the exact result and available design
    vocabulary.
 4. Run `npm exec -- drever check --json` and fix proven source defects.
-5. Build and inspect every authored Step state plus `/document`; inspect
+5. Treat the complete first build as Draft 1. Inspect every authored Step state plus `/document`;
    `/speaker` when notes, motion, or presentation behavior changed.
-6. For motion edits, verify forward and backward movement, persistent geometry,
+6. Use the review skill for a separate audience-minded refinement pass. Preserve
+   successful choices, fix evidence-backed material issues, rebuild, and recheck
+   affected states; do not regenerate or add decoration merely to create a visible
+   second version.
+7. For motion edits, verify forward and backward movement, persistent geometry,
    reduced motion, and the affected continuity boundary in a real browser.
 
 For an existing deck, start with `context --json`, read the complete affected

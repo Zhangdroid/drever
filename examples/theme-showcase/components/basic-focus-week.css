@@ -1,0 +1,173 @@
+.theme-showcase-basic-focus-week {
+  display: grid;
+  width: 100%;
+  min-height: 470px;
+  box-sizing: border-box;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  border-block: 2px solid var(--drever-theme-ink);
+  background: color-mix(in srgb, var(--drever-theme-surface), transparent 30%);
+  color: var(--drever-theme-ink);
+}
+
+.theme-showcase-basic-focus-week > header,
+.theme-showcase-basic-focus-week > footer {
+  display: grid;
+  min-height: 58px;
+  padding-inline: 24px;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  color: var(--drever-theme-muted);
+  font-size: 15px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.theme-showcase-basic-focus-week > header {
+  border-bottom: 1px solid var(--drever-theme-border);
+}
+
+.theme-showcase-basic-focus-week > header strong {
+  color: var(--drever-theme-ink);
+  font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.theme-showcase-basic-focus-week__days {
+  display: grid;
+  min-height: 0;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.theme-showcase-basic-focus-week__days > section {
+  display: grid;
+  min-width: 0;
+  grid-template-rows: auto minmax(0, 1fr);
+  border-inline-start: 1px solid var(--drever-theme-border);
+}
+
+.theme-showcase-basic-focus-week__days > section:first-child {
+  border-inline-start: 0;
+}
+
+.theme-showcase-basic-focus-week__days > section > span {
+  padding: 17px 14px 13px;
+  color: var(--drever-theme-muted);
+  font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.theme-showcase-basic-focus-week__slots {
+  position: relative;
+  display: grid;
+  min-height: 0;
+  padding: 10px 12px 22px;
+  grid-template-rows: repeat(6, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.theme-showcase-basic-focus-week__slots > b {
+  position: absolute;
+  inset: 10px 8px 22px;
+  border: 1px dashed transparent;
+  content: "";
+  pointer-events: none;
+}
+
+.theme-showcase-basic-focus-week__slots > i {
+  z-index: 1;
+  min-height: 0;
+  border: 1px solid color-mix(in srgb, var(--drever-theme-muted), transparent 48%);
+  background: color-mix(in srgb, var(--drever-theme-muted), transparent 76%);
+}
+
+.theme-showcase-basic-focus-week[data-phase="framing"] [data-day="Wed"] {
+  background: color-mix(in srgb, var(--drever-theme-accent-soft), transparent 68%);
+}
+
+.theme-showcase-basic-focus-week[data-phase="framing"] [data-day="Wed"] > span {
+  color: var(--drever-theme-accent-strong);
+}
+
+.theme-showcase-basic-focus-week[data-phase="framing"]
+  [data-day="Wed"]
+  .theme-showcase-basic-focus-week__slots
+  > b {
+  border-color: color-mix(in srgb, var(--drever-theme-accent), transparent 42%);
+}
+
+.theme-showcase-basic-focus-week[data-phase="evidence"]
+  [data-day="Wed"]
+  .theme-showcase-basic-focus-week__slots
+  > i {
+  border-color: var(--drever-theme-accent);
+  background: var(--drever-theme-accent);
+}
+
+.theme-showcase-basic-focus-week[data-phase="evidence"] [data-day="Wed"] > span {
+  color: var(--drever-theme-accent-strong);
+}
+
+.theme-showcase-basic-focus-week[data-phase="decision"] [data-day="Wed"] {
+  background: var(--drever-theme-accent-soft);
+}
+
+.theme-showcase-basic-focus-week[data-phase="decision"] [data-day="Wed"] > span {
+  color: var(--drever-theme-accent-strong);
+}
+
+.theme-showcase-basic-focus-week[data-phase="decision"]
+  [data-day="Wed"]
+  .theme-showcase-basic-focus-week__slots
+  > b {
+  border-color: var(--drever-theme-accent);
+  background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--drever-theme-accent), transparent 90%) 25%,
+      transparent 25% 50%,
+      color-mix(in srgb, var(--drever-theme-accent), transparent 90%) 50% 75%,
+      transparent 75%
+    )
+    0 0 / 20px 20px;
+}
+
+.theme-showcase-basic-focus-week[data-phase="decision"]
+  [data-day="Wed"]
+  .theme-showcase-basic-focus-week__slots
+  > i {
+  opacity: 0.12;
+}
+
+.theme-showcase-basic-focus-week > footer {
+  position: relative;
+  min-height: 66px;
+  padding-inline-start: 48px;
+  border-top: 1px solid var(--drever-theme-border);
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  text-transform: none;
+}
+
+.theme-showcase-basic-focus-week > footer > span {
+  position: absolute;
+  left: 24px;
+  width: 10px;
+  height: 10px;
+  background: var(--drever-theme-accent);
+}
+
+.theme-showcase-basic-focus-week > footer > strong {
+  color: var(--drever-theme-ink);
+  font-size: 18px;
+  letter-spacing: -0.01em;
+}
+
+.theme-showcase-basic-focus-week > footer > small {
+  grid-column: 3;
+  justify-self: end;
+  font-size: 14px;
+  letter-spacing: 0.03em;
+}

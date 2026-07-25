@@ -67,6 +67,9 @@ Catalog: https://drever.dev/showcase/
 
 ### Art-direction studies
 
+- Basic: https://drever.dev/showcase/design/basic/
+- Editorial: https://drever.dev/showcase/design/editorial/
+- Studio: https://drever.dev/showcase/design/studio/
 - Fieldnote: https://drever.dev/showcase/design/fieldnote/
 - Atlas: https://drever.dev/showcase/design/atlas/
 - Ledger: https://drever.dev/showcase/design/ledger/

@@ -74,6 +74,11 @@ composition, data scene, media treatment, or meaningful interaction. Use quieter
 between them so the deck has rhythm. A repeated stack of generic cards, gradients, and text columns
 is not a custom direction even when its colors match the subject.
 
+Plan composition across the deck rather than repeating one convenient template. Do not default
+most slides to a left-copy/right-artifact split. Let the content structure justify centered
+statements, full-canvas diagrams, single artifacts, sequences, comparisons, data fields, or
+asymmetric editorial layouts; visual variety without a narrative job is not a design system.
+
 Implement `theme.ts` with `defineTheme`, `baseURL: import.meta.url`, a stable local ID, and:
 
 - semantic color, typography, spacing, shape, and motion tokens;
@@ -107,7 +112,7 @@ Define highlighted code as part of the typography and color system. Use fenced c
 language or a documented highlighted component, provide distinct readable token roles, and never
 let a centerpiece example render as monochrome source unless that is a deliberate semantic claim.
 
-Pair a text-heavy narrative region with a primarily visual supporting region: a diagram, artifact, media frame, data mark, spatial form, or quiet subject-led abstraction. Do not put another prose-heavy panel beside it; keep supporting text to functional labels or captions unless comparing the texts is the claim.
+When a slide pairs a text-heavy narrative region with supporting content, make the support primarily visual: a diagram, artifact, media frame, data mark, spatial form, or quiet subject-led abstraction. Do not put another prose-heavy panel beside it; keep supporting text to functional labels or captions unless comparing the texts is the claim.
 
 ## Design motion with meaning
 
@@ -119,7 +124,7 @@ Pair a text-heavy narrative region with a primarily visual supporting region: a 
 - Match direction, timing, and gesture to reading order, spatial structure, or narrative causality. Let an initial state settle when the audience must perceive it; choose timing from the reading job instead of applying a fixed delay. Keep quiet cues perceptible at presentation distance.
 - Animate only properties that express the same semantic change. Serialize multiple techniques around one focal object instead of running competing cues.
 - Use `Step` when presentation navigation owns a reveal. Keep an inline control only when direct manipulation is itself the lesson.
-- Use continuity only for the same semantic object. Keep endpoint geometry, type metrics, wrapping, paint, shadows, and media crop explicit.
+- Use continuity for the same object or for adjacent objects with a clear semantic or visual correspondence. Share the smallest stable feature that makes the relationship legible; color or shape alone is insufficient. Keep endpoint geometry, type metrics, wrapping, paint, shadows, and media crop explicit, and count the handoff as the moment's primary motion.
 - Give each moving indicator one visual role. A cursor or focus reticle has a recognizable hotspot that lands exactly on a target; anchor a text caret inside the same inline wrapper as the final word instead of positioning it against the surrounding panel. A route signal remains centered on its path and reaches the real endpoint. Keep the marker and milestones in one local positioned coordinate system instead of using travel distances measured from another container.
 - Never stretch text or boxes, hard-clip painted shadows, switch a shadow from `none`, or animate a recurring motif merely because it exists. Treat repeated accents as layout anchors: keep their position and geometry identical across adjacent slides unless a meaningful chapter, comparison, or state change requires a move. Make that exception legible and hold its new position long enough to read as intentional.
 - Size every animated or spatial component for its largest transformed and painted footprint across the whole sequence. At maximum expansion, 2D or 3D layers must retain clear space from tracks, labels, and adjacent copy.
@@ -129,6 +134,12 @@ Pair a text-heavy narrative region with a primarily visual supporting region: a 
 - Give every live motion or spatial integration accessible final semantics, keyboard behavior, deterministic loading and export readiness, reduced-motion output, and a stable poster or authored fallback when live rendering is inappropriate. Loop only when ongoing change is the subject; use a deterministic sequence, start its first meaningful update when the audience slide activates, pause it outside the active audience surface, and author a stable final state. Keep animated metrics synchronized in a stable numeric slot without announcing every frame. Keep continuous backgrounds and 3D subordinate to the claim, and never let navigation continuity and local motion transform the same element at once.
 
 ## Validate the result
+
+Treat the first applied design as Draft 1. Render it before polishing further, then perform a separate
+refinement pass against the actual deck. Preserve the visual premise, signature moments, and
+subject-led choices that work. Correct evidence-backed problems in hierarchy, composition rhythm,
+readability, background emphasis, motion, and consistency; do not restyle the deck wholesale or add
+decoration merely to make the second pass look different.
 
 1. Add tests only for meaningful contracts or component behavior; do not add snapshots that merely preserve CSS text.
 2. Run `npm exec -- drever context --json`, `npm exec -- drever check --json`, and `npm exec -- drever build`.

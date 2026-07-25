@@ -1,4 +1,5 @@
 import type { ThemeId } from "../site-data";
+import cinemaNightBusImage from "../../../examples/theme-showcase/assets/cinema-night-bus.jpg";
 import { HomeShowcaseCover } from "./showcase";
 
 export type StudyId = "architecture" | "features" | "motion" | "scenes";
@@ -120,16 +121,25 @@ export function ArtDirectionCover({ theme }: { theme: ThemeId }) {
     return (
       <div className="art-cover art-cover--fieldnote" aria-hidden="true">
         <header>
-          <span>Research debrief · 02</span>
+          <span>Checkout study · session 03</span>
         </header>
-        <div className="fieldnote-cover__note">
-          <i />
-          <strong>
-            Name the
-            <br />
-            hesitation.
-          </strong>
-          <span>People stopped here</span>
+        <div className="fieldnote-cover__checkout">
+          <div>
+            <span>Delivery</span>
+            <i />
+          </div>
+          <div>
+            <span>Payment</span>
+            <i />
+          </div>
+          <div>
+            <span>Review</span>
+            <i />
+          </div>
+        </div>
+        <div className="fieldnote-cover__annotation">
+          <strong>7 / 8 paused here</strong>
+          <span>Say when charging happens.</span>
         </div>
       </div>
     );
@@ -139,21 +149,22 @@ export function ArtDirectionCover({ theme }: { theme: ThemeId }) {
     return (
       <div className="art-cover art-cover--atlas" aria-hidden="true">
         <header>
-          <span>Restoration corridor</span>
+          <span>Alder River · August survey</span>
         </header>
-        <div className="atlas-cover__terrain">
-          <i />
-          <i />
-          <i />
-        </div>
-        <div className="atlas-cover__route">
-          <i />
-          <i />
-          <i />
-          <b />
-        </div>
+        <svg className="atlas-cover__river" viewBox="0 0 720 390">
+          <path
+            className="atlas-cover__river-base"
+            d="M42 318 C150 298 176 228 270 238 S392 282 454 202 S566 86 680 70"
+          />
+          <path className="atlas-cover__river-break" d="M270 238 C342 236 392 282 454 202" />
+          <circle cx="128" cy="282" r="11" />
+          <circle cx="270" cy="238" r="11" />
+          <circle cx="454" cy="202" r="11" />
+          <circle cx="594" cy="102" r="11" />
+          <circle className="atlas-cover__signal" cx="42" cy="318" r="8" />
+        </svg>
         <div className="atlas-cover__label">
-          <strong>Open the river edge</strong>
+          <strong>One exposed bend breaks the cold corridor.</strong>
         </div>
       </div>
     );
@@ -163,18 +174,20 @@ export function ArtDirectionCover({ theme }: { theme: ThemeId }) {
     return (
       <div className="art-cover art-cover--ledger" aria-hidden="true">
         <header>
-          <span>Operating review / Q3</span>
+          <span>Activation review / Q2</span>
         </header>
         <div className="ledger-cover__metric">
-          <strong>18.4%</strong>
-          <b>+3.2 pts</b>
+          <strong>68.4%</strong>
+          <b>+7.2 pp vs Q1</b>
         </div>
-        <div className="ledger-cover__bars">
-          <i />
-          <i />
-          <i />
-          <i />
-          <i />
+        <div className="ledger-cover__benchmark">
+          <span>0</span>
+          <div>
+            <i />
+            <b />
+          </div>
+          <span>100</span>
+          <small>Decision line 65</small>
         </div>
       </div>
     );
@@ -184,20 +197,17 @@ export function ArtDirectionCover({ theme }: { theme: ThemeId }) {
     return (
       <div className="art-cover art-cover--cinema" aria-hidden="true">
         <header>
-          <span>Scene 04</span>
+          <span>Route 14 · the missing hour</span>
         </header>
         <div className="cinema-cover__frame">
-          <div className="cinema-cover__window">
-            <i />
-            <i />
-            <i />
-          </div>
+          <img alt="" src={cinemaNightBusImage} />
           <div className="cinema-cover__route">
             <i />
+            <b />
           </div>
         </div>
         <div className="cinema-cover__caption">
-          <strong>The final hour stays connected.</strong>
+          <strong>The city stayed open.</strong>
         </div>
       </div>
     );
@@ -207,18 +217,21 @@ export function ArtDirectionCover({ theme }: { theme: ThemeId }) {
     return (
       <div className="art-cover art-cover--construct" aria-hidden="true">
         <header>
-          <span>Handoff workshop · 03</span>
+          <span>Reliable handoff · test 03</span>
         </header>
         <div className="construct-cover__assembly">
-          <div>
+          <div data-part="owner">
             <strong>Owner</strong>
           </div>
-          <div>
-            <strong>Proof</strong>
+          <div data-part="context">
+            <strong>Context</strong>
           </div>
-          <div>
-            <strong>Next move</strong>
+          <div data-part="acceptance">
+            <strong>Acceptance</strong>
           </div>
+        </div>
+        <div className="construct-cover__gate">
+          <span>Ready to send</span>
           <i />
         </div>
       </div>
@@ -229,16 +242,26 @@ export function ArtDirectionCover({ theme }: { theme: ThemeId }) {
     return (
       <div className="art-cover art-cover--editorial" aria-hidden="true">
         <header>
-          <span>Essay · issue 04</span>
+          <span>Library hours · evening brief</span>
         </header>
-        <div className="editorial-cover__folio">04</div>
+        <div className="editorial-cover__folio">20:00</div>
         <div className="editorial-cover__statement">
           <strong>
-            Give the idea
-            <br />
-            room to arrive.
+            The busiest hour
+            <br /> starts after closing.
           </strong>
+        </div>
+        <div className="editorial-cover__hours">
+          <span>16</span>
           <i />
+          <span>17</span>
+          <i />
+          <span>18</span>
+          <i />
+          <span>19</span>
+          <i />
+          <span>20</span>
+          <b />
         </div>
       </div>
     );
@@ -248,20 +271,21 @@ export function ArtDirectionCover({ theme }: { theme: ThemeId }) {
     return (
       <div className="art-cover art-cover--studio" aria-hidden="true">
         <header>
-          <span>System trace / 03</span>
+          <span>Request trace · 774 ms</span>
         </header>
         <div className="studio-cover__artifact">
-          <div className="studio-cover__core">
-            <span>Source</span>
-            <strong>01</strong>
-          </div>
+          <span>Client</span>
           <i />
-          <div className="studio-cover__surfaces">
-            <span>Room</span>
-            <span>Notes</span>
-            <span>Web</span>
-          </div>
+          <span>Router</span>
+          <i />
+          <span data-hot="">Transform</span>
+          <i />
+          <span>Render</span>
           <b />
+        </div>
+        <div className="studio-cover__finding">
+          <strong>640 ms</strong>
+          <span>waiting at Transform</span>
         </div>
       </div>
     );
@@ -270,23 +294,31 @@ export function ArtDirectionCover({ theme }: { theme: ThemeId }) {
   return (
     <div className="art-cover art-cover--basic" aria-hidden="true">
       <header>
-        <span>Quarterly review</span>
+        <span>Decision brief · week 34</span>
       </header>
-      <div className="basic-cover__question">
-        <strong>What should happen next?</strong>
+      <div className="basic-cover__statement">
+        <strong>Protect Wednesday mornings.</strong>
       </div>
-      <div className="basic-cover__steps">
+      <div className="basic-cover__week">
         <div>
-          <span>01</span>
-          <i />
+          <span>Mon</span>
+          <i data-load="high" />
         </div>
         <div>
-          <span>02</span>
-          <i />
+          <span>Tue</span>
+          <i data-load="high" />
         </div>
         <div>
-          <span>03</span>
-          <i />
+          <span>Wed</span>
+          <i data-decision="" />
+        </div>
+        <div>
+          <span>Thu</span>
+          <i data-load="high" />
+        </div>
+        <div>
+          <span>Fri</span>
+          <i data-load="medium" />
         </div>
       </div>
     </div>

@@ -1,7 +1,528 @@
-.ledger-cohort-evidence {
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+.drever-viewer [data-drever-stage-layer="background"]::before {
+  opacity: 0.34;
 }
 
-[data-drever-slide] .ledger-cohort-evidence .drever-ledger-evidence__claim {
-  max-width: 16ch;
+.drever-viewer [data-drever-stage-layer="background"]::after {
+  opacity: 0.2;
+}
+
+.ledger-study {
+  display: grid;
+  width: 100%;
+  min-height: 620px;
+  box-sizing: border-box;
+  grid-template-columns: minmax(0, 470px) 830px;
+  align-items: center;
+  gap: 54px;
+}
+
+.ledger-study__copy {
+  display: grid;
+  min-width: 0;
+  align-content: center;
+  gap: 22px;
+}
+
+.ledger-study__artifact {
+  display: grid;
+  min-width: 0;
+  place-items: center;
+}
+
+.ledger-study__label {
+  color: var(--drever-theme-accent-strong);
+  font-family:
+    "SFMono-Regular", "Cascadia Code", Consolas, "Liberation Mono", ui-monospace, monospace;
+  font-size: 15px;
+  font-weight: 720;
+  letter-spacing: 0.1em;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+[data-drever-slide] .ledger-study h1,
+[data-drever-slide] .ledger-study h2 {
+  max-width: none;
+  font-size: 56px;
+  line-height: 0.98;
+}
+
+[data-drever-slide] .ledger-study h1 > span {
+  display: block;
+  white-space: nowrap;
+}
+
+[data-drever-slide] .ledger-study h2 > span {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+[data-drever-slide] .ledger-study__copy > p:not(.ledger-study__label) {
+  max-width: 32ch;
+  color: var(--drever-theme-muted);
+  font-size: 22px;
+  line-height: 1.45;
+}
+
+.ledger-study--decision .drever-example-exit {
+  margin-top: 16px;
+}
+
+.ledger-study--metric {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: 24px;
+}
+
+.ledger-study--metric .ledger-study__copy {
+  grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+  align-items: end;
+  gap: 10px 54px;
+}
+
+.ledger-study--metric .ledger-study__label {
+  grid-column: 1 / -1;
+}
+
+.ledger-study--metric .ledger-study__copy > :where(h1, p:not(.ledger-study__label)) {
+  margin: 0;
+}
+
+.ledger-study--metric .ledger-study__copy > p:not(.ledger-study__label) {
+  padding-bottom: 5px;
+}
+
+.ledger-study--metric .ledger-record {
+  width: min(1100px, 100%);
+  height: 430px;
+}
+
+.ledger-study--metric .ledger-record__metric {
+  grid-template-columns: minmax(0, 0.8fr) minmax(420px, 1.2fr);
+  align-items: center;
+  gap: 36px;
+}
+
+.ledger-study--metric .ledger-record__threshold {
+  margin-inline: 12px;
+}
+
+.ledger-study--audit {
+  grid-template-columns: 830px minmax(0, 470px);
+}
+
+.ledger-study--audit .ledger-study__copy {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.ledger-study--audit .ledger-study__artifact {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.ledger-record {
+  display: grid;
+  width: 830px;
+  height: 566px;
+  box-sizing: border-box;
+  padding: 24px 28px 20px;
+  border-block: 1px solid var(--drever-theme-border);
+  border-top: 5px solid var(--drever-theme-ink);
+  background: color-mix(in srgb, var(--drever-theme-surface), transparent 16%);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 22px;
+}
+
+.ledger-record__header,
+.ledger-record__footer {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 28px;
+}
+
+[data-drever-slide] .ledger-record__header h2,
+.ledger-record__header p,
+.ledger-record__footer {
+  max-width: none;
+  color: var(--drever-theme-muted);
+  font-family:
+    "SFMono-Regular", "Cascadia Code", Consolas, "Liberation Mono", ui-monospace, monospace;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+[data-drever-slide] .ledger-record__header h2 {
+  color: var(--drever-theme-accent-strong);
+}
+
+.ledger-record__footer {
+  padding-top: 13px;
+  border-top: 1px solid var(--drever-theme-border);
+  font-size: 12px;
+  letter-spacing: 0.035em;
+  text-transform: none;
+}
+
+.ledger-record__metric {
+  display: grid;
+  align-content: center;
+  gap: 60px;
+}
+
+.ledger-record__measure {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+[data-drever-slide] .ledger-record__measure > strong {
+  color: var(--drever-theme-positive);
+  font-family: Arial, "Helvetica Neue", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  font-size: 130px;
+  font-weight: 790;
+  letter-spacing: -0.075em;
+  line-height: 0.82;
+}
+
+.ledger-record__measure > span {
+  color: var(--drever-theme-muted);
+  font-size: 33px;
+  font-weight: 690;
+}
+
+.ledger-record__measure > b {
+  padding: 10px 0 10px 18px;
+  border-left: 2px solid var(--drever-theme-positive);
+  margin-left: 18px;
+  color: var(--drever-theme-positive);
+  font-family:
+    "SFMono-Regular", "Cascadia Code", Consolas, "Liberation Mono", ui-monospace, monospace;
+  font-size: 17px;
+  line-height: 1.2;
+}
+
+.ledger-record__threshold {
+  position: relative;
+  height: 82px;
+  margin-inline: 22px;
+}
+
+.ledger-record__threshold-line {
+  position: absolute;
+  top: 34px;
+  right: 0;
+  left: 0;
+  height: 2px;
+  background: var(--drever-theme-border);
+}
+
+.ledger-record__threshold-line::before,
+.ledger-record__threshold-line::after {
+  position: absolute;
+  top: -4px;
+  width: 1px;
+  height: 10px;
+  background: var(--drever-theme-muted);
+  content: "";
+}
+
+.ledger-record__threshold-line::before {
+  left: 0;
+}
+
+.ledger-record__threshold-line::after {
+  right: 0;
+}
+
+.ledger-record__threshold-point {
+  position: absolute;
+  top: 0;
+  display: grid;
+  min-width: 92px;
+  justify-items: center;
+  gap: 31px;
+  translate: -50% 0;
+}
+
+.ledger-record__threshold-point::before {
+  position: absolute;
+  top: 27px;
+  left: 50%;
+  width: 13px;
+  height: 13px;
+  border: 3px solid var(--drever-theme-surface);
+  border-radius: 50%;
+  background: var(--drever-theme-muted);
+  box-shadow: 0 0 0 1px var(--drever-theme-muted);
+  content: "";
+  translate: -50% 0;
+}
+
+.ledger-record__threshold-point > b {
+  color: var(--drever-theme-ink);
+  font-family:
+    "SFMono-Regular", "Cascadia Code", Consolas, "Liberation Mono", ui-monospace, monospace;
+  font-size: 15px;
+}
+
+.ledger-record__threshold-point > small {
+  color: var(--drever-theme-muted);
+  font-family:
+    "SFMono-Regular", "Cascadia Code", Consolas, "Liberation Mono", ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 680;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.ledger-record__threshold-point[data-point="q1"] {
+  left: 12%;
+}
+
+.ledger-record__threshold-point[data-point="decision"] {
+  left: 50%;
+}
+
+.ledger-record__threshold-point[data-point="decision"]::before {
+  border-radius: 0;
+  background: var(--drever-theme-accent);
+  box-shadow: 0 0 0 1px var(--drever-theme-accent);
+  rotate: 45deg;
+}
+
+.ledger-record__threshold-point[data-point="q2"] {
+  left: 84%;
+}
+
+.ledger-record__threshold-point[data-point="q2"]::before {
+  width: 16px;
+  height: 16px;
+  background: var(--drever-theme-positive);
+  box-shadow: 0 0 0 2px var(--drever-theme-positive);
+}
+
+.ledger-record__audit {
+  display: grid;
+  align-content: center;
+  gap: 8px;
+}
+
+.ledger-record__audit-key {
+  display: flex;
+  justify-content: end;
+  gap: 24px;
+  color: var(--drever-theme-muted);
+  font-family:
+    "SFMono-Regular", "Cascadia Code", Consolas, "Liberation Mono", ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 690;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.ledger-record__audit-key > span::before {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border: 2px solid currentcolor;
+  border-radius: 50%;
+  margin-right: 7px;
+  content: "";
+}
+
+.ledger-record__audit-key > span:last-child::before {
+  border-color: var(--drever-theme-positive);
+  background: var(--drever-theme-positive);
+}
+
+.ledger-record__audit ul {
+  display: grid;
+  max-width: none;
+  padding: 0;
+  gap: 0;
+  list-style: none;
+}
+
+[data-drever-slide] .ledger-record__audit li {
+  display: grid;
+  min-height: 104px;
+  box-sizing: border-box;
+  padding: 22px 0;
+  border-top: 1px solid var(--drever-theme-border);
+  grid-template-columns: 130px minmax(0, 1fr) 82px;
+  align-items: center;
+  gap: 20px;
+}
+
+[data-drever-slide] .ledger-record__audit li:last-child {
+  border-bottom: 1px solid var(--drever-theme-border);
+}
+
+.ledger-record__audit li::before {
+  display: none;
+}
+
+[data-drever-slide] .ledger-record__audit li > strong {
+  color: var(--drever-theme-ink);
+  font-size: 18px;
+  line-height: 1.15;
+}
+
+[data-drever-slide] .ledger-record__audit li > b {
+  color: var(--drever-theme-positive);
+  font-family:
+    "SFMono-Regular", "Cascadia Code", Consolas, "Liberation Mono", ui-monospace, monospace;
+  font-size: 14px;
+  text-align: end;
+}
+
+.ledger-record__cohort-track {
+  position: relative;
+  height: 48px;
+}
+
+.ledger-record__cohort-track::before {
+  position: absolute;
+  top: 22px;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: var(--drever-theme-border);
+  content: "";
+}
+
+.ledger-record__cohort-track > i {
+  position: absolute;
+  top: 20px;
+  right: calc(100% - var(--cohort-guided));
+  left: var(--cohort-control);
+  height: 4px;
+  background: var(--drever-theme-positive-soft);
+}
+
+.ledger-record__cohort-track > span {
+  position: absolute;
+  top: 0;
+  display: grid;
+  color: var(--drever-theme-ink);
+  font-family:
+    "SFMono-Regular", "Cascadia Code", Consolas, "Liberation Mono", ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 700;
+  justify-items: center;
+  translate: -50% 0;
+}
+
+.ledger-record__cohort-track > span::after {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--drever-theme-muted);
+  border-radius: 50%;
+  margin-top: 7px;
+  background: var(--drever-theme-surface);
+  content: "";
+}
+
+.ledger-record__cohort-track > span[data-cohort-point="control"] {
+  left: var(--cohort-control);
+}
+
+.ledger-record__cohort-track > span[data-cohort-point="guided"] {
+  left: var(--cohort-guided);
+  color: var(--drever-theme-positive);
+}
+
+.ledger-record__cohort-track > span[data-cohort-point="guided"]::after {
+  border-color: var(--drever-theme-positive);
+  background: var(--drever-theme-positive);
+}
+
+.ledger-record__decision {
+  display: grid;
+  min-height: 0;
+  align-content: center;
+  gap: 14px;
+}
+
+.ledger-record__decision-label {
+  color: var(--drever-theme-accent-strong);
+  font-family:
+    "SFMono-Regular", "Cascadia Code", Consolas, "Liberation Mono", ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 720;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ledger-record__decision-steps {
+  display: grid;
+  min-height: 324px;
+  grid-template-rows: repeat(3, 108px);
+}
+
+.ledger-record__decision-steps > [data-drever-step] {
+  position: relative;
+  display: grid;
+  border-top: 1px solid var(--drever-theme-border);
+  align-items: stretch;
+  opacity: 1 !important;
+}
+
+.ledger-record__decision-steps > [data-drever-step]:last-child {
+  border-bottom: 1px solid var(--drever-theme-border);
+}
+
+.ledger-record__decision-steps
+  > [data-drever-step][data-step-state="pending"]
+  .ledger-record__decision-row {
+  opacity: 0;
+}
+
+.ledger-record__decision-steps > [data-drever-step][data-step-state="active"]::before {
+  inset-block: 16px;
+  inset-inline-start: -14px;
+  width: 4px;
+}
+
+.ledger-record__decision-row {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 86px minmax(0, 1fr) 96px;
+  align-items: center;
+  gap: 20px;
+  transition: opacity 160ms ease;
+}
+
+[data-drever-slide] .ledger-record__decision-row > strong {
+  color: var(--drever-theme-accent-strong);
+  font-size: 21px;
+}
+
+.ledger-record__decision-row > span {
+  color: var(--drever-theme-ink);
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+.ledger-record__decision-row > b {
+  color: var(--drever-theme-muted);
+  font-family:
+    "SFMono-Regular", "Cascadia Code", Consolas, "Liberation Mono", ui-monospace, monospace;
+  font-size: 12px;
+  line-height: 1.3;
+  text-align: end;
+  text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ledger-record__decision-row {
+    transition: none !important;
+  }
 }

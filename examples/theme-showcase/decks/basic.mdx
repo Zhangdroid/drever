@@ -1,0 +1,114 @@
+import { FocusWeek } from "../components/basic-focus-week.tsx";
+import "../../showcase-return.css";
+import "../components/basic-study.css";
+
+<section
+  aria-label="Protect Wednesday. Make room for focus."
+  className="theme-showcase-basic-study theme-showcase-basic-study--opening"
+>
+  <div className="theme-showcase-basic-study__copy">
+    <span className="theme-showcase-basic-study__eyebrow">Illustrative team proposal / 01</span>
+    <h1>
+      <span>Protect Wednesday.</span>
+      <span>Make room for focus.</span>
+    </h1>
+    <p>One small calendar decision can create a usable block without redesigning the whole week.</p>
+  </div>
+  <MotionGroup
+    className="theme-showcase-basic-study__artifact"
+    intent="continuity"
+    name="basic-focus-week"
+  >
+    <FocusWeek phase="framing" />
+  </MotionGroup>
+</section>
+
+<Note>
+  Introduce one bounded decision rather than a broad productivity promise. The weekly calendar is
+  the object the audience will follow through the complete story.
+</Note>
+
+---
+
+<section
+  aria-label="Open on paper. Broken in practice."
+  className="theme-showcase-basic-study theme-showcase-basic-study--evidence"
+>
+  <div className="theme-showcase-basic-study__copy">
+    <span className="theme-showcase-basic-study__eyebrow">Illustrative calendar audit / 02</span>
+    <h2>
+      <span>Open on paper.</span>
+      <span>Broken in practice.</span>
+    </h2>
+    <p>Three meetings divide the same three-hour window into four fragments.</p>
+    <div className="theme-showcase-basic-study__finding">
+      <strong>0</strong>
+      <span>uninterrupted 90-minute blocks remain</span>
+    </div>
+  </div>
+  <MotionGroup
+    className="theme-showcase-basic-study__artifact"
+    intent="continuity"
+    name="basic-focus-week"
+  >
+    <FocusWeek phase="evidence" />
+  </MotionGroup>
+</section>
+
+<Note>
+  Keep the calendar's internal geometry fixed as it moves into the evidence position. Only Wednesday
+  changes emphasis, so the audience can compare the evidence without reacquiring the week.
+</Note>
+
+---
+
+<section
+  aria-label="Test four Wednesdays. Measure the result."
+  className="theme-showcase-basic-study theme-showcase-basic-study--decision"
+>
+  <div className="theme-showcase-basic-study__copy">
+    <span className="theme-showcase-basic-study__eyebrow">Illustrative pilot decision / 03</span>
+    <h2>
+      <span>Test four Wednesdays.</span>
+      <span>Measure the result.</span>
+    </h2>
+    <dl className="theme-showcase-basic-study__decision">
+      <div>
+        <dt>Owner</dt>
+        <dd>Team operations</dd>
+      </div>
+      <div>
+        <dt>Measure</dt>
+        <dd>At least one uninterrupted 120-minute block each week</dd>
+      </div>
+      <div>
+        <dt>Review</dt>
+        <dd>After the fourth Wednesday</dd>
+      </div>
+    </dl>
+    <nav aria-label="Continue with Drever" className="drever-example-exit">
+      <a
+        className="drever-example-exit__primary"
+        data-drever-showcase-return=""
+        href="https://drever.dev/docs/getting-started/"
+      >
+        {"Start a deck"}
+      </a>
+      <a className="drever-example-exit__secondary" href="https://drever.dev/showcase/">
+        {"More design studies"}
+      </a>
+    </nav>
+  </div>
+  <MotionGroup
+    className="theme-showcase-basic-study__artifact"
+    intent="continuity"
+    name="basic-focus-week"
+  >
+    <FocusWeek phase="decision" />
+  </MotionGroup>
+</section>
+
+<Note>
+  Close with a reversible pilot, one owner, one observable measure, and one review point. The same
+  calendar now records the decision instead of becoming decorative context.
+</Note>

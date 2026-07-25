@@ -358,8 +358,8 @@ author separate Steps and use `focus` instead.
 
 ## Continuity across slides
 
-Continuity is explicit shared identity. Give the same lowercase kebab-case
-`name` to the same visual object on two adjacent slides:
+Continuity is an explicit shared correspondence. Give the same lowercase
+kebab-case `name` to the related visual boundary on two adjacent slides:
 
 ```mdx
 ## Authored source
@@ -380,9 +380,14 @@ Continuity is explicit shared identity. Give the same lowercase kebab-case
 The name becomes a framework-prefixed View Transition identity. It must start
 with a lowercase letter and contain only lowercase letters, digits, and single
 kebab separators. A continuity name must be unique on the active slide. Carry
-identity, not resemblance: reuse it only when the semantic or visual object is
-narratively the same, and only across adjacent slides. Matching color, shape,
-text, or DOM position is not identity, and Drever never infers it.
+clear correspondence, not arbitrary resemblance: reuse it across adjacent
+slides when the same object persists or when two objects have a semantic role
+or visual structure that makes their relationship immediately legible. A source
+artifact may become its compiled result, or a diagram detail may become its
+place in a larger system. Matching color, shape, text, or DOM position alone is
+not enough, and Drever never infers the relationship. Share the smallest stable
+feature that communicates it, and count the handoff as the moment's primary
+motion.
 
 `name` is required for `continuity` and invalid for every other intent. `flow`
 is invalid for `continuity`. A missing or unknown intent, invalid identity, or
@@ -397,8 +402,8 @@ changes aspect ratio while also replacing text, the browser scales the glyphs
 inside that image; the result can look like zooming, doubled text, or a ghost
 frame even though both endpoint layouts are correct.
 
-Choose the smallest boundary that has persistent narrative identity, then keep
-its captured geometry deliberate:
+Choose the smallest boundary that carries the persistent object or the clear
+correspondence, then keep its captured geometry deliberate:
 
 - Give both endpoints the same `box-sizing`, explicit inline and block size, or
   at least the same aspect ratio. A fixed shell that only changes position is

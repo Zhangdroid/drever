@@ -1,19 +1,258 @@
-[data-drever-slide] .theme-showcase-cinema-epilogue {
-  margin-bottom: 18px;
+.theme-showcase-cinema-story {
+  position: relative;
+  width: 100%;
+  min-height: 650px;
+  box-sizing: border-box;
+  padding-inline-end: 54%;
+}
+
+.theme-showcase-cinema-visual {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  width: 49%;
+  height: 650px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--drever-theme-border), transparent 22%);
+  background: #07090b;
+}
+
+[data-drever-slide] .theme-showcase-cinema-visual > img {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  filter: saturate(0.86) contrast(1.04);
+  object-fit: cover;
+  object-position: 69% center;
+}
+
+.theme-showcase-cinema-visual::after {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgb(7 8 10 / 72%), transparent 34%),
+    linear-gradient(0deg, rgb(7 8 10 / 50%), transparent 25%);
+  content: "";
+  pointer-events: none;
+}
+
+.theme-showcase-cinema-visual__label {
+  position: absolute;
+  z-index: 2;
+  right: 24px;
+  bottom: 22px;
+  color: rgb(243 238 228 / 68%);
+  font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.theme-showcase-cinema-title {
+  position: relative;
+  z-index: 2;
+  min-height: 650px;
+  padding: 42px 0 34px;
+}
+
+.theme-showcase-cinema-title .drever-cinema-title-card__cue {
+  display: none;
+}
+
+[data-drever-slide] .theme-showcase-cinema-title .drever-cinema-title-card__title {
+  max-width: none;
+  font-size: 82px;
+}
+
+.theme-showcase-cinema-title .drever-cinema-title-card__title > span,
+.theme-showcase-cinema-story--evidence h2 > span {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.theme-showcase-cinema-title .drever-cinema-title-card__logline {
+  max-width: 28ch;
+}
+
+.theme-showcase-cinema-copy {
+  position: relative;
+  z-index: 2;
+}
+
+.theme-showcase-cinema-story--opening {
+  padding-inline-end: 0;
+}
+
+.theme-showcase-cinema-story--opening .theme-showcase-cinema-visual {
+  inset: 0;
+  width: 100%;
+}
+
+.theme-showcase-cinema-story--opening .theme-showcase-cinema-visual::after {
+  background:
+    linear-gradient(90deg, rgb(7 8 10 / 94%) 0 24%, rgb(7 8 10 / 48%) 56%, transparent 84%),
+    linear-gradient(0deg, rgb(7 8 10 / 64%), transparent 42%);
+}
+
+.theme-showcase-cinema-story--opening .theme-showcase-cinema-title {
+  width: 55%;
+  box-sizing: border-box;
+  padding: 72px 54px;
+}
+
+.theme-showcase-cinema-story--evidence {
+  display: grid;
+  padding-inline-end: 0;
+  grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 28px 36px;
+}
+
+.theme-showcase-cinema-story--evidence .theme-showcase-cinema-copy {
+  display: grid;
+  grid-column: 1;
+  grid-row: 1;
+  gap: 18px;
+}
+
+.theme-showcase-cinema-story--evidence .theme-showcase-cinema-visual {
+  position: relative;
+  grid-column: 2;
+  grid-row: 1;
+  width: 100%;
+  height: 352px;
+}
+
+[data-drever-slide] .theme-showcase-cinema-story--evidence h2,
+[data-drever-slide] .theme-showcase-cinema-story--epilogue h2 {
+  max-width: none;
+  font-size: 54px;
+}
+
+[data-drever-slide] .theme-showcase-cinema-story--evidence h2 {
+  font-size: 48px;
+}
+
+.theme-showcase-cinema-story--evidence .theme-showcase-cinema-copy > p:last-child {
+  max-width: 31ch;
+  color: var(--drever-theme-muted);
+  font-size: 21px;
+  line-height: 1.42;
+}
+
+[data-drever-slide] .theme-showcase-cinema-eyebrow {
   color: var(--drever-theme-accent);
   font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
-  font-size: 16px;
-  font-weight: 720;
+  font-size: 14px;
+  font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
+.theme-showcase-cinema-timeline {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  min-height: 250px;
+  box-sizing: border-box;
+  border-top: 1px solid var(--drever-theme-border);
+  border-bottom: 1px solid var(--drever-theme-border);
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+
+.theme-showcase-cinema-story--epilogue {
+  display: grid;
+  padding-inline-end: 0;
+  place-items: center;
+}
+
+.theme-showcase-cinema-story--epilogue .theme-showcase-cinema-copy {
+  display: grid;
+  width: min(860px, calc(100% - 120px));
+  box-sizing: border-box;
+  padding: 38px 46px;
+  border: 1px solid rgb(243 238 228 / 18%);
+  background: rgb(7 9 11 / 82%);
+  gap: 18px;
+}
+
+.theme-showcase-cinema-story--epilogue .theme-showcase-cinema-visual {
+  inset: 0;
+  width: 100%;
+  opacity: 0.58;
+}
+
+.theme-showcase-cinema-story--epilogue .theme-showcase-cinema-visual::after {
+  background:
+    linear-gradient(90deg, rgb(7 8 10 / 48%), transparent 42%),
+    linear-gradient(0deg, rgb(7 8 10 / 72%), rgb(7 8 10 / 20%) 46%, rgb(7 8 10 / 58%));
+}
+
+[data-drever-slide] .theme-showcase-cinema-story--epilogue blockquote {
+  max-width: 21ch;
+  padding: 7px 26px 7px 38px;
+  font-size: 29px;
+  line-height: 1.18;
+}
+
+[data-drever-slide] .theme-showcase-cinema-story--epilogue blockquote::before {
+  top: -5px;
+  left: 8px;
+  font-size: 56px;
+}
+
+.theme-showcase-cinema-outcomes {
+  display: grid;
+  max-width: 560px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+[data-drever-slide] .theme-showcase-cinema-outcomes > p {
+  display: grid;
+  max-width: none;
+  padding-top: 12px;
+  border-top: 1px solid var(--drever-theme-border);
+  gap: 3px;
+}
+
+.theme-showcase-cinema-outcomes strong {
+  color: var(--drever-theme-accent);
+  font-family: Baskerville, "Iowan Old Style", Georgia, serif;
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.theme-showcase-cinema-outcomes span {
+  color: var(--drever-theme-muted);
+  font-size: 15px;
+  line-height: 1.3;
+}
+
 [data-drever-slide] .theme-showcase-cinema-source {
-  margin-top: 10px;
+  display: block;
+  max-width: none;
   color: var(--drever-theme-muted);
   font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
-  font-size: 15px;
-  letter-spacing: 0.04em;
+  font-size: 8px;
+  letter-spacing: 0.02em;
   line-height: 1.35;
-  text-transform: uppercase;
+}
+
+.theme-showcase-cinema-story--epilogue .drever-example-exit {
+  margin-top: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-showcase-cinema-visual {
+    view-transition-name: none !important;
+  }
 }
