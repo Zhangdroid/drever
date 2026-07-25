@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "guided",
+  "mode": "guided",
+  "startedAt": "2026-07-25T19:36:49.244Z",
+  "completedAt": "2026-07-25T19:40:20.585Z",
+  "durationSeconds": 211,
+  "messages": [
+    {
+      "content": "Fetch and follow https://drever.dev/prompt.md.\n\nThis isolated release test already fetched the exact response to\n`.release-smoke/prompt.md`. Read that local copy instead of accessing the\nnetwork. Also read `.release-smoke/constraints.md`, which defines the narrow\ngeneration-stage boundary for this run. Begin with the optional briefing from\nthe fetched prompt; do not assume that any question has already been answered.",
+      "role": "user"
+    },
+    {
+      "content": "What topic should the presentation cover?\n\nOr answer **“Surprise me” and I will choose the subject too.**",
+      "role": "assistant"
+    },
+    {
+      "content": "Create a presentation about running a useful pre-mortem before a product launch.",
+      "role": "user"
+    },
+    {
+      "content": "1. Who is the audience, and what should they do differently afterward?\n2. How long should the presentation run?\n3. Should it be a practical facilitation playbook, a persuasive overview, or both?\n\nOr say **“Skip remaining questions — surprise me” and I will choose the rest.**",
+      "role": "assistant"
+    },
+    {
+      "content": "The audience is a small group of product, design, and engineering leads.\nI have eight minutes. By the end, they should be able to choose the three risks\nthat deserve owners before launch. Keep visible slides concise and put useful\nfacilitation detail in speaker notes. Use expressive but purposeful motion and a\ncalm launch-control or risk-radar visual language. Keep the exercise reusable\nfor any product instead of inventing a fictional launch.\n\nSkip remaining questions — surprise me. Create the complete presentation now.",
+      "role": "user"
+    },
+    {
+      "content": "Created the complete six-slide, eight-minute presentation.\n\nFiles:\n\n- [slides.mdx](<project>/slides.mdx)\n- [brief.md](<project>/brief.md)\n- [theme.css](<project>/design/theme.css)\n- [art-direction.md](<project>/design/art-direction.md)\n\nIt includes a reusable 20-minute exercise, purposeful Step reveals, detailed facilitator notes, and a calm risk-radar design.\n\nSource review is complete. Per the release boundary, no checks, build, preview URL, or rendered review were performed; the separate validation job owns those steps.",
+      "role": "assistant"
+    },
+    {
+      "content": "Review the complete authored draft once more. Use expressive but purposeful motion and a\ncalm launch-control or risk-radar visual language. Preserve what already works, then refine the\nnarrative, composition, hierarchy, motion, and small details wherever the source reveals a clear\nimprovement. Do not run validation in this protected stage.",
+      "role": "user"
+    },
+    {
+      "content": "Refined the existing draft without changing its six-slide structure or eight-minute timing.\n\nKey improvements:\n\n- Radar sweep now runs once and settles.\n- Selection slide has a clearer candidate zone and actionability fork.\n- “Monitor or escalate” is distinct from assignable risks.\n- Signal colors now consistently distinguish framing from committed ownership.\n- Narrative language is sharper and more actionable.\n- Speaker notes clarify that actionability determines response—not importance.\n\nUpdated [slides.mdx](<project>/slides.mdx) and [art direction](<project>/design/art-direction.md). No validation, build, or rendering was run.",
+      "role": "assistant"
+    }
+  ],
+  "usage": [
+    {
+      "input_tokens": 25617,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 25614,
+      "output_tokens": 199,
+      "reasoning_output_tokens": 127
+    },
+    {
+      "input_tokens": 51455,
+      "cached_input_tokens": 25614,
+      "cache_write_input_tokens": 25835,
+      "output_tokens": 437,
+      "reasoning_output_tokens": 297
+    },
+    {
+      "input_tokens": 185647,
+      "cached_input_tokens": 145235,
+      "cache_write_input_tokens": 40394,
+      "output_tokens": 14895,
+      "reasoning_output_tokens": 3850
+    },
+    {
+      "input_tokens": 270389,
+      "cached_input_tokens": 226416,
+      "cache_write_input_tokens": 43949,
+      "output_tokens": 18326,
+      "reasoning_output_tokens": 5600
+    }
+  ]
+}
