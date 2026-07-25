@@ -730,6 +730,36 @@ test.describe("compact speaker rehearsal", () => {
     ).toEqual({ left: 8, right: 472 });
     health.expectHealthy();
   });
+
+  test("keeps the current slide, notes, and controls usable at phone width", async ({ page }) => {
+    const health = monitorPageHealth(page);
+    await page.setViewportSize({ height: 720, width: 320 });
+    await page.goto("/speaker/2");
+
+    await expect(page.getByTestId("speaker-current")).toBeVisible();
+    await expect(page.getByTestId("speaker-next")).not.toBeVisible();
+    await expect(page.getByTestId("speaker-notes")).toBeVisible();
+
+    for (const name of [
+      "Previous presentation state",
+      "Next presentation state",
+      "Use audience laser pointer",
+      "Use audience pen",
+      "Use audience highlighter",
+      "Open audience",
+    ]) {
+      await expect(page.getByRole("button", { name })).toBeInViewport();
+    }
+
+    const speaker = page.locator("[data-drever-speaker]");
+    expect(
+      await speaker.evaluate((element) => ({
+        clientWidth: element.clientWidth,
+        scrollWidth: element.scrollWidth,
+      })),
+    ).toEqual({ clientWidth: 320, scrollWidth: 320 });
+    health.expectHealthy();
+  });
 });
 
 test("speaker chrome keeps remote keys while buttons and notes retain native keyboard behavior", async ({
@@ -781,6 +811,68 @@ test("speaker chrome keeps remote keys while buttons and notes retain native key
   await notes.press("PageDown");
   await expect(page).toHaveURL(/\/speaker\/2\/5$/u);
 
+  health.expectHealthy();
+});
+
+test("audience controls remain usable within a narrow viewport", async ({ page }) => {
+  const health = monitorPageHealth(page);
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto("/2/2");
+
+  const toolbar = page.getByRole("navigation", { name: "Presentation controls" });
+  const scrollStrip = toolbar.locator(".drever-audience-controls__scroll");
+  const previous = page.getByRole("button", { name: "Previous presentation state" });
+  const overview = page.getByRole("button", { name: "Open slide navigator" });
+  const next = page.getByRole("button", { name: "Next presentation state" });
+  const share = page.getByRole("button", { name: "Copy link to current presentation state" });
+
+  await expect(toolbar).toBeVisible();
+  await expect(page.getByRole("complementary", { name: "Mobile viewing options" })).toBeVisible();
+  await page.getByRole("button", { name: "Dismiss mobile viewing hint" }).click();
+  await expect(
+    page.getByRole("complementary", { name: "Mobile viewing options" }),
+  ).not.toBeVisible();
+  await expect(previous).toBeInViewport();
+  await expect(overview).toBeInViewport();
+  await expect(next).toBeInViewport();
+  await expect(share).toBeInViewport();
+
+  const initial = await toolbar.evaluate((element) => {
+    const bounds = element.getBoundingClientRect();
+    return {
+      left: Math.round(bounds.left),
+      pageScrollWidth: document.documentElement.scrollWidth,
+      right: Math.round(bounds.right),
+      viewportWidth: window.innerWidth,
+    };
+  });
+  expect(initial).toMatchObject({
+    left: 8,
+    pageScrollWidth: 390,
+    right: 382,
+    viewportWidth: 390,
+  });
+  const scrollWidths = await scrollStrip.evaluate((element) => ({
+    clientWidth: element.clientWidth,
+    scrollWidth: element.scrollWidth,
+  }));
+  expect(scrollWidths.scrollWidth).toBeGreaterThan(scrollWidths.clientWidth);
+
+  await scrollStrip.evaluate((element) => {
+    element.scrollLeft = element.scrollWidth;
+  });
+  await expect(page.getByRole("button", { name: "Open speaker view" })).toBeInViewport();
+  await expect(page.getByRole("button", { name: "Show keyboard shortcuts" })).toBeInViewport();
+  await page.getByRole("button", { name: "Open focus tools" }).click();
+  await expect(page.getByRole("toolbar", { name: "Focus tools" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Use laser pointer" })).toBeInViewport();
+  await page.keyboard.press("Escape");
+
+  await scrollStrip.evaluate((element) => {
+    element.scrollLeft = 0;
+  });
+  await previous.click();
+  await expect(page).toHaveURL(/\/2$/u);
   health.expectHealthy();
 });
 

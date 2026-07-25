@@ -33,6 +33,12 @@ section, while commit snapshots use the current Unreleased section.
 
 ### Fixed
 
+- Made generated AI guidance invoke the project-local CLI through the detected package manager,
+  state the exact creation skill, and keep accessible descriptions aligned with the current Step.
+- Kept authoring imports such as `Step` and `Note` from `drever` on a browser-safe runtime entry
+  instead of pulling CLI and build tooling into the presentation bundle.
+- Kept audience controls usable on narrow screens, added a portrait reading choice, and made the
+  phone-sized speaker surface prioritize the current slide, notes, and primary controls.
 - Restored the intended glass surface behind the client slide navigator.
 - Kept the reveal Footer out of route transitions and removed its stray shadow below final-page
   calls to action.

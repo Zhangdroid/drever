@@ -334,6 +334,7 @@ export const AudienceControls = ({
   const [focusPaletteOpen, setFocusPaletteOpen] = useState(false);
   const [gotoBuffer, setGotoBuffer] = useState("");
   const [gotoError, setGotoError] = useState<string>();
+  const [mobileHintDismissed, setMobileHintDismissed] = useState(false);
   const [panel, setPanel] = useState<AudiencePanel>();
   const [pauseScreen, setPauseScreen] = useState<PauseScreen>();
   const [query, setQuery] = useState("");
@@ -551,73 +552,95 @@ export const AudienceControls = ({
       data-drever-focus-interacting={focusInteracting ? "" : undefined}
       ref={hostRef}
     >
+      {mobileHintDismissed ? null : (
+        <aside aria-label="Mobile viewing options" className="drever-audience-mobile-hint">
+          <span>Rotate for the live deck.</span>
+          <button
+            aria-label="Read presentation as a document"
+            onClick={() => run(onOpenDocument)}
+            type="button"
+          >
+            Read instead
+          </button>
+          <button
+            aria-label="Dismiss mobile viewing hint"
+            onClick={() => setMobileHintDismissed(true)}
+            type="button"
+          >
+            <CloseIcon />
+          </button>
+        </aside>
+      )}
+
       <nav
         aria-label="Presentation controls"
         className="drever-audience-controls__bar"
         ref={barRef}
       >
-        <button
-          aria-keyshortcuts="ArrowLeft"
-          aria-label="Previous presentation state"
-          data-drever-tooltip="Previous step · ←"
-          disabled={!progress.canGoPrevious}
-          onClick={() => navigate({ type: "previous" })}
-          type="button"
-        >
-          <PreviousIcon />
-        </button>
-        <button
-          aria-keyshortcuts="O"
-          aria-label="Open slide navigator"
-          className="drever-audience-controls__position"
-          data-drever-tooltip="Slide navigator · O"
-          onClick={() => setPanel("overview")}
-          type="button"
-        >
-          <OverviewIcon />
-          <span>
-            <strong>{progress.slideLabel}</strong>
-            {progress.stepLabel === undefined ? null : <small>{progress.stepLabel}</small>}
-          </span>
-        </button>
-        <button
-          aria-keyshortcuts="ArrowRight"
-          aria-label="Next presentation state"
-          data-drever-tooltip="Next step · →"
-          disabled={!progress.canGoNext}
-          onClick={() => navigate({ type: "next" })}
-          type="button"
-        >
-          <NextIcon />
-        </button>
-        <span aria-hidden="true" className="drever-audience-controls__divider" />
-        <button
-          aria-label="Copy link to current presentation state"
-          data-drever-tooltip="Copy link"
-          data-share-result={visibleShareResult}
-          onClick={copyShareURL}
-          type="button"
-        >
-          <ShareIcon />
-        </button>
-        <button
-          aria-keyshortcuts="D"
-          aria-label="Open document view"
-          data-drever-tooltip="Document view · D"
-          onClick={() => run(onOpenDocument)}
-          type="button"
-        >
-          <DocumentIcon />
-        </button>
-        <button
-          aria-keyshortcuts="P"
-          aria-label="Open speaker view"
-          data-drever-tooltip="Speaker view · P"
-          onClick={() => run(onOpenSpeaker)}
-          type="button"
-        >
-          <SpeakerIcon />
-        </button>
+        <div className="drever-audience-controls__scroll">
+          <button
+            aria-keyshortcuts="ArrowLeft"
+            aria-label="Previous presentation state"
+            data-drever-tooltip="Previous step · ←"
+            disabled={!progress.canGoPrevious}
+            onClick={() => navigate({ type: "previous" })}
+            type="button"
+          >
+            <PreviousIcon />
+          </button>
+          <button
+            aria-keyshortcuts="O"
+            aria-label="Open slide navigator"
+            className="drever-audience-controls__position"
+            data-drever-tooltip="Slide navigator · O"
+            onClick={() => setPanel("overview")}
+            type="button"
+          >
+            <OverviewIcon />
+            <span>
+              <strong>{progress.slideLabel}</strong>
+              {progress.stepLabel === undefined ? null : <small>{progress.stepLabel}</small>}
+            </span>
+          </button>
+          <button
+            aria-keyshortcuts="ArrowRight"
+            aria-label="Next presentation state"
+            data-drever-tooltip="Next step · →"
+            disabled={!progress.canGoNext}
+            onClick={() => navigate({ type: "next" })}
+            type="button"
+          >
+            <NextIcon />
+          </button>
+          <span aria-hidden="true" className="drever-audience-controls__divider" />
+          <button
+            aria-label="Copy link to current presentation state"
+            data-drever-tooltip="Copy link"
+            data-share-result={visibleShareResult}
+            onClick={copyShareURL}
+            type="button"
+          >
+            <ShareIcon />
+          </button>
+          <button
+            aria-keyshortcuts="D"
+            aria-label="Open document view"
+            data-drever-tooltip="Document view · D"
+            onClick={() => run(onOpenDocument)}
+            type="button"
+          >
+            <DocumentIcon />
+          </button>
+          <button
+            aria-keyshortcuts="P"
+            aria-label="Open speaker view"
+            data-drever-tooltip="Speaker view · P"
+            onClick={() => run(onOpenSpeaker)}
+            type="button"
+          >
+            <SpeakerIcon />
+          </button>
+        </div>
         <PresentationFocusTools
           {...(focusTools === undefined ? {} : { appearance: focusTools })}
           canvas={canvas}

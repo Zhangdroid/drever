@@ -518,6 +518,14 @@
     view-transition-name: drever-toolbar;
   }
 
+  .drever-audience-mobile-hint {
+    display: none;
+  }
+
+  .drever-audience-controls__scroll {
+    display: contents;
+  }
+
   .drever-audience-focus-anchor {
     position: relative;
     display: flex;
@@ -646,7 +654,7 @@
     -webkit-backdrop-filter: var(--drever-controls-glass-filter);
   }
 
-  .drever-audience-controls__bar > button:first-child[data-drever-tooltip]::after {
+  .drever-audience-controls__scroll > button:first-child[data-drever-tooltip]::after {
     left: 0;
     transform: translateY(4px);
   }
@@ -665,7 +673,7 @@
       transition-delay: 320ms;
     }
 
-    .drever-audience-controls__bar > button:first-child[data-drever-tooltip]:hover::after,
+    .drever-audience-controls__scroll > button:first-child[data-drever-tooltip]:hover::after,
     .drever-audience-controls__bar > button:last-child[data-drever-tooltip]:hover::after {
       transform: translateY(0);
     }
@@ -678,7 +686,7 @@
     transition-delay: 80ms;
   }
 
-  .drever-audience-controls__bar > button:first-child[data-drever-tooltip]:focus-visible::after,
+  .drever-audience-controls__scroll > button:first-child[data-drever-tooltip]:focus-visible::after,
   .drever-audience-controls__bar > button:last-child[data-drever-tooltip]:focus-visible::after {
     transform: translateY(0);
   }
@@ -1177,6 +1185,34 @@
   }
 
   @media (max-width: 640px) {
+    .drever-audience-controls__bar {
+      right: 8px;
+      left: 8px;
+      max-width: calc(100vw - 16px);
+      overflow: visible;
+      transform: none;
+    }
+
+    .drever-audience-controls__scroll {
+      display: flex;
+      min-width: 0;
+      align-items: center;
+      flex: 1 1 auto;
+      overflow-x: auto;
+      overscroll-behavior-inline: contain;
+      scroll-padding-inline: 5px;
+      scrollbar-width: none;
+    }
+
+    .drever-audience-controls__scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .drever-audience-controls[data-drever-controls-idle]:not([data-drever-controls-pinned])
+      .drever-audience-controls__bar:not(:focus-within) {
+      transform: translateY(8px);
+    }
+
     .drever-audience-focus-tools {
       right: -12px;
       left: auto;
@@ -1210,6 +1246,69 @@
     }
   }
 
+  @media (max-width: 640px) and (orientation: portrait) {
+    .drever-audience-mobile-hint {
+      position: absolute;
+      top: max(12px, env(safe-area-inset-top));
+      left: 50%;
+      display: flex;
+      max-width: calc(100vw - 24px);
+      min-height: 48px;
+      box-sizing: border-box;
+      padding: 4px 5px 4px 13px;
+      border: 1px solid color-mix(in srgb, var(--drever-controls-line) 76%, transparent);
+      border-radius: 12px;
+      align-items: center;
+      gap: 7px;
+      background: var(--drever-controls-stage);
+      box-shadow:
+        inset 0 1px 0 var(--drever-controls-glass-specular),
+        0 10px 28px var(--drever-controls-shadow);
+      color: var(--drever-controls-muted);
+      font-size: 11px;
+      font-weight: 650;
+      line-height: 1.2;
+      pointer-events: auto;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      backdrop-filter: var(--drever-controls-glass-filter);
+      -webkit-backdrop-filter: var(--drever-controls-glass-filter);
+    }
+
+    .drever-audience-mobile-hint button {
+      min-height: 40px;
+      padding: 0 8px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--drever-controls-text);
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .drever-audience-mobile-hint button:hover,
+    .drever-audience-mobile-hint button:focus-visible {
+      background: color-mix(in srgb, var(--drever-controls-text) 9%, transparent);
+    }
+
+    .drever-audience-mobile-hint button:focus-visible {
+      outline: 2px solid var(--drever-controls-continuity);
+      outline-offset: 1px;
+    }
+
+    .drever-audience-mobile-hint button:last-child {
+      display: inline-grid;
+      width: 40px;
+      padding: 0;
+      place-items: center;
+    }
+
+    .drever-audience-mobile-hint svg {
+      width: 15px;
+      height: 15px;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .drever-audience-controls__bar,
     .drever-audience-controls__bar button,
@@ -1230,6 +1329,7 @@
 
   @media (forced-colors: active) {
     .drever-audience-controls__bar,
+    .drever-audience-mobile-hint,
     .drever-audience-focus-tools,
     .drever-audience-share-status,
     .drever-audience-goto,
@@ -1242,6 +1342,10 @@
       box-shadow: none;
       color: CanvasText;
       backdrop-filter: none;
+    }
+
+    .drever-audience-mobile-hint button {
+      color: ButtonText;
     }
 
     .drever-audience-slide-link {
@@ -2184,6 +2288,7 @@
     }
 
     .drever-speaker__controls {
+      display: grid;
       grid-template-columns: auto minmax(0, 1fr) auto;
       padding-inline: 8px;
       gap: 6px;
@@ -2292,6 +2397,56 @@
 
     .drever-speaker__slide-dialog-content {
       max-height: calc(100vh - 16px);
+    }
+  }
+
+  @media (max-width: 560px) {
+    .drever-speaker {
+      grid-template-rows: 96px minmax(0, 1fr) 116px;
+    }
+
+    .drever-speaker__workspace {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: minmax(150px, 0.46fr) minmax(0, 0.54fr);
+      padding: 8px;
+      gap: 8px;
+    }
+
+    .drever-speaker__preview:first-child {
+      grid-row: 1;
+    }
+
+    .drever-speaker__preview:nth-child(2) {
+      display: none;
+    }
+
+    .drever-speaker__notes {
+      grid-row: 2;
+    }
+
+    .drever-speaker__controls {
+      padding: 8px;
+      grid-template-columns: 44px minmax(0, 1fr) 44px;
+      grid-template-rows: 44px 48px;
+      align-content: center;
+      gap: 4px 6px;
+    }
+
+    .drever-speaker__progress-group {
+      grid-row: 1;
+      grid-column: 1;
+    }
+
+    .drever-speaker__navigation {
+      grid-row: 1;
+      grid-column: 2;
+    }
+
+    .drever-speaker__actions {
+      min-width: 0;
+      grid-row: 2;
+      grid-column: 1 / -1;
+      justify-self: center;
     }
   }
 

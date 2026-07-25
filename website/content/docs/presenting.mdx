@@ -5,6 +5,10 @@ slides, and keeps controls structurally outside deck content. During a document 
 the controls use one stable named visual above the deck. Move the pointer to reveal the compact
 command bar; it yields while a focus tool is active.
 
+On a narrow portrait screen, Drever preserves the authored canvas instead of unpredictably
+reflowing it. The viewer offers a quiet choice to rotate for the live deck or open the same content
+in Document View, and the complete command bar remains horizontally reachable.
+
 Core shortcuts:
 
 | Action                     | Shortcut                             |
@@ -58,7 +62,9 @@ Press `P` or open `/speaker`. The workspace includes:
 - Synchronized Laser, Pen, and Highlighter controls.
 
 Audience and speaker windows in the same browser synchronize through `BroadcastChannel`. This
-release does not claim cross-device remote control.
+release does not claim cross-device remote control. At phone width, Speaker View prioritizes the
+current slide, notes, and presentation controls; rotate or use a larger display when the next-state
+preview is essential.
 
 <h2 id="document-view">Document View</h2>
 
