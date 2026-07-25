@@ -31,7 +31,7 @@ function PluginVisual() {
       <div>
         <small>Shiki + Charts</small>
         <code>
-          <i>const</i> evidence = <b>[31, 58, 82]</b>
+          <i>const</i> evidence = <b>[31, 49, 82]</b>
         </code>
       </div>
       <span>GFM · Tailwind · Media</span>
@@ -203,6 +203,28 @@ export function MotionRecipeGallery() {
   );
 }
 
+function ChartPluginVisual() {
+  return (
+    <div className="plugin-gallery__visual plugin-gallery__visual--charts" aria-hidden="true">
+      <span className="chart-plugin__metric">
+        <b>96</b>
+        <small>%</small>
+      </span>
+      <svg className="chart-plugin__trend" viewBox="0 0 120 58">
+        <path d="M4 50 L36 32 L68 36 L94 18 L116 5 L116 54 L4 54 Z" />
+        <path d="M4 50 L36 32 L68 36 L94 18 L116 5" />
+        <circle cx="116" cy="5" r="3" />
+      </svg>
+      <span className="chart-plugin__bars">
+        <b />
+        <b />
+        <b />
+      </span>
+      <span className="chart-plugin__donut" />
+    </div>
+  );
+}
+
 const plugins = [
   {
     badge: "Included",
@@ -242,7 +264,7 @@ const plugins = [
   },
   {
     badge: "Opt in",
-    description: "Render accessible bar or line data as deterministic semantic SVG.",
+    description: "Tell a trend, ranking, proportion, or metric without a charting framework.",
     href: "/showcase/features/10/",
     id: "charts",
     label: "Charts",
@@ -253,7 +275,7 @@ const plugins = [
     badge: "Opt in",
     description:
       "Play privacy-enhanced lazy media live and keep every other surface deterministic.",
-    href: "/showcase/features/11/",
+    href: "/showcase/features/13/",
     id: "media",
     label: "Media",
     mark: "▶",
@@ -262,7 +284,7 @@ const plugins = [
   {
     badge: "Build your own",
     description: "Add Vite, MDX, runtime, and export capability through one owned contract.",
-    href: "/showcase/features/12/",
+    href: "/showcase/features/14/",
     id: "custom",
     label: "Typed extensions",
     mark: "＋",
@@ -286,12 +308,16 @@ export function PluginGallery() {
             href={plugin.href}
             key={plugin.id}
           >
-            <div className="plugin-gallery__visual" aria-hidden="true">
-              <i />
-              <i />
-              <i />
-              <strong>{plugin.mark}</strong>
-            </div>
+            {plugin.id === "charts" ? (
+              <ChartPluginVisual />
+            ) : (
+              <div className="plugin-gallery__visual" aria-hidden="true">
+                <i />
+                <i />
+                <i />
+                <strong>{plugin.mark}</strong>
+              </div>
+            )}
             <span>{plugin.badge}</span>
             <h3>{plugin.label}</h3>
             <p>{plugin.description}</p>

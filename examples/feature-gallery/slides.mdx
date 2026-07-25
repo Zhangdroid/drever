@@ -261,30 +261,125 @@ surfaces.
 
 ---
 
-## Data should remain data.
+## Confidence is built, not announced.
 
-Charts are opt-in React components with deterministic SVG and a complete accessible description.
-
+<p>Four reviews turn an instinct into a decision the room can trust.</p>
 <code className="gallery-plugin-id">@drever/plugin-charts</code>
 
-<div className="gallery-chart">
-  <DataChart
-    label="Decision confidence after each review"
-    kind="line"
-    valueSuffix="%"
-    data={[
-      { label: "Brief", value: 31 },
-      { label: "Prototype", value: 58 },
-      { label: "Evidence", value: 82 },
-      { label: "Decision", value: 96 },
-    ]}
-  />
-</div>
+<section className="gallery-chart-story gallery-chart-story--rise">
+  <div className="gallery-chart-story__metric">
+    <span>Decision confidence</span>
+    <div className="gallery-chart-story__number">
+      <AnimatedNumber
+        duration={1600}
+        from={31}
+        label="Decision confidence"
+        value={96}
+        valueSuffix="%"
+      />
+    </div>
+    <p>Brief → prototype → evidence → decision</p>
+  </div>
+  <div className="gallery-chart-story__plot">
+    <DataChart
+      label="Decision confidence after each review"
+      kind="line"
+      valueSuffix="%"
+      data={[
+        { label: "Brief", value: 31 },
+        { label: "Prototype", value: 49 },
+        { label: "Evidence", value: 82 },
+        { label: "Decision", value: 96 },
+      ]}
+    />
+  </div>
+</section>
 
 <Note>
-  The official Charts plugin does not pull a charting framework into the presentation. Its source
-  data produces both the visible marks and the SVG description, so website and PDF output stay
-  deterministic and understandable.
+  Begin with the answer, then show how the room earned it. The animated number directs attention to
+  96 percent while the line preserves the four-review journey behind that conclusion.
+</Note>
+
+---
+
+## The evidence changed the slope.
+
+<p>One large view explains the journey; one small comparison isolates the decisive review.</p>
+
+<section className="gallery-chart-story gallery-chart-story--evidence">
+  <div className="gallery-chart-story__plot">
+    <span>Confidence accumulated</span>
+    <DataChart
+      label="Cumulative decision confidence"
+      kind="area"
+      valueSuffix="%"
+      data={[
+        { label: "Brief", value: 31 },
+        { label: "Prototype", value: 49 },
+        { label: "Evidence", value: 82 },
+        { label: "Decision", value: 96 },
+      ]}
+    />
+  </div>
+  <aside className="gallery-chart-story__evidence">
+    <span>Before / after evidence</span>
+    <DataChart
+      label="Decision confidence before and after the evidence review"
+      kind="bar"
+      valueSuffix="%"
+      data={[
+        { label: "Before", value: 49 },
+        { label: "After", value: 82 },
+      ]}
+    />
+    <strong>+33 points</strong>
+  </aside>
+</section>
+
+<Note>
+  The area chart makes accumulated confidence tangible. The smaller bar comparison has one job:
+  identify the evidence review as the turning point, rather than adding a second dashboard panel.
+</Note>
+
+---
+
+## End with the decision.
+
+<p>Keep the path visible, then give the outcome enough space to land.</p>
+
+<section className="gallery-chart-story gallery-chart-story--decision">
+  <div className="gallery-chart-story__plot">
+    <span>Four review checkpoints</span>
+    <DataChart
+      label="Decision confidence at each review checkpoint"
+      kind="dot"
+      valueSuffix="%"
+      data={[
+        { label: "Brief", value: 31 },
+        { label: "Prototype", value: 49 },
+        { label: "Evidence", value: 82 },
+        { label: "Decision", value: 96 },
+      ]}
+    />
+  </div>
+  <div className="gallery-chart-story__outcome">
+    <span>Room status</span>
+    <DataChart
+      label="Room readiness after the decision review"
+      kind="donut"
+      valueSuffix="%"
+      data={[
+        { label: "Ready", value: 96 },
+        { label: "Open", value: 4 },
+      ]}
+    />
+  </div>
+</section>
+
+<Note>
+  The dot chart quietly preserves the checkpoints while the donut closes on the room's current
+  state. These are presentation-scale marks with shared data and accessible descriptions, not a
+  general-purpose analytics dashboard.
 </Note>
 
 ---

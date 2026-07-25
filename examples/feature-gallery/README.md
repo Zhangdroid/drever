@@ -9,7 +9,8 @@ real output rather than a mock screenshot:
 - opt-in LaTeX compiled to HTML and MathML;
 - default build-time Shiki syntax highlighting;
 - default Tailwind CSS v4 utilities without Preflight;
-- opt-in deterministic SVG charts and surface-aware YouTube media;
+- opt-in animated numbers and presentation-scale bar, line, area, dot, and donut charts;
+- surface-aware YouTube media;
 - local React interaction and addressable Step states;
 - audience, speaker, document, build, and export surfaces;
 - the typed plugin boundary for custom Vite, Remark, Rehype, and MDX behavior.

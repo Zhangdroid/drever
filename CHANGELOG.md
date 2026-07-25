@@ -9,6 +9,8 @@ section, while commit snapshots use the current Unreleased section.
 
 - Rebuilt the Architecture showcase as a visual tour of compilation, routing, extensions, runtime
   surfaces, and delivery.
+- Expanded the lightweight Charts plugin with area, dot, and donut stories plus an active-slide
+  animated number that remains stable for accessibility, reduced motion, and delivery surfaces.
 - Added one canonical changelog for the repository, public website, and audited GitHub Release
   notes.
 - Added a private vulnerability reporting policy for the public repository.
@@ -31,6 +33,8 @@ section, while commit snapshots use the current Unreleased section.
 - Reframed Room Sense as a full-canvas microphone-reactive scene: its active opening requests
   access directly, removes the control card, and gives the lime, violet, and ring field a stronger
   response to nearby sound.
+- Reworked the Feature Gallery chart chapter around one decision story so each chart form answers a
+  distinct comparison, trend, ranking, or part-to-whole question.
 - Made post-publish verification exercise the public `npm create drever` command, dependency
   installation, validation, and build exactly as a new user would.
 

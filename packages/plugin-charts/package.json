@@ -26,6 +26,10 @@
       "types": "./dist/data-chart.d.mts",
       "import": "./dist/data-chart.mjs"
     },
+    "./animated-number": {
+      "types": "./dist/animated-number.d.mts",
+      "import": "./dist/animated-number.mjs"
+    },
     "./styles.css": "./styles.css",
     "./package.json": "./package.json"
   },
@@ -38,7 +42,8 @@
     "test": "vp test"
   },
   "dependencies": {
-    "@drever/compiler": "workspace:*"
+    "@drever/compiler": "workspace:*",
+    "@drever/core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "catalog:",
