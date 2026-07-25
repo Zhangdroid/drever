@@ -76,7 +76,7 @@ missing package dependencies and native bindings.
 [`.github/workflows/publish.yml`](../.github/workflows/publish.yml) is the only
 recurring lockstep publishing identity. Run it manually from `main`, choose
 `commit`, `next`, or `latest`, and provide a version only for a named release.
-Publications are queued rather than replaced and run as three jobs:
+Publications are queued rather than replaced and run as four jobs:
 
 1. an unprivileged audit job installs, tests, versions, packs, extracts the
    required changelog section, retains the release artifact, checks the
@@ -87,7 +87,9 @@ Publications are queued rather than replaced and run as three jobs:
    clean registry consumer;
 3. an isolated record job receives `contents: write` only after publication
    succeeds and creates the matching GitHub Release with the audited receipt
-   and release notes.
+   and release notes;
+4. a minimal dispatch job receives `actions: write` only after the GitHub
+   Release exists and queues the independent post-release Codex smoke run.
 
 The workflow verifies the unmodified source revision first. It then applies an
 ephemeral lockstep version, rebuilds, and first packs with pnpm through Vite+.
@@ -129,6 +131,50 @@ node scripts/configure-trusted-publishing.mjs --verify-only
 After publishing, a clean npm consumer installs the exact public versions,
 creates a deck, checks it, builds it, and verifies the packaged Codex and
 Claude plugin versions.
+
+## Post-release Codex smoke
+
+Every completed publication dispatches
+[`release-smoke.yml`](../.github/workflows/release-smoke.yml) with the exact
+published version and audited source commit. The smoke is intentionally
+separate from npm publication: a nondeterministic AI failure remains visible
+without making an already verified registry release appear to have failed.
+Maintainers can also dispatch the workflow manually to repeat one published
+version.
+
+The workflow exercises two fixed user journeys against the public
+`https://drever.dev/prompt.md`:
+
+1. a user accepts the topic question's **Surprise me** path and delegates the
+   remaining creative decisions;
+2. a user supplies a topic, answers the high-impact briefing questions, and
+   gives concrete audience, duration, density, motion, and decision goals.
+
+Both projects start from the exact published `create-drever` version. The
+secret-bearing job uses the official Codex Action only to author source in an
+isolated workspace. It receives `OPENAI_API_KEY` through the Action input,
+runs without network access after the public prompt and dependencies are
+prepared, and installs a `PreToolUse` hook that denies every shell call while
+the protected credential proxy is active. Codex receives the exact prompt,
+project contract, and skills as preloaded context and authors only through
+`apply_patch`; generated project code cannot execute in this job. A separate
+job with no OpenAI secret installs the generated project, runs `drever
+context`, checks and builds it, and loads the audience, document, and speaker
+routes in Chromium. The guided journey must also produce speaker notes.
+
+Successful runs retain a sanitized conversation, source allowlist, build
+receipts, and the real interactive static decks—never screenshots. A final
+job with no OpenAI secret opens or updates a result pull request under
+`website/content/release-smoke/` and `website/public/release-smoke/`. The
+existing Cloudflare Pages Git integration turns that pull request into the
+online review surface. Human review and merge are required before generated
+evidence reaches the production website.
+
+Configure `OPENAI_API_KEY` as a repository Actions secret. Do not expose it as
+a job-level environment variable or reuse it in build and publishing jobs.
+The result publisher uses a Markdown body file rather than terminal output so
+ANSI control sequences and raw logs cannot enter the pull request
+description.
 
 ## One-time npm bootstrap
 

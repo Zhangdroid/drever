@@ -1,0 +1,270 @@
+name: AI release smoke
+
+on:
+  workflow_call:
+    inputs:
+      source_commit:
+        description: Audited source commit that produced the npm release
+        required: true
+        type: string
+      version:
+        description: Exact published Drever version
+        required: true
+        type: string
+    secrets:
+      OPENAI_API_KEY:
+        required: true
+  workflow_dispatch:
+    inputs:
+      source_commit:
+        description: Source commit for provenance; defaults to the dispatched revision
+        required: false
+        type: string
+      version:
+        description: Exact published Drever version
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-release-smoke-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    name: Generate · ${{ matrix.case }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        case:
+          - surprise-me
+          - guided
+    env:
+      ARTIFACT_ROOT: ${{ runner.temp }}/drever-release-smoke-generated-${{ matrix.case }}
+      CODEX_HOME: ${{ runner.temp }}/drever-release-smoke-codex-${{ matrix.case }}
+      PROJECT_ROOT: ${{ runner.temp }}/drever-release-smoke-project-${{ matrix.case }}
+      RELEASE_SMOKE_SOURCE_COMMIT: ${{ inputs.source_commit || github.sha }}
+      RELEASE_SMOKE_VERSION: ${{ inputs.version }}
+    steps:
+      - name: Check out the release source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ env.RELEASE_SMOKE_SOURCE_COMMIT }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.18.0
+          package-manager-cache: false
+
+      - name: Scaffold the exact release and cache the public prompt
+        run: >
+          node scripts/release-smoke/prepare-project.mjs
+          "$RELEASE_SMOKE_VERSION"
+          "${{ matrix.case }}"
+          "$PROJECT_ROOT"
+          "$ARTIFACT_ROOT"
+
+      - name: Start the protected Codex proxy
+        uses: openai/codex-action@52fe01ec70a42f454c9d2ebd47598f9fd6893d56 # v1
+        with:
+          allow-bots: true
+          codex-home: ${{ env.CODEX_HOME }}
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          permission-profile: ":workspace"
+          safety-strategy: drop-sudo
+          working-directory: ${{ env.PROJECT_ROOT }}
+
+      - name: Run the multi-turn creation journey
+        run: >
+          node scripts/release-smoke/run-session.mjs
+          "$RELEASE_SMOKE_VERSION"
+          "${{ matrix.case }}"
+          "$PROJECT_ROOT"
+          "$ARTIFACT_ROOT"
+
+      - name: Upload allowlisted source and sanitized conversation
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-smoke-generated-${{ matrix.case }}-${{ github.run_id }}
+          path: ${{ env.ARTIFACT_ROOT }}
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 30
+
+  build:
+    name: Build · ${{ matrix.case }}
+    needs: generate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        case:
+          - surprise-me
+          - guided
+    env:
+      BUILT_ROOT: ${{ runner.temp }}/drever-release-smoke-built
+      GENERATED_ROOT: ${{ runner.temp }}/drever-release-smoke-generated
+      RELEASE_SMOKE_SOURCE_COMMIT: ${{ inputs.source_commit || github.sha }}
+      RELEASE_SMOKE_VERSION: ${{ inputs.version }}
+    steps:
+      - name: Check out the release source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ env.RELEASE_SMOKE_SOURCE_COMMIT }}
+
+      - name: Set up Vite+
+        uses: voidzero-dev/setup-vp@250f29ce396baf5e8f24498e17c0dfdebabc26eb # v1
+        with:
+          node-version: 24.18.0
+          cache: true
+          run-install: false
+
+      - name: Install the browser smoke harness
+        run: vp install --frozen-lockfile
+
+      - name: Install Chromium
+        run: vp exec playwright install --with-deps --no-shell chromium
+
+      - name: Download generated source
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-smoke-generated-${{ matrix.case }}-${{ github.run_id }}
+          path: ${{ env.GENERATED_ROOT }}
+
+      - name: Build and open every presentation surface without the API secret
+        run: >
+          node scripts/release-smoke/build-case.mjs
+          "$RELEASE_SMOKE_VERSION"
+          "${{ matrix.case }}"
+          "${{ github.run_id }}"
+          "$RELEASE_SMOKE_SOURCE_COMMIT"
+          "$GENERATED_ROOT"
+          "$BUILT_ROOT"
+
+      - name: Upload the interactive result
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-smoke-built-${{ matrix.case }}-${{ github.run_id }}
+          path: ${{ env.BUILT_ROOT }}
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 30
+
+  propose:
+    name: Propose website results
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      AUTOMATION_ROOT: ${{ github.workspace }}/automation
+      PR_BODY: ${{ runner.temp }}/drever-release-smoke-pr.md
+      RELEASE_SMOKE_SOURCE_COMMIT: ${{ inputs.source_commit || github.sha }}
+      RELEASE_SMOKE_VERSION: ${{ inputs.version }}
+      REPOSITORY_ROOT: ${{ github.workspace }}/repository
+      RESULTS_ROOT: ${{ runner.temp }}/drever-release-smoke-results
+      RESULT_BRANCH: automation-release-smoke-${{ github.run_id }}
+    steps:
+      - name: Check out the automation source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: automation
+          persist-credentials: false
+          ref: ${{ env.RELEASE_SMOKE_SOURCE_COMMIT }}
+
+      - name: Check out main for the result proposal
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: repository
+          ref: main
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.18.0
+          package-manager-cache: false
+
+      - name: Download the built presentations
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: release-smoke-built-*-${{ github.run_id }}
+          path: ${{ env.RESULTS_ROOT }}
+          merge-multiple: true
+
+      - name: Assemble the website data and PR body
+        run: >
+          node "$AUTOMATION_ROOT/scripts/release-smoke/publish-results.mjs"
+          "$RELEASE_SMOKE_VERSION"
+          "${{ github.run_id }}"
+          "$RELEASE_SMOKE_SOURCE_COMMIT"
+          "$GITHUB_REPOSITORY"
+          "$RESULTS_ROOT"
+          "$REPOSITORY_ROOT"
+          "$PR_BODY"
+
+      - name: Commit the result branch
+        id: commit
+        working-directory: ${{ env.REPOSITORY_ROOT }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "$RESULT_BRANCH"
+          git add website/content/release-smoke website/public/release-smoke
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git commit -m "docs(release-smoke): record Drever $RELEASE_SMOKE_VERSION"
+          remote_sha="$(git ls-remote --heads origin "$RESULT_BRANCH" | cut -f1)"
+          git push \
+            --force-with-lease="refs/heads/$RESULT_BRANCH:$remote_sha" \
+            origin \
+            "HEAD:refs/heads/$RESULT_BRANCH"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Open or update the result pull request
+        if: steps.commit.outputs.changed == 'true'
+        working-directory: ${{ env.REPOSITORY_ROOT }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          number="$(
+            gh pr list \
+              --repo "$GITHUB_REPOSITORY" \
+              --state open \
+              --head "$RESULT_BRANCH" \
+              --json number \
+              --jq '.[0].number // empty'
+          )"
+          title="AI release smoke · Drever $RELEASE_SMOKE_VERSION"
+          if [[ -n "$number" ]]; then
+            gh pr edit "$number" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "$title" \
+              --body-file "$PR_BODY"
+            url="$(gh pr view "$number" --repo "$GITHUB_REPOSITORY" --json url --jq .url)"
+          else
+            url="$(
+              gh pr create \
+                --repo "$GITHUB_REPOSITORY" \
+                --base main \
+                --head "$RESULT_BRANCH" \
+                --title "$title" \
+                --body-file "$PR_BODY"
+            )"
+          fi
+          echo "Result proposal: $url" >> "$GITHUB_STEP_SUMMARY"
