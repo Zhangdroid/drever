@@ -1,8 +1,11 @@
 # Drever presentation
 
-Start with `brief.md`, then ask Codex, Claude Code, or another coding agent:
+Open this project folder in Codex, Claude Code, or another coding agent. Ask it
+to use the installed `drever-create-deck` skill. In Codex, paste:
 
-> Use Drever to turn brief.md into a complete presentation. Inspect the result in a browser and deliver the requested outputs.
+> Use `$drever-create-deck` to turn `brief.md` into a complete, validated Drever presentation. Inspect the result in a browser and deliver the requested outputs.
+
+In Claude Code, use `/drever-create-deck` instead of `$drever-create-deck`.
 
 The editable presentation lives in `slides.mdx`.
 

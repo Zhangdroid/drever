@@ -4,17 +4,21 @@ Drever treats AI authoring as a framework contract, not a prompt copied between
 projects. The contract has five surfaces:
 
 - `npm create drever@latest` creates an AI-ready project from an empty directory.
-- `drever agent sync` installs concise, project-local working instructions for
+- `npm exec -- drever agent sync` installs concise, project-local working instructions for
   Codex, Claude Code, or both.
-- `drever context [entry] --json` reports the resolved deck and design system in
+- `npm exec -- drever context [entry] --json` reports the resolved deck and design system in
   a stable, machine-readable form.
-- `drever current --json` identifies the state currently visible in a local
+- `npm exec -- drever current --json` identifies the state currently visible in a local
   audience or speaker window.
-- `drever mcp [entry]` exposes those read-only contracts to MCP-capable agents.
+- `npm exec -- drever mcp [entry]` exposes those read-only contracts to MCP-capable agents.
 
 The MDX source remains authoritative. Agents use the contract to make smaller,
 more accurate changes and then validate those changes through the same CLI and
 browser surfaces a person uses.
+
+Examples use npm. A project using pnpm, Yarn, or Bun should invoke the same
+local binary with `pnpm exec drever`, `yarn exec drever`, or
+`bunx --no-install drever` and use the matching script runner.
 
 ## Install the project agent kit
 
@@ -22,7 +26,7 @@ New projects receive both adapters automatically. To refresh an existing
 project, run this command at its root:
 
 ```bash
-drever agent sync --target all
+npm exec -- drever agent sync --target all
 ```
 
 It creates or updates:
@@ -119,8 +123,8 @@ invalid `drever.config.ts` does not prevent kit installation.
 Run:
 
 ```bash
-drever context --json
-drever context talks/keynote.mdx --json
+npm exec -- drever context --json
+npm exec -- drever context talks/keynote.mdx --json
 ```
 
 The optional entry follows the same resolution rules as build commands. Config
@@ -162,7 +166,7 @@ vocabulary without coupling its output to Vite internals.
 - discover slides or Steps created dynamically by JavaScript;
 - evaluate computed layout, overflow, contrast, animation quality, media
   readiness, or interaction behavior;
-- replace `drever check`, `drever build`, PDF export, or browser inspection.
+- replace `npm exec -- drever check`, `npm exec -- drever build`, PDF export, or browser inspection.
 
 Preflight inside the report analyzes the authored source. Runtime components
 remain responsible for their generated semantics, and visual claims require
@@ -170,13 +174,13 @@ rendered evidence at the configured canvas and exact Step route.
 
 ## Follow the live presentation
 
-While `drever dev` is running, each audience or speaker window publishes its
+While `npm run dev` is running, each audience or speaker window publishes its
 latest committed position under `.drever/cache/current/`. Read it through the
 public command instead of depending on that cache path:
 
 ```bash
-drever current
-drever current --json
+npm exec -- drever current
+npm exec -- drever current --json
 ```
 
 The versioned JSON contains the resolved `sourcePath`, `surface`, exact `route`,
@@ -191,7 +195,7 @@ previous open window. Document and export surfaces never publish a cursor.
 
 The snapshot is local, ephemeral development state. Drever clears it when the
 last interactive window disconnects or the development server closes. A missing
-snapshot is an actionable error: start `drever dev`, open an interactive surface,
+snapshot is an actionable error: start `npm run dev`, open an interactive surface,
 and try again. Agents should use this signal to locate the user's current state,
 then use `context --json` and the authored source for edits.
 
@@ -203,8 +207,8 @@ Start the dependency-free stdio server directly from an MCP client:
 {
   "mcpServers": {
     "drever": {
-      "command": "npx",
-      "args": ["drever", "mcp", "slides.mdx"]
+      "command": "npm",
+      "args": ["exec", "--", "drever", "mcp", "slides.mdx"]
     }
   }
 }
@@ -220,7 +224,7 @@ when the server starts; restart it after changing those inputs.
 MCP does not replace the file workflow. Drever deliberately leaves source edits
 to the agent's normal workspace tools so permissions, diffs, tests, and Git
 rollback remain visible. `drever_get_current` is the only tool that depends on a
-running `drever dev` session; it returns `available: false` when no interactive
+running `npm run dev` session; it returns `available: false` when no interactive
 window is connected. All other tools work without a browser or server.
 
 ### Use the motion vocabulary
@@ -250,9 +254,9 @@ For a new project:
 2. Complete `brief.md`, derive a subject-led visual system, then create the
    configured MDX entry. Use an official design study only as a reference or
    documented fallback.
-3. Run `drever context --json` to inspect the exact result and available design
+3. Run `npm exec -- drever context --json` to inspect the exact result and available design
    vocabulary.
-4. Run `drever check --json` and fix proven source defects.
+4. Run `npm exec -- drever check --json` and fix proven source defects.
 5. Build and inspect every authored Step state plus `/document`; inspect
    `/speaker` when notes, motion, or presentation behavior changed.
 6. For motion edits, verify forward and backward movement, persistent geometry,

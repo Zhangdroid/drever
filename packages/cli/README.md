@@ -3,7 +3,7 @@
 The unscoped Drever command line package. Create an AI-ready project in one command:
 
 ```sh
-drever create my-deck
+npm create drever@latest my-deck
 ```
 
 The command creates a zero-config MDX deck, a presentation brief, and project-local skills for Codex and Claude Code. It installs dependencies by default; use `--no-install` for automation or `--open codex` / `--open claude` to open the project with a prepared task.
@@ -24,15 +24,19 @@ A project needs only an MDX deck:
 Run it with:
 
 ```sh
-drever agent sync --target all
-drever doctor --json
-drever context slides.mdx --json
-drever dev slides.mdx
-drever current --json
-drever mcp slides.mdx
-drever build slides.mdx --json
-drever export pdf slides.mdx --slides 2-5,8 --steps --output slides-export.pdf --json
+npm exec -- drever agent sync --target all
+npm exec -- drever doctor --json
+npm exec -- drever context slides.mdx --json
+npm exec -- drever dev slides.mdx
+npm exec -- drever current --json
+npm exec -- drever mcp slides.mdx
+npm exec -- drever build slides.mdx --json
+npm exec -- drever export pdf slides.mdx --slides 2-5,8 --steps --output slides-export.pdf --json
 ```
+
+These examples use npm. In projects installed with pnpm, Yarn, or Bun, use
+`pnpm exec drever`, `yarn exec drever`, or `bunx --no-install drever`
+respectively, plus that manager's script runner.
 
 All commands default to `slides.mdx`. PDF export writes
 `<entry-basename>-export.pdf` in the project root unless `--output` is provided;
@@ -42,7 +46,9 @@ application entry; deck authors configure only Drever's stable surface:
 
 `build --json` and `export pdf --json` return a versioned artifact receipt with absolute source and output paths. Without `--json`, both commands keep their concise human-readable output.
 
-`drever doctor --json` checks the required Node version and deck entry, then reports project-local installation and PDF-browser readiness as non-blocking warnings. It never installs software or starts a browser.
+`npm exec -- drever doctor --json` checks the required Node version and deck
+entry, then reports project-local installation and PDF-browser readiness as
+non-blocking warnings. It never installs software or starts a browser.
 
 PDF export uses Playwright's Chromium runtime without loading it for `dev` or
 `build`. Install the browser once with `npx playwright install chromium` (or
@@ -104,7 +110,7 @@ rather than through this config.
 
 ## Agent authoring
 
-Run `drever agent sync` at the project root to install Drever's project-local
+Run `npm exec -- drever agent sync` at the project root to install Drever's project-local
 authoring kit:
 
 ```text
@@ -131,7 +137,7 @@ the generated ownership marker. User content outside that block is preserved.
 If any target is user-owned, malformed, or not a regular file, sync reports all
 conflicts and writes none of the planned files.
 
-Run `drever context [entry] --json` before substantial authoring or review. The
+Run `npm exec -- drever context [entry] --json` before substantial authoring or review. The
 versioned JSON document contains:
 
 - the resolved canvas and source path;
@@ -144,13 +150,13 @@ versioned JSON document contains:
 The command resolves config and runs Drever's protected slide grammar plus
 configured Remark contributions. It does not start a Vite server, construct the
 full adapter, render React, execute Rehype or Recma transforms, or infer
-runtime-generated content and computed visual quality. Use `drever check
---json`, a production build, and rendered slide, document, and speaker evidence
+runtime-generated content and computed visual quality. Use `npm exec -- drever
+check --json`, a production build, and rendered slide, document, and speaker evidence
 for those later validation layers. Without `--json`, `context` prints only a
 concise human summary.
 
-While `drever dev` and an audience or speaker window are active, `drever current
---json` reports the most recently updated open surface, exact route, source path,
+While `npm exec -- drever dev` and an audience or speaker window are active,
+`npm exec -- drever current --json` reports the most recently updated open surface, exact route, source path,
 slide id, zero-based slide index, and sparse Step. It follows query and fragment
 changes, falls back across multiple open windows or dev-server sessions, and
 removes session state when the window disconnects. The development-only cache
@@ -158,7 +164,7 @@ is not included in production output.
 
 ## Read-only MCP
 
-Run `drever mcp [entry]` to expose the authoring contract as a standalone MCP
+Run `npm exec -- drever mcp [entry]` to expose the authoring contract as a standalone MCP
 2025-11-25 stdio server. It does not require a development server and adds no
 SDK dependency. Register the local project binary with an MCP client:
 
@@ -166,8 +172,8 @@ SDK dependency. Register the local project binary with an MCP client:
 {
   "mcpServers": {
     "drever": {
-      "command": "npx",
-      "args": ["drever", "mcp", "slides.mdx"]
+      "command": "npm",
+      "args": ["exec", "--", "drever", "mcp", "slides.mdx"]
     }
   }
 }
@@ -179,7 +185,7 @@ The server exposes five read-only tools:
 - `drever_list_slides`: compact slide identity, Step, note, and source ranges;
 - `drever_get_slide`: exact authored source and notes for one slide;
 - `drever_check`: source preflight with `valid` and stable diagnostics;
-- `drever_get_current`: the latest available `drever dev` audience or speaker
+- `drever_get_current`: the latest available `npm exec -- drever dev` audience or speaker
   position.
 
 Each successful tool returns both `structuredContent` and its JSON projection as

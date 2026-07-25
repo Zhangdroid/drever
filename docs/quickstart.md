@@ -26,6 +26,10 @@ Create a complete project with one command:
 npm create drever@latest my-deck
 ```
 
+The command examples in this guide use npm. In projects installed with pnpm,
+Yarn, or Bun, use `pnpm exec drever`, `yarn exec drever`, or
+`bunx --no-install drever` respectively, plus that manager's script runner.
+
 The creator writes `brief.md`, `slides.mdx`, package scripts, and project-local
 skills for Codex and Claude Code, then installs a Drever version compatible with
 the creator. It fails rather than overwriting starter files in a non-empty
@@ -100,7 +104,7 @@ examples.
 project, install or refresh them explicitly:
 
 ```bash
-drever agent sync --target all
+npm exec -- drever agent sync --target all
 ```
 
 The command creates managed blocks in `AGENTS.md` and `CLAUDE.md`, plus five
@@ -116,8 +120,8 @@ valid and is safe to repeat after upgrading Drever.
 Inspect the resolved authoring contract before substantial generation or edits:
 
 ```bash
-drever context --json
-drever context talks/keynote.mdx --json
+npm exec -- drever context --json
+npm exec -- drever context talks/keynote.mdx --json
 ```
 
 The versioned report joins the exact compiler-owned slide and sparse Step
@@ -140,16 +144,16 @@ Expose the same evidence as read-only MCP tools without starting Vite:
 {
   "mcpServers": {
     "drever": {
-      "command": "npx",
-      "args": ["drever", "mcp", "slides.mdx"]
+      "command": "npm",
+      "args": ["exec", "--", "drever", "mcp", "slides.mdx"]
     }
   }
 }
 ```
 
-`drever mcp [entry]` uses the newline-delimited stdio transport from MCP
+`npm exec -- drever mcp [entry]` uses the newline-delimited stdio transport from MCP
 `2025-11-25`. It offers full context, compact slide listing, exact one-slide
-source, source preflight, and the optional live `drever dev` position. MDX is
+source, source preflight, and the optional live `npm run dev` position. MDX is
 reread on every tool call; restart the process after config, theme, or plugin
 changes. The tools never modify source. Agents edit normal project files and run
 the existing checks, leaving permissions and Git review in one place.
@@ -159,9 +163,9 @@ the existing checks, leaving permissions and Git review in one place.
 Run the source-based preflight before presenting or building:
 
 ```bash
-drever check
-drever check talks/keynote.mdx
-drever check --json
+npm exec -- drever check
+npm exec -- drever check talks/keynote.mdx
+npm exec -- drever check --json
 ```
 
 The human report prints actionable diagnostics with source locations. `--json`
@@ -185,7 +189,7 @@ visible and machine-readable without blocking delivery. For example, a CI step
 can archive the complete report while failing only on proven errors:
 
 ```bash
-drever check --json > drever-check.json
+npm exec -- drever check --json > drever-check.json
 ```
 
 This is deliberately not a visual accessibility oracle. Drever does not guess
@@ -204,7 +208,8 @@ pnpm build
 ```
 
 The default input is `slides.mdx` and the default output is `dist/`. Either
-command also accepts one entry path, for example `drever dev talks/demo.mdx`.
+command also accepts one entry path, for example
+`npm exec -- drever dev talks/demo.mdx`.
 Content-only MDX edits use React Fast Refresh and preserve the current URL, Step,
 and interactive component state. Changing slide boundaries or Step stops
 rebuilds the manifest and intentionally reloads the viewer.
@@ -213,8 +218,8 @@ With an audience or speaker window open, inspect the last live position from a
 second terminal:
 
 ```bash
-drever current
-drever current --json
+npm exec -- drever current
+npm exec -- drever current --json
 ```
 
 The JSON form reports the exact route, surface, source path, slide id,
@@ -224,7 +229,7 @@ outlines it, and Escape clears it. Ordinary clicks keep their normal behavior
 and do not alter that selection. The snapshot is intended for local AI and
 editor workflows. The underlying `.drever/cache/current/` snapshots are
 ignored by Git and removed when the last interactive window disconnects or
-`drever dev` stops. With multiple windows, the most recently updated open
+`npm run dev` stops. With multiple windows, the most recently updated open
 audience or speaker surface wins. Document and export surfaces do not publish a
 live position.
 
@@ -233,16 +238,16 @@ live position.
 Export one page per slide at its final authored Step:
 
 ```bash
-drever export pdf
+npm exec -- drever export pdf
 ```
 
 The default output is `slides-export.pdf` in the project root. An explicit
 entry and output can appear with the export flags in any order:
 
 ```bash
-drever export pdf talks/keynote.mdx --output release/keynote.pdf
-drever export pdf --steps talks/keynote.mdx
-drever export pdf --slides 2-5,8 talks/keynote.mdx
+npm exec -- drever export pdf talks/keynote.mdx --output release/keynote.pdf
+npm exec -- drever export pdf --steps talks/keynote.mdx
+npm exec -- drever export pdf --slides 2-5,8 talks/keynote.mdx
 ```
 
 `--steps` emits Step 0 followed by every exact compiled stop. A slide with
@@ -498,7 +503,7 @@ late audience receives their current snapshot. Laser uses the same protocol but
 remains transient: only an audience at the matching exact Slide and Step renders
 it, and it clears when pointing stops or navigation changes. This release does
 not claim cross-device transport or remote transition-readiness synchronization.
-`drever dev` prints the speaker URL; the `P` shortcut derives its path from the
+`npm run dev` prints the speaker URL; the `P` shortcut derives its path from the
 current audience state and preserves unrelated query/hash state.
 
 Inactive audience slides leave the accessibility tree while React preserves

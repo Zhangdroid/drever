@@ -336,9 +336,17 @@ Repeated values form a group and gaps remain intentional.
 `Step` is compiler syntax as well as a React component. It must appear as static
 MDX JSX inside a slide. A literal numeric attribute such as `at={5}` is static;
 an expression such as `at={nextStop}` is rejected. A `Step` inside an MDX or
-JavaScript expression is also rejected. A component such as `<InteractiveDemo />`
-may render React content at runtime, but any `Step` it creates is invisible to
-the compiler and cannot add a navigation stop.
+JavaScript expression is also rejected. That includes JSX-valued layout props
+such as `visual={<Step>...</Step>}`. Put the Step directly in the slide body and
+let a layout accept static MDX children or named child slots instead. A component
+such as `<InteractiveDemo />` may render React content at runtime, but any `Step`
+it creates is invisible to the compiler and cannot add a navigation stop.
+
+Accessible names follow the same state boundary. A persistent ancestor
+`aria-label` exists from Step 0, so it must describe only the premise already
+available at that state. Put outcome-specific names and descriptions inside the
+Step that reveals the outcome. Review the accessibility tree at every authored
+state; hidden visual evidence must not be announced early.
 
 Plugins that provide higher-level reveal syntax must compile it to static `Step`
 MDX AST nodes before Drever's final Remark validation pass. AI-generated decks

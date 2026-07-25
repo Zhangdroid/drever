@@ -45,6 +45,14 @@ intentional gaps remain part of the route contract.
 This slide navigates through `0 → 1 → 3`; Drever never invents stop 2. A Step is presentation state,
 not a timer. It can be rehearsed, linked, restored, tested, and exported.
 
+Author every Step directly in the slide body. Do not hide one inside a JavaScript expression,
+component implementation, or JSX-valued layout prop such as `visual={<Step>...</Step>}`; the
+compiler cannot turn those runtime branches into addressable routes.
+
+Persistent accessible labels are present from Step 0. Keep an ancestor `aria-label` limited to the
+premise already visible, and put outcome-specific names or descriptions inside the Step that
+reveals them. The visual and accessible story should advance together.
+
 <h2 id="speaker-notes">Speaker notes</h2>
 
 ```mdx

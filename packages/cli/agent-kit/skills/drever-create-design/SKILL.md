@@ -7,11 +7,13 @@ description: Create or materially redesign a Drever presentation's art direction
 
 # Create a subject-led Drever design
 
+Commands below use npm's project-local runner. In a pnpm, Yarn, or Bun project, use `pnpm exec drever`, `yarn exec drever`, or `bunx --no-install drever` and the matching script runner instead.
+
 Treat a Drever Theme as a deterministic internal contract, not the primary user workflow. Generate or revise a local design artifact during authoring, commit it with the deck, and make every build reuse that exact artifact. Never call an AI model, browse, or regenerate styles from a Vite plugin, theme module, build, dev server, or export.
 
 ## Start with a design brief
 
-1. Read the complete brief, deck, existing assets, local components, current design files, and `drever.config.ts` plus Stage modules when they exist. Use `drever_get_context` when available; otherwise run the project-local `drever context --json`.
+1. Read the complete brief, deck, existing assets, local components, current design files, and `drever.config.ts` plus Stage modules when they exist. Use `drever_get_context` when available; otherwise run `npm exec -- drever context --json`.
 2. Derive and record:
    - subject, central claim, source material, and dominant content types;
    - audience, desired action, familiarity, and accessibility needs;
@@ -102,7 +104,7 @@ Pair a text-heavy narrative region with a primarily visual supporting region: a 
 ## Validate the result
 
 1. Add tests only for meaningful contracts or component behavior; do not add snapshots that merely preserve CSS text.
-2. Run the project-local `drever context --json`, `drever check --json`, and `drever build`.
+2. Run `npm exec -- drever context --json`, `npm exec -- drever check --json`, and `npm exec -- drever build`.
 3. Inspect representative slides for every layout, then every affected slide and Step state at the configured canvas size. Check intermediate motion frames in both directions, not only endpoints.
 4. Check `/document`, reduced motion, and relevant speaker and export surfaces. Verify fonts and localized assets load without network-dependent generation.
 5. Review the result against `art-direction.md`: remove any prominent choice that cannot be justified as subject-led or clearly acknowledged as fallback.

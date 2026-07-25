@@ -7,13 +7,15 @@ description: Create a new Drever presentation from a brief, outline, source docu
 
 # Create a Drever deck
 
+Commands below use npm's project-local runner. In a pnpm, Yarn, or Bun project, use `pnpm exec drever`, `yarn exec drever`, or `bunx --no-install drever` and the matching script runner instead.
+
 Start from the current workspace:
 
 1. Detect whether it is already a Drever project by inspecting `package.json`, the configured MDX entry, and `drever.config.ts` when that optional file exists.
    - In an existing project, read its `AGENTS.md` or `CLAUDE.md` and project-local Drever skills. Use the installed project-local `drever` binary; never substitute `drever@latest`.
    - In an empty or missing target directory, run `npm create drever@latest [directory]`. The default scaffold installs dependencies and both project agent adapters. Preserve those defaults unless the user requested a specific package manager, agent, or no installation.
    - Never scaffold over a non-empty, non-Drever directory. Use a new directory when the intended target is clear; ask only when that choice materially changes the result.
-2. After scaffolding, work from the new project root and follow its project-local Drever skills. Inspect `package.json`, `brief.md`, existing assets, local components, the configured entry, and `drever.config.ts` when present. When a deck already exists, use `drever_get_context` if the read-only Drever MCP is connected; otherwise run the project-local `drever context --json`.
+2. After scaffolding, work from the new project root and follow its project-local Drever skills. Inspect `package.json`, `brief.md`, existing assets, local components, the configured entry, and `drever.config.ts` when present. When a deck already exists, use `drever_get_context` if the read-only Drever MCP is connected; otherwise run `npm exec -- drever context --json`.
 3. Derive the audience, purpose, duration, tone, and desired action from the brief. State material assumptions instead of inventing facts.
 4. Plan one dominant idea per slide: establish context, develop the argument, show evidence, and close with a clear conclusion.
 5. Use the project-local `drever-create-design` skill when the brief calls for a custom visual system or material redesign. Otherwise derive a restrained direction from the brief and use an official design study as a documented fallback.
@@ -56,7 +58,7 @@ Author with these rules:
 
 Use custom React only when interaction materially improves the explanation. Give every live motion or spatial integration accessible final semantics, keyboard behavior, reduced-motion output, deterministic loading and export readiness, and a stable poster or authored fallback for document and export surfaces when needed. Loop only when ongoing change is the subject; use a deterministic sequence, start its first meaningful update when the audience slide activates, pause it outside the active audience surface, and author a stable final state. Drive an animated number, label, and chart from the same frame, keep number width stable, and never announce every interpolated value. Reserve the largest transformed and painted footprint of 2D or 3D motion so no intermediate layer crosses a track, label, or adjacent copy. Keep continuously animated backgrounds and 3D subordinate to the claim. Give each element one motion owner: use navigation continuity between slides or local live-DOM motion within a slide, never both on the same element at once.
 
-Run the project-local `drever context --json` and `drever check --json`, fix every proven error, then run the project-local `drever build`. Inspect the rendered deck, including every authored Step state and `/document`. Use browser tooling when available. For motion, inspect intermediate frames and the finished handoff in both directions; verify stable geometry, pointer focus, reduced motion, and relevant speaker and export states. If rendered inspection cannot be obtained, report it as an unresolved validation gap and do not call the deck presentation-ready.
+Run `npm exec -- drever context --json` and `npm exec -- drever check --json`, fix every proven error, then run `npm exec -- drever build`. Inspect the rendered deck, including every authored Step state and `/document`. Use browser tooling when available. For motion, inspect intermediate frames and the finished handoff in both directions; verify stable geometry, pointer focus, reduced motion, and relevant speaker and export states. If rendered inspection cannot be obtained, report it as an unresolved validation gap and do not call the deck presentation-ready.
 
 Before reporting completion, use the project-local `drever-review-deck` skill as a completion gate. Review the whole rendered deck for narrative reasonableness, static visual quality, motion, interaction, accessibility, and every relevant output surface. Fix material issues, rebuild, and repeat the affected review passes. A clean check and successful build are prerequisites, not evidence that the presentation is ready.
 

@@ -130,6 +130,15 @@ describe("project creation", () => {
     await expect(readFile(join(root, "slides.mdx"), "utf8")).resolves.toContain(
       "What will you make clear?",
     );
+    await expect(readFile(join(root, "README.md"), "utf8")).resolves.toContain(
+      "Open this project folder in Codex, Claude Code, or another coding agent.",
+    );
+    await expect(readFile(join(root, "README.md"), "utf8")).resolves.toContain(
+      "Use `$drever-create-deck` to turn `brief.md` into a complete, validated Drever presentation.",
+    );
+    await expect(readFile(join(root, "README.md"), "utf8")).resolves.toContain(
+      "In Claude Code, use `/drever-create-deck` instead of `$drever-create-deck`.",
+    );
     await expect(readFile(join(root, ".gitignore"), "utf8")).resolves.toContain("node_modules");
     for (const skill of agentSkills) {
       await expect(
@@ -194,6 +203,10 @@ describe("project creation", () => {
     });
     expect(openAgent).toHaveBeenCalledWith("codex", root);
     expect(result).toMatchObject({ installed: true, opened: "codex", packageManager: "pnpm" });
+    await expect(readFile(join(root, "README.md"), "utf8")).resolves.toContain("pnpm run dev");
+    await expect(readFile(join(root, "README.md"), "utf8")).resolves.not.toContain(
+      "- `npm run dev`",
+    );
   });
 
   it("keeps a recoverable project when dependency installation fails", async () => {

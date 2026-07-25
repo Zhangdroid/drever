@@ -10,6 +10,9 @@ The bootstrap checks the workspace, creates a safe project, and then hands contr
 version-matched instructions installed inside that project. It does not duplicate the full
 authoring contract or silently change an existing Drever version.
 
+Command examples use npm. Project-local guidance detects pnpm, Yarn, and Bun and selects their
+equivalent local runner instead of assuming a global `drever` executable.
+
 <h2 id="agent-first">Agent-first, not agent-only</h2>
 
 Drever makes AI authoring a versioned project contract. It does not hide the source behind a hosted
@@ -77,8 +80,8 @@ ephemeral; it disappears when interactive windows close or the dev server stops.
 {
   "mcpServers": {
     "drever": {
-      "command": "npx",
-      "args": ["drever", "mcp", "slides.mdx"]
+      "command": "npm",
+      "args": ["exec", "--", "drever", "mcp", "slides.mdx"]
     }
   }
 }

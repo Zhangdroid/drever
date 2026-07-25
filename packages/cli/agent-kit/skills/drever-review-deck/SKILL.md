@@ -7,10 +7,12 @@ description: Review, debug, and improve an existing Drever presentation for narr
 
 # Review and fix a Drever deck
 
+Commands below use npm's project-local runner. In a pnpm, Yarn, or Bun project, use `pnpm exec drever`, `yarn exec drever`, or `bunx --no-install drever` and the matching script runner instead.
+
 Respect the requested scope. Report findings without editing for review-only requests; apply and verify fixes when asked to fix or polish.
 
-1. When Drever MCP tools are available, start with `drever_get_current` and `drever_get_context`; use `drever_get_slide` for each affected source slice. Otherwise use `drever current --json` and `drever context --json`. Inspect the complete design contract, source map, and exact Step topology.
-2. Run `drever_check` when connected; otherwise run `drever check --json`. Inspect every preflight finding even when the CLI command exits nonzero.
+1. When Drever MCP tools are available, start with `drever_get_current` and `drever_get_context`; use `drever_get_slide` for each affected source slice. Otherwise use `npm exec -- drever current --json` and `npm exec -- drever context --json`. Inspect the complete design contract, source map, and exact Step topology.
+2. Run `drever_check` when connected; otherwise run `npm exec -- drever check --json`. Inspect every preflight finding even when the CLI command exits nonzero.
 3. Inspect every slide and exact sparse Step state at the configured canvas size. Use rendered evidence rather than judging source alone. If rendered inspection cannot be obtained, report the missing evidence as a blocker and do not call the deck presentation-ready.
 4. Inspect `/document` for reading order and fully revealed content. Inspect both `/speaker` previews for notes, synchronization, and presentation usability. Exercise exact audience routes and every applicable built, reduced-motion, document, speaker, and export state. For public or shared decks, verify that the closing next action uses visible canonical absolute links and remains useful in rendered audience, document, and export output.
 5. Build and test direct route loading when delivery is in scope. Export PDF only when requested or when export readiness is part of the review.
@@ -21,7 +23,7 @@ Treat review as an iterative completion gate, not a final glance. A clean check 
 2. **Static visual quality:** Inspect every rendered state at the configured canvas size. Check hierarchy, alignment, spacing, type, contrast, backgrounds, recurring motifs, link and control affordances, and the largest painted footprint. Backgrounds remain subordinate unless they are the evidence. Repeated elements remain intentionally consistent.
 3. **Motion and continuity:** Inspect the initial state, intermediate frames, settled state, and reverse handoff for every transition and Step change. Require one clear focal object and a narrative reason for every cue. Flag flashes, jitter, ghosting, stretched text or rules, abrupt shadow or filter changes, clipped paint, premature timing, and movement that competes with the claim.
 4. **Interaction and surfaces:** Use the deck rather than only looking at it. Verify navigation, hover, focus, keyboard behavior, toolbar and focus tools, exact routes, reload, history, speaker synchronization, `/speaker`, `/document`, reduced motion, and export-relevant states. Controls outside the slide remain stable and usable while slide content moves.
-5. **Technical and accessibility:** Check console output, fonts, assets, rendered names, roles, states, tab order, keyboard operation, visible focus, contrast, alternatives, captions, reading order, deterministic media, and relevant tests. Confirm that live behavior has an understandable static or reduced-motion result.
+5. **Technical and accessibility:** Check console output, fonts, assets, rendered names, roles, states, tab order, keyboard operation, visible focus, contrast, alternatives, captions, reading order, deterministic media, and relevant tests. At every Step state, confirm that accessible names and descriptions reveal only the information currently available visually; a persistent label must not summarize a pending Step outcome. Confirm that live behavior has an understandable static or reduced-motion result.
 
 For every prominent sentence, object, animation, background treatment, and control, ask what job it performs. Simplify or remove it when the answer does not serve the claim, audience, or operation of the deck. Fix the highest-severity causes, rebuild, and repeat the affected passes and adjacent handoffs until no material defect remains. If an external blocker or genuine user judgment remains, state it explicitly; never call a deck ready because its source looked plausible or a command succeeded.
 
@@ -59,4 +61,4 @@ When Stage modules are configured, verify that the audience reuses the same back
 
 Fix the cause in authored MDX, configuration, local components, or styles. Do not patch generated output or add legacy-browser fallbacks.
 
-After fixing, rerun `drever context --json`, `drever check --json`, `drever build`, affected browser states, and relevant project tests. Reinspect the whole deck after changing a shared theme, layout, Stage layer, or component; otherwise reinspect affected states and adjacent handoffs. Report findings by severity with the slide, Step, source location, applied fix, and final evidence.
+After fixing, rerun `npm exec -- drever context --json`, `npm exec -- drever check --json`, `npm exec -- drever build`, affected browser states, and relevant project tests. Reinspect the whole deck after changing a shared theme, layout, Stage layer, or component; otherwise reinspect affected states and adjacent handoffs. Report findings by severity with the slide, Step, source location, applied fix, and final evidence.

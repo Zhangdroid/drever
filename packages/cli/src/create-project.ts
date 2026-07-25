@@ -284,6 +284,11 @@ const processInvocation = (
   command: packageManager,
 });
 
+const projectReadme = (template: string, packageManager: CreatePackageManager): string => {
+  const scriptRunner = packageManager === "npm" ? "npm run" : `${packageManager} run`;
+  return template.replaceAll("npm run", scriptRunner);
+};
+
 export const installProjectDependencies = async ({
   packageManager,
   quiet,
@@ -385,6 +390,7 @@ export const createDreverProject = async ({
     );
   }
 
+  const packageManager = requestedPackageManager ?? detectPackageManager(environment);
   await mkdir(resolvedRoot, { recursive: true });
   const agentResult =
     agent === "none" ? { files: [] } : await syncAgentKit({ root: resolvedRoot, target: agent });
@@ -392,7 +398,12 @@ export const createDreverProject = async ({
     ["package.json", projectPackage(resolvedRoot, version)],
     ...TEMPLATE_FILES.map(
       (path) =>
-        [path === "gitignore" ? ".gitignore" : path, templates.get(path) as string] as const,
+        [
+          path === "gitignore" ? ".gitignore" : path,
+          path === "README.md"
+            ? projectReadme(templates.get(path) as string, packageManager)
+            : (templates.get(path) as string),
+        ] as const,
     ),
   ]);
   for (const [path, value] of contents) {
@@ -401,7 +412,6 @@ export const createDreverProject = async ({
     await writeFile(destination, value, "utf8");
   }
 
-  const packageManager = requestedPackageManager ?? detectPackageManager(environment);
   if (install) {
     try {
       await installDependencies({ packageManager, quiet, root: resolvedRoot });
