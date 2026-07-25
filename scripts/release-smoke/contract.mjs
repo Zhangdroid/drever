@@ -6,6 +6,24 @@ export const MAX_SLIDES = 6;
 export const MAX_SOURCE_FILES = 80;
 export const MAX_SOURCE_FILE_BYTES = 1_000_000;
 export const MAX_SOURCE_BYTES = 8_000_000;
+export const RELEASE_SMOKE_HANDOFF_PATHS = Object.freeze([
+  ".agents/skills/drever-author-deck/SKILL.md",
+  ".agents/skills/drever-create-deck/SKILL.md",
+  ".agents/skills/drever-create-design/SKILL.md",
+  ".agents/skills/drever-review-deck/SKILL.md",
+  "AGENTS.md",
+  "brief.md",
+  "package.json",
+]);
+export const RELEASE_SMOKE_PRIVATE_PATHS = Object.freeze([
+  ".release-smoke/constraints.md",
+  ".release-smoke/prompt.md",
+]);
+export const RELEASE_SMOKE_ARTIFACT_SEED_PATHS = Object.freeze([
+  "prompt.json",
+  "receipts/handoff.json",
+  "receipts/scaffold.json",
+]);
 
 const sourceDirectories = new Set([
   "assets",
@@ -25,6 +43,10 @@ const sourceExactPaths = new Set([
   "slides.mdx",
   "vite-env.d.ts",
 ]);
+const sourceIgnoredPaths = new Set(["AGENTS.md", "AGENTS.override.md", "README.md"]);
+const handoffConfigurationPaths = ["drever.config.ts", "drever.config.mjs", "drever.config.js"];
+const maxHandoffFileBytes = 1_000_000;
+const maxHandoffBytes = 4_000_000;
 const secretPatterns = [
   /\b(?:sk|sess)-[A-Za-z0-9_-]{16,}\b/gu,
   /\bnpm_[A-Za-z0-9]{16,}\b/gu,
@@ -63,6 +85,8 @@ export const createCodexExecArguments = ({ model, threadId, turn }) => {
     'web_search="disabled"',
     "-c",
     'model_reasoning_effort="high"',
+    "-c",
+    "project_doc_fallback_filenames=[]",
     ...(model === undefined || model === "" ? [] : ["-m", model]),
   ];
   return threadId === undefined
@@ -92,6 +116,174 @@ export const sanitizeTranscriptText = (value, workspace = "") => {
   for (const pattern of secretPatterns) sanitized = sanitized.replaceAll(pattern, "[redacted]");
   if (workspace !== "") sanitized = sanitized.replaceAll(resolve(workspace), "<project>");
   return sanitized.trim().slice(0, 20_000);
+};
+
+const findHandoffConfiguration = async (root) => {
+  for (const path of handoffConfigurationPaths) {
+    try {
+      const metadata = await lstat(join(root, path));
+      if (!metadata.isFile()) {
+        throw new Error(`Release smoke handoff file is not a regular file: ${path}`);
+      }
+      return path;
+    } catch (error) {
+      if (!(error instanceof Error && "code" in error && error.code === "ENOENT")) throw error;
+    }
+  }
+  return undefined;
+};
+
+const copyBoundedRegularFiles = async (sourceRoot, destinationRoot, paths) => {
+  const source = resolve(sourceRoot);
+  const destination = resolve(destinationRoot);
+  if (isChildPath(source, destination) || isChildPath(destination, source)) {
+    throw new Error("Release smoke source and destination roots must be separate.");
+  }
+
+  const contents = [];
+  let totalBytes = 0;
+  for (const path of paths) {
+    const input = join(source, ...path.split("/"));
+    const metadata = await lstat(input);
+    if (!metadata.isFile()) {
+      throw new Error(`Release smoke handoff file is not a regular file: ${path}`);
+    }
+    if (metadata.size > maxHandoffFileBytes) {
+      throw new Error(`Release smoke handoff file exceeds the size limit: ${path}`);
+    }
+    totalBytes += metadata.size;
+    if (totalBytes > maxHandoffBytes) {
+      throw new Error(`Release smoke handoff exceeds the ${maxHandoffBytes} byte limit.`);
+    }
+    contents.push({ content: await readFile(input), path });
+  }
+
+  await rm(destination, { force: true, recursive: true });
+  for (const { content, path } of contents) {
+    const output = join(destination, ...path.split("/"));
+    await mkdir(dirname(output), { recursive: true });
+    await writeFile(output, content);
+  }
+  return Object.freeze({
+    bytes: totalBytes,
+    files: Object.freeze([...paths].sort((left, right) => left.localeCompare(right))),
+  });
+};
+
+export const copyReleaseSmokeHandoff = async (
+  sourceRoot,
+  projectRoot,
+  { includePrivate = false } = {},
+) => {
+  const source = resolve(sourceRoot);
+  const configuration = await findHandoffConfiguration(source);
+  const files = [
+    ...RELEASE_SMOKE_HANDOFF_PATHS,
+    ...(includePrivate ? RELEASE_SMOKE_PRIVATE_PATHS : []),
+    ...(configuration === undefined ? [] : [configuration]),
+  ];
+  return copyBoundedRegularFiles(source, projectRoot, files);
+};
+
+export const copyReleaseSmokeArtifactSeed = (sourceRoot, artifactRoot) =>
+  copyBoundedRegularFiles(sourceRoot, artifactRoot, RELEASE_SMOKE_ARTIFACT_SEED_PATHS);
+
+export const snapshotReleaseSmokeGenerationTree = async (projectRoot, immutablePaths) => {
+  const root = resolve(projectRoot);
+  const snapshot = new Map();
+  for (const path of immutablePaths) {
+    const absolutePath = join(root, ...path.split("/"));
+    const metadata = await lstat(absolutePath);
+    if (!metadata.isFile()) {
+      throw new Error(`Release smoke immutable file is not a regular file: ${path}`);
+    }
+    snapshot.set(path, await readFile(absolutePath));
+  }
+  return snapshot;
+};
+
+export const assertReleaseSmokeGenerationTree = async (projectRoot, immutableSnapshot) => {
+  const root = resolve(projectRoot);
+  let fileCount = 0;
+  let sourceBytes = 0;
+
+  const visit = async (directory = root) => {
+    const entries = await readdir(directory, { withFileTypes: true });
+    for (const entry of entries) {
+      const absolutePath = join(directory, entry.name);
+      const path = portablePath(relative(root, absolutePath));
+      if (entry.isSymbolicLink()) {
+        throw new Error(`Release smoke generation tree cannot contain a symlink: ${path}`);
+      }
+      if (entry.isDirectory()) {
+        const firstSegment = path.split("/")[0];
+        const isImmutableParent = [...immutableSnapshot.keys()].some((immutablePath) =>
+          immutablePath.startsWith(`${path}/`),
+        );
+        if (!isImmutableParent && !sourceDirectories.has(firstSegment)) {
+          throw new Error(`Release smoke generation tree contains an unexpected path: ${path}`);
+        }
+        await visit(absolutePath);
+        continue;
+      }
+      if (!entry.isFile()) {
+        throw new Error(`Release smoke generation tree contains a non-file path: ${path}`);
+      }
+
+      const immutable = immutableSnapshot.get(path);
+      if (immutable !== undefined) {
+        const current = await readFile(absolutePath);
+        if (!current.equals(immutable)) {
+          throw new Error(`Release smoke immutable file changed during generation: ${path}`);
+        }
+        continue;
+      }
+      if (!isAllowedSourcePath(path)) {
+        throw new Error(`Release smoke generation tree contains an unexpected file: ${path}`);
+      }
+      const metadata = await lstat(absolutePath);
+      if (metadata.size > MAX_SOURCE_FILE_BYTES) {
+        throw new Error(`Release smoke source file exceeds the size limit: ${path}`);
+      }
+      fileCount += 1;
+      sourceBytes += metadata.size;
+      if (fileCount > MAX_SOURCE_FILES || sourceBytes > MAX_SOURCE_BYTES) {
+        throw new Error("Release smoke generation tree exceeds the source limits.");
+      }
+    }
+  };
+
+  await visit();
+  for (const path of immutableSnapshot.keys()) {
+    try {
+      await lstat(join(root, ...path.split("/")));
+    } catch (error) {
+      if (error instanceof Error && "code" in error && error.code === "ENOENT") {
+        throw new Error(`Release smoke immutable file was removed during generation: ${path}`);
+      }
+      throw error;
+    }
+  }
+  return Object.freeze({ files: fileCount, bytes: sourceBytes });
+};
+
+export const redactStructuredPaths = (value, replacements) => {
+  const ordered = [...replacements]
+    .map(([path, label]) => [resolve(path), label])
+    .sort(([left], [right]) => right.length - left.length);
+  const visit = (candidate) => {
+    if (typeof candidate === "string") {
+      return ordered.reduce((result, [path, label]) => result.replaceAll(path, label), candidate);
+    }
+    if (Array.isArray(candidate)) return candidate.map(visit);
+    if (typeof candidate === "object" && candidate !== null) {
+      return Object.fromEntries(
+        Object.entries(candidate).map(([key, nested]) => [key, visit(nested)]),
+      );
+    }
+    return candidate;
+  };
+  return visit(value);
 };
 
 export const parseCodexJsonl = (source) => {
@@ -127,6 +319,7 @@ export const parseCodexJsonl = (source) => {
 };
 
 const isAllowedSourcePath = (path) => {
+  if (sourceIgnoredPaths.has(path)) return false;
   if (sourceExactPaths.has(path)) return true;
   const segments = path.split("/");
   if (segments.length === 1) {
@@ -269,4 +462,15 @@ export const readOptionalJson = async (path, fallback) => {
     if (error instanceof Error && "code" in error && error.code === "ENOENT") return fallback;
     throw error;
   }
+};
+
+export const readFirstExistingFile = async (root, candidates) => {
+  for (const path of candidates) {
+    try {
+      return { content: await readFile(join(root, path), "utf8"), path };
+    } catch (error) {
+      if (!(error instanceof Error && "code" in error && error.code === "ENOENT")) throw error;
+    }
+  }
+  return undefined;
 };

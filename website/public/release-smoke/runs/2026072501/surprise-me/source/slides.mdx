@@ -1,0 +1,179 @@
+import "./deck.css";
+
+<section className="exp-slide" aria-labelledby="opening-title">
+  <p className="eyebrow">Checkout experiment review · decision brief</p>
+  <h1 id="opening-title">More customers finished. More customers asked for help.</h1>
+
+  <div className="hero-ledger" aria-label="Observed experiment outcomes">
+    <div className="hero-metric success">
+      <span className="metric-label">Checkout completion</span>
+      <div className="metric-path">
+        <span>68%</span><span className="arrow" aria-hidden="true">→</span><span>81%</span>
+      </div>
+      <span className="metric-delta">+13 percentage points</span>
+    </div>
+
+    <div className="hero-metric risk">
+      <span className="metric-label">Weekly support requests</span>
+      <div className="metric-path">
+        <span>6</span><span className="arrow" aria-hidden="true">→</span><span>12</span>
+      </div>
+      <span className="metric-delta">+6 requests · 2× volume</span>
+    </div>
+  </div>
+
+  <div className="verdict-strip">
+    <strong>Recommendation: expand one step—with guardrails.</strong>
+    <span>Not a full rollout today.</span>
+  </div>
+</section>
+
+<Note>
+Open with the tension, not the recommendation. Both numbers are real outcomes of the same experiment. The completion gain is large enough to keep learning, but the support increase is large enough to rule out an unguarded rollout. The decision requested today is a controlled ramp, not blanket approval.
+</Note>
+
+---
+
+<section className="exp-slide" aria-labelledby="completion-title">
+  <p className="eyebrow">01 · The benefit</p>
+  <h1 id="completion-title">For every 100 checkout starts, 13 more finished.</h1>
+  <p className="lede">The experiment moved the primary outcome from 68 completions to 81.</p>
+
+  <div className="outcome-grid">
+    <div aria-label="Completion comparison: baseline 68 percent, experiment 81 percent">
+      <div className="bar-row">
+        <div className="bar-header"><span>Baseline</span><span>68 of 100</span></div>
+        <div className="bar-track"><div className="bar-fill baseline">68%</div></div>
+      </div>
+      <div className="bar-row">
+        <div className="bar-header"><span>Experiment</span><span>81 of 100</span></div>
+        <div className="bar-track"><div className="bar-fill experiment">81%</div></div>
+      </div>
+    </div>
+
+    <aside className="receipt-callout">
+      <span className="mini-label">Incremental outcome</span>
+      <p className="big">+13</p>
+      <p>completed checkouts per 100 starts</p>
+    </aside>
+  </div>
+</section>
+
+<Note>
+Translate the percentage-point change into a concrete customer outcome. This is a 13-point absolute lift and roughly a 19% relative lift. Do not claim statistical significance: the brief does not include sample size, variance, duration, or confidence intervals.
+</Note>
+
+---
+
+<section className="exp-slide" aria-labelledby="support-title">
+  <p className="eyebrow">02 · The cost signal</p>
+  <h1 id="support-title">Support volume doubled. The rate may not have.</h1>
+  <p className="lede">Six additional weekly requests are confirmed. Their cause, severity, and exposure-adjusted rate are not.</p>
+
+  <div className="support-layout">
+    <div className="support-bars" aria-label="Weekly support requests increased from 6 to 12">
+      <div className="support-row">
+        <strong>Baseline</strong>
+        <div className="support-track"><div className="support-fill six"></div></div>
+        <span className="support-number">6</span>
+      </div>
+      <div className="support-row">
+        <strong>Experiment</strong>
+        <div className="support-track"><div className="support-fill twelve"></div></div>
+        <span className="support-number">12</span>
+      </div>
+      <p className="bottom-truth"><strong>Observed:</strong> +6 requests per week, or 2× raw volume.</p>
+    </div>
+
+    <aside className="missing-card">
+      <h2>Three blanks block a full rollout</h2>
+      <ul className="missing-list">
+        <li>Requests per 1,000 exposed checkouts</li>
+        <li>Issue category and customer severity</li>
+        <li>Variant exposure and statistical confidence</li>
+      </ul>
+    </aside>
+  </div>
+</section>
+
+<Note>
+Raw weekly volume is not automatically a support rate. If more customers saw or completed the experiment, some increase may reflect exposure rather than added friction. Before the ramp, tag the 12 requests, identify any payment failure, duplicate charge, or customer lockout, and normalize both variants to requests per 1,000 checkout attempts.
+</Note>
+
+---
+
+<section className="exp-slide" aria-labelledby="ramp-title">
+  <p className="eyebrow">03 · The controlled path</p>
+  <h1 id="ramp-title">Expand only through a measured ramp.</h1>
+  <p className="lede">Convert today’s uncertainty into promotion gates the team can observe and enforce.</p>
+
+  <div className="ramp" aria-label="Proposed rollout: triage, 50 percent traffic, then full scale if gates pass">
+    <div className="ramp-node">
+      <span className="mini-label">Now · 48 hours</span>
+      <h2>Classify</h2>
+      <p>Tag support issues, normalize exposure, and confirm the completion result is credible.</p>
+    </div>
+    <div className="ramp-arrow" aria-hidden="true">→</div>
+    <div className="ramp-node active">
+      <span className="mini-label">Next · 2 weeks</span>
+      <h2>Ramp to 50%</h2>
+      <p>Watch completion and support rate together. Assign a named rollback owner.</p>
+    </div>
+    <div className="ramp-arrow" aria-hidden="true">→</div>
+    <div className="ramp-node final">
+      <span className="mini-label">Then</span>
+      <h2>Scale or stop</h2>
+      <p>Expand only if every agreed gate passes at the review date.</p>
+    </div>
+  </div>
+
+  <div className="gate-row" aria-label="Proposed promotion gates">
+    <div className="gate"><strong>Completion</strong>At least 78%</div>
+    <div className="gate"><strong>Support rate</strong>No more than 25% above baseline per 1,000 attempts</div>
+    <div className="gate"><strong>Severity</strong>Zero critical payment or lockout incidents</div>
+  </div>
+</section>
+
+<Note>
+These thresholds are proposed guardrails, not findings. The 78% completion floor preserves most of the observed gain while allowing normal regression. The support gate deliberately uses a rate, not a weekly count. The team should adjust either numeric threshold now if its risk tolerance or statistical standard differs.
+</Note>
+
+---
+
+<section className="exp-slide" aria-labelledby="decision-title">
+  <p className="eyebrow">04 · Decision</p>
+  <h1 id="decision-title">Expand one step, not all the way.</h1>
+
+  <div className="decision-layout">
+    <div className="decision-stamp" aria-label="Recommendation: yes, with conditions">
+      <div>
+        <strong>Yes</strong>
+        <span>with conditions</span>
+      </div>
+    </div>
+
+    <div>
+      <ul className="decision-list">
+        <li>
+          <div><strong>Approve a 50% traffic ramp</strong><span>after a 48-hour support triage and confidence check</span></div>
+        </li>
+        <li>
+          <div><strong>Adopt the three promotion gates</strong><span>completion, exposure-adjusted support, and critical severity</span></div>
+        </li>
+        <li>
+          <div><strong>Name the rollback owner and review date</strong><span>stop automatically if any gate is breached</span></div>
+        </li>
+      </ul>
+
+      <div className="owner-line">
+        <span>Owner: __________</span>
+        <span>Review: __________</span>
+        <span>Decision: approve / revise / hold</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<Note>
+Ask for the decision directly. If the room approves, capture the owner, review date, and any revised thresholds before leaving. If the room cannot classify severity or normalize the support rate within 48 hours, hold current exposure rather than expanding. A rejection of full rollout is not a rejection of the experiment; it is a choice to buy the missing evidence safely.
+</Note>

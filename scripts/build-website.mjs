@@ -11,6 +11,7 @@ import {
   siteRoutes,
 } from "../website/site-manifest.ts";
 import { checkShowcases } from "./check-showcases.mjs";
+import { removeReleaseSmokeGeneratedArtifacts } from "./release-smoke/production-boundary.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const websiteOutput = join(root, "website", "dist", "client");
@@ -141,6 +142,14 @@ const assemblePresentations = async () => {
       await decoratePresentation(presentation, destination);
     }),
   );
+};
+
+const removeUntrustedDecksFromProduction = async () => {
+  if (process.env.CF_PAGES_BRANCH !== "main" && process.env.DREVER_WEBSITE_PRODUCTION !== "true") {
+    return;
+  }
+
+  await removeReleaseSmokeGeneratedArtifacts(websiteOutput);
 };
 
 const routeOutput = (route) => (route === "/" ? "index.html" : `${route.slice(1)}/index.html`);
@@ -328,4 +337,5 @@ const verifyOutput = async () => {
 
 await build();
 await assemblePresentations();
+await removeUntrustedDecksFromProduction();
 await verifyOutput();

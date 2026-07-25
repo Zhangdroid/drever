@@ -1,24 +1,11 @@
 name: AI release smoke
 
 on:
-  workflow_call:
-    inputs:
-      source_commit:
-        description: Audited source commit that produced the npm release
-        required: true
-        type: string
-      version:
-        description: Exact published Drever version
-        required: true
-        type: string
-    secrets:
-      OPENAI_API_KEY:
-        required: true
   workflow_dispatch:
     inputs:
       source_commit:
-        description: Source commit for provenance; defaults to the dispatched revision
-        required: false
+        description: Exact source commit recorded by the GitHub release
+        required: true
         type: string
       version:
         description: Exact published Drever version
@@ -33,9 +20,90 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  verify:
+    name: Verify release provenance
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the immutable workflow source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+
+      - name: Match npm, GitHub release, tag, and source commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SMOKE_SOURCE_COMMIT: ${{ inputs.source_commit }}
+          RELEASE_SMOKE_VERSION: ${{ inputs.version }}
+          TRUSTED_WORKFLOW_REF: ${{ github.ref }}
+        run: >
+          node scripts/release-smoke/verify-provenance.mjs
+          "$RELEASE_SMOKE_VERSION"
+          "$RELEASE_SMOKE_SOURCE_COMMIT"
+          "$GITHUB_REPOSITORY"
+          "$TRUSTED_WORKFLOW_REF"
+
+  prepare:
+    name: Prepare · ${{ matrix.case }}
+    needs: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        case:
+          - surprise-me
+          - guided
+    env:
+      ARTIFACT_ROOT: ${{ github.workspace }}/release-smoke-work/prepared-${{ matrix.case }}/artifact
+      AUTOMATION_ROOT: ${{ github.workspace }}/automation
+      PREPARED_ROOT: ${{ github.workspace }}/release-smoke-work/prepared-${{ matrix.case }}
+      PROJECT_ROOT: ${{ github.workspace }}/release-smoke-work/prepared-${{ matrix.case }}/project
+      RELEASE_SMOKE_VERSION: ${{ inputs.version }}
+      SCAFFOLD_ROOT: ${{ github.workspace }}/release-smoke-work/scaffold-${{ matrix.case }}
+    steps:
+      - name: Check out the trusted automation source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: automation
+          persist-credentials: false
+          ref: ${{ github.sha }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.18.0
+          package-manager-cache: false
+
+      - name: Scaffold the exact release and cache the public prompt
+        run: >
+          node "$AUTOMATION_ROOT/scripts/release-smoke/prepare-project.mjs"
+          "$RELEASE_SMOKE_VERSION"
+          "${{ matrix.case }}"
+          "$SCAFFOLD_ROOT"
+          "$PROJECT_ROOT"
+          "$ARTIFACT_ROOT"
+
+      - name: Upload the inert authoring context
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-smoke-prepared-${{ matrix.case }}-${{ github.run_id }}
+          path: ${{ env.PREPARED_ROOT }}
+          if-no-files-found: error
+          include-hidden-files: true
+          overwrite: true
+          retention-days: 1
+
   generate:
     name: Generate · ${{ matrix.case }}
-    runs-on: ubuntu-latest
+    needs: prepare
+    environment: ai-release-smoke
+    runs-on: ubuntu-24.04
     timeout-minutes: 40
     permissions:
       contents: read
@@ -46,17 +114,19 @@ jobs:
           - surprise-me
           - guided
     env:
-      ARTIFACT_ROOT: ${{ github.workspace }}/release-smoke-work/generated-${{ matrix.case }}
+      AUTOMATION_ROOT: ${{ github.workspace }}/automation
+      ARTIFACT_ROOT: ${{ github.workspace }}/release-smoke-work/active-${{ matrix.case }}/artifact
       CODEX_HOME: ${{ github.workspace }}/release-smoke-work/codex-${{ matrix.case }}
-      PROJECT_ROOT: ${{ github.workspace }}/release-smoke-work/project-${{ matrix.case }}
-      RELEASE_SMOKE_SOURCE_COMMIT: ${{ inputs.source_commit || github.sha }}
+      PROJECT_ROOT: ${{ github.workspace }}/release-smoke-work/active-${{ matrix.case }}/project
+      QUARANTINE_ROOT: ${{ github.workspace }}/release-smoke-work/quarantine-${{ matrix.case }}
       RELEASE_SMOKE_VERSION: ${{ inputs.version }}
     steps:
-      - name: Check out the release source
+      - name: Check out the trusted automation source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          path: automation
           persist-credentials: false
-          ref: ${{ env.RELEASE_SMOKE_SOURCE_COMMIT }}
+          ref: ${{ github.sha }}
 
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -64,11 +134,16 @@ jobs:
           node-version: 24.18.0
           package-manager-cache: false
 
-      - name: Scaffold the exact release and cache the public prompt
+      - name: Download inert authoring context
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-smoke-prepared-${{ matrix.case }}-${{ github.run_id }}
+          path: ${{ env.QUARANTINE_ROOT }}
+
+      - name: Rebuild the authoring context from regular allowlisted files
         run: >
-          node scripts/release-smoke/prepare-project.mjs
-          "$RELEASE_SMOKE_VERSION"
-          "${{ matrix.case }}"
+          node "$AUTOMATION_ROOT/scripts/release-smoke/activate-handoff.mjs"
+          "$QUARANTINE_ROOT"
           "$PROJECT_ROOT"
           "$ARTIFACT_ROOT"
 
@@ -76,6 +151,7 @@ jobs:
         uses: openai/codex-action@52fe01ec70a42f454c9d2ebd47598f9fd6893d56 # v1
         with:
           allow-bots: true
+          codex-version: 0.145.0
           codex-home: ${{ env.CODEX_HOME }}
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
           permission-profile: ":workspace"
@@ -84,7 +160,7 @@ jobs:
 
       - name: Run the multi-turn creation journey
         run: >
-          node scripts/release-smoke/run-session.mjs
+          node "$AUTOMATION_ROOT/scripts/release-smoke/run-session.mjs"
           "$RELEASE_SMOKE_VERSION"
           "${{ matrix.case }}"
           "$PROJECT_ROOT"
@@ -102,8 +178,8 @@ jobs:
   build:
     name: Build · ${{ matrix.case }}
     needs: generate
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
     permissions:
       contents: read
     strategy:
@@ -115,14 +191,15 @@ jobs:
     env:
       BUILT_ROOT: ${{ github.workspace }}/release-smoke-work/built
       GENERATED_ROOT: ${{ github.workspace }}/release-smoke-work/generated
-      RELEASE_SMOKE_SOURCE_COMMIT: ${{ inputs.source_commit || github.sha }}
+      RELEASE_SMOKE_BUILD_IMAGE: node@sha256:d45d78e7929b46875bbd4e29bea672d5bc48186c6c3588306521c815e78352d6
+      RELEASE_SMOKE_SOURCE_COMMIT: ${{ inputs.source_commit }}
       RELEASE_SMOKE_VERSION: ${{ inputs.version }}
     steps:
-      - name: Check out the release source
+      - name: Check out the trusted automation source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          ref: ${{ env.RELEASE_SMOKE_SOURCE_COMMIT }}
+          ref: ${{ github.sha }}
 
       - name: Set up Vite+
         uses: voidzero-dev/setup-vp@250f29ce396baf5e8f24498e17c0dfdebabc26eb # v1
@@ -136,6 +213,9 @@ jobs:
 
       - name: Install Chromium
         run: vp exec playwright install --with-deps --no-shell chromium
+
+      - name: Pull the isolated build image
+        run: docker pull "$RELEASE_SMOKE_BUILD_IMAGE"
 
       - name: Download generated source
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -165,15 +245,16 @@ jobs:
   propose:
     name: Propose website results
     needs: build
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
     permissions:
+      checks: read
       contents: write
       pull-requests: write
     env:
       AUTOMATION_ROOT: ${{ github.workspace }}/automation
       PR_BODY: ${{ github.workspace }}/release-smoke-work/result-pr.md
-      RELEASE_SMOKE_SOURCE_COMMIT: ${{ inputs.source_commit || github.sha }}
+      RELEASE_SMOKE_SOURCE_COMMIT: ${{ inputs.source_commit }}
       RELEASE_SMOKE_VERSION: ${{ inputs.version }}
       REPOSITORY_ROOT: ${{ github.workspace }}/repository
       RESULTS_ROOT: ${{ github.workspace }}/release-smoke-work/results
@@ -184,7 +265,7 @@ jobs:
         with:
           path: automation
           persist-credentials: false
-          ref: ${{ env.RELEASE_SMOKE_SOURCE_COMMIT }}
+          ref: ${{ github.sha }}
 
       - name: Check out main for the result proposal
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -214,6 +295,9 @@ jobs:
           "$GITHUB_REPOSITORY"
           "$RESULTS_ROOT"
           "$REPOSITORY_ROOT"
+          "$RESULT_BRANCH"
+          "release"
+          "${{ github.sha }}"
           "$PR_BODY"
 
       - name: Commit the result branch
@@ -235,6 +319,78 @@ jobs:
             origin \
             "HEAD:refs/heads/$RESULT_BRANCH"
           echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve the immutable Cloudflare Pages preview
+        if: steps.commit.outputs.changed == 'true'
+        id: pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          echo "origin=$(
+          node "$AUTOMATION_ROOT/scripts/release-smoke/resolve-pages-preview.mjs"
+          "$GITHUB_REPOSITORY"
+          "${{ steps.commit.outputs.sha }}"
+          )" >> "$GITHUB_OUTPUT"
+
+      - name: Verify the immutable deck deployment
+        if: steps.commit.outputs.changed == 'true'
+        run: >
+          node "$AUTOMATION_ROOT/scripts/release-smoke/verify-pages-preview.mjs"
+          "${{ steps.pages.outputs.origin }}"
+          "https://${RESULT_BRANCH}.drever-website.pages.dev"
+          "${{ github.run_id }}"
+          "$RELEASE_SMOKE_VERSION"
+          "$RELEASE_SMOKE_SOURCE_COMMIT"
+          "${{ github.sha }}"
+          "${{ steps.pages.outputs.origin }}"
+
+      - name: Pin the result to the immutable preview
+        if: steps.commit.outputs.changed == 'true'
+        id: pin
+        working-directory: ${{ env.REPOSITORY_ROOT }}
+        run: |
+          node "$AUTOMATION_ROOT/scripts/release-smoke/pin-preview-origin.mjs" \
+            "$REPOSITORY_ROOT" \
+            "${{ github.run_id }}" \
+            "$RESULT_BRANCH" \
+            "${{ steps.pages.outputs.origin }}" \
+            "$PR_BODY"
+          git add website/content/release-smoke website/public/release-smoke
+          git commit -m "docs(release-smoke): pin immutable preview"
+          git push origin "HEAD:refs/heads/$RESULT_BRANCH"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve the immutable report preview
+        if: steps.commit.outputs.changed == 'true'
+        id: report
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          echo "origin=$(
+          node "$AUTOMATION_ROOT/scripts/release-smoke/resolve-pages-preview.mjs"
+          "$GITHUB_REPOSITORY"
+          "${{ steps.pin.outputs.sha }}"
+          )" >> "$GITHUB_OUTPUT"
+
+      - name: Verify the immutable report deployment
+        if: steps.commit.outputs.changed == 'true'
+        run: >
+          node "$AUTOMATION_ROOT/scripts/release-smoke/verify-pages-preview.mjs"
+          "${{ steps.report.outputs.origin }}"
+          "${{ steps.pages.outputs.origin }}"
+          "${{ github.run_id }}"
+          "$RELEASE_SMOKE_VERSION"
+          "$RELEASE_SMOKE_SOURCE_COMMIT"
+          "${{ github.sha }}"
+
+      - name: Pin the pull request report link
+        if: steps.commit.outputs.changed == 'true'
+        run: >
+          node "$AUTOMATION_ROOT/scripts/release-smoke/pin-report-link.mjs"
+          "$PR_BODY"
+          "${{ steps.pages.outputs.origin }}"
+          "${{ steps.report.outputs.origin }}"
 
       - name: Open or update the result pull request
         if: steps.commit.outputs.changed == 'true'

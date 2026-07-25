@@ -3,7 +3,6 @@ import manifestSource from "../content/release-smoke/manifest.json";
 export type ReleaseSmokeCaseMode = "guided" | "surprise-me";
 export type ReleaseSmokeCaseStatus = "failed" | "passed";
 export type ReleaseSmokeMessageRole = "assistant" | "user";
-export type ReleaseSmokeRunKind = "fixture" | "release";
 
 export interface ReleaseSmokeMessage {
   content: string;
@@ -29,8 +28,12 @@ export interface ReleaseSmokeCase {
 export interface ReleaseSmokeRun {
   cases: ReleaseSmokeCase[];
   generatedAt: string;
+  harness: {
+    commit: string;
+    url: string;
+  };
   id: string;
-  kind: ReleaseSmokeRunKind;
+  kind: "preview" | "release";
   release: {
     commit: string;
     url: string;
@@ -47,7 +50,7 @@ export interface ReleaseSmokeRun {
 }
 
 interface ReleaseSmokeManifest {
-  latestRunId: string;
+  latestRunId: string | null;
   runs: Array<{
     id: string;
     transcript: string;
@@ -104,6 +107,23 @@ const expectUrl = (value: unknown, context: string): string => {
   throw new Error(`${context} must be an HTTPS URL or an absolute site path.`);
 };
 
+const expectUntrustedDeckUrl = (value: unknown, context: string): string => {
+  const source = expectString(value, context);
+  if (!URL.canParse(source)) {
+    throw new Error(`${context} must use an isolated Drever Pages preview origin.`);
+  }
+  const url = new URL(source);
+  if (
+    url.protocol !== "https:" ||
+    !url.hostname.endsWith(".drever-website.pages.dev") ||
+    url.username !== "" ||
+    url.password !== ""
+  ) {
+    throw new Error(`${context} must use an isolated Drever Pages preview origin.`);
+  }
+  return url.href;
+};
+
 const expectTimestamp = (value: unknown, context: string): string => {
   const timestamp = expectString(value, context);
   if (Number.isNaN(Date.parse(timestamp))) throw new Error(`${context} must be an ISO timestamp.`);
@@ -127,8 +147,8 @@ const parseCase = (value: unknown, context: string): ReleaseSmokeCase => {
       expectString(check, `${context}.checks[${index}]`),
     ),
     deck: {
-      audience: expectUrl(deck.audience, `${context}.deck.audience`),
-      document: expectUrl(deck.document, `${context}.deck.document`),
+      audience: expectUntrustedDeckUrl(deck.audience, `${context}.deck.audience`),
+      document: expectUntrustedDeckUrl(deck.document, `${context}.deck.document`),
       source: expectUrl(deck.source, `${context}.deck.source`),
     },
     durationSeconds: expectNumber(scenario.durationSeconds, `${context}.durationSeconds`),
@@ -144,6 +164,7 @@ const parseCase = (value: unknown, context: string): ReleaseSmokeCase => {
 
 export const parseReleaseSmokeRun = (value: unknown): ReleaseSmokeRun => {
   const run = expectRecord(value, "release smoke transcript");
+  const harness = expectRecord(run.harness, "release smoke transcript.harness");
   const release = expectRecord(run.release, "release smoke transcript.release");
   const runner = expectRecord(run.runner, "release smoke transcript.runner");
   const cases = expectArray(run.cases, "release smoke transcript.cases").map((scenario, index) =>
@@ -157,8 +178,12 @@ export const parseReleaseSmokeRun = (value: unknown): ReleaseSmokeRun => {
   return {
     cases,
     generatedAt: expectTimestamp(run.generatedAt, "release smoke transcript.generatedAt"),
+    harness: {
+      commit: expectString(harness.commit, "release smoke transcript.harness.commit"),
+      url: expectUrl(harness.url, "release smoke transcript.harness.url"),
+    },
     id: expectString(run.id, "release smoke transcript.id"),
-    kind: expectLiteral(run.kind, ["fixture", "release"], "release smoke transcript.kind"),
+    kind: expectLiteral(run.kind, ["preview", "release"], "release smoke transcript.kind"),
     release: {
       commit: expectString(release.commit, "release smoke transcript.release.commit"),
       url: expectUrl(release.url, "release smoke transcript.release.url"),
@@ -182,12 +207,16 @@ export const parseReleaseSmokeData = (
   manifestValue: unknown,
   transcripts: Record<string, unknown>,
 ): {
-  latest: ReleaseSmokeRun;
+  latest: ReleaseSmokeRun | null;
   runs: ReleaseSmokeRun[];
 } => {
   const manifestRecord = expectRecord(manifestValue, "release smoke manifest");
+  const latestRunId =
+    manifestRecord.latestRunId === null
+      ? null
+      : expectString(manifestRecord.latestRunId, "release smoke manifest.latestRunId");
   const manifest: ReleaseSmokeManifest = {
-    latestRunId: expectString(manifestRecord.latestRunId, "release smoke manifest.latestRunId"),
+    latestRunId,
     runs: expectArray(manifestRecord.runs, "release smoke manifest.runs").map((value, index) => {
       const entry = expectRecord(value, `release smoke manifest.runs[${index}]`);
       return {
@@ -207,6 +236,15 @@ export const parseReleaseSmokeData = (
 
   if (new Set(manifest.runs.map((entry) => entry.id)).size !== manifest.runs.length) {
     throw new Error("Release smoke manifest run ids must be unique.");
+  }
+  if (manifest.runs.length === 0) {
+    if (manifest.latestRunId !== null) {
+      throw new Error("An empty release smoke manifest cannot select a latest run.");
+    }
+    return { latest: null, runs: [] };
+  }
+  if (manifest.latestRunId === null) {
+    throw new Error("A populated release smoke manifest must select a latest run.");
   }
 
   const runs = manifest.runs.map((entry) => {

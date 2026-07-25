@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "mountPath": "/release-smoke/runs/2026072501/guided/deck",
+  "audience": {
+    "navigationPath": "/release-smoke/runs/2026072501/guided/deck/2",
+    "slideCount": 6,
+    "status": "passed"
+  },
+  "document": {
+    "path": "/release-smoke/runs/2026072501/guided/deck/document/",
+    "slideCount": 6,
+    "status": "passed"
+  },
+  "speaker": {
+    "path": "/release-smoke/runs/2026072501/guided/deck/speaker/",
+    "status": "passed"
+  },
+  "externalRequests": 0
+}

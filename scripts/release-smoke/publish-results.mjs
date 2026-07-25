@@ -1,4 +1,4 @@
-import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { assertReleaseVersion } from "../release.mjs";
 import {
@@ -12,32 +12,47 @@ import { releaseSmokeScenarios } from "./scenarios.mjs";
 const [
   version,
   runId,
-  sourceCommit,
+  releaseCommit,
   repository,
   resultsArgument,
   repositoryArgument,
+  previewBranch,
+  resultKind,
+  harnessCommit,
   bodyArgument,
 ] = process.argv.slice(2);
 if (
   version === undefined ||
   runId === undefined ||
-  sourceCommit === undefined ||
+  releaseCommit === undefined ||
   repository === undefined ||
   resultsArgument === undefined ||
   repositoryArgument === undefined ||
+  previewBranch === undefined ||
+  resultKind === undefined ||
+  harnessCommit === undefined ||
   bodyArgument === undefined
 ) {
   throw new Error(
-    "Usage: node scripts/release-smoke/publish-results.mjs <version> <run-id> <source-commit> <repository> <results> <repository-root> <pr-body>",
+    "Usage: node scripts/release-smoke/publish-results.mjs <version> <run-id> <release-commit> <repository> <results> <repository-root> <preview-branch> <result-kind> <harness-commit> <pr-body>",
   );
 }
 assertReleaseVersion(version);
 if (!/^\d+$/u.test(runId)) throw new Error(`Invalid GitHub Actions run id: ${runId}`);
-if (!/^[0-9a-f]{40}$/u.test(sourceCommit)) {
-  throw new Error(`Invalid release source commit: ${sourceCommit}`);
+if (!/^[0-9a-f]{40}$/u.test(releaseCommit)) {
+  throw new Error(`Invalid release source commit: ${releaseCommit}`);
+}
+if (!/^[0-9a-f]{40}$/u.test(harnessCommit)) {
+  throw new Error(`Invalid release smoke harness commit: ${harnessCommit}`);
 }
 if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/u.test(repository)) {
   throw new Error(`Invalid GitHub repository: ${repository}`);
+}
+if (!/^[A-Za-z0-9][A-Za-z0-9._/-]*$/u.test(previewBranch)) {
+  throw new Error(`Invalid preview branch: ${previewBranch}`);
+}
+if (resultKind !== "preview" && resultKind !== "release") {
+  throw new Error(`Invalid release smoke result kind: ${resultKind}`);
 }
 
 const resultsRoot = resolve(resultsArgument);
@@ -46,10 +61,59 @@ const bodyPath = resolve(bodyArgument);
 const contentRoot = join(repositoryRoot, "website", "content", "release-smoke");
 const publicRoot = join(repositoryRoot, "website", "public", "release-smoke");
 const publicRunRoot = join(publicRoot, "runs", runId);
-const workflowUrl = `https://github.com/${repository}/actions/runs/${runId}`;
+const workflowUrl =
+  resultKind === "preview"
+    ? `https://github.com/${repository}/tree/${harnessCommit}`
+    : `https://github.com/${repository}/actions/runs/${runId}`;
 const releaseUrl = `https://github.com/${repository}/releases/tag/v${version}`;
-const branch = `automation-release-smoke-${runId}`;
-const previewOrigin = `https://${branch}.drever-website.pages.dev`;
+const previewAlias = previewBranch
+  .toLowerCase()
+  .replaceAll(/[^a-z0-9-]+/gu, "-")
+  .replaceAll(/^-+|-+$/gu, "");
+if (previewAlias === "") throw new Error(`Invalid preview branch alias: ${previewBranch}`);
+const previewOrigin = `https://${previewAlias}.drever-website.pages.dev`;
+const deckContentSecurityPolicy = [
+  "default-src 'none'",
+  "base-uri 'self'",
+  "connect-src 'none'",
+  "font-src 'self' data:",
+  "form-action 'none'",
+  "frame-src 'none'",
+  "img-src 'self' data: blob:",
+  "media-src 'none'",
+  "object-src 'none'",
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline'",
+  "worker-src 'none'",
+].join("; ");
+const publishedDeck = (deck) => ({
+  audience: `${previewOrigin}${deck.audience}`,
+  document: `${previewOrigin}${deck.document}`,
+  source: `${previewOrigin}${deck.source}`,
+});
+const hardenDeckDocuments = async (directory) => {
+  const entries = await readdir(directory, { withFileTypes: true });
+  await Promise.all(
+    entries.map(async (entry) => {
+      const path = join(directory, entry.name);
+      if (entry.isDirectory()) {
+        await hardenDeckDocuments(path);
+        return;
+      }
+      if (!entry.isFile() || !entry.name.endsWith(".html")) return;
+      const source = await readFile(path, "utf8");
+      if (!source.includes("<head>")) {
+        throw new Error(`Built deck document has no head element: ${path}`);
+      }
+      const security = `<meta http-equiv="Content-Security-Policy" content="${deckContentSecurityPolicy}" />
+    <meta name="robots" content="noindex, nofollow" />`;
+      const hardened = source
+        .replaceAll(/[ \t]+$/gmu, "")
+        .replace("<head>", `<head>\n    ${security}`);
+      await writeFile(path, hardened, "utf8");
+    }),
+  );
+};
 
 const cases = await Promise.all(
   releaseSmokeScenarios.map(async (scenario) => {
@@ -59,7 +123,7 @@ const cases = await Promise.all(
       value.schemaVersion !== RELEASE_SMOKE_SCHEMA_VERSION ||
       value.id !== scenario.id ||
       value.version !== version ||
-      value.sourceCommit !== sourceCommit ||
+      value.sourceCommit !== releaseCommit ||
       value.status !== "passed"
     ) {
       throw new Error(`Built result does not match release smoke case: ${scenario.id}`);
@@ -82,7 +146,14 @@ for (const { value } of cases.slice(1)) {
 await rm(publicRunRoot, { force: true, recursive: true });
 await mkdir(publicRunRoot, { recursive: true });
 for (const { source, value } of cases) {
-  await cp(source, join(publicRunRoot, value.id), { recursive: true });
+  const destination = join(publicRunRoot, value.id);
+  await cp(source, destination, { recursive: true });
+  await hardenDeckDocuments(join(destination, "deck"));
+  await writeFile(
+    join(destination, "case.json"),
+    json({ ...value, deck: publishedDeck(value.deck) }),
+    "utf8",
+  );
 }
 
 const generatedAt = cases
@@ -92,12 +163,16 @@ const generatedAt = cases
 const run = {
   schemaVersion: RELEASE_SMOKE_SCHEMA_VERSION,
   id: runId,
-  kind: "release",
+  kind: resultKind,
   generatedAt,
   release: {
     version,
-    commit: sourceCommit,
+    commit: releaseCommit,
     url: releaseUrl,
+  },
+  harness: {
+    commit: harnessCommit,
+    url: `https://github.com/${repository}/tree/${harnessCommit}`,
   },
   runner: {
     model: firstCase.value.runner.model,
@@ -109,7 +184,7 @@ const run = {
   cases: cases.map(({ value }) => ({
     brief: value.brief,
     checks: value.checks,
-    deck: value.deck,
+    deck: publishedDeck(value.deck),
     durationSeconds: value.durationSeconds,
     id: value.id,
     messages: value.messages,
@@ -118,8 +193,8 @@ const run = {
     title: value.title,
   })),
 };
+await mkdir(join(contentRoot, "runs"), { recursive: true });
 await Promise.all([
-  mkdir(join(contentRoot, "runs"), { recursive: true }),
   writeFile(join(contentRoot, "runs", `${runId}.json`), json(run), "utf8"),
   writeFile(join(publicRunRoot, "run.json"), json(run), "utf8"),
 ]);
@@ -164,21 +239,47 @@ await Promise.all(
 );
 
 const deckLinks = cases
-  .map(({ value }) => `- [${value.title} interactive deck](${previewOrigin}${value.deck.audience})`)
+  .map(
+    ({ value }) =>
+      `- [${value.title} interactive deck](${previewOrigin}${value.deck.audience}index.html)`,
+  )
   .join("\n");
+const heading =
+  resultKind === "preview"
+    ? `AI creation preview · Drever ${version}`
+    : `AI release smoke · Drever ${version}`;
+const summary =
+  resultKind === "preview"
+    ? `This owner-authorized pull request proof records two real, multi-turn
+Codex creation journeys against the exact published package. The generation
+harness came from commit \`${harnessCommit}\`; Drever ${version} came from
+release commit \`${releaseCommit}\`.`
+    : `This automated PR records two real, multi-turn Codex creation journeys against
+the exact published package.`;
+const provenanceLink =
+  resultKind === "preview"
+    ? `- [Immutable harness source](${workflowUrl})`
+    : `- [Workflow run](${workflowUrl})`;
+const validationSummary =
+  resultKind === "preview"
+    ? `Generated source crossed an allowlist boundary before a separate local
+validation process—without an OpenAI API key—installed, checked, built, and
+opened every live surface in Chromium.`
+    : `Generated source crossed an allowlist boundary before a separate
+job—without the OpenAI secret—installed, checked, built, and opened every live
+surface in Chromium.`;
 await mkdir(dirname(bodyPath), { recursive: true });
 await writeFile(
   bodyPath,
-  `## AI release smoke · Drever ${version}
+  `## ${heading}
 
-This automated PR records two real, multi-turn Codex creation journeys against
-the exact published package. Generated source crossed an allowlist boundary
-before a separate job—without the OpenAI secret—installed, checked, built, and
-opened every live surface in Chromium.
+${summary}
+
+${validationSummary}
 
 ${deckLinks}
 - [Conversation and verification report](${previewOrigin}/release-smoke/)
-- [Workflow run](${workflowUrl})
+${provenanceLink}
 
 No screenshots or PDFs are stored. Each linked deck is the production static
 build itself. Raw model reasoning and command streams are not published; the

@@ -4,24 +4,27 @@ import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { promisify } from "node:util";
 import { assertReleaseVersion } from "../release.mjs";
-import { json } from "./contract.mjs";
+import { copyReleaseSmokeHandoff, json } from "./contract.mjs";
 import { getReleaseSmokeScenario } from "./scenarios.mjs";
 
 const execute = promisify(execFile);
-const [version, scenarioId, projectArgument, artifactArgument] = process.argv.slice(2);
+const [version, scenarioId, scaffoldArgument, projectArgument, artifactArgument] =
+  process.argv.slice(2);
 if (
   version === undefined ||
   scenarioId === undefined ||
+  scaffoldArgument === undefined ||
   projectArgument === undefined ||
   artifactArgument === undefined
 ) {
   throw new Error(
-    "Usage: node scripts/release-smoke/prepare-project.mjs <version> <scenario> <project> <artifact>",
+    "Usage: node scripts/release-smoke/prepare-project.mjs <version> <scenario> <scaffold> <project> <artifact>",
   );
 }
 assertReleaseVersion(version);
 getReleaseSmokeScenario(scenarioId);
 
+const scaffoldRoot = resolve(scaffoldArgument);
 const projectRoot = resolve(projectArgument);
 const artifactRoot = resolve(artifactArgument);
 const promptUrl = "https://drever.dev/prompt.md";
@@ -32,17 +35,18 @@ const parseJsonOutput = (output) => {
 };
 
 await Promise.all([
+  rm(scaffoldRoot, { force: true, recursive: true }),
   rm(projectRoot, { force: true, recursive: true }),
   rm(artifactRoot, { force: true, recursive: true }),
 ]);
-await mkdir(dirname(projectRoot), { recursive: true });
+await mkdir(dirname(scaffoldRoot), { recursive: true });
 
 const scaffold = await execute(
   "npm",
   [
     "create",
     `drever@${version}`,
-    projectRoot,
+    scaffoldRoot,
     "--",
     "--agent",
     "codex",
@@ -51,6 +55,7 @@ const scaffold = await execute(
     "--json",
   ],
   {
+    cwd: dirname(scaffoldRoot),
     env: {
       ...process.env,
       CI: "true",
@@ -64,18 +69,18 @@ const scaffold = await execute(
 );
 const scaffoldReceipt = parseJsonOutput(scaffold.stdout);
 const [projectPackage, installedPackage] = await Promise.all([
-  readFile(join(projectRoot, "package.json"), "utf8").then(JSON.parse),
-  readFile(join(projectRoot, "node_modules", "drever", "package.json"), "utf8").then(JSON.parse),
+  readFile(join(scaffoldRoot, "package.json"), "utf8").then(JSON.parse),
+  readFile(join(scaffoldRoot, "node_modules", "drever", "package.json"), "utf8").then(JSON.parse),
 ]);
 if (
   scaffoldReceipt.installed !== true ||
-  scaffoldReceipt.root !== projectRoot ||
+  scaffoldReceipt.root !== scaffoldRoot ||
   projectPackage.devDependencies?.drever !== version ||
   installedPackage.version !== version
 ) {
   throw new Error(`The release smoke project did not install Drever ${version} exactly.`);
 }
-await rm(join(projectRoot, "slides.mdx"), { force: true });
+await rm(join(scaffoldRoot, "slides.mdx"), { force: true });
 
 const response = await fetch(promptUrl, { signal: AbortSignal.timeout(30_000) });
 if (!response.ok) {
@@ -86,6 +91,7 @@ if (!prompt.startsWith("# Create a Drever presentation")) {
   throw new Error("The fetched Drever prompt does not have the expected heading.");
 }
 
+const handoff = await copyReleaseSmokeHandoff(scaffoldRoot, projectRoot);
 const privateRoot = join(projectRoot, ".release-smoke");
 const agentInstructionsPath = join(projectRoot, "AGENTS.md");
 const agentInstructions = await readFile(agentInstructionsPath, "utf8");
@@ -129,6 +135,7 @@ This is a trusted, generation-only CI stage.
     "utf8",
   ),
   writeFile(join(artifactRoot, "receipts", "scaffold.json"), json(scaffoldReceipt), "utf8"),
+  writeFile(join(artifactRoot, "receipts", "handoff.json"), json(handoff), "utf8"),
   writeFile(
     join(artifactRoot, "prompt.json"),
     json({
