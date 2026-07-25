@@ -50,7 +50,7 @@ describe("@drever/designs/basic", () => {
         eyebrow="Chapter one"
         footer="Drever"
         supporting="A short supporting idea."
-        title="Presentations can be software."
+        title="Choose what happens next."
         tone="accent"
       />,
     );

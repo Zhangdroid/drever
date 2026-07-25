@@ -354,9 +354,9 @@ ordinary Markdown and registers the semantic `Cover` and `TwoColumn` layouts:
 
 ```mdx
 <Cover
-  eyebrow="Drever / 2026"
-  title="Presentations can be software."
-  supporting="Interactive, testable, and ready to ship."
+  eyebrow="Quarterly planning / 2026"
+  title="Choose what happens next."
+  supporting="The evidence, tradeoffs, and one decision the room can act on."
   tone="accent"
 />
 

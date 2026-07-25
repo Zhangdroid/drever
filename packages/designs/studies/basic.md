@@ -57,10 +57,10 @@ breaks. Keep `title` under ten words and `supporting` to one short sentence.
 
 ```mdx
 <Cover
-  eyebrow="Drever / 2026"
-  title="Presentations can be software."
-  supporting="Interactive, testable, and ready to ship."
-  footer="Zhuo · Engineering"
+  eyebrow="Quarterly planning / 2026"
+  title="Choose what happens next."
+  supporting="The evidence, tradeoffs, and one decision the room can act on."
+  footer="Strategy workshop"
   tone="accent"
 />
 ```

@@ -258,6 +258,18 @@ const packedManifest = async (tarball) => {
   return JSON.parse(stdout);
 };
 
+const verifyPackedLicense = async ({ license, name, tarball }) => {
+  let packedLicense;
+  try {
+    ({ stdout: packedLicense } = await execute("tar", ["-xOf", tarball, "package/LICENSE"]));
+  } catch (error) {
+    throw new Error(`${name} tarball is missing the MIT license.`, { cause: error });
+  }
+  if (packedLicense !== license) {
+    throw new Error(`${name} tarball does not contain the canonical MIT license.`);
+  }
+};
+
 const resolvePackedPath = (directory, stdout) => {
   const value = stdout
     .trim()
@@ -313,6 +325,7 @@ export async function packRelease({ output, root = defaultRoot }) {
   if (versions.size !== 1) throw new Error("Public packages must use one lockstep version.");
   const [version] = versions;
   assertReleaseVersion(version);
+  const license = await readFile(join(root, "LICENSE"), "utf8");
   const packageNames = new Set(packages.map(({ manifest }) => manifest.name));
   const ordered = orderPublicPackages(packages);
   const packed = [];
@@ -349,6 +362,7 @@ export async function packRelease({ output, root = defaultRoot }) {
         packageNames,
         version,
       });
+      await verifyPackedLicense({ license, name: manifest.name, tarball });
       const bytes = await readFile(tarball);
       packed.push({
         name: manifest.name,

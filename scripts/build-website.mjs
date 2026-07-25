@@ -10,6 +10,7 @@ import {
   siteOrigin,
   siteRoutes,
 } from "../website/site-manifest.ts";
+import { checkShowcases } from "./check-showcases.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const websiteOutput = join(root, "website", "dist", "client");
@@ -109,6 +110,7 @@ const buildDemos = async () => {
 
 const build = async () => {
   await run("vp", ["run", "build:packages"]);
+  await checkShowcases();
   const presentationSources = new Set(
     publicPresentationMounts.map((presentation) => presentation.source),
   );

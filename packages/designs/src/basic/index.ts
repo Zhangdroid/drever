@@ -94,7 +94,7 @@ export const theme = defineTheme({
         supportingLines: { recommendedMaximum: 3 },
       },
       example:
-        '<Cover eyebrow="Drever" title="Presentations can be software." supporting="Interactive, testable, and ready to ship." tone="accent" />',
+        '<Cover eyebrow="Quarterly planning" title="Choose what happens next." supporting="The evidence, tradeoffs, and one decision the room can act on." tone="accent" />',
     },
     {
       name: "TwoColumn",
