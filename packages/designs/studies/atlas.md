@@ -87,7 +87,9 @@ route, while block flow carries strata, traces, or ordered observations.
 Focus identifies the current waypoint without erasing the path already
 travelled. Replace keeps one map or artifact inside a stable survey frame.
 Continuity belongs only to the same place, route, specimen, or visual crop
-across adjacent slides.
+across adjacent slides. Keep it to a short geographic sequence; cut to a new
+composition when the argument moves from map reading to intervention order or
+authorization.
 
 Keep the Stage fixed. Route color, coordinates, and field labels are semantic
 cues, not decorative objects to animate.

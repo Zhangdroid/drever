@@ -90,8 +90,8 @@ export const theme = defineTheme({
       "Cinema motion is editorial cutting, not a default Ken Burns effect.",
       "Never scale, pan, or re-crop still media merely to make a slide feel cinematic.",
       "Keep frame bounds, object-fit, aspect ratio, and crop invariant while captions or supporting text change.",
-      "Prefer short dissolves and directional edge reveals; stagger only beats that form a deliberate sequence.",
-      "Use continuity only when the same media object carries forward with identical geometry and crop.",
+      "Alternate deliberate hard cuts with short dissolves; use a directional edge reveal only when the edit has spatial meaning, and stagger only beats that form a deliberate sequence.",
+      "Use continuity only when the same media object carries forward with identical frame geometry, border, shadow, object-fit, and crop.",
     ],
   },
   layouts: [

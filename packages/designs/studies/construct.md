@@ -93,7 +93,9 @@ Focus gives the current concept block one deliberate 12px shift. Replace keeps
 a changing part inside a stable footprint. Compare aligns peer blocks.
 Stagger assembles two to four pieces in authored order without bounce.
 Continuity belongs only to the same labelled concept block across adjacent
-slides.
+slides. Page-level movement uses a clipped assembly reveal only when the
+composition is being built; use direct local handoffs when the completed
+criterion needs a new canvas.
 
 Use block flow for a stack and inline flow for a sequence or combination. Keep
 the Stage stable and do not animate background blocks as confetti.

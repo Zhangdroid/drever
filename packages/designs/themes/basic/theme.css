@@ -7,7 +7,7 @@
   --drever-canvas-color-scheme: light;
   --drever-motion-duration: 380ms;
   --drever-motion-easing: cubic-bezier(0.22, 1, 0.36, 1);
-  --drever-motion-slide-offset: 2.4%;
+  --drever-motion-slide-offset: 0%;
   --drever-recipe-enter-duration: 280ms;
   --drever-recipe-stagger-duration: 260ms;
   --drever-recipe-stagger-gap: 40ms;

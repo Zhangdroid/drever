@@ -51,8 +51,8 @@ export const theme = defineTheme({
       "Use focus to keep prior evidence visible while making the current Step unmistakable.",
       "Use replace for one changing state, compare for cumulative evidence, and stagger for at most four tightly related items.",
       "Set flow to block for a vertical reading sequence and inline for a horizontal process or comparison; leave it unset when neither axis explains the content.",
-      "Basic motion uses clean fades and short spatial travel, keeping the content more prominent than the choreography.",
-      "Reuse a continuity name only when the same visual object persists across adjacent slides.",
+      "Basic uses mostly direct cuts and quiet fades; short spatial travel is exceptional and content remains more prominent than choreography.",
+      "Reuse a continuity name only when the same visual object persists across adjacent slides, then end the sequence as soon as it stops carrying the argument.",
     ],
   },
   layouts: [

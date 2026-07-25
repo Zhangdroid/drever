@@ -101,7 +101,7 @@ export const theme = defineTheme({
       "Use replace when one part changes inside a stable footprint and compare when two parts must remain visible together.",
       "Use stagger for two to four pieces that assemble into one explanatory beat, never as confetti or decoration.",
       "Follow the authored construction order: block flow builds a stack and inline flow builds a sequence or combination.",
-      "Use continuity only when the same labelled concept block genuinely persists across adjacent slides.",
+      "Prefer local snap, clip, and Step assembly over whole-slide movement; use continuity only when the same labelled concept block genuinely persists across adjacent slides.",
     ],
   },
   layouts: [

@@ -1,97 +1,168 @@
 import { RequestTrace } from "../components/studio-request-trace.tsx";
+import { ShowcaseExit } from "../components/showcase-exit.tsx";
 import "../../showcase-return.css";
 import "../components/studio-study.css";
 
-<Workbench
-  className="theme-showcase-studio-study theme-showcase-studio-study--overview"
-  label="Illustrative request trace / 01"
-  main={
-    <MotionGroup intent="continuity" name="studio-request-trace">
-      <RequestTrace phase="overview" />
-    </MotionGroup>
-  }
-  rail={
-    <div className="theme-showcase-studio-study__rail">
-      <span className="theme-showcase-studio-study__kicker">Question</span>
-      <h2>
-        <span>One request.</span>
-        <span>One owner.</span>
-      </h2>
-      <p>Follow one request from the client to the rendered response.</p>
-    </div>
-  }
-/>
+<section
+  aria-label="An illustrative latency trace enters a technical workbench"
+  className="theme-showcase-studio-study theme-showcase-studio-study--opening"
+>
+  <header className="theme-showcase-studio-study__opening-copy">
+    <span className="theme-showcase-studio-study__kicker">Illustrative trace 7F3A / 01</span>
+    <h1>Latency is a path, not a number.</h1>
+    <p>Capture one request end to end before optimizing any single function.</p>
+  </header>
+  <RequestTrace phase="overview" />
+  <footer className="theme-showcase-studio-study__status">
+    <span>Environment · local preview</span>
+    <span>Sample · 1 request</span>
+    <strong>774 ms total</strong>
+  </footer>
+</section>
 
 <Note>
-  Start with the complete topology. Do not ask the audience to follow several dashboards; one trace
-  contains the question and remains the visual thread through the diagnosis.
+  This is an illustrative request trace, not a production measurement. Begin with the whole path:
+  four boundaries and one total. The opening is a workbench overview rather than another split
+  title-and-card composition.
 </Note>
 
 ---
 
-<Workbench
-  className="theme-showcase-studio-study theme-showcase-studio-study--diagnosis"
-  label="Illustrative request trace / 02"
-  main={
-    <MotionGroup intent="continuity" name="studio-request-trace">
+<SlideTransition from="previous" mode="local" />
+
+<section
+  className="theme-showcase-studio-study theme-showcase-studio-study--inspect"
+  aria-label="Illustrative diagnosis of trace 7F3A"
+>
+  <p className="theme-showcase-studio-study__workbench-label">
+    Illustrative diagnosis · trace 7F3A / 02
+  </p>
+  <div className="theme-showcase-studio-study__inspect-grid">
+    <div className="theme-showcase-studio-study__inspect-main">
       <RequestTrace phase="diagnosis" />
-    </MotionGroup>
-  }
-  rail={
-    <div className="theme-showcase-studio-study__rail">
-      <span className="theme-showcase-studio-study__kicker">Finding</span>
-      <h3>Transform: 640 ms.</h3>
-      <p>Theme discovery repeats inside the request path instead of compiling once.</p>
-      <code>await resolveTheme()</code>
     </div>
-  }
-/>
+    <aside className="theme-showcase-studio-study__inspect-rail">
+      <div className="theme-showcase-studio-study__rail">
+        <span className="theme-showcase-studio-study__kicker">Finding</span>
+        <p className="theme-showcase-studio-study__metric">
+          <strong>640 ms</strong>
+          <span>Transform owns 83% of the captured path.</span>
+        </p>
+        <code>await resolveTheme()</code>
+        <MotionGroup intent="focus" flow="block">
+          <Step at={1} className="theme-showcase-studio-study__diagnosis">
+            Theme discovery repeats inside every request.
+          </Step>
+        </MotionGroup>
+      </div>
+    </aside>
+  </div>
+</section>
 
 <Note>
-  The signal color moves to one owning boundary. Keep the other nodes readable but quiet, and use
-  the code label only to name the work that must leave the request path.
+  Advance once after the audience has found the long transform bar. The Step names the cause only
+  after the visual evidence is understood. This slide bypasses the document transition; the live
+  diagnostic state owns the change.
 </Note>
 
 ---
 
-<Workbench
-  className="theme-showcase-studio-study theme-showcase-studio-study--verified"
-  label="Illustrative verification / 03"
-  main={
-    <MotionGroup intent="continuity" name="studio-request-trace">
-      <RequestTrace phase="verified" />
-    </MotionGroup>
-  }
-  rail={
-    <div className="theme-showcase-studio-study__rail">
-      <span className="theme-showcase-studio-study__kicker">Decision</span>
-      <h3>
-        <span>Compile once.</span>
-        <span>Serve the plan.</span>
-      </h3>
-      <p>The diagnosed trace remains visible while a same-route verification records the result.</p>
-      <div className="theme-showcase-studio-study__result">
-        <strong>774 → 176 ms</strong>
-        <span>Illustrative verification · same four boundaries</span>
-      </div>
-      <nav aria-label="Continue with Drever" className="drever-example-exit">
-        <a
-          className="drever-example-exit__primary"
-          data-drever-showcase-return=""
-          href="https://drever.dev/docs/getting-started/"
-        >
-          {"Start a deck"}
-        </a>
-        <a className="drever-example-exit__secondary" href="https://drever.dev/showcase/">
-          {"More design studies"}
-        </a>
-      </nav>
+<SlideTransition from="previous" mode="local" />
+
+<section
+  aria-label="Move theme compilation outside the request path"
+  className="theme-showcase-studio-study theme-showcase-studio-study--patch"
+>
+  <header>
+    <span className="theme-showcase-studio-study__kicker">Patch plan / 03</span>
+    <h2>Move the work before the request begins.</h2>
+    <p>The request should read a compiled plan, not rediscover the theme.</p>
+  </header>
+
+  <div className="theme-showcase-studio-study__patch-surface">
+    <div className="theme-showcase-studio-study__patch-file">
+      <span>request.ts</span>
+      <span>illustrative change</span>
     </div>
-  }
-/>
+    <pre aria-label="Illustrative request-path change"><code><span className="theme-showcase-studio-study__removed">- const theme = await resolveTheme(config)</span>
+<span>  return render(request, plan)</span></code></pre>
+    <MotionGroup intent="focus" flow="block">
+      <Step at={1} className="theme-showcase-studio-study__compile-step">
+        <span>startup.ts</span>
+        <code>const plan = await compileDeck(config)</code>
+        <strong>Compile once.</strong>
+      </Step>
+    </MotionGroup>
+  </div>
+</section>
 
 <Note>
-  Close with one implementation decision and one same-route measurement. The trace stays in the
-  workbench as the baseline artifact; the verification result is separate fixed-width text, so
-  changing numerals never become a stretched continuity snapshot.
+  This edge is an intentional direct cut. Advance once to add the startup responsibility. The motion
+  explains ownership moving out of the hot path; it does not animate the entire slide.
+</Note>
+
+---
+
+<section
+  aria-label="Verify the same request after the change"
+  className="theme-showcase-studio-study theme-showcase-studio-study--verify"
+>
+  <header>
+    <span className="theme-showcase-studio-study__kicker">Same-route verification / 04</span>
+    <h2>Re-run the path. Keep the evidence comparable.</h2>
+  </header>
+
+<div
+  className="theme-showcase-studio-study__comparison"
+  aria-label="Illustrative latency comparison"
+>
+  <p>
+    <span>Before</span>
+    <strong>774 ms</strong>
+    <i style={{ "--studio-bar": "100%" }} />
+  </p>
+  <p>
+    <span>After</span>
+    <strong>176 ms</strong>
+    <i style={{ "--studio-bar": "23%" }} />
+  </p>
+  <small>Illustrative local verification · same four boundaries</small>
+</div>
+
+  <RequestTrace phase="verified" />
+</section>
+
+<Note>
+  Return to the same route and conditions. The comparison enters as a new full-width measurement,
+  while the compact trace confirms which topology was held constant. Values remain explicitly
+  illustrative.
+</Note>
+
+---
+
+<SlideTransition from="previous" mode="local" />
+
+<section
+  aria-label="Close the latency diagnosis with a reusable rule"
+  className="theme-showcase-studio-study theme-showcase-studio-study--closing"
+>
+  <span className="theme-showcase-studio-study__kicker">Workbench rule / 05</span>
+  <h2>
+    <span>Trace the path.</span>
+    <span>Move the owner.</span>
+    <span>Verify the route.</span>
+  </h2>
+  <p>The route now answers in 176 ms. Keep the trace for the next regression.</p>
+  <div className="theme-showcase-studio-study__closing-command">
+    <span>trace 7F3A</span>
+    <strong>774 → 176 ms</strong>
+    <span>illustrative verification</span>
+  </div>
+  <ShowcaseExit />
+</section>
+
+<Note>
+  Close on the diagnostic method rather than the metric alone. This page cuts in without a shared
+  element or ornamental transition; the technical work is complete, so the story becomes a concise
+  reusable rule.
 </Note>

@@ -7,7 +7,9 @@
   --drever-canvas-color-scheme: light;
   --drever-motion-duration: 400ms;
   --drever-motion-easing: cubic-bezier(0.2, 0.75, 0.25, 1);
-  --drever-motion-slide-offset: 2%;
+  --drever-motion-slide-enter-animation: none;
+  --drever-motion-slide-exit-animation: none;
+  --drever-motion-slide-offset: 0%;
   --drever-recipe-enter-duration: 260ms;
   --drever-recipe-stagger-duration: 240ms;
   --drever-recipe-stagger-gap: 36ms;
@@ -460,29 +462,29 @@
 
 @keyframes drever-ledger-step-block-enter {
   from {
+    clip-path: inset(0 0 100% 0);
     opacity: 0;
-    translate: 0 8px;
   }
 }
 
 @keyframes drever-ledger-step-inline-enter {
   from {
+    clip-path: inset(0 100% 0 0);
     opacity: 0;
-    translate: 10px 0;
   }
 }
 
 @keyframes drever-ledger-stagger-block-enter {
   from {
+    clip-path: inset(0 0 100% 0);
     opacity: 0;
-    translate: var(--drever-recipe-resolved-stagger-from-translate);
   }
 }
 
 @keyframes drever-ledger-stagger-inline-enter {
   from {
+    clip-path: inset(0 100% 0 0);
     opacity: 0;
-    translate: var(--drever-recipe-resolved-stagger-from-translate);
   }
 }
 

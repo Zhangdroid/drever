@@ -1,3 +1,5 @@
+import { creationStory } from "./creation-story-data";
+
 export function RoomMomentDemo() {
   return (
     <figure
@@ -28,22 +30,22 @@ export function RoomMomentDemo() {
           <div className="home-room-demo__moment">
             <div className="home-room-demo__prompt">
               <small>Ask</small>
-              <strong>What would help you decide?</strong>
+              <strong>{creationStory.question}</strong>
               <div>
-                <span>Migration</span>
+                <span>Pilot scope</span>
                 <span className="home-room-demo__choice">
                   <i aria-hidden="true" />
-                  Show me the proof
+                  {creationStory.choice}
                 </span>
-                <span>Cost</span>
+                <span>Support load</span>
               </div>
             </div>
 
             <div className="home-room-demo__proof">
               <small>Evidence requested</small>
               <strong>
-                <b>96%</b>
-                <span>completed setup unaided.</span>
+                <b>{creationStory.evidence}</b>
+                <span>{creationStory.evidenceDetail}</span>
               </strong>
               <div aria-hidden="true" className="home-room-demo__bars">
                 <i />
@@ -57,12 +59,12 @@ export function RoomMomentDemo() {
 
           <aside className="home-room-demo__note">
             <span>Speaker cue</span>
-            <strong>Let the room choose.</strong>
+            <strong>Let the room choose the proof.</strong>
           </aside>
 
           <div className="home-room-demo__address">
             <span>Exact moment</span>
-            <strong>drever.dev/5/2</strong>
+            <strong>yourdeck.com{creationStory.route}</strong>
             <i aria-hidden="true" />
           </div>
         </div>
@@ -96,14 +98,16 @@ export function ConnectedSourceDemo() {
         </header>
         <code>
           <span>
-            <b>#</b> Make the decision clear.
+            <b>#</b> {creationStory.title}
           </span>
-          <span>What does the room need next?</span>
+          <span>{creationStory.question}</span>
           <span className="home-connected-demo__source-line">
-            <b>&lt;Step&gt;</b>Reveal the evidence.<b>&lt;/Step&gt;</b>
+            <b>&lt;Step&gt;</b>
+            {creationStory.evidence} {creationStory.evidenceDetail}
+            <b>&lt;/Step&gt;</b>
           </span>
           <span>
-            <b>&lt;Note&gt;</b>Pause before the result.<b>&lt;/Note&gt;</b>
+            <b>&lt;Note&gt;</b>Pause before the launch recommendation.<b>&lt;/Note&gt;</b>
           </span>
         </code>
       </div>
@@ -119,8 +123,8 @@ export function ConnectedSourceDemo() {
             <small>Live</small>
           </header>
           <div>
-            <strong>96%</strong>
-            <span>completed setup unaided.</span>
+            <strong>{creationStory.evidence}</strong>
+            <span>{creationStory.evidenceDetail}</span>
             <i aria-hidden="true" />
           </div>
         </div>
@@ -132,19 +136,21 @@ export function ConnectedSourceDemo() {
           </header>
           <div>
             <i aria-hidden="true" />
-            <strong>Reveal the evidence.</strong>
-            <small>Pause before the result.</small>
+            <strong>Reveal unaided completion.</strong>
+            <small>Pause before the recommendation.</small>
           </div>
         </div>
 
         <div className="home-connected-demo__surface" data-surface="document">
           <header>
             <span>Document</span>
-            <small>/5/2</small>
+            <small>{creationStory.route}</small>
           </header>
           <div>
-            <strong>Make the decision clear.</strong>
-            <span>96% completed setup unaided.</span>
+            <strong>{creationStory.title}</strong>
+            <span>
+              {creationStory.evidence} {creationStory.evidenceDetail}
+            </span>
             <i aria-hidden="true" />
             <i aria-hidden="true" />
           </div>

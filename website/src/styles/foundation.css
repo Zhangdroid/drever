@@ -1089,7 +1089,7 @@ main[tabindex="-1"]:focus {
     transition-duration: 1ms !important;
   }
 
-  .home-hero__copy h1 span::after {
+  .home-hero__highlight::after {
     animation: none !important;
     transform: scaleX(1);
   }
