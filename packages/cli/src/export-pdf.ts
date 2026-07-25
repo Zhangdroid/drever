@@ -513,12 +513,12 @@ export const exportPdf = async ({
               const context = await browser.newContext({
                 deviceScaleFactor: 1,
                 locale: "en-US",
-                reducedMotion: "reduce",
+                reducedMotion: "no-preference",
                 timezoneId: "UTC",
                 viewport: { height: canvas.height, width: canvas.width },
               });
               const page = await context.newPage();
-              await page.emulateMedia({ media: "screen", reducedMotion: "reduce" });
+              await page.emulateMedia({ media: "screen", reducedMotion: "no-preference" });
               await waitForExport(page, previewUrl(server));
               await applyPdfSlideSelection(page, slides);
               return runWithCleanup(

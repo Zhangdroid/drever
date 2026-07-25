@@ -5,6 +5,11 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+### Fixed
+
+- Materialized finite CSS and Web Animations at their final export state and froze infinite
+  decoration at a deterministic frame so animated text remains visible in generated PDFs.
+
 ## [0.2.3] - 2026-07-25
 
 ### Added

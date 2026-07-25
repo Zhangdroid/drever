@@ -74,6 +74,7 @@ const ExportPageDocument = ({
           position={page}
           reducedMotion
           renderMode="export"
+          suppressReducedMotionAttribute
           {...(stage === undefined ? {} : { stage })}
         >
           <div className="drever-deck" data-drever-deck="" data-drever-render-mode="export">

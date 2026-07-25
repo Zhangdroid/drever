@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vite-plus/test";
-import { waitForExportReadiness } from "./export-readiness.ts";
+import { settleExportAnimation, waitForExportReadiness } from "./export-readiness.ts";
 
 const deferred = <Value>() => {
   let resolve: ((value: Value) => void) | undefined;
@@ -30,7 +30,45 @@ const fontSet = (...fonts: readonly FontFace[]): FontFaceSet =>
 const font = (family: string, status: FontFaceLoadStatus): FontFace =>
   ({ family, status, style: "normal", weight: "400" }) as FontFace;
 
+const animation = ({
+  delay = 0,
+  duration = 800,
+  endTime = delay + duration,
+}: Readonly<{
+  delay?: number;
+  duration?: number;
+  endTime?: number;
+}>) => {
+  const pause = vi.fn();
+  const effect = {
+    getComputedTiming: vi.fn(() => ({ endTime })),
+    getTiming: vi.fn(() => ({ delay, duration })),
+    updateTiming: vi.fn(),
+  };
+  const value = {
+    currentTime: null as CSSNumberish | null,
+    effect,
+    pause,
+  };
+  return { effect, pause, value: value as unknown as Animation };
+};
+
 describe("PDF export readiness", () => {
+  it("materializes finite animation endpoints and pauses infinite loops deterministically", () => {
+    const finite = animation({ endTime: 1_200 });
+    const infinite = animation({ delay: 200, duration: 800, endTime: Number.POSITIVE_INFINITY });
+
+    settleExportAnimation(finite.value);
+    settleExportAnimation(infinite.value);
+
+    expect(finite.pause).toHaveBeenCalledOnce();
+    expect(finite.effect.updateTiming).toHaveBeenCalledWith({ fill: "both" });
+    expect(finite.value.currentTime).toBe(1_200);
+    expect(infinite.pause).toHaveBeenCalledOnce();
+    expect(infinite.effect.updateTiming).toHaveBeenCalledWith({ fill: "both" });
+    expect(infinite.value.currentTime).toBeCloseTo(999.999);
+  });
+
   it("waits for fonts, image decoding, and two consecutive animation frames", async () => {
     const fonts = deferred<FontFaceSet>();
     const image = new ImageDouble();
@@ -47,6 +85,7 @@ describe("PDF export readiness", () => {
     } as unknown as Document;
     Object.defineProperty(document.fonts, "ready", { value: fonts.promise });
     const container = {
+      getAnimations: () => [],
       querySelectorAll: (selector: string) => (selector === "img" ? [image] : []),
     } as unknown as Element;
 
@@ -91,6 +130,7 @@ describe("PDF export readiness", () => {
       fonts: fontSet(),
     } as unknown as Document;
     const container = {
+      getAnimations: () => [],
       querySelectorAll: (selector: string) => (selector === "img" ? [image] : []),
     } as unknown as Element;
 
@@ -104,7 +144,7 @@ describe("PDF export readiness", () => {
     const document = {
       fonts: fontSet(font("Presentation Sans", "error")),
     } as unknown as Document;
-    const container = { querySelectorAll: () => [] } as unknown as Element;
+    const container = { getAnimations: () => [], querySelectorAll: () => [] } as unknown as Element;
 
     await expect(
       waitForExportReadiness(container, document, new AbortController().signal),
@@ -128,6 +168,7 @@ describe("PDF export readiness", () => {
       fonts: fontSet(),
     } as unknown as Document;
     const container = {
+      getAnimations: () => [],
       querySelectorAll: (selector: string) => (selector === "[id]" ? duplicate : []),
     } as unknown as Element;
 

@@ -1,6 +1,6 @@
 import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdtemp, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, readdir, realpath, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
@@ -140,6 +140,114 @@ test("a failing export hook reports plugin context and never writes a partial PD
     expect(failure.stderr).toContain("capability=exportSetup");
     expect(failure.stderr).toContain("reject-export.js");
     await expect(stat(output)).rejects.toMatchObject({ code: "ENOENT" });
+  } finally {
+    await rm(root, { force: true, recursive: true });
+  }
+});
+
+test("the export command materializes animated text before PDF capture", async () => {
+  const root = await mkdtemp(join(tmpdir(), "drever-export-animation-e2e-"));
+  const output = join(root, "animated.pdf");
+  try {
+    await Promise.all([
+      writeFile(
+        join(root, "slides.mdx"),
+        `import "./reveal.css";
+
+# Animated export
+
+<p className="export-reveal">The PDF keeps this animated sentence.</p>
+<span className="export-loop" aria-hidden="true" />
+`,
+      ),
+      writeFile(
+        join(root, "reveal.css"),
+        `.export-reveal {
+  opacity: 0;
+  visibility: hidden;
+  animation: export-reveal 8s both;
+}
+
+.export-loop {
+  width: 1rem;
+  height: 1rem;
+  animation: export-loop 1s infinite alternate;
+}
+
+@keyframes export-reveal {
+  to {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+@keyframes export-loop {
+  to {
+    transform: translateX(2rem);
+  }
+}
+`,
+      ),
+      writeFile(
+        join(root, "drever.config.ts"),
+        `export default {
+  plugins: [{
+    kind: "plugin",
+    apiVersion: 1,
+    id: "e2e-export-animation-verifier",
+    baseURL: import.meta.url,
+    manifest: {
+      title: "Export animation verifier",
+      summary: "Checks the exact DOM state captured by PDF export.",
+    },
+    runtime: { exportSetup: [{ specifier: "./verify-export.js" }] },
+  }],
+};
+`,
+      ),
+      writeFile(
+        join(root, "verify-export.js"),
+        `export default ({ runtime: { container } }) => {
+  let state;
+  let frame;
+  const inspect = () => {
+    const sentence = container.querySelector(".export-reveal");
+    const loop = container.querySelector(".export-loop");
+    const style = getComputedStyle(sentence);
+    state = {
+      loopPaused: loop.getAnimations().every((animation) => animation.playState === "paused"),
+      opacity: style.opacity,
+      visibility: style.visibility,
+      width: sentence.getBoundingClientRect().width,
+    };
+    frame = requestAnimationFrame(inspect);
+  };
+  inspect();
+  return () => {
+    cancelAnimationFrame(frame);
+    if (state.opacity !== "1" || state.visibility !== "visible") {
+      throw new Error("Animated export text did not reach its visible endpoint.");
+    }
+    if (state.width === 0) {
+      throw new Error("Animated export text has no rendered footprint.");
+    }
+    if (!state.loopPaused) {
+      throw new Error("Infinite export animation was not frozen.");
+    }
+  };
+};
+`,
+      ),
+    ]);
+
+    const { stdout } = await execute(process.execPath, [cli, "export", "pdf", "--output", output], {
+      cwd: root,
+      timeout: 30_000,
+    });
+    expect(stdout).toContain(`Exported ${await realpath(join(root, "slides.mdx"))}`);
+    const contents = await readFile(output);
+    expect(contents.subarray(0, 5).toString()).toBe("%PDF-");
+    expect(pdfPageCount(contents)).toBe(1);
   } finally {
     await rm(root, { force: true, recursive: true });
   }

@@ -62,6 +62,29 @@ describe("PresentationStage", () => {
     expect(markup).toContain("2 / 2");
   });
 
+  it("keeps reduced-motion context without suppressing export animations before settlement", () => {
+    const ExportBackground = (): ReactElement => {
+      const { reducedMotion } = useStage();
+      return <span data-context-reduced={reducedMotion ? "" : undefined}>Export background</span>;
+    };
+    const markup = renderToStaticMarkup(
+      <PresentationStage
+        canvas={{ width: 1280, height: 720 }}
+        manifest={manifest}
+        position={{ slideId: "intro", slideIndex: 0, step: 0 }}
+        reducedMotion
+        renderMode="export"
+        stage={{ background: ExportBackground }}
+        suppressReducedMotionAttribute
+      >
+        <main>Export content</main>
+      </PresentationStage>,
+    );
+
+    expect(markup).toContain('data-context-reduced=""');
+    expect(markup).not.toContain("data-drever-reduced-motion");
+  });
+
   it("fails at the component boundary when useStage has no stage provider", () => {
     let failure: unknown;
     try {

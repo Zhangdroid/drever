@@ -404,7 +404,6 @@
 
   [data-drever-reduced-motion] *,
   [data-drever-render-mode="document"] *,
-  [data-drever-render-mode="export"] *,
   [data-drever-render-mode^="speaker"] * {
     animation: none !important;
     transition: none !important;
@@ -2480,7 +2479,7 @@
   .drever-export-document::after,
   .drever-export-document *::before,
   .drever-export-document *::after {
-    animation: none !important;
+    animation-play-state: paused !important;
     transition: none !important;
     view-transition-name: none !important;
     -webkit-print-color-adjust: exact;

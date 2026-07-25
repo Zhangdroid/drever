@@ -44,6 +44,8 @@ export type PresentationStageProps = PropsWithChildren<
   StageLayerProps &
     Readonly<{
       stage?: StageComponents;
+      /** @internal Keeps PDF animations discoverable until export readiness settles them. */
+      suppressReducedMotionAttribute?: boolean;
     }>
 >;
 
@@ -56,6 +58,7 @@ export const PresentationStage = ({
   reducedMotion,
   renderMode,
   stage,
+  suppressReducedMotionAttribute = false,
 }: PresentationStageProps): ReactElement => {
   const value = useMemo<StageLayerProps>(
     () => Object.freeze({ canvas, manifest, position, reducedMotion, renderMode }),
@@ -69,7 +72,9 @@ export const PresentationStage = ({
       <div
         className="drever-stage"
         data-current-step={position.step}
-        data-drever-reduced-motion={reducedMotion ? "" : undefined}
+        data-drever-reduced-motion={
+          reducedMotion && !suppressReducedMotionAttribute ? "" : undefined
+        }
         data-drever-render-mode={renderMode}
         data-drever-stage=""
         data-page-number={position.slideIndex + 1}
