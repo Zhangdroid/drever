@@ -1,6 +1,7 @@
 import { HeadContent, Link, Outlet, Scripts, createRootRoute } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
+import displayFontHref from "../../../packages/brand/fonts/BricolageGrotesque-Latin[opsz,wdth,wght].woff2?url";
 import { BrowserSupportNotice } from "../components/browser-support-notice";
 import { SiteShell } from "../components/site-shell";
 import siteStylesHref from "../site.css?url";
@@ -9,6 +10,13 @@ export const Route = createRootRoute({
   component: RootComponent,
   head: () => ({
     links: [
+      {
+        rel: "preload",
+        href: displayFontHref,
+        as: "font",
+        type: "font/woff2",
+        crossOrigin: "anonymous",
+      },
       { rel: "stylesheet", href: siteStylesHref },
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },
