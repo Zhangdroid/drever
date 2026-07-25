@@ -52,33 +52,28 @@ export function StudyCover({ study }: { study: StudyId }) {
       <div className="study-cover study-cover--scenes" aria-hidden="true">
         <header className="study-cover__meta">
           <span>Room Sense</span>
-          <small>Mic reactive</small>
+          <small>Microphone reactive</small>
         </header>
-        <div className="scene-study__glow" />
-        <div className="scene-study__sensor">
-          <i />
-          <span>Listening locally</span>
-          <strong>Move the light</strong>
+        <div className="scene-study__field">
+          <i className="scene-study__glow scene-study__glow--lime" />
+          <i className="scene-study__glow scene-study__glow--violet" />
+          <div className="scene-study__rings scene-study__rings--near">
+            <i />
+            <i />
+            <i />
+          </div>
+          <div className="scene-study__rings scene-study__rings--far">
+            <i />
+            <i />
+          </div>
         </div>
-        <div className="scene-study__wave">
-          <i />
-          <i />
-          <i />
-          <i />
-          <i />
-          <i />
-          <i />
-          <i />
-          <i />
+        <div className="scene-study__statement">
+          <strong>
+            Let the room
+            <br />
+            move the light.
+          </strong>
         </div>
-        <div className="scene-study__hint">
-          <span>Computer speakers → microphone</span>
-          <strong>Nothing leaves the browser</strong>
-        </div>
-        <footer className="study-cover__foot">
-          <span>Microphone-reactive</span>
-          <small>Scene persists</small>
-        </footer>
       </div>
     );
   }

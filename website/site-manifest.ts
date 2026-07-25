@@ -49,10 +49,9 @@ export const demoMounts = [
     source: "motion-recipes",
   },
   {
-    description:
-      "An incubating source study of local microphone analysis and a persistent ambient Stage.",
+    description: "An incubating study where nearby sound moves a persistent lime-and-violet Stage.",
     id: "scenes",
-    label: "Room scenes",
+    label: "Room Sense",
     slug: "scenes",
     source: "room-scenes",
   },

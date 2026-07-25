@@ -212,148 +212,161 @@
 }
 
 .study-cover--scenes {
+  isolation: isolate;
   background:
-    radial-gradient(circle at 24% 37%, rgb(255 196 100 / 22%), transparent 16%),
-    radial-gradient(circle at 70% 20%, rgb(106 77 198 / 32%), transparent 35%),
-    linear-gradient(150deg, #121220, #181428 54%, #0b1119);
-  color: #f6f0df;
+    radial-gradient(ellipse at 82% 84%, rgb(93 73 177 / 28%), transparent 45%),
+    radial-gradient(ellipse at 12% 84%, rgb(181 229 75 / 12%), transparent 38%),
+    linear-gradient(145deg, #101119, #11121d 52%, #090b12);
+  color: #f5f6ee;
+}
+
+.study-cover--scenes::before,
+.study-cover--scenes::after {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+}
+
+.study-cover--scenes::before {
+  background:
+    linear-gradient(113deg, transparent 16%, rgb(255 255 255 / 2.8%) 50%, transparent 82%),
+    radial-gradient(
+      circle at 42% 38%,
+      transparent 0 20%,
+      rgb(255 255 255 / 2%) 20.2%,
+      transparent 20.5%
+    );
+  opacity: 0.72;
+}
+
+.study-cover--scenes::after {
+  background: radial-gradient(ellipse at 50% 48%, transparent 18%, rgb(2 3 7 / 50%) 112%);
+}
+
+.study-cover--scenes .study-cover__meta {
+  color: rgb(231 235 218 / 76%);
+}
+
+.scene-study__field {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
 }
 
 .scene-study__glow {
   position: absolute;
-  top: 28%;
-  left: 13%;
-  width: 23%;
-  aspect-ratio: 1;
-  border: 1px solid rgb(255 225 169 / 28%);
   border-radius: 50%;
-  box-shadow:
-    0 0 0 1.3rem rgb(255 196 100 / 3%),
-    0 0 3rem rgb(255 196 100 / 18%);
-}
-
-.scene-study__sensor {
-  position: absolute;
-  top: 27%;
-  left: 12%;
-  width: 27%;
-  aspect-ratio: 1;
-  border: 1px solid rgb(255 255 255 / 14%);
-  border-radius: 50%;
-  background:
-    radial-gradient(circle, #d7ff54 0 4%, #6a4dc6 4.5% 12%, transparent 12.5%),
-    repeating-radial-gradient(circle, rgb(248 235 208 / 18%) 0 1px, transparent 1px 12%);
-  box-shadow:
-    0 0 0 0.7rem rgb(106 77 198 / 4%),
-    0 1.4rem 3rem rgb(0 0 0 / 32%);
+  filter: blur(clamp(1.6rem, 4vw, 3.8rem));
+  mix-blend-mode: screen;
   transition:
-    box-shadow 1s var(--drever-brand-motion-easing-standard),
-    transform 1s var(--drever-brand-motion-easing-standard);
+    opacity 960ms var(--drever-brand-motion-easing-standard),
+    transform 1.2s var(--drever-brand-motion-easing-emphasized);
 }
 
-.scene-study__sensor > i {
+.scene-study__glow--lime {
+  bottom: -26%;
+  left: -12%;
+  width: 66%;
+  aspect-ratio: 1.18;
+  background: radial-gradient(
+    circle at 54% 48%,
+    rgb(213 255 83 / 76%),
+    rgb(121 180 75 / 26%) 34%,
+    transparent 68%
+  );
+  opacity: 0.56;
+  transform: rotate(-8deg) scale(1.04);
+}
+
+.scene-study__glow--violet {
+  top: -28%;
+  right: -12%;
+  width: 74%;
+  aspect-ratio: 1.1;
+  background: radial-gradient(
+    circle at 42% 56%,
+    rgb(137 114 255 / 74%),
+    rgb(81 58 181 / 24%) 38%,
+    transparent 68%
+  );
+  opacity: 0.62;
+  transform: rotate(11deg) scale(1.02);
+}
+
+.scene-study__rings {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 22%;
-  aspect-ratio: 1;
-  border: 1px solid rgb(255 255 255 / 38%);
+  border: 1px solid rgb(226 236 205 / 16%);
   border-radius: 50%;
-  background: #6a4dc6;
-  translate: -50% -50%;
+  transition:
+    border-color 800ms var(--drever-brand-motion-easing-standard),
+    opacity 800ms var(--drever-brand-motion-easing-standard),
+    transform 1.2s var(--drever-brand-motion-easing-emphasized);
 }
 
-.scene-study__sensor > span,
-.scene-study__sensor > strong {
+.scene-study__rings i {
   position: absolute;
-  left: 122%;
-  width: max-content;
+  border: 1px solid rgb(226 236 205 / 12%);
+  border-radius: inherit;
 }
 
-.scene-study__sensor > span {
-  top: 10%;
-  color: #c6b9e9;
-  font-size: clamp(0.48rem, 0.75vw, 0.6rem);
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-}
-
-.scene-study__sensor > strong {
-  top: 27%;
-  max-width: 13ch;
-  color: #f6f0df;
-  font-family: var(--drever-brand-font-family-display);
-  font-size: clamp(1rem, 2.1vw, 2rem);
-  font-weight: 560;
-  letter-spacing: -0.04em;
-  line-height: 0.96;
-  white-space: normal;
-}
-
-.scene-study__wave {
-  position: absolute;
-  top: 57%;
-  right: 12%;
-  left: 46%;
-  display: flex;
-  height: 18%;
-  align-items: center;
-  gap: clamp(0.16rem, 0.5vw, 0.38rem);
-}
-
-.scene-study__wave i {
-  width: 100%;
-  height: 18%;
-  border-radius: 999px;
-  background: linear-gradient(#d7ff54, #7c67d8);
+.scene-study__rings--near {
+  right: -18%;
+  bottom: -48%;
+  width: 89%;
+  aspect-ratio: 1.52;
+  border-color: rgb(209 251 94 / 22%);
   opacity: 0.78;
-  transform-origin: center;
+  transform: rotate(-11deg);
 }
 
-.scene-study__wave i:nth-child(2),
-.scene-study__wave i:nth-child(8) {
-  height: 42%;
+.scene-study__rings--near i:first-child {
+  inset: 10%;
 }
 
-.scene-study__wave i:nth-child(3),
-.scene-study__wave i:nth-child(7) {
-  height: 72%;
+.scene-study__rings--near i:nth-child(2) {
+  inset: 21%;
 }
 
-.scene-study__wave i:nth-child(4),
-.scene-study__wave i:nth-child(6) {
-  height: 48%;
+.scene-study__rings--near i:nth-child(3) {
+  inset: 33%;
 }
 
-.scene-study__wave i:nth-child(5) {
-  height: 92%;
+.scene-study__rings--far {
+  top: 11%;
+  left: 47%;
+  width: 34%;
+  aspect-ratio: 1.64;
+  border-color: rgb(158 139 255 / 24%);
+  opacity: 0.64;
+  transform: rotate(15deg);
 }
 
-.scene-study__hint {
+.scene-study__rings--far i:first-child {
+  inset: 18%;
+}
+
+.scene-study__rings--far i:nth-child(2) {
+  inset: 36%;
+}
+
+.scene-study__statement {
   position: absolute;
-  right: 12%;
-  bottom: 22%;
-  display: grid;
-  gap: 0.18rem;
-  text-align: right;
+  z-index: 3;
+  top: 43%;
+  left: clamp(1.15rem, 2.2vw, 1.8rem);
+  max-width: 14ch;
 }
 
-.scene-study__hint span {
-  color: #aca5bb;
-  font-size: 0.48rem;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-}
-
-.scene-study__hint strong {
-  color: #f6f0df;
-  font-size: clamp(0.56rem, 0.9vw, 0.78rem);
+.scene-study__statement strong {
+  font-family: var(--drever-brand-font-family-display);
+  font-size: clamp(1rem, 1.8vw, 1.7rem);
   font-weight: 560;
-}
-
-.study-cover--scenes .study-cover__meta,
-.study-cover--scenes .study-cover__foot {
-  color: #c6b9e9;
+  letter-spacing: -0.05em;
+  line-height: 0.94;
+  white-space: nowrap;
 }
 
 .study-cover--architecture {
@@ -472,23 +485,26 @@
   transform: translateY(-0.25rem);
 }
 
-.catalog-demo:is(:hover, :focus-within) .scene-study__sensor {
-  box-shadow:
-    0 0 0 1rem rgb(106 77 198 / 8%),
-    0 1.4rem 3rem rgb(0 0 0 / 32%);
-  transform: scale(1.035);
+.catalog-demo:is(:hover, :focus-within) .scene-study__glow--lime {
+  opacity: 0.7;
+  transform: translate(8%, -7%) rotate(-4deg) scale(1.12);
 }
 
-.catalog-demo:is(:hover, :focus-within) .scene-study__wave i {
-  animation: scene-study-wave 900ms ease-in-out 2 alternate;
+.catalog-demo:is(:hover, :focus-within) .scene-study__glow--violet {
+  opacity: 0.72;
+  transform: translate(-7%, 8%) rotate(7deg) scale(1.1);
 }
 
-.catalog-demo:is(:hover, :focus-within) .scene-study__wave i:nth-child(2n) {
-  animation-delay: -320ms;
+.catalog-demo:is(:hover, :focus-within) .scene-study__rings--near {
+  border-color: rgb(209 251 94 / 34%);
+  opacity: 0.92;
+  transform: translate(-3%, -4%) rotate(-7deg) scale(1.035);
 }
 
-.catalog-demo:is(:hover, :focus-within) .scene-study__wave i:nth-child(3n) {
-  animation-delay: -600ms;
+.catalog-demo:is(:hover, :focus-within) .scene-study__rings--far {
+  border-color: rgb(158 139 255 / 36%);
+  opacity: 0.78;
+  transform: translate(5%, 4%) rotate(10deg) scale(1.04);
 }
 
 :is(.catalog-demo, .demo-card):is(:hover, :focus-within) .architecture-study__pulse {
@@ -1189,12 +1205,6 @@
   transform: translateY(0);
 }
 
-@keyframes scene-study-wave {
-  to {
-    transform: scaleY(0.42);
-  }
-}
-
 @keyframes architecture-study-pulse {
   0% {
     left: 7%;
@@ -1240,5 +1250,27 @@
 
   to {
     left: 82%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .catalog-demo:is(:hover, :focus-within) .scene-study__glow--lime {
+    opacity: 0.64;
+    transform: rotate(-8deg) scale(1.04);
+  }
+
+  .catalog-demo:is(:hover, :focus-within) .scene-study__glow--violet {
+    opacity: 0.68;
+    transform: rotate(11deg) scale(1.02);
+  }
+
+  .catalog-demo:is(:hover, :focus-within) .scene-study__rings--near {
+    opacity: 0.86;
+    transform: rotate(-11deg);
+  }
+
+  .catalog-demo:is(:hover, :focus-within) .scene-study__rings--far {
+    opacity: 0.72;
+    transform: rotate(15deg);
   }
 }
