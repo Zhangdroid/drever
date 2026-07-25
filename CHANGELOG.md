@@ -5,6 +5,28 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-07-24
+
+### Added
+
+- Added an accessible first-load presentation shell and narrow Vite entry warmup so a cold
+  development session communicates progress while its MDX graph compiles.
+- Added a deterministic keynote-style motion card wall with reduced-motion and export-safe states.
+
+### Changed
+
+- Renamed the neutral `Default` design study and public package subpaths to `Basic`, matching its
+  existing minimal showcase route without changing Drever's automatic fallback behavior.
+- Made the public AI handoff a short fetch instruction, added an adaptive briefing flow with an
+  always-available surprise escape, and raised the generated-deck quality bar for subject-led visuals,
+  highlighted code, and rendered review.
+- Gave Editorial, Studio, and Fieldnote distinct theme-led whole-slide transition voices while
+  keeping Basic's existing transition unchanged.
+
+### Fixed
+
+- Kept the Motion showcase's revealed decision and closing quote on one stable line.
+
 ## [0.1.1] - 2026-07-24
 
 ### Added
@@ -88,6 +110,7 @@ section, while commit snapshots use the current Unreleased section.
 - Added parallel source, unit, package, browser, export, and website checks in CI.
 - Deployed the prerendered public website and per-branch previews through Cloudflare Pages.
 
-[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/Zhangdroid/drever/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/Zhangdroid/drever/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/Zhangdroid/drever/releases/tag/v0.1.0

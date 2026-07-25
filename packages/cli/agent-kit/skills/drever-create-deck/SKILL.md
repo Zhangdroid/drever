@@ -16,9 +16,14 @@ Start from the current workspace:
    - In an empty or missing target directory, run `npm create drever@latest [directory]`. The default scaffold installs dependencies and both project agent adapters. Preserve those defaults unless the user requested a specific package manager, agent, or no installation.
    - Never scaffold over a non-empty, non-Drever directory. Use a new directory when the intended target is clear; ask only when that choice materially changes the result.
 2. After scaffolding, work from the new project root and follow its project-local Drever skills. Inspect `package.json`, `brief.md`, existing assets, local components, the configured entry, and `drever.config.ts` when present. When a deck already exists, use `drever_get_context` if the read-only Drever MCP is connected; otherwise run `npm exec -- drever context --json`.
-3. Derive the audience, purpose, duration, tone, and desired action from the brief. State material assumptions instead of inventing facts.
+3. Resolve the brief through an optional adaptive interview. Infer the language, audience, purpose, duration, density, speaker-note depth, tone, motion intensity, source material, and desired action from what the user already supplied.
+   - Reply and author in the user's language unless they request another language or the source material clearly requires it.
+   - At the start of every question round, offer **Skip remaining questions — surprise me**, which authorizes coherent assumptions and ends the interview immediately.
+   - Ask one to three concise questions at a time, highest-impact first. Cover only missing choices: audience outcome, duration, concise-with-notes versus balanced versus reference-dense slides, restrained versus expressive versus intentionally experimental motion, and useful topic-specific forks.
+   - Multiple rounds are welcome when an earlier answer enables a materially better follow-up. Stop when further answers would not meaningfully change the result.
+   - Never ask for supplied facts or silently choose a duration outside surprise mode. Record the final choices and assumptions in `brief.md`.
 4. Plan one dominant idea per slide: establish context, develop the argument, show evidence, and close with a clear conclusion.
-5. Use the project-local `drever-create-design` skill when the brief calls for a custom visual system or material redesign. Otherwise derive a restrained direction from the brief and use an official design study as a documented fallback.
+5. Use the project-local `drever-create-design` skill for every newly generated deck unless the user explicitly asks for a fast plain draft. Official designs are studies and foundations, not a substitute for topic-specific art direction; use Basic unchanged only as a documented neutral fallback.
 6. Write the configured MDX entry, defaulting to `slides.mdx`.
 
 Design from the subject, not from a random attractive style:
@@ -26,8 +31,10 @@ Design from the subject, not from a random attractive style:
 - Derive the visual direction from the topic, audience, purpose, tone, and source material before choosing a theme or custom CSS.
 - When the subject has an established visual language and research is allowed, inspect current primary official sources for palette, typography, marks, imagery, spatial rhythm, and motion cues. Prefer user-provided brand guidance when available. Do not infer a brand from search thumbnails or copy another presentation.
 - Reduce those findings to a small, explicit system: type roles, palette, grid, one recurring motif, image treatment, and motion voice. Use the closest Drever theme as the foundation, then add only the project CSS and components that make the subject recognizable.
+- Before authoring, choose two or three signature moments where a bespoke diagram, artifact, spatial composition, data scene, media treatment, or meaningful interaction can make the subject unmistakable. Let quieter slides create contrast around them. Do not make every slide a decorated text card.
 - Reuse marks, fonts, and other assets only when their source and license permit it. Preserve trademarks, add source attribution when appropriate, and choose an original abstraction or licensed substitute when reuse is unclear.
 - A persistent subject motif may live in the Stage background at low contrast. Let it change only when that change reinforces the story; it must never compete with the slide's main idea.
+- Do not optimize local visual code for line count. A substantial CSS, SVG, canvas, or React scene is valid when it materially improves explanation or atmosphere, remains deterministic and maintainable, and passes rendered review.
 
 For example, a deck about React 19 should first inspect current official React sources instead of applying a generic technology gradient. It might derive its palette and type contrast from that language, use a licensed React mark as a quiet oversized Stage motif, and rotate one inner orbit at a meaningful chapter change. It should not copy the React website, animate the mark on every slide, or use the motif when it distracts from code and evidence.
 
@@ -36,10 +43,12 @@ Author with these rules:
 - Separate slides with a root-level `---` surrounded by blank lines.
 - Give every slide a unique, descriptive heading.
 - Prefer Markdown and documented theme layouts over custom markup.
+- Author code examples as fenced code blocks with an explicit language or through a documented highlighted code component. Never hand-build an unhighlighted `<pre>` for showcase code. Verify that multiple token classes are visibly distinct in the rendered deck and remain readable against the subject-led palette.
 - Keep titles concise and remove prose that does not support the slide's claim.
 - Pair a text-heavy narrative region with a primarily visual supporting region: a diagram, artifact, media frame, data mark, spatial form, or quiet subject-led abstraction. Do not put another prose-heavy panel beside it; keep supporting text to functional labels or captions unless comparing the texts is the claim.
 - Use static `Step` elements only for meaningful progressive disclosure. Use positive integer `at` values only for intentional sparse stops.
 - Use motion only to explain focus, order, replacement, comparison, continuity, or a real Stage state change. Match its direction to the content flow and its visual voice to the theme. A sparse draw-on emphasis, signal travel, or small Stage shift may add quiet contextual delight; repeated generic entrances may not.
+- Keep one theme-led whole-slide transition voice instead of randomizing effects page by page. Use directional travel only when spatial progression is part of the story; otherwise prefer a restrained reveal, precise state commit, or quiet fade.
 - Establish a concrete claim, evidence, and decision before adding choreography. Motion cannot rescue abstract copy.
 - Budget one primary motion per moment across native transitions, Steps, kinetic type, video, 3D, and third-party animation. Add at most one quieter supporting cue in the same causal chain. Serialize multiple techniques around one focal object instead of running competing cues. If a headline or core object already changes, keep Stage decoration and neighboring cards still; recurring decoration does not earn motion merely by recurring. Ask: What single object should the audience follow? If the answer names two, remove or sequence one.
 - Plan that object's narrative lifecycle instead of collecting entrances. It may begin completely off-stage, enter as evidence, dock at a quiet edge with lower contrast while explanation takes focus, then retire when it no longer supports the claim. Show a fragment only when that fragment creates useful anticipation; never leave a meaningless clipped sliver.

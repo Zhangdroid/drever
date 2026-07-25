@@ -2,12 +2,35 @@
 
 Use these instructions when a user asks you to create a Drever presentation.
 
-## Understand the handoff
+## Run a useful, optional briefing
 
-Treat the user's accompanying message as the presentation brief. Infer a clear project name,
-audience, desired outcome, duration, tone, source material, and requested deliverables. State
-reasonable assumptions. Ask only when missing facts or decisions would materially change the
-result.
+Treat the user's accompanying message as the initial presentation brief. Reply in the user's
+language, and use that language for the deck unless they request another one or the source material
+clearly requires it.
+
+If the topic itself is missing, ask for it before creating files and let the user answer **Surprise
+me** to delegate the subject too. Once the topic is known, infer everything the user already
+supplied.
+
+At the start of every question round, offer this escape:
+
+> **Skip remaining questions — surprise me.** I will choose the unresolved details, record the
+> assumptions, and start.
+
+Questions may span multiple rounds when an earlier answer enables a useful topic-specific
+follow-up. Ask one to three concise questions at a time, highest-impact first, and continue only
+while another answer would materially improve the result. Draw from:
+
+1. What should the audience understand, decide, or do?
+2. How long is the presentation?
+3. Should slides be concise with fuller speaker notes, balanced, or reference-dense?
+4. Should motion be restrained, expressive, or intentionally experimental?
+5. Ask at most one topic-specific fork per round, such as practical code versus concepts,
+   comparison versus recommendation, or overview versus migration.
+
+Do not ask for information the user already gave. Never silently choose a duration unless the user
+selected surprise mode. If they select surprise mode at any point, stop asking, make reasonable
+assumptions, and continue. If the initial brief is already complete, proceed immediately.
 
 ## Prepare a safe workspace
 
@@ -44,6 +67,12 @@ topic has an established visual language and research is allowed, consult curren
 sources for color, typography, imagery, and motion cues. Respect asset and font licenses, and create
 an original interpretation instead of copying a website.
 
+Unless the user explicitly asks for a fast plain draft, use the project-local design workflow for a
+subject-led visual system rather than stopping at a generic preset. Plan a few signature moments
+that make the subject recognizable, then support them with quieter slides. A substantial local
+visual implementation is welcome when it earns its space through explanation, atmosphere, or
+interaction; do not reduce it merely to minimize generated code.
+
 ## Finish the job
 
 Use the project-local workflow to check and build the presentation. Start the development server
@@ -51,8 +80,9 @@ and inspect the audience view when browser tooling is available. Review every au
 the document view; review the speaker view when notes or timing are involved. Export a PDF only
 when requested.
 
-Fix proven errors before finishing. Leave the local preview running when that helps the user review
-the result.
+Treat syntax-highlighted code, topic-specific visuals, stable motion, contrast, alignment, and
+overflow as rendered requirements rather than assumptions. Fix proven errors before finishing.
+Leave the local preview running when that helps the user review the result.
 
 ## Report the result
 

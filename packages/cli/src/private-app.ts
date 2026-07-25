@@ -237,6 +237,104 @@ const browserSupportGate = `<main
       </div>
     </main>`;
 
+const loadingStyles = `<style data-drever-loading-styles>
+.drever-loading {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  padding: 2rem;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 54% 120%, rgb(93 72 214 / 20%), transparent 32rem),
+    #111018;
+  color: #f6f3e9;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  animation: drever-loading-appear 180ms ease 180ms both;
+}
+.drever-loading__content {
+  width: min(100%, 19rem);
+}
+.drever-loading__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.72rem;
+  font-size: 0.88rem;
+  font-weight: 680;
+  letter-spacing: -0.025em;
+}
+.drever-loading__brand svg {
+  width: 1.55rem;
+  height: 1.55rem;
+}
+.drever-loading p {
+  margin: 1.35rem 0 0.7rem;
+  color: #aaa7b7;
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.085em;
+  text-transform: uppercase;
+}
+.drever-loading__track {
+  position: relative;
+  height: 2px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(246 243 233 / 10%);
+}
+.drever-loading__track::after {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 42%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #5d48d6, #c7f03a);
+  content: "";
+  animation: drever-loading-progress 1.15s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+html:not([data-drever-browser-support="supported"]) .drever-loading {
+  display: none;
+}
+@keyframes drever-loading-appear {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes drever-loading-progress {
+  from {
+    translate: -115% 0;
+  }
+  to {
+    translate: 275% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .drever-loading {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+  }
+  .drever-loading__track::after {
+    width: 100%;
+    animation: none;
+  }
+}
+</style>`;
+
+const loadingShell = `<div class="drever-loading" data-drever-loading role="status">
+      <div class="drever-loading__content">
+        <div class="drever-loading__brand">
+          <svg aria-hidden="true" viewBox="0 0 64 64">
+            <path fill="#c7f03a" d="M4 13h12v6H4zm16 0h12v6H20z" />
+            <path fill="currentColor" d="M36 13h22v39H6V30h8v14h36V21H36z" />
+          </svg>
+          <span>Drever</span>
+        </div>
+        <p>Preparing the presentation</p>
+        <div class="drever-loading__track" aria-hidden="true"></div>
+      </div>
+    </div>`;
+
 const exportBootstrapReporter = `<script data-drever-export-bootstrap>
 const __dreverExportRecord = (value) =>
   typeof value === "object" && value !== null ? value : undefined;
@@ -308,11 +406,16 @@ const applicationHtml = ({
     <meta name="drever-base" content="/" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" />
     <title>Drever</title>
-    ${browserSupport ? `${browserSupportStyles}\n    ${browserSupportBootstrap}` : ""}
+    ${
+      browserSupport
+        ? `${browserSupportStyles}\n    ${loadingStyles}\n    ${browserSupportBootstrap}`
+        : ""
+    }
   </head>
   <body>
     ${browserSupport ? browserSupportGate : ""}
     <main id="drever-root"></main>
+    ${browserSupport ? loadingShell : ""}
 ${bootstrap}
     <script type="module" src="/entry.js"></script>
   </body>
@@ -364,6 +467,7 @@ if (document.documentElement.dataset.dreverBrowserSupport !== "supported") {
 }
 
 const container = document.querySelector("#drever-root");
+const loading = document.querySelector("[data-drever-loading]");
 const base = document.querySelector('meta[name="drever-base"]');
 if (!(container instanceof Element)) {
   throw new Error("Drever could not find its viewer root.");
@@ -394,11 +498,16 @@ const interactiveOptions = ${
   focusTools: ${JSON.stringify(focusTools)},
 }`
   };
-const presentation = routePath === "document"
-  ? await createDocument(presentationOptions)
-  : routePath === "speaker" || routePath.startsWith("speaker/")
-    ? await createSpeaker(${speakerOptions})
-    : await createViewer(interactiveOptions);
+let presentation;
+try {
+  presentation = routePath === "document"
+    ? await createDocument(presentationOptions)
+    : routePath === "speaker" || routePath.startsWith("speaker/")
+      ? await createSpeaker(${speakerOptions})
+      : await createViewer(interactiveOptions);
+} finally {
+  loading?.remove();
+}
 container.setAttribute("data-drever-ready", "");
 
 if (import.meta.hot) {

@@ -36,8 +36,8 @@ One project produces:
 
 For an AI agent, start with:
 
-> Follow https://drever.dev/prompt.md and create a Drever presentation for this brief: [describe
-> the audience, desired outcome, source material, visual direction, and requested outputs].
+> Fetch and follow https://drever.dev/prompt.md to create a Drever presentation. Brief: [describe
+> what you want to present, with any audience, outcome, source, or delivery constraints you know].
 
 Manual project creation:
 
@@ -94,7 +94,7 @@ Document View. Audience paths such as `/5/2` select an exact slide and sparse St
 - Opt-in `@drever/plugin-charts` for accessible bar, line, area, dot, and donut SVG plus animated
   presentation metrics, without a general-purpose charting dependency.
 - Opt-in `@drever/plugin-media` for surface-aware YouTube embeds.
-- Eight official design studies, implemented as deterministic Theme contracts: Default, Editorial,
+- Eight official design studies, implemented as deterministic Theme contracts: Basic, Editorial,
   Studio, Fieldnote, Atlas, Ledger, Cinema, and Construct.
 
 ## Important boundaries

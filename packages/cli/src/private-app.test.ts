@@ -81,6 +81,13 @@ describe("generated private application", () => {
 
       expect(html).toContain('data-drever-browser-support="checking"');
       expect(html).toContain("data-drever-browser-support-gate");
+      expect(html).toContain("data-drever-loading");
+      expect(html).toContain('role="status"');
+      expect(html).toContain("Preparing the presentation");
+      expect(html.indexOf("data-drever-loading")).toBeLessThan(html.indexOf('src="/entry.js"'));
+      expect(source).toContain('document.querySelector("[data-drever-loading]")');
+      expect(source).toContain("finally {");
+      expect(source).toContain("loading?.remove();");
       expect(source).toContain(
         'document.documentElement.dataset.dreverBrowserSupport !== "supported"',
       );
@@ -463,7 +470,7 @@ describe("generated private application", () => {
     });
     try {
       const source = await readFile(join(app.root, "entry.js"), "utf8");
-      const optionsEnd = source.indexOf("const presentation =");
+      const optionsEnd = source.indexOf("let presentation;");
       if (optionsEnd < 0) {
         throw new TypeError("The generated entry is missing its presentation branches.");
       }
@@ -499,8 +506,12 @@ describe("generated private application", () => {
       stage: { foreground: "/project/Chrome.tsx" },
     });
     try {
-      const source = await readFile(join(app.root, "entry.js"), "utf8");
+      const [html, source] = await Promise.all([
+        readFile(join(app.root, "index.html"), "utf8"),
+        readFile(join(app.root, "entry.js"), "utf8"),
+      ]);
 
+      expect(html).not.toContain("data-drever-loading");
       expect(source).toContain('import { createExport } from "@drever/client"');
       expect(source).toContain('import { runExportSetup } from "virtual:drever/export-runtime"');
       expect(source).toContain("includeSteps: true");

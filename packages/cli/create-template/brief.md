@@ -18,6 +18,8 @@ Add the facts, source material, and ideas that must be included.
 
 - Duration:
 - Language:
+- Slide density: concise with fuller notes, balanced, or reference-dense
+- Motion intensity: restrained, expressive, or intentionally experimental
 - Visual voice:
 - Visual references or official sources:
 - Motion or interaction references and tools:

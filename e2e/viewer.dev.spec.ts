@@ -10,6 +10,29 @@ import {
 
 const activeSlide = '[data-drever-slide][data-slide-state="active"]';
 
+test("the generated shell explains a cold first load before React is ready", async ({ page }) => {
+  const releaseEntry = Promise.withResolvers<void>();
+  await page.route(
+    (url) => url.pathname === "/entry.js",
+    async (route) => {
+      await releaseEntry.promise;
+      await route.continue();
+    },
+  );
+
+  await page.goto("/", { waitUntil: "commit" });
+  try {
+    await expect(page.getByRole("status")).toContainText("Preparing the presentation");
+    await expect(page.locator("[data-drever-loading]")).toBeVisible();
+  } finally {
+    releaseEntry.resolve();
+  }
+
+  await page.waitForLoadState("load");
+  await expect(page.locator("[data-drever-loading]")).toHaveCount(0);
+  await expect(page.locator(activeSlide)).toBeVisible();
+});
+
 test("the public dev command runs the complete interactive presentation workflow", async ({
   page,
 }) => {

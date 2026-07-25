@@ -95,7 +95,7 @@ export const Counter = () => {
             return 0;
           }
         },
-        { message: "Drever dev did not start." },
+        { message: "Drever dev did not start.", timeout: 10_000 },
       )
       .toBe(200);
 

@@ -39,7 +39,7 @@ Prefer subject-led decisions. Fallback beauty is valid; invented thematic meanin
 
 Scan all eight studies in the single `@drever/designs` package. When source is available, inspect `packages/designs/src/<study>/index.ts`, `packages/designs/src/<study>/layouts.tsx`, `packages/designs/themes/<study>/theme.css`, and the relevant example deck for the two closest studies and one useful contrast:
 
-- Default — neutral hierarchy and spacing; use only as the context-insufficient fallback.
+- Basic — neutral hierarchy and spacing; use only as the context-insufficient fallback.
 - Editorial — publication rhythm, warm narrative, and evidence-led typography.
 - Studio — dark technical surfaces, code, interfaces, and restrained signal color.
 - Fieldnote — coherent handwriting, annotation, reflection, and quiet paper.
@@ -68,6 +68,12 @@ design/
 
 `art-direction.md` records the brief, subject-led evidence, fallback choices, source URLs, licenses, and the reason for each recurring motif. Keep it concise enough to review in a diff.
 
+Define a one-sentence visual premise and two or three signature moments before styling every slide.
+Each signature moment should prove an important claim through a bespoke diagram, artifact, spatial
+composition, data scene, media treatment, or meaningful interaction. Use quieter supporting slides
+between them so the deck has rhythm. A repeated stack of generic cards, gradients, and text columns
+is not a custom direction even when its colors match the subject.
+
 Implement `theme.ts` with `defineTheme`, `baseURL: import.meta.url`, a stable local ID, and:
 
 - semantic color, typography, spacing, shape, and motion tokens;
@@ -78,9 +84,18 @@ Implement `theme.ts` with `defineTheme`, `baseURL: import.meta.url`, a stable lo
 
 Use local components for recurring presentation semantics, not one-off decoration. Use Stage only for persistent canvas layers. Create or update `drever.config.ts` when the design needs a generated theme or Stage modules, and import each module there once. If a generated design already exists, revise it in place and preserve intentional authored changes; never silently replace it.
 
+Do not optimize meaningful local visual code for line count. Hundreds of lines of focused CSS, SVG,
+canvas, or React can be appropriate when the result materially improves explanation or atmosphere.
+Require clear ownership, shared tokens, deterministic states, reduced-motion behavior where
+applicable, and rendered review; remove code only when its visual job is weak or redundant.
+
 Keep backgrounds subordinate to the current claim. They should normally recede behind content and become prominent only when the background itself is evidence or the meaningful scene. Reduce background contrast, texture, and movement before compromising foreground legibility.
 
 Treat typography as one deliberate system. When the premise is intentionally all-handwritten, carry that voice through headings, body copy, labels, and data instead of accidentally mixing unrelated type voices. Make exceptions only when the content semantics require a specialized face, such as literal code or a protected brand mark.
+
+Define highlighted code as part of the typography and color system. Use fenced code with an explicit
+language or a documented highlighted component, provide distinct readable token roles, and never
+let a centerpiece example render as monochrome source unless that is a deliberate semantic claim.
 
 Pair a text-heavy narrative region with a primarily visual supporting region: a diagram, artifact, media frame, data mark, spatial form, or quiet subject-led abstraction. Do not put another prose-heavy panel beside it; keep supporting text to functional labels or captions unless comparing the texts is the claim.
 
@@ -88,6 +103,7 @@ Pair a text-heavy narrative region with a primarily visual supporting region: a 
 
 - Give each moment one primary motion and at most one quieter cue in the same causal chain. Count native transitions, Steps, kinetic type, video, 3D, and third-party animation against that one budget.
 - Establish a concrete claim, evidence, and decision before adding choreography. Motion cannot rescue abstract copy.
+- Give the deck one theme-led whole-slide transition voice. Use directional travel only when spatial progression matters; otherwise choose a restrained reading-edge reveal, precise state commit, or quiet fade that fits the subject. Do not randomize page transitions slide by slide.
 - Plan a key object's narrative lifecycle instead of a series of entrances. It may begin completely off-stage, enter as evidence, dock at lower contrast when it becomes context, and retire when it stops supporting the claim. When one concrete artifact keeps carrying the argument, build a short connected sequence around it: let the surrounding context or surface change while the artifact remains recognizable, and give it a distinct narrative job on every slide. Show a fragment only when that fragment creates useful anticipation; never leave a meaningless clipped sliver.
 - Animate the smallest object whose meaning changed. Keep the Stage shell, controls, page information, backgrounds, and persistent anchors stationary.
 - Match direction, timing, and gesture to reading order, spatial structure, or narrative causality. Let an initial state settle when the audience must perceive it; choose timing from the reading job instead of applying a fixed delay. Keep quiet cues perceptible at presentation distance.
@@ -98,6 +114,7 @@ Pair a text-heavy narrative region with a primarily visual supporting region: a 
 - Never stretch text or boxes, hard-clip painted shadows, switch a shadow from `none`, or animate a recurring motif merely because it exists. Treat repeated accents as layout anchors: keep their position and geometry identical across adjacent slides unless a meaningful chapter, comparison, or state change requires a move. Make that exception legible and hold its new position long enough to read as intentional.
 - Size every animated or spatial component for its largest transformed and painted footprint across the whole sequence. At maximum expansion, 2D or 3D layers must retain clear space from tracks, labels, and adjacent copy.
 - Add quiet delight only when it emphasizes the slide's claim. Respect reduced motion and deterministic export.
+- When a breadth montage or card wall is justified, keep its labels terse and use one authored, non-linear reveal order. It may feel organic, but its layout, timing, endpoints, reduced-motion state, and export state must remain deterministic.
 - Use outside work only for a focused capability the story needs, never as a style catalog. Prefer native CSS, Drever primitives, and small local React for simple motion. Consult the [non-exhaustive Motion references](https://drever.dev/docs/motion/#external-tools) only when useful. Verify current official documentation, source, license, bundle behavior, and export constraints before copying code, assets, or runtimes, then adapt the technique to the subject-led system. Prove a claimed capability with a focused working example rather than a name or link.
 - Give every live motion or spatial integration accessible final semantics, keyboard behavior, deterministic loading and export readiness, reduced-motion output, and a stable poster or authored fallback when live rendering is inappropriate. Loop only when ongoing change is the subject; use a deterministic sequence, start its first meaningful update when the audience slide activates, pause it outside the active audience surface, and author a stable final state. Keep animated metrics synchronized in a stable numeric slot without announcing every frame. Keep continuous backgrounds and 3D subordinate to the claim, and never let navigation continuity and local motion transform the same element at once.
 

@@ -10,6 +10,11 @@ The bootstrap checks the workspace, creates a safe project, and then hands contr
 version-matched instructions installed inside that project. It does not duplicate the full
 authoring contract or silently change an existing Drever version.
 
+The website copies an even smaller handoff—just the prompt URL plus the brief. The fetched document
+owns the current workflow. If important choices are missing, the agent may ask adaptive follow-ups,
+but every round offers **Skip remaining questions — surprise me**. It matches the user's language
+by default and never silently guesses the duration outside surprise mode.
+
 Command examples use npm. Project-local guidance detects pnpm, Yarn, and Bun and selects their
 equivalent local runner instead of assuming a global `drever` executable.
 
@@ -29,7 +34,7 @@ New projects contain five local workflows for Codex and Claude Code:
 The design workflow derives its direction from the subject, audience, venue, source material, and
 purpose. When research is allowed, it can use current primary official sources as evidence for
 palette, typography, imagery, and motion while respecting asset and font licenses. It studies all
-eight official designs as equal references, uses Default only as the neutral fallback, and persists
+eight official designs as equal references, uses Basic only as the neutral fallback, and persists
 the result locally so every build is deterministic.
 
 Motion follows the same subject-led rule. Ask the agent to explain how a key object changes role

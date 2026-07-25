@@ -66,7 +66,7 @@ verified web or PDF artifacts. They instruct an agent to use semantic MDX,
 persist the generated visual system as a deterministic Theme contract, preserve
 exact Step routes, and verify the affected audience, document, speaker, and
 export states. The eight official Theme packages are equal design studies and
-quality references; Default is only the neutral fallback when the brief does
+quality references; Basic is only the neutral fallback when the brief does
 not justify a stronger direction.
 
 The `SKILL.md` content is canonical across hosts. Codex-specific UI metadata is

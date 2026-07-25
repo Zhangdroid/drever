@@ -62,8 +62,8 @@ function HomePage() {
             </a>
           </div>
           <p className="home-hero__handoff-note">
-            Copies a complete setup prompt. Paste it into Codex or Claude Code; the agent creates
-            the project and leaves a local preview ready to review.
+            Paste the short handoff into Codex or Claude Code. The agent fetches the current
+            workflow, creates the project, and leaves a local preview ready to review.
           </p>
           <div aria-label="More ways to get started" className="home-hero__secondary">
             <Link className="home-hero__manual" to="/docs/getting-started/">

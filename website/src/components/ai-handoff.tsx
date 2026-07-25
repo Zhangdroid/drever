@@ -3,13 +3,13 @@ import { useId, useMemo, useState } from "react";
 import { CopyButton } from "./copy-button";
 
 const emptyHandoff =
-  "Help me create a Drever presentation. Follow https://drever.dev/prompt.md, set up everything in a new clearly named directory, then ask what the audience should understand, decide, or do. Ask only for choices that would materially change the result.";
+  "Fetch and follow https://drever.dev/prompt.md to create a Drever presentation.";
 
 const handoffFor = (brief: string) => {
   const normalized = brief.trim();
   if (normalized.length === 0) return emptyHandoff;
 
-  return `Create a Drever presentation for this brief: “${normalized}” Follow https://drever.dev/prompt.md, set up everything in a new clearly named directory, use the generated project-local instructions, inspect the finished presentation, and leave it ready for review. Ask only when a missing decision would materially change the result.`;
+  return `Fetch and follow https://drever.dev/prompt.md to create a Drever presentation. Brief: “${normalized}”`;
 };
 
 export function CopyAIHandoff({ brief = "", className }: { brief?: string; className?: string }) {
@@ -52,8 +52,8 @@ export function AIHandoff({
       </label>
       <footer>
         <p>
-          Copies the complete setup prompt. Paste it into Codex, Claude Code, or another coding
-          agent; project creation and review instructions are included.
+          Copies one short handoff. The versioned workflow lives in prompt.md and the generated
+          project, so the instructions stay current.
         </p>
         <div>
           <a href="/prompt.md">Read prompt.md</a>
