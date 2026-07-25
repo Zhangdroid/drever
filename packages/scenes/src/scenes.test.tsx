@@ -6,6 +6,8 @@ import { resolveMusicEmbed, RoomAudio, RoomCountdown, Soundtrack } from "./index
 import {
   deactivateRoomAudio,
   disposeRoomAudio,
+  isRoomAudioOwnerActive,
+  requestPendingRoomMicrophone,
   requestRoomMicrophone,
   resolveRoomAudioSignal,
 } from "./room-audio.tsx";
@@ -42,6 +44,7 @@ describe("scene render surfaces", () => {
   it("offers one explicit microphone action without media or source choices", () => {
     const markup = renderToStaticMarkup(createElement(RoomAudio));
 
+    expect(markup).toContain('data-variant="panel"');
     expect(markup.match(/<button/gu)).toHaveLength(1);
     expect(markup).toContain("Enable microphone");
     expect(markup).toContain("Processed in this browser");
@@ -49,6 +52,22 @@ describe("scene render surfaces", () => {
     expect(markup).not.toContain("Demo track");
     expect(markup).not.toContain("<audio");
     expect(markup).not.toContain('role="group"');
+  });
+
+  it("keeps ambient capture out of the visual layout while announcing its state", () => {
+    const markup = renderToStaticMarkup(
+      createElement(RoomAudio, { autoStart: true, variant: "ambient" }),
+    );
+
+    expect(markup).toContain('data-variant="ambient"');
+    expect(markup).toContain('aria-live="polite"');
+    expect(markup).toContain('role="status"');
+    expect(markup).toContain("Microphone starts when this slide is shown.");
+    expect(markup).not.toContain("drever-room-audio__meter");
+    expect(markup).not.toContain("drever-room-audio__copy");
+    expect(markup).not.toContain("drever-room-audio__control");
+    expect(markup).not.toContain("Processed in this browser");
+    expect(markup).not.toContain("<button");
   });
 
   it("requests an unprocessed microphone signal and rejects an empty capture", async () => {
@@ -86,6 +105,37 @@ describe("scene render surfaces", () => {
     expect(emptyStop).toHaveBeenCalledOnce();
   });
 
+  it("coalesces concurrent microphone requests and clears the cache after settlement", async () => {
+    const validStream = {
+      getAudioTracks: () => [{}],
+      getTracks: () => [],
+    } as unknown as MediaStream;
+    let resolveStream: ((stream: MediaStream) => void) | undefined;
+    const getUserMedia = vi.fn(
+      () =>
+        new Promise<MediaStream>((resolve) => {
+          resolveStream = resolve;
+        }),
+    );
+    const cache = { current: undefined };
+    const mediaDevices = { getUserMedia } as Pick<MediaDevices, "getUserMedia">;
+
+    const first = requestPendingRoomMicrophone(cache, mediaDevices);
+    const second = requestPendingRoomMicrophone(cache, mediaDevices);
+
+    expect(second).toBe(first);
+    expect(getUserMedia).toHaveBeenCalledOnce();
+    resolveStream?.(validStream);
+    await first;
+    await Promise.resolve();
+
+    const third = requestPendingRoomMicrophone(cache, mediaDevices);
+    expect(third).not.toBe(first);
+    expect(getUserMedia).toHaveBeenCalledTimes(2);
+    resolveStream?.(validStream);
+    await third;
+  });
+
   it("maps silence and frequency bands to stable Stage signals", () => {
     expect(resolveRoomAudioSignal({ high: 0.01, low: 0.01, mid: 0.01 })).toEqual({
       high: 0,
@@ -94,10 +144,32 @@ describe("scene render surfaces", () => {
       mid: 0,
     });
     const signal = resolveRoomAudioSignal({ high: 0.3, low: 0.1, mid: 0.2 });
-    expect(signal.high).toBeCloseTo(0.54);
-    expect(signal.level).toBeCloseTo(0.36);
-    expect(signal.low).toBeCloseTo(0.18);
-    expect(signal.mid).toBeCloseTo(0.36);
+    expect(signal.high).toBeCloseTo(0.905);
+    expect(signal.level).toBeCloseTo(0.695);
+    expect(signal.low).toBeCloseTo(0.434);
+    expect(signal.mid).toBeCloseTo(0.695);
+    expect(signal.low).toBeGreaterThan(0.4);
+    expect(resolveRoomAudioSignal({ high: 0, low: 0.013, mid: 0 }).low).toBeGreaterThan(0);
+    expect(resolveRoomAudioSignal({ high: 0, low: 0, mid: 0 })).toEqual({
+      high: 0,
+      level: 0,
+      low: 0,
+      mid: 0,
+    });
+  });
+
+  it("starts automatic capture only while its owning slide is active", () => {
+    const outsideSlide = { closest: () => null } as unknown as Element;
+    const activeSlide = {
+      closest: () => ({ getAttribute: () => "active" }),
+    } as unknown as Element;
+    const inactiveSlide = {
+      closest: () => ({ getAttribute: () => "inactive" }),
+    } as unknown as Element;
+
+    expect(isRoomAudioOwnerActive(outsideSlide)).toBe(true);
+    expect(isRoomAudioOwnerActive(activeSlide)).toBe(true);
+    expect(isRoomAudioOwnerActive(inactiveSlide)).toBe(false);
   });
 
   it("releases every room-audio resource when the source stops", async () => {

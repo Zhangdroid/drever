@@ -14,7 +14,7 @@ export default function RoomScenesBackground({
     <AmbientStage
       accent="#c8f460"
       accentAlt="#8e7dff"
-      energy={position.slideIndex === 0 ? 0.62 : 0.32}
+      energy={position.slideIndex === 0 ? 0.76 : 0.32}
       reducedMotion={reducedMotion}
       state={state}
     />

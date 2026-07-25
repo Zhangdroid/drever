@@ -6,6 +6,7 @@ const architectureDemoRoot = fileURLToPath(new URL("./examples/architecture", im
 const brandDemoRoot = fileURLToPath(new URL("./examples/brand", import.meta.url));
 const motionContractsRoot = fileURLToPath(new URL("./examples/motion-contracts", import.meta.url));
 const productTourRoot = fileURLToPath(new URL("./examples/product-tour", import.meta.url));
+const roomScenesRoot = fileURLToPath(new URL("./examples/room-scenes", import.meta.url));
 const workspaceCli = "node ../../packages/cli/dist/bin.mjs";
 const ci = process.env.CI !== undefined;
 
@@ -132,6 +133,21 @@ const projectDefinitions = [
       reuseExistingServer: false,
       timeout: 60_000,
       url: "http://127.0.0.1:4323",
+    },
+  },
+  {
+    name: "room-scenes-chromium",
+    testMatch: "**/*.room-scenes.spec.ts",
+    use: {
+      baseURL: "http://127.0.0.1:4335",
+      contextOptions: { reducedMotion: "no-preference" },
+    },
+    webServer: {
+      command: `${workspaceCli} build && node ../../e2e/support/static-server.mjs dist 4335`,
+      cwd: roomScenesRoot,
+      reuseExistingServer: false,
+      timeout: 60_000,
+      url: "http://127.0.0.1:4335",
     },
   },
   {

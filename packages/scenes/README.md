@@ -57,11 +57,29 @@ never recorded or uploaded. When the room is silent or listening stops, all
 values return to zero and the authored background rests. Non-audience surfaces
 render deterministic metadata without media or permission controls.
 
+For an opening slide where the visual should fill the room rather than become
+another card, use the ambient variant:
+
+```tsx
+<>
+  <AmbientStage state="quiet" />
+  <RoomAudio autoStart variant="ambient" />
+</>
+```
+
+The ambient variant has no visible meter, explanatory card, or control. In
+audience view it requests microphone access as soon as its owning slide becomes
+active, exposes permission and listening state to assistive technology, and
+shows only a quiet error notice when the browser cannot listen. Leaving the
+slide releases the stream and audio graph. The default `panel` variant keeps
+the explicit **Enable microphone** action; set `autoStart` only when the deck
+has clearly prepared the audience for the browser permission prompt.
+
 ## Render surfaces
 
 | Surface                 | Behavior                                     |
 | ----------------------- | -------------------------------------------- |
-| Audience                | Explicit playback or provider-player control |
+| Audience                | Explicit control or authored ambient capture |
 | Reduced-motion audience | Audio may play; the visual stays still       |
 | Speaker current / next  | Deterministic metadata card                  |
 | Document                | Deterministic metadata card and source link  |

@@ -23,7 +23,7 @@
     "release:check": "node scripts/release.mjs clean && vp run build:packages && node scripts/verify-release.mjs && node scripts/verify-consumer.mjs",
     "test": "vp run test:unit && vp run test:release",
     "test:e2e": "playwright test",
-    "test:e2e:core": "playwright test --project=dev-chromium --project=build-chromium --project=export-chromium --project=check-cli",
+    "test:e2e:core": "playwright test --project=dev-chromium --project=build-chromium --project=room-scenes-chromium --project=export-chromium --project=check-cli",
     "test:release": "node --test scripts/release.test.mjs scripts/configure-trusted-publishing.test.mjs scripts/official-plugin-catalog.test.mjs scripts/changelog.test.mjs",
     "test:unit": "vp run --parallel --concurrency-limit 4 -F './packages/**' -F './plugins/**' -F @drever/website --fail-if-no-match test"
   },

@@ -28,6 +28,9 @@ section, while commit snapshots use the current Unreleased section.
   unavailable; the Drever client continues to enforce its browser contract.
 - Marked Room Scenes as an incubating source study until its components have a supported public
   package contract.
+- Reframed Room Sense as a full-canvas microphone-reactive scene: its active opening requests
+  access directly, removes the control card, and gives the lime, violet, and ring field a stronger
+  response to nearby sound.
 - Made post-publish verification exercise the public `npm create drever` command, dependency
   installation, validation, and build exactly as a new user would.
 

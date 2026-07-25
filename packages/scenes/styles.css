@@ -68,9 +68,11 @@
   content: "";
   opacity: 0;
   scale: 0.92;
+  translate: 0 0;
   transition:
     opacity 120ms linear,
-    scale 80ms linear;
+    scale 80ms linear,
+    translate 80ms linear;
 }
 
 .drever-ambient-stage [data-orbit]::after {
@@ -81,30 +83,36 @@
   content: "";
   opacity: 0;
   scale: 0.98;
+  translate: 0 0;
   transition:
     opacity 120ms linear,
-    scale 80ms linear;
+    scale 80ms linear,
+    translate 80ms linear;
 }
 
 [data-drever-room-audio-active] .drever-ambient-stage [data-signal="primary"]::after {
-  opacity: calc(var(--drever-audio-low, 0) * 0.34);
-  scale: calc(0.92 + var(--drever-audio-low, 0) * 0.42);
+  opacity: calc(var(--drever-audio-low, 0) * 0.72);
+  scale: calc(0.82 + var(--drever-audio-low, 0) * 0.94);
+  translate: calc(var(--drever-audio-low, 0) * -8%) calc(var(--drever-audio-mid, 0) * 10%);
 }
 
 [data-drever-room-audio-active] .drever-ambient-stage [data-signal="secondary"]::after {
-  opacity: calc(var(--drever-audio-mid, 0) * 0.28);
-  scale: calc(0.94 + var(--drever-audio-mid, 0) * 0.36);
+  opacity: calc(var(--drever-audio-mid, 0) * 0.64);
+  scale: calc(0.84 + var(--drever-audio-mid, 0) * 0.82);
+  translate: calc(var(--drever-audio-high, 0) * 12%) calc(var(--drever-audio-mid, 0) * -9%);
 }
 
 [data-drever-room-audio-active] .drever-ambient-stage [data-orbit="near"]::after {
-  opacity: calc(var(--drever-audio-high, 0) * 0.32);
-  scale: calc(0.98 + var(--drever-audio-high, 0) * 0.08);
+  opacity: calc(var(--drever-audio-high, 0) * 0.62);
+  scale: calc(0.96 + var(--drever-audio-high, 0) * 0.28);
+  translate: calc(var(--drever-audio-mid, 0) * -3%) calc(var(--drever-audio-high, 0) * 4%);
 }
 
 [data-drever-room-audio-active] .drever-ambient-stage [data-orbit="far"]::after {
   border-color: var(--drever-scene-accent);
-  opacity: calc(var(--drever-audio-mid, 0) * 0.2 + var(--drever-audio-low, 0) * 0.1);
-  scale: calc(0.98 + var(--drever-audio-mid, 0) * 0.06);
+  opacity: calc(var(--drever-audio-mid, 0) * 0.42 + var(--drever-audio-low, 0) * 0.18);
+  scale: calc(0.95 + var(--drever-audio-mid, 0) * 0.24);
+  translate: calc(var(--drever-audio-low, 0) * -4%) calc(var(--drever-audio-mid, 0) * -3%);
 }
 
 .drever-ambient-stage[data-state="gather"] [data-orbit="near"] {
@@ -452,6 +460,46 @@
   backdrop-filter: blur(24px) saturate(1.16);
 }
 
+.drever-room-audio--ambient {
+  position: absolute;
+  z-index: 2;
+  right: 28px;
+  bottom: 24px;
+  display: block;
+  min-height: 0;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  pointer-events: none;
+  backdrop-filter: none;
+}
+
+.drever-room-audio__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.drever-room-audio__ambient-error {
+  max-width: 320px;
+  margin: 0;
+  padding: 7px 10px;
+  border: 1px solid color-mix(in srgb, #ff9a8f, transparent 72%);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--drever-theme-surface, #171719), transparent 26%);
+  box-shadow: 0 10px 28px rgb(0 0 0 / 12%);
+  color: color-mix(in srgb, #ffb0a8, currentColor 16%);
+  font-size: 11px;
+  line-height: 1.3;
+  backdrop-filter: blur(16px);
+}
+
 .drever-room-audio__meter {
   position: relative;
   width: 132px;
@@ -669,6 +717,13 @@
     animation: none !important;
     transition: none !important;
   }
+
+  [data-drever-room-audio-active] .drever-ambient-stage [data-orbit]::after,
+  [data-drever-room-audio-active] .drever-ambient-stage [data-signal]::after {
+    opacity: 0;
+    scale: 1;
+    translate: 0 0;
+  }
 }
 
 .drever-ambient-stage[data-reduced-motion] > *,
@@ -682,4 +737,17 @@
 [data-drever-reduced-motion] .drever-soundtrack__visual > i::after {
   animation: none !important;
   transition: none !important;
+}
+
+[data-drever-reduced-motion]
+  [data-drever-room-audio-active]
+  .drever-ambient-stage
+  [data-orbit]::after,
+[data-drever-reduced-motion]
+  [data-drever-room-audio-active]
+  .drever-ambient-stage
+  [data-signal]::after {
+  opacity: 0;
+  scale: 1;
+  translate: 0 0;
 }
