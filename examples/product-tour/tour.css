@@ -533,6 +533,11 @@
   color: var(--tour-paper);
 }
 
+.tour-cover--opening > .tour-room-response {
+  justify-self: end;
+  translate: 44px 0;
+}
+
 .tour-room-response__room {
   position: absolute;
   top: 52px;

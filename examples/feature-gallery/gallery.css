@@ -603,7 +603,7 @@
 .gallery-media {
   display: grid;
   margin-top: 30px;
-  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.6fr);
+  grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
   border-block: 1px solid var(--gallery-line);
   align-items: stretch;
 }
