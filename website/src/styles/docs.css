@@ -1434,7 +1434,7 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   transform: rotate(7deg);
 }
 
-.capability-visual--surfaces {
+.capability-visual--story {
   display: grid;
   padding: 1.4rem;
   grid-template-columns: 1.25fr 0.75fr;
@@ -1443,14 +1443,14 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   background: var(--site-continuity);
 }
 
-.capability-visual--surfaces > div {
+.capability-visual--story > div {
   position: relative;
   grid-row: 1 / -1;
   border: 1px solid rgb(255 255 255 / 20%);
   background: var(--site-night);
 }
 
-.capability-visual--surfaces > div i {
+.capability-visual--story > div i {
   position: absolute;
   right: 14%;
   left: 14%;
@@ -1458,17 +1458,17 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   background: var(--site-signal);
 }
 
-.capability-visual--surfaces > div i:first-child {
+.capability-visual--story > div i:first-child {
   top: 38%;
 }
 
-.capability-visual--surfaces > div i:last-child {
+.capability-visual--story > div i:last-child {
   top: 52%;
   right: 34%;
   background: rgb(255 255 255 / 42%);
 }
 
-.capability-visual--surfaces > span {
+.capability-visual--story > span {
   border: 1px solid rgb(255 255 255 / 20%);
   background: rgb(255 255 255 / 10%);
 }

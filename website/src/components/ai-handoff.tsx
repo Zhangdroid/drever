@@ -12,11 +12,20 @@ const handoffFor = (brief: string) => {
   return `Fetch and follow https://drever.dev/prompt.md to create a Drever presentation. Brief: “${normalized}”`;
 };
 
-export function CopyAIHandoff({ brief = "", className }: { brief?: string; className?: string }) {
+export function CopyAIHandoff({
+  brief = "",
+  className,
+  describedBy,
+}: {
+  brief?: string;
+  className?: string;
+  describedBy?: string;
+}) {
   return (
     <CopyButton
       className={className}
       copiedText="Prompt copied"
+      describedBy={describedBy}
       idleText="Copy prompt"
       label="for Codex or Claude Code"
       value={handoffFor(brief)}
@@ -26,7 +35,7 @@ export function CopyAIHandoff({ brief = "", className }: { brief?: string; class
 
 export function AIHandoff({
   heading = "What should this presentation help people understand, decide, or do?",
-  placeholder = "Help a team understand a new direction and decide what to do next.",
+  placeholder = "Create a 10-minute project update for the team: progress, key decisions, risks, and next steps.",
 }: {
   heading?: string;
   placeholder?: string;

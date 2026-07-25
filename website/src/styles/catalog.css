@@ -495,10 +495,14 @@
   justify-self: start;
 }
 
+.showcase-page {
+  padding-block-end: var(--site-section);
+}
+
 .catalog-next {
   display: flex;
   max-width: var(--site-max);
-  margin: 0 auto var(--site-section);
+  margin: 0 auto;
   padding-block-start: 3rem;
   border-top: 1px solid var(--site-line);
   align-items: end;

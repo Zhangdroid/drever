@@ -56,15 +56,16 @@ function HomePage() {
             live.
           </p>
           <div className="home-hero__actions">
-            <CopyAIHandoff className="button button--primary" />
+            <div className="home-hero__prompt">
+              <CopyAIHandoff className="button button--primary" describedBy="home-prompt-tooltip" />
+              <span id="home-prompt-tooltip" role="tooltip">
+                Paste into Codex or Claude Code—the agent handles setup and opens a local preview.
+              </span>
+            </div>
             <a className="button home-hero__demo" href="/showcase/product/">
               <PlayIcon /> Try the live demo
             </a>
           </div>
-          <p className="home-hero__handoff-note">
-            Paste the short handoff into Codex or Claude Code. The agent fetches the current
-            workflow, creates the project, and leaves a local preview ready to review.
-          </p>
           <div aria-label="More ways to get started" className="home-hero__secondary">
             <Link className="home-hero__manual" to="/docs/getting-started/">
               How AI creation works <ArrowIcon />

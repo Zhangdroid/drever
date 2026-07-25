@@ -36,7 +36,7 @@ function DocsOverview() {
             See the one-step workflow <ArrowIcon />
           </Link>
         </div>
-        <AIHandoff placeholder="Help a group compare its options and agree on what to do next." />
+        <AIHandoff />
       </section>
 
       <header className="docs-overview__reference">

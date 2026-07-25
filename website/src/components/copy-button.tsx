@@ -5,12 +5,14 @@ import { CheckIcon, CopyIcon } from "./icons";
 export function CopyButton({
   className,
   copiedText = "Copied",
+  describedBy,
   idleText = "Copy",
   label,
   value,
 }: {
   className?: string | undefined;
   copiedText?: string;
+  describedBy?: string | undefined;
   idleText?: string;
   label: string;
   value: string;
@@ -41,6 +43,7 @@ export function CopyButton({
 
   return (
     <button
+      aria-describedby={describedBy}
       aria-label={`${text} ${label}`}
       className={className}
       data-copy-state={status}

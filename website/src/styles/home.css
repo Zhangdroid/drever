@@ -51,14 +51,6 @@
   text-wrap: pretty;
 }
 
-.home-hero__handoff-note {
-  max-width: 37rem;
-  margin: 0.78rem 0 0;
-  color: var(--site-muted);
-  font-size: 0.75rem;
-  line-height: 1.5;
-}
-
 .home-hero__actions {
   display: flex;
   margin-block-start: 2.2rem;
@@ -67,9 +59,46 @@
   gap: 0.4rem;
 }
 
-.home-hero__actions > button {
+.home-hero__actions > button,
+.home-hero__prompt > button {
   border: 0;
   cursor: pointer;
+}
+
+.home-hero__prompt {
+  position: relative;
+}
+
+.home-hero__prompt [role="tooltip"] {
+  position: absolute;
+  z-index: 4;
+  top: calc(100% + 0.65rem);
+  left: 0;
+  width: max-content;
+  max-width: min(19rem, calc(100vw - 2rem));
+  padding: 0.65rem 0.75rem;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 0.55rem;
+  background: color-mix(in srgb, var(--site-night), transparent 5%);
+  box-shadow: 0 0.8rem 2.2rem rgb(25 23 43 / 16%);
+  color: var(--site-night-text);
+  font-size: 0.7rem;
+  line-height: 1.45;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-0.25rem);
+  transition:
+    opacity var(--drever-brand-motion-duration-quick),
+    transform var(--drever-brand-motion-duration-quick) var(--drever-brand-motion-easing-standard);
+}
+
+.home-hero__prompt:is(:hover, :focus-within) [role="tooltip"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.home-hero__prompt:has(button:not([data-copy-state="idle"])) [role="tooltip"] {
+  opacity: 0;
 }
 
 .home-hero__demo {

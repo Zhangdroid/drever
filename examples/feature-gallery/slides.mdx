@@ -261,26 +261,28 @@ surfaces.
 
 ---
 
-## Confidence is built, not announced.
+## One decision. Five clear ways to show it.
 
-<p>Four reviews turn an instinct into a decision the room can trust.</p>
+<p>Use the same evidence; choose the mark that makes the point.</p>
 <code className="gallery-plugin-id">@drever/plugin-charts</code>
 
-<section className="gallery-chart-story gallery-chart-story--rise">
-  <div className="gallery-chart-story__metric">
-    <span>Decision confidence</span>
-    <div className="gallery-chart-story__number">
-      <AnimatedNumber
-        duration={1600}
-        from={31}
-        label="Decision confidence"
-        value={96}
-        valueSuffix="%"
-      />
-    </div>
-    <p>Brief → prototype → evidence → decision</p>
-  </div>
-  <div className="gallery-chart-story__plot">
+<section className="gallery-chart-suite" aria-label="Five presentation-scale chart forms">
+  <article className="gallery-chart-card gallery-chart-card--lead">
+    <header>
+      <div>
+        <span>Trend</span>
+        <strong>Confidence across four reviews</strong>
+      </div>
+      <div className="gallery-chart-card__number">
+        <AnimatedNumber
+          duration={1600}
+          from={31}
+          label="Decision confidence"
+          value={96}
+          valueSuffix="%"
+        />
+      </div>
+    </header>
     <DataChart
       label="Decision confidence after each review"
       kind="line"
@@ -292,23 +294,12 @@ surfaces.
         { label: "Decision", value: 96 },
       ]}
     />
-  </div>
-</section>
-
-<Note>
-  Begin with the answer, then show how the room earned it. The animated number directs attention to
-  96 percent while the line preserves the four-review journey behind that conclusion.
-</Note>
-
----
-
-## The evidence changed the slope.
-
-<p>One large view explains the journey; one small comparison isolates the decisive review.</p>
-
-<section className="gallery-chart-story gallery-chart-story--evidence">
-  <div className="gallery-chart-story__plot">
-    <span>Confidence accumulated</span>
+  </article>
+  <article className="gallery-chart-card">
+    <header>
+      <span>Accumulation</span>
+      <strong>Evidence changed the slope</strong>
+    </header>
     <DataChart
       label="Cumulative decision confidence"
       kind="area"
@@ -320,9 +311,12 @@ surfaces.
         { label: "Decision", value: 96 },
       ]}
     />
-  </div>
-  <aside className="gallery-chart-story__evidence">
-    <span>Before / after evidence</span>
+  </article>
+  <article className="gallery-chart-card">
+    <header>
+      <span>Change</span>
+      <strong>Before and after evidence</strong>
+    </header>
     <DataChart
       label="Decision confidence before and after the evidence review"
       kind="bar"
@@ -332,24 +326,12 @@ surfaces.
         { label: "After", value: 82 },
       ]}
     />
-    <strong>+33 points</strong>
-  </aside>
-</section>
-
-<Note>
-  The area chart makes accumulated confidence tangible. The smaller bar comparison has one job:
-  identify the evidence review as the turning point, rather than adding a second dashboard panel.
-</Note>
-
----
-
-## End with the decision.
-
-<p>Keep the path visible, then give the outcome enough space to land.</p>
-
-<section className="gallery-chart-story gallery-chart-story--decision">
-  <div className="gallery-chart-story__plot">
-    <span>Four review checkpoints</span>
+  </article>
+  <article className="gallery-chart-card">
+    <header>
+      <span>Checkpoints</span>
+      <strong>Every review stays visible</strong>
+    </header>
     <DataChart
       label="Decision confidence at each review checkpoint"
       kind="dot"
@@ -361,9 +343,12 @@ surfaces.
         { label: "Decision", value: 96 },
       ]}
     />
-  </div>
-  <div className="gallery-chart-story__outcome">
-    <span>Room status</span>
+  </article>
+  <article className="gallery-chart-card">
+    <header>
+      <span>Status</span>
+      <strong>The room is ready</strong>
+    </header>
     <DataChart
       label="Room readiness after the decision review"
       kind="donut"
@@ -373,13 +358,12 @@ surfaces.
         { label: "Open", value: 4 },
       ]}
     />
-  </div>
+  </article>
 </section>
 
 <Note>
-  The dot chart quietly preserves the checkpoints while the donut closes on the room's current
-  state. These are presentation-scale marks with shared data and accessible descriptions, not a
-  general-purpose analytics dashboard.
+  One accessible data contract powers five presentation-scale marks and an animated metric. Pick the
+  form that explains the point instead of assembling a general-purpose analytics dashboard.
 </Note>
 
 ---

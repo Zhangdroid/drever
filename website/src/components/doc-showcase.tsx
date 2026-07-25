@@ -49,9 +49,9 @@ function ThemeVisual() {
   );
 }
 
-function SurfaceVisual() {
+function StoryVisual() {
   return (
-    <div className="capability-visual capability-visual--surfaces" aria-hidden="true">
+    <div className="capability-visual capability-visual--story" aria-hidden="true">
       <div>
         <i />
         <i />
@@ -65,20 +65,29 @@ function SurfaceVisual() {
 
 const capabilities = [
   {
-    body: "Objects enter, answer, recede, or hold still because the story gives them a new job.",
+    body: "Watch one brief become an audience choice, a grounded decision, private speaker context, an exact link, and a readable record.",
+    guide: "/docs/presenting/",
+    label: "Complete story",
+    live: "/showcase/product/",
+    liveLabel: "Follow the product story",
+    title: "One project follows the room.",
+    visual: <StoryVisual />,
+  },
+  {
+    body: "Persistent objects change jobs, words change meaning, and data moves only when the story asks.",
     guide: "/docs/motion/",
     label: "Meaningful motion",
-    live: "/showcase/motion/2/",
-    liveLabel: "Follow one object",
-    title: "Motion carries the idea.",
+    live: "/showcase/motion/",
+    liveLabel: "Watch motion in context",
+    title: "Motion explains what changed.",
     visual: <MotionVisual />,
   },
   {
-    body: "See real GFM, code, math, chart, and media output with explicit browser costs.",
+    body: "See real MDX, GFM, code, math, charts, and media output rendered by the official plugins.",
     guide: "/docs/plugins/",
     label: "Plugins",
-    live: "/showcase/features/3/",
-    liveLabel: "Open the feature tour",
+    live: "/showcase/features/",
+    liveLabel: "Tour the feature gallery",
     title: "Use the right medium.",
     visual: <PluginVisual />,
   },
@@ -90,15 +99,6 @@ const capabilities = [
     liveLabel: "Explore design studies",
     title: "Design begins with the subject.",
     visual: <ThemeVisual />,
-  },
-  {
-    body: "Audience, Speaker, Document, website, and PDF begin with the same editable project.",
-    guide: "/docs/presenting/",
-    label: "Present",
-    live: "/showcase/features/8/",
-    liveLabel: "See every surface",
-    title: "One story stays useful.",
-    visual: <SurfaceVisual />,
   },
 ] as const;
 
@@ -143,19 +143,19 @@ const motionRecipes = [
   },
   {
     description: "Correct one thought in a fixed text slot.",
-    href: "/showcase/motion/6/",
+    href: "/showcase/motion/5/",
     intent: "replace",
     label: "Semantic change",
   },
   {
     description: "Uncover information that was genuinely hidden.",
-    href: "/showcase/motion/7/",
+    href: "/showcase/motion/6/",
     intent: "focus",
     label: "Genuine reveal",
   },
   {
     description: "Make reading order carry cause and effect.",
-    href: "/showcase/motion/9/",
+    href: "/showcase/motion/8/",
     intent: "stagger",
     label: "Causality",
   },
@@ -275,7 +275,7 @@ const plugins = [
     badge: "Opt in",
     description:
       "Play privacy-enhanced lazy media live and keep every other surface deterministic.",
-    href: "/showcase/features/13/",
+    href: "/showcase/features/11/",
     id: "media",
     label: "Media",
     mark: "▶",
@@ -284,7 +284,7 @@ const plugins = [
   {
     badge: "Build your own",
     description: "Add Vite, MDX, runtime, and export capability through one owned contract.",
-    href: "/showcase/features/14/",
+    href: "/showcase/features/12/",
     id: "custom",
     label: "Typed extensions",
     mark: "＋",

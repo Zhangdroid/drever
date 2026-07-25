@@ -446,18 +446,11 @@ main[tabindex="-1"]:focus {
   font-size: 0.78rem;
   font-weight: 620;
   text-decoration: none;
-  transition:
-    border-color var(--drever-brand-motion-duration-quick),
-    background var(--drever-brand-motion-duration-quick),
-    color var(--drever-brand-motion-duration-quick),
-    transform var(--drever-brand-motion-duration-quick) var(--drever-brand-motion-easing-standard);
+  transition: color var(--drever-brand-motion-duration-quick);
 }
 
 .site-header__github:is(:hover, :focus-visible) {
-  border-color: color-mix(in srgb, var(--site-line), transparent 8%);
-  background: color-mix(in srgb, var(--site-continuity-soft) 24%, transparent);
   color: var(--site-ink);
-  transform: translateY(-1px);
 }
 
 .site-header__github svg {
@@ -474,8 +467,6 @@ main[tabindex="-1"]:focus {
 }
 
 .site-header[data-tone="dark"] .site-header__github:is(:hover, :focus-visible) {
-  border-color: rgb(255 255 255 / 12%);
-  background: rgb(255 255 255 / 7%);
   color: var(--site-night-text);
 }
 

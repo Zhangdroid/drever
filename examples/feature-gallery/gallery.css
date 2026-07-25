@@ -432,9 +432,9 @@
 }
 
 .gallery-gfm th {
-  color: var(--gallery-signal);
-  font-size: 13px;
-  letter-spacing: 0.09em;
+  font-size: 16px;
+  font-weight: 780;
+  letter-spacing: 0.055em;
   text-transform: uppercase;
 }
 
@@ -465,58 +465,108 @@
   color: var(--gallery-signal);
 }
 
-.gallery-chart-story {
+.gallery-chart-suite {
   display: grid;
-  min-height: 390px;
-  margin-top: 28px;
+  height: 410px;
+  margin-top: 24px;
+  grid-template-columns: minmax(0, 1.55fr) repeat(2, minmax(0, 0.725fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  overflow: clip;
+  background: var(--gallery-line);
   border-block: 1px solid var(--gallery-line);
   color: var(--gallery-paper);
 }
 
-.gallery-chart-story [data-drever-data-chart] {
+.gallery-chart-suite [data-drever-data-chart] {
   --drever-data-chart-accent: var(--gallery-signal);
   --drever-data-chart-series-2: var(--gallery-continuity-soft);
 }
 
-.gallery-chart-story__plot,
-.gallery-chart-story__metric,
-.gallery-chart-story__evidence,
-.gallery-chart-story__outcome {
+.gallery-chart-card {
+  display: grid;
   min-width: 0;
+  padding: 15px 18px 9px;
+  align-content: start;
+  background: var(--gallery-ink);
+  gap: 2px;
 }
 
-.gallery-chart-story__plot > span,
-.gallery-chart-story__metric > span,
-.gallery-chart-story__evidence > span,
-.gallery-chart-story__outcome > span {
+.gallery-chart-card > header {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.gallery-chart-card header span {
   color: color-mix(in srgb, var(--gallery-paper), transparent 35%);
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 750;
   letter-spacing: 0.09em;
   text-transform: uppercase;
 }
 
-.gallery-chart-story--rise {
-  grid-template-columns: minmax(290px, 0.36fr) minmax(0, 0.64fr);
-  align-items: stretch;
+.gallery-chart-card header strong {
+  overflow: hidden;
+  font-size: 16px;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.gallery-chart-story--rise .gallery-chart-story__metric {
+.gallery-chart-card:not(.gallery-chart-card--lead) [data-drever-data-chart] svg {
+  width: 100%;
+  height: 148px;
+}
+
+.gallery-chart-card:not(.gallery-chart-card--lead) [data-drever-data-chart] text {
+  font-size: 36px;
+}
+
+.gallery-chart-card:not(.gallery-chart-card--lead) [data-chart-value-label] {
+  font-size: 34px;
+}
+
+.gallery-chart-card:not(.gallery-chart-card--lead) [data-chart-donut-total] {
+  font-size: 50px;
+}
+
+.gallery-chart-card:not(.gallery-chart-card--lead) [data-chart-donut-total-caption] {
+  font-size: 24px;
+}
+
+.gallery-chart-card--lead {
+  padding: 21px 24px 12px;
+  grid-row: 1 / -1;
+  grid-template-rows: auto 1fr;
+}
+
+.gallery-chart-card--lead > header {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 20px;
+}
+
+.gallery-chart-card--lead > header > div:first-child {
   display: grid;
-  padding: 42px 34px;
-  border-right: 1px solid var(--gallery-line);
-  align-content: center;
-  gap: 17px;
+  gap: 5px;
 }
 
-.gallery-chart-story__number [data-drever-animated-number] {
+.gallery-chart-card--lead header strong {
+  max-width: 18ch;
+  font-size: 21px;
+  white-space: normal;
+}
+
+.gallery-chart-card__number [data-drever-animated-number] {
   display: block;
   color: var(--gallery-signal);
 }
 
-.gallery-chart-story__number .drever-animated-number__value {
+.gallery-chart-card__number .drever-animated-number__value {
   font-family: var(--drever-brand-font-family-display);
-  font-size: 118px;
+  font-size: 72px;
   font-stretch: 100%;
   font-variant-numeric: tabular-nums;
   font-weight: 690;
@@ -524,94 +574,25 @@
   line-height: 0.86;
 }
 
-.gallery-chart-story__number .drever-animated-number__label {
+.gallery-chart-card__number .drever-animated-number__label {
   display: none;
 }
 
-[data-drever-slide] .gallery-chart-story__metric > p {
-  max-width: 34ch;
-  color: color-mix(in srgb, var(--gallery-paper), transparent 35%);
-  font-size: 16px;
-  line-height: 1.42;
+.gallery-chart-card--lead [data-drever-data-chart] {
+  align-self: end;
 }
 
-.gallery-chart-story--rise .gallery-chart-story__plot {
-  display: grid;
-  padding: 12px 24px 0;
-  place-items: center;
+.gallery-chart-card--lead [data-drever-data-chart] svg {
+  width: 100%;
+  height: 292px;
 }
 
-.gallery-chart-story--rise [data-drever-data-chart] {
-  max-width: 790px;
+.gallery-chart-card--lead [data-drever-data-chart] text {
+  font-size: 23px;
 }
 
-.gallery-chart-story--evidence {
-  grid-template-columns: minmax(0, 1.42fr) minmax(280px, 0.58fr);
-}
-
-.gallery-chart-story--evidence > .gallery-chart-story__plot {
-  display: grid;
-  padding: 24px 28px 4px;
-  align-content: center;
-}
-
-.gallery-chart-story--evidence > .gallery-chart-story__plot [data-drever-data-chart] {
-  max-width: 760px;
-  margin-inline: auto;
-}
-
-.gallery-chart-story__evidence {
-  display: grid;
-  padding: 26px 26px 22px;
-  border-left: 1px solid var(--gallery-line);
-  align-content: center;
-  gap: 4px;
-}
-
-.gallery-chart-story__evidence [data-drever-data-chart] {
-  margin-block: -2px -10px;
-}
-
-.gallery-chart-story__evidence [data-drever-data-chart] text {
-  font-size: 25px;
-}
-
-.gallery-chart-story__evidence [data-chart-value-label] {
-  font-size: 24px;
-}
-
-[data-drever-slide] .gallery-chart-story__evidence > strong {
-  color: var(--gallery-signal);
-  font-size: 31px;
-  letter-spacing: -0.035em;
-}
-
-.gallery-chart-story--decision {
-  grid-template-columns: minmax(0, 1.05fr) minmax(440px, 0.95fr);
-}
-
-.gallery-chart-story--decision > .gallery-chart-story__plot {
-  display: grid;
-  padding: 26px 28px 6px;
-  align-content: center;
-}
-
-.gallery-chart-story--decision > .gallery-chart-story__plot [data-drever-data-chart] {
-  max-width: 750px;
-  margin-inline: auto;
-}
-
-.gallery-chart-story__outcome {
-  display: grid;
-  padding: 26px 30px 12px;
-  border-left: 1px solid var(--gallery-line);
-  align-content: center;
-  gap: 8px;
-}
-
-.gallery-chart-story__outcome [data-drever-data-chart] {
-  max-width: 400px;
-  margin-inline: auto;
+.gallery-chart-card--lead [data-chart-value-label] {
+  font-size: 22px;
 }
 
 .gallery-media {

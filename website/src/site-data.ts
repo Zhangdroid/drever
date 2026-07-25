@@ -42,7 +42,7 @@ const demoContent = {
     meta: "Editorial · 12 slides",
   },
   features: {
-    meta: "Studio · 14 slides",
+    meta: "Studio · 12 slides",
   },
   motion: {
     meta: "Editorial · 18 slides",
