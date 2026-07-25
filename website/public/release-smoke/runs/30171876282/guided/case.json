@@ -7,9 +7,9 @@
   "brief": "Show product, design, and engineering leads how to run an eight-minute pre-mortem that ends with three launch risks, owners, and next actions.",
   "durationSeconds": 211,
   "deck": {
-    "audience": "https://automation-release-smoke-30171876282.drever-website.pages.dev/release-smoke/runs/30171876282/guided/deck/",
-    "document": "https://automation-release-smoke-30171876282.drever-website.pages.dev/release-smoke/runs/30171876282/guided/deck/document/",
-    "source": "https://automation-release-smoke-30171876282.drever-website.pages.dev/release-smoke/runs/30171876282/guided/source/slides.mdx"
+    "audience": "https://8bf3dcda.drever-website.pages.dev/release-smoke/runs/30171876282/guided/deck/",
+    "document": "https://8bf3dcda.drever-website.pages.dev/release-smoke/runs/30171876282/guided/deck/document/",
+    "source": "https://8bf3dcda.drever-website.pages.dev/release-smoke/runs/30171876282/guided/source/slides.mdx"
   },
   "checks": [
     "Installed create-drever@0.2.3 and drever@0.2.3",
