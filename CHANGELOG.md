@@ -7,6 +7,12 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [0.2.3] - 2026-07-25
 
+### Added
+
+- Added a post-release Codex smoke workflow that exercises the public AI handoff through surprise
+  and guided interviews, builds the generated decks without the API secret, and publishes
+  interactive review evidence through a Cloudflare-previewed result pull request.
+
 ### Changed
 
 - Re-composed prominent website and showcase headings around complete semantic phrases, and taught

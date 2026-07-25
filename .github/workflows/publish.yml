@@ -221,3 +221,25 @@ jobs:
             arguments+=(--prerelease)
           fi
           gh release create "${arguments[@]}"
+
+  smoke:
+    name: Queue Codex release smoke
+    needs: [audit, record]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Dispatch the post-release user journey
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_COMMIT: ${{ needs.audit.outputs.source-commit }}
+          RELEASE_VERSION: ${{ needs.audit.outputs.version }}
+        run: |
+          gh api \
+            --method POST \
+            "repos/$GITHUB_REPOSITORY/actions/workflows/release-smoke.yml/dispatches" \
+            --raw-field ref=main \
+            --field "inputs[version]=$RELEASE_VERSION" \
+            --field "inputs[source_commit]=$RELEASE_COMMIT"
