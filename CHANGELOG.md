@@ -11,7 +11,7 @@ section, while commit snapshots use the current Unreleased section.
 
 - Added a post-release Codex smoke workflow that exercises the public AI handoff through surprise
   and guided interviews, builds the generated decks without the API secret, and publishes
-  interactive review evidence through a Cloudflare-previewed result pull request.
+  interactive review evidence through an immutable Cloudflare Pages deployment.
 
 ### Changed
 

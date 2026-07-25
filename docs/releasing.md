@@ -154,10 +154,11 @@ Both projects start from the exact published `create-drever` version. The
 preparation job installs the release and reduces it to inert authoring context.
 A fresh secret-bearing runner downloads that context into quarantine and
 rebuilds it again from an exact regular-file allowlist before starting the
-official Codex Action. It receives `OPENAI_API_KEY` through the Action input
-and installs a `PreToolUse` hook configured to deny shell calls while the
-protected credential proxy is active. Codex receives the exact prompt, project
-contract, and skills as preloaded context and authors through `apply_patch`.
+official Codex Action. It receives
+`DREVER_RELEASE_SMOKE_OPENAI_API_KEY` through the Action input and installs a
+`PreToolUse` hook configured to deny shell calls while the protected
+credential proxy is active. Codex receives the exact prompt, project contract,
+and skills as preloaded context and authors through `apply_patch`.
 Before every resumed turn, the harness rejects new executable configuration,
 symlinks, or changes to its immutable instructions. Generated project code
 cannot execute in this job. A separate job with no OpenAI secret installs the
@@ -168,30 +169,34 @@ Chromium. The guided journey must also produce speaker notes.
 
 Successful runs retain a sanitized conversation, source allowlist, build
 receipts, and the real interactive static decks—never screenshots. A final
-job with no OpenAI secret opens or updates a result pull request under
+job with no OpenAI secret publishes a review branch containing
 `website/content/release-smoke/` and `website/public/release-smoke/`. The
-existing Cloudflare Pages Git integration first deploys the result branch. The
-job reads the matching check for that exact commit, replaces the mutable branch
+existing Cloudflare Pages Git integration first deploys that branch. The job
+reads the matching check for the exact commit, replaces the mutable branch
 alias with Cloudflare's unique hash URL, commits the pinned evidence, and only
-then deploys the pinned report. Its pull request body links that second
+then deploys the pinned report. The workflow summary links that second
 immutable report while its deck links stay on the first immutable deployment.
-Before opening the pull request, the workflow fetches the report, run record,
+Before publishing the summary, the workflow fetches the report, run record,
 audience view, document view, and authored source from those exact origins and
 rechecks the release and harness provenance.
 Cloudflare documents these atomic URLs as remaining visitable in the future;
 deletion is an explicit operation rather than a time-based preview expiry. The
 interactive deck and AI-authored source stay on that immutable, isolated Pages
 origin. The production build removes both and embeds the deck cross-origin.
-Human review and merge are required before its conversation and verification
-record reaches the production website.
+Human review and a maintainer-created pull request are required before its
+conversation and verification record reaches the production website. GitHub
+combines permission for Actions to create pull requests with permission to
+approve them, so Drever deliberately leaves both disabled.
 
 Create a protected GitHub environment named `ai-release-smoke`, limit it to
-the `main` branch, add a required reviewer, and configure `OPENAI_API_KEY` as
-an environment secret there. Do not configure it as a repository secret,
-expose it as a job-level environment variable, or reuse it in preparation,
-build, and publishing jobs. The result publisher uses a Markdown body file
-rather than terminal output so ANSI control sequences and raw logs cannot
-enter the pull request description.
+the `main` branch, and configure `DREVER_RELEASE_SMOKE_OPENAI_API_KEY` as an
+environment secret there. Drever's environment uses a required reviewer, with
+self-review allowed for the sole maintainer, so every smoke run has one
+explicit approval before the key becomes available. Do not configure the key
+as a repository secret, expose it as a job-level environment variable, or
+reuse it in preparation, build, and publishing jobs. The result publisher uses
+a Markdown summary file rather than raw terminal output so ANSI control
+sequences and raw logs cannot enter the workflow summary.
 
 ## One-time npm bootstrap
 

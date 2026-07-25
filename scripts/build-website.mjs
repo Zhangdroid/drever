@@ -163,6 +163,7 @@ const requiredFiles = [
   "robots.txt",
   "llms.txt",
   "prompt.md",
+  "release-smoke/manifest.json",
   "social-card.png",
   "sitemap.xml",
   ...siteEntryFiles,

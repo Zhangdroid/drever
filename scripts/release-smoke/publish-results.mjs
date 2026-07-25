@@ -254,7 +254,7 @@ const summary =
 Codex creation journeys against the exact published package. The generation
 harness came from commit \`${harnessCommit}\`; Drever ${version} came from
 release commit \`${releaseCommit}\`.`
-    : `This automated PR records two real, multi-turn Codex creation journeys against
+    : `This automated review branch records two real, multi-turn Codex creation journeys against
 the exact published package.`;
 const provenanceLink =
   resultKind === "preview"
