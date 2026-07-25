@@ -85,8 +85,9 @@ needed to audit it.
 ## Motion
 
 Ledger supports `focus`, `replace`, `compare`, `stagger`, and `continuity`.
-Motion settles quickly onto a baseline with short travel, as if a finding were
-being recorded rather than performed.
+Pages enter like new records: use direct cuts and keep the ruled surface stable.
+Motion belongs to the number, audit row, or decision line being written, not to
+the whole page.
 
 Use `flow="block"` for an audit trail, ranked list, or vertically ordered
 evidence. Use `flow="inline"` for periods, cohorts, or a horizontal comparison.

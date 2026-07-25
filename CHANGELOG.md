@@ -5,6 +5,19 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+### Changed
+
+- Gave all eight official design studies distinct motion vocabularies and cadences, then expanded
+  their reference decks beyond one repeated three-page, left-copy/right-artifact continuity formula.
+- Taught generated creation, design, authoring, and review workflows to treat motion consistency as
+  a shared vocabulary of cuts, fades, local handoffs, Steps, and selective continuity—not a View
+  Transition on every page.
+
+### Fixed
+
+- Stabilized Cinema's changing media frame so its border, crop, and supporting composition no
+  longer pop into place after the second-to-third-slide handoff.
+
 ## [0.2.3] - 2026-07-25
 
 ### Added

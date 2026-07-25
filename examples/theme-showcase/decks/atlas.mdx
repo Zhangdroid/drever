@@ -1,18 +1,17 @@
 import { AtlasRiver } from "../components/atlas-river.tsx";
+import { ShowcaseExit } from "../components/showcase-exit.tsx";
 import "../../showcase-return.css";
 import "../components/atlas-decision.css";
 
 <section className="atlas-study atlas-study--route">
   <header className="atlas-study__copy">
-    <p className="atlas-study__label">Illustrative restoration plan / Alder River</p>
+    <p className="atlas-study__label">Illustrative restoration plan / 01</p>
     <h1>
       <span>Give the salmon</span>
       <span>a continuous</span>
       <span>cold-water path.</span>
     </h1>
-    <p>
-      Four interventions follow the river upstream. Each one unlocks the next habitat.
-    </p>
+    <p>Three interventions follow the river upstream. Each one unlocks the next habitat.</p>
   </header>
 
   <MotionGroup
@@ -33,7 +32,7 @@ import "../components/atlas-decision.css";
 
 <section className="atlas-study atlas-study--thermal">
   <header className="atlas-study__copy">
-    <p className="atlas-study__label">Illustrative thermal survey / August</p>
+    <p className="atlas-study__label">Illustrative thermal survey / 02</p>
     <h2>
       <span>One exposed bend</span>
       <span>breaks the cold corridor.</span>
@@ -60,17 +59,62 @@ import "../components/atlas-decision.css";
 
 ---
 
+<SlideTransition from="previous" mode="local" />
+
+<section className="atlas-study atlas-study--sequence">
+  <header className="atlas-study__sequence-heading">
+    <p className="atlas-study__label">Illustrative intervention order / 03</p>
+    <h2>
+      <span>Treat the river</span>
+      <span>in the order it fails.</span>
+    </h2>
+    <p>Advance upstream only when the previous constraint has a measurable answer.</p>
+  </header>
+
+  <MotionGroup className="atlas-study__sequence-steps" flow="inline" intent="focus">
+    <Step at={1}>
+      <article>
+        <span>01 · Culvert</span>
+        <strong>Remove the culvert.</strong>
+        <p>Spring flow below 0.8 m/s opens the route.</p>
+      </article>
+    </Step>
+    <Step at={2}>
+      <article>
+        <span>02 · Canopy</span>
+        <strong>Restore the canopy.</strong>
+        <p>The exposed bend must remain below 15 °C.</p>
+      </article>
+    </Step>
+    <Step at={3}>
+      <article>
+        <span>03 · Passage</span>
+        <strong>Reconnect the marsh.</strong>
+        <p>Adult passage confirms the corridor is continuous.</p>
+      </article>
+    </Step>
+  </MotionGroup>
+</section>
+
+<Note>
+  This page deliberately cuts away from the map instead of carrying another full-slide View
+  Transition. Reveal the three interventions in causal order. Each Step adds one checkable gate; the
+  audience should understand why the sequence cannot be rearranged.
+</Note>
+
+---
+
 <section className="atlas-study atlas-study--gates">
   <header className="atlas-study__copy">
-    <p className="atlas-study__label">Illustrative restoration decision / 15 September 2026</p>
+    <p className="atlas-study__label">Illustrative evidence gates / 04</p>
     <h2>
-      <span>Restore continuity,</span>
-      <span>then measure passage.</span>
+      <span>Every promise gets</span>
+      <span>an observable gate.</span>
     </h2>
     <section aria-label="Next restoration decision" className="atlas-study__decision">
-      <strong>Authorize the Mill Road culvert design.</strong>
+      <strong>The first gate is ready for a decision.</strong>
       <p>
-        Alder River restoration lead proceeds after spring flow confirms the gate below 0.8 m/s.
+        Spring flow can authorize the crossing without pretending the later habitat work is done.
       </p>
     </section>
   </header>
@@ -84,20 +128,47 @@ import "../components/atlas-decision.css";
   </MotionGroup>
 </section>
 
-<nav aria-label="Continue with Drever" className="drever-example-exit">
-  <a
-    className="drever-example-exit__primary"
-    data-drever-showcase-return=""
-    href="https://drever.dev/docs/getting-started/"
-  >
-    {"Start a deck"}
-  </a>
-  <a className="drever-example-exit__secondary" href="https://drever.dev/showcase/">
-    {"More design studies"}
-  </a>
-</nav>
+<Note>
+  Return to the map after the ordered reveal. The three evidence gates now sit on the geography that
+  gives them meaning. Keep the first gate prominent and the later gates readable but quieter.
+</Note>
+
+---
+
+<SlideTransition from="previous" mode="local" />
+
+<section className="atlas-study atlas-study--commit">
+  <p className="atlas-study__label">Illustrative restoration decision / 05</p>
+  <div className="atlas-study__commit-copy">
+    <span>Gate 01 · Culvert</span>
+    <h2>Authorize the Mill Road culvert design.</h2>
+    <p>
+      Alder River restoration lead proceeds when spring flow confirms passage below 0.8 m/s.
+    </p>
+  </div>
+  <ol className="atlas-study__commit-gates">
+    <li data-state="ready">
+      <span>Now</span>
+      <strong>Culvert</strong>
+      <small>Flow gate ready</small>
+    </li>
+    <li>
+      <span>Next</span>
+      <strong>Canopy</strong>
+      <small>Temperature gate pending</small>
+    </li>
+    <li>
+      <span>Then</span>
+      <strong>Passage</strong>
+      <small>Adult return pending</small>
+    </li>
+  </ol>
+
+  <ShowcaseExit />
+</section>
 
 <Note>
-  The river remains visible while the route becomes an accountable set of evidence gates. Close on
-  the one decision available now; canopy and passage remain later gates rather than a generic table.
+  End with one authorized action and keep the two later gates visible as an ordered dependency. The
+  final slide uses a direct local handoff so the audience reads the decision rather than another map
+  morph.
 </Note>

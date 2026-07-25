@@ -73,7 +73,11 @@ substantial local visual implementation is welcome when it earns its space throu
 atmosphere, or interaction; do not reduce it merely to minimize generated code. Shared transitions
 may connect the same object or clearly corresponding semantic or visual objects, but never an
 arbitrary morph: keep the shared feature and endpoint geometry deliberate, and spend the moment's
-attention budget on that handoff.
+attention budget on that handoff. Use a theme-led transition vocabulary rather than one effect on
+every page: direct cuts, restrained fades, local live-DOM changes, Steps, and a few continuity
+handoffs may coexist when they fit the subject. End a shared-object sequence when the object stops
+carrying the argument. When producing several reference directions, vary their narrative length,
+density, composition rhythm, Step grammar, and motion cadence—not merely palette and typography.
 
 ## Finish the job
 

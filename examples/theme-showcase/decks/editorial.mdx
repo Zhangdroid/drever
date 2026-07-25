@@ -1,123 +1,175 @@
 import { ReadingHours } from "../components/editorial-reading-hours.tsx";
+import { ShowcaseExit } from "../components/showcase-exit.tsx";
 import "../../showcase-return.css";
 import "../components/editorial-study.css";
 
 <section
-  aria-label="The doors close at six. Demand peaks afterward."
-  className="theme-showcase-editorial-study theme-showcase-editorial-study--opening"
+  aria-label="The quiet hour arrives after closing."
+  className="theme-showcase-editorial-study theme-showcase-editorial-study--cover"
 >
-  <div className="theme-showcase-editorial-study__copy">
-    <span className="theme-showcase-editorial-study__kicker">
-      Illustrative civic brief / Evening edition
-    </span>
+  <header className="theme-showcase-editorial-study__masthead">
+    <span>The Evening Reader</span>
+    <span>Illustrative civic brief · No. 04</span>
+  </header>
+  <div className="theme-showcase-editorial-study__cover-copy">
+    <span className="theme-showcase-editorial-study__kicker">Opening hours</span>
     <h1>
-      <span>The doors close at six.</span>
-      <span>Demand peaks afterward.</span>
+      <span>The quiet hour</span>
+      <span>arrives after closing.</span>
     </h1>
-    <p>A small opening-hours decision can determine who gets a quiet place to read.</p>
+    <p>A weekday reading room, the people who arrive late, and one small service test.</p>
   </div>
-  <MotionGroup
-    className="theme-showcase-editorial-study__artifact"
-    intent="continuity"
-    name="editorial-reading-hours"
-  >
-    <ReadingHours phase="framing" />
-  </MotionGroup>
+  <footer className="theme-showcase-editorial-study__folio">
+    <span>Evening edition</span>
+    <span>01</span>
+  </footer>
 </section>
 
 <Note>
-  Begin with the service contradiction, not a generic statement about public space. The four-hour
-  time band is the evidence object the audience will follow.
+  Treat the opening as a magazine cover, not a dashboard. The contradiction is the headline; all
+  figures in this five-page feature are explicitly illustrative.
 </Note>
 
 ---
 
+<SlideTransition from="previous" mode="local" />
+
 <section
-  aria-label="Three arrive by six. Seven arrive later."
-  className="theme-showcase-editorial-study theme-showcase-editorial-study--evidence"
+  aria-label="At six, the room empties. The need does not."
+  className="theme-showcase-editorial-study theme-showcase-editorial-study--article"
 >
-  <div className="theme-showcase-editorial-study__copy">
-    <span className="theme-showcase-editorial-study__kicker">
-      Illustrative arrival study / Weekdays
-    </span>
-    <h2>
-      <span>Three arrive by six.</span>
-      <span>Seven arrive later.</span>
-    </h2>
-    <p>
-      The observed pattern concentrates between 18:00 and 20:00, after the current service has
-      ended.
-    </p>
-    <div className="theme-showcase-editorial-study__finding">
-      <strong>70%</strong>
-      <span>of the illustrative arrivals fall beyond the closing line</span>
+  <header className="theme-showcase-editorial-study__running-head">
+    <span>The Evening Reader / Opening hours</span>
+    <span>02</span>
+  </header>
+  <article className="theme-showcase-editorial-study__article">
+    <h2>At six, the room empties. The need does not.</h2>
+    <div className="theme-showcase-editorial-study__columns">
+      <p className="theme-showcase-editorial-study__lead">
+        In this illustrative weekday pattern, the current schedule serves the afternoon and misses
+        most people arriving after work.
+      </p>
+      <p>
+        The question is not whether the room should stay open every night. It is whether two later
+        evenings would reach a different part of the neighborhood.
+      </p>
+      <aside>
+        <strong>7 of 10</strong>
+        <span>illustrative arrivals occur after the current closing time</span>
+      </aside>
     </div>
-  </div>
-  <MotionGroup
-    className="theme-showcase-editorial-study__artifact"
-    intent="continuity"
-    name="editorial-reading-hours"
-  >
-    <ReadingHours phase="evidence" />
-  </MotionGroup>
+  </article>
+  <footer className="theme-showcase-editorial-study__folio">
+    <span>Illustrative observation</span>
+    <span>02</span>
+  </footer>
 </section>
 
 <Note>
-  Keep the claim exactly as narrow as the illustrative pattern. The arrival marks gain emphasis,
-  while the closing line and the time scale remain fixed.
+  Reveal this page like the first turn of a printed feature. The reading order is headline, two
+  short columns, then the margin statistic; the page does not preserve a right-side artifact from
+  the cover.
 </Note>
 
 ---
 
 <section
-  aria-label="Stay open until eight. Test it twice a week."
+  aria-label="Seven of ten arrivals fall beyond the closing line."
+  className="theme-showcase-editorial-study theme-showcase-editorial-study--data"
+>
+  <header className="theme-showcase-editorial-study__running-head">
+    <span>The Evening Reader / The observed pattern</span>
+    <span>03</span>
+  </header>
+  <div className="theme-showcase-editorial-study__data-heading">
+    <h2>Most arrivals begin after the doors close.</h2>
+    <p>
+      <strong>70%</strong>
+      <span>after 18:00</span>
+    </p>
+  </div>
+  <ReadingHours phase="evidence" />
+  <footer className="theme-showcase-editorial-study__folio">
+    <span>Illustrative weekday arrival pattern</span>
+    <span>03</span>
+  </footer>
+</section>
+
+<Note>
+  Let the data spread occupy the full page. The timeline keeps one fixed scale and clearly labels
+  the fictional scenario; no shared-element transition is required for the evidence to land.
+</Note>
+
+---
+
+<SlideTransition from="previous" mode="local" />
+
+<section
+  aria-label="The gap is not demand. It is time."
+  className="theme-showcase-editorial-study theme-showcase-editorial-study--interlude"
+>
+  <header className="theme-showcase-editorial-study__running-head">
+    <span>The Evening Reader / Interpretation</span>
+    <span>04</span>
+  </header>
+  <div className="theme-showcase-editorial-study__interlude-copy">
+    <span className="theme-showcase-editorial-study__kicker">Reading the pattern</span>
+    <h2>The gap is not demand. It is time.</h2>
+    <p>
+      Closing at six removes the service precisely when the illustrative evening audience arrives.
+    </p>
+    <Step at={1} className="theme-showcase-editorial-study__margin-note">
+      Schedule mismatch → bounded service test
+    </Step>
+  </div>
+  <footer className="theme-showcase-editorial-study__folio">
+    <span>Interpretation, not observed fact</span>
+    <span>04</span>
+  </footer>
+</section>
+
+<Note>
+  Pause on the interpretation, then advance once to reveal the editorial margin note. This is the
+  feature's only stepped annotation, so the motion translates evidence into a test instead of
+  decorating the page.
+</Note>
+
+---
+
+<section
+  aria-label="Keep the doors open until eight, twice a week."
   className="theme-showcase-editorial-study theme-showcase-editorial-study--decision"
 >
-  <div className="theme-showcase-editorial-study__copy">
-    <span className="theme-showcase-editorial-study__kicker">
-      Illustrative service pilot / Four weeks
-    </span>
-    <h2>
-      <span>Stay open until eight.</span>
-      <span>Test it twice a week.</span>
-    </h2>
-    <dl className="theme-showcase-editorial-study__decision">
-      <div>
-        <dt>When</dt>
-        <dd>Tuesday and Thursday · 18:00–20:00</dd>
-      </div>
-      <div>
-        <dt>Owner</dt>
-        <dd>Neighborhood services lead</dd>
-      </div>
-      <div>
-        <dt>Review</dt>
-        <dd>Visits, occupied seats, and staffing after four weeks</dd>
-      </div>
-    </dl>
-    <nav aria-label="Continue with Drever" className="drever-example-exit">
-      <a
-        className="drever-example-exit__primary"
-        data-drever-showcase-return=""
-        href="https://drever.dev/docs/getting-started/"
-      >
-        {"Start a deck"}
-      </a>
-      <a className="drever-example-exit__secondary" href="https://drever.dev/showcase/">
-        {"More design studies"}
-      </a>
-    </nav>
+  <header className="theme-showcase-editorial-study__running-head">
+    <span>The Evening Reader / Service notice</span>
+    <span>05</span>
+  </header>
+  <div className="theme-showcase-editorial-study__decision-copy">
+    <span className="theme-showcase-editorial-study__kicker">Four-week pilot</span>
+    <h2>Keep the doors open until eight, twice a week.</h2>
   </div>
-  <MotionGroup
-    className="theme-showcase-editorial-study__artifact"
-    intent="continuity"
-    name="editorial-reading-hours"
-  >
-    <ReadingHours phase="decision" />
-  </MotionGroup>
+  <dl className="theme-showcase-editorial-study__decision-list">
+    <div>
+      <dt>When</dt>
+      <dd>Tuesday and Thursday · 18:00–20:00</dd>
+    </div>
+    <div>
+      <dt>Owner</dt>
+      <dd>Neighborhood services lead</dd>
+    </div>
+    <div>
+      <dt>Review</dt>
+      <dd>Visits, occupied seats, and staffing after four weeks</dd>
+    </div>
+  </dl>
+  <ShowcaseExit />
+  <footer className="theme-showcase-editorial-study__folio">
+    <span>Illustrative service pilot</span>
+    <span>05</span>
+  </footer>
 </section>
 
 <Note>
-  Extend the same band rather than replacing it with a summary card. Close with a bounded schedule,
-  one owner, and the evidence that will decide whether the service continues.
+  End like a printed service notice: one proposed schedule, one owner, and one review standard.
+  Every claim remains illustrative, while the two exit links give the reader a clear next page.
 </Note>

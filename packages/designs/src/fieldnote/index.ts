@@ -76,8 +76,8 @@ export const theme = defineTheme({
       "Use focus to move attention through notes in the same order a person would write or discuss them.",
       "Use replace only when one sketch, answer, or worked state changes inside a stable paper frame.",
       "Use compare for evidence that must remain visible and stagger for no more than four parts of one explanation.",
-      "Fieldnote slide changes settle gently along the writing axis, never simulating handwriting across whole paragraphs.",
-      "Share continuity only when the same note, sketch, image, or worked object persists across adjacent slides.",
+      "Fieldnote uses quiet page cuts and occasional annotation reveals along the writing axis, never simulated handwriting across whole paragraphs.",
+      "Share continuity only when the same note, sketch, image, or worked object persists across adjacent pages; the notebook should not become a fixed two-column template.",
     ],
   },
   layouts: [

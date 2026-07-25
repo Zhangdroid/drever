@@ -1,3 +1,4 @@
+import { ShowcaseExit } from "../components/showcase-exit.tsx";
 import "../components/construct-routine.css";
 import "../../showcase-return.css";
 
@@ -28,7 +29,7 @@ import "../../showcase-return.css";
 
 <Assembly
   className="theme-showcase-handoff-assembly"
-  label="Reliable handoff"
+  label="Reliable handoff / 02"
   title="Three named parts create one actionable transfer."
   parts={[
     <span>
@@ -116,21 +117,37 @@ import "../../showcase-return.css";
     <strong>Run it now · 3 minutes.</strong>
     <span>Send only when the recipient can name the next decision and recognize done.</span>
   </div>
-  <nav aria-label="Continue with Drever" className="drever-example-exit">
-    <a
-      className="drever-example-exit__primary"
-      data-drever-showcase-return=""
-      href="https://drever.dev/docs/getting-started/"
-    >
-      {"Start a deck"}
-    </a>
-    <a className="drever-example-exit__secondary" href="https://drever.dev/showcase/">
-      {"More design studies"}
-    </a>
-  </nav>
 </section>
 
 <Note>
   The empty rail is a meaningful starting state. Each advance fills one test segment; when Patch
   lands, the send gate becomes ready as the quieter consequence of the same action.
+</Note>
+
+---
+
+<SlideTransition from="previous" mode="local" />
+
+<section className="theme-showcase-construct-close">
+  <p>Illustrative send gate / 04</p>
+  <div className="theme-showcase-construct-close__statement">
+    <span aria-hidden="true">Ready</span>
+    <h2>
+      <span>The next decision survives</span>
+      <span>your absence.</span>
+    </h2>
+    <p>One owner. Enough context. A visible definition of done.</p>
+  </div>
+  <div aria-label="Handoff checks complete" className="theme-showcase-construct-close__checks">
+    <span>Owner ✓</span>
+    <span>Context ✓</span>
+    <span>Acceptance ✓</span>
+  </div>
+  <ShowcaseExit />
+</section>
+
+<Note>
+  Finish on the criterion rather than another process diagram. The local handoff assembles the
+  result in discrete phases: status, statement, then checks. Pause long enough for the audience to
+  test the sentence against their own handoff.
 </Note>

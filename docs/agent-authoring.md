@@ -252,10 +252,14 @@ correspondence, invent animation props, or add Step stops merely to create
 delay. Continuity may connect the same object or clearly corresponding semantic
 or visual objects, but matching color or shape alone is insufficient. Share the
 smallest stable feature, keep endpoint geometry and paint deliberate, and count
-the handoff as the primary motion for that moment. Recurring decoration keeps
-stable geometry and paint. If semantically linked copy transforms, use one local
-fixed slot after capture rather than sharing changing glyphs through a View
-Transition. The full grammar and accessibility semantics are in
+the handoff as the primary motion for that moment. End the continuity sequence
+when its object stops carrying the argument. A theme owns a coherent vocabulary,
+not one transition on every edge: direct cuts, quiet fades, local
+`SlideTransition` handoffs, Steps, and a few shared-object transitions can
+coexist when their cadence fits the subject. Recurring decoration keeps stable
+geometry and paint. If semantically linked copy transforms, use one local fixed
+slot after capture rather than sharing changing glyphs through a View Transition.
+The full grammar and accessibility semantics are in
 [Motion choreography](./motion.md).
 
 ## Recommended loop

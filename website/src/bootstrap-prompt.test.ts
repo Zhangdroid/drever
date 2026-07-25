@@ -19,4 +19,10 @@ describe("public bootstrap prompt", () => {
     expect(prompt).toMatch(/computed foreground styles/iu);
     expect(prompt).toMatch(/across every Step/iu);
   });
+
+  it("requires a varied transition vocabulary and structurally distinct references", () => {
+    expect(prompt).toMatch(/transition vocabulary rather than one effect on\s+every page/iu);
+    expect(prompt).toMatch(/direct cuts[^.]*restrained fades[^.]*local live-DOM/iu);
+    expect(prompt).toMatch(/vary their narrative length,\s+density,\s+composition rhythm/iu);
+  });
 });

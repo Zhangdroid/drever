@@ -75,8 +75,8 @@ export const theme = defineTheme({
       "Use focus or replace to explain one meaningful system state at a time.",
       "Use compare for persistent alternatives and stagger for at most four parts of one artifact.",
       "Follow system topology: use inline flow for pipelines and block flow for traces, stacks, or vertically ordered states.",
-      "Studio slide changes use a short state commit so each new system state feels precise rather than softly paged in.",
-      "Share a continuity name only when a diagram node, interface, or object persists across slides.",
+      "Studio prefers short state commits and local Step changes so new system states feel precise rather than softly paged in.",
+      "Share a continuity name only for a short diagnostic sequence where a diagram node, interface, or object genuinely persists.",
     ],
   },
   layouts: [

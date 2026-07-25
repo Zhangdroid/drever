@@ -104,10 +104,10 @@ Public props:
 ## Motion
 
 Basic supports Drever's complete semantic motion grammar: `focus`, `replace`,
-`compare`, `stagger`, and `continuity`. Its mapping uses quiet fades and short
-spatial movement so the current decision is clear without competing with the
-content. The exported theme definition exposes the same supported intents and
-author guidance as JSON-safe metadata.
+`compare`, `stagger`, and `continuity`. Its page rhythm favors direct cuts and
+occasional opacity-only fades; short spatial movement belongs inside a focused
+content reveal rather than every navigation edge. The exported theme definition
+exposes the same supported intents and author guidance as JSON-safe metadata.
 
 Intent explains why content moves; optional flow identifies its logical
 progression axis; the theme supplies the visual voice. Use `flow="block"` for a

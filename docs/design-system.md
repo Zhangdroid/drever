@@ -469,6 +469,14 @@ primitive without adopting the brand palette or product type scale. Themes must 
 extend one another, import another theme's CSS, or place product UI rules
 inside a slide stylesheet.
 
+The studies must also remain structurally distinct. Their reference decks should
+not all converge on one page count, left-copy/right-artifact skeleton,
+persistent object, or View Transition cadence with only cosmetic substitutions.
+Each study needs its own composition rhythm, density range, Step grammar, and
+motion vocabulary; traditional directions may use mostly direct cuts while
+spatial or artifact-led directions reserve continuity for a short meaningful
+sequence.
+
 Theme metadata should expose resolved literal values for people and AI. Theme
 CSS may map those values to brand custom properties, but authoring context must
 not receive unresolved `var(...)` strings. Preserve documented

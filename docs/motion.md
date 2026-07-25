@@ -32,11 +32,14 @@ deck, and review Skill:
    delight, but it must reinforce the current idea and remain subordinate to
    reading. Quiet does not mean imperceptible: the cue must still communicate
    its job at presentation distance. Repeated generic entrances are not a
-   visual voice. Give the deck one theme-led whole-slide transition voice:
-   directional travel only when space matters, a reading-edge reveal for
-   editorial progression, a precise state commit for technical work, or a
-   quiet fade when the page change is not the subject. Do not randomize
-   transitions slide by slide.
+   visual voice. Give the deck one theme-led transition vocabulary rather than
+   one mandatory effect: direct cuts, quiet fades, local live-DOM handoffs,
+   Steps, and a few continuity transitions may coexist when their cadence and
+   gesture fit the subject. Directional travel applies only when space matters,
+   a reading-edge reveal can support editorial progression, a precise state
+   commit can support technical work, and a traditional or minimal deck may
+   use mostly cuts. Do not randomize transitions slide by slide or apply a View
+   Transition on every edge merely to manufacture consistency.
 4. **Move the smallest meaningful object.** Persistent titles, layout anchors,
    Stage shells, backgrounds, page numbers, branding, dialogs, and audience
    controls stay live and stationary. Animate only the child whose narrative
@@ -88,13 +91,13 @@ appropriate.
 `continuity` rejects `flow` because shared-object motion comes from the two
 authored layouts instead of a reveal direction.
 
-Official themes have distinct motion voices. Basic favors unadorned fades and
-short travel; Editorial fades through a subtle reading-edge cue; Studio uses a
-brief, precise state commit; Fieldnote follows writing order;
-Atlas advances along a declared route; Ledger preserves row and column
-alignment; Cinema uses stable cuts and restrained dissolves; Construct adds one
-meaningful part at a time. These mappings stay theme-owned; authors never
-select the underlying effect.
+Official themes have distinct motion vocabularies. Basic relies on direct cuts
+with occasional quiet fades; Editorial turns selected reading edges; Studio
+commits local interface states; Fieldnote follows annotation and writing order;
+Atlas advances a short route-led sequence; Ledger cuts between records and
+reveals rows in place; Cinema edits with stable cuts and restrained dissolves;
+Construct assembles one meaningful part at a time. These mappings stay
+theme-owned; authors never select the underlying effect merely for novelty.
 
 Use motion only when it explains a state change. Ordinary `Step` elements are
 the right default for progressive disclosure.

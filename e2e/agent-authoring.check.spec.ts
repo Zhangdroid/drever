@@ -220,7 +220,7 @@ test("the built CLI exposes the canonical basic-deck authoring context", async (
       id: "basic",
       intents: ["focus", "replace", "compare", "stagger", "continuity"],
       guidance: expect.arrayContaining([
-        "Reuse a continuity name only when the same visual object persists across adjacent slides.",
+        "Reuse a continuity name only when the same visual object persists across adjacent slides, then end the sequence as soon as it stops carrying the argument.",
       ]),
     },
   });

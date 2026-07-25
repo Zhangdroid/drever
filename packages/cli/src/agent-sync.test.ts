@@ -106,6 +106,24 @@ describe("agent kit sync", () => {
     }
   });
 
+  it("installs the varied transition and design-family contract", async () => {
+    const root = await temporaryDirectory("drever-agent-project-");
+    await syncAgentKit({ root });
+
+    const createDeck = await read(root, ".agents/skills/drever-create-deck/SKILL.md");
+    const createDesign = await read(root, ".agents/skills/drever-create-design/SKILL.md");
+    const authorDeck = await read(root, ".agents/skills/drever-author-deck/SKILL.md");
+    const reviewDeck = await read(root, ".agents/skills/drever-review-deck/SKILL.md");
+
+    expect(createDeck).toMatch(/do not mistake consistency for one effect on every edge/iu);
+    expect(createDesign).toMatch(/seven recolored versions[^.]*are one design,\s+not seven/iu);
+    expect(authorDeck).toMatch(/Do not apply native View Transitions to every edge/iu);
+    expect(authorDeck).not.toContain("one theme-led whole-slide transition voice");
+    expect(reviewDeck).toMatch(
+      /Flag both random effects and a View Transition applied to every edge/iu,
+    );
+  });
+
   it("installs the complete kit and reports a stable idempotent result", async () => {
     const root = await temporaryDirectory("drever-agent-project-");
     const templateRoot = await createTemplateKit("v1");
