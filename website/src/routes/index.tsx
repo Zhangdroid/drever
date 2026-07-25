@@ -97,9 +97,13 @@ function HomePage() {
       <section className="home-hero">
         <div className="home-hero__copy">
           <h1>
-            Slides that <span>move</span>
-            <br />
-            with your ideas.
+            <span className="home-hero__line">Slides that</span>
+            <span className="home-hero__line">
+              <span className="home-hero__highlight">move</span>
+            </span>
+            <span className="home-hero__line">
+              with your <span className="home-hero__mobile-line">ideas.</span>
+            </span>
           </h1>
           <p className="home-hero__lede">
             Create expressive presentations with AI, refine every detail, and respond to the room

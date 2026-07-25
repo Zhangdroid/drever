@@ -10,24 +10,27 @@
 }
 
 .home-hero__copy h1 {
-  max-width: 10ch;
   margin: 0;
   font-family: var(--drever-brand-font-family-display);
   font-size: clamp(3.8rem, 7.2vw, 7rem);
   font-weight: 620;
   letter-spacing: -0.058em;
   line-height: 0.9;
-  text-wrap: balance;
 }
 
-.home-hero__copy h1 span {
+.home-hero__line {
+  display: block;
+  white-space: nowrap;
+}
+
+.home-hero__highlight {
   position: relative;
   z-index: 0;
   display: inline-block;
   color: var(--site-ink);
 }
 
-.home-hero__copy h1 span::after {
+.home-hero__highlight::after {
   position: absolute;
   z-index: -1;
   right: -0.08em;
@@ -2789,6 +2792,10 @@
 @media (max-width: 48rem) {
   .home-hero {
     padding-inline: var(--site-gutter);
+  }
+
+  .home-hero__mobile-line {
+    display: block;
   }
 
   .home-hero__copy h1 {
