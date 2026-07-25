@@ -432,6 +432,14 @@
   white-space: pre-wrap;
 }
 
+.release-smoke__preview-note {
+  max-width: 54rem;
+  margin: 1.4rem 0 0;
+  color: var(--site-muted);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
 .release-smoke__checks {
   height: fit-content;
   padding: 1.4rem;

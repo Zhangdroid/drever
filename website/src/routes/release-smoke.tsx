@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ArrowUpRightIcon, CheckIcon, PlayIcon } from "../components/icons";
 import { PageHero } from "../components/page-hero";
 import {
+  readableReleaseSmokeMessage,
   releaseSmokeData,
   type ReleaseSmokeCase,
   type ReleaseSmokeRun,
@@ -37,7 +38,7 @@ function RunStatus({ run }: { run: ReleaseSmokeRun }) {
   return (
     <span className="release-smoke__status" data-status={passed ? "passed" : "failed"}>
       <i aria-hidden="true" />
-      {passed ? "Passed" : "Needs attention"}
+      {passed ? "Build verified" : "Build needs attention"}
     </span>
   );
 }
@@ -112,7 +113,7 @@ function CasePreview({ run, scenario }: { run: ReleaseSmokeRun; scenario: Releas
             rel="noreferrer"
             target="_blank"
           >
-            View source <ArrowUpRightIcon />
+            View MDX <ArrowUpRightIcon />
           </a>
         </div>
       </section>
@@ -130,7 +131,7 @@ function CasePreview({ run, scenario }: { run: ReleaseSmokeRun; scenario: Releas
             {scenario.messages.map((message, index) => (
               <li data-role={message.role} key={`${message.role}-${index}`}>
                 <span>{message.role === "user" ? "User" : "Codex"}</span>
-                <p>{message.content}</p>
+                <p>{readableReleaseSmokeMessage(message.content)}</p>
               </li>
             ))}
           </ol>
@@ -140,7 +141,9 @@ function CasePreview({ run, scenario }: { run: ReleaseSmokeRun; scenario: Releas
           <header>
             <span>Verification</span>
             <strong>
-              {scenario.status === "passed" ? "Required checks passed" : "Check failed"}
+              {scenario.status === "passed"
+                ? "Build and surfaces verified"
+                : "Build verification failed"}
             </strong>
           </header>
           <ul>
@@ -273,6 +276,12 @@ function PublishedReleaseSmokePage({ latest }: { latest: ReleaseSmokeRun }) {
         </header>
 
         <RunMetadata run={selectedRun} />
+        {selectedRun.kind === "preview" ? (
+          <p className="release-smoke__preview-note">
+            Owner-authorized seed proof from the real harness. Automated post-release runs appear
+            here after the workflow completes.
+          </p>
+        ) : null}
 
         <nav aria-label="Release smoke scenarios" className="release-smoke__cases">
           {selectedRun.cases.map((scenario, index) => (
