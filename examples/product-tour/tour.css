@@ -466,6 +466,10 @@
   gap: 7px;
 }
 
+[data-drever-slide] .tour-cover--closing h1 {
+  font-size: 82px;
+}
+
 .tour-cover h1 > span {
   width: fit-content;
   white-space: nowrap;
