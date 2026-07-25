@@ -63,9 +63,9 @@ test("defines one real surprise journey and one fully guided journey", () => {
   for (const scenario of releaseSmokeScenarios) {
     assert.ok(scenario.turns.length >= 3);
     assert.match(scenario.turns[0], /^Fetch and follow https:\/\/drever\.dev\/prompt\.md\./u);
-    assert.match(scenario.turns.at(-1), /create the presentation now/iu);
+    assert.match(scenario.turns.at(-1), /refine the\s+narrative/iu);
   }
-  assert.match(getReleaseSmokeScenario("surprise-me").turns.at(-1), /surprise me/iu);
+  assert.match(getReleaseSmokeScenario("surprise-me").turns[1], /^Surprise me\./iu);
   assert.throws(() => getReleaseSmokeScenario("unknown"), /Unknown release smoke scenario/u);
 });
 
@@ -507,7 +507,8 @@ test("keeps the OpenAI key inside the generation job and pins the Codex action",
   );
   assert.doesNotMatch(generateJob, /PREPARED_ROOT:/u);
   assert.match(generateJob, /node "\$AUTOMATION_ROOT\/scripts\/release-smoke\/run-session\.mjs"/u);
-  assert.equal(workflow.match(/secrets\.OPENAI_API_KEY/gu)?.length, 1);
+  assert.equal(workflow.match(/secrets\.DREVER_RELEASE_SMOKE_OPENAI_API_KEY/gu)?.length, 1);
+  assert.doesNotMatch(workflow, /secrets\.OPENAI_API_KEY/gu);
   assert.equal(workflow.match(/overwrite: true/gu)?.length, 3);
   assert.doesNotMatch(workflow, /run_attempt/u);
   assert.match(
@@ -530,9 +531,9 @@ test("keeps the OpenAI key inside the generation job and pins the Codex action",
   );
   assert.ok(workflow.indexOf("pin-preview-origin.mjs") < workflow.indexOf("pin-report-link.mjs"));
   assert.ok(
-    workflow.indexOf("pin-report-link.mjs") <
-      workflow.indexOf("Open or update the result pull request"),
+    workflow.indexOf("pin-report-link.mjs") < workflow.indexOf("Publish the review summary"),
   );
+  assert.doesNotMatch(workflow, /pull-requests: write|gh pr (?:create|edit)/u);
   const buildJob = workflow.slice(workflow.indexOf("\n  build:"));
   assert.doesNotMatch(buildJob, /OPENAI_API_KEY/u);
   assert.doesNotMatch(workflow, /screenshot|export pdf/iu);

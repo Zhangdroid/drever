@@ -9,16 +9,16 @@ the fetched prompt; do not assume that any question has already been answered.`;
 export const releaseSmokeScenarios = Object.freeze([
   Object.freeze({
     brief:
-      "A fictional checkout experiment improved completion from 68% to 81%, while weekly support requests rose from 6 to 12. Help a product team decide whether to expand it.",
+      "Codex chooses a useful presentation topic and makes the remaining narrative, visual, and motion decisions without further briefing.",
     id: "surprise-me",
     label: "Surprise me",
     mode: "surprise-me",
     turns: Object.freeze([
       sharedFirstTurn,
-      `Create a short presentation for a product team reviewing a fictional checkout experiment.
-Completion improved from 68% to 81%, while weekly support requests rose from 6 to 12.
-The room needs to decide whether to expand the experiment.`,
-      "Skip remaining questions — surprise me. Choose the rest and create the presentation now.",
+      "Surprise me. Choose the topic and every remaining creative decision, then create the presentation now.",
+      `Review the complete authored draft once more. Keep its strongest idea, then refine the
+narrative, composition, hierarchy, motion, and small details wherever the source reveals a
+clear improvement. Do not run validation in this protected stage.`,
     ]),
   }),
   Object.freeze({
@@ -34,9 +34,10 @@ The room needs to decide whether to expand the experiment.`,
 I have eight minutes. By the end, they should be able to choose the three risks
 that deserve owners before launch. Keep visible slides concise and put useful
 facilitation detail in speaker notes.`,
-      `Use expressive but purposeful motion. Favor a practical walkthrough over
-theory, with a calm launch-control or risk-radar visual language. Those are my
-remaining answers; please create the presentation now.`,
+      `Review the complete authored draft once more. Use expressive but purposeful motion and a
+calm launch-control or risk-radar visual language. Preserve what already works, then refine the
+narrative, composition, hierarchy, motion, and small details wherever the source reveals a clear
+improvement. Do not run validation in this protected stage.`,
     ]),
   }),
 ]);

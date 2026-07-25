@@ -153,7 +153,7 @@ jobs:
           allow-bots: true
           codex-version: 0.145.0
           codex-home: ${{ env.CODEX_HOME }}
-          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          openai-api-key: ${{ secrets.DREVER_RELEASE_SMOKE_OPENAI_API_KEY }}
           permission-profile: ":workspace"
           safety-strategy: drop-sudo
           working-directory: ${{ env.PROJECT_ROOT }}
@@ -243,17 +243,16 @@ jobs:
           retention-days: 30
 
   propose:
-    name: Propose website results
+    name: Publish website results
     needs: build
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
       checks: read
       contents: write
-      pull-requests: write
     env:
       AUTOMATION_ROOT: ${{ github.workspace }}/automation
-      PR_BODY: ${{ github.workspace }}/release-smoke-work/result-pr.md
+      RESULT_SUMMARY: ${{ github.workspace }}/release-smoke-work/result-summary.md
       RELEASE_SMOKE_SOURCE_COMMIT: ${{ inputs.source_commit }}
       RELEASE_SMOKE_VERSION: ${{ inputs.version }}
       REPOSITORY_ROOT: ${{ github.workspace }}/repository
@@ -286,7 +285,7 @@ jobs:
           path: ${{ env.RESULTS_ROOT }}
           merge-multiple: true
 
-      - name: Assemble the website data and PR body
+      - name: Assemble the website data and review summary
         run: >
           node "$AUTOMATION_ROOT/scripts/release-smoke/publish-results.mjs"
           "$RELEASE_SMOKE_VERSION"
@@ -298,7 +297,7 @@ jobs:
           "$RESULT_BRANCH"
           "release"
           "${{ github.sha }}"
-          "$PR_BODY"
+          "$RESULT_SUMMARY"
 
       - name: Commit the result branch
         id: commit
@@ -355,7 +354,7 @@ jobs:
             "${{ github.run_id }}" \
             "$RESULT_BRANCH" \
             "${{ steps.pages.outputs.origin }}" \
-            "$PR_BODY"
+            "$RESULT_SUMMARY"
           git add website/content/release-smoke website/public/release-smoke
           git commit -m "docs(release-smoke): pin immutable preview"
           git push origin "HEAD:refs/heads/$RESULT_BRANCH"
@@ -384,43 +383,17 @@ jobs:
           "$RELEASE_SMOKE_SOURCE_COMMIT"
           "${{ github.sha }}"
 
-      - name: Pin the pull request report link
+      - name: Pin the review report link
         if: steps.commit.outputs.changed == 'true'
         run: >
           node "$AUTOMATION_ROOT/scripts/release-smoke/pin-report-link.mjs"
-          "$PR_BODY"
+          "$RESULT_SUMMARY"
           "${{ steps.pages.outputs.origin }}"
           "${{ steps.report.outputs.origin }}"
 
-      - name: Open or update the result pull request
+      - name: Publish the review summary
         if: steps.commit.outputs.changed == 'true'
-        working-directory: ${{ env.REPOSITORY_ROOT }}
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
-          number="$(
-            gh pr list \
-              --repo "$GITHUB_REPOSITORY" \
-              --state open \
-              --head "$RESULT_BRANCH" \
-              --json number \
-              --jq '.[0].number // empty'
-          )"
-          title="AI release smoke · Drever $RELEASE_SMOKE_VERSION"
-          if [[ -n "$number" ]]; then
-            gh pr edit "$number" \
-              --repo "$GITHUB_REPOSITORY" \
-              --title "$title" \
-              --body-file "$PR_BODY"
-            url="$(gh pr view "$number" --repo "$GITHUB_REPOSITORY" --json url --jq .url)"
-          else
-            url="$(
-              gh pr create \
-                --repo "$GITHUB_REPOSITORY" \
-                --base main \
-                --head "$RESULT_BRANCH" \
-                --title "$title" \
-                --body-file "$PR_BODY"
-            )"
-          fi
-          echo "Result proposal: $url" >> "$GITHUB_STEP_SUMMARY"
+          cat "$RESULT_SUMMARY" >> "$GITHUB_STEP_SUMMARY"
+          echo >> "$GITHUB_STEP_SUMMARY"
+          echo "- Result branch: [\`$RESULT_BRANCH\`](https://github.com/$GITHUB_REPOSITORY/tree/$RESULT_BRANCH)" >> "$GITHUB_STEP_SUMMARY"
