@@ -34,6 +34,91 @@ mount point before assets activate, so the artifact works at a domain root or be
 
 Host the complete `dist/` directory on any static platform.
 
+<h2 id="deploy">Deploy the static site</h2>
+
+Cloudflare Pages, Vercel, and GitHub Pages are illustrative hosting choices, not Drever partners or
+requirements. The same static artifact works on other hosts that can publish a directory.
+
+| Setting          | Value                        |
+| ---------------- | ---------------------------- |
+| Build command    | `npm run build`              |
+| Output directory | `dist`                       |
+| SPA fallback     | None; do not add one         |
+| Node.js          | Current Node.js, `>=24.18.0` |
+
+Do not rewrite every request to `index.html`. Drever emits static entries for its public routes and
+resolves subdirectory mounts from the requested URL.
+
+<h3 id="cloudflare-pages">Cloudflare Pages</h3>
+
+Follow the official [Pages Git integration
+guide](https://developers.cloudflare.com/pages/get-started/git-integration/). Connect the
+repository, use `main` as the production branch, apply the shared build settings above, and set
+`NODE_VERSION` to `24.18.0` or newer. Keep preview deployments enabled for non-production branches.
+
+```text
+Deploy this repository with Cloudflare Pages Git integration. Use main for production, npm run
+build for the build command, dist for the output directory, and NODE_VERSION=24.18.0 or newer.
+Keep branch previews enabled. Do not add an SPA fallback.
+```
+
+<h3 id="vercel">Vercel</h3>
+
+Import the repository using Vercel's [build
+settings](https://vercel.com/docs/builds): choose `Other` for Framework Preset, set the build
+command to `npm run build`, the output directory to `dist`, and the Node.js version to 24.x. Confirm
+that the selected 24.x release satisfies the minimum in the shared table.
+
+```text
+Import this repository into Vercel with Framework Preset Other. Use npm run build, publish dist,
+and select a Node.js 24.x release that is at least 24.18. Do not add rewrites or an SPA fallback.
+```
+
+<h3 id="github-pages">GitHub Pages</h3>
+
+In the repository's Pages settings, select **GitHub Actions** as the publishing source, then add
+`.github/workflows/pages.yml`. This follows GitHub's official [custom workflow
+flow](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages):
+
+```yaml
+name: Deploy Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24.18.0
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+```
+
 <h2 id="pdf-export">Export PDF</h2>
 
 ```bash

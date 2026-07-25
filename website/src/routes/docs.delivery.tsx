@@ -5,16 +5,16 @@ import { DocArticle, DocMdx, DocNext } from "../components/docs-shell";
 import { pageHead } from "../seo";
 
 const description =
-  "Run evidence-based source checks, create a static deployment, and export exact slide or Step states to PDF.";
+  "Run evidence-based source checks, build and deploy a static website, and export exact slide or Step states to PDF.";
 
 export const Route = createFileRoute("/docs/delivery")({
   component: Page,
-  head: () => pageHead("Build and export", description, "/docs/delivery"),
+  head: () => pageHead("Build, deploy, and export", description, "/docs/delivery"),
 });
 
 function Page() {
   return (
-    <DocArticle description={description} eyebrow="Deliver" title="Build and export">
+    <DocArticle description={description} eyebrow="Deliver" title="Build, deploy, and export">
       <DocMdx content={Content} />
       <DocNext
         description="Meet the people, projects, and open-source foundations behind Drever."

@@ -122,20 +122,31 @@ same time.
 ## External motion and spatial tools
 
 React components can integrate focused motion capabilities without turning
-Drever into an effect catalog. For example,
-[React Bits](https://reactbits.dev/) can be a reference for kinetic-type or
-background techniques, while [Spline](https://docs.spline.design/exporting-your-scene/web/exporting-as-code)
-can supply an interactive spatial model when depth materially improves the
-explanation. Neither is a required Drever dependency or a default visual style.
-Other tools are valid when they solve the narrative problem more clearly.
+Drever into an effect catalog. Prefer native CSS, Drever primitives, and small
+local React components for simple reveals and transitions. When the story needs
+a focused capability, use this non-exhaustive list as optional starting points:
 
-Prefer native CSS, Drever primitives, and small local React components for
-simple reveals and transitions. Add an external dependency only when its
-capability is disproportionately useful. Before copying code, importing an
-asset, or shipping a runtime, inspect the current official documentation,
-source, license, bundle behavior, and export constraints. Treat outside work as
-evidence and capability, not a style catalog: adapt the technique to the
-deck's subject-led visual system instead of copying a demo unchanged.
+- **Technique and component references:**
+  [React Bits](https://reactbits.dev/get-started/).
+- **General animation runtimes:** [Motion](https://motion.dev/docs/react) and
+  [GSAP](https://gsap.com/docs/v3/).
+- **Spatial and 3D:**
+  [Spline](https://docs.spline.design/exporting-your-scene/web/exporting-as-code),
+  [Three.js](https://threejs.org/docs/), and
+  [React Three Fiber](https://r3f.docs.pmnd.rs/getting-started/introduction).
+- **Vector and state animation:**
+  [Rive](https://rive.app/docs/runtimes/react/react) and
+  [Lottie](https://lottie.airbnb.tech/).
+
+These projects are examples, not Drever dependencies, defaults, endorsements,
+or partnerships. Choose by capability rather than name.
+
+Add an external dependency only when its capability is disproportionately
+useful. Before copying code, importing an asset, or shipping a runtime, inspect
+the current official documentation, source, license, bundle behavior, and
+export constraints. Treat outside work as evidence and capability, not a style
+catalog: adapt the technique to the deck's subject-led visual system instead of
+copying a demo unchanged.
 
 Every integration must be presentation-safe:
 
@@ -635,9 +646,9 @@ does not load a JavaScript motion module and there is no separate
   linked copy in one fixed local slot after capture; never share changing glyphs
   through a View Transition.
 - Use external tools only for a capability the story needs. Verify current
-  official docs and licenses, adapt references such as React Bits or Spline to
-  the subject-led design, prove the capability with a focused working example,
-  and avoid copying a showcase as the deck's style.
+  official docs and licenses, adapt optional references from the categorized
+  list above to the subject-led design, prove the capability with a focused
+  working example, and avoid copying a showcase as the deck's style.
 - Give every live integration accessible final semantics, keyboard behavior,
   reduced-motion output, deterministic loading and export readiness, plus a
   stable document/export fallback when needed.
@@ -703,8 +714,9 @@ cross-axis alignment; translate a line or reveal it with an inner mask rather
 than stretching it. Carry identity, not resemblance. For semantically linked
 copy, use a local fixed-slot rotating, decrypted, mask-reveal, or draw-on effect
 after capture; keep text metrics stable and never View-Transition or scale
-different glyphs. Treat React Bits, Spline, and other external work as optional
-references or capabilities, never required dependencies or a style catalog.
+different glyphs. Treat external work as an optional reference or capability,
+never a required dependency or style catalog. Consult the categorized,
+non-exhaustive list above only when the story needs a focused capability.
 Prefer native CSS and small local React for simple motion; before copying code,
 assets, or runtimes, inspect current official docs, source, license, bundle
 behavior, and export constraints. Prove a claimed capability with a focused

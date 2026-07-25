@@ -28,7 +28,7 @@ export const documentationNavigation = [
     label: "Present & deliver",
     pages: [
       { href: "/docs/presenting/", label: "Presenting" },
-      { href: "/docs/delivery/", label: "Build and export" },
+      { href: "/docs/delivery/", label: "Build, deploy, and export" },
     ],
   },
   {

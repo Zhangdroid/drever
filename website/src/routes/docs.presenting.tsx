@@ -17,9 +17,9 @@ function Page() {
     <DocArticle description={description} eyebrow="Deliver" title="Presenting">
       <DocMdx content={Content} />
       <DocNext
-        description="Check the source, build a static site, and export selected PDF states."
+        description="Check the source, deploy the static site, and export selected PDF states."
         href="/docs/delivery/"
-        label="Build and export"
+        label="Build, deploy, and export"
       />
     </DocArticle>
   );

@@ -194,7 +194,7 @@ npm run export`}</CodeBlock>
         <p>
           Install Playwright Chromium only when a PDF is required. Read the{" "}
           <Link to="/docs/authoring/">authoring guide</Link> for MDX and the{" "}
-          <Link to="/docs/delivery/">delivery guide</Link> for build and export behavior.
+          <Link to="/docs/delivery/">delivery guide</Link> for build, deploy, and export behavior.
         </p>
       </div>
     </details>

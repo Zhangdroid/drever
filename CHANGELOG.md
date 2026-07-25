@@ -18,6 +18,7 @@ section, while commit snapshots use the current Unreleased section.
 - Added a private vulnerability reporting policy for the public repository.
 - Added crawlable site icons, social sharing metadata, a launch card, and `WebSite` structured data
   to the public website.
+- Added concise Cloudflare Pages, Vercel, and GitHub Pages recipes to the delivery guide.
 
 ### Changed
 
@@ -38,6 +39,7 @@ section, while commit snapshots use the current Unreleased section.
 - Reworked the Feature Gallery chart chapter around one decision story so each chart form answers a
   distinct comparison, trend, ranking, or part-to-whole question.
 - Made website presentation briefs start empty, with broad examples shown only as placeholders.
+- Reframed external motion and spatial tools as a neutral, non-exhaustive capability reference.
 - Made post-publish verification exercise the public `npm create drever` command, dependency
   installation, validation, and build exactly as a new user would.
 
@@ -50,6 +52,9 @@ section, while commit snapshots use the current Unreleased section.
 - Kept audience controls usable on narrow screens, added a portrait reading choice, and made the
   phone-sized speaker surface prioritize the current slide, notes, and primary controls.
 - Restored the intended glass surface behind the client slide navigator.
+- Kept loud microphone input from pinning Room Sense at its visual ceiling by adapting its listening
+  range to the room.
+- Restored MDX and JSX token highlighting in the public documentation.
 - Kept the reveal Footer out of route transitions and removed its stray shadow below final-page
   calls to action.
 - Stabilized the website build and deployment contracts used by CI.

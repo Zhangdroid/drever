@@ -27,7 +27,7 @@ One project produces:
 - Art direction and Theme contract guide: https://drever.dev/docs/themes/
 - Plugin guide: https://drever.dev/docs/plugins/
 - Presenting: https://drever.dev/docs/presenting/
-- Build and export: https://drever.dev/docs/delivery/
+- Build, deploy, and export: https://drever.dev/docs/delivery/
 - AI workflows: https://drever.dev/docs/ai/
 - Credits: https://drever.dev/docs/credits/
 - Showcase of complete stories, focused capabilities, and art directions:

@@ -18,7 +18,7 @@ export default defineConfig({
             rehypeShiki,
             {
               addLanguageClass: true,
-              langs: ["bash", "json", "md", "mdx", "ts"],
+              langs: ["bash", "js", "json", "jsx", "md", "mdx", "ts", "tsx"],
               theme: dreverShikiTheme,
             },
           ],
