@@ -35,10 +35,10 @@ deliberately strict.
 
 ```mdx
 <Masthead
-  kicker="Drever / Field Notes"
-  title="The slide is becoming software."
-  deck="A presentation can be interactive, testable, and ready to ship."
-  meta="Zhuo · 2026"
+  kicker="Field notes / Spring 2026"
+  title="The city after quiet hours."
+  deck="A visual essay on how night transit changes the shape of public life."
+  meta="Issue 01 · Urban rhythms"
 />
 ```
 

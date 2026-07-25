@@ -16,6 +16,17 @@ section, while commit snapshots use the current Unreleased section.
 - Made generated creation, design, authoring, and review workflows require a separate rendered
   refinement pass after the complete first draft, preserving successful choices while fixing
   evidence-backed narrative, visual, motion, and interaction issues.
+- Made release verification explicitly preserve the complete MIT license in every publishable
+  package archive and documented the provenance of the Cinema study's original generated artwork.
+- Made the public showcase build reject authoring diagnostics before publishing and aligned the
+  Motion and Art Direction guides with the current continuity and layout-diversity principles.
+- Replaced developer-specific and personal Basic and Editorial examples with audience-neutral
+  presentation briefs in both the public studies and machine-readable design manifests.
+
+### Fixed
+
+- Gave the Feature Gallery opening a static accessible title and preserved semantic spacing in the
+  Product Tour cover title used by navigation and search.
 
 ## [0.2.2] - 2026-07-24
 
@@ -157,7 +168,8 @@ section, while commit snapshots use the current Unreleased section.
 - Added parallel source, unit, package, browser, export, and website checks in CI.
 - Deployed the prerendered public website and per-branch previews through Cloudflare Pages.
 
-[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/Zhangdroid/drever/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/Zhangdroid/drever/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Zhangdroid/drever/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/Zhangdroid/drever/compare/v0.1.0...v0.1.1

@@ -16,12 +16,18 @@ website/.output/
 website/.wrangler/
 **/.drever/
 test-results/
+coverage/
+playwright-report/
+*.tsbuildinfo
 *.local
 
 # dotenv environment variable files
 .env
 .env.*
 !.env.example
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
 .npmrc
 !.npmrc.example
 
