@@ -58,7 +58,7 @@ resolved plan references them.
         <code>@drever/plugin-charts</code>
       </td>
       <td>Explicit opt-in</td>
-      <td>Deterministic semantic SVG; no chart runtime</td>
+      <td>Semantic SVG and presentation metrics; no charting dependency</td>
     </tr>
     <tr>
       <td>
@@ -152,7 +152,7 @@ export default defineConfig({
 ```mdx
 <DataChart
   label="Adoption by quarter"
-  kind="line"
+  kind="area"
   valueSuffix="%"
   data={[
     { label: "Q1", value: 28 },
@@ -160,11 +160,22 @@ export default defineConfig({
     { label: "Q3", value: 71 },
   ]}
 />
+
+<AnimatedNumber label="Decision confidence" from={31} value={96} valueSuffix="%" duration={1200} />
 ```
 
-The component accepts one to twelve labeled values and renders bar or line SVG directly with React.
-Its title and complete value description come from the same data. There is no charting framework,
-canvas renderer, or decorative motion hidden inside it.
+`DataChart` accepts one to twelve labeled values and renders `bar`, `line`, `area`, `dot`, or
+`donut` SVG directly with React. Its title and complete value description come from the same data;
+`valuePrefix` and `valueSuffix` keep units consistent across both. `AnimatedNumber` gives one
+important value presentation-scale emphasis, with optional starting value, duration, decimals,
+prefix, and suffix.
+
+The boundary is intentional: these are small, theme-aware storytelling components for comparisons,
+trends, rankings, proportions, and single-number changes. They do not bring a charting
+framework, canvas renderer, data transformation layer, multi-series grammar, tooltip system, or
+dashboard state into every deck. If a story genuinely needs those capabilities, import a mature
+React chart library in a local project component and expose only the narrow visualization the slide
+needs. Drever does not need to wrap or own that dependency.
 
 <h2 id="media">Adapt media to the surface</h2>
 

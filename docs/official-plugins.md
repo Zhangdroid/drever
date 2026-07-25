@@ -14,7 +14,7 @@ This is the first official catalog:
 | `@drever/plugin-shiki`       | Default; can be disabled | Rehype at build time                           | Highlighted HTML and CSS variables        |
 | `@drever/plugin-tailwindcss` | Default; can be disabled | Official Tailwind Vite plugin                  | Generated utility CSS only                |
 | `@drever/plugin-math`        | Explicit opt-in          | Remark Math, Rehype KaTeX, component-layer CSS | HTML + MathML and bundled KaTeX assets    |
-| `@drever/plugin-charts`      | Explicit opt-in          | MDX component and component-layer CSS          | Deterministic semantic SVG                |
+| `@drever/plugin-charts`      | Explicit opt-in          | MDX components and component-layer CSS         | Semantic SVG and presentation metrics     |
 | `@drever/plugin-media`       | Explicit opt-in          | MDX component and component-layer CSS          | Audience iframe or stable link by surface |
 | Mermaid                      | Deferred                 | Planned opt-in build/runtime feature           | No unsafe implementation is shipped       |
 
@@ -148,7 +148,7 @@ export default defineConfig({
 ```mdx
 <DataChart
   label="Adoption by quarter"
-  kind="line"
+  kind="area"
   valueSuffix="%"
   data={[
     { label: "Q1", value: 28 },
@@ -156,12 +156,27 @@ export default defineConfig({
     { label: "Q3", value: 71 },
   ]}
 />
+
+<AnimatedNumber label="Decision confidence" from={31} value={96} valueSuffix="%" duration={1200} />
 ```
 
-`DataChart` accepts one to twelve labeled finite values, supports `bar` and
-`line`, and generates a visible chart plus an accessible title and complete
-value description from the same data. It adds no chart framework, client
-setup, canvas renderer, or automatic animation.
+`DataChart` accepts one to twelve labeled finite values and supports `bar`,
+`line`, `area`, `dot`, and `donut`. The visible chart, accessible title, and
+complete value description all come from the same data. `valuePrefix` and
+`valueSuffix` keep units consistent in both the visual and accessible output.
+
+`AnimatedNumber` gives one important finite value presentation-scale emphasis.
+It accepts optional `from`, `valuePrefix`, `valueSuffix`, `duration`, and
+`decimals` props while keeping the required `label` attached to the metric.
+
+This package is deliberately presentation-native rather than a dashboard
+framework. It covers the comparisons, trends, rankings, proportions, and
+single-number changes that usually need one clear moment on a slide. It adds no
+general-purpose charting dependency, canvas renderer, data transformation
+layer, multi-series grammar, tooltip system, or interactive dashboard state.
+When a story genuinely needs those capabilities, import a mature React chart
+library into a project component and expose only the narrow component that the
+deck needs. Drever does not need to own or wrap that dependency.
 
 ## Enable media
 

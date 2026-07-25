@@ -703,6 +703,9 @@ importers:
       '@drever/compiler':
         specifier: workspace:*
         version: link:../compiler
+      '@drever/core':
+        specifier: workspace:*
+        version: link:../core
     devDependencies:
       '@types/node':
         specifier: 'catalog:'

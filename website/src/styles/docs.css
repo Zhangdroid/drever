@@ -975,6 +975,113 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   color: var(--site-continuity);
 }
 
+.plugin-gallery__visual--charts {
+  isolation: isolate;
+}
+
+.chart-plugin__metric {
+  position: absolute;
+  top: 24%;
+  left: 9%;
+  display: flex;
+  align-items: baseline;
+  color: var(--site-ink);
+  letter-spacing: -0.07em;
+}
+
+.chart-plugin__metric b {
+  font-family: var(--drever-brand-font-family-display);
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  font-weight: 620;
+  line-height: 1;
+}
+
+.chart-plugin__metric small {
+  margin-left: 0.12em;
+  color: var(--site-continuity);
+  font-family: var(--drever-brand-font-family-mono);
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: 0;
+}
+
+.chart-plugin__trend {
+  position: absolute;
+  top: 17%;
+  right: 7%;
+  width: 47%;
+  overflow: visible;
+}
+
+.chart-plugin__trend path:first-child {
+  fill: currentColor;
+  opacity: 0.1;
+}
+
+.chart-plugin__trend path:nth-child(2) {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.chart-plugin__trend circle {
+  fill: var(--site-signal);
+  stroke: var(--site-continuity);
+  stroke-width: 1.5;
+}
+
+.chart-plugin__bars {
+  position: absolute;
+  bottom: 16%;
+  left: 49%;
+  display: flex;
+  width: 21%;
+  height: 22%;
+  align-items: end;
+  gap: 8%;
+}
+
+.chart-plugin__bars b {
+  width: 28%;
+  border-radius: 0.16rem 0.16rem 0 0;
+  background: color-mix(in srgb, var(--site-continuity), transparent 22%);
+}
+
+.chart-plugin__bars b:first-child {
+  height: 38%;
+}
+
+.chart-plugin__bars b:nth-child(2) {
+  height: 66%;
+}
+
+.chart-plugin__bars b:last-child {
+  height: 100%;
+  background: var(--site-continuity);
+}
+
+.chart-plugin__donut {
+  position: absolute;
+  right: 10%;
+  bottom: 14%;
+  width: 10%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--site-continuity) 0 74%,
+    color-mix(in srgb, var(--site-continuity), transparent 78%) 74% 100%
+  );
+}
+
+.chart-plugin__donut::after {
+  position: absolute;
+  inset: 27%;
+  border-radius: inherit;
+  background: #e9e6f5;
+  content: "";
+}
+
 .plugin-gallery [data-plugin="media"] .plugin-gallery__visual {
   background: #19212d;
   color: #e5fa74;
