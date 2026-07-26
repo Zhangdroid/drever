@@ -9,6 +9,8 @@ section, while commit snapshots use the current Unreleased section.
 
 - Retried bounded transient TLS, 404, rate-limit, and server failures while
   verifying newly uploaded Cloudflare Pages release-smoke previews.
+- Restored the browsable release-smoke history and preserved its run metadata
+  across later Cloudflare Pages Direct Upload deployments.
 
 ## [0.2.5] - 2026-07-26
 

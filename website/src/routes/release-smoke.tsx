@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { ArrowUpRightIcon, CheckIcon, PlayIcon } from "../components/icons";
 import { PageHero } from "../components/page-hero";
@@ -227,6 +227,7 @@ function PublishedReleaseSmokePage({
   data: ReleaseSmokeData;
   latest: ReleaseSmokeRun;
 }) {
+  const previewRef = useRef<HTMLElement>(null);
   const [selectedRunId, setSelectedRunId] = useState(latest.id);
   const selectedRun = data.runs.find((run) => run.id === selectedRunId) ?? latest;
   const [selectedCaseId, setSelectedCaseId] = useState(selectedRun.cases[0]?.id ?? "");
@@ -240,6 +241,12 @@ function PublishedReleaseSmokePage({
   const selectRun = (run: ReleaseSmokeRun) => {
     setSelectedRunId(run.id);
     setSelectedCaseId(run.cases[0]?.id ?? "");
+    requestAnimationFrame(() => {
+      previewRef.current?.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+        block: "start",
+      });
+    });
   };
 
   return (
@@ -256,7 +263,11 @@ function PublishedReleaseSmokePage({
         </div>
       </PageHero>
 
-      <section aria-labelledby="release-smoke-latest-title" className="release-smoke__run">
+      <section
+        aria-labelledby="release-smoke-latest-title"
+        className="release-smoke__run"
+        ref={previewRef}
+      >
         <header className="release-smoke__run-heading">
           <div>
             <span>
@@ -334,7 +345,12 @@ function PublishedReleaseSmokePage({
         ) : (
           <div className="release-smoke__archive-list">
             {archivedRuns.map((run) => (
-              <button key={run.id} onClick={() => selectRun(run)} type="button">
+              <button
+                aria-pressed={run.id === selectedRun.id}
+                key={run.id}
+                onClick={() => selectRun(run)}
+                type="button"
+              >
                 <span>{formatDate(run.generatedAt)}</span>
                 <strong>{run.release.version}</strong>
                 <RunStatus run={run} />

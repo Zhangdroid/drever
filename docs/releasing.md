@@ -197,10 +197,15 @@ with no OpenAI secret assembles those generated files in its disposable Actions
 workspace and uploads them to the dedicated `drever-release-smoke` Cloudflare
 Pages Direct Upload project. It first publishes a run-specific deck deployment,
 replaces the predictable branch alias with Cloudflare's unique hash URL, and
-then publishes the pinned report as the project's latest production deployment.
-Before publishing the workflow summary, the job fetches the report, run record,
-audience view, document view, and authored source from those exact origins and
-rechecks the release and harness provenance.
+then hydrates the recent manifest and small `run.json` records from the current
+report and the pinned migration archive. Historical deck trees are not copied:
+each retained run record continues to point at its own immutable Pages
+deployment. The new run is prepended before the pinned report becomes the
+project's latest production deployment, keeping recent release-smoke runs
+directly selectable on the public website. Before publishing the workflow
+summary, the job fetches the report, run record, audience view, document view,
+and authored source from those exact origins and rechecks the release and
+harness provenance.
 
 Generated decks, source, transcripts, and receipts are build artifacts, not
 repository source. None are committed to Git. The Pages deployment is the
