@@ -186,7 +186,10 @@ cannot execute in this job. A separate job with no OpenAI secret installs the
 generated project, runs
 `drever context`, checks and builds it in a digest-pinned, non-root,
 no-network container, and loads the audience, document, and speaker routes in
-Chromium. The guided journey must also produce speaker notes.
+Chromium. The browser audit traverses every exact audience slide and Step route,
+checks the active state identity, samples each adjacent transition and settled
+frame, and rejects material clipping or a large Step layout rebase before the
+result can be published. The guided journey must also produce speaker notes.
 
 Successful runs retain a sanitized conversation, source allowlist, build
 receipts, and the real interactive static decks—never screenshots. A final job

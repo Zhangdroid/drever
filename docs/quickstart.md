@@ -73,7 +73,9 @@ One clear idea is enough.
 `Step` and `Note` are built into compiled MDX, so a deck does not need to import
 them. An omitted `at` is assigned in document order. Explicit `at` values must be
 static positive integers; gaps are preserved, so the example navigates through
-stops `0 -> 1 -> 3`.
+stops `0 -> 1 -> 3`. An ordinary Step reveals with opacity only and keeps its
+layout geometry stable. Use a `MotionGroup` when the relationship between Steps
+needs directional travel.
 
 ## Add meaningful motion
 

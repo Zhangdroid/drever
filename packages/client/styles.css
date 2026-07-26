@@ -283,11 +283,8 @@
   }
 
   [data-drever-render-mode="audience"] [data-drever-step] {
-    transition:
-      opacity var(--drever-recipe-enter-duration, 320ms)
-        var(--drever-motion-easing, cubic-bezier(0.22, 1, 0.36, 1)),
-      translate var(--drever-recipe-enter-duration, 320ms)
-        var(--drever-motion-easing, cubic-bezier(0.22, 1, 0.36, 1));
+    transition: opacity var(--drever-recipe-enter-duration, 320ms)
+      var(--drever-motion-easing, cubic-bezier(0.22, 1, 0.36, 1));
   }
 
   [data-drever-render-mode="audience"] [data-drever-motion-group=""] > [data-drever-step] {
@@ -303,7 +300,6 @@
 
   [data-drever-render-mode="audience"] [data-drever-step][data-step-state="pending"] {
     opacity: 0;
-    translate: var(--drever-recipe-step-from-translate, 0 12px);
   }
 
   [data-drever-render-mode="audience"]

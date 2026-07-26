@@ -28,6 +28,14 @@ Components with media, network work, or global listeners should call
 representative while suppressing side effects in reading views, previews, and
 deterministic exports.
 
+## Step
+
+An ordinary `Step` is geometry-stable progressive disclosure. In the audience,
+its reveal changes visibility and opacity without translating or scaling the
+Step, so normal layout and absolutely positioned descendants keep the same
+containing block from pending through active. Put Steps in a `MotionGroup` when
+their relationship calls for directional travel.
+
 ## MotionGroup
 
 `MotionGroup` requires a semantic intent. `intent` explains why content moves,

@@ -76,6 +76,12 @@ Put `stagger` inside one Step. One advance reveals the complete group:
 
 If the audience needs to discuss an item separately, author separate Steps instead.
 
+`Step` renders a real DOM wrapper. When a reveal contains absolute scene content, give those
+descendants a stable positioned and explicitly sized or inset local wrapper. Do not use an
+otherwise unpositioned Step as their full-canvas coordinate system: `transform` and individual
+`translate` can establish a containing block, then rebase the children when the property changes
+between pending, active, and complete states.
+
 <h2 id="continuity">Continuity across slides</h2>
 
 Give the same explicit name to the same object—or to clearly corresponding states of one narrative
@@ -98,17 +104,19 @@ typography, and media crop deliberate. Changing prose usually belongs outside th
 2. Motion explains focus, order, replacement, comparison, or continuity. Otherwise omit it.
 3. Give each moment one primary motion and at most one quieter supporting cue. Steps, native
    transitions, kinetic type, video, 3D, and third-party animation share that budget.
-4. Move the smallest meaningful object and only the properties that express its change. Background,
+4. Give each spatial payload one owner: Step reveal, navigation continuity, or local live-DOM
+   motion. Never stack a Step entrance and child keyframe on the same object.
+5. Move the smallest meaningful object and only the properties that express its change. Background,
    title, controls, and page chrome stay put.
-5. Keep recurring geometry, wrapping, paint, and shadow lists stable.
-6. Never clip a surface whose shadow or glow must remain visible.
-7. Mark the active Step without dimming an entire completed Step below readable contrast.
-8. Give the theme a coherent transition vocabulary, not one effect on every edge. Direct cuts,
+6. Keep recurring geometry, wrapping, paint, and shadow lists stable.
+7. Never clip a surface whose shadow or glow must remain visible.
+8. Mark the active Step without dimming an entire completed Step below readable contrast.
+9. Give the theme a coherent transition vocabulary, not one effect on every edge. Direct cuts,
    reading-edge reveals, precise state commits, and quiet dissolves may coexist when each has a
    different narrative job.
-9. Make broad card walls deterministic. A non-linear reveal may feel organic, but its order,
-   endpoints, and export state remain authored.
-10. Review intermediate frames, backward navigation, reduced motion, speaker, document, and export.
+10. Make broad card walls deterministic. A non-linear reveal may feel organic, but its order,
+    endpoints, and export state remain authored.
+11. Review intermediate frames, backward navigation, reduced motion, speaker, document, and export.
 
 The eight official design studies deliberately use different motion voices. The same intent can feel
 calm in Basic, editorial in Editorial, precise in Studio, handwritten in Fieldnote, directional
@@ -135,6 +143,12 @@ Animate one semantic payload at a time. Multiple techniques are valid only when 
 sequence with one focal object at a time. If presentation navigation owns a reveal, use a `Step`
 instead of an inline button; keep direct manipulation for ideas that actually require interaction.
 
+Declare authored CSS keyframes only while the audience slide is active:
+`[data-drever-slide][data-slide-state="active"]`. For a Step-owned cue, also require
+`[data-drever-step][data-step-state="active"]` and define its settled `complete` style separately.
+Inactive slides remain mounted, so an `animation` on the base element can finish before the
+audience arrives.
+
 <h2 id="markers-and-live-data">Make every moving indicator honest</h2>
 
 A cursor or focus reticle needs a recognizable hotspot that lands exactly on a meaningful target. A
@@ -149,6 +163,9 @@ document, speaker, and export surfaces receive the intentional final state immed
 
 Reserve space for the largest transformed and painted frame of an animation. Expanded 2D or 3D
 layers must never cross a track, label, or adjacent copy; clipping the overlap is not a repair.
+Give a full-canvas scene one stable positioned slide-relative root with explicit `inset: 0`.
+Contain paint at that outer boundary while preserving enough inner space for every required shadow,
+glow, filter, outline, and transformed frame.
 Background nodes remain lower contrast, move slowly and asynchronously, and never resemble the
 active cursor or signal.
 

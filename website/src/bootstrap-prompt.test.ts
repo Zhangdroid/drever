@@ -32,8 +32,8 @@ describe("public bootstrap prompt", () => {
     expect(prompt).toMatch(
       /not immediately legible at presentation distance[^.]*blocking P0 defect/iu,
     );
-    expect(prompt).toMatch(/Do not assume[^.]*wrapper[^.]*descendant text/iu);
-    expect(prompt).toMatch(/computed foreground styles/iu);
+    expect(prompt).toMatch(/Do not\s+assume[^.]*wrapper[^.]*descendant text/iu);
+    expect(prompt).toMatch(/computed font size[^.]*foreground/iu);
     expect(prompt).toMatch(/across every Step/iu);
     expect(prompt).toMatch(/fully contained within the shape or surface that visually owns it/iu);
     expect(prompt).toMatch(/usable inner silhouette[^.]*rectangular bounding box/iu);
@@ -50,5 +50,18 @@ describe("public bootstrap prompt", () => {
       /incompatible bounds,\s+use a cut,\s+replacement,\s+or\s+restrained\s+dissolve/iu,
     );
     expect(prompt).toMatch(/vary their narrative length,\s+density,\s+composition rhythm/iu);
+  });
+
+  it("requires stable Step geometry and rendered CSS evidence", () => {
+    expect(prompt).toMatch(/`Step` as a real DOM wrapper/iu);
+    expect(prompt).toMatch(/containing block[^.]*absolute descendant[^.]*invariant/iu);
+    expect(prompt).toContain('[data-drever-slide][data-slide-state="active"]');
+    expect(prompt).toContain('[data-drever-step][data-step-state="active"]');
+    expect(prompt).toMatch(/exactly one motion owner/iu);
+    expect(prompt).toMatch(/inactive slides stay mounted/iu);
+    expect(prompt).toMatch(/computed font size[^.]*margin,\s+padding,\s+gap/iu);
+    expect(prompt).toMatch(/Theme-owned Markdown margins/iu);
+    expect(prompt).toMatch(/full-canvas scene[^.]*stable positioned slide-relative root/iu);
+    expect(prompt).toMatch(/Source review[^.]*do not count as the Draft 1 rendered refinement/iu);
   });
 });

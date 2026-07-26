@@ -68,6 +68,91 @@ const moveWithSharedGroup = async (
   await waitForViewTransition(page, transition, "finished");
 };
 
+test("plain Steps preserve absolute geometry while MotionGroup keeps directional motion", async ({
+  page,
+}) => {
+  const health = monitorPageHealth(page);
+  await page.goto("/");
+
+  await page.evaluate((activeSlideSelector) => {
+    const slide = document.querySelector(activeSlideSelector);
+    if (!(slide instanceof HTMLElement)) throw new Error("Expected an active slide.");
+
+    const host = document.createElement("div");
+    host.dataset.testid = "absolute-step-host";
+    host.style.cssText = "position:relative;width:400px;height:400px";
+
+    const step = document.createElement("div");
+    step.dataset.dreverStep = "1";
+    step.dataset.stepState = "pending";
+    step.dataset.testid = "absolute-step";
+    step.ariaHidden = "true";
+    step.inert = true;
+    step.style.visibility = "hidden";
+
+    const point = document.createElement("span");
+    point.dataset.testid = "absolute-step-point";
+    point.style.cssText = "position:absolute;top:25%;right:25%;width:20px;height:20px";
+    step.append(point);
+    host.append(step);
+
+    const motionGroup = document.createElement("div");
+    motionGroup.dataset.dreverMotionGroup = "";
+    motionGroup.dataset.motionFlow = "inline";
+    motionGroup.style.setProperty("--drever-recipe-step-inline-from-translate", "12px 0");
+
+    const directionalStep = document.createElement("div");
+    directionalStep.dataset.dreverStep = "1";
+    directionalStep.dataset.stepState = "pending";
+    directionalStep.dataset.testid = "directional-step";
+    directionalStep.style.visibility = "hidden";
+    motionGroup.append(directionalStep);
+
+    slide.append(host, motionGroup);
+  }, activeSlide);
+
+  const step = page.getByTestId("absolute-step");
+  const point = page.getByTestId("absolute-step-point");
+  const before = await readLayoutBounds(point);
+
+  await expect(step).toHaveCSS("translate", "none");
+  expect(
+    await page.getByTestId("directional-step").evaluate((element) => {
+      const [x = "0", y = "0"] = getComputedStyle(element).translate.split(" ");
+      return [Number.parseFloat(x), Number.parseFloat(y)];
+    }),
+  ).toEqual([12, 0]);
+
+  await step.evaluate((element) => {
+    if (!(element instanceof HTMLElement)) throw new Error("Expected a Step element.");
+    element.dataset.stepState = "active";
+    element.removeAttribute("aria-hidden");
+    element.inert = false;
+    element.style.removeProperty("visibility");
+  });
+
+  await expect(step).toHaveCSS("opacity", "1");
+  const after = await readLayoutBounds(point);
+  expectClose(after.x, before.x, "absolute child x rebased");
+  expectClose(after.y, before.y, "absolute child y rebased");
+  expectBoundsSize(after, before);
+
+  await step.evaluate((element) => {
+    if (!(element instanceof HTMLElement)) throw new Error("Expected a Step element.");
+    element.dataset.stepState = "pending";
+    element.ariaHidden = "true";
+    element.inert = true;
+    element.style.visibility = "hidden";
+  });
+
+  await expect(step).toHaveCSS("opacity", "0");
+  const reversed = await readLayoutBounds(point);
+  expectClose(reversed.x, before.x, "reverse absolute child x rebased");
+  expectClose(reversed.y, before.y, "reverse absolute child y rebased");
+  expectBoundsSize(reversed, before);
+  health.expectHealthy();
+});
+
 type TextContract = Readonly<{
   bounds: ElementBounds;
   fontFamily: string;

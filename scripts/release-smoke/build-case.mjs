@@ -19,6 +19,12 @@ import {
   releaseSmokeDeckMount,
   RELEASE_SMOKE_SCHEMA_VERSION,
 } from "./contract.mjs";
+import {
+  captureReleaseSmokeFrame,
+  releaseSmokeAudienceStates,
+  releaseSmokeStatePath,
+  releaseSmokeTransitionIssues,
+} from "./browser-audit.mjs";
 import { getReleaseSmokeScenario } from "./scenarios.mjs";
 
 const execute = promisify(execFile);
@@ -152,7 +158,7 @@ const startStaticServer = async (directory, mountPath) => {
   };
 };
 
-const runBrowserSmoke = async (distRoot, slideCount, mountPath) => {
+const runBrowserSmoke = async (distRoot, context, mountPath) => {
   const { chromium } = await import("@playwright/test");
   const server = await startStaticServer(distRoot, mountPath);
   const browser = await chromium.launch({ channel: "chromium", headless: true });
@@ -176,6 +182,10 @@ const runBrowserSmoke = async (distRoot, slideCount, mountPath) => {
   });
 
   try {
+    const settleMilliseconds = 1_250;
+    const states = releaseSmokeAudienceStates(context.deck.slides);
+    const stateReceipts = [];
+    const transitionReceipts = [];
     const audienceResponse = await page.goto(`${server.origin}${mountPath}/`, {
       waitUntil: "networkidle",
     });
@@ -184,19 +194,74 @@ const runBrowserSmoke = async (distRoot, slideCount, mountPath) => {
     }
     await page.locator("#drever-root[data-drever-ready]").waitFor({ state: "attached" });
     const audienceSlides = await page.locator("[data-drever-slide]").count();
-    if (audienceSlides !== slideCount) {
+    if (audienceSlides !== context.deck.slides.length) {
       throw new Error(
-        `Audience rendered ${audienceSlides} slides; context reported ${slideCount}.`,
+        `Audience rendered ${audienceSlides} slides; context reported ${context.deck.slides.length}.`,
       );
     }
-    if (slideCount > 1) {
-      await page.keyboard.press("ArrowRight");
-      await page.waitForFunction(
-        (mount) =>
-          window.location.pathname.startsWith(`${mount}/`) &&
-          window.location.pathname !== `${mount}/`,
-        mountPath,
+    await page.waitForTimeout(settleMilliseconds);
+
+    let settledFrame;
+    for (const [index, state] of states.entries()) {
+      const path = releaseSmokeStatePath(mountPath, state);
+      await page.waitForFunction((expectedPath) => window.location.pathname === expectedPath, path);
+      settledFrame ??= await page.evaluate(captureReleaseSmokeFrame);
+      const stateIssues = [...settledFrame.issues];
+      if (settledFrame.slide.index !== state.slideIndex || settledFrame.slide.step !== state.step) {
+        stateIssues.push({
+          type: "audience-state-mismatch",
+          actual: {
+            slideIndex: settledFrame.slide.index,
+            step: settledFrame.slide.step,
+          },
+          expected: {
+            slideIndex: state.slideIndex,
+            step: state.step,
+          },
+        });
+      }
+      stateReceipts.push({
+        path,
+        slide: state.slideNumber,
+        step: state.step,
+        visibleElements: settledFrame.visibleElementCount,
+        issues: stateIssues,
+      });
+
+      const next = states[index + 1];
+      if (next === undefined) continue;
+      const nextPath = releaseSmokeStatePath(mountPath, next);
+      const navigation = page.waitForFunction(
+        (expectedPath) => window.location.pathname === expectedPath,
+        nextPath,
       );
+      await page.keyboard.press("ArrowRight");
+      await navigation;
+      await page.waitForTimeout(80);
+      const transition = await page.evaluate(captureReleaseSmokeFrame);
+      await page.waitForTimeout(settleMilliseconds);
+      const transitionSettled = await page.evaluate(captureReleaseSmokeFrame);
+      const transitionIssues = releaseSmokeTransitionIssues(transition, transitionSettled);
+      if (transition.slide.index !== next.slideIndex || transition.slide.step !== next.step) {
+        transitionIssues.push({
+          type: "transition-state-mismatch",
+          actual: {
+            slideIndex: transition.slide.index,
+            step: transition.slide.step,
+          },
+          expected: {
+            slideIndex: next.slideIndex,
+            step: next.step,
+          },
+        });
+      }
+      transitionReceipts.push({
+        from: path,
+        to: nextPath,
+        sampledAtMilliseconds: 80,
+        issues: transitionIssues,
+      });
+      settledFrame = transitionSettled;
     }
     const navigationPath = new URL(page.url()).pathname;
 
@@ -209,9 +274,9 @@ const runBrowserSmoke = async (distRoot, slideCount, mountPath) => {
     }
     await page.locator("[data-drever-document]").waitFor({ state: "visible" });
     const documentSlides = await page.locator("[data-drever-document] [data-drever-slide]").count();
-    if (documentSlides !== slideCount) {
+    if (documentSlides !== context.deck.slides.length) {
       throw new Error(
-        `Document rendered ${documentSlides} slides; context reported ${slideCount}.`,
+        `Document rendered ${documentSlides} slides; context reported ${context.deck.slides.length}.`,
       );
     }
     const speakerPath = `${mountPath}/speaker/`;
@@ -222,13 +287,33 @@ const runBrowserSmoke = async (distRoot, slideCount, mountPath) => {
       throw new Error("The built speaker route did not return a successful response.");
     }
     await page.locator("[data-drever-speaker]").waitFor({ state: "visible" });
-    if (failures.length > 0) {
-      throw new Error(`Browser smoke found runtime failures:\n${failures.join("\n")}`);
+    const geometryIssues = [
+      ...stateReceipts.flatMap(({ path, issues }) => issues.map((issue) => ({ ...issue, path }))),
+      ...transitionReceipts.flatMap(({ from, to, issues }) =>
+        issues.map((issue) => ({ ...issue, from, to })),
+      ),
+    ];
+    if (failures.length > 0 || geometryIssues.length > 0) {
+      throw new Error(
+        `Browser smoke found presentation failures:\n${JSON.stringify(
+          { geometry: geometryIssues, runtime: failures },
+          null,
+          2,
+        )}`,
+      );
     }
     return {
       version: 1,
       mountPath,
-      audience: { navigationPath, slideCount: audienceSlides, status: "passed" },
+      viewport: { height: 900, width: 1600 },
+      audience: {
+        navigationPath,
+        slideCount: audienceSlides,
+        stateCount: states.length,
+        states: stateReceipts,
+        transitions: transitionReceipts,
+        status: "passed",
+      },
       document: { path: documentPath, slideCount: documentSlides, status: "passed" },
       speaker: { path: speakerPath, status: "passed" },
       externalRequests: 0,
@@ -314,7 +399,7 @@ if (build?.version !== 1 || build.ok !== true || typeof website?.path !== "strin
 const websitePath = resolveIsolatedProjectPath(projectRoot, website.path);
 const buildOutput = await assertSafeReleaseSmokeBuildOutput(websitePath);
 const deckMount = releaseSmokeDeckMount(runId, scenarioId);
-const browser = await runBrowserSmoke(websitePath, slideCount, deckMount);
+const browser = await runBrowserSmoke(websitePath, context, deckMount);
 const publicReceipt = (value) =>
   redactStructuredPaths(value, [
     [projectRoot, "<project>"],
@@ -362,7 +447,8 @@ await writeFile(
       `Authoring context reported ${speakerNoteCount} speaker notes`,
       "Drever check passed without errors",
       `Production website build completed with ${buildOutput.files} bounded output files`,
-      "Audience, document, and speaker browser smoke passed",
+      `${browser.audience.stateCount} exact audience slide and Step states plus ${browser.audience.transitions.length} adjacent transition samples passed geometry and runtime audit`,
+      "Document and speaker browser smoke passed",
       "Generated source executed as a non-root user in a no-network container without the repository or runner environment",
       "Secret-bearing generation configured a shell-denial hook; only allowlisted authoring source was retained",
       `${sourceFiles.length} allowlisted source files crossed the secret boundary`,

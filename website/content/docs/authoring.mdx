@@ -49,6 +49,11 @@ Author every Step directly in the slide body. Do not hide one inside a JavaScrip
 component implementation, or JSX-valued layout prop such as `visual={<Step>...</Step>}`; the
 compiler cannot turn those runtime branches into addressable routes.
 
+A Step is also a real DOM wrapper. If it reveals absolutely positioned content, make the Step a
+stable positioned and explicitly sized or inset owner, or put those children in their own stable
+positioned wrapper. Do not let a pending-to-active `transform` or `translate` change which box owns
+their coordinates.
+
 Persistent accessible labels are present from Step 0. Keep an ancestor `aria-label` limited to the
 premise already visible, and put outcome-specific names or descriptions inside the Step that
 reveals them. The visual and accessible story should advance together.
@@ -85,3 +90,9 @@ because the same authored component participates in each.
 Give each slide one dominant idea. Prefer prose until behavior improves understanding. Use Steps
 for meaningful pacing, not to make the slide look busy. Put the title and persistent context
 outside motion groups so navigation cannot make them drift.
+
+Custom scene CSS inherits the active Theme. Normalize only conflicting Markdown margins, maximum
+widths, line height, text transform, and foreground inside the scene root, then inspect computed
+font, spacing, color, bounds, and the largest painted frame. Treat the first complete render as
+Draft 1 and refine from every exact slide and Step state; source review and a successful build are
+not visual evidence.

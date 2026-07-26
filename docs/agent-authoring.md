@@ -177,9 +177,10 @@ reading promise. Treat any heading, body copy, label, caption, legend,
 annotation, link, code, table cell, or control that is not immediately legible
 at presentation distance on the configured canvas as a blocking P0 defect. If
 text is not meant to be read, use a non-text visual texture instead of fake
-microcopy. Check actual font size, weight, spacing, and computed foregrounds on
-the rendered descendants against the worst background, motion frame, and Step
-state; passing a contrast ratio alone does not prove presentation legibility.
+microcopy. Check computed font size, weight, line height, margin, padding, gap,
+and foreground on the rendered descendants against the worst background,
+motion frame, and Step state; declared CSS and a passing contrast ratio do not
+prove presentation legibility.
 Do not infer contrast from a wrapper's `color`. Reduce or dim background layers
 and decoration, not a container that also contains required text.
 
@@ -191,8 +192,24 @@ rectangular bounding box. If the copy cannot fit, enlarge or reflow the owner,
 or move the label outside with an explicit association. Never repair it by
 clipping, overlap, or shrinking below presentation legibility.
 
+Treat a Step as a real DOM wrapper. Keep the containing block of every absolute
+descendant invariant across pending, active, and complete states: `transform`
+and individual `translate` can establish that block, then rebase a child when
+removed. Give the Step stable positioned bounds or put the child in its own
+stable positioned wrapper. Give each spatial payload one motion owner, and gate
+authored keyframes on the active slide plus the active Step when applicable;
+inactive slides remain mounted.
+
+Local scene CSS inherits the Theme. Normalize only conflicting Theme-owned
+Markdown margins, maximum widths, line height, text transform, and foreground
+inside the scene root, then verify computed descendants. Give a full-canvas
+scene one stable positioned slide-relative root with `inset: 0`, contain paint
+at its outer boundary, and reserve enough inner space for required shadows,
+glows, filters, and transformed frames.
+
 After Draft 1, inspect every slide at Step 0 and every exact authored Step route
-at the configured canvas; representative sampling is not sufficient.
+at the configured canvas; representative sampling is not sufficient. Source
+review and successful commands do not count as rendered refinement.
 
 ## Follow the live presentation
 

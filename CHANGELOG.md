@@ -5,17 +5,30 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+## [0.2.5] - 2026-07-26
+
 ### Changed
 
 - Moved generated AI release-smoke decks, source, transcripts, and receipts out
   of Git and into a dedicated Cloudflare Pages Direct Upload deployment, with a
   short-lived GitHub Actions bundle retained only for diagnostics.
+- Strengthened the installed creation, design, authoring, and review workflows
+  with stable Step coordinate systems, active-state keyframes, one motion owner,
+  scoped Theme normalization, full-canvas paint containment, computed
+  readability and spacing evidence, and a mandatory rendered Draft 1
+  refinement.
+- Expanded AI release smoke from a single audience advance to every exact slide
+  and Step route, with transition and settled-frame geometry checks for
+  material clipping and large layout rebases.
 
 ### Fixed
 
 - Restored the public release-smoke decks from their immutable Pages deployment
   and hid bootstrap previews once the same package commit has a formal release
   run.
+- Made ordinary Step reveals opacity-only so an implicit transition cannot
+  become a temporary containing block and make absolutely positioned content
+  jump between coordinate systems.
 
 ## [0.2.4] - 2026-07-25
 
@@ -233,7 +246,8 @@ section, while commit snapshots use the current Unreleased section.
 - Added parallel source, unit, package, browser, export, and website checks in CI.
 - Deployed the prerendered public website and per-branch previews through Cloudflare Pages.
 
-[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.2.4...HEAD
+[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.2.5...HEAD
+[0.2.5]: https://github.com/Zhangdroid/drever/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/Zhangdroid/drever/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/Zhangdroid/drever/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/Zhangdroid/drever/compare/v0.2.1...v0.2.2

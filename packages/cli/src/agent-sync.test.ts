@@ -175,6 +175,34 @@ describe("agent kit sync", () => {
     expect(reviewDeck).toMatch(/grow-then-shrink/iu);
   });
 
+  it("installs stable Step, active-keyframe, and rendered CSS contracts", async () => {
+    const root = await temporaryDirectory("drever-agent-project-");
+    await syncAgentKit({ root });
+
+    const createDeck = await read(root, ".agents/skills/drever-create-deck/SKILL.md");
+    const createDesign = await read(root, ".agents/skills/drever-create-design/SKILL.md");
+    const authorDeck = await read(root, ".agents/skills/drever-author-deck/SKILL.md");
+    const reviewDeck = await read(root, ".agents/skills/drever-review-deck/SKILL.md");
+
+    for (const contents of [createDeck, createDesign, authorDeck]) {
+      expect(contents).toMatch(/`Step` as a real DOM wrapper/iu);
+      expect(contents).toContain('[data-drever-slide][data-slide-state="active"]');
+      expect(contents).toContain('[data-drever-step][data-step-state="active"]');
+      expect(contents).toMatch(/exactly one motion owner/iu);
+      expect(contents).toMatch(/full-canvas scene[^.]*stable positioned slide-relative root/iu);
+      expect(contents).toMatch(/line height,\s+margin,\s+padding,\s+gap,\s+and foreground/iu);
+      expect(contents).toMatch(/Theme-owned Markdown margins/iu);
+    }
+
+    expect(reviewDeck).toMatch(/Step as a real DOM wrapper/iu);
+    expect(reviewDeck).toMatch(/containing block[^.]*absolute descendant[^.]*invariant/iu);
+    expect(reviewDeck).toMatch(/inactive mounted slides must not consume them early/iu);
+    expect(reviewDeck).toMatch(/computed font size[^.]*margin,\s+padding,\s+gap/iu);
+    expect(reviewDeck).toMatch(
+      /Source review[^.]*do not count as the Draft 1 rendered refinement/iu,
+    );
+  });
+
   it("installs the complete kit and reports a stable idempotent result", async () => {
     const root = await temporaryDirectory("drever-agent-project-");
     const templateRoot = await createTemplateKit("v1");

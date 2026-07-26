@@ -89,6 +89,19 @@ shared-object sequence when the object stops carrying the argument. When produci
 reference directions, vary their narrative length, density, composition rhythm, Step grammar, and
 motion cadence—not merely palette and typography.
 
+Treat `Step` as a real DOM wrapper. Keep the containing block of every absolute descendant
+invariant across pending, active, and complete states: `transform` and individual `translate` can
+establish that block, then rebase a child when removed. Make the Step a stable positioned,
+explicitly sized or inset owner, or give its absolute children their own stable positioned wrapper;
+never use an otherwise unpositioned Step as a full-canvas coordinate system.
+
+Give each spatial payload exactly one motion owner: a Step reveal, navigation continuity, or a local
+live-DOM/keyframe cue. Do not stack a Step entrance and child keyframe on the same object. Put an
+authored CSS `animation` declaration behind
+`[data-drever-slide][data-slide-state="active"]`; for a Step-owned cue also require
+`[data-drever-step][data-step-state="active"]` and define the settled `complete` style separately.
+Inactive slides stay mounted, so an ungated keyframe can finish before the audience arrives.
+
 ## Finish the job
 
 Do not deliver the first complete build by default. Treat it as Draft 1: render the full story, then
@@ -105,7 +118,8 @@ Use the project-local workflow to check and build the presentation. Start the de
 and inspect the audience view when browser tooling is available. Inspect every slide at Step 0 and
 every exact authored Step route at the configured canvas; representative sampling is not
 sufficient. Review the document view as well, and review the speaker view when notes or timing are
-involved. Export a PDF only when requested.
+involved. Source review and successful commands do not count as the Draft 1 rendered refinement.
+Export a PDF only when requested.
 
 Treat syntax-highlighted code, topic-specific visuals, stable motion, contrast, alignment, and
 overflow as rendered requirements rather than assumptions. Every visible authored string is a
@@ -114,12 +128,17 @@ table cell, or control that is not immediately legible at presentation distance 
 canvas as a blocking P0 defect, even when checks and builds pass. If text is not meant to be read,
 use a non-text visual texture instead of fake microcopy.
 
-Check actual font size, weight, spacing, and computed foreground styles on the rendered descendants
-across every Step and the most disruptive frame of a moving, image, or gradient background.
-Passing a contrast ratio alone does not prove presentation legibility. Do not assume that setting
-`color` on a wrapper determines its descendant text. Dim decorative background layers instead of a
-container that also dims its text. Where a solid color pair can be measured, target at least WCAG
-AA contrast: 4.5:1 for normal text and 3:1 for large text and essential UI.
+Inspect computed font size, weight, line height, margin, padding, gap, and foreground on every
+rendered descendant across every Step and the most disruptive frame of a moving, image, or gradient
+background. Declared CSS and a passing contrast ratio do not prove presentation legibility. Do not
+assume that setting `color` on a wrapper determines its descendant text. Dim decorative background
+layers instead of a container that also dims its text. Where a solid color pair can be measured,
+target at least WCAG AA contrast: 4.5:1 for normal text and 3:1 for large text and essential UI.
+
+Treat the active Theme CSS as an input. At every bespoke scene boundary, normalize only the
+Theme-owned Markdown margins, maximum widths, line height, text transform, and foreground that
+conflict with the local roles. Verify computed descendants rather than relying on a parent class or
+source order, and never reset the whole deck globally.
 
 Keep every label and copy block fully contained within the shape or surface that visually owns it,
 with deliberate padding in every Step and intermediate frame. For circles, rings, clipped
@@ -127,6 +146,12 @@ polygons, and other non-rectangular owners, validate the usable inner silhouette
 padding, not merely the rectangular bounding box. If the copy cannot fit, enlarge or reflow the
 owner, or move the label outside with an explicit association. Never repair it by clipping,
 overlap, or shrinking below presentation legibility.
+
+Give every full-canvas scene one stable positioned slide-relative root with explicit `inset: 0`.
+Contain paint at that outer boundary while reserving enough inner space for required shadows, glows,
+filters, outlines, and the largest transformed intermediate frame. Inspect forward and reverse
+frames for coordinate rebasing, early keyframes, browser-surface spill, and hard-clipped required
+paint.
 
 Fix proven errors before finishing. Leave the local preview running when that helps the user review
 the result.

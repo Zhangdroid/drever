@@ -119,6 +119,11 @@ test("the built CLI installs an idempotent agent kit without loading project con
     expect(createDeck).not.toContain("choose the subject too");
     expect(createDeck).toContain("Never ask for supplied facts");
     expect(createDeck).toContain("Never hand-build an unhighlighted `<pre>`");
+    expect(createDeck).toContain("`Step` as a real DOM wrapper");
+    expect(createDeck).toContain('[data-drever-slide][data-slide-state="active"]');
+    expect(createDeck).toContain("exactly one motion owner");
+    expect(createDeck).toContain("full-canvas scene one stable positioned slide-relative root");
+    expect(createDeck).toContain("Source review and successful commands do not count");
 
     for (const [index, contents] of firstContents.entries()) {
       if (agentFiles[index]?.endsWith("SKILL.md")) {

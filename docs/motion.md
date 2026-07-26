@@ -103,7 +103,10 @@ Construct assembles one meaningful part at a time. These mappings stay
 theme-owned; authors never select the underlying effect merely for novelty.
 
 Use motion only when it explains a state change. Ordinary `Step` elements are
-the right default for progressive disclosure.
+the right default for progressive disclosure. Their audience reveal is
+opacity-only: pending and active states keep the same layout geometry and
+containing block. Directional travel is opt-in through a `MotionGroup` and its
+logical `flow`.
 
 ## Plan an object's narrative lifecycle
 

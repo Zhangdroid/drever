@@ -32,6 +32,11 @@ import {
   sanitizeTranscriptText,
   snapshotReleaseSmokeGenerationTree,
 } from "./contract.mjs";
+import {
+  releaseSmokeAudienceStates,
+  releaseSmokeStatePath,
+  releaseSmokeTransitionIssues,
+} from "./browser-audit.mjs";
 import { immutableDirectUploadOrigin } from "./deploy-pages.mjs";
 import { releaseSmokeSection, upsertReleaseSmokeSection } from "./record-release-link.mjs";
 import { getReleaseSmokeScenario, releaseSmokeScenarios } from "./scenarios.mjs";
@@ -279,6 +284,98 @@ test("maps the final website deck mount without accepting sibling paths", () => 
   assert.equal(relativeMountedPathname("/", mount), undefined);
   assert.throws(() => releaseSmokeDeckMount("not-a-run", "guided"), /Invalid release smoke run/u);
   assert.throws(() => releaseSmokeDeckMount("123", "../guided"), /scenario id/u);
+});
+
+test("plans every authored audience state in navigation order", () => {
+  const states = releaseSmokeAudienceStates([
+    { stepStops: [2, 5] },
+    { stepStops: [] },
+    { stepStops: [3] },
+  ]);
+  assert.deepEqual(states, [
+    { slideIndex: 0, slideNumber: 1, step: 0 },
+    { slideIndex: 0, slideNumber: 1, step: 2 },
+    { slideIndex: 0, slideNumber: 1, step: 5 },
+    { slideIndex: 1, slideNumber: 2, step: 0 },
+    { slideIndex: 2, slideNumber: 3, step: 0 },
+    { slideIndex: 2, slideNumber: 3, step: 3 },
+  ]);
+  const mount = "/release-smoke/runs/123/guided/deck";
+  assert.deepEqual(
+    states.map((state) => releaseSmokeStatePath(mount, state)),
+    [`${mount}/`, `${mount}/1/2`, `${mount}/1/5`, `${mount}/2`, `${mount}/3`, `${mount}/3/3`],
+  );
+});
+
+test("reports a large Step layout rebase without rejecting ordinary entrance motion", () => {
+  const slide = { id: "slide-2", index: 1, rect: { x: 0, y: 0, width: 1600, height: 900 } };
+  const transition = {
+    slide,
+    stepElements: [
+      {
+        key: "div:1/div:0",
+        label: "Stable result",
+        layout: { x: 820, y: 320, width: 420, height: 0 },
+      },
+      {
+        key: "div:2/p:0",
+        label: "Quiet entrance",
+        layout: { x: 300, y: 612, width: 360, height: 48 },
+      },
+    ],
+  };
+  const settled = {
+    slide,
+    stepElements: [
+      {
+        key: "div:1/div:0",
+        label: "Stable result",
+        layout: { x: 280, y: 320, width: 960, height: 420 },
+      },
+      {
+        key: "div:2/p:0",
+        label: "Quiet entrance",
+        layout: { x: 300, y: 600, width: 360, height: 48 },
+      },
+    ],
+  };
+
+  assert.deepEqual(releaseSmokeTransitionIssues(transition, settled), [
+    {
+      type: "unstable-step-layout",
+      key: "div:1/div:0",
+      label: "Stable result",
+      transition: { x: 820, y: 320, width: 420, height: 0 },
+      settled: { x: 280, y: 320, width: 960, height: 420 },
+    },
+  ]);
+});
+
+test("keeps transient clipping evidence and refuses to compare different slides", () => {
+  const clipping = {
+    type: "clipped-visible-element",
+    key: "div:1/h2:0",
+    label: "Risk signal",
+  };
+  const transition = {
+    issues: [clipping],
+    slide: { id: "slide-1", index: 0, rect: { x: 0, y: 0, width: 1600, height: 900 } },
+    stepElements: [],
+  };
+  const settled = {
+    issues: [],
+    slide: { id: "slide-2", index: 1, rect: { x: 0, y: 0, width: 1600, height: 900 } },
+    stepElements: [],
+  };
+
+  assert.deepEqual(releaseSmokeTransitionIssues(transition, settled), [
+    clipping,
+    {
+      type: "transition-slide-mismatch",
+      transition: { id: "slide-1", index: 0 },
+      settled: { id: "slide-2", index: 1 },
+    },
+  ]);
 });
 
 test("copies only bounded authoring source and rejects remote assets", async () => {
@@ -773,13 +870,19 @@ test("rejects executable project configuration before every resumed Codex turn",
 
 test("browser smoke uses the final deep deck mount for every live surface", async () => {
   const source = await readFile(new URL("./build-case.mjs", import.meta.url), "utf8");
+  const auditSource = await readFile(new URL("./browser-audit.mjs", import.meta.url), "utf8");
   assert.match(source, /releaseSmokeDeckMount\(runId, scenarioId\)/u);
-  assert.match(source, /runBrowserSmoke\(websitePath, slideCount, deckMount\)/u);
+  assert.match(source, /runBrowserSmoke\(websitePath, context, deckMount\)/u);
   assert.match(source, /chromium\.launch\(\{ channel: "chromium", headless: true \}\)/u);
   assert.match(source, /url\.origin === server\.origin/u);
   assert.match(source, /const documentPath = `\$\{mountPath\}\/document\/`/u);
   assert.match(source, /const speakerPath = `\$\{mountPath\}\/speaker\/`/u);
-  assert.match(source, /window\.location\.pathname\.startsWith\(`\$\{mount\}\/`\)/u);
+  assert.match(source, /releaseSmokeAudienceStates\(context\.deck\.slides\)/u);
+  assert.match(source, /window\.location\.pathname === expectedPath/u);
+  assert.match(
+    auditSource,
+    /\.flatMap\(\(step\) => \[step, \.\.\.step\.querySelectorAll\("\*"\)\]\)[\s\S]*?instanceof HTMLElement/u,
+  );
 });
 
 test("publisher assembles route data and directly previewable deck directories", async () => {
