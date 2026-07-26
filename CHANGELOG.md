@@ -14,6 +14,8 @@ section, while commit snapshots use the current Unreleased section.
 
 ### Fixed
 
+- Kept audience keyboard navigation active after using the previous and next
+  toolbar controls with a pointer.
 - Kept the static sitemap synchronized with new public documentation routes and
   added a fast regression check before deployment.
 

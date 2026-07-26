@@ -268,13 +268,18 @@ test("audience controls navigate exact states with a pointer", async ({ page }) 
   await next.hover();
   await next.click();
   await expect(page).toHaveURL(/\/2$/u);
+  await expect(next).toBeFocused();
 
-  await next.click();
+  await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/\/2\/2$/u);
   await expect(position).toContainText("Step 1 of 2");
 
   await previous.click();
   await expect(page).toHaveURL(/\/2$/u);
+  await expect(previous).toBeFocused();
+
+  await page.keyboard.press("ArrowLeft");
+  await expect(page).toHaveURL(/\/$/u);
 
   const fullscreen = controls.getByRole("button", { name: "Enter fullscreen" });
   await expect(fullscreen).toBeEnabled();

@@ -63,6 +63,7 @@ const IGNORED_TARGETS = [
 const SPEAKER_CONTROLS = "[data-drever-speaker-controls]";
 const SPEAKER_EDITABLE_CONTROLS =
   "input, textarea, select, [contenteditable]:not([contenteditable='false'])";
+const AUDIENCE_NAVIGATION_CONTROL = "[data-drever-audience-navigation-control]";
 
 const canFindClosest = (value: EventTarget | null): value is EventTarget & ClosestTarget =>
   value !== null &&
@@ -124,12 +125,16 @@ export const keyboardCommandFor = (
     return command;
   }
 
+  const audienceNavigation =
+    surface === "audience" &&
+    !isSpaceKey(event.key) &&
+    event.target.closest(AUDIENCE_NAVIGATION_CONTROL) !== null;
   const speakerNavigation =
     surface === "speaker" &&
     !isSpaceKey(event.key) &&
     event.target.closest(SPEAKER_CONTROLS) !== null &&
     event.target.closest(SPEAKER_EDITABLE_CONTROLS) === null;
-  return speakerNavigation ? command : undefined;
+  return audienceNavigation || speakerNavigation ? command : undefined;
 };
 
 /** Opens one speaker window from an unmodified audience shortcut. */

@@ -665,6 +665,7 @@ export const AudienceControls = ({
           <button
             aria-keyshortcuts="ArrowLeft"
             aria-label="Previous presentation state"
+            data-drever-audience-navigation-control=""
             data-drever-tooltip="Previous step · ←"
             disabled={!progress.canGoPrevious}
             onClick={() => navigate({ type: "previous" })}
@@ -690,6 +691,7 @@ export const AudienceControls = ({
           <button
             aria-keyshortcuts="ArrowRight"
             aria-label="Next presentation state"
+            data-drever-audience-navigation-control=""
             data-drever-tooltip="Next step · →"
             disabled={!progress.canGoNext}
             onClick={() => navigate({ type: "next" })}

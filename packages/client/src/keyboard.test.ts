@@ -125,6 +125,23 @@ describe("keyboard navigation", () => {
     ).toBeUndefined();
   });
 
+  it("keeps audience navigation keys active on focused previous and next controls", () => {
+    const audienceNavigationButton = {
+      closest: (selectors: string) =>
+        selectors === "[data-drever-audience-navigation-control]" || selectors.includes("button")
+          ? ({} as Element)
+          : null,
+    } as unknown as EventTarget;
+
+    expect(keyboardCommandFor(keyEvent("ArrowRight", { target: audienceNavigationButton }))).toBe(
+      "next",
+    );
+    expect(keyboardCommandFor(keyEvent("ArrowLeft", { target: audienceNavigationButton }))).toBe(
+      "previous",
+    );
+    expect(keyboardCommandFor(keyEvent(" ", { target: audienceNavigationButton }))).toBeUndefined();
+  });
+
   it("reserves P for one audience speaker window without stealing editable input", () => {
     expect(isOpenSpeakerShortcut(keyEvent("p"))).toBe(true);
     expect(isOpenSpeakerShortcut(keyEvent("P", { shiftKey: true }))).toBe(true);
