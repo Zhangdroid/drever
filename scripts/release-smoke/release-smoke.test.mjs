@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterEach, test } from "node:test";
@@ -38,6 +38,12 @@ import {
   releaseSmokeTransitionIssues,
 } from "./browser-audit.mjs";
 import { immutableDirectUploadOrigin } from "./deploy-pages.mjs";
+import {
+  hydrateReleaseSmokeHistory,
+  RELEASE_SMOKE_MANIFEST_BYTES,
+  RELEASE_SMOKE_SOURCE_RUN_LIMIT,
+  releaseSmokeHistoryOrigin,
+} from "./hydrate-history.mjs";
 import { releaseSmokeSection, upsertReleaseSmokeSection } from "./record-release-link.mjs";
 import { getReleaseSmokeScenario, releaseSmokeScenarios } from "./scenarios.mjs";
 import { verifyPagesPreview } from "./verify-pages-preview.mjs";
@@ -478,6 +484,152 @@ test("moves a repeated run to the front without growing history forever", () => 
   });
 });
 
+test("hydrates bounded release history metadata without copying historical deck trees", async () => {
+  const root = await mkdtemp(join(tmpdir(), "drever-release-smoke-history-"));
+  temporaryRoots.push(root);
+  const website = join(root, "website");
+  const primary = "https://drever-release-smoke.pages.dev";
+  const legacy = "https://3cc63cd1.drever-website.pages.dev";
+  const entry = (id, version, generatedAt) => ({
+    generatedAt,
+    id,
+    transcript: `/release-smoke/runs/${id}/run.json`,
+    version,
+  });
+  const run = ({ generatedAt, id, marker, version }) => ({
+    schemaVersion: 1,
+    id,
+    kind: "release",
+    generatedAt,
+    release: { version },
+    marker,
+  });
+  const primaryEntries = [
+    entry("12", "0.2.5", "2026-07-26T19:16:44.078Z"),
+    entry("10", "0.2.3", "2026-07-25T19:41:35.331Z"),
+  ];
+  const legacyEntries = [
+    entry("11", "0.2.4", "2026-07-26T00:27:51.735Z"),
+    entry("10", "0.2.3", "2026-07-25T19:41:35.331Z"),
+    entry("09", "0.2.2", "2026-07-25T18:44:27.856Z"),
+  ];
+  const resources = new Map([
+    [
+      `${primary}/release-smoke/manifest.json`,
+      { schemaVersion: 1, latestRunId: "12", runs: primaryEntries },
+    ],
+    [
+      `${legacy}/release-smoke/manifest.json`,
+      { schemaVersion: 1, latestRunId: "11", runs: legacyEntries },
+    ],
+    ...primaryEntries.map((item) => [
+      `${primary}${item.transcript}`,
+      run({ ...item, marker: "primary" }),
+    ]),
+    ...legacyEntries.map((item) => [
+      `${legacy}${item.transcript}`,
+      run({ ...item, marker: "legacy" }),
+    ]),
+  ]);
+  await write(website, "public/release-smoke/runs/stale/deck/index.html", "stale");
+
+  const ids = await hydrateReleaseSmokeHistory({
+    fetcher: async (url) => {
+      const value = resources.get(url.href);
+      return value === undefined
+        ? new Response("Not found", { status: 404 })
+        : new Response(JSON.stringify(value), {
+            headers: { "content-type": "application/json" },
+          });
+    },
+    limit: 3,
+    origins: [primary, legacy],
+    websiteRoot: website,
+  });
+
+  assert.deepEqual(ids, ["12", "11", "10"]);
+  const manifest = JSON.parse(
+    await readFile(join(website, "public/release-smoke/manifest.json"), "utf8"),
+  );
+  assert.equal(manifest.latestRunId, "12");
+  assert.deepEqual(
+    manifest.runs.map(({ id }) => id),
+    ["12", "11", "10"],
+  );
+  assert.equal(
+    JSON.parse(await readFile(join(website, "public/release-smoke/runs/10/run.json"), "utf8"))
+      .marker,
+    "primary",
+  );
+  assert.deepEqual((await readdir(join(website, "public/release-smoke/runs/12"))).sort(), [
+    "run.json",
+  ]);
+  await assert.rejects(
+    readFile(join(website, "public/release-smoke/runs/stale/deck/index.html"), "utf8"),
+    /ENOENT/u,
+  );
+});
+
+test("rejects untrusted, cross-origin, oversized, and overfull history sources", async () => {
+  assert.throws(
+    () => releaseSmokeHistoryOrigin("https://history.example.com"),
+    /Invalid release smoke Pages origin/u,
+  );
+  assert.throws(
+    () => releaseSmokeHistoryOrigin("https://main.drever-release-smoke.pages.dev"),
+    /Invalid release smoke Pages origin/u,
+  );
+
+  const root = await mkdtemp(join(tmpdir(), "drever-release-smoke-history-invalid-"));
+  temporaryRoots.push(root);
+  const origin = "https://drever-release-smoke.pages.dev";
+  const manifest = (runs, latestRunId = runs[0]?.id ?? null) => ({
+    schemaVersion: 1,
+    latestRunId,
+    runs,
+  });
+  const invalidTranscript = manifest([
+    {
+      generatedAt: "2026-07-26T19:16:44.078Z",
+      id: "12",
+      transcript: "https://example.com/release-smoke/runs/12/run.json",
+      version: "0.2.5",
+    },
+  ]);
+
+  await assert.rejects(
+    hydrateReleaseSmokeHistory({
+      fetcher: async () => new Response(JSON.stringify(invalidTranscript)),
+      origins: [origin],
+      websiteRoot: join(root, "cross-origin"),
+    }),
+    /same-origin run record/u,
+  );
+  await assert.rejects(
+    hydrateReleaseSmokeHistory({
+      fetcher: async () => new Response("x".repeat(RELEASE_SMOKE_MANIFEST_BYTES + 1)),
+      origins: [origin],
+      websiteRoot: join(root, "oversized"),
+    }),
+    /byte limit/u,
+  );
+
+  const tooManyRuns = Array.from({ length: RELEASE_SMOKE_SOURCE_RUN_LIMIT + 1 }, (_, index) => ({
+    generatedAt: "2026-07-26T19:16:44.078Z",
+    id: String(index + 1),
+    transcript: `/release-smoke/runs/${String(index + 1)}/run.json`,
+    version: "0.2.5",
+  }));
+  await assert.rejects(
+    hydrateReleaseSmokeHistory({
+      fetcher: async () => new Response(JSON.stringify(manifest(tooManyRuns))),
+      origins: [origin],
+      websiteRoot: join(root, "overfull"),
+    }),
+    /run limit/u,
+  );
+});
+
 test("extracts one immutable Pages Direct Upload deployment", () => {
   const output = `
     Uploading... (214/214)
@@ -673,6 +825,8 @@ test("keeps the OpenAI key inside the generation job and pins the Codex action",
   assert.equal(workflow.match(/contents: write/gu)?.length, 1);
   assert.equal(workflow.match(/deploy-pages\.mjs/gu)?.length, 2);
   assert.equal(workflow.match(/verify-pages-preview\.mjs/gu)?.length, 1);
+  assert.match(workflow, /hydrate-history\.mjs/u);
+  assert.ok(workflow.indexOf("hydrate-history.mjs") < workflow.indexOf("publish-results.mjs"));
   assert.ok(workflow.indexOf("deploy-pages.mjs") < workflow.indexOf("pin-preview-origin.mjs"));
   assert.ok(workflow.indexOf("pin-preview-origin.mjs") < workflow.indexOf("pin-report-link.mjs"));
   assert.ok(

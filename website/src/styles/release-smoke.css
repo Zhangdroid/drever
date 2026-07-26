@@ -133,6 +133,7 @@
   margin-inline: auto;
   padding-block: clamp(2rem, 4vw, 3.5rem) var(--site-section);
   border-top: 1px solid var(--site-line);
+  scroll-margin-top: 5rem;
 }
 
 .release-smoke__run-heading {
@@ -563,6 +564,10 @@
   background: transparent;
   text-align: left;
   cursor: pointer;
+}
+
+.release-smoke__archive-list > button:is(:hover, :focus-visible, [aria-pressed="true"]) {
+  color: var(--site-accent);
 }
 
 .release-smoke__archive-list > button:last-child {

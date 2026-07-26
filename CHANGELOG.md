@@ -11,10 +11,16 @@ section, while commit snapshots use the current Unreleased section.
   Viewer examples as a persistent Stage scene and a directly manipulable 3D
   object, with deterministic original posters for non-audience surfaces.
 
+## [0.2.6] - 2026-07-26
+
 ### Fixed
 
 - Retried bounded transient TLS, 404, rate-limit, and server failures while
   verifying newly uploaded Cloudflare Pages release-smoke previews.
+- Restored the browsable release-smoke history and preserved its run metadata
+  across later Cloudflare Pages Direct Upload deployments.
+- Kept long Slide Navigator titles inside their cards with stable two-line
+  captions, separate current-state labels, and authored title spacing.
 
 ## [0.2.5] - 2026-07-26
 
@@ -257,7 +263,8 @@ section, while commit snapshots use the current Unreleased section.
 - Added parallel source, unit, package, browser, export, and website checks in CI.
 - Deployed the prerendered public website and per-branch previews through Cloudflare Pages.
 
-[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.2.5...HEAD
+[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.2.6...HEAD
+[0.2.6]: https://github.com/Zhangdroid/drever/compare/v0.2.5...v0.2.6
 [0.2.5]: https://github.com/Zhangdroid/drever/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/Zhangdroid/drever/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/Zhangdroid/drever/compare/v0.2.2...v0.2.3

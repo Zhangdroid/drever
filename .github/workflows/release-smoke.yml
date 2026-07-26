@@ -286,6 +286,13 @@ jobs:
           path: ${{ env.RESULTS_ROOT }}
           merge-multiple: true
 
+      - name: Hydrate the published release history
+        run: >
+          node "$AUTOMATION_ROOT/scripts/release-smoke/hydrate-history.mjs"
+          "$AUTOMATION_ROOT/website"
+          "https://drever-release-smoke.pages.dev"
+          "https://3cc63cd1.drever-website.pages.dev"
+
       - name: Assemble the website data and review summary
         run: >
           node "$AUTOMATION_ROOT/scripts/release-smoke/publish-results.mjs"

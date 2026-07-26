@@ -425,14 +425,26 @@ const loadReleaseSmokeDataFromOrigin = async (
   );
 };
 
+const mergeReleaseSmokeData = (
+  primary: ReleaseSmokeData,
+  archive: ReleaseSmokeData,
+): ReleaseSmokeData => {
+  const primaryRunIds = new Set(primary.runs.map((run) => run.id));
+  return {
+    latest: primary.latest ?? archive.latest,
+    runs: [...primary.runs, ...archive.runs.filter((run) => !primaryRunIds.has(run.id))],
+  };
+};
+
 export const loadReleaseSmokeData = async (
   options: LoadReleaseSmokeDataOptions = {},
 ): Promise<ReleaseSmokeData> => {
   const { fetcher = (input, init) => fetch(input, init), location, origin, signal } = options;
   const artifactOrigin = normalizeReleaseSmokeOrigin(origin ?? resolveReleaseSmokeOrigin(location));
 
+  let primary: ReleaseSmokeData;
   try {
-    return await loadReleaseSmokeDataFromOrigin(artifactOrigin, fetcher, signal);
+    primary = await loadReleaseSmokeDataFromOrigin(artifactOrigin, fetcher, signal);
   } catch (error) {
     const canUseMigrationFallback =
       origin === undefined &&
@@ -440,5 +452,15 @@ export const loadReleaseSmokeData = async (
       (error instanceof ReleaseSmokeRequestError || error instanceof TypeError);
     if (!canUseMigrationFallback) throw error;
     return loadReleaseSmokeDataFromOrigin(legacyReleaseSmokeOrigin, fetcher, signal);
+  }
+
+  if (artifactOrigin === legacyReleaseSmokeOrigin) return primary;
+
+  try {
+    const archive = await loadReleaseSmokeDataFromOrigin(legacyReleaseSmokeOrigin, fetcher, signal);
+    return mergeReleaseSmokeData(primary, archive);
+  } catch (error) {
+    if (signal?.aborted === true) throw error;
+    return primary;
   }
 };

@@ -92,8 +92,9 @@ export const readSlideNavigationItems = (
         index: slide.index,
         title:
           compactText(element?.getAttribute("aria-label")) ??
-          compactText(heading?.textContent) ??
+          compactText(heading?.getAttribute("aria-label")) ??
           compactText(slide.title) ??
+          compactText(heading?.textContent) ??
           `Slide ${slide.index + 1}`,
       });
     }),

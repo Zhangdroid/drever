@@ -199,6 +199,13 @@ describe("release smoke data", () => {
     const data = await loadReleaseSmokeData({
       fetcher: async (url, init) => {
         requested.push({ credentials: init.credentials, href: url.href });
+        if (url.origin === legacyReleaseSmokeOrigin) {
+          return {
+            json: async () => ({}),
+            ok: false,
+            status: 503,
+          };
+        }
         const value = url.pathname.endsWith("/manifest.json") ? manifestSource : runSource;
         return {
           json: async () => value,
@@ -221,17 +228,66 @@ describe("release smoke data", () => {
         credentials: "omit",
         href: `${defaultReleaseSmokeOrigin}${transcriptPath}`,
       },
+      {
+        credentials: "omit",
+        href: `${legacyReleaseSmokeOrigin}/release-smoke/manifest.json`,
+      },
     ]);
     expect(data.latest?.id).toBe(runSource.id);
     expect(data.runs).toHaveLength(1);
   });
 
+  it("adds legacy runs behind the primary archive and deduplicates by run id", async () => {
+    const legacyRunPath = "/release-smoke/runs/0.2.2-old/run.json";
+    const legacyRun = structuredClone(runSource);
+    legacyRun.id = "0.2.2-old";
+    legacyRun.generatedAt = "2026-07-24T19:00:00.000Z";
+    legacyRun.release.version = "0.2.2";
+    legacyRun.release.commit = "old123def456";
+    legacyRun.cases[0]!.deck = {
+      audience:
+        "https://d0f88ad4.drever-website.pages.dev/release-smoke/runs/0.2.2-old/surprise-me/deck/",
+      document:
+        "https://d0f88ad4.drever-website.pages.dev/release-smoke/runs/0.2.2-old/surprise-me/deck/document/",
+      source:
+        "https://d0f88ad4.drever-website.pages.dev/release-smoke/runs/0.2.2-old/surprise-me/source/slides.mdx",
+    };
+    const legacyManifest = {
+      schemaVersion: 1,
+      latestRunId: legacyRun.id,
+      runs: [
+        { id: runSource.id, transcript: transcriptPath },
+        { id: legacyRun.id, transcript: legacyRunPath },
+      ],
+    };
+    const responses = new Map<string, unknown>([
+      [`${defaultReleaseSmokeOrigin}/release-smoke/manifest.json`, manifestSource],
+      [`${defaultReleaseSmokeOrigin}${transcriptPath}`, runSource],
+      [`${legacyReleaseSmokeOrigin}/release-smoke/manifest.json`, legacyManifest],
+      [`${legacyReleaseSmokeOrigin}${transcriptPath}`, runSource],
+      [`${legacyReleaseSmokeOrigin}${legacyRunPath}`, legacyRun],
+    ]);
+
+    const data = await loadReleaseSmokeData({
+      fetcher: async (url) => ({
+        json: async () => responses.get(url.href),
+        ok: responses.has(url.href),
+        status: responses.has(url.href) ? 200 : 404,
+      }),
+      origin: defaultReleaseSmokeOrigin,
+    });
+
+    expect(data.latest?.id).toBe(runSource.id);
+    expect(data.runs.map((run) => run.id)).toEqual([runSource.id, legacyRun.id]);
+    expect(data.runs[0]?.release.version).toBe("0.2.3");
+  });
+
   it("loads from the same origin on a hash deployment", async () => {
     const hashOrigin = "https://a1b2c3d4.drever-release-smoke.pages.dev";
-    let requested = "";
+    const requested: string[] = [];
     await loadReleaseSmokeData({
       fetcher: async (url) => {
-        requested = url.href;
+        requested.push(url.href);
         return {
           json: async () => ({ schemaVersion: 1, latestRunId: null, runs: [] }),
           ok: true,
@@ -244,7 +300,10 @@ describe("release smoke data", () => {
       },
     });
 
-    expect(requested).toBe(`${hashOrigin}/release-smoke/manifest.json`);
+    expect(requested).toEqual([
+      `${hashOrigin}/release-smoke/manifest.json`,
+      `${legacyReleaseSmokeOrigin}/release-smoke/manifest.json`,
+    ]);
   });
 
   it("keeps the current published evidence available during the storage migration", async () => {
@@ -294,7 +353,7 @@ describe("release smoke data", () => {
       origin: defaultReleaseSmokeOrigin,
     });
 
-    expect(requests).toBe(1);
+    expect(requests).toBe(2);
     expect(data).toEqual({ latest: null, runs: [] });
   });
 
