@@ -1,0 +1,430 @@
+{
+  "version": 1,
+  "sourcePath": "<project>/slides.mdx",
+  "canvas": {
+    "width": 1600,
+    "height": 900
+  },
+  "deck": {
+    "version": 2,
+    "slides": [
+      {
+        "id": "slide-1",
+        "index": 0,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Open with the distinction between illumination and blanket brightness. This is not an argument for unlit streets; it is an argument for placing light deliberately.",
+            "value": "Open with the distinction between illumination and blanket brightness. This is not an argument for unlit streets; it is an argument for placing light deliberately."
+          }
+        ],
+        "stepStops": [],
+        "title": "Light the ground, not the sky.",
+        "source": [
+          {
+            "value": "<section className=\"night-slide opening\">\n  <div className=\"eyebrow\">A field guide to useful light</div>\n  <h1>Light the ground, <span className=\"accent\">not the sky.</span></h1>\n  <p className=\"deck-subtitle\">Outdoor light works best when it has a job—and a boundary.</p>\n  <div className=\"opening-lamp\" aria-label=\"A shielded streetlamp casts a warm pool of light only on the ground\">\n    <div className=\"arm\"></div><div className=\"pole\"></div><div className=\"bulb\"></div><div className=\"ground-pool\"></div>\n  </div>\n  <div className=\"horizon\"></div>\n  <Note>Open with the distinction between illumination and blanket brightness. This is not an argument for unlit streets; it is an argument for placing light deliberately.</Note>\n</section>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 3,
+                "column": 1,
+                "offset": 21
+              },
+              "end": {
+                "line": 12,
+                "column": 11,
+                "offset": 763
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-2",
+        "index": 1,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Pause on the exposed lamp. Advance once to add the shield and task cone. The transformation is the argument: control, rather than sheer intensity, determines whether the light serves the ground or escapes into the night.",
+            "value": "Pause on the exposed lamp. Advance once to add the shield and task cone. The transformation is the argument: control, rather than sheer intensity, determines whether the light serves the ground or escapes into the night."
+          }
+        ],
+        "stepStops": [
+          1
+        ],
+        "title": "The same lamp can make two different nights.",
+        "source": [
+          {
+            "value": "<section className=\"night-slide optics\">\n  <header className=\"optics-head\">\n    <div><div className=\"eyebrow\">01 / Shape</div><h2>The same lamp can make two different nights.</h2></div>\n    <p>Uncontrolled light leaves the task. A small optical boundary changes where the energy goes.</p>\n  </header>\n  <div className=\"lamp-lab\">\n    <div className=\"initial-optic\" role=\"img\" aria-label=\"Before correction: an exposed lamp sends light upward and sideways\">\n      <div className=\"lab-pole\"></div><div className=\"lab-arm\"></div><div className=\"lab-bulb\"></div>\n      <div className=\"wasted-rays\"></div><div className=\"ray-label\">light without a task</div>\n    </div>\n    <Step>\n      <div className=\"correction\" role=\"img\" aria-label=\"After correction: a shield directs the lamp downward onto the ground, leaving the sky dark\">\n        <div className=\"lab-pole\"></div><div className=\"lab-arm\"></div><div className=\"lab-bulb\"></div>\n        <div className=\"shield\"></div><div className=\"down-cone\"></div><div className=\"task-pool\"></div>\n        <div className=\"star-return\" aria-hidden=\"true\">✦ · ✧</div>\n        <div className=\"result-label\">Shield the source. Aim the beam. Keep darkness where it still belongs.</div>\n      </div>\n    </Step>\n  </div>\n  <Note>Pause on the exposed lamp. Advance once to add the shield and task cone. The transformation is the argument: control, rather than sheer intensity, determines whether the light serves the ground or escapes into the night.</Note>\n</section>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 16,
+                "column": 1,
+                "offset": 770
+              },
+              "end": {
+                "line": 36,
+                "column": 11,
+                "offset": 2268
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-3",
+        "index": 2,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Frame this as a practical procurement and design filter. The center is deliberately unlabeled: the answers, not a product category, should define the fixture.",
+            "value": "Frame this as a practical procurement and design filter. The center is deliberately unlabeled: the answers, not a product category, should define the fixture."
+          }
+        ],
+        "stepStops": [],
+        "title": "Ask four questions before adding a lumen.",
+        "source": [
+          {
+            "value": "<section className=\"night-slide questions\">\n  <div className=\"question-copy\">\n    <div className=\"eyebrow\">02 / Audit</div>\n    <h2>Ask four questions before adding a lumen.</h2>\n    <p>If an answer is vague, the fixture is not ready to specify.</p>\n  </div>\n  <div className=\"question-wheel\" role=\"img\" aria-label=\"Four-part lighting audit: need, target, timing, and amount\">\n    <div className=\"q q1\">Need<span>What task exists?</span></div>\n    <div className=\"q q2\">Target<span>Where must light land?</span></div>\n    <div className=\"q q3\">Timing<span>When is it useful?</span></div>\n    <div className=\"q q4\">Amount<span>What is enough?</span></div>\n  </div>\n  <Note>Frame this as a practical procurement and design filter. The center is deliberately unlabeled: the answers, not a product category, should define the fixture.</Note>\n</section>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 40,
+                "column": 1,
+                "offset": 2275
+              },
+              "end": {
+                "line": 53,
+                "column": 11,
+                "offset": 3123
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-4",
+        "index": 3,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Avoid claiming that either image proves a safety outcome. The comparison teaches visual hierarchy: illuminate the information people must distinguish, and avoid making every surface equally dominant.",
+            "value": "Avoid claiming that either image proves a safety outcome. The comparison teaches visual hierarchy: illuminate the information people must distinguish, and avoid making every surface equally dominant."
+          }
+        ],
+        "stepStops": [],
+        "title": "Brightness can hide what contrast reveals.",
+        "source": [
+          {
+            "value": "<section className=\"night-slide contrast-slide\">\n  <header className=\"contrast-head\">\n    <div><div className=\"eyebrow\">03 / Contrast</div><h2>Brightness can hide what contrast reveals.</h2></div>\n    <p>The design question is not “How bright?” It is “What must be easy to distinguish?”</p>\n  </header>\n  <div className=\"contrast-grid\">\n    <div className=\"contrast-scene blanket\" role=\"img\" aria-label=\"A uniformly bright street scene with a low-contrast pedestrian silhouette\">\n      <div className=\"scene-label\">Blanket brightness</div><div className=\"street\"></div><div className=\"curb\"></div><div className=\"figure\"></div>\n      <div className=\"scene-note\">Everything is lit; the important edge competes with everything else.</div>\n    </div>\n    <div className=\"contrast-scene designed\" role=\"img\" aria-label=\"A dark street scene where light is localized around a pedestrian and curb\">\n      <div className=\"scene-label\">Designed contrast</div><div className=\"street\"></div><div className=\"curb\"></div><div className=\"figure\"></div>\n      <div className=\"scene-note\">The path, curb, and person become the visual hierarchy.</div>\n    </div>\n  </div>\n  <Note>Avoid claiming that either image proves a safety outcome. The comparison teaches visual hierarchy: illuminate the information people must distinguish, and avoid making every surface equally dominant.</Note>\n</section>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 57,
+                "column": 1,
+                "offset": 3130
+              },
+              "end": {
+                "line": 73,
+                "column": 11,
+                "offset": 4510
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-5",
+        "index": 4,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "The exact hours are illustrative, not universal. Invite teams to map their own activity pattern, then specify controls and operating rules that match it.",
+            "value": "The exact hours are illustrative, not universal. Invite teams to map their own activity pattern, then specify controls and operating rules that match it."
+          }
+        ],
+        "stepStops": [],
+        "title": "A night is a schedule, not a switch.",
+        "source": [
+          {
+            "value": "<section className=\"night-slide rhythm\">\n  <header className=\"rhythm-head\">\n    <div><div className=\"eyebrow\">04 / Time</div><h2>A night is a schedule, not a switch.</h2></div>\n    <p>Demand changes by hour. The lighting plan should change with it.</p>\n  </header>\n  <div className=\"timeline\" role=\"img\" aria-label=\"A four-period lighting schedule from evening through dawn\">\n    <div className=\"period\" style={{\"--level\":\"78%\"}}><time>18:00</time><strong>Welcome</strong><small>Warm, directed light supports arrivals.</small></div>\n    <div className=\"period\" style={{\"--level\":\"58%\"}}><time>22:00</time><strong>Settle</strong><small>Reduce output as activity falls.</small></div>\n    <div className=\"period\" style={{\"--level\":\"34%\"}}><time>01:00</time><strong>Respond</strong><small>Keep low light; raise it only where needed.</small></div>\n    <div className=\"period off\" style={{\"--level\":\"8%\"}}><time>DAWN</time><strong>Retire</strong><small>Let daylight take the shift.</small></div>\n  </div>\n  <Note>The exact hours are illustrative, not universal. Invite teams to map their own activity pattern, then specify controls and operating rules that match it.</Note>\n</section>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 77,
+                "column": 1,
+                "offset": 4517
+              },
+              "end": {
+                "line": 89,
+                "column": 11,
+                "offset": 5695
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-6",
+        "index": 5,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Close on the action, not the philosophy. A useful first audit can be done without equipment: find glare, spill, empty-hour lighting, and places where the actual task is still hard to see.",
+            "value": "Close on the action, not the philosophy. A useful first audit can be done without equipment: find glare, spill, empty-hour lighting, and places where the actual task is still hard to see."
+          }
+        ],
+        "stepStops": [],
+        "title": "Give darkness a job.",
+        "source": [
+          {
+            "value": "<section className=\"night-slide closing\">\n  <div className=\"audit-mark\" aria-hidden=\"true\">01</div>\n  <div className=\"eyebrow\">Your next night walk</div>\n  <h1>Give darkness <span className=\"cool\">a job.</span></h1>\n  <p className=\"instruction\">Walk one block after closing. Find the light that misses its task. Fix the clearest one first.</p>\n  <div className=\"audit-cues\" aria-label=\"Look for glare, spill, and empty-hour light\"><span>Glare</span><span>Spill</span><span>Empty hours</span></div>\n  <div className=\"closing-stars\" aria-hidden=\"true\"></div>\n  <div className=\"horizon\"></div>\n  <Note>Close on the action, not the philosophy. A useful first audit can be done without equipment: find glare, spill, empty-hour lighting, and places where the actual task is still hard to see.</Note>\n</section>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 93,
+                "column": 1,
+                "offset": 5702
+              },
+              "end": {
+                "line": 102,
+                "column": 11,
+                "offset": 6506
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "design": {
+    "theme": {
+      "id": "@drever/designs/basic",
+      "version": "0.2.4",
+      "tokens": {
+        "color": {
+          "canvas": "#f7f7f2",
+          "ink": "#171816",
+          "muted": "#62665f",
+          "accent": "#2855e7",
+          "accentStrong": "#1538a8",
+          "accentSoft": "#dce5ff",
+          "surface": "#ffffff",
+          "border": "#d9dcd4",
+          "codeCanvas": "#171a22",
+          "codeInk": "#f5f6f8"
+        },
+        "typography": {
+          "display": "ui-sans-serif, system-ui, sans-serif",
+          "body": "ui-sans-serif, system-ui, sans-serif",
+          "mono": "ui-monospace, SFMono-Regular, monospace",
+          "titleSize": 76,
+          "bodySize": 28
+        },
+        "space": {
+          "slideX": 112,
+          "slideY": 88,
+          "rhythm": 24
+        },
+        "shape": {
+          "radius": 24,
+          "borderWidth": 2
+        },
+        "motion": {
+          "duration": 380,
+          "easing": "cubic-bezier(0.22, 1, 0.36, 1)"
+        }
+      },
+      "manifest": {
+        "title": "Drever Basic",
+        "summary": "A neutral visual baseline with generous space, clear typography, and focused motion.",
+        "artDirection": {
+          "keywords": [
+            "neutral",
+            "clear",
+            "versatile",
+            "calm"
+          ],
+          "principles": [
+            "Give every slide one dominant idea",
+            "Use scale and space before decoration",
+            "Animate changes that clarify state or continuity",
+            "Prefer a meaningful visual over a longer list"
+          ],
+          "avoid": [
+            "Dense walls of text",
+            "More than two competing accent colors",
+            "Decorative animation without narrative purpose",
+            "Using a two-column layout when the ideas are unrelated"
+          ]
+        },
+        "choices": {
+          "tones": [
+            "light",
+            "dark",
+            "accent"
+          ],
+          "emphases": [
+            "typography",
+            "comparison",
+            "visual"
+          ],
+          "densities": [
+            "airy",
+            "balanced"
+          ]
+        }
+      },
+      "motion": {
+        "id": "basic",
+        "intents": [
+          "focus",
+          "replace",
+          "compare",
+          "stagger",
+          "continuity"
+        ],
+        "guidance": [
+          "Use focus to keep prior evidence visible while making the current Step unmistakable.",
+          "Use replace for one changing state, compare for cumulative evidence, and stagger for at most four tightly related items.",
+          "Set flow to block for a vertical reading sequence and inline for a horizontal process or comparison; leave it unset when neither axis explains the content.",
+          "Basic uses mostly direct cuts and quiet fades; short spatial travel is exceptional and content remains more prominent than choreography.",
+          "Reuse a continuity name only when the same visual object persists across adjacent slides, then end the sequence as soon as it stops carrying the argument."
+        ]
+      }
+    },
+    "layouts": [
+      {
+        "name": "Cover",
+        "description": "Open a presentation or major chapter with one concise title and restrained supporting context.",
+        "slots": [
+          {
+            "name": "eyebrow",
+            "purpose": "An optional short category, event, or chapter label.",
+            "accepts": [
+              "text"
+            ],
+            "maxItems": 1
+          },
+          {
+            "name": "title",
+            "purpose": "The single dominant statement for the slide.",
+            "accepts": [
+              "text"
+            ],
+            "required": true,
+            "maxItems": 1
+          },
+          {
+            "name": "supporting",
+            "purpose": "One short sentence that adds context without repeating the title.",
+            "accepts": [
+              "text"
+            ],
+            "maxItems": 1
+          },
+          {
+            "name": "footer",
+            "purpose": "Optional speaker, organization, date, or section metadata.",
+            "accepts": [
+              "text"
+            ],
+            "maxItems": 1
+          }
+        ],
+        "variants": [
+          "light",
+          "dark",
+          "accent"
+        ],
+        "constraints": {
+          "titleWords": {
+            "recommendedMaximum": 10
+          },
+          "supportingLines": {
+            "recommendedMaximum": 3
+          }
+        },
+        "example": "<Cover eyebrow=\"Quarterly planning\" title=\"Choose what happens next.\" supporting=\"The evidence, tradeoffs, and one decision the room can act on.\" tone=\"accent\" />"
+      },
+      {
+        "name": "TwoColumn",
+        "description": "Place two related ideas side by side when their relationship is more important than either idea alone.",
+        "slots": [
+          {
+            "name": "primary",
+            "purpose": "The first argument, explanation, or visual group.",
+            "accepts": [
+              "text",
+              "media",
+              "code",
+              "component"
+            ],
+            "required": true,
+            "maxItems": 1
+          },
+          {
+            "name": "secondary",
+            "purpose": "The comparison, consequence, or complementary visual group.",
+            "accepts": [
+              "text",
+              "media",
+              "code",
+              "component"
+            ],
+            "required": true,
+            "maxItems": 1
+          }
+        ],
+        "variants": [
+          "equal",
+          "wide-primary",
+          "wide-secondary"
+        ],
+        "constraints": {
+          "nestedColumns": false,
+          "recommendedMaximumWordsPerColumn": 45
+        },
+        "example": "<TwoColumn primary={<><h2>Before</h2><p>Static output</p></>} secondary={<><h2>After</h2><p>Living interface</p></>} />"
+      }
+    ],
+    "components": [],
+    "elements": []
+  },
+  "plugins": [
+    {
+      "id": "@drever/plugin-gfm",
+      "version": "0.2.4",
+      "origin": "default",
+      "config": {
+        "singleTilde": true
+      }
+    },
+    {
+      "id": "@drever/plugin-shiki",
+      "version": "0.2.4",
+      "origin": "default",
+      "config": {
+        "darkTheme": "github-dark",
+        "lightTheme": "github-light"
+      }
+    },
+    {
+      "id": "@drever/plugin-tailwindcss",
+      "version": "0.2.4",
+      "origin": "default"
+    }
+  ],
+  "preflight": {
+    "version": 1,
+    "sourcePath": "<project>/slides.mdx",
+    "slideCount": 6,
+    "summary": {
+      "errors": 0,
+      "warnings": 0,
+      "info": 0
+    },
+    "diagnostics": []
+  }
+}

@@ -1,0 +1,442 @@
+{
+  "version": 1,
+  "sourcePath": "<project>/slides.mdx",
+  "canvas": {
+    "width": 1600,
+    "height": 900
+  },
+  "deck": {
+    "version": 2,
+    "slides": [
+      {
+        "id": "slide-1",
+        "index": 0,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Open with the result, not the ritual: “Eight minutes from now, you will have a reusable way to decide which three launch risks deserve owners.” A pre-mortem temporarily assumes failure so status, optimism, and hierarchy have less power over what gets said. Advance once to reveal risk signals; advance again to show the intended endpoint: not a longer risk list, but three owned risks. This is the first signature beat: an empty scan becomes a bounded ownership decision.",
+            "value": "Open with the result, not the ritual: “Eight minutes from now, you will have a reusable way to decide which three launch risks deserve owners.” A pre-mortem temporarily assumes failure so status, optimism, and hierarchy have less power over what gets said. Advance once to reveal risk signals; advance again to show the intended endpoint: not a longer risk list, but three owned risks. This is the first signature beat: an empty scan becomes a bounded ownership decision."
+          }
+        ],
+        "stepStops": [
+          1,
+          2
+        ],
+        "title": "Assume the launch failed.",
+        "source": [
+          {
+            "value": "<div className=\"pm-slide\">\n  <div className=\"pm-grid-2\">\n    <div>\n      <p className=\"pm-kicker\">Pre-mortem / T−launch</p>\n      <h1>Assume the launch failed.</h1>\n      <p className=\"pm-subtitle\">Work backward until the risks are visible enough to own.</p>\n    </div>\n\n    <div className=\"pm-radar-wrap\" aria-label=\"A launch risk radar scanning for failure signals\">\n      <div className=\"pm-radar\">\n        <div className=\"pm-radar-center\">Scan<br />failure</div>\n        <Step at={1}>\n          <span className=\"pm-contact pm-contact-a\" data-label=\"risk signal 1\" aria-label=\"Risk signal 1\" />\n          <span className=\"pm-contact pm-contact-b\" data-label=\"risk signal 2\" aria-label=\"Risk signal 2\" />\n          <span className=\"pm-contact pm-contact-c\" data-label=\"risk signal 3\" aria-label=\"Risk signal 3\" />\n        </Step>\n        <Step at={2}>\n          <div className=\"pm-radar-center pm-lock\">3 risks<br />→ owners</div>\n        </Step>\n      </div>\n    </div>\n  </div>\n\n  <Note>\n    Open with the result, not the ritual: “Eight minutes from now, you will have a reusable way to decide which three launch risks deserve owners.” A pre-mortem temporarily assumes failure so status, optimism, and hierarchy have less power over what gets said. Advance once to reveal risk signals; advance again to show the intended endpoint: not a longer risk list, but three owned risks. This is the first signature beat: an empty scan becomes a bounded ownership decision.\n  </Note>\n</div>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 3,
+                "column": 1,
+                "offset": 21
+              },
+              "end": {
+                "line": 29,
+                "column": 7,
+                "offset": 1505
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-2",
+        "index": 1,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Facilitate this as silent writing first. Ask for short failure headlines, one per note, and explicitly prohibit solutions for these two minutes. Silence prevents the first confident speaker from setting the range of acceptable concern. If the room stalls, reveal the four lenses: value, adoption, delivery, and trust. They are prompts, not categories the team must fill evenly. Ask for observed outcomes—“people abandon setup”—rather than abstractions like “bad UX.”",
+            "value": "Facilitate this as silent writing first. Ask for short failure headlines, one per note, and explicitly prohibit solutions for these two minutes. Silence prevents the first confident speaker from setting the range of acceptable concern. If the room stalls, reveal the four lenses: value, adoption, delivery, and trust. They are prompts, not categories the team must fill evenly. Ask for observed outcomes—“people abandon setup”—rather than abstractions like “bad UX.”"
+          }
+        ],
+        "stepStops": [
+          1
+        ],
+        "title": "Start from failure, not anxiety.",
+        "source": [
+          {
+            "value": "<div className=\"pm-slide\">\n  <div className=\"pm-topline\">\n    <p className=\"pm-kicker\">01 / Generate</p>\n    <span className=\"pm-tag\">2 minutes · silent</span>\n  </div>\n\n  <h2>Start from failure, not anxiety.</h2>\n\n  <div className=\"pm-prompt\" style={{ marginTop: '2rem' }}>\n    <blockquote>“It is two weeks after launch. It failed. What happened?”</blockquote>\n  </div>\n\n  <Step at={1}>\n    <div className=\"pm-sector-grid\" aria-label=\"Four reusable lenses for generating failure stories\">\n      <div className=\"pm-sector\"><strong>Value</strong><span>People did not get the promised outcome.</span></div>\n      <div className=\"pm-sector\"><strong>Adoption</strong><span>People could not start or keep using it.</span></div>\n      <div className=\"pm-sector\"><strong>Delivery</strong><span>The system or operation could not carry the load.</span></div>\n      <div className=\"pm-sector\"><strong>Trust</strong><span>The launch damaged confidence, safety, or compliance.</span></div>\n    </div>\n  </Step>\n\n  <Note>\n    Facilitate this as silent writing first. Ask for short failure headlines, one per note, and explicitly prohibit solutions for these two minutes. Silence prevents the first confident speaker from setting the range of acceptable concern. If the room stalls, reveal the four lenses: value, adoption, delivery, and trust. They are prompts, not categories the team must fill evenly. Ask for observed outcomes—“people abandon setup”—rather than abstractions like “bad UX.”\n  </Note>\n</div>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 33,
+                "column": 1,
+                "offset": 1512
+              },
+              "end": {
+                "line": 57,
+                "column": 7,
+                "offset": 3008
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-3",
+        "index": 2,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Have each person read one headline at a time; cluster only obvious duplicates. For any vague item, use the three prompts in order. “What went wrong?” keeps the statement outcome-based. “Because what?” moves toward a controllable condition without turning the session into solutioning. “How would we know?” creates an observable trigger. Keep the pace brisk: clarification should sharpen a risk, not litigate whether it is true. Park solutions in a separate area for later.",
+            "value": "Have each person read one headline at a time; cluster only obvious duplicates. For any vague item, use the three prompts in order. “What went wrong?” keeps the statement outcome-based. “Because what?” moves toward a controllable condition without turning the session into solutioning. “How would we know?” creates an observable trigger. Keep the pace brisk: clarification should sharpen a risk, not litigate whether it is true. Park solutions in a separate area for later."
+          }
+        ],
+        "stepStops": [
+          1,
+          2
+        ],
+        "title": "Turn failure stories into risk signals.",
+        "source": [
+          {
+            "value": "<div className=\"pm-slide\">\n  <div className=\"pm-topline\">\n    <p className=\"pm-kicker\">02 / Clarify</p>\n    <span className=\"pm-tag\">6 minutes · share + cluster</span>\n  </div>\n  <h2>Turn failure stories into risk signals.</h2>\n\n  <div className=\"pm-flow\" aria-label=\"A three-part flow from failure story to cause to observable signal\">\n    <div className=\"pm-flow-card\">\n      <span className=\"pm-flow-index\">FAILURE</span>\n      <h3>What went wrong?</h3>\n      <p>State the visible outcome, without blame.</p>\n    </div>\n    <Step at={1}>\n      <div className=\"pm-flow-card\">\n        <span className=\"pm-flow-index\">CAUSE</span>\n        <h3>Because what?</h3>\n        <p>Name the condition the team can influence.</p>\n      </div>\n    </Step>\n    <Step at={2}>\n      <div className=\"pm-flow-card\">\n        <span className=\"pm-flow-index\">SIGNAL</span>\n        <h3>How would we know?</h3>\n        <p className=\"pm-formula\">When ___, we expect ___.</p>\n      </div>\n    </Step>\n  </div>\n\n  <Note>\n    Have each person read one headline at a time; cluster only obvious duplicates. For any vague item, use the three prompts in order. “What went wrong?” keeps the statement outcome-based. “Because what?” moves toward a controllable condition without turning the session into solutioning. “How would we know?” creates an observable trigger. Keep the pace brisk: clarification should sharpen a risk, not litigate whether it is true. Park solutions in a separate area for later.\n  </Note>\n</div>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 61,
+                "column": 1,
+                "offset": 3015
+              },
+              "end": {
+                "line": 93,
+                "column": 7,
+                "offset": 4505
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-4",
+        "index": 3,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Draw a simple two-by-two: likelihood left to right, impact bottom to top. Place each clustered risk by quick consent; do not score decimals or debate exact boundaries. If views differ, place the item at the more exposed position and flag the uncertainty. Then apply the forcing function: choose exactly three from the high-exposure region. Break ties by asking, “Which risk becomes cheaper if we act before launch?” The visual reveal numbers only three contacts, turning an unranked field into a decision.",
+            "value": "Draw a simple two-by-two: likelihood left to right, impact bottom to top. Place each clustered risk by quick consent; do not score decimals or debate exact boundaries. If views differ, place the item at the more exposed position and flag the uncertainty. Then apply the forcing function: choose exactly three from the high-exposure region. Break ties by asking, “Which risk becomes cheaper if we act before launch?” The visual reveal numbers only three contacts, turning an unranked field into a decision."
+          }
+        ],
+        "stepStops": [
+          1
+        ],
+        "title": "Rank by exposure, not volume.",
+        "source": [
+          {
+            "value": "<div className=\"pm-slide\">\n  <div className=\"pm-matrix-layout\">\n    <div>\n      <p className=\"pm-kicker\">03 / Rank</p>\n      <h2>Rank by exposure, not volume.</h2>\n      <p className=\"pm-subtitle\">Likelihood × impact. Fast judgment beats false precision.</p>\n      <Step at={1}>\n        <p className=\"pm-decision\">Shortlist the upper-right. Choose exactly three.</p>\n      </Step>\n    </div>\n\n    <div className=\"pm-matrix\" aria-label=\"Risk matrix with likelihood increasing to the right and impact increasing upward\">\n      <div className=\"pm-quadrant\">High impact<br />lower likelihood</div>\n      <div className=\"pm-quadrant hot\">High exposure<br />shortlist here</div>\n      <div className=\"pm-quadrant\">Watch</div>\n      <div className=\"pm-quadrant\">Frequent<br />lower impact</div>\n      <span className=\"pm-axis pm-axis-x\">Likelihood →</span>\n      <span className=\"pm-axis pm-axis-y\">Impact →</span>\n      <span className=\"pm-dot pm-dot-muted pm-dot-4\" aria-hidden=\"true\">•</span>\n      <span className=\"pm-dot pm-dot-muted pm-dot-5\" aria-hidden=\"true\">•</span>\n      <Step at={1}>\n        <span className=\"pm-dot pm-dot-1\" aria-label=\"Selected risk 1\">1</span>\n        <span className=\"pm-dot pm-dot-2\" aria-label=\"Selected risk 2\">2</span>\n        <span className=\"pm-dot pm-dot-3\" aria-label=\"Selected risk 3\">3</span>\n      </Step>\n    </div>\n  </div>\n\n  <Note>\n    Draw a simple two-by-two: likelihood left to right, impact bottom to top. Place each clustered risk by quick consent; do not score decimals or debate exact boundaries. If views differ, place the item at the more exposed position and flag the uncertainty. Then apply the forcing function: choose exactly three from the high-exposure region. Break ties by asking, “Which risk becomes cheaper if we act before launch?” The visual reveal numbers only three contacts, turning an unranked field into a decision.\n  </Note>\n</div>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 97,
+                "column": 1,
+                "offset": 4512
+              },
+              "end": {
+                "line": 128,
+                "column": 7,
+                "offset": 6412
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-5",
+        "index": 4,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "For each of the three risks, fill four fields. The risk is a concrete launch outcome. The owner is one accountable person—not a function or the whole team. The trigger is the earliest observable threshold that should cause action. The first action is small enough to start now. The owner does not personally solve everything; they keep the signal visible and convene the response. If assigning one row takes more than two minutes, the risk is still too broad: split or rewrite it.",
+            "value": "For each of the three risks, fill four fields. The risk is a concrete launch outcome. The owner is one accountable person—not a function or the whole team. The trigger is the earliest observable threshold that should cause action. The first action is small enough to start now. The owner does not personally solve everything; they keep the signal visible and convene the response. If assigning one row takes more than two minutes, the risk is still too broad: split or rewrite it."
+          }
+        ],
+        "stepStops": [
+          1,
+          2,
+          3
+        ],
+        "title": "Give each risk a control loop.",
+        "source": [
+          {
+            "value": "<div className=\"pm-slide\">\n  <div className=\"pm-topline\">\n    <div>\n      <p className=\"pm-kicker\">04 / Control</p>\n      <h2>Give each risk a control loop.</h2>\n    </div>\n    <span className=\"pm-tag\">8 minutes · assign</span>\n  </div>\n\n  <div className=\"pm-ledger\" role=\"table\" aria-label=\"Template for assigning the three selected risks\">\n    <div className=\"pm-ledger-head\" role=\"row\">\n      <span role=\"columnheader\">#</span><span role=\"columnheader\">Risk</span><span role=\"columnheader\">Owner</span><span role=\"columnheader\">Trigger</span><span role=\"columnheader\">First action</span>\n    </div>\n    <div className=\"pm-ledger-row\" role=\"row\">\n      <span className=\"pm-number\" role=\"cell\">1</span><span className=\"pm-placeholder\" role=\"cell\">specific outcome</span><span className=\"pm-owner\" role=\"cell\">one name</span><span className=\"pm-placeholder\" role=\"cell\">observable threshold</span><span className=\"pm-placeholder\" role=\"cell\">next concrete move</span>\n    </div>\n    <Step at={1}>\n      <div className=\"pm-ledger-row\" role=\"row\">\n        <span className=\"pm-number\" role=\"cell\">2</span><span className=\"pm-placeholder\" role=\"cell\">specific outcome</span><span className=\"pm-owner\" role=\"cell\">one name</span><span className=\"pm-placeholder\" role=\"cell\">observable threshold</span><span className=\"pm-placeholder\" role=\"cell\">next concrete move</span>\n      </div>\n    </Step>\n    <Step at={2}>\n      <div className=\"pm-ledger-row\" role=\"row\">\n        <span className=\"pm-number\" role=\"cell\">3</span><span className=\"pm-placeholder\" role=\"cell\">specific outcome</span><span className=\"pm-owner\" role=\"cell\">one name</span><span className=\"pm-placeholder\" role=\"cell\">observable threshold</span><span className=\"pm-placeholder\" role=\"cell\">next concrete move</span>\n      </div>\n    </Step>\n  </div>\n\n  <Step at={3}>\n    <p className=\"pm-rule\">No owner, no trigger, no first action? It is not selected yet.</p>\n  </Step>\n\n  <Note>\n    For each of the three risks, fill four fields. The risk is a concrete launch outcome. The owner is one accountable person—not a function or the whole team. The trigger is the earliest observable threshold that should cause action. The first action is small enough to start now. The owner does not personally solve everything; they keep the signal visible and convene the response. If assigning one row takes more than two minutes, the risk is still too broad: split or rewrite it.\n  </Note>\n</div>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 132,
+                "column": 1,
+                "offset": 6419
+              },
+              "end": {
+                "line": 167,
+                "column": 7,
+                "offset": 8865
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "slide-6",
+        "index": 5,
+        "speakerNotes": [
+          {
+            "format": "markdown",
+            "plainText": "Close by restating the decision rule: the output is exactly three risks, and each has an owner, trigger, and first action. Read the reusable 20-minute agenda once. Ask the group to schedule it before the next launch-readiness review, while changes are still affordable. If the team already has a risk register, add these three rows there; do not create a parallel artifact. End on the green action, then stop.",
+            "value": "Close by restating the decision rule: the output is exactly three risks, and each has an owner, trigger, and first action. Read the reusable 20-minute agenda once. Ask the group to schedule it before the next launch-readiness review, while changes are still affordable. If the team already has a risk register, add these three rows there; do not create a parallel artifact. End on the green action, then stop."
+          }
+        ],
+        "stepStops": [],
+        "title": "Leave with three owned risks—not thirty worries.",
+        "source": [
+          {
+            "value": "<div className=\"pm-slide\">\n  <div className=\"pm-close\">\n    <div>\n      <p className=\"pm-kicker\">Ready for launch control</p>\n      <h2>Leave with three owned risks—not thirty worries.</h2>\n      <div className=\"pm-three\" aria-label=\"The three selected risks\"><span>1</span><span>2</span><span>3</span></div>\n      <div className=\"pm-timeline\" aria-label=\"Reusable twenty-minute pre-mortem agenda\">\n        <span>2 min · imagine failure</span>\n        <span>6 min · share + cluster</span>\n        <span>4 min · rank</span>\n        <span>8 min · assign</span>\n      </div>\n      <p className=\"pm-cta\">Book the 20-minute pre-mortem before launch readiness.</p>\n    </div>\n  </div>\n\n  <Note>\n    Close by restating the decision rule: the output is exactly three risks, and each has an owner, trigger, and first action. Read the reusable 20-minute agenda once. Ask the group to schedule it before the next launch-readiness review, while changes are still affordable. If the team already has a risk register, add these three rows there; do not create a parallel artifact. End on the green action, then stop.\n  </Note>\n</div>",
+            "range": {
+              "path": "<project>/slides.mdx",
+              "start": {
+                "line": 171,
+                "column": 1,
+                "offset": 8872
+              },
+              "end": {
+                "line": 190,
+                "column": 7,
+                "offset": 9991
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "design": {
+    "theme": {
+      "id": "@drever/designs/basic",
+      "version": "0.2.4",
+      "tokens": {
+        "color": {
+          "canvas": "#f7f7f2",
+          "ink": "#171816",
+          "muted": "#62665f",
+          "accent": "#2855e7",
+          "accentStrong": "#1538a8",
+          "accentSoft": "#dce5ff",
+          "surface": "#ffffff",
+          "border": "#d9dcd4",
+          "codeCanvas": "#171a22",
+          "codeInk": "#f5f6f8"
+        },
+        "typography": {
+          "display": "ui-sans-serif, system-ui, sans-serif",
+          "body": "ui-sans-serif, system-ui, sans-serif",
+          "mono": "ui-monospace, SFMono-Regular, monospace",
+          "titleSize": 76,
+          "bodySize": 28
+        },
+        "space": {
+          "slideX": 112,
+          "slideY": 88,
+          "rhythm": 24
+        },
+        "shape": {
+          "radius": 24,
+          "borderWidth": 2
+        },
+        "motion": {
+          "duration": 380,
+          "easing": "cubic-bezier(0.22, 1, 0.36, 1)"
+        }
+      },
+      "manifest": {
+        "title": "Drever Basic",
+        "summary": "A neutral visual baseline with generous space, clear typography, and focused motion.",
+        "artDirection": {
+          "keywords": [
+            "neutral",
+            "clear",
+            "versatile",
+            "calm"
+          ],
+          "principles": [
+            "Give every slide one dominant idea",
+            "Use scale and space before decoration",
+            "Animate changes that clarify state or continuity",
+            "Prefer a meaningful visual over a longer list"
+          ],
+          "avoid": [
+            "Dense walls of text",
+            "More than two competing accent colors",
+            "Decorative animation without narrative purpose",
+            "Using a two-column layout when the ideas are unrelated"
+          ]
+        },
+        "choices": {
+          "tones": [
+            "light",
+            "dark",
+            "accent"
+          ],
+          "emphases": [
+            "typography",
+            "comparison",
+            "visual"
+          ],
+          "densities": [
+            "airy",
+            "balanced"
+          ]
+        }
+      },
+      "motion": {
+        "id": "basic",
+        "intents": [
+          "focus",
+          "replace",
+          "compare",
+          "stagger",
+          "continuity"
+        ],
+        "guidance": [
+          "Use focus to keep prior evidence visible while making the current Step unmistakable.",
+          "Use replace for one changing state, compare for cumulative evidence, and stagger for at most four tightly related items.",
+          "Set flow to block for a vertical reading sequence and inline for a horizontal process or comparison; leave it unset when neither axis explains the content.",
+          "Basic uses mostly direct cuts and quiet fades; short spatial travel is exceptional and content remains more prominent than choreography.",
+          "Reuse a continuity name only when the same visual object persists across adjacent slides, then end the sequence as soon as it stops carrying the argument."
+        ]
+      }
+    },
+    "layouts": [
+      {
+        "name": "Cover",
+        "description": "Open a presentation or major chapter with one concise title and restrained supporting context.",
+        "slots": [
+          {
+            "name": "eyebrow",
+            "purpose": "An optional short category, event, or chapter label.",
+            "accepts": [
+              "text"
+            ],
+            "maxItems": 1
+          },
+          {
+            "name": "title",
+            "purpose": "The single dominant statement for the slide.",
+            "accepts": [
+              "text"
+            ],
+            "required": true,
+            "maxItems": 1
+          },
+          {
+            "name": "supporting",
+            "purpose": "One short sentence that adds context without repeating the title.",
+            "accepts": [
+              "text"
+            ],
+            "maxItems": 1
+          },
+          {
+            "name": "footer",
+            "purpose": "Optional speaker, organization, date, or section metadata.",
+            "accepts": [
+              "text"
+            ],
+            "maxItems": 1
+          }
+        ],
+        "variants": [
+          "light",
+          "dark",
+          "accent"
+        ],
+        "constraints": {
+          "titleWords": {
+            "recommendedMaximum": 10
+          },
+          "supportingLines": {
+            "recommendedMaximum": 3
+          }
+        },
+        "example": "<Cover eyebrow=\"Quarterly planning\" title=\"Choose what happens next.\" supporting=\"The evidence, tradeoffs, and one decision the room can act on.\" tone=\"accent\" />"
+      },
+      {
+        "name": "TwoColumn",
+        "description": "Place two related ideas side by side when their relationship is more important than either idea alone.",
+        "slots": [
+          {
+            "name": "primary",
+            "purpose": "The first argument, explanation, or visual group.",
+            "accepts": [
+              "text",
+              "media",
+              "code",
+              "component"
+            ],
+            "required": true,
+            "maxItems": 1
+          },
+          {
+            "name": "secondary",
+            "purpose": "The comparison, consequence, or complementary visual group.",
+            "accepts": [
+              "text",
+              "media",
+              "code",
+              "component"
+            ],
+            "required": true,
+            "maxItems": 1
+          }
+        ],
+        "variants": [
+          "equal",
+          "wide-primary",
+          "wide-secondary"
+        ],
+        "constraints": {
+          "nestedColumns": false,
+          "recommendedMaximumWordsPerColumn": 45
+        },
+        "example": "<TwoColumn primary={<><h2>Before</h2><p>Static output</p></>} secondary={<><h2>After</h2><p>Living interface</p></>} />"
+      }
+    ],
+    "components": [],
+    "elements": []
+  },
+  "plugins": [
+    {
+      "id": "@drever/plugin-gfm",
+      "version": "0.2.4",
+      "origin": "default",
+      "config": {
+        "singleTilde": true
+      }
+    },
+    {
+      "id": "@drever/plugin-shiki",
+      "version": "0.2.4",
+      "origin": "default",
+      "config": {
+        "darkTheme": "github-dark",
+        "lightTheme": "github-light"
+      }
+    },
+    {
+      "id": "@drever/plugin-tailwindcss",
+      "version": "0.2.4",
+      "origin": "default"
+    }
+  ],
+  "preflight": {
+    "version": 1,
+    "sourcePath": "<project>/slides.mdx",
+    "slideCount": 6,
+    "summary": {
+      "errors": 0,
+      "warnings": 0,
+      "info": 0
+    },
+    "diagnostics": []
+  }
+}

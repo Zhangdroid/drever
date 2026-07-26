@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "surprise-me",
+  "mode": "surprise-me",
+  "startedAt": "2026-07-26T00:24:47.393Z",
+  "completedAt": "2026-07-26T00:27:36.932Z",
+  "durationSeconds": 170,
+  "messages": [
+    {
+      "content": "Fetch and follow https://drever.dev/prompt.md.\n\nThis isolated release test already fetched the exact response to\n`.release-smoke/prompt.md`. Read that local copy instead of accessing the\nnetwork. Also read `.release-smoke/constraints.md`, which defines the narrow\ngeneration-stage boundary for this run. Begin with the optional briefing from\nthe fetched prompt; do not assume that any question has already been answered.",
+      "role": "user"
+    },
+    {
+      "content": "1. What is the presentation topic?\n2. Who is the audience, and what should they understand, decide, or do?\n3. How long should the presentation be?\n\n**Or say “Skip remaining questions — surprise me” and I will choose the rest.**",
+      "role": "assistant"
+    },
+    {
+      "content": "Skip remaining questions — surprise me. Choose the topic and every remaining creative decision, then create the presentation now.",
+      "role": "user"
+    },
+    {
+      "content": "Created a six-slide Drever deck, “Mending the Night,” with custom local styling, speaker notes, and a meaningful Step reveal.\n\nFiles:\n\n- [slides.mdx](<project>/slides.mdx)\n- [deck.css](<project>/deck.css)\n- [brief.md](<project>/brief.md)\n- [art-direction.md](<project>/design/art-direction.md)\n\nAssumed a seven-minute presentation for civic and facilities decision-makers, with restrained motion and concise slides.\n\nPer the release boundary, checks, builds, browser review, and a preview URL were not produced; the separate validation stage owns those tasks.",
+      "role": "assistant"
+    },
+    {
+      "content": "Review the complete authored draft once more. Keep its strongest idea, then refine the\nnarrative, composition, hierarchy, motion, and small details wherever the source reveals a\nclear improvement. Do not run validation in this protected stage.",
+      "role": "user"
+    },
+    {
+      "content": "Refined the complete draft while preserving the shielded-lamp transformation.\n\nImprovements include:\n\n- Cleaner before/after Step semantics and accessibility.\n- Beam-focused motion with reduced-motion fallback.\n- Better 16:9 vertical fit and opening-slide hierarchy.\n- Clearer distinction between the signature moment and supporting timeline.\n- More concrete closing action: glare, spill, and empty-hour light.\n- Minor responsive and composition refinements.\n\nUpdated [slides.mdx](<project>/slides.mdx), [deck.css](<project>/deck.css), and [art-direction.md](<project>/design/art-direction.md).\n\nNo validation or rendered review was run in this protected stage.",
+      "role": "assistant"
+    }
+  ],
+  "usage": [
+    {
+      "input_tokens": 27640,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 27637,
+      "output_tokens": 152,
+      "reasoning_output_tokens": 92
+    },
+    {
+      "input_tokens": 127423,
+      "cached_input_tokens": 90926,
+      "cache_write_input_tokens": 36485,
+      "output_tokens": 9115,
+      "reasoning_output_tokens": 1995
+    },
+    {
+      "input_tokens": 245367,
+      "cached_input_tokens": 204333,
+      "cache_write_input_tokens": 41013,
+      "output_tokens": 13419,
+      "reasoning_output_tokens": 4331
+    }
+  ]
+}

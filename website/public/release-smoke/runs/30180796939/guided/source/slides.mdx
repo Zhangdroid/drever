@@ -1,0 +1,190 @@
+import './deck.css'
+
+<div className="pm-slide">
+  <div className="pm-grid-2">
+    <div>
+      <p className="pm-kicker">Pre-mortem / T−launch</p>
+      <h1>Assume the launch failed.</h1>
+      <p className="pm-subtitle">Work backward until the risks are visible enough to own.</p>
+    </div>
+
+    <div className="pm-radar-wrap" aria-label="A launch risk radar scanning for failure signals">
+      <div className="pm-radar">
+        <div className="pm-radar-center">Scan<br />failure</div>
+        <Step at={1}>
+          <span className="pm-contact pm-contact-a" data-label="risk signal 1" aria-label="Risk signal 1" />
+          <span className="pm-contact pm-contact-b" data-label="risk signal 2" aria-label="Risk signal 2" />
+          <span className="pm-contact pm-contact-c" data-label="risk signal 3" aria-label="Risk signal 3" />
+        </Step>
+        <Step at={2}>
+          <div className="pm-radar-center pm-lock">3 risks<br />→ owners</div>
+        </Step>
+      </div>
+    </div>
+  </div>
+
+  <Note>
+    Open with the result, not the ritual: “Eight minutes from now, you will have a reusable way to decide which three launch risks deserve owners.” A pre-mortem temporarily assumes failure so status, optimism, and hierarchy have less power over what gets said. Advance once to reveal risk signals; advance again to show the intended endpoint: not a longer risk list, but three owned risks. This is the first signature beat: an empty scan becomes a bounded ownership decision.
+  </Note>
+</div>
+
+---
+
+<div className="pm-slide">
+  <div className="pm-topline">
+    <p className="pm-kicker">01 / Generate</p>
+    <span className="pm-tag">2 minutes · silent</span>
+  </div>
+
+  <h2>Start from failure, not anxiety.</h2>
+
+  <div className="pm-prompt" style={{ marginTop: '2rem' }}>
+    <blockquote>“It is two weeks after launch. It failed. What happened?”</blockquote>
+  </div>
+
+  <Step at={1}>
+    <div className="pm-sector-grid" aria-label="Four reusable lenses for generating failure stories">
+      <div className="pm-sector"><strong>Value</strong><span>People did not get the promised outcome.</span></div>
+      <div className="pm-sector"><strong>Adoption</strong><span>People could not start or keep using it.</span></div>
+      <div className="pm-sector"><strong>Delivery</strong><span>The system or operation could not carry the load.</span></div>
+      <div className="pm-sector"><strong>Trust</strong><span>The launch damaged confidence, safety, or compliance.</span></div>
+    </div>
+  </Step>
+
+  <Note>
+    Facilitate this as silent writing first. Ask for short failure headlines, one per note, and explicitly prohibit solutions for these two minutes. Silence prevents the first confident speaker from setting the range of acceptable concern. If the room stalls, reveal the four lenses: value, adoption, delivery, and trust. They are prompts, not categories the team must fill evenly. Ask for observed outcomes—“people abandon setup”—rather than abstractions like “bad UX.”
+  </Note>
+</div>
+
+---
+
+<div className="pm-slide">
+  <div className="pm-topline">
+    <p className="pm-kicker">02 / Clarify</p>
+    <span className="pm-tag">6 minutes · share + cluster</span>
+  </div>
+  <h2>Turn failure stories into risk signals.</h2>
+
+  <div className="pm-flow" aria-label="A three-part flow from failure story to cause to observable signal">
+    <div className="pm-flow-card">
+      <span className="pm-flow-index">FAILURE</span>
+      <h3>What went wrong?</h3>
+      <p>State the visible outcome, without blame.</p>
+    </div>
+    <Step at={1}>
+      <div className="pm-flow-card">
+        <span className="pm-flow-index">CAUSE</span>
+        <h3>Because what?</h3>
+        <p>Name the condition the team can influence.</p>
+      </div>
+    </Step>
+    <Step at={2}>
+      <div className="pm-flow-card">
+        <span className="pm-flow-index">SIGNAL</span>
+        <h3>How would we know?</h3>
+        <p className="pm-formula">When ___, we expect ___.</p>
+      </div>
+    </Step>
+  </div>
+
+  <Note>
+    Have each person read one headline at a time; cluster only obvious duplicates. For any vague item, use the three prompts in order. “What went wrong?” keeps the statement outcome-based. “Because what?” moves toward a controllable condition without turning the session into solutioning. “How would we know?” creates an observable trigger. Keep the pace brisk: clarification should sharpen a risk, not litigate whether it is true. Park solutions in a separate area for later.
+  </Note>
+</div>
+
+---
+
+<div className="pm-slide">
+  <div className="pm-matrix-layout">
+    <div>
+      <p className="pm-kicker">03 / Rank</p>
+      <h2>Rank by exposure, not volume.</h2>
+      <p className="pm-subtitle">Likelihood × impact. Fast judgment beats false precision.</p>
+      <Step at={1}>
+        <p className="pm-decision">Shortlist the upper-right. Choose exactly three.</p>
+      </Step>
+    </div>
+
+    <div className="pm-matrix" aria-label="Risk matrix with likelihood increasing to the right and impact increasing upward">
+      <div className="pm-quadrant">High impact<br />lower likelihood</div>
+      <div className="pm-quadrant hot">High exposure<br />shortlist here</div>
+      <div className="pm-quadrant">Watch</div>
+      <div className="pm-quadrant">Frequent<br />lower impact</div>
+      <span className="pm-axis pm-axis-x">Likelihood →</span>
+      <span className="pm-axis pm-axis-y">Impact →</span>
+      <span className="pm-dot pm-dot-muted pm-dot-4" aria-hidden="true">•</span>
+      <span className="pm-dot pm-dot-muted pm-dot-5" aria-hidden="true">•</span>
+      <Step at={1}>
+        <span className="pm-dot pm-dot-1" aria-label="Selected risk 1">1</span>
+        <span className="pm-dot pm-dot-2" aria-label="Selected risk 2">2</span>
+        <span className="pm-dot pm-dot-3" aria-label="Selected risk 3">3</span>
+      </Step>
+    </div>
+  </div>
+
+  <Note>
+    Draw a simple two-by-two: likelihood left to right, impact bottom to top. Place each clustered risk by quick consent; do not score decimals or debate exact boundaries. If views differ, place the item at the more exposed position and flag the uncertainty. Then apply the forcing function: choose exactly three from the high-exposure region. Break ties by asking, “Which risk becomes cheaper if we act before launch?” The visual reveal numbers only three contacts, turning an unranked field into a decision.
+  </Note>
+</div>
+
+---
+
+<div className="pm-slide">
+  <div className="pm-topline">
+    <div>
+      <p className="pm-kicker">04 / Control</p>
+      <h2>Give each risk a control loop.</h2>
+    </div>
+    <span className="pm-tag">8 minutes · assign</span>
+  </div>
+
+  <div className="pm-ledger" role="table" aria-label="Template for assigning the three selected risks">
+    <div className="pm-ledger-head" role="row">
+      <span role="columnheader">#</span><span role="columnheader">Risk</span><span role="columnheader">Owner</span><span role="columnheader">Trigger</span><span role="columnheader">First action</span>
+    </div>
+    <div className="pm-ledger-row" role="row">
+      <span className="pm-number" role="cell">1</span><span className="pm-placeholder" role="cell">specific outcome</span><span className="pm-owner" role="cell">one name</span><span className="pm-placeholder" role="cell">observable threshold</span><span className="pm-placeholder" role="cell">next concrete move</span>
+    </div>
+    <Step at={1}>
+      <div className="pm-ledger-row" role="row">
+        <span className="pm-number" role="cell">2</span><span className="pm-placeholder" role="cell">specific outcome</span><span className="pm-owner" role="cell">one name</span><span className="pm-placeholder" role="cell">observable threshold</span><span className="pm-placeholder" role="cell">next concrete move</span>
+      </div>
+    </Step>
+    <Step at={2}>
+      <div className="pm-ledger-row" role="row">
+        <span className="pm-number" role="cell">3</span><span className="pm-placeholder" role="cell">specific outcome</span><span className="pm-owner" role="cell">one name</span><span className="pm-placeholder" role="cell">observable threshold</span><span className="pm-placeholder" role="cell">next concrete move</span>
+      </div>
+    </Step>
+  </div>
+
+  <Step at={3}>
+    <p className="pm-rule">No owner, no trigger, no first action? It is not selected yet.</p>
+  </Step>
+
+  <Note>
+    For each of the three risks, fill four fields. The risk is a concrete launch outcome. The owner is one accountable person—not a function or the whole team. The trigger is the earliest observable threshold that should cause action. The first action is small enough to start now. The owner does not personally solve everything; they keep the signal visible and convene the response. If assigning one row takes more than two minutes, the risk is still too broad: split or rewrite it.
+  </Note>
+</div>
+
+---
+
+<div className="pm-slide">
+  <div className="pm-close">
+    <div>
+      <p className="pm-kicker">Ready for launch control</p>
+      <h2>Leave with three owned risks—not thirty worries.</h2>
+      <div className="pm-three" aria-label="The three selected risks"><span>1</span><span>2</span><span>3</span></div>
+      <div className="pm-timeline" aria-label="Reusable twenty-minute pre-mortem agenda">
+        <span>2 min · imagine failure</span>
+        <span>6 min · share + cluster</span>
+        <span>4 min · rank</span>
+        <span>8 min · assign</span>
+      </div>
+      <p className="pm-cta">Book the 20-minute pre-mortem before launch readiness.</p>
+    </div>
+  </div>
+
+  <Note>
+    Close by restating the decision rule: the output is exactly three risks, and each has an owner, trigger, and first action. Read the reusable 20-minute agenda once. Ask the group to schedule it before the next launch-readiness review, while changes are still affordable. If the team already has a risk register, add these three rows there; do not create a parallel artifact. End on the green action, then stop.
+  </Note>
+</div>

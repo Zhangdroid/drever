@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "id": "guided",
+  "mode": "guided",
+  "status": "passed",
+  "title": "Guided answers",
+  "brief": "Show product, design, and engineering leads how to run an eight-minute pre-mortem that ends with three launch risks, owners, and next actions.",
+  "durationSeconds": 184,
+  "deck": {
+    "audience": "https://automation-release-smoke-30180796939.drever-website.pages.dev/release-smoke/runs/30180796939/guided/deck/",
+    "document": "https://automation-release-smoke-30180796939.drever-website.pages.dev/release-smoke/runs/30180796939/guided/deck/document/",
+    "source": "https://automation-release-smoke-30180796939.drever-website.pages.dev/release-smoke/runs/30180796939/guided/source/slides.mdx"
+  },
+  "checks": [
+    "Installed create-drever@0.2.4 and drever@0.2.4",
+    "Authoring context reported 6 slides",
+    "Authoring context reported 6 speaker notes",
+    "Drever check passed without errors",
+    "Production website build completed with 33 bounded output files",
+    "Audience, document, and speaker browser smoke passed",
+    "Generated source executed as a non-root user in a no-network container without the repository or runner environment",
+    "Secret-bearing generation configured a shell-denial hook; only allowlisted authoring source was retained",
+    "4 allowlisted source files crossed the secret boundary"
+  ],
+  "messages": [
+    {
+      "content": "Fetch and follow https://drever.dev/prompt.md.\n\nThis isolated release test already fetched the exact response to\n`.release-smoke/prompt.md`. Read that local copy instead of accessing the\nnetwork. Also read `.release-smoke/constraints.md`, which defines the narrow\ngeneration-stage boundary for this run. Begin with the optional briefing from\nthe fetched prompt; do not assume that any question has already been answered.",
+      "role": "user"
+    },
+    {
+      "content": "What topic should the presentation cover?\n\nWhat should the audience understand, decide, or do afterward?\n\nHow long should the presentation be?\n\n**Or say “Skip remaining questions — surprise me” and I will choose the rest.**",
+      "role": "assistant"
+    },
+    {
+      "content": "Create a presentation about running a useful pre-mortem before a product launch.",
+      "role": "user"
+    },
+    {
+      "content": "Who is the audience, and what should they be able to do after the presentation?\n\nHow long should it run?\n\nShould it emphasize a practical facilitated workshop or the underlying decision-making concepts?\n\n**Or say “Skip remaining questions — surprise me” and I will choose the rest.**",
+      "role": "assistant"
+    },
+    {
+      "content": "The audience is a small group of product, design, and engineering leads.\nI have eight minutes. By the end, they should be able to choose the three risks\nthat deserve owners before launch. Keep visible slides concise and put useful\nfacilitation detail in speaker notes. Use expressive but purposeful motion and a\ncalm launch-control or risk-radar visual language. Keep the exercise reusable\nfor any product instead of inventing a fictional launch.\n\nSkip remaining questions — surprise me. Create the complete presentation now.",
+      "role": "user"
+    },
+    {
+      "content": "Created the complete six-slide presentation:\n\n- [slides.mdx](<project>/slides.mdx)\n- [deck.css](<project>/deck.css)\n- [brief.md](<project>/brief.md)\n- [art-direction.md](<project>/art-direction.md)\n\nIt uses purposeful Step reveals, detailed facilitation notes, a reusable 20-minute exercise, and a radar-to-ownership visual narrative.\n\nPer the release boundary, no commands, build, preview, or rendered validation were run. The separate validation job must confirm layout and exact Step routes.",
+      "role": "assistant"
+    },
+    {
+      "content": "Review the complete authored draft once more. Use expressive but purposeful motion and a\ncalm launch-control or risk-radar visual language. Preserve what already works, then refine the\nnarrative, composition, hierarchy, motion, and small details wherever the source reveals a clear\nimprovement. Do not run validation in this protected stage.",
+      "role": "user"
+    },
+    {
+      "content": "Refined the authored draft while preserving its six-slide narrative.\n\nImprovements include:\n\n- One bounded radar scan and purposeful Step-driven lock-ins\n- Clearer risk-selection and ownership motion\n- More robust three-stage flow composition\n- Improved table and Step accessibility semantics\n- Updated motion documentation and reduced-motion behavior\n\nUpdated [slides.mdx](<project>/slides.mdx), [deck.css](<project>/deck.css), and the design notes.\n\nNo checks, builds, preview, or visual validation were run in this protected stage.",
+      "role": "assistant"
+    }
+  ],
+  "generatedAt": "2026-07-26T00:27:51.735Z",
+  "runner": {
+    "codexVersion": "codex-cli 0.145.0",
+    "model": "gpt-5.6-sol",
+    "nodeVersion": "v24.18.0"
+  },
+  "sourceCommit": "73a9c6f86a21298d0e16667f0df832b3f49aa4be",
+  "version": "0.2.4"
+}

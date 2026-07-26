@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "guided",
+  "version": "0.2.4",
+  "model": "gpt-5.6-sol",
+  "codexVersion": "codex-cli 0.145.0",
+  "nodeVersion": "v24.18.0",
+  "executionBoundary": {
+    "publication": "allowlisted-source-only",
+    "shell": "pre-tool-use-deny-configured"
+  },
+  "source": {
+    "bytes": 24910,
+    "files": [
+      "art-direction.md",
+      "brief.md",
+      "deck.css",
+      "slides.mdx"
+    ]
+  }
+}

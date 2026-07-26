@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "id": "30180796939",
+  "kind": "release",
+  "generatedAt": "2026-07-26T00:27:51.735Z",
+  "release": {
+    "version": "0.2.4",
+    "commit": "73a9c6f86a21298d0e16667f0df832b3f49aa4be",
+    "url": "https://github.com/Zhangdroid/drever/releases/tag/v0.2.4"
+  },
+  "harness": {
+    "commit": "73a9c6f86a21298d0e16667f0df832b3f49aa4be",
+    "url": "https://github.com/Zhangdroid/drever/tree/73a9c6f86a21298d0e16667f0df832b3f49aa4be"
+  },
+  "runner": {
+    "model": "gpt-5.6-sol",
+    "codexVersion": "codex-cli 0.145.0",
+    "nodeVersion": "v24.18.0",
+    "promptUrl": "https://drever.dev/prompt.md",
+    "workflowUrl": "https://github.com/Zhangdroid/drever/actions/runs/30180796939"
+  },
+  "cases": [
+    {
+      "brief": "Codex chooses a useful presentation topic and makes the remaining narrative, visual, and motion decisions without further briefing.",
+      "checks": [
+        "Installed create-drever@0.2.4 and drever@0.2.4",
+        "Authoring context reported 6 slides",
+        "Authoring context reported 6 speaker notes",
+        "Drever check passed without errors",
+        "Production website build completed with 17 bounded output files",
+        "Audience, document, and speaker browser smoke passed",
+        "Generated source executed as a non-root user in a no-network container without the repository or runner environment",
+        "Secret-bearing generation configured a shell-denial hook; only allowlisted authoring source was retained",
+        "4 allowlisted source files crossed the secret boundary"
+      ],
+      "deck": {
+        "audience": "https://automation-release-smoke-30180796939.drever-website.pages.dev/release-smoke/runs/30180796939/surprise-me/deck/",
+        "document": "https://automation-release-smoke-30180796939.drever-website.pages.dev/release-smoke/runs/30180796939/surprise-me/deck/document/",
+        "source": "https://automation-release-smoke-30180796939.drever-website.pages.dev/release-smoke/runs/30180796939/surprise-me/source/slides.mdx"
+      },
+      "durationSeconds": 170,
+      "id": "surprise-me",
+      "messages": [
+        {
+          "content": "Fetch and follow https://drever.dev/prompt.md.\n\nThis isolated release test already fetched the exact response to\n`.release-smoke/prompt.md`. Read that local copy instead of accessing the\nnetwork. Also read `.release-smoke/constraints.md`, which defines the narrow\ngeneration-stage boundary for this run. Begin with the optional briefing from\nthe fetched prompt; do not assume that any question has already been answered.",
+          "role": "user"
+        },
+        {
+          "content": "1. What is the presentation topic?\n2. Who is the audience, and what should they understand, decide, or do?\n3. How long should the presentation be?\n\n**Or say “Skip remaining questions — surprise me” and I will choose the rest.**",
+          "role": "assistant"
+        },
+        {
+          "content": "Skip remaining questions — surprise me. Choose the topic and every remaining creative decision, then create the presentation now.",
+          "role": "user"
+        },
+        {
+          "content": "Created a six-slide Drever deck, “Mending the Night,” with custom local styling, speaker notes, and a meaningful Step reveal.\n\nFiles:\n\n- [slides.mdx](<project>/slides.mdx)\n- [deck.css](<project>/deck.css)\n- [brief.md](<project>/brief.md)\n- [art-direction.md](<project>/design/art-direction.md)\n\nAssumed a seven-minute presentation for civic and facilities decision-makers, with restrained motion and concise slides.\n\nPer the release boundary, checks, builds, browser review, and a preview URL were not produced; the separate validation stage owns those tasks.",
+          "role": "assistant"
+        },
+        {
+          "content": "Review the complete authored draft once more. Keep its strongest idea, then refine the\nnarrative, composition, hierarchy, motion, and small details wherever the source reveals a\nclear improvement. Do not run validation in this protected stage.",
+          "role": "user"
+        },
+        {
+          "content": "Refined the complete draft while preserving the shielded-lamp transformation.\n\nImprovements include:\n\n- Cleaner before/after Step semantics and accessibility.\n- Beam-focused motion with reduced-motion fallback.\n- Better 16:9 vertical fit and opening-slide hierarchy.\n- Clearer distinction between the signature moment and supporting timeline.\n- More concrete closing action: glare, spill, and empty-hour light.\n- Minor responsive and composition refinements.\n\nUpdated [slides.mdx](<project>/slides.mdx), [deck.css](<project>/deck.css), and [art-direction.md](<project>/design/art-direction.md).\n\nNo validation or rendered review was run in this protected stage.",
+          "role": "assistant"
+        }
+      ],
+      "mode": "surprise-me",
+      "status": "passed",
+      "title": "Surprise me"
+    },
+    {
+      "brief": "Show product, design, and engineering leads how to run an eight-minute pre-mortem that ends with three launch risks, owners, and next actions.",
+      "checks": [
+        "Installed create-drever@0.2.4 and drever@0.2.4",
+        "Authoring context reported 6 slides",
+        "Authoring context reported 6 speaker notes",
+        "Drever check passed without errors",
+        "Production website build completed with 33 bounded output files",
+        "Audience, document, and speaker browser smoke passed",
+        "Generated source executed as a non-root user in a no-network container without the repository or runner environment",
+        "Secret-bearing generation configured a shell-denial hook; only allowlisted authoring source was retained",
+        "4 allowlisted source files crossed the secret boundary"
+      ],
+      "deck": {
+        "audience": "https://automation-release-smoke-30180796939.drever-website.pages.dev/release-smoke/runs/30180796939/guided/deck/",
+        "document": "https://automation-release-smoke-30180796939.drever-website.pages.dev/release-smoke/runs/30180796939/guided/deck/document/",
+        "source": "https://automation-release-smoke-30180796939.drever-website.pages.dev/release-smoke/runs/30180796939/guided/source/slides.mdx"
+      },
+      "durationSeconds": 184,
+      "id": "guided",
+      "messages": [
+        {
+          "content": "Fetch and follow https://drever.dev/prompt.md.\n\nThis isolated release test already fetched the exact response to\n`.release-smoke/prompt.md`. Read that local copy instead of accessing the\nnetwork. Also read `.release-smoke/constraints.md`, which defines the narrow\ngeneration-stage boundary for this run. Begin with the optional briefing from\nthe fetched prompt; do not assume that any question has already been answered.",
+          "role": "user"
+        },
+        {
+          "content": "What topic should the presentation cover?\n\nWhat should the audience understand, decide, or do afterward?\n\nHow long should the presentation be?\n\n**Or say “Skip remaining questions — surprise me” and I will choose the rest.**",
+          "role": "assistant"
+        },
+        {
+          "content": "Create a presentation about running a useful pre-mortem before a product launch.",
+          "role": "user"
+        },
+        {
+          "content": "Who is the audience, and what should they be able to do after the presentation?\n\nHow long should it run?\n\nShould it emphasize a practical facilitated workshop or the underlying decision-making concepts?\n\n**Or say “Skip remaining questions — surprise me” and I will choose the rest.**",
+          "role": "assistant"
+        },
+        {
+          "content": "The audience is a small group of product, design, and engineering leads.\nI have eight minutes. By the end, they should be able to choose the three risks\nthat deserve owners before launch. Keep visible slides concise and put useful\nfacilitation detail in speaker notes. Use expressive but purposeful motion and a\ncalm launch-control or risk-radar visual language. Keep the exercise reusable\nfor any product instead of inventing a fictional launch.\n\nSkip remaining questions — surprise me. Create the complete presentation now.",
+          "role": "user"
+        },
+        {
+          "content": "Created the complete six-slide presentation:\n\n- [slides.mdx](<project>/slides.mdx)\n- [deck.css](<project>/deck.css)\n- [brief.md](<project>/brief.md)\n- [art-direction.md](<project>/art-direction.md)\n\nIt uses purposeful Step reveals, detailed facilitation notes, a reusable 20-minute exercise, and a radar-to-ownership visual narrative.\n\nPer the release boundary, no commands, build, preview, or rendered validation were run. The separate validation job must confirm layout and exact Step routes.",
+          "role": "assistant"
+        },
+        {
+          "content": "Review the complete authored draft once more. Use expressive but purposeful motion and a\ncalm launch-control or risk-radar visual language. Preserve what already works, then refine the\nnarrative, composition, hierarchy, motion, and small details wherever the source reveals a clear\nimprovement. Do not run validation in this protected stage.",
+          "role": "user"
+        },
+        {
+          "content": "Refined the authored draft while preserving its six-slide narrative.\n\nImprovements include:\n\n- One bounded radar scan and purposeful Step-driven lock-ins\n- Clearer risk-selection and ownership motion\n- More robust three-stage flow composition\n- Improved table and Step accessibility semantics\n- Updated motion documentation and reduced-motion behavior\n\nUpdated [slides.mdx](<project>/slides.mdx), [deck.css](<project>/deck.css), and the design notes.\n\nNo checks, builds, preview, or visual validation were run in this protected stage.",
+          "role": "assistant"
+        }
+      ],
+      "mode": "guided",
+      "status": "passed",
+      "title": "Guided answers"
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+import "./deck.css"
+
+<section className="night-slide opening">
+  <div className="eyebrow">A field guide to useful light</div>
+  <h1>Light the ground, <span className="accent">not the sky.</span></h1>
+  <p className="deck-subtitle">Outdoor light works best when it has a job—and a boundary.</p>
+  <div className="opening-lamp" aria-label="A shielded streetlamp casts a warm pool of light only on the ground">
+    <div className="arm"></div><div className="pole"></div><div className="bulb"></div><div className="ground-pool"></div>
+  </div>
+  <div className="horizon"></div>
+  <Note>Open with the distinction between illumination and blanket brightness. This is not an argument for unlit streets; it is an argument for placing light deliberately.</Note>
+</section>
+
+---
+
+<section className="night-slide optics">
+  <header className="optics-head">
+    <div><div className="eyebrow">01 / Shape</div><h2>The same lamp can make two different nights.</h2></div>
+    <p>Uncontrolled light leaves the task. A small optical boundary changes where the energy goes.</p>
+  </header>
+  <div className="lamp-lab">
+    <div className="initial-optic" role="img" aria-label="Before correction: an exposed lamp sends light upward and sideways">
+      <div className="lab-pole"></div><div className="lab-arm"></div><div className="lab-bulb"></div>
+      <div className="wasted-rays"></div><div className="ray-label">light without a task</div>
+    </div>
+    <Step>
+      <div className="correction" role="img" aria-label="After correction: a shield directs the lamp downward onto the ground, leaving the sky dark">
+        <div className="lab-pole"></div><div className="lab-arm"></div><div className="lab-bulb"></div>
+        <div className="shield"></div><div className="down-cone"></div><div className="task-pool"></div>
+        <div className="star-return" aria-hidden="true">✦ · ✧</div>
+        <div className="result-label">Shield the source. Aim the beam. Keep darkness where it still belongs.</div>
+      </div>
+    </Step>
+  </div>
+  <Note>Pause on the exposed lamp. Advance once to add the shield and task cone. The transformation is the argument: control, rather than sheer intensity, determines whether the light serves the ground or escapes into the night.</Note>
+</section>
+
+---
+
+<section className="night-slide questions">
+  <div className="question-copy">
+    <div className="eyebrow">02 / Audit</div>
+    <h2>Ask four questions before adding a lumen.</h2>
+    <p>If an answer is vague, the fixture is not ready to specify.</p>
+  </div>
+  <div className="question-wheel" role="img" aria-label="Four-part lighting audit: need, target, timing, and amount">
+    <div className="q q1">Need<span>What task exists?</span></div>
+    <div className="q q2">Target<span>Where must light land?</span></div>
+    <div className="q q3">Timing<span>When is it useful?</span></div>
+    <div className="q q4">Amount<span>What is enough?</span></div>
+  </div>
+  <Note>Frame this as a practical procurement and design filter. The center is deliberately unlabeled: the answers, not a product category, should define the fixture.</Note>
+</section>
+
+---
+
+<section className="night-slide contrast-slide">
+  <header className="contrast-head">
+    <div><div className="eyebrow">03 / Contrast</div><h2>Brightness can hide what contrast reveals.</h2></div>
+    <p>The design question is not “How bright?” It is “What must be easy to distinguish?”</p>
+  </header>
+  <div className="contrast-grid">
+    <div className="contrast-scene blanket" role="img" aria-label="A uniformly bright street scene with a low-contrast pedestrian silhouette">
+      <div className="scene-label">Blanket brightness</div><div className="street"></div><div className="curb"></div><div className="figure"></div>
+      <div className="scene-note">Everything is lit; the important edge competes with everything else.</div>
+    </div>
+    <div className="contrast-scene designed" role="img" aria-label="A dark street scene where light is localized around a pedestrian and curb">
+      <div className="scene-label">Designed contrast</div><div className="street"></div><div className="curb"></div><div className="figure"></div>
+      <div className="scene-note">The path, curb, and person become the visual hierarchy.</div>
+    </div>
+  </div>
+  <Note>Avoid claiming that either image proves a safety outcome. The comparison teaches visual hierarchy: illuminate the information people must distinguish, and avoid making every surface equally dominant.</Note>
+</section>
+
+---
+
+<section className="night-slide rhythm">
+  <header className="rhythm-head">
+    <div><div className="eyebrow">04 / Time</div><h2>A night is a schedule, not a switch.</h2></div>
+    <p>Demand changes by hour. The lighting plan should change with it.</p>
+  </header>
+  <div className="timeline" role="img" aria-label="A four-period lighting schedule from evening through dawn">
+    <div className="period" style={{"--level":"78%"}}><time>18:00</time><strong>Welcome</strong><small>Warm, directed light supports arrivals.</small></div>
+    <div className="period" style={{"--level":"58%"}}><time>22:00</time><strong>Settle</strong><small>Reduce output as activity falls.</small></div>
+    <div className="period" style={{"--level":"34%"}}><time>01:00</time><strong>Respond</strong><small>Keep low light; raise it only where needed.</small></div>
+    <div className="period off" style={{"--level":"8%"}}><time>DAWN</time><strong>Retire</strong><small>Let daylight take the shift.</small></div>
+  </div>
+  <Note>The exact hours are illustrative, not universal. Invite teams to map their own activity pattern, then specify controls and operating rules that match it.</Note>
+</section>
+
+---
+
+<section className="night-slide closing">
+  <div className="audit-mark" aria-hidden="true">01</div>
+  <div className="eyebrow">Your next night walk</div>
+  <h1>Give darkness <span className="cool">a job.</span></h1>
+  <p className="instruction">Walk one block after closing. Find the light that misses its task. Fix the clearest one first.</p>
+  <div className="audit-cues" aria-label="Look for glare, spill, and empty-hour light"><span>Glare</span><span>Spill</span><span>Empty hours</span></div>
+  <div className="closing-stars" aria-hidden="true"></div>
+  <div className="horizon"></div>
+  <Note>Close on the action, not the philosophy. A useful first audit can be done without equipment: find glare, spill, empty-hour lighting, and places where the actual task is still hard to see.</Note>
+</section>
