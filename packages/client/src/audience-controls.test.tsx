@@ -46,11 +46,14 @@ describe("audience controls", () => {
     const elements = [
       {
         getAttribute: (name: string) => (name === "aria-label" ? "  Opening claim  " : null),
-        querySelector: () => ({ textContent: "Ignored heading" }),
+        querySelector: () => ({ getAttribute: () => null, textContent: "Ignored heading" }),
       },
       {
         getAttribute: () => null,
-        querySelector: () => ({ textContent: "  A sparse\nStep story  " }),
+        querySelector: () => ({
+          getAttribute: () => null,
+          textContent: "  A sparse\nStep story  ",
+        }),
       },
       {
         getAttribute: () => null,
@@ -70,6 +73,35 @@ describe("audience controls", () => {
     ]);
     expect(Object.isFrozen(items)).toBe(true);
     expect(items.every(Object.isFrozen)).toBe(true);
+  });
+
+  it("keeps the authored manifest spacing when visual heading fragments collapse together", () => {
+    const titledManifest = {
+      ...manifest,
+      slides: [
+        {
+          ...manifest.slides[0],
+          title: "One source. Every surface agrees.",
+        },
+      ],
+    } satisfies DeckManifest;
+    const deck = {
+      querySelector: () => ({
+        getAttribute: () => null,
+        querySelector: () => ({
+          getAttribute: () => null,
+          textContent: "One source.Every surface agrees.",
+        }),
+      }),
+    } as unknown as ParentNode;
+
+    expect(readSlideNavigationItems(deck, titledManifest)).toEqual([
+      {
+        id: "intro",
+        index: 0,
+        title: "One source. Every surface agrees.",
+      },
+    ]);
   });
 
   it("renders a discoverable accessible command surface outside the deck", () => {
