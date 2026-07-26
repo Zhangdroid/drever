@@ -5,15 +5,14 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+## [0.2.4] - 2026-07-25
+
 ### Changed
 
-- Changed release automation to accumulate small fixes into intentional batches, run AI smoke by
-  default only for stable releases, and let maintainers explicitly opt prereleases or commit
-  snapshots in or out.
-- Pinned AI release smoke to quality-first `gpt-5.6-sol` with medium reasoning, controlling cost
-  through release-level batching rather than a lower-capability generation model.
 - Gave all eight official design studies distinct motion vocabularies and cadences, then expanded
   their reference decks beyond one repeated three-page, left-copy/right-artifact continuity formula.
+- Reframed the homepage as one continuous creation story that carries the same brief, visual
+  direction, room signal, evidence, and exact route through every useful presentation surface.
 - Taught generated creation, design, authoring, and review workflows to treat motion consistency as
   a shared vocabulary of cuts, fades, local handoffs, Steps, and selective continuity—not a View
   Transition on every page.
@@ -27,11 +26,18 @@ section, while commit snapshots use the current Unreleased section.
   question round instead of advertising a second topic-level surprise mode.
 - Defined showcase-quality signature moments through a topic-fingerprint test, an explicit
   claim-to-static-endpoint beat sheet, and a final memorable-scene refinement ceiling.
+- Changed release automation to accumulate small fixes into intentional batches, run AI smoke by
+  default only for stable releases, and let maintainers explicitly opt prereleases or commit
+  snapshots in or out.
+- Pinned AI release smoke to quality-first `gpt-5.6-sol` with medium reasoning, controlling cost
+  through release-level batching rather than a lower-capability generation model.
 
 ### Fixed
 
 - Materialized finite CSS and Web Animations at their final export state and froze infinite
   decoration at a deterministic frame so animated text remains visible in generated PDFs.
+- Preloaded the homepage display font and gave its hero an explicit responsive line structure so
+  slow first visits no longer reflow the headline after the font arrives.
 - Stabilized Cinema's changing media frame so its border, crop, and supporting composition no
   longer pop into place after the second-to-third-slide handoff.
 - Stabilized Atlas's shared river artifact in one fixed frame so it moves between compositions
@@ -215,7 +221,8 @@ section, while commit snapshots use the current Unreleased section.
 - Added parallel source, unit, package, browser, export, and website checks in CI.
 - Deployed the prerendered public website and per-branch previews through Cloudflare Pages.
 
-[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.2.3...HEAD
+[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.2.4...HEAD
+[0.2.4]: https://github.com/Zhangdroid/drever/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/Zhangdroid/drever/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/Zhangdroid/drever/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/Zhangdroid/drever/compare/v0.2.0...v0.2.1
