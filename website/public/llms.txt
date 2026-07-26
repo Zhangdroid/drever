@@ -64,6 +64,7 @@ Catalog: https://drever.dev/showcase/
 - Motion stories: https://drever.dev/showcase/motion/
 - Room scenes (incubating source study): https://drever.dev/showcase/scenes/
 - Architecture: https://drever.dev/showcase/architecture/
+- Spatial stories (live Spline studies): https://drever.dev/showcase/spatial/
 - Minimal reference: https://drever.dev/showcase/basic/
 
 ### Art-direction studies

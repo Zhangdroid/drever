@@ -71,6 +71,14 @@ export const demoMounts = [
   },
   {
     description:
+      "Two live Spline scenes show how spatial depth can carry atmosphere, evidence, context, and direct inspection.",
+    id: "spatial",
+    label: "Spatial stories",
+    slug: "spatial",
+    source: "spatial-stories",
+  },
+  {
+    description:
       "The smallest complete project for learning slide boundaries, Steps, and delivery.",
     id: "basic",
     label: "Minimal reference",

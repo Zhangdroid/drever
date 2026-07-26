@@ -184,6 +184,13 @@ focused working example instead of a library name, logo, or link. Let the
 external tool own only the smallest boundary that needs its capability; Drever
 continues to own navigation, history, notes, and delivery.
 
+The [`spatial-stories` example](../examples/spatial-stories/README.md) proves
+this boundary with two official Spline Viewer scenes. A persistent Stage scene
+changes from atmosphere to evidence to context without entering slide
+snapshots, while a framed orbit scene gives the audience direct camera control.
+Document, speaker, reduced-motion, offline, and export surfaces use an original
+deterministic poster.
+
 Run continuous or repeating motion only when ongoing change is itself the
 subject, such as a live metric or signal moving through a network. Use a
 deterministic sequence, pause it when its audience surface is inactive, and

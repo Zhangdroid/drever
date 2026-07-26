@@ -5,6 +5,12 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+### Added
+
+- Added a focused Spatial Stories showcase that integrates two official Spline
+  Viewer examples as a persistent Stage scene and a directly manipulable 3D
+  object, with deterministic original posters for non-audience surfaces.
+
 ### Fixed
 
 - Retried bounded transient TLS, 404, rate-limit, and server failures while

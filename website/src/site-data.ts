@@ -53,6 +53,9 @@ const demoContent = {
   architecture: {
     meta: "Studio · 11 slides",
   },
+  spatial: {
+    meta: "Cinema · 5 slides · Live 3D",
+  },
   basic: {
     meta: "Basic · 5 slides",
   },

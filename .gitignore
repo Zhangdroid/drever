@@ -19,6 +19,7 @@ website/public/release-smoke/runs/
 test-results/
 coverage/
 playwright-report/
+slides-export.pdf
 *.tsbuildinfo
 *.local
 

@@ -15,6 +15,7 @@ sparse-Step PDF export fixture.
 | `room-scenes`      | Microphone-reactive rooms and a persistent ambient Stage.                                    | `http://localhost:4325` | `vp run demo:scenes`       |
 | `theme-showcase`   | Eight subject-led studies for the official design systems.                                   | `http://localhost:4326` | See its local README       |
 | `motion-contracts` | Internal geometry fixtures for shared shells, text, media, and motion intents.               | `http://localhost:4328` | See its local README       |
+| `spatial-stories`  | Two focused Spline studies: persistent atmosphere and direct 3D inspection.                  | `http://localhost:4329` | `vp run demo:spatial`      |
 
 Use `vp run demo:showcases` to start Product Tour, Motion Recipes, and Feature Gallery
 together. Their local links use the same hostname with ports `4320`, `4322`, and `4324`;

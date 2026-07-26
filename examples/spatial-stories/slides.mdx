@@ -1,0 +1,158 @@
+import { SplineScene } from "./SplineScene.tsx";
+import "@drever/brand/fonts.css";
+import "@drever/brand/tokens.css";
+import "./spatial-stories.css";
+import "../showcase-return.css";
+
+<SlideTransition from="next" mode="local" />
+
+<div aria-label="When depth carries the idea" className="spatial-slide spatial-opening">
+  <header>
+    <span className="spatial-kicker">Drever / Spatial stories</span>
+    <h1>
+      <span>When depth </span>
+      <span>carries the idea.</span>
+    </h1>
+    <p>Two presentation-native roles for a live 3D scene—without letting it take over the story.</p>
+  </header>
+  <span className="spatial-opening__source">Live scene · Spline Viewer</span>
+</div>
+
+<Note>
+  This first Spline scene lives in the persistent Stage, outside slide snapshots. It establishes the
+  room as an atmosphere before the deck asks it to explain anything.
+</Note>
+
+---
+
+<SlideTransition from="previous" mode="local" />
+<SlideTransition from="next" mode="local" />
+
+<div aria-label="Repetition makes scale visible" className="spatial-slide spatial-evidence">
+  <header>
+    <span className="spatial-kicker">01 · Scene as evidence</span>
+    <h2>Repetition makes scale visible.</h2>
+    <p>The field moves into the center because the structure itself is now the point.</p>
+  </header>
+  <span className="spatial-scene-alternative">
+    The visual is a field of repeated rounded forms whose shared shape makes the system's scale
+    immediately legible.
+  </span>
+  <span className="spatial-evidence__caption">One scene · one focal job</span>
+</div>
+
+<Note>
+  The same live DOM becomes the evidence. Only its placement and visual priority change; the scene
+  is not captured, reloaded, or stretched through a View Transition.
+</Note>
+
+---
+
+<SlideTransition from="previous" mode="local" />
+<SlideTransition from="next" mode="local" />
+
+<div aria-label="The scene changes jobs without changing identity" className="spatial-slide spatial-context">
+  <header>
+    <span className="spatial-kicker">A useful object lifecycle</span>
+    <h2>Then lower the volume.</h2>
+    <p>The scene recedes once it has made the structure legible. The explanation takes the room.</p>
+  </header>
+
+  <ol aria-label="Three narrative roles for one spatial scene" className="spatial-lifecycle">
+    <li>
+      <span>01</span>
+      <strong>Atmosphere</strong>
+      <small>Establish the world</small>
+    </li>
+    <li>
+      <span>02</span>
+      <strong>Evidence</strong>
+      <small>Carry the claim</small>
+    </li>
+    <li data-current="">
+      <span>03</span>
+      <strong>Context</strong>
+      <small>Yield to the reading</small>
+    </li>
+  </ol>
+</div>
+
+<Note>
+  This is the same cloner scene in its third role. It stays recognizable, becomes quieter, and
+  retires on the next slide because it has finished carrying the argument.
+</Note>
+
+---
+
+<SlideTransition from="previous" mode="local" />
+<SlideTransition from="next" mode="local" />
+
+<div aria-label="Put the object in the audience's hands" className="spatial-slide spatial-interaction">
+  <header>
+    <span className="spatial-kicker">02 · Scene as interaction</span>
+    <h2>Put the object in their hands.</h2>
+  </header>
+
+<SplineScene
+  background="#11121a"
+  className="spatial-interaction__scene"
+  description="An official Spline character scene that the audience can orbit and zoom"
+  hint
+  label="Interactive 3D character"
+  poster="orbit"
+  scene="https://prod.spline.design/U9O6K7fXziMEU7Wu/scene.splinecode"
+  sourceHref="https://app.spline.design/file/5e551c2f-7f10-4a4f-80fc-5b0e6f7f8008"
+/>
+
+<p className="spatial-interaction__prompt">Audience View: drag to orbit.</p>
+
+  <Step at={1} className="spatial-interaction__payoff">
+    <span>The audience now owns the camera.</span>
+  </Step>
+</div>
+
+<Note>
+  Let someone drag and zoom before advancing once. Direct manipulation is the lesson here, so the
+  scene—not presentation navigation—owns the camera. The Step then names what changed.
+</Note>
+
+---
+
+<SlideTransition from="previous" mode="local" />
+
+<div
+  aria-label="Use depth only when flat would hide the point"
+  className="spatial-slide spatial-ending"
+>
+  <span className="spatial-kicker">A narrow, useful boundary</span>
+  <h2>
+    <span>Use depth only when flat{" "}</span>
+    <span>would hide the point.</span>
+  </h2>
+
+<div className="spatial-ending__criteria" aria-label="Three reasons to use a spatial scene">
+  <span>Reveal structure</span>
+  <span>Invite inspection</span>
+  <span>Carry atmosphere</span>
+</div>
+
+  <nav aria-label="Continue from the spatial stories example" className="drever-example-exit">
+  <a
+    className="drever-example-exit__primary"
+    data-drever-showcase-return=""
+    href="https://drever.dev/docs/getting-started/"
+  >
+    <span>Start with Drever</span>
+    <span aria-hidden="true">↗</span>
+  </a>
+  <a className="drever-example-exit__secondary" href="https://viewer.spline.design/">
+    <span>Explore Spline Viewer</span>
+      <span aria-hidden="true">↗</span>
+    </a>
+  </nav>
+</div>
+
+<Note>
+  Close on the decision rule. Spline supplies the focused spatial capability while Drever owns the
+  narrative, navigation, notes, document view, and deterministic export.
+</Note>
