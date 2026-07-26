@@ -44,9 +44,9 @@ function DocsOverview() {
       </section>
 
       <header className="docs-overview__reference">
-        <span>Reference</span>
-        <h2>Use the guide when you need the contract.</h2>
-        <p>The detailed paths stay available for people and agents who need precise behavior.</p>
+        <span>Guides</span>
+        <h2>Follow the work from source to delivery.</h2>
+        <p>Read only the part of the workflow you need now.</p>
       </header>
 
       <section className="docs-overview__paths">
@@ -72,6 +72,29 @@ function DocsOverview() {
           <span>04 · Deliver</span>
           <h2>Ship what you reviewed</h2>
           <p>Source preflight, static hosting, deterministic states, and PDF export.</p>
+          <ArrowIcon />
+        </Link>
+      </section>
+
+      <header className="docs-overview__reference docs-overview__reference--tools">
+        <span>Reference</span>
+        <h2>Look up the exact contract.</h2>
+        <p>Commands and configuration stay complete, precise, and easy to scan.</p>
+      </header>
+
+      <section className="docs-overview__paths docs-overview__paths--compact">
+        <Link to="/docs/commands/">
+          <span>Commands</span>
+          <h2>Find every command</h2>
+          <p>
+            Exact syntax, options, defaults, caveats, and links to the guide that owns each task.
+          </p>
+          <ArrowIcon />
+        </Link>
+        <Link to="/docs/configuration/">
+          <span>Configuration</span>
+          <h2>Control the project</h2>
+          <p>Entry, canvas, Theme, server, build, rehearsal, focus tools, Stage, and plugins.</p>
           <ArrowIcon />
         </Link>
       </section>

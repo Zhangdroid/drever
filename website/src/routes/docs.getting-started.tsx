@@ -20,9 +20,9 @@ function Page() {
       <DocMdx content={Content} />
       <ManualSetup />
       <DocNext
-        description="Keep the generated metadata config small or add only the project controls you need."
-        href="/docs/configuration/"
-        label="Configuration"
+        description="See how project-local skills, live context, and optional MCP keep AI work grounded."
+        href="/docs/ai/"
+        label="AI workflows"
       />
     </DocArticle>
   );

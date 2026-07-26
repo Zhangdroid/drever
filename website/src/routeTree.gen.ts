@@ -19,6 +19,7 @@ import { Route as ThemesRouteImport } from "./routes/themes";
 import { Route as DocsIndexRouteImport } from "./routes/docs.index";
 import { Route as DocsAiRouteImport } from "./routes/docs.ai";
 import { Route as DocsAuthoringRouteImport } from "./routes/docs.authoring";
+import { Route as DocsCommandsRouteImport } from "./routes/docs.commands";
 import { Route as DocsConfigurationRouteImport } from "./routes/docs.configuration";
 import { Route as DocsCreditsRouteImport } from "./routes/docs.credits";
 import { Route as DocsDeliveryRouteImport } from "./routes/docs.delivery";
@@ -78,6 +79,11 @@ const DocsAuthoringRoute = DocsAuthoringRouteImport.update({
   path: "/authoring",
   getParentRoute: () => DocsRoute,
 } as any);
+const DocsCommandsRoute = DocsCommandsRouteImport.update({
+  id: "/commands",
+  path: "/commands",
+  getParentRoute: () => DocsRoute,
+} as any);
 const DocsConfigurationRoute = DocsConfigurationRouteImport.update({
   id: "/configuration",
   path: "/configuration",
@@ -129,6 +135,7 @@ export interface FileRoutesByFullPath {
   "/themes": typeof ThemesRoute;
   "/docs/ai": typeof DocsAiRoute;
   "/docs/authoring": typeof DocsAuthoringRoute;
+  "/docs/commands": typeof DocsCommandsRoute;
   "/docs/configuration": typeof DocsConfigurationRoute;
   "/docs/credits": typeof DocsCreditsRoute;
   "/docs/delivery": typeof DocsDeliveryRoute;
@@ -148,6 +155,7 @@ export interface FileRoutesByTo {
   "/themes": typeof ThemesRoute;
   "/docs/ai": typeof DocsAiRoute;
   "/docs/authoring": typeof DocsAuthoringRoute;
+  "/docs/commands": typeof DocsCommandsRoute;
   "/docs/configuration": typeof DocsConfigurationRoute;
   "/docs/credits": typeof DocsCreditsRoute;
   "/docs/delivery": typeof DocsDeliveryRoute;
@@ -169,6 +177,7 @@ export interface FileRoutesById {
   "/themes": typeof ThemesRoute;
   "/docs/ai": typeof DocsAiRoute;
   "/docs/authoring": typeof DocsAuthoringRoute;
+  "/docs/commands": typeof DocsCommandsRoute;
   "/docs/configuration": typeof DocsConfigurationRoute;
   "/docs/credits": typeof DocsCreditsRoute;
   "/docs/delivery": typeof DocsDeliveryRoute;
@@ -191,6 +200,7 @@ export interface FileRouteTypes {
     | "/themes"
     | "/docs/ai"
     | "/docs/authoring"
+    | "/docs/commands"
     | "/docs/configuration"
     | "/docs/credits"
     | "/docs/delivery"
@@ -210,6 +220,7 @@ export interface FileRouteTypes {
     | "/themes"
     | "/docs/ai"
     | "/docs/authoring"
+    | "/docs/commands"
     | "/docs/configuration"
     | "/docs/credits"
     | "/docs/delivery"
@@ -230,6 +241,7 @@ export interface FileRouteTypes {
     | "/themes"
     | "/docs/ai"
     | "/docs/authoring"
+    | "/docs/commands"
     | "/docs/configuration"
     | "/docs/credits"
     | "/docs/delivery"
@@ -323,6 +335,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DocsAuthoringRouteImport;
       parentRoute: typeof DocsRoute;
     };
+    "/docs/commands": {
+      id: "/docs/commands";
+      path: "/commands";
+      fullPath: "/docs/commands";
+      preLoaderRoute: typeof DocsCommandsRouteImport;
+      parentRoute: typeof DocsRoute;
+    };
     "/docs/configuration": {
       id: "/docs/configuration";
       path: "/configuration";
@@ -385,6 +404,7 @@ declare module "@tanstack/react-router" {
 interface DocsRouteChildren {
   DocsAiRoute: typeof DocsAiRoute;
   DocsAuthoringRoute: typeof DocsAuthoringRoute;
+  DocsCommandsRoute: typeof DocsCommandsRoute;
   DocsConfigurationRoute: typeof DocsConfigurationRoute;
   DocsCreditsRoute: typeof DocsCreditsRoute;
   DocsDeliveryRoute: typeof DocsDeliveryRoute;
@@ -399,6 +419,7 @@ interface DocsRouteChildren {
 const DocsRouteChildren: DocsRouteChildren = {
   DocsAiRoute: DocsAiRoute,
   DocsAuthoringRoute: DocsAuthoringRoute,
+  DocsCommandsRoute: DocsCommandsRoute,
   DocsConfigurationRoute: DocsConfigurationRoute,
   DocsCreditsRoute: DocsCreditsRoute,
   DocsDeliveryRoute: DocsDeliveryRoute,

@@ -25,9 +25,9 @@ function Page() {
       <MotionRecipeGallery />
       <DocMdx content={Content} />
       <DocNext
-        description="Derive a visual voice from the subject and persist it as a Theme contract."
-        href="/docs/themes/"
-        label="Art direction"
+        description="Add build and runtime capability through one typed extension model."
+        href="/docs/plugins/"
+        label="Plugins"
       />
     </DocArticle>
   );

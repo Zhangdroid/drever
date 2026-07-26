@@ -5,6 +5,13 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+### Changed
+
+- Reorganized the public documentation around the path from AI-assisted creation
+  through authoring, presenting, and delivery; added one complete command
+  reference with exact options, defaults, workflow links, and drift protection
+  against future CLI additions.
+
 ## [0.8.0] - 2026-07-27
 
 ### Added

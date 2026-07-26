@@ -11,7 +11,6 @@ export const documentationNavigation = [
     pages: [
       { href: "/docs/", label: "Overview" },
       { href: "/docs/getting-started/", label: "Getting started" },
-      { href: "/docs/configuration/", label: "Configuration" },
       { href: "/docs/ai/", label: "AI workflows" },
     ],
   },
@@ -19,8 +18,8 @@ export const documentationNavigation = [
     label: "Create",
     pages: [
       { href: "/docs/authoring/", label: "Authoring slides" },
-      { href: "/docs/motion/", label: "Motion" },
       { href: "/docs/themes/", label: "Art direction" },
+      { href: "/docs/motion/", label: "Motion" },
       { href: "/docs/plugins/", label: "Plugins" },
     ],
   },
@@ -29,6 +28,13 @@ export const documentationNavigation = [
     pages: [
       { href: "/docs/presenting/", label: "Presenting" },
       { href: "/docs/delivery/", label: "Build, deploy, and export" },
+    ],
+  },
+  {
+    label: "Reference",
+    pages: [
+      { href: "/docs/commands/", label: "Command reference" },
+      { href: "/docs/configuration/", label: "Configuration" },
     ],
   },
   {

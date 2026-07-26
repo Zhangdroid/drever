@@ -11,14 +11,15 @@ export const canonicalSiteURL = (path: string): string => {
 export const documentationRoutes = [
   "/docs",
   "/docs/getting-started",
-  "/docs/configuration",
+  "/docs/ai",
   "/docs/authoring",
-  "/docs/motion",
   "/docs/themes",
+  "/docs/motion",
   "/docs/plugins",
   "/docs/presenting",
   "/docs/delivery",
-  "/docs/ai",
+  "/docs/commands",
+  "/docs/configuration",
   "/docs/credits",
 ] as const;
 

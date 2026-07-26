@@ -22,14 +22,15 @@ One project produces:
 - Real post-release Codex smoke runs: https://drever.dev/release-smoke/
 - Documentation: https://drever.dev/docs/
 - Getting started: https://drever.dev/docs/getting-started/
-- Configuration: https://drever.dev/docs/configuration/
+- AI workflows: https://drever.dev/docs/ai/
 - Authoring: https://drever.dev/docs/authoring/
-- Motion: https://drever.dev/docs/motion/
 - Art direction and Theme contract guide: https://drever.dev/docs/themes/
+- Motion: https://drever.dev/docs/motion/
 - Plugin guide: https://drever.dev/docs/plugins/
 - Presenting: https://drever.dev/docs/presenting/
 - Build, deploy, and export: https://drever.dev/docs/delivery/
-- AI workflows: https://drever.dev/docs/ai/
+- Complete command reference: https://drever.dev/docs/commands/
+- Configuration: https://drever.dev/docs/configuration/
 - Credits: https://drever.dev/docs/credits/
 - Showcase of complete stories, focused capabilities, and art directions:
   https://drever.dev/showcase/

@@ -25,9 +25,9 @@ function Page() {
       <ThemeGallery />
       <DocMdx content={Content} />
       <DocNext
-        description="Add build and runtime capability through one typed extension model."
-        href="/docs/plugins/"
-        label="Plugins"
+        description="Add choreography only when it clarifies a real narrative change."
+        href="/docs/motion/"
+        label="Motion"
       />
     </DocArticle>
   );

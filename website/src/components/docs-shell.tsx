@@ -85,7 +85,7 @@ export function DocsShell() {
   }, [pathname]);
 
   return (
-    <main className="docs" id="main" tabIndex={-1}>
+    <main className="docs" data-header-tone="light" id="main" tabIndex={-1}>
       <aside className="docs-nav">
         <Link activeOptions={{ exact: true }} className="docs-nav__home" to="/docs/">
           Documentation
@@ -193,7 +193,7 @@ export function ManualSetup() {
         <ul>
           <li>Node.js 24.18 or newer.</li>
           <li>A current Safari or Chromium-family browser.</li>
-          <li>Playwright Chromium only when exporting PDF.</li>
+          <li>Playwright Chromium only for rendered checks, design import, or PDF export.</li>
         </ul>
         <p>
           There is no legacy router or animation fallback. Drever respects{" "}
@@ -215,7 +215,8 @@ npm run build
 npm exec -- drever browser install
 npm run export`}</CodeBlock>
         <p>
-          Install Playwright Chromium only when a PDF is required. Read the{" "}
+          Install Playwright Chromium only when a browser-backed workflow requires it. See the{" "}
+          <Link to="/docs/commands/">command reference</Link> for every command and option, the{" "}
           <Link to="/docs/authoring/">authoring guide</Link> for MDX and the{" "}
           <Link to="/docs/delivery/">delivery guide</Link> for build, deploy, and export behavior.
         </p>
@@ -233,6 +234,7 @@ export function DocNext({
   href:
     | "/docs/ai/"
     | "/docs/authoring/"
+    | "/docs/commands/"
     | "/docs/configuration/"
     | "/docs/credits/"
     | "/docs/delivery/"

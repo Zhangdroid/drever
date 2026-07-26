@@ -14,12 +14,12 @@ export const Route = createFileRoute("/docs/configuration")({
 
 function Page() {
   return (
-    <DocArticle description={description} eyebrow="Start" title="Configuration">
+    <DocArticle description={description} eyebrow="Reference" title="Configuration">
       <DocMdx content={Content} />
       <DocNext
-        description="Learn how Markdown, Steps, Notes, and React work together."
-        href="/docs/authoring/"
-        label="Authoring slides"
+        description="Meet the people, projects, and open-source foundations behind Drever."
+        href="/docs/credits/"
+        label="Credits"
       />
     </DocArticle>
   );

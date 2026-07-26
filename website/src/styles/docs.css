@@ -1609,6 +1609,10 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   margin-block-start: clamp(4rem, 8vw, 7rem);
 }
 
+.docs-overview__reference--tools {
+  margin-block-start: clamp(3rem, 6vw, 5rem);
+}
+
 .docs-overview__paths {
   display: grid;
   margin-block-start: 1rem;
@@ -1661,6 +1665,15 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   position: absolute;
   right: 1.6rem;
   bottom: 1.6rem;
+}
+
+.docs-overview__paths--compact > a {
+  min-height: 11rem;
+}
+
+.docs-overview__paths--compact h2 {
+  margin-block-start: 0.9rem;
+  font-size: 1.45rem;
 }
 
 .docs-overview__ai {

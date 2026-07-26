@@ -17,9 +17,9 @@ function Page() {
     <DocArticle description={description} eyebrow="Deliver" title="Build, deploy, and export">
       <DocMdx content={Content} />
       <DocNext
-        description="Meet the people, projects, and open-source foundations behind Drever."
-        href="/docs/credits/"
-        label="Credits"
+        description="Find exact syntax, options, defaults, and the guide that owns each workflow."
+        href="/docs/commands/"
+        label="Command reference"
       />
     </DocArticle>
   );

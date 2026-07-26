@@ -1,0 +1,255 @@
+Run commands from the presentation project root. The examples below use npm's
+project-local runner so the command and output match the Drever version installed
+with the deck:
+
+```bash
+npm exec -- drever check
+pnpm exec drever check
+yarn exec drever check
+bunx --no-install drever check
+```
+
+Generated projects also provide `npm run dev`, `npm run check`, `npm run build`,
+and `npm run export`. Do not depend on a globally installed `drever` binary.
+
+For every command that accepts `[entry]`, an explicit path wins over `entry` in
+`drever.config.ts`; otherwise Drever uses `slides.mdx`. Deck entries must be
+`.md` or `.mdx` files.
+
+You do not need to memorize this interface. Ask your agent for the outcome you
+want; this page keeps the underlying commands transparent, reproducible, and
+available for CI or manual use.
+
+<h2 id="summary">Command summary</h2>
+
+| Command                                | Purpose                                               |
+| -------------------------------------- | ----------------------------------------------------- |
+| `drever create [directory] [options]`  | Create an AI-ready presentation project.              |
+| `drever dev [entry]`                   | Run the live Audience and Speaker preview.            |
+| `drever context [entry] [--json]`      | Resolve the complete authoring contract.              |
+| `drever current [--json]`              | Read the latest connected live presentation position. |
+| `drever mcp [entry]`                   | Serve the read-only Drever MCP over stdio.            |
+| `drever agent sync [options]`          | Install or refresh project-local AI workflows.        |
+| `drever doctor [--json]`               | Inspect local runtime and delivery prerequisites.     |
+| `drever browser install [--with-deps]` | Install Drever's matching Playwright Chromium.        |
+| `drever check [entry] [options]`       | Check authored source and optional rendered states.   |
+| `drever build [entry] [--json]`        | Build the static presentation website.                |
+| `drever export pdf [entry] [options]`  | Export final slides or exact Step states to PDF.      |
+| `drever design import <url> [options]` | Derive a local Pass-0 Theme from rendered evidence.   |
+
+<h2 id="global-options">Help and version</h2>
+
+```bash
+drever --help
+drever -h
+drever --version
+drever -v
+```
+
+Running `drever` without a command also prints the top-level help. Use
+`drever create --help` for the creator's complete option list. Other commands
+reject unknown flags rather than forwarding them to Vite.
+
+<h2 id="create-and-preview">Create and preview</h2>
+
+<h3 id="create">Create a project</h3>
+
+```text
+drever create [directory]
+  [--agent <all|auto|codex|claude|none>]
+  [--open <codex|claude>]
+  [--package-manager <npm|pnpm|yarn|bun>]
+  [--no-install]
+  [--json]
+  [-h|--help]
+```
+
+The directory defaults to the current directory. Drever installs dependencies
+and both Codex and Claude Code workflows by default. It detects the active
+package manager, falling back to npm. `--no-install` leaves installation to the
+caller; `--json` emits a machine-readable receipt.
+
+`--open codex` or `--open claude` opens the new project with a prepared task and
+requires the matching `--agent` target or the default `all`. Creation never
+overwrites existing project files.
+
+The usual npm entry point is the equivalent creator package. Put creator options
+after npm's `--` separator:
+
+```bash
+npm create drever@latest my-slides
+npm create drever@latest my-slides -- --open codex
+```
+
+See [Getting started](/docs/getting-started/).
+
+<h3 id="dev">Run the development preview</h3>
+
+```text
+drever dev [entry]
+```
+
+The command starts one HMR-enabled local preview and prints Audience and Speaker
+URLs. Configure `host`, `open`, `port`, and `strictPort` under `server` in
+`drever.config.ts`; `dev` deliberately exposes no raw Vite flags and there is no
+separate `drever preview` command.
+
+See [Configuration](/docs/configuration/) and
+[Presenting](/docs/presenting/).
+
+<h2 id="inspect-and-connect">Inspect and connect AI tools</h2>
+
+<h3 id="context">Resolve authoring context</h3>
+
+```text
+drever context [entry] [--json]
+```
+
+Human output is a concise summary. `--json` returns the resolved slide and Step
+manifest, source ranges, canvas, Theme, layouts, components, plugins, and source
+preflight. This is planning evidence; it does not render React or judge visual
+quality.
+
+See [AI workflows: authoring context](/docs/ai/#authoring-context).
+
+<h3 id="current">Read the current slide</h3>
+
+```text
+drever current [--json]
+```
+
+While `drever dev` is running, this reads the most recently updated open Audience
+or Speaker window. The JSON form includes its source path, exact route, slide,
+sparse Step, surface, and any selected static MDX element. The command fails
+clearly when no live interactive window is connected and does not accept an
+entry argument.
+
+See [AI workflows: current position](/docs/ai/#current-position).
+
+<h3 id="mcp">Serve the read-only MCP</h3>
+
+```text
+drever mcp [entry]
+```
+
+The dependency-free stdio server exposes context, slide listing, exact slide
+source, source preflight, and the optional live position. Its tools are
+read-only, and stdout is reserved for JSON-RPC messages. MDX edits are reread on
+each call; restart the server after changing config, Theme, or plugin
+registrations.
+
+See [AI workflows: optional read-only MCP](/docs/ai/#mcp).
+
+<h3 id="agent-sync">Refresh project-local AI workflows</h3>
+
+```text
+drever agent sync [--target <all|auto|codex|claude>]
+```
+
+Use `--target all` to install both adapters. An omitted target updates Codex;
+`auto` follows existing Codex or Claude Code project markers and otherwise
+chooses Codex. Sync updates only Drever-owned files and managed instruction
+blocks; it reports a conflict instead of replacing unmarked user-owned content.
+
+See [AI workflows](/docs/ai/#agent-first).
+
+<h2 id="validate-and-deliver">Validate and deliver</h2>
+
+<h3 id="doctor">Inspect the environment</h3>
+
+```text
+drever doctor [--json]
+```
+
+This read-only diagnostic checks the required Node.js version and deck entry.
+A missing project-local Drever package or Playwright Chromium is reported as a
+warning because not every workflow needs the browser. `doctor` never installs
+software or starts a browser.
+
+See [Troubleshooting and support](/docs/delivery/#troubleshooting).
+
+<h3 id="browser-install">Install the matching browser</h3>
+
+```text
+drever browser install [--with-deps]
+```
+
+This installs the Chromium revision required by the project-local Drever CLI.
+It is needed for rendered preflight, website design import, and PDF export.
+Use `--with-deps` when a Linux host also needs Playwright's operating-system
+packages.
+
+See [PDF export](/docs/delivery/#pdf-export).
+
+<h3 id="check">Check source and rendered states</h3>
+
+```text
+drever check [entry] [--rendered] [--json]
+```
+
+The default fast check reports source diagnostics. `--rendered` additionally
+builds an isolated inspection app and captures Step 0 plus every exact authored
+Step. It requires Playwright Chromium. `--json` emits the versioned report used
+by agents and CI. The process exits nonzero when errors remain; warnings stay
+visible without blocking delivery.
+
+See [Source and rendered checks](/docs/delivery/#check).
+
+<h3 id="build">Build the static website</h3>
+
+```text
+drever build [entry] [--json]
+```
+
+The default output is `dist/`, or the safe project-local directory configured by
+`build.outDir`. A publishable build requires `deck.lang`. `--json` suppresses
+ordinary build output and emits a versioned artifact receipt with absolute
+source and output paths.
+
+See [Build a static website](/docs/delivery/#static-build).
+
+<h3 id="export-pdf">Export PDF</h3>
+
+```text
+drever export pdf [entry]
+  [--steps]
+  [--slides <range>]
+  [-o|--output <path>]
+  [--json]
+```
+
+By default, Drever exports the final authored Step of every slide to
+`<entry-basename>-export.pdf` in the project root. `--steps` includes Step 0 and
+every exact compiled stop. `--slides` accepts one-based numbers and inclusive
+comma-separated ranges such as `2-5,8`; it composes with `--steps`. A custom
+output must end in `.pdf`. Export requires `deck.lang` and Playwright Chromium.
+
+`--json` emits a versioned PDF artifact receipt.
+
+See [Export PDF](/docs/delivery/#pdf-export).
+
+<h2 id="design">Import design evidence</h2>
+
+<h3 id="design-import">Start a Theme from a website</h3>
+
+```text
+drever design import <url>
+  [--name <name>]
+  [--output <directory>]
+  [--color-scheme <light|dark>]
+  [--allow-private]
+  [--json]
+```
+
+The default color scheme is `light`. Without `--name` or `--output`, Drever
+derives a Theme name and `design/<hostname-slug>` directory from the URL. The
+command requires Playwright Chromium and writes rendered evidence plus a local
+Pass-0 Theme into a new or empty, non-symlink child directory of the project.
+It never overwrites existing design files or copies the source website.
+
+Only public HTTP and HTTPS URLs are reachable by default. Use
+`--allow-private` deliberately for a trusted localhost or private-network
+reference; this grants reachability, not trust. `--json` returns the versioned
+import receipt.
+
+See [Themes and art direction: import design evidence](/docs/themes/#import-design-evidence).

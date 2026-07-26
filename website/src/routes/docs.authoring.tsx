@@ -17,9 +17,9 @@ function Page() {
     <DocArticle description={description} eyebrow="Create" title="Authoring slides">
       <DocMdx content={Content} />
       <DocNext
-        description="Add choreography only when it clarifies a real narrative change."
-        href="/docs/motion/"
-        label="Motion"
+        description="Derive a visual voice from the subject and persist it as a Theme contract."
+        href="/docs/themes/"
+        label="Art direction"
       />
     </DocArticle>
   );
