@@ -419,9 +419,10 @@
 
 .hero-stage__story strong {
   display: block;
+  color: color-mix(in srgb, var(--site-ink), transparent 38%);
   font-family: var(--drever-brand-font-family-display);
   font-size: clamp(1.45rem, 3.35vw, 2.7rem);
-  font-weight: 590;
+  font-weight: 520;
   letter-spacing: -0.05em;
   line-height: 0.92;
 }
