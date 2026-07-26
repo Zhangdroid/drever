@@ -558,6 +558,63 @@ test("verifies the pinned report and every interactive preview surface", async (
   ]);
 });
 
+test("waits for transient Pages TLS and deployment propagation", async () => {
+  const reportOrigin = "https://e3a87670.drever-release-smoke.pages.dev";
+  const deckOrigin = "https://d369cf67.drever-release-smoke.pages.dev";
+  const runId = "123";
+  const releaseCommit = "a".repeat(40);
+  const harnessCommit = "b".repeat(40);
+  const runUrl = `${reportOrigin}/release-smoke/runs/123/run.json`;
+  const attempts = new Map();
+  const delays = [];
+  const run = {
+    id: runId,
+    release: { commit: releaseCommit, version: "0.2.5" },
+    harness: { commit: harnessCommit },
+    cases: [
+      {
+        id: "guided",
+        deck: {
+          audience: `${deckOrigin}/release-smoke/runs/123/guided/deck/`,
+          document: `${deckOrigin}/release-smoke/runs/123/guided/deck/document/`,
+          source: `${deckOrigin}/release-smoke/runs/123/guided/source/slides.mdx`,
+        },
+      },
+    ],
+  };
+
+  await verifyPagesPreview({
+    origin: reportOrigin,
+    deckOrigin,
+    runId,
+    version: "0.2.5",
+    releaseCommit,
+    harnessCommit,
+    fetchAttempts: 3,
+    waitForRetry: async (milliseconds) => {
+      delays.push(milliseconds);
+    },
+    fetchResource: async (url) => {
+      const attempt = (attempts.get(url) ?? 0) + 1;
+      attempts.set(url, attempt);
+      if (url === runUrl && attempt === 1) {
+        throw new TypeError("fetch failed", { cause: new Error("TLS handshake failure") });
+      }
+      if (url === runUrl && attempt === 2) {
+        return { ok: false, status: 404 };
+      }
+      return {
+        json: async () => run,
+        ok: true,
+        status: 200,
+      };
+    },
+  });
+
+  assert.equal(attempts.get(runUrl), 3);
+  assert.deepEqual(delays, [1_000, 2_000]);
+});
+
 test("keeps the OpenAI key inside the generation job and pins the Codex action", async () => {
   const workflow = await readFile(
     new URL("../../.github/workflows/release-smoke.yml", import.meta.url),

@@ -17,13 +17,41 @@ const exactOrigin = (value, context) => {
   return url.origin;
 };
 
-const fetchOk = async (fetchResource, url, context) => {
-  const response = await fetchResource(url, {
-    cache: "no-store",
-    redirect: "error",
+const transientStatus = (status) =>
+  status === 404 || status === 408 || status === 425 || status === 429 || status >= 500;
+
+const retryDelay = (attempt) => Math.min(1_000 * 2 ** attempt, 10_000);
+
+const wait = (milliseconds) =>
+  new Promise((resolve) => {
+    setTimeout(resolve, milliseconds);
   });
-  if (!response.ok) throw new Error(`${context} returned HTTP ${response.status}.`);
-  return response;
+
+const fetchOk = async (fetchResource, url, context, { attempts, waitForRetry }) => {
+  let lastError;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    let response;
+    try {
+      response = await fetchResource(url, {
+        cache: "no-store",
+        redirect: "error",
+      });
+    } catch (error) {
+      lastError = error;
+    }
+
+    if (response !== undefined) {
+      if (response.ok) return response;
+      const error = new Error(`${context} returned HTTP ${response.status}.`);
+      if (!transientStatus(response.status)) throw error;
+      lastError = error;
+    }
+
+    if (attempt < attempts - 1) await waitForRetry(retryDelay(attempt));
+  }
+  throw new Error(`${context} remained unavailable after ${attempts} attempts.`, {
+    cause: lastError,
+  });
 };
 
 export const verifyPagesPreview = async ({
@@ -35,6 +63,8 @@ export const verifyPagesPreview = async ({
   releaseCommit,
   harnessCommit,
   fetchResource = fetch,
+  fetchAttempts = 10,
+  waitForRetry = wait,
 }) => {
   const previewOrigin = exactOrigin(origin, "Preview origin");
   const expectedDeckOrigin = exactOrigin(deckOrigin, "Deck origin");
@@ -44,6 +74,7 @@ export const verifyPagesPreview = async ({
     fetchResource,
     `${previewOrigin}${runPath}`,
     "Release smoke run",
+    { attempts: fetchAttempts, waitForRetry },
   );
   const run = await runResponse.json();
   if (
@@ -57,7 +88,10 @@ export const verifyPagesPreview = async ({
     throw new Error("Cloudflare Pages preview does not match the release smoke provenance.");
   }
 
-  await fetchOk(fetchResource, `${previewOrigin}/release-smoke/`, "Release smoke report");
+  await fetchOk(fetchResource, `${previewOrigin}/release-smoke/`, "Release smoke report", {
+    attempts: fetchAttempts,
+    waitForRetry,
+  });
   for (const scenario of run.cases) {
     if (
       typeof scenario.id !== "string" ||
@@ -79,7 +113,12 @@ export const verifyPagesPreview = async ({
           `Cloudflare Pages preview has an unexpected ${scenario.id} ${surface} URL.`,
         );
       }
-      await fetchOk(fetchResource, `${deployedArtifactOrigin}${path}`, `${scenario.id} ${surface}`);
+      await fetchOk(
+        fetchResource,
+        `${deployedArtifactOrigin}${path}`,
+        `${scenario.id} ${surface}`,
+        { attempts: fetchAttempts, waitForRetry },
+      );
     }
   }
 };

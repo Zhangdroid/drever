@@ -5,6 +5,11 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+### Fixed
+
+- Retried bounded transient TLS, 404, rate-limit, and server failures while
+  verifying newly uploaded Cloudflare Pages release-smoke previews.
+
 ## [0.2.5] - 2026-07-26
 
 ### Changed
