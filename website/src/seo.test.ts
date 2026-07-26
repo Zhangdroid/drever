@@ -1,7 +1,10 @@
+import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vite-plus/test";
 
-import { canonicalSiteURL } from "../site-manifest";
+import { canonicalSiteURL, publicPresentationMounts, siteRoutes } from "../site-manifest";
 import { pageHead } from "./seo";
+
+const sitemap = await readFile(new URL("../public/sitemap.xml", import.meta.url), "utf8");
 
 describe("website metadata", () => {
   it("uses the final trailing-slash URL for canonical pages", () => {
@@ -25,5 +28,15 @@ describe("website metadata", () => {
         { name: "twitter:image", content: "https://drever.dev/social-card.png" },
       ]),
     );
+  });
+
+  it("keeps the sitemap aligned with every public route", () => {
+    const actualLocations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/gu)].map((match) => match[1]);
+    const expectedLocations = [
+      ...siteRoutes.map(canonicalSiteURL),
+      ...publicPresentationMounts.map(({ slug }) => canonicalSiteURL(`/showcase/${slug}`)),
+    ];
+
+    expect(new Set(actualLocations)).toEqual(new Set(expectedLocations));
   });
 });

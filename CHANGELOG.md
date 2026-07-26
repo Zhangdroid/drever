@@ -12,6 +12,11 @@ section, while commit snapshots use the current Unreleased section.
   reference with exact options, defaults, workflow links, and drift protection
   against future CLI additions.
 
+### Fixed
+
+- Kept the static sitemap synchronized with new public documentation routes and
+  added a fast regression check before deployment.
+
 ## [0.8.0] - 2026-07-27
 
 ### Added
