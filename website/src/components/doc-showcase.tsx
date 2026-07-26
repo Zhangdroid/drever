@@ -170,7 +170,7 @@ const motionRecipes = [
 export function MotionRecipeGallery() {
   return (
     <section className="doc-visual-intro" aria-labelledby="motion-recipes-title">
-      <a className="motion-recipe-deck" href="/showcase/motion/">
+      <a className="motion-recipe-deck" data-header-tone="dark" href="/showcase/motion/">
         <span className="motion-recipe-deck__copy">
           <small>Complete live deck</small>
           <strong>Watch every motion story in context.</strong>

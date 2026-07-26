@@ -47,6 +47,18 @@ without adding them to the main demo catalog.
 
 Legacy `/demos/*` URLs permanently redirect to the equivalent `/showcase/*` path.
 
+## Adaptive header surfaces
+
+The fixed site header follows the structural surface beneath its center. Every page-stage or reading
+surface that can pass behind it must declare `data-header-tone="light"` or
+`data-header-tone="dark"` on the surface root. Shared components own that marker centrally so every
+instance stays consistent. Decorative thumbnails inherit the surrounding page tone and do not drive
+the header.
+
+When adding or recoloring a structural section, scroll its leading and trailing edges behind the
+header and verify both tone changes. Solid colors, gradients, media, and embedded previews all use
+the same explicit contract.
+
 ## Local development
 
 Run commands from the repository root:

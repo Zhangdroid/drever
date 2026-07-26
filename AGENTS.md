@@ -9,6 +9,12 @@ guide, release metadata, and any default/facade wiring are updated together.
 Keep consumer-facing agent skills catalog-agnostic; active plugin manifests and
 authoring context are the source of capability truth.
 
+For website work, every structural surface that can pass behind the fixed
+`SiteHeader` must declare `data-header-tone="light"` or
+`data-header-tone="dark"` on its root. Shared components own the marker;
+decorative thumbnails inherit their surrounding page tone. Verify both edges
+of any added or recolored structural surface while scrolling.
+
 When completed work changes published package behavior or public exports,
 record it under `Unreleased` and identify the matching SemVer level. Do not
 publish each small compatible fix independently; accumulate related work into a

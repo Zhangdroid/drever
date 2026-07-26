@@ -80,7 +80,7 @@ function CasePreview({ run, scenario }: { run: ReleaseSmokeRun; scenario: Releas
           <p>{scenario.brief}</p>
         </header>
 
-        <div className="release-smoke__stage">
+        <div className="release-smoke__stage" data-header-tone="dark">
           <iframe
             allowFullScreen
             key={`${run.id}:${scenario.id}`}

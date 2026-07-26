@@ -406,27 +406,6 @@
   opacity: 0.24;
 }
 
-.hero-stage__story {
-  position: absolute;
-  z-index: 2;
-  top: 34%;
-  left: 9%;
-  width: 44%;
-  padding: 0.9rem 0 0.95rem 0.95rem;
-  border-left: 0.18rem solid var(--site-signal);
-  background: linear-gradient(90deg, rgb(255 255 255 / 42%), transparent);
-}
-
-.hero-stage__story strong {
-  display: block;
-  color: color-mix(in srgb, var(--site-ink), transparent 38%);
-  font-family: var(--drever-brand-font-family-display);
-  font-size: clamp(1.45rem, 3.35vw, 2.7rem);
-  font-weight: 520;
-  letter-spacing: -0.05em;
-  line-height: 0.92;
-}
-
 .hero-stage__orbit {
   position: absolute;
   top: 50%;

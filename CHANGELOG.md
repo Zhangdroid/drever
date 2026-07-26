@@ -5,6 +5,13 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+### Fixed
+
+- Kept the adaptive website header in sync with structural dark surfaces across
+  documentation, showcase, and release-smoke pages.
+- Gave the Docs handoff card enough reading width and simplified its supporting
+  copy, while returning the homepage hero artwork to a text-free composition.
+
 ## [0.3.0] - 2026-07-26
 
 ### Added
