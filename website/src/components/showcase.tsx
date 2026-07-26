@@ -273,9 +273,7 @@ export function HeroStage() {
               <i />
             </div>
             <div className="hero-stage__story">
-              <small>Brief → visual direction</small>
               <strong>{creationStory.title}</strong>
-              <span>{creationStory.question}</span>
             </div>
             <div className="hero-stage__orbit hero-stage__orbit--wide">
               <i />
@@ -292,7 +290,6 @@ export function HeroStage() {
               <i />
               <i />
             </div>
-            <div className="hero-stage__coordinate">01 / 08</div>
           </div>
         </div>
         <div className="hero-stage__satellite hero-stage__satellite--one">

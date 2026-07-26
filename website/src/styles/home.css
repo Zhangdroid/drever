@@ -409,38 +409,21 @@
 .hero-stage__story {
   position: absolute;
   z-index: 2;
-  top: 30%;
+  top: 34%;
   left: 9%;
-  display: grid;
-  width: 43%;
-  padding: 0.7rem 0 0.8rem 0.9rem;
+  width: 44%;
+  padding: 0.9rem 0 0.95rem 0.95rem;
   border-left: 0.18rem solid var(--site-signal);
   background: linear-gradient(90deg, rgb(255 255 255 / 42%), transparent);
-  gap: 0.42rem;
-}
-
-.hero-stage__story small {
-  color: var(--site-continuity);
-  font-family: var(--drever-brand-font-family-mono);
-  font-size: clamp(0.38rem, 0.9vw, 0.58rem);
-  font-weight: 680;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 .hero-stage__story strong {
+  display: block;
   font-family: var(--drever-brand-font-family-display);
-  font-size: clamp(1.25rem, 3vw, 2.4rem);
+  font-size: clamp(1.45rem, 3.35vw, 2.7rem);
   font-weight: 590;
   letter-spacing: -0.05em;
   line-height: 0.92;
-}
-
-.hero-stage__story span {
-  max-width: 18ch;
-  color: var(--site-muted);
-  font-size: clamp(0.45rem, 1vw, 0.68rem);
-  line-height: 1.35;
 }
 
 .hero-stage__orbit {
@@ -558,16 +541,6 @@
 .hero-stage__frame i:last-child {
   width: 0.8rem;
   background: var(--site-signal);
-}
-
-.hero-stage__coordinate {
-  position: absolute;
-  bottom: 7.5%;
-  left: 9%;
-  color: color-mix(in srgb, var(--site-muted), transparent 20%);
-  font-family: var(--drever-brand-font-family-mono);
-  font-size: clamp(0.42rem, 1vw, 0.6rem);
-  letter-spacing: 0.14em;
 }
 
 .hero-stage__satellite {
