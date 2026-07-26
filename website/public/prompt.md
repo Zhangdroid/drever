@@ -115,8 +115,11 @@ there is no defensible answer, redesign exactly one high-value beat instead of d
 deck.
 
 Use the project-local workflow to check and build the presentation. Start the development server
-and inspect the audience view when browser tooling is available. Inspect every slide at Step 0 and
-every exact authored Step route at the configured canvas; representative sampling is not
+and inspect the audience view when browser tooling is available. Prefer a connected Chrome DevTools
+MCP server for the final rendered pass, then follow the version-matched project-local review skill
+for screenshots, interaction, runtime evidence, and the dev-only experimental Pretext layout probe.
+The probe is advisory; rendered DOM and pixels remain authoritative. Inspect every slide at Step 0
+and every exact authored Step route at the configured canvas; representative sampling is not
 sufficient. Review the document view as well, and review the speaker view when notes or timing are
 involved. Source review and successful commands do not count as the Draft 1 rendered refinement.
 Export a PDF only when requested.

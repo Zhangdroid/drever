@@ -203,6 +203,29 @@ describe("agent kit sync", () => {
     );
   });
 
+  it("installs the browser-first review gate and advisory typography probe", async () => {
+    const root = await temporaryDirectory("drever-agent-project-");
+    await syncAgentKit({ root });
+
+    const reviewDeck = await read(root, ".agents/skills/drever-review-deck/SKILL.md");
+
+    expect(reviewDeck).toMatch(/Prefer a connected Chrome DevTools MCP server/iu);
+    for (const tool of [
+      "list_pages",
+      "evaluate_script",
+      "take_snapshot",
+      "take_screenshot",
+      "list_console_messages",
+      "list_network_requests",
+    ]) {
+      expect(reviewDeck).toContain(`\`${tool}\``);
+    }
+    expect(reviewDeck).toContain("globalThis.__dreverExperimentalTextLayout()");
+    expect(reviewDeck).toMatch(/uses Pretext[^.]*predicted and rendered line layout/iu);
+    expect(reviewDeck).toMatch(/Treat its report as advisory/iu);
+    expect(reviewDeck).toMatch(/Rendered DOM and pixels remain authoritative|browser layout/iu);
+  });
+
   it("installs the complete kit and reports a stable idempotent result", async () => {
     const root = await temporaryDirectory("drever-agent-project-");
     const templateRoot = await createTemplateKit("v1");

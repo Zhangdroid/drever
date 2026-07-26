@@ -211,6 +211,31 @@ After Draft 1, inspect every slide at Step 0 and every exact authored Step route
 at the configured canvas; representative sampling is not sufficient. Source
 review and successful commands do not count as rendered refinement.
 
+### Rendered review tooling
+
+The project-local review skill prefers
+[Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp)
+when it is connected. It uses the real development preview for exact-route
+screenshots, interactions, computed geometry, animation state, console output,
+and failed network requests. Another browser automation surface may provide the
+same evidence; Chrome inspection alone is not cross-browser proof.
+
+Development previews also expose an experimental, version-matched typography
+probe:
+
+```js
+await globalThis.__dreverExperimentalTextLayout();
+```
+
+The probe uses [Pretext](https://github.com/chenglou/pretext) to compare
+predicted and rendered line layout for supported visible plain-text blocks. Its
+output is advisory and deliberately skips CSS and content it cannot model
+reliably, including rich inline markup, non-default wrapping or indentation,
+automatic hyphenation, columns, transforms, generic system fonts, and
+non-default word spacing or font shaping settings. Confirm every finding in the
+rendered DOM and screenshot. The probe is removed from production and export
+bundles and never changes authored layout or copy.
+
 ## Follow the live presentation
 
 While `npm run dev` is running, each audience or speaker window publishes its

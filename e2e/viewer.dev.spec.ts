@@ -101,6 +101,100 @@ test("the public dev command runs the complete interactive presentation workflow
   health.expectHealthy();
 });
 
+test("the dev-only Pretext probe reports advisory layout evidence without entering production", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.locator("#drever-root")).toHaveAttribute("data-drever-ready", "");
+
+  const report = await page.evaluate(async () => {
+    const slide = document.querySelector<HTMLElement>(
+      '[data-drever-slide][data-slide-state="active"]',
+    );
+    const audit = Reflect.get(globalThis, "__dreverExperimentalTextLayout");
+    if (slide === null || typeof audit !== "function") {
+      throw new Error("The development text-layout probe is unavailable.");
+    }
+    const sample = (
+      text: string,
+      width: number,
+      height: number,
+      styles: Readonly<Record<string, string>> = {},
+      parent: HTMLElement = slide,
+    ): HTMLElement => {
+      const element = document.createElement("p");
+      element.dataset.dreverTextAudit = "";
+      element.textContent = text;
+      Object.assign(element.style, {
+        fontFamily: "Arial",
+        fontFeatureSettings: "normal",
+        fontSize: "20px",
+        fontVariationSettings: "normal",
+        height: `${height}px`,
+        letterSpacing: "0px",
+        lineHeight: "24px",
+        margin: "0",
+        overflow: "hidden",
+        padding: "0",
+        position: "absolute",
+        textWrap: "wrap",
+        width: `${width}px`,
+        ...styles,
+      });
+      parent.append(element);
+      return element;
+    };
+    sample("Short label", 240, 24);
+    sample("This deliberately constrained label needs several lines to remain readable.", 120, 24);
+    sample("  Preserved preformatted line\n\nwith a blank line.  ", 140, 24, {
+      whiteSpace: "pre-wrap",
+    });
+    sample("Pretty wrapping is rendered by the browser.", 140, 48, {
+      textWrap: "pretty",
+    });
+    sample("1234567890", 140, 24, {
+      fontVariantNumeric: "tabular-nums",
+    });
+    const transparent = document.createElement("div");
+    transparent.style.opacity = "0";
+    slide.append(transparent);
+    sample("Not visibly painted", 240, 24, {}, transparent);
+    return await audit();
+  });
+
+  expect(report).toMatchObject({
+    authority: "advisory",
+    experimental: true,
+    version: 1,
+  });
+  expect(report.checked, JSON.stringify(report.skipped)).toBeGreaterThanOrEqual(2);
+  expect(report.skipped["font-or-transform"]).toBeGreaterThanOrEqual(1);
+  expect(report.skipped["text-wrap-style"]).toBeGreaterThanOrEqual(1);
+  expect(report.skipped["transparent-ancestor"]).toBeGreaterThanOrEqual(1);
+  expect(report.measurements).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        element: expect.objectContaining({
+          text: "Preserved preformatted line with a blank line.",
+        }),
+        whiteSpace: "pre-wrap",
+      }),
+    ]),
+  );
+  expect(report.findings).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        actualOverflow: true,
+        code: "DREVER_EXPERIMENTAL_TEXT_LAYOUT_RISK",
+        element: expect.objectContaining({
+          text: "This deliberately constrained label needs several lines to remain readable.",
+        }),
+        predictedOverflow: true,
+      }),
+    ]),
+  );
+});
+
 test("deep links reload exactly and inactive slides preserve React state", async ({ page }) => {
   const health = monitorPageHealth(page);
   await page.goto("/2/5");
