@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { ArrowUpRightIcon, CheckIcon, PlayIcon } from "../components/icons";
 import { PageHero } from "../components/page-hero";
 import {
+  loadReleaseSmokeData,
   readableReleaseSmokeMessage,
-  releaseSmokeData,
   type ReleaseSmokeCase,
+  type ReleaseSmokeData,
   type ReleaseSmokeRun,
 } from "../release-smoke-data";
 import { pageHead } from "../seo";
@@ -218,13 +219,19 @@ function EmptyReleaseSmokePage() {
   );
 }
 
-function PublishedReleaseSmokePage({ latest }: { latest: ReleaseSmokeRun }) {
+function PublishedReleaseSmokePage({
+  data,
+  latest,
+}: {
+  data: ReleaseSmokeData;
+  latest: ReleaseSmokeRun;
+}) {
   const [selectedRunId, setSelectedRunId] = useState(latest.id);
-  const selectedRun = releaseSmokeData.runs.find((run) => run.id === selectedRunId) ?? latest;
+  const selectedRun = data.runs.find((run) => run.id === selectedRunId) ?? latest;
   const [selectedCaseId, setSelectedCaseId] = useState(selectedRun.cases[0]?.id ?? "");
   const selectedCase =
     selectedRun.cases.find((scenario) => scenario.id === selectedCaseId) ?? selectedRun.cases[0];
-  const archivedRuns = releaseSmokeData.runs.filter((run) => run.id !== latest.id);
+  const archivedRuns = data.runs.filter((run) => run.id !== latest.id);
 
   if (selectedCase === undefined)
     throw new Error("A release smoke run requires at least one case.");
@@ -305,13 +312,24 @@ function PublishedReleaseSmokePage({ latest }: { latest: ReleaseSmokeRun }) {
 
       <section aria-labelledby="release-smoke-archive-title" className="release-smoke__archive">
         <header>
-          <span>Archive</span>
-          <h2 id="release-smoke-archive-title">Recent published runs stay inspectable.</h2>
+          <span>History</span>
+          <h2 id="release-smoke-archive-title">Every run stays with its release.</h2>
         </header>
         {archivedRuns.length === 0 ? (
-          <p className="release-smoke__archive-empty">
-            Real release runs will appear here as the workflow publishes them.
-          </p>
+          <div className="release-smoke__archive-empty">
+            <p>
+              The latest run lives here. Earlier immutable reports remain linked from their matching
+              GitHub Releases.
+            </p>
+            <a
+              className="button button--quiet"
+              href="https://github.com/Zhangdroid/drever/releases"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Browse release history <ArrowUpRightIcon />
+            </a>
+          </div>
         ) : (
           <div className="release-smoke__archive-list">
             {archivedRuns.map((run) => (
@@ -328,10 +346,105 @@ function PublishedReleaseSmokePage({ latest }: { latest: ReleaseSmokeRun }) {
   );
 }
 
+function LoadingReleaseSmokePage() {
+  return (
+    <main aria-busy="true" className="release-smoke" id="main" tabIndex={-1}>
+      <PageHero
+        description={description}
+        eyebrow="Built in public"
+        title="Watch the prompt become a real deck."
+      >
+        <div className="release-smoke__hero-proof">
+          <span className="release-smoke__status" data-status="pending">
+            <i aria-hidden="true" />
+            Loading published runs
+          </span>
+          <span>Remote evidence</span>
+          <span>No fixture decks</span>
+        </div>
+      </PageHero>
+
+      <section aria-labelledby="release-smoke-loading-title" className="release-smoke__pending">
+        <div>
+          <span>Loading evidence</span>
+          <h2 id="release-smoke-loading-title">Finding the latest verified run.</h2>
+        </div>
+        <div aria-live="polite" className="release-smoke__pending-copy" role="status">
+          <p>
+            The conversation, verification record, and interactive decks are loading from their
+            isolated release-smoke origin.
+          </p>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function FailedReleaseSmokePage({ retry }: { retry: () => void }) {
+  return (
+    <main className="release-smoke" id="main" tabIndex={-1}>
+      <PageHero
+        description={description}
+        eyebrow="Built in public"
+        title="Watch the prompt become a real deck."
+      >
+        <div className="release-smoke__hero-proof">
+          <span className="release-smoke__status" data-status="failed">
+            <i aria-hidden="true" />
+            Evidence unavailable
+          </span>
+          <span>Remote archive</span>
+          <span>No fixture fallback</span>
+        </div>
+      </PageHero>
+
+      <section aria-labelledby="release-smoke-error-title" className="release-smoke__pending">
+        <div>
+          <span>Could not load</span>
+          <h2 id="release-smoke-error-title">The published archive is temporarily unavailable.</h2>
+        </div>
+        <div aria-live="polite" className="release-smoke__pending-copy" role="alert">
+          <p>
+            Drever keeps generated evidence on a separate static origin. The website could not reach
+            it, so it will not substitute a showcase or fixture deck.
+          </p>
+          <button className="button button--primary" onClick={retry} type="button">
+            Try again
+          </button>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+type ReleaseSmokeLoadState =
+  | { status: "error" }
+  | { status: "loaded"; data: ReleaseSmokeData }
+  | { status: "loading" };
+
 function ReleaseSmokePage() {
-  return releaseSmokeData.latest === null ? (
+  const [attempt, setAttempt] = useState(0);
+  const [state, setState] = useState<ReleaseSmokeLoadState>({ status: "loading" });
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setState({ status: "loading" });
+    void loadReleaseSmokeData({ signal: controller.signal }).then(
+      (data) => setState({ data, status: "loaded" }),
+      () => {
+        if (!controller.signal.aborted) setState({ status: "error" });
+      },
+    );
+    return () => controller.abort();
+  }, [attempt]);
+
+  if (state.status === "loading") return <LoadingReleaseSmokePage />;
+  if (state.status === "error") {
+    return <FailedReleaseSmokePage retry={() => setAttempt((value) => value + 1)} />;
+  }
+  return state.data.latest === null ? (
     <EmptyReleaseSmokePage />
   ) : (
-    <PublishedReleaseSmokePage latest={releaseSmokeData.latest} />
+    <PublishedReleaseSmokePage data={state.data} latest={state.data.latest} />
   );
 }

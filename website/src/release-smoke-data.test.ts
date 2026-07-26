@@ -1,13 +1,16 @@
 import { describe, expect, it } from "vite-plus/test";
 
 import {
+  defaultReleaseSmokeOrigin,
+  legacyReleaseSmokeOrigin,
+  loadReleaseSmokeData,
   parseReleaseSmokeData,
   parseReleaseSmokeRun,
   readableReleaseSmokeMessage,
-  releaseSmokeData,
+  resolveReleaseSmokeOrigin,
 } from "./release-smoke-data";
 
-const transcriptPath = "../content/release-smoke/runs/0.2.3.json";
+const transcriptPath = "/release-smoke/runs/0.2.3-abc123/run.json";
 
 const runSource = {
   schemaVersion: 1,
@@ -40,10 +43,11 @@ const runSource = {
       durationSeconds: 92,
       deck: {
         audience:
-          "https://automation-release-smoke-1.drever-website.pages.dev/release-smoke/runs/0.2.3-abc123/surprise-me/",
+          "https://a1b2c3d4.drever-release-smoke.pages.dev/release-smoke/runs/0.2.3-abc123/surprise-me/deck/",
         document:
-          "https://automation-release-smoke-1.drever-website.pages.dev/release-smoke/runs/0.2.3-abc123/surprise-me/document/",
-        source: "https://github.com/Zhangdroid/drever/tree/ai-smoke/0.2.3-abc123/surprise-me",
+          "https://a1b2c3d4.drever-release-smoke.pages.dev/release-smoke/runs/0.2.3-abc123/surprise-me/deck/document/",
+        source:
+          "https://a1b2c3d4.drever-release-smoke.pages.dev/release-smoke/runs/0.2.3-abc123/surprise-me/source/slides.mdx",
       },
       checks: ["Production build completed"],
       messages: [
@@ -57,22 +61,10 @@ const runSource = {
 const manifestSource = {
   schemaVersion: 1,
   latestRunId: "0.2.3-abc123",
-  runs: [{ id: "0.2.3-abc123", transcript: "0.2.3.json" }],
+  runs: [{ id: "0.2.3-abc123", transcript: transcriptPath }],
 };
 
 describe("release smoke data", () => {
-  it("loads the selected real run without substituting showcase fixtures", () => {
-    const latest = releaseSmokeData.latest;
-
-    if (latest === null) throw new Error("Expected checked-in release smoke evidence.");
-    expect(releaseSmokeData.runs.some(({ id }) => id === latest.id)).toBe(true);
-    expect(latest.cases.map(({ id }) => id)).toEqual(["surprise-me", "guided"]);
-    expect(latest.cases.every(({ status }) => status === "passed")).toBe(true);
-    expect(
-      latest.cases.every(({ deck }) => deck.audience.includes(`/release-smoke/runs/${latest.id}/`)),
-    ).toBe(true);
-  });
-
   it("presents sanitized transcript Markdown as readable plain text", () => {
     expect(
       readableReleaseSmokeMessage(
@@ -105,7 +97,7 @@ describe("release smoke data", () => {
     expect(parseReleaseSmokeRun({ ...runSource, kind: "preview" }).kind).toBe("preview");
   });
 
-  it("fails the website build when the manifest and transcript disagree", () => {
+  it("rejects manifest and transcript mismatches", () => {
     expect(() =>
       parseReleaseSmokeData(
         { ...manifestSource, latestRunId: "missing-run" },
@@ -116,9 +108,7 @@ describe("release smoke data", () => {
     expect(() =>
       parseReleaseSmokeData(
         { ...manifestSource, latestRunId: null },
-        {
-          [transcriptPath]: runSource,
-        },
+        { [transcriptPath]: runSource },
       ),
     ).toThrow("A populated release smoke manifest must select a latest run");
 
@@ -126,7 +116,7 @@ describe("release smoke data", () => {
       parseReleaseSmokeData(
         {
           ...manifestSource,
-          runs: [{ id: "wrong-id", transcript: "0.2.3.json" }],
+          runs: [{ id: "wrong-id", transcript: transcriptPath }],
         },
         { [transcriptPath]: runSource },
       ),
@@ -138,7 +128,7 @@ describe("release smoke data", () => {
     unsafeRun.cases[0]!.deck.audience = "javascript:alert(1)";
 
     expect(() => parseReleaseSmokeRun(unsafeRun)).toThrow(
-      "must use an isolated Drever Pages preview origin",
+      "must use an isolated Drever Pages origin",
     );
   });
 
@@ -147,7 +137,153 @@ describe("release smoke data", () => {
     sameOriginRun.cases[0]!.deck.audience = "/release-smoke/runs/1/guided/deck/";
 
     expect(() => parseReleaseSmokeRun(sameOriginRun)).toThrow(
-      "must use an isolated Drever Pages preview origin",
+      "must use an isolated Drever Pages origin",
     );
+  });
+
+  it("uses the current origin on dedicated Pages deployments", () => {
+    expect(
+      resolveReleaseSmokeOrigin({
+        hostname: "a1b2c3d4.drever-release-smoke.pages.dev",
+        origin: "https://a1b2c3d4.drever-release-smoke.pages.dev",
+      }),
+    ).toBe("https://a1b2c3d4.drever-release-smoke.pages.dev");
+    expect(
+      resolveReleaseSmokeOrigin({
+        hostname: "drever.dev",
+        origin: "https://drever.dev",
+      }),
+    ).toBe(defaultReleaseSmokeOrigin);
+  });
+
+  it("loads the public manifest and immutable run records at runtime", async () => {
+    const requested: Array<{ credentials: RequestCredentials; href: string }> = [];
+    const data = await loadReleaseSmokeData({
+      fetcher: async (url, init) => {
+        requested.push({ credentials: init.credentials, href: url.href });
+        const value = url.pathname.endsWith("/manifest.json") ? manifestSource : runSource;
+        return {
+          json: async () => value,
+          ok: true,
+          status: 200,
+        };
+      },
+      location: {
+        hostname: "drever.dev",
+        origin: "https://drever.dev",
+      },
+    });
+
+    expect(requested).toEqual([
+      {
+        credentials: "omit",
+        href: `${defaultReleaseSmokeOrigin}/release-smoke/manifest.json`,
+      },
+      {
+        credentials: "omit",
+        href: `${defaultReleaseSmokeOrigin}${transcriptPath}`,
+      },
+    ]);
+    expect(data.latest?.id).toBe(runSource.id);
+    expect(data.runs).toHaveLength(1);
+  });
+
+  it("loads from the same origin on a hash deployment", async () => {
+    const hashOrigin = "https://a1b2c3d4.drever-release-smoke.pages.dev";
+    let requested = "";
+    await loadReleaseSmokeData({
+      fetcher: async (url) => {
+        requested = url.href;
+        return {
+          json: async () => ({ schemaVersion: 1, latestRunId: null, runs: [] }),
+          ok: true,
+          status: 200,
+        };
+      },
+      location: {
+        hostname: "a1b2c3d4.drever-release-smoke.pages.dev",
+        origin: hashOrigin,
+      },
+    });
+
+    expect(requested).toBe(`${hashOrigin}/release-smoke/manifest.json`);
+  });
+
+  it("keeps the current published evidence available during the storage migration", async () => {
+    const requested: string[] = [];
+    const data = await loadReleaseSmokeData({
+      fetcher: async (url) => {
+        requested.push(url.href);
+        if (url.origin === defaultReleaseSmokeOrigin) {
+          return {
+            json: async () => ({}),
+            ok: false,
+            status: 404,
+          };
+        }
+        const value = url.pathname.endsWith("/manifest.json") ? manifestSource : runSource;
+        return {
+          json: async () => value,
+          ok: true,
+          status: 200,
+        };
+      },
+      location: {
+        hostname: "drever.dev",
+        origin: "https://drever.dev",
+      },
+    });
+
+    expect(requested).toEqual([
+      `${defaultReleaseSmokeOrigin}/release-smoke/manifest.json`,
+      `${legacyReleaseSmokeOrigin}/release-smoke/manifest.json`,
+      `${legacyReleaseSmokeOrigin}${transcriptPath}`,
+    ]);
+    expect(data.latest?.id).toBe(runSource.id);
+  });
+
+  it("loads an empty remote manifest without requesting run records", async () => {
+    let requests = 0;
+    const data = await loadReleaseSmokeData({
+      fetcher: async () => {
+        requests += 1;
+        return {
+          json: async () => ({ schemaVersion: 1, latestRunId: null, runs: [] }),
+          ok: true,
+          status: 200,
+        };
+      },
+      origin: defaultReleaseSmokeOrigin,
+    });
+
+    expect(requests).toBe(1);
+    expect(data).toEqual({ latest: null, runs: [] });
+  });
+
+  it("rejects remote failures and transcript URLs outside the archive", async () => {
+    await expect(
+      loadReleaseSmokeData({
+        fetcher: async () => ({
+          json: async () => ({}),
+          ok: false,
+          status: 503,
+        }),
+        origin: defaultReleaseSmokeOrigin,
+      }),
+    ).rejects.toThrow("status 503");
+
+    await expect(
+      loadReleaseSmokeData({
+        fetcher: async () => ({
+          json: async () => ({
+            ...manifestSource,
+            runs: [{ id: runSource.id, transcript: "https://example.com/run.json" }],
+          }),
+          ok: true,
+          status: 200,
+        }),
+        origin: defaultReleaseSmokeOrigin,
+      }),
+    ).rejects.toThrow("Invalid release smoke transcript URL");
   });
 });

@@ -32,8 +32,8 @@ import {
   sanitizeTranscriptText,
   snapshotReleaseSmokeGenerationTree,
 } from "./contract.mjs";
-import { removeReleaseSmokeGeneratedArtifacts } from "./production-boundary.mjs";
-import { immutablePagesOrigin, resolvePagesPreview } from "./resolve-pages-preview.mjs";
+import { immutableDirectUploadOrigin } from "./deploy-pages.mjs";
+import { releaseSmokeSection, upsertReleaseSmokeSection } from "./record-release-link.mjs";
 import { getReleaseSmokeScenario, releaseSmokeScenarios } from "./scenarios.mjs";
 import { verifyPagesPreview } from "./verify-pages-preview.mjs";
 import { assertReleaseSmokeProvenance, requestJson } from "./verify-provenance.mjs";
@@ -381,60 +381,42 @@ test("moves a repeated run to the front without growing history forever", () => 
   });
 });
 
-test("resolves the immutable Cloudflare Pages deployment for an exact commit", async () => {
-  const summary = `
-    <table>
-      <tr><td><strong>Preview URL:</strong></td><td>
-        <a href='https://d369cf67.drever-website.pages.dev'>
-          https://d369cf67.drever-website.pages.dev
-        </a>
-      </td></tr>
-      <tr><td><strong>Branch Preview URL:</strong></td><td>
-        <a href='https://codex-ai-release-smoke.drever-website.pages.dev'>
-          Branch preview
-        </a>
-      </td></tr>
-    </table>
+test("extracts one immutable Pages Direct Upload deployment", () => {
+  const output = `
+    Uploading... (214/214)
+    Deployment complete! Take a peek over at
+    https://d369cf67.drever-release-smoke.pages.dev
   `;
-  assert.equal(immutablePagesOrigin(summary), "https://d369cf67.drever-website.pages.dev");
-  assert.equal(immutablePagesOrigin("No deployment yet."), null);
-  assert.throws(() => immutablePagesOrigin(`${summary}${summary}`), /multiple preview URL rows/u);
-  assert.throws(
-    () =>
-      immutablePagesOrigin(
-        "<tr><td><strong>Preview URL:</strong></td><td><a href='https://d369cf67.example.com'>Preview</a></td></tr>",
-      ),
-    /invalid immutable preview URL/u,
+  assert.equal(
+    immutableDirectUploadOrigin(output, "drever-release-smoke"),
+    "https://d369cf67.drever-release-smoke.pages.dev",
   );
+  assert.throws(
+    () => immutableDirectUploadOrigin("No deployment URL.", "drever-release-smoke"),
+    /Expected one immutable/u,
+  );
+});
 
-  let requests = 0;
-  const origin = await resolvePagesPreview({
-    commit: "a".repeat(40),
-    attempts: 2,
-    intervalMilliseconds: 0,
-    fetchChecks: async () => {
-      requests += 1;
-      return requests === 1
-        ? []
-        : [
-            {
-              app: { slug: "cloudflare-workers-and-pages" },
-              conclusion: "success",
-              name: "Cloudflare Pages",
-              output: { summary },
-              started_at: "2026-07-25T19:00:00Z",
-              status: "completed",
-            },
-          ];
-    },
-  });
-  assert.equal(requests, 2);
-  assert.equal(origin, "https://d369cf67.drever-website.pages.dev");
+test("records one idempotent immutable smoke link in GitHub release notes", () => {
+  const first = releaseSmokeSection(
+    "https://d369cf67.drever-release-smoke.pages.dev",
+    "https://github.com/Zhangdroid/drever/actions/runs/123",
+  );
+  const second = releaseSmokeSection(
+    "https://e3a87670.drever-release-smoke.pages.dev",
+    "https://github.com/Zhangdroid/drever/actions/runs/456",
+  );
+  const initial = upsertReleaseSmokeSection("## Drever 0.2.4\n\nRelease notes.\n", first);
+  const updated = upsertReleaseSmokeSection(initial, second);
+  assert.match(updated, /Release notes\./u);
+  assert.match(updated, /e3a87670\.drever-release-smoke\.pages\.dev/u);
+  assert.doesNotMatch(updated, /d369cf67\.drever-release-smoke\.pages\.dev/u);
+  assert.equal(updated.match(/<!-- drever-release-smoke:start -->/gu)?.length, 1);
 });
 
 test("verifies the pinned report and every interactive preview surface", async () => {
-  const reportOrigin = "https://e3a87670.drever-website.pages.dev";
-  const deckOrigin = "https://d369cf67.drever-website.pages.dev";
+  const reportOrigin = "https://e3a87670.drever-release-smoke.pages.dev";
+  const deckOrigin = "https://d369cf67.drever-release-smoke.pages.dev";
   const runId = "123";
   const releaseCommit = "a".repeat(40);
   const harnessCommit = "b".repeat(40);
@@ -497,7 +479,7 @@ test("keeps the OpenAI key inside the generation job and pins the Codex action",
   assert.doesNotMatch(workflow, /inputs\.source_commit \|\| github\.sha/u);
   assert.equal(workflow.match(/runs-on: ubuntu-24\.04/gu)?.length, 5);
   assert.equal(workflow.match(/ref: \$\{\{ github\.sha \}\}/gu)?.length, 5);
-  assert.equal(workflow.match(/ref: main/gu)?.length, 1);
+  assert.doesNotMatch(workflow, /ref: main/u);
   assert.doesNotMatch(
     workflow,
     /ref: \$\{\{\s*env\.RELEASE_SMOKE_SOURCE_COMMIT\s*\}\}/u,
@@ -519,7 +501,7 @@ test("keeps the OpenAI key inside the generation job and pins the Codex action",
   assert.doesNotMatch(generateJob, /PREPARED_ROOT:/u);
   assert.match(generateJob, /node "\$AUTOMATION_ROOT\/scripts\/release-smoke\/run-session\.mjs"/u);
   assert.equal(workflow.match(/secrets\.OPENAI_API_KEY/gu)?.length, 1);
-  assert.equal(workflow.match(/overwrite: true/gu)?.length, 3);
+  assert.equal(workflow.match(/overwrite: true/gu)?.length, 4);
   assert.doesNotMatch(workflow, /run_attempt/u);
   assert.match(
     workflow,
@@ -533,16 +515,19 @@ test("keeps the OpenAI key inside the generation job and pins the Codex action",
     workflow,
     /name: release-smoke-built-\$\{\{ matrix\.case \}\}-\$\{\{ github\.run_id \}\}/u,
   );
-  assert.match(workflow, /checks: read/u);
-  assert.equal(workflow.match(/resolve-pages-preview\.mjs/gu)?.length, 2);
-  assert.equal(workflow.match(/verify-pages-preview\.mjs/gu)?.length, 2);
-  assert.ok(
-    workflow.indexOf("resolve-pages-preview.mjs") < workflow.indexOf("pin-preview-origin.mjs"),
-  );
+  assert.doesNotMatch(workflow, /checks: read/u);
+  assert.equal(workflow.match(/contents: write/gu)?.length, 1);
+  assert.equal(workflow.match(/deploy-pages\.mjs/gu)?.length, 2);
+  assert.equal(workflow.match(/verify-pages-preview\.mjs/gu)?.length, 1);
+  assert.ok(workflow.indexOf("deploy-pages.mjs") < workflow.indexOf("pin-preview-origin.mjs"));
   assert.ok(workflow.indexOf("pin-preview-origin.mjs") < workflow.indexOf("pin-report-link.mjs"));
   assert.ok(
     workflow.indexOf("pin-report-link.mjs") < workflow.indexOf("Publish the review summary"),
   );
+  assert.match(workflow, /CLOUDFLARE_ACCOUNT_ID: \$\{\{ secrets\.CLOUDFLARE_ACCOUNT_ID \}\}/u);
+  assert.match(workflow, /CLOUDFLARE_API_TOKEN: \$\{\{ secrets\.CLOUDFLARE_API_TOKEN \}\}/u);
+  assert.match(workflow, /record-release-link\.mjs/u);
+  assert.doesNotMatch(workflow, /git (?:add|commit|push|switch)|RESULT_BRANCH: automation-/u);
   assert.doesNotMatch(workflow, /pull-requests: write|gh pr (?:create|edit)/u);
   const buildJob = workflow.slice(workflow.indexOf("\n  build:"));
   assert.doesNotMatch(buildJob, /OPENAI_API_KEY/u);
@@ -797,34 +782,11 @@ test("browser smoke uses the final deep deck mount for every live surface", asyn
   assert.match(source, /window\.location\.pathname\.startsWith\(`\$\{mount\}\/`\)/u);
 });
 
-test("production keeps evidence but removes generated artifacts from the trusted origin", async () => {
-  const root = await mkdtemp(join(tmpdir(), "drever-release-smoke-production-"));
-  temporaryRoots.push(root);
-  await removeReleaseSmokeGeneratedArtifacts(join(root, "empty-website"));
-  await Promise.all([
-    write(root, "release-smoke/runs/123/guided/deck/index.html", "<html><head></head></html>\n"),
-    write(root, "release-smoke/runs/123/guided/source/slides.mdx", "# Evidence\n"),
-    write(root, "release-smoke/runs/123/run.json", "{}\n"),
-  ]);
-
-  await removeReleaseSmokeGeneratedArtifacts(root);
-
-  await assert.rejects(
-    readFile(join(root, "release-smoke/runs/123/guided/deck/index.html"), "utf8"),
-    { code: "ENOENT" },
-  );
-  await assert.rejects(
-    readFile(join(root, "release-smoke/runs/123/guided/source/slides.mdx"), "utf8"),
-    { code: "ENOENT" },
-  );
-  assert.equal(await readFile(join(root, "release-smoke/runs/123/run.json"), "utf8"), "{}\n");
-});
-
 test("publisher assembles route data and directly previewable deck directories", async () => {
   const root = await mkdtemp(join(tmpdir(), "drever-release-smoke-publisher-"));
   temporaryRoots.push(root);
   const results = join(root, "results");
-  const repository = join(root, "repository");
+  const website = join(root, "website");
   const body = join(root, "pr.md");
   const releaseCommit = "a".repeat(40);
   const harnessCommit = "b".repeat(40);
@@ -874,13 +836,9 @@ test("publisher assembles route data and directly previewable deck directories",
     ]);
   }
   await write(
-    repository,
-    "website/content/release-smoke/manifest.json",
-    JSON.stringify({
-      schemaVersion: 1,
-      latestRunId: "preview-fixture",
-      runs: [{ id: "preview-fixture", transcript: "preview-fixture.json" }],
-    }),
+    website,
+    "public/release-smoke/manifest.json",
+    JSON.stringify({ schemaVersion: 1, latestRunId: null, runs: [] }),
   );
 
   const script = new URL("./publish-results.mjs", import.meta.url);
@@ -891,30 +849,20 @@ test("publisher assembles route data and directly previewable deck directories",
     releaseCommit,
     "Zhangdroid/drever",
     results,
-    repository,
-    "codex/ai-release-smoke",
+    website,
+    "run-123",
     "preview",
     harnessCommit,
     body,
   ]);
 
-  const [manifest, run, publicManifest, deck, prBody] = await Promise.all([
-    readFile(join(repository, "website/content/release-smoke/manifest.json"), "utf8").then(
-      JSON.parse,
-    ),
-    readFile(join(repository, "website/content/release-smoke/runs/123.json"), "utf8").then(
-      JSON.parse,
-    ),
-    readFile(join(repository, "website/public/release-smoke/manifest.json"), "utf8").then(
-      JSON.parse,
-    ),
-    readFile(
-      join(repository, "website/public/release-smoke/runs/123/guided/deck/index.html"),
-      "utf8",
-    ),
+  const [run, publicManifest, deck, prBody] = await Promise.all([
+    readFile(join(website, "public/release-smoke/runs/123/run.json"), "utf8").then(JSON.parse),
+    readFile(join(website, "public/release-smoke/manifest.json"), "utf8").then(JSON.parse),
+    readFile(join(website, "public/release-smoke/runs/123/guided/deck/index.html"), "utf8"),
     readFile(body, "utf8"),
   ]);
-  assert.equal(manifest.latestRunId, "123");
+  assert.equal(publicManifest.latestRunId, "123");
   assert.equal(run.cases.length, 2);
   assert.equal(run.kind, "preview");
   assert.equal(run.release.commit, releaseCommit);
@@ -925,11 +873,11 @@ test("publisher assembles route data and directly previewable deck directories",
   );
   assert.equal(
     run.cases[0].deck.audience,
-    "https://codex-ai-release-smoke.drever-website.pages.dev/release-smoke/runs/123/surprise-me/deck/",
+    "https://run-123.drever-release-smoke.pages.dev/release-smoke/runs/123/surprise-me/deck/",
   );
   assert.equal(
     run.cases[0].deck.source,
-    "https://codex-ai-release-smoke.drever-website.pages.dev/release-smoke/runs/123/surprise-me/source/slides.mdx",
+    "https://run-123.drever-release-smoke.pages.dev/release-smoke/runs/123/surprise-me/source/slides.mdx",
   );
   assert.equal(publicManifest.runs[0].transcript, "/release-smoke/runs/123/run.json");
   assert.match(deck, /Guided answers/u);
@@ -941,54 +889,52 @@ test("publisher assembles route data and directly previewable deck directories",
   assert.match(prBody, /AI creation preview/u);
   assert.ok(prBody.includes(`release commit \`${releaseCommit}\``));
   assert.match(prBody, /separate local\s+validation process/u);
-  assert.match(prBody, /https:\/\/codex-ai-release-smoke\.drever-website\.pages\.dev/u);
+  assert.match(prBody, /https:\/\/run-123\.drever-release-smoke\.pages\.dev/u);
+  assert.match(prBody, /No generated smoke evidence is committed/u);
   assert.match(prBody, /Immutable harness source/u);
   assert.equal(prBody.includes(String.fromCodePoint(0x1b)), false);
 
   const pinScript = new URL("./pin-preview-origin.mjs", import.meta.url);
   await execute(process.execPath, [
     pinScript.pathname,
-    repository,
+    website,
     "123",
-    "codex/ai-release-smoke",
-    "https://d369cf67.drever-website.pages.dev",
+    "run-123",
+    "https://d369cf67.drever-release-smoke.pages.dev",
     body,
   ]);
   const [pinnedRun, pinnedCase, pinnedPrBody] = await Promise.all([
-    readFile(join(repository, "website/content/release-smoke/runs/123.json"), "utf8"),
-    readFile(
-      join(repository, "website/public/release-smoke/runs/123/surprise-me/case.json"),
-      "utf8",
-    ),
+    readFile(join(website, "public/release-smoke/runs/123/run.json"), "utf8"),
+    readFile(join(website, "public/release-smoke/runs/123/surprise-me/case.json"), "utf8"),
     readFile(body, "utf8"),
   ]);
   for (const output of [pinnedRun, pinnedCase, pinnedPrBody]) {
-    assert.match(output, /https:\/\/d369cf67\.drever-website\.pages\.dev/u);
-    assert.doesNotMatch(output, /codex-ai-release-smoke\.drever-website\.pages\.dev/u);
+    assert.match(output, /https:\/\/d369cf67\.drever-release-smoke\.pages\.dev/u);
+    assert.doesNotMatch(output, /run-123\.drever-release-smoke\.pages\.dev/u);
   }
   await execute(process.execPath, [
     pinScript.pathname,
-    repository,
+    website,
     "123",
-    "codex/ai-release-smoke",
-    "https://d369cf67.drever-website.pages.dev",
+    "run-123",
+    "https://d369cf67.drever-release-smoke.pages.dev",
     body,
   ]);
   const reportScript = new URL("./pin-report-link.mjs", import.meta.url);
   await execute(process.execPath, [
     reportScript.pathname,
     body,
-    "https://d369cf67.drever-website.pages.dev",
-    "https://e3a87670.drever-website.pages.dev",
+    "https://d369cf67.drever-release-smoke.pages.dev",
+    "https://e3a87670.drever-release-smoke.pages.dev",
   ]);
   const reportBody = await readFile(body, "utf8");
   assert.match(
     reportBody,
-    /\[Conversation and verification report\]\(https:\/\/e3a87670\.drever-website\.pages\.dev\/release-smoke\/\)/u,
+    /\[Conversation and verification report\]\(https:\/\/e3a87670\.drever-release-smoke\.pages\.dev\/release-smoke\/\)/u,
   );
   assert.match(
     reportBody,
-    /\[Surprise me interactive deck\]\(https:\/\/d369cf67\.drever-website\.pages\.dev/u,
+    /\[Surprise me interactive deck\]\(https:\/\/d369cf67\.drever-release-smoke\.pages\.dev/u,
   );
 
   const releaseBody = join(root, "release-pr.md");
@@ -999,16 +945,14 @@ test("publisher assembles route data and directly previewable deck directories",
     releaseCommit,
     "Zhangdroid/drever",
     results,
-    repository,
-    "automation-release-smoke-123",
+    website,
+    "run-123",
     "release",
     harnessCommit,
     releaseBody,
   ]);
   const [releaseRun, releasePrBody] = await Promise.all([
-    readFile(join(repository, "website/content/release-smoke/runs/123.json"), "utf8").then(
-      JSON.parse,
-    ),
+    readFile(join(website, "public/release-smoke/runs/123/run.json"), "utf8").then(JSON.parse),
     readFile(releaseBody, "utf8"),
   ]);
   assert.equal(releaseRun.kind, "release");

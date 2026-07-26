@@ -11,7 +11,7 @@ if (
   bodyArgument === undefined
 ) {
   throw new Error(
-    "Usage: node scripts/release-smoke/pin-preview-origin.mjs <repository-root> <run-id> <preview-branch> <deployment-origin> <pr-body>",
+    "Usage: node scripts/release-smoke/pin-preview-origin.mjs <website-root> <run-id> <preview-branch> <deployment-origin> <summary>",
   );
 }
 if (!/^\d+$/u.test(runId)) throw new Error(`Invalid GitHub Actions run id: ${runId}`);
@@ -24,11 +24,11 @@ const previewAlias = previewBranch
   .replaceAll(/[^a-z0-9-]+/gu, "-")
   .replaceAll(/^-+|-+$/gu, "");
 if (previewAlias === "") throw new Error(`Invalid preview branch alias: ${previewBranch}`);
-const branchOrigin = `https://${previewAlias}.drever-website.pages.dev`;
+const branchOrigin = `https://${previewAlias}.drever-release-smoke.pages.dev`;
 const immutableOrigin = new URL(deploymentOrigin);
 if (
   immutableOrigin.protocol !== "https:" ||
-  !/^[0-9a-f]{8}\.drever-website\.pages\.dev$/u.test(immutableOrigin.hostname) ||
+  !/^[0-9a-f]{8}\.drever-release-smoke\.pages\.dev$/u.test(immutableOrigin.hostname) ||
   immutableOrigin.username !== "" ||
   immutableOrigin.password !== "" ||
   immutableOrigin.port !== "" ||
@@ -39,18 +39,11 @@ if (
   throw new Error(`Invalid immutable Cloudflare Pages origin: ${deploymentOrigin}`);
 }
 
-const repositoryRoot = resolve(repositoryArgument);
+const websiteRoot = resolve(repositoryArgument);
 const bodyPath = resolve(bodyArgument);
-const contentRunPath = join(
-  repositoryRoot,
-  "website",
-  "content",
-  "release-smoke",
-  "runs",
-  `${runId}.json`,
-);
-const publicRunRoot = join(repositoryRoot, "website", "public", "release-smoke", "runs", runId);
-const run = JSON.parse(await readFile(contentRunPath, "utf8"));
+const publicRunRoot = join(websiteRoot, "public", "release-smoke", "runs", runId);
+const publicRunPath = join(publicRunRoot, "run.json");
+const run = JSON.parse(await readFile(publicRunPath, "utf8"));
 const caseIds = run.cases.map(({ id }) => {
   if (typeof id !== "string" || !/^[a-z0-9][a-z0-9-]*$/u.test(id)) {
     throw new Error(`Invalid release smoke case id: ${String(id)}`);
@@ -58,8 +51,7 @@ const caseIds = run.cases.map(({ id }) => {
   return id;
 });
 const paths = [
-  contentRunPath,
-  join(publicRunRoot, "run.json"),
+  publicRunPath,
   ...caseIds.map((id) => join(publicRunRoot, id, "case.json")),
   bodyPath,
 ];

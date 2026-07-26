@@ -4,7 +4,7 @@ const exactOrigin = (value, context) => {
   const url = new URL(value);
   if (
     url.protocol !== "https:" ||
-    !url.hostname.endsWith(".drever-website.pages.dev") ||
+    !url.hostname.endsWith(".drever-release-smoke.pages.dev") ||
     url.username !== "" ||
     url.password !== "" ||
     url.port !== "" ||

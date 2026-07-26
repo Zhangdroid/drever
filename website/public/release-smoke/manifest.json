@@ -1,24 +1,5 @@
 {
   "schemaVersion": 1,
-  "latestRunId": "30171876282",
-  "runs": [
-    {
-      "id": "30171876282",
-      "generatedAt": "2026-07-25T19:41:35.331Z",
-      "transcript": "/release-smoke/runs/30171876282/run.json",
-      "version": "0.2.3"
-    },
-    {
-      "id": "30170048518",
-      "generatedAt": "2026-07-25T18:44:27.856Z",
-      "transcript": "/release-smoke/runs/30170048518/run.json",
-      "version": "0.2.2"
-    },
-    {
-      "id": "2026072501",
-      "generatedAt": "2026-07-25T14:27:17.396Z",
-      "transcript": "/release-smoke/runs/2026072501/run.json",
-      "version": "0.2.2"
-    }
-  ]
+  "latestRunId": null,
+  "runs": []
 }

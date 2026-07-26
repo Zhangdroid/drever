@@ -1,0 +1,4 @@
+/release-smoke/*
+  Access-Control-Allow-Origin: *
+  X-Content-Type-Options: nosniff
+  X-Robots-Tag: noindex, nofollow

@@ -14,6 +14,7 @@ dist-ssr
 website/.tanstack/
 website/.output/
 website/.wrangler/
+website/public/release-smoke/runs/
 **/.drever/
 test-results/
 coverage/

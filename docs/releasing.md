@@ -189,25 +189,36 @@ no-network container, and loads the audience, document, and speaker routes in
 Chromium. The guided journey must also produce speaker notes.
 
 Successful runs retain a sanitized conversation, source allowlist, build
-receipts, and the real interactive static decks—never screenshots. A final
-job with no OpenAI secret publishes a review branch containing
-`website/content/release-smoke/` and `website/public/release-smoke/`. The
-existing Cloudflare Pages Git integration first deploys that branch. The job
-reads the matching check for the exact commit, replaces the mutable branch
-alias with Cloudflare's unique hash URL, commits the pinned evidence, and only
-then deploys the pinned report. The workflow summary links that second
-immutable report while its deck links stay on the first immutable deployment.
-Before publishing the summary, the workflow fetches the report, run record,
+receipts, and the real interactive static decks—never screenshots. A final job
+with no OpenAI secret assembles those generated files in its disposable Actions
+workspace and uploads them to the dedicated `drever-release-smoke` Cloudflare
+Pages Direct Upload project. It first publishes a run-specific deck deployment,
+replaces the predictable branch alias with Cloudflare's unique hash URL, and
+then publishes the pinned report as the project's latest production deployment.
+Before publishing the workflow summary, the job fetches the report, run record,
 audience view, document view, and authored source from those exact origins and
 rechecks the release and harness provenance.
-Cloudflare documents these atomic URLs as remaining visitable in the future;
-deletion is an explicit operation rather than a time-based preview expiry. The
-interactive deck and AI-authored source stay on that immutable, isolated Pages
-origin. The production build removes both and embeds the deck cross-origin.
-Human review and a maintainer-created pull request are required before its
-conversation and verification record reaches the production website. GitHub
-combines permission for Actions to create pull requests with permission to
-approve them, so Drever deliberately leaves both disabled.
+
+Generated decks, source, transcripts, and receipts are build artifacts, not
+repository source. None are committed to Git. The Pages deployment is the
+directly browsable record; a 30-day GitHub Actions artifact is retained only as
+a downloadable diagnostic bundle. The workflow adds the immutable report URL
+to the matching GitHub Release, and the public website loads the latest report
+from the isolated Pages origin at runtime. Cloudflare's unique deployment URL
+is the durable review link and remains available until it is explicitly
+deleted.
+
+Create a Cloudflare API token limited to **Account → Cloudflare Pages → Edit**
+for the Drever account, then add these repository secrets:
+
+- `CLOUDFLARE_ACCOUNT_ID`
+- `CLOUDFLARE_API_TOKEN`
+
+The publisher creates the `drever-release-smoke` Direct Upload project on its
+first run, with `main` as the production branch. Keep the existing
+`drever-website` project Git-integrated; Pages does not add Git integration to
+an existing Direct Upload project, so the smoke evidence intentionally uses a
+separate project.
 
 Create a protected GitHub environment named `ai-release-smoke`, limit it to
 the `main` branch, and add a required reviewer. Drever currently reuses the

@@ -15,7 +15,7 @@ const [
   releaseCommit,
   repository,
   resultsArgument,
-  repositoryArgument,
+  websiteArgument,
   previewBranch,
   resultKind,
   harnessCommit,
@@ -27,14 +27,14 @@ if (
   releaseCommit === undefined ||
   repository === undefined ||
   resultsArgument === undefined ||
-  repositoryArgument === undefined ||
+  websiteArgument === undefined ||
   previewBranch === undefined ||
   resultKind === undefined ||
   harnessCommit === undefined ||
   bodyArgument === undefined
 ) {
   throw new Error(
-    "Usage: node scripts/release-smoke/publish-results.mjs <version> <run-id> <release-commit> <repository> <results> <repository-root> <preview-branch> <result-kind> <harness-commit> <pr-body>",
+    "Usage: node scripts/release-smoke/publish-results.mjs <version> <run-id> <release-commit> <repository> <results> <website-root> <preview-branch> <result-kind> <harness-commit> <summary>",
   );
 }
 assertReleaseVersion(version);
@@ -56,10 +56,9 @@ if (resultKind !== "preview" && resultKind !== "release") {
 }
 
 const resultsRoot = resolve(resultsArgument);
-const repositoryRoot = resolve(repositoryArgument);
+const websiteRoot = resolve(websiteArgument);
 const bodyPath = resolve(bodyArgument);
-const contentRoot = join(repositoryRoot, "website", "content", "release-smoke");
-const publicRoot = join(repositoryRoot, "website", "public", "release-smoke");
+const publicRoot = join(websiteRoot, "public", "release-smoke");
 const publicRunRoot = join(publicRoot, "runs", runId);
 const workflowUrl =
   resultKind === "preview"
@@ -71,7 +70,7 @@ const previewAlias = previewBranch
   .replaceAll(/[^a-z0-9-]+/gu, "-")
   .replaceAll(/^-+|-+$/gu, "");
 if (previewAlias === "") throw new Error(`Invalid preview branch alias: ${previewBranch}`);
-const previewOrigin = `https://${previewAlias}.drever-website.pages.dev`;
+const previewOrigin = `https://${previewAlias}.drever-release-smoke.pages.dev`;
 const deckContentSecurityPolicy = [
   "default-src 'none'",
   "base-uri 'self'",
@@ -193,23 +192,7 @@ const run = {
     title: value.title,
   })),
 };
-await mkdir(join(contentRoot, "runs"), { recursive: true });
-await Promise.all([
-  writeFile(join(contentRoot, "runs", `${runId}.json`), json(run), "utf8"),
-  writeFile(join(publicRunRoot, "run.json"), json(run), "utf8"),
-]);
-
-const contentManifestPath = join(contentRoot, "manifest.json");
-const previousContentManifest = await readOptionalJson(contentManifestPath, {
-  schemaVersion: RELEASE_SMOKE_SCHEMA_VERSION,
-  latestRunId: runId,
-  runs: [],
-});
-const contentManifest = mergeReleaseSmokeManifest(previousContentManifest, {
-  id: runId,
-  transcript: `${runId}.json`,
-});
-await writeFile(contentManifestPath, json(contentManifest), "utf8");
+await writeFile(join(publicRunRoot, "run.json"), json(run), "utf8");
 
 const publicManifestPath = join(publicRoot, "manifest.json");
 const previousPublicManifest = await readOptionalJson(publicManifestPath, {
@@ -225,17 +208,14 @@ const publicManifest = mergeReleaseSmokeManifest(previousPublicManifest, {
 });
 await writeFile(publicManifestPath, json(publicManifest), "utf8");
 
-const retainedIds = new Set(contentManifest.runs.map((entry) => entry.id));
-const removedIds = (previousContentManifest.runs ?? [])
+const retainedIds = new Set(publicManifest.runs.map((entry) => entry.id));
+const removedIds = (previousPublicManifest.runs ?? [])
   .map((entry) => entry?.id)
   .filter(
     (id) => typeof id === "string" && /^[a-z0-9][a-z0-9._-]*$/u.test(id) && !retainedIds.has(id),
   );
 await Promise.all(
-  removedIds.flatMap((id) => [
-    rm(join(contentRoot, "runs", `${id}.json`), { force: true }),
-    rm(join(publicRoot, "runs", id), { force: true, recursive: true }),
-  ]),
+  removedIds.map((id) => rm(join(publicRoot, "runs", id), { force: true, recursive: true })),
 );
 
 const deckLinks = cases
@@ -254,8 +234,8 @@ const summary =
 Codex creation journeys against the exact published package. The generation
 harness came from commit \`${harnessCommit}\`; Drever ${version} came from
 release commit \`${releaseCommit}\`.`
-    : `This automated review branch records two real, multi-turn Codex creation journeys against
-the exact published package.`;
+    : `This direct-upload review deployment records two real, multi-turn Codex creation journeys
+against the exact published package.`;
 const provenanceLink =
   resultKind === "preview"
     ? `- [Immutable harness source](${workflowUrl})`
@@ -284,7 +264,7 @@ ${provenanceLink}
 No screenshots or PDFs are stored. Each linked deck is the production static
 build itself. Raw model reasoning and command streams are not published; the
 site receives only the sanitized user/assistant transcript and structured
-receipts.
+receipts. No generated smoke evidence is committed to the repository.
 `,
   "utf8",
 );

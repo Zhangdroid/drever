@@ -5,6 +5,12 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+### Changed
+
+- Moved generated AI release-smoke decks, source, transcripts, and receipts out
+  of Git and into a dedicated Cloudflare Pages Direct Upload deployment, with a
+  short-lived GitHub Actions bundle retained only for diagnostics.
+
 ## [0.2.4] - 2026-07-25
 
 ### Changed

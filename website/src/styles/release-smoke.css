@@ -533,11 +533,18 @@
 }
 
 .release-smoke__archive-empty {
+  display: grid;
   max-width: 33rem;
   margin: 1.8rem 0 0;
+  justify-items: start;
+  gap: 1.25rem;
   color: var(--site-muted);
   font-size: 0.86rem;
   line-height: 1.65;
+}
+
+.release-smoke__archive-empty p {
+  margin: 0;
 }
 
 .release-smoke__archive-list {

@@ -243,22 +243,23 @@ jobs:
           overwrite: true
           retention-days: 30
 
-  propose:
-    name: Publish website results
+  publish:
+    name: Publish review deployment
     needs: build
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
-      checks: read
       contents: write
     env:
       AUTOMATION_ROOT: ${{ github.workspace }}/automation
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      PAGES_PROJECT: drever-release-smoke
       RESULT_SUMMARY: ${{ github.workspace }}/release-smoke-work/result-summary.md
       RELEASE_SMOKE_SOURCE_COMMIT: ${{ inputs.source_commit }}
       RELEASE_SMOKE_VERSION: ${{ inputs.version }}
-      REPOSITORY_ROOT: ${{ github.workspace }}/repository
       RESULTS_ROOT: ${{ github.workspace }}/release-smoke-work/results
-      RESULT_BRANCH: automation-release-smoke-${{ github.run_id }}
+      RESULT_BRANCH: run-${{ github.run_id }}
     steps:
       - name: Check out the automation source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -267,17 +268,16 @@ jobs:
           persist-credentials: false
           ref: ${{ github.sha }}
 
-      - name: Check out main for the result proposal
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          path: repository
-          ref: main
-
-      - name: Set up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - name: Set up Vite+
+        uses: voidzero-dev/setup-vp@250f29ce396baf5e8f24498e17c0dfdebabc26eb # v1
         with:
           node-version: 24.18.0
-          package-manager-cache: false
+          cache: true
+          run-install: false
+
+      - name: Install the review site toolchain
+        working-directory: ${{ env.AUTOMATION_ROOT }}
+        run: vp install --frozen-lockfile
 
       - name: Download the built presentations
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -294,107 +294,93 @@ jobs:
           "$RELEASE_SMOKE_SOURCE_COMMIT"
           "$GITHUB_REPOSITORY"
           "$RESULTS_ROOT"
-          "$REPOSITORY_ROOT"
+          "$AUTOMATION_ROOT/website"
           "$RESULT_BRANCH"
           "release"
           "${{ github.sha }}"
           "$RESULT_SUMMARY"
 
-      - name: Commit the result branch
-        id: commit
-        working-directory: ${{ env.REPOSITORY_ROOT }}
+      - name: Build the isolated review site
+        working-directory: ${{ env.AUTOMATION_ROOT }}
+        run: vp run -F @drever/website build
+
+      - name: Upload the immutable deck deployment
+        id: deck
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git switch -C "$RESULT_BRANCH"
-          git add website/content/release-smoke website/public/release-smoke
-          if git diff --cached --quiet; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          git commit -m "docs(release-smoke): record Drever $RELEASE_SMOKE_VERSION"
-          remote_sha="$(git ls-remote --heads origin "$RESULT_BRANCH" | cut -f1)"
-          git push \
-            --force-with-lease="refs/heads/$RESULT_BRANCH:$remote_sha" \
-            origin \
-            "HEAD:refs/heads/$RESULT_BRANCH"
-          echo "changed=true" >> "$GITHUB_OUTPUT"
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-
-      - name: Resolve the immutable Cloudflare Pages preview
-        if: steps.commit.outputs.changed == 'true'
-        id: pages
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: >
-          echo "origin=$(
-          node "$AUTOMATION_ROOT/scripts/release-smoke/resolve-pages-preview.mjs"
-          "$GITHUB_REPOSITORY"
-          "${{ steps.commit.outputs.sha }}"
-          )" >> "$GITHUB_OUTPUT"
-
-      - name: Verify the immutable deck deployment
-        if: steps.commit.outputs.changed == 'true'
-        run: >
-          node "$AUTOMATION_ROOT/scripts/release-smoke/verify-pages-preview.mjs"
-          "${{ steps.pages.outputs.origin }}"
-          "https://${RESULT_BRANCH}.drever-website.pages.dev"
-          "${{ github.run_id }}"
-          "$RELEASE_SMOKE_VERSION"
-          "$RELEASE_SMOKE_SOURCE_COMMIT"
-          "${{ github.sha }}"
-          "${{ steps.pages.outputs.origin }}"
+          origin="$(
+            node "$AUTOMATION_ROOT/scripts/release-smoke/deploy-pages.mjs" \
+              "$AUTOMATION_ROOT/website/dist/client" \
+              "$PAGES_PROJECT" \
+              "$RESULT_BRANCH" \
+              "${{ github.sha }}" \
+              "Drever $RELEASE_SMOKE_VERSION · run ${{ github.run_id }}"
+          )"
+          echo "origin=$origin" >> "$GITHUB_OUTPUT"
 
       - name: Pin the result to the immutable preview
-        if: steps.commit.outputs.changed == 'true'
-        id: pin
-        working-directory: ${{ env.REPOSITORY_ROOT }}
-        run: |
-          node "$AUTOMATION_ROOT/scripts/release-smoke/pin-preview-origin.mjs" \
-            "$REPOSITORY_ROOT" \
-            "${{ github.run_id }}" \
-            "$RESULT_BRANCH" \
-            "${{ steps.pages.outputs.origin }}" \
-            "$RESULT_SUMMARY"
-          git add website/content/release-smoke website/public/release-smoke
-          git commit -m "docs(release-smoke): pin immutable preview"
-          git push origin "HEAD:refs/heads/$RESULT_BRANCH"
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-
-      - name: Resolve the immutable report preview
-        if: steps.commit.outputs.changed == 'true'
-        id: report
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: >
-          echo "origin=$(
-          node "$AUTOMATION_ROOT/scripts/release-smoke/resolve-pages-preview.mjs"
-          "$GITHUB_REPOSITORY"
-          "${{ steps.pin.outputs.sha }}"
-          )" >> "$GITHUB_OUTPUT"
+          node "$AUTOMATION_ROOT/scripts/release-smoke/pin-preview-origin.mjs"
+          "$AUTOMATION_ROOT/website"
+          "${{ github.run_id }}"
+          "$RESULT_BRANCH"
+          "${{ steps.deck.outputs.origin }}"
+          "$RESULT_SUMMARY"
+
+      - name: Rebuild the report with immutable deck links
+        working-directory: ${{ env.AUTOMATION_ROOT }}
+        run: vp run -F @drever/website build
+
+      - name: Upload the latest report deployment
+        id: report
+        run: |
+          origin="$(
+            node "$AUTOMATION_ROOT/scripts/release-smoke/deploy-pages.mjs" \
+              "$AUTOMATION_ROOT/website/dist/client" \
+              "$PAGES_PROJECT" \
+              "main" \
+              "${{ github.sha }}" \
+              "Drever $RELEASE_SMOKE_VERSION · verified report"
+          )"
+          echo "origin=$origin" >> "$GITHUB_OUTPUT"
 
       - name: Verify the immutable report deployment
-        if: steps.commit.outputs.changed == 'true'
         run: >
           node "$AUTOMATION_ROOT/scripts/release-smoke/verify-pages-preview.mjs"
           "${{ steps.report.outputs.origin }}"
-          "${{ steps.pages.outputs.origin }}"
+          "${{ steps.deck.outputs.origin }}"
           "${{ github.run_id }}"
           "$RELEASE_SMOKE_VERSION"
           "$RELEASE_SMOKE_SOURCE_COMMIT"
           "${{ github.sha }}"
 
       - name: Pin the review report link
-        if: steps.commit.outputs.changed == 'true'
         run: >
           node "$AUTOMATION_ROOT/scripts/release-smoke/pin-report-link.mjs"
           "$RESULT_SUMMARY"
-          "${{ steps.pages.outputs.origin }}"
+          "${{ steps.deck.outputs.origin }}"
           "${{ steps.report.outputs.origin }}"
 
+      - name: Retain a downloadable site bundle
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-smoke-site-${{ github.run_id }}
+          path: ${{ env.AUTOMATION_ROOT }}/website/dist/client
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 30
+
+      - name: Add the immutable report to the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          node "$AUTOMATION_ROOT/scripts/release-smoke/record-release-link.mjs"
+          "$GITHUB_REPOSITORY"
+          "$RELEASE_SMOKE_VERSION"
+          "${{ steps.report.outputs.origin }}"
+          "https://github.com/$GITHUB_REPOSITORY/actions/runs/${{ github.run_id }}"
+
       - name: Publish the review summary
-        if: steps.commit.outputs.changed == 'true'
         run: |
           cat "$RESULT_SUMMARY" >> "$GITHUB_STEP_SUMMARY"
           echo >> "$GITHUB_STEP_SUMMARY"
-          echo "- Result branch: [\`$RESULT_BRANCH\`](https://github.com/$GITHUB_REPOSITORY/tree/$RESULT_BRANCH)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Immutable report: [\`${{ steps.report.outputs.origin }}\`](${{ steps.report.outputs.origin }}/release-smoke/)" >> "$GITHUB_STEP_SUMMARY"

@@ -11,7 +11,6 @@ import {
   siteRoutes,
 } from "../website/site-manifest.ts";
 import { checkShowcases } from "./check-showcases.mjs";
-import { removeReleaseSmokeGeneratedArtifacts } from "./release-smoke/production-boundary.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const websiteOutput = join(root, "website", "dist", "client");
@@ -103,6 +102,19 @@ const decoratePresentation = async (presentation, destination) => {
 const presentationOutput = (presentation) =>
   join(root, "examples", presentation.source, presentation.output ?? "dist");
 
+const assertNoGeneratedReleaseSmokeSource = async () => {
+  const runsRoot = join(root, "website", "public", "release-smoke", "runs");
+  const entries = await readdir(runsRoot).catch((error) => {
+    if (error instanceof Error && "code" in error && error.code === "ENOENT") return [];
+    throw error;
+  });
+  if (entries.length > 0) {
+    throw new Error(
+      "Generated release-smoke artifacts belong in Pages Direct Upload, not website source.",
+    );
+  }
+};
+
 const buildDemos = async () => {
   for (const demo of demoMounts) {
     await run(process.execPath, [dreverBin, "build"], join(root, "examples", demo.source));
@@ -110,6 +122,7 @@ const buildDemos = async () => {
 };
 
 const build = async () => {
+  await assertNoGeneratedReleaseSmokeSource();
   await run("vp", ["run", "build:packages"]);
   await checkShowcases();
   const presentationSources = new Set(
@@ -144,18 +157,11 @@ const assemblePresentations = async () => {
   );
 };
 
-const removeUntrustedDecksFromProduction = async () => {
-  if (process.env.CF_PAGES_BRANCH !== "main" && process.env.DREVER_WEBSITE_PRODUCTION !== "true") {
-    return;
-  }
-
-  await removeReleaseSmokeGeneratedArtifacts(websiteOutput);
-};
-
 const routeOutput = (route) => (route === "/" ? "index.html" : `${route.slice(1)}/index.html`);
 const siteEntryFiles = siteRoutes.map(routeOutput);
 
 const requiredFiles = [
+  "_headers",
   "_redirects",
   "404.html",
   "apple-touch-icon.png",
@@ -338,5 +344,4 @@ const verifyOutput = async () => {
 
 await build();
 await assemblePresentations();
-await removeUntrustedDecksFromProduction();
 await verifyOutput();
