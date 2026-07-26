@@ -72,7 +72,7 @@ export const demoMounts = [
   },
   {
     description:
-      "Three live Spline studies frame persistent structure, a moving object, and ambient depth.",
+      "Three live Spline studies frame persistent structure, pointer response, and ambient depth.",
     id: "spatial",
     label: "Spatial stories",
     slug: "spatial",

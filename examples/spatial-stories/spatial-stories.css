@@ -357,18 +357,6 @@
   text-transform: uppercase;
 }
 
-.spatial-object__caption {
-  position: absolute;
-  z-index: 3;
-  left: 88px;
-  bottom: 42px;
-  color: rgb(244 241 235 / 52%);
-  font-family: "SFMono-Regular", Consolas, ui-monospace, monospace;
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
 .spatial-ambient {
   align-items: end;
 }
@@ -637,6 +625,18 @@
   height: 360px;
 }
 
+.spline-poster--object::before {
+  position: absolute;
+  top: 65px;
+  left: 65px;
+  width: 230px;
+  height: 230px;
+  border-radius: 30px;
+  background: linear-gradient(145deg, #f4f3ef, #c9c8c5);
+  box-shadow: 0 30px 76px rgb(0 0 0 / 28%);
+  content: "";
+}
+
 .spline-poster--object i {
   position: absolute;
   border: 1px solid rgb(255 255 255 / 22%);
@@ -650,43 +650,49 @@
 }
 
 .spline-poster--object i:nth-child(1) {
-  top: 66px;
-  left: 70px;
-  width: 220px;
-  height: 220px;
+  top: 93px;
+  left: 102px;
+  width: 174px;
+  height: 174px;
 }
 
 .spline-poster--object i:nth-child(2) {
-  top: 38px;
-  left: 240px;
-  width: 54px;
-  height: 54px;
+  top: 76px;
+  left: 246px;
+  width: 50px;
+  height: 50px;
   opacity: 0.82;
 }
 
 .spline-poster--object i:nth-child(3) {
-  top: 236px;
-  left: 40px;
-  width: 72px;
-  height: 72px;
+  top: 230px;
+  left: 66px;
+  width: 58px;
+  height: 58px;
   background:
     radial-gradient(circle at 32% 28%, rgb(255 255 255 / 74%), transparent 15%),
-    radial-gradient(circle, #9bffe1, #318f8c 62%, #16465d);
+    radial-gradient(circle, #ff9b88, #d94e75 62%, #68285d);
 }
 
 .spline-poster--object i:nth-child(4) {
-  top: 260px;
-  left: 268px;
-  width: 38px;
-  height: 38px;
+  top: 270px;
+  left: 114px;
+  width: 34px;
+  height: 34px;
+  background:
+    radial-gradient(circle at 32% 28%, rgb(255 255 255 / 74%), transparent 15%),
+    radial-gradient(circle, #ff8c9f, #b83c9a 64%, #512762);
   opacity: 0.66;
 }
 
 .spline-poster--object i:nth-child(5) {
-  top: 120px;
-  left: 16px;
-  width: 30px;
-  height: 30px;
+  top: 295px;
+  left: 151px;
+  width: 24px;
+  height: 24px;
+  background:
+    radial-gradient(circle at 32% 28%, rgb(255 255 255 / 74%), transparent 15%),
+    radial-gradient(circle, #e879ca, #7441bc 66%, #342354);
   opacity: 0.48;
 }
 
@@ -758,16 +764,6 @@
   }
 }
 
-@keyframes spatial-object-canvas {
-  from {
-    transform: translate3d(-8px, 7px, 0) rotate(-0.7deg) scale(1.7);
-  }
-
-  to {
-    transform: translate3d(9px, -9px, 0) rotate(1deg) scale(1.78);
-  }
-}
-
 @keyframes spatial-ambient-drift {
   from {
     transform: translate3d(-1.5%, 0.8%, 0) scale(1.025);
@@ -814,11 +810,11 @@
 }
 
 .spatial-stage[data-mode="object"] .spatial-stage__scene {
-  top: 54px;
-  right: 12px;
-  width: 660px;
-  height: 620px;
-  border-radius: 44px;
+  top: 92px;
+  right: 68px;
+  width: 548px;
+  height: 516px;
+  border-radius: 0;
   opacity: 0.96;
 }
 
@@ -827,8 +823,7 @@
 }
 
 .spatial-stage[data-mode="object"] .spatial-stage__scene .spline-scene__canvas {
-  animation: spatial-object-canvas 6.8s ease-in-out infinite alternate;
-  clip-path: circle(12.5% at 50% 50%);
+  transform: scale(1.34);
 }
 
 .spatial-stage[data-mode="ambient"] .spatial-stage__scene {

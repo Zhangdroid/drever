@@ -179,7 +179,7 @@ export function SplineScene({
         applicationRef.current = application;
         await application.load(scene);
         if (disposed) return;
-        application.setGlobalEvents(false);
+        application.setGlobalEvents(variant === "object");
         setPhase("ready");
         if (variant === "cloner") {
           const objects = application.getAllObjects() as SceneObject[];

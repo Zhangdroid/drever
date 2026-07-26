@@ -4,7 +4,7 @@ This focused Drever study uses two official Spline Viewer scenes and one CC0 Spl
 to demonstrate distinct narrative jobs for live 3D:
 
 1. one persistent scene moves from atmosphere to evidence, then yields as context;
-2. one isolated object carries quiet continuous motion;
+2. one isolated object responds to the pointer while the surrounding composition stays still;
 3. one ambient environment gives the canvas depth without competing with the reading.
 
 Run it after building the workspace packages:
