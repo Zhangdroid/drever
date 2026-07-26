@@ -7,9 +7,10 @@ section, while commit snapshots use the current Unreleased section.
 
 ### Added
 
-- Added a focused Spatial Stories showcase that integrates two official Spline
-  Viewer examples as a persistent Stage scene and a directly manipulable 3D
-  object, with deterministic original posters for non-audience surfaces.
+- Added a focused Spatial Stories showcase that carries one official Spline
+  cloner scene through authored 3D rotations and a directly manipulable final
+  state, with one persistent runtime and deterministic original posters for
+  non-audience surfaces.
 
 ## [0.2.6] - 2026-07-26
 

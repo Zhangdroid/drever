@@ -140,7 +140,7 @@
 .spatial-evidence > header {
   position: relative;
   z-index: 2;
-  width: min(560px, 48%);
+  width: min(520px, 44%);
   padding: 28px 32px 30px;
   border: 1px solid var(--spatial-line);
   border-radius: 18px;
@@ -164,16 +164,6 @@
   color: #cfccd5;
   font-size: 18px;
   line-height: 1.42;
-}
-
-.spatial-evidence__caption {
-  position: absolute;
-  right: 72px;
-  bottom: 52px;
-  color: rgb(244 241 235 / 62%);
-  font-size: 13px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
 }
 
 .spatial-context {
@@ -262,37 +252,37 @@
   line-height: 0.92;
 }
 
-.spline-scene.spatial-interaction__scene {
-  position: absolute;
-  z-index: 1;
-  top: 34px;
-  right: 56px;
-  bottom: 34px;
-  left: 500px;
-  border: 1px solid var(--spatial-line);
-  border-radius: 28px;
-  background: #11121a;
-  box-shadow:
-    0 30px 90px rgb(0 0 0 / 36%),
-    inset 0 1px rgb(255 255 255 / 6%);
-}
-
 .spatial-interaction__prompt {
   position: absolute;
   z-index: 4;
-  bottom: 64px;
+  bottom: 102px;
   left: 88px;
-  max-width: 16ch;
+  max-width: 20ch;
   color: var(--spatial-muted);
   font-size: 17px;
   line-height: 1.35;
 }
 
+[data-drever-slide] .spatial-interaction__source {
+  position: absolute;
+  z-index: 4;
+  bottom: 56px;
+  left: 88px;
+  color: rgb(244 241 235 / 72%);
+  font-size: 13px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+[data-drever-slide] .spatial-interaction__source:is(:hover, :focus-visible) {
+  color: var(--spatial-lime);
+}
+
 .spatial-interaction__payoff {
   position: absolute;
   z-index: 4;
-  bottom: 108px;
-  left: 500px;
+  right: 72px;
+  bottom: 74px;
   width: 360px;
   min-height: 52px;
 }
@@ -365,25 +355,21 @@
 }
 
 .spline-scene__poster,
-.spline-scene__viewer {
+.spline-scene__canvas {
   position: absolute;
   inset: 0;
 }
 
-.spline-scene__viewer {
+.spline-scene__canvas {
   z-index: 2;
+  width: 100%;
+  height: 100%;
   opacity: 0;
   transition: opacity 520ms ease;
 }
 
-.spline-scene[data-phase="ready"] .spline-scene__viewer {
+.spline-scene[data-phase="ready"] .spline-scene__canvas {
   opacity: 1;
-}
-
-.spline-scene__viewer > spline-viewer {
-  display: block;
-  width: 100%;
-  height: 100%;
 }
 
 .spline-scene__poster {
@@ -400,38 +386,6 @@
   opacity: 0;
 }
 
-.spline-scene__caption {
-  position: absolute;
-  z-index: 4;
-  right: 22px;
-  bottom: 18px;
-  left: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: rgb(244 241 235 / 64%);
-  font-size: 12px;
-  line-height: 1.2;
-  pointer-events: none;
-}
-
-.spline-scene__caption a {
-  padding: 8px 10px;
-  border-radius: 999px;
-  background: rgb(12 13 18 / 72%);
-  color: var(--spatial-ink);
-  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
-  font-size: 12px;
-  font-weight: 650;
-  text-decoration: none;
-  pointer-events: auto;
-  backdrop-filter: blur(18px);
-}
-
-.spline-scene__caption a:hover {
-  background: rgb(33 34 45 / 90%);
-}
-
 .spline-poster {
   position: relative;
   width: 420px;
@@ -441,6 +395,7 @@
 
 .spline-poster--cloner {
   transform: rotateX(58deg) rotateZ(-34deg);
+  transition: transform 1050ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .spline-poster--cloner i {
@@ -494,71 +449,6 @@
     linear-gradient(135deg, #f0b27f, #c76a62);
 }
 
-.spline-poster--orbit {
-  display: grid;
-  place-items: center;
-}
-
-.spline-poster--orbit::before,
-.spline-poster--orbit::after {
-  position: absolute;
-  border: 1px solid rgb(239 235 255 / 22%);
-  border-radius: 50%;
-  content: "";
-}
-
-.spline-poster--orbit::before {
-  width: 330px;
-  height: 190px;
-  transform: rotate(-18deg);
-}
-
-.spline-poster--orbit::after {
-  width: 250px;
-  height: 310px;
-  transform: rotate(28deg);
-}
-
-.spline-poster--orbit i:first-child {
-  width: 164px;
-  height: 164px;
-  border-radius: 44% 56% 51% 49%;
-  background:
-    radial-gradient(circle at 38% 32%, rgb(255 255 255 / 78%) 0 6%, transparent 7%),
-    linear-gradient(145deg, #b5a7ff, #6652cc);
-  box-shadow:
-    inset -22px -26px 44px rgb(37 20 98 / 32%),
-    0 35px 70px rgb(0 0 0 / 34%);
-}
-
-.spline-poster--orbit i:not(:first-child) {
-  position: absolute;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--spatial-lime);
-  box-shadow: 0 0 22px rgb(216 255 106 / 34%);
-}
-
-.spline-poster--orbit i:nth-child(2) {
-  top: 52px;
-  right: 72px;
-}
-
-.spline-poster--orbit i:nth-child(3) {
-  bottom: 62px;
-  left: 46px;
-  background: var(--spatial-coral);
-}
-
-.spline-poster--orbit i:nth-child(4) {
-  right: 32px;
-  bottom: 92px;
-  width: 12px;
-  height: 12px;
-  background: var(--spatial-violet);
-}
-
 .spatial-stage {
   position: absolute;
   inset: 0;
@@ -568,41 +458,65 @@
 .spatial-stage__scene {
   position: absolute;
   top: 0;
-  right: -12px;
+  right: -80px;
   width: 760px;
   height: 720px;
   border-radius: 42px 0 0 42px;
   opacity: 0;
-  transform: translate3d(88px, 0, 0);
   transition:
     opacity 720ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 900ms cubic-bezier(0.22, 1, 0.36, 1),
     filter 900ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .spatial-stage[data-mode="opening"] .spatial-stage__scene {
   opacity: 0.88;
-  transform: translate3d(38px, 0, 0);
 }
 
 .spatial-stage[data-mode="evidence"] .spatial-stage__scene {
   opacity: 1;
-  transform: translate3d(-40px, 0, 0);
 }
 
 .spatial-stage[data-mode="context"] .spatial-stage__scene {
-  opacity: 0.46;
-  filter: saturate(0.72) contrast(0.92);
-  transform: translate3d(92px, 28px, 0);
+  opacity: 0.28;
+  filter: saturate(0.62) contrast(0.86);
+}
+
+.spatial-stage[data-mode="interaction"] .spatial-stage__scene {
+  border: 1px solid var(--spatial-line);
+  background: #11121a;
+  box-shadow:
+    0 30px 90px rgb(0 0 0 / 28%),
+    inset 0 1px rgb(255 255 255 / 6%);
+  cursor: grab;
+  opacity: 1;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.spatial-stage[data-mode="interaction"] .spatial-stage__scene:active {
+  cursor: grabbing;
 }
 
 .spatial-stage[data-mode="hidden"] .spatial-stage__scene {
   visibility: hidden;
 }
 
+.spline-scene[data-mode="evidence"] .spline-poster--cloner {
+  transform: rotateX(54deg) rotateY(20deg) rotateZ(-24deg);
+}
+
+.spline-scene[data-mode="context"] .spline-poster--cloner {
+  transform: rotateX(64deg) rotateY(36deg) rotateZ(-38deg);
+}
+
+.spline-scene[data-mode="interaction"] .spline-poster--cloner {
+  transform: rotateX(50deg) rotateY(54deg) rotateZ(-24deg);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .spline-scene__poster,
-  .spline-scene__viewer,
+  .spline-scene__canvas,
+  .spline-poster--cloner,
   .spatial-stage__scene {
     transition: none;
   }

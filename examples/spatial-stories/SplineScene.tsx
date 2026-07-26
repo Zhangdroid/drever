@@ -1,56 +1,60 @@
+import type { Application as SplineApplication, SPEObject } from "@splinetool/runtime";
 import { useDreverRenderMode } from "@drever/core";
-import { useEffect, useRef, useState, type ReactElement, type RefObject } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+  type ReactElement,
+} from "react";
 
-const SPLINE_VIEWER_VERSION = "1.12.98";
-const SPLINE_VIEWER_RUNTIME = `https://unpkg.com/@splinetool/viewer@${SPLINE_VIEWER_VERSION}/build/spline-viewer.js`;
-const RUNTIME_ATTRIBUTE = "data-drever-spline-runtime";
+export type SplineSceneMode = "context" | "evidence" | "hidden" | "interaction" | "opening";
 
 type ScenePhase = "error" | "loading" | "poster" | "ready";
-type SplinePoster = "cloner" | "orbit";
+type SceneObject = SPEObject & {
+  parentUuid?: string;
+  type?: string;
+};
+type Rotation = Readonly<{ x: number; y: number; z: number }>;
+type RotationRecord = Readonly<{ base: Rotation; object: SceneObject }>;
+type DragState = Readonly<{
+  pointerId: number;
+  targets: RotationRecord[];
+  x: number;
+  y: number;
+}>;
+type SplineRuntime = typeof import("@splinetool/runtime");
 
-let runtimePromise: Promise<void> | undefined;
+let runtimePromise: Promise<SplineRuntime> | undefined;
 
-const loadSplineViewer = (): Promise<void> => {
-  if (customElements.get("spline-viewer") !== undefined) return Promise.resolve();
-  if (runtimePromise !== undefined) return runtimePromise;
+const ROTATION_DURATION_MS = 1050;
+const SCENE_SETTLE_MS = 400;
 
-  runtimePromise = new Promise<void>((resolve, reject) => {
-    const existing = document.querySelector<HTMLScriptElement>(
-      `script[${RUNTIME_ATTRIBUTE}="${SPLINE_VIEWER_VERSION}"]`,
-    );
-    existing?.remove();
-
-    const script = document.createElement("script");
-    script.type = "module";
-    script.src = SPLINE_VIEWER_RUNTIME;
-    script.setAttribute(RUNTIME_ATTRIBUTE, SPLINE_VIEWER_VERSION);
-    script.addEventListener(
-      "error",
-      () => {
-        script.remove();
-        reject(new Error("The Spline Viewer runtime could not be loaded."));
-      },
-      { once: true },
-    );
-    script.addEventListener(
-      "load",
-      () => {
-        if (customElements.get("spline-viewer") === undefined) {
-          script.remove();
-          reject(new Error("The Spline Viewer runtime did not register its custom element."));
-          return;
-        }
-        resolve();
-      },
-      { once: true },
-    );
-    document.head.append(script);
-  }).catch((error: unknown) => {
-    runtimePromise = undefined;
-    throw error;
-  });
-
+const loadSplineRuntime = (): Promise<SplineRuntime> => {
+  runtimePromise ??= import("@splinetool/runtime");
   return runtimePromise;
+};
+
+const modeRotations: Record<Exclude<SplineSceneMode, "hidden">, Rotation> = {
+  opening: { x: 0, y: 0, z: 0 },
+  evidence: { x: -0.08, y: 0.34, z: 0.03 },
+  context: { x: 0.12, y: 0.62, z: -0.05 },
+  interaction: { x: -0.14, y: 0.92, z: 0.04 },
+};
+
+const easeOutQuint = (progress: number): number => 1 - (1 - progress) ** 5;
+const mix = (from: number, to: number, progress: number): number => from + (to - from) * progress;
+const readRotation = ({ x, y, z }: Rotation): Rotation => ({ x, y, z });
+
+const selectSceneRoots = (objects: SceneObject[]): SceneObject[] => {
+  const objectIds = new Set(objects.map(({ uuid }) => uuid));
+  const roots = objects.filter(
+    ({ parentUuid }) => parentUuid === undefined || !objectIds.has(parentUuid),
+  );
+  const visualRoots = roots.filter(
+    ({ name, type }) => !/camera|light/i.test(`${name} ${type ?? ""}`),
+  );
+  return visualRoots.length > 0 ? visualRoots : roots;
 };
 
 const useReducedMotion = (authoredPreference?: boolean): boolean => {
@@ -74,80 +78,94 @@ const useReducedMotion = (authoredPreference?: boolean): boolean => {
   return preference !== "allow";
 };
 
-const useOwnerActive = (
-  rootRef: RefObject<HTMLElement | null>,
-  authoredActive?: boolean,
-): boolean => {
-  const [active, setActive] = useState(authoredActive ?? false);
-
-  useEffect(() => {
-    if (authoredActive !== undefined) {
-      setActive(authoredActive);
-      return;
-    }
-
-    const root = rootRef.current;
-    if (root === null) return;
-    const slide = root.closest<HTMLElement>("[data-drever-slide]");
-    const synchronize = (): void =>
-      setActive(slide === null || slide.getAttribute("data-slide-state") === "active");
-    if (slide === null) {
-      synchronize();
-      return;
-    }
-
-    const observer = new MutationObserver(synchronize);
-    observer.observe(slide, {
-      attributeFilter: ["data-slide-state", "hidden"],
-      attributes: true,
-    });
-    synchronize();
-    return () => observer.disconnect();
-  }, [authoredActive, rootRef]);
-
-  return active;
-};
-
 export type SplineSceneProps = Readonly<{
-  active?: boolean;
-  background: string;
   className?: string;
   description: string;
-  eventsTarget?: "global" | "local";
-  hint?: boolean;
   label: string;
-  poster: SplinePoster;
+  mode: SplineSceneMode;
   reducedMotion?: boolean;
   scene: string;
-  sourceHref?: string;
 }>;
 
-/** Loads a remote official Spline example only for the active audience surface. */
+/** Keeps one Spline runtime mounted while the authored slide states reframe its 3D objects. */
 export function SplineScene({
-  active: authoredActive,
-  background,
   className,
   description,
-  eventsTarget,
-  hint = false,
   label,
-  poster,
+  mode,
   reducedMotion: authoredReducedMotion,
   scene,
-  sourceHref,
 }: SplineSceneProps): ReactElement {
   const renderMode = useDreverRenderMode();
-  const rootRef = useRef<HTMLElement>(null);
-  const viewerHostRef = useRef<HTMLDivElement>(null);
-  const active = useOwnerActive(rootRef, authoredActive);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const applicationRef = useRef<SplineApplication>(null);
+  const animationFrameRef = useRef<number>(undefined);
+  const dragRef = useRef<DragState>(null);
+  const modeRef = useRef(mode);
+  const rotationsRef = useRef<RotationRecord[]>([]);
   const reducedMotion = useReducedMotion(authoredReducedMotion);
   const [phase, setPhase] = useState<ScenePhase>("poster");
-  const live = renderMode === "audience" && active && !reducedMotion;
+  const live = renderMode === "audience" && !reducedMotion;
+
+  const stopRotation = (): void => {
+    if (animationFrameRef.current === undefined) return;
+    cancelAnimationFrame(animationFrameRef.current);
+    animationFrameRef.current = undefined;
+  };
+
+  const rotateToMode = (nextMode: SplineSceneMode, immediate = false): void => {
+    stopRotation();
+    if (nextMode === "hidden" || rotationsRef.current.length === 0) return;
+
+    const offset = modeRotations[nextMode];
+    const transitions = rotationsRef.current.map(({ base, object }) => ({
+      from: readRotation(object.rotation),
+      object,
+      to: {
+        x: base.x + offset.x,
+        y: base.y + offset.y,
+        z: base.z + offset.z,
+      },
+    }));
+
+    const apply = (progress: number): void => {
+      transitions.forEach(({ from, object, to }) => {
+        object.rotation.x = mix(from.x, to.x, progress);
+        object.rotation.y = mix(from.y, to.y, progress);
+        object.rotation.z = mix(from.z, to.z, progress);
+      });
+    };
+
+    if (immediate) {
+      apply(1);
+      return;
+    }
+
+    const startedAt = performance.now();
+    const tick = (time: number): void => {
+      const progress = Math.min((time - startedAt) / ROTATION_DURATION_MS, 1);
+      apply(easeOutQuint(progress));
+      if (progress < 1) animationFrameRef.current = requestAnimationFrame(tick);
+      else animationFrameRef.current = undefined;
+    };
+    animationFrameRef.current = requestAnimationFrame(tick);
+  };
 
   useEffect(() => {
-    const host = viewerHostRef.current;
-    if (host === null) return;
-    host.replaceChildren();
+    modeRef.current = mode;
+    const application = applicationRef.current;
+    if (application !== null) {
+      if (mode === "hidden") application.stop();
+      else {
+        application.play();
+        rotateToMode(mode, reducedMotion);
+      }
+    }
+  }, [mode, reducedMotion]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas === null) return;
 
     if (!live) {
       setPhase("poster");
@@ -155,28 +173,30 @@ export function SplineScene({
     }
 
     let disposed = false;
+    let application: SplineApplication | undefined;
+    let initializationTimer: number | undefined;
     setPhase("loading");
 
-    void loadSplineViewer()
-      .then(() => {
+    void loadSplineRuntime()
+      .then(async ({ Application }) => {
         if (disposed) return;
-        const viewer = document.createElement("spline-viewer");
-        const handleLoad = (): void => {
-          if (!disposed) setPhase("ready");
-        };
-        const handleContextLoss = (): void => {
-          if (!disposed) setPhase("error");
-        };
-
-        viewer.setAttribute("aria-label", label);
-        viewer.setAttribute("background", background);
-        if (eventsTarget !== undefined) viewer.setAttribute("events-target", eventsTarget);
-        viewer.setAttribute("loading", "eager");
-        viewer.setAttribute("url", scene);
-        if (hint) viewer.setAttribute("hint", "true");
-        viewer.addEventListener("load-complete", handleLoad, { once: true });
-        viewer.addEventListener("context-loss", handleContextLoss, { once: true });
-        host.replaceChildren(viewer);
+        application = new Application(canvas, { renderMode: "auto" });
+        applicationRef.current = application;
+        await application.load(scene);
+        if (disposed) return;
+        const objects = application.getAllObjects() as SceneObject[];
+        const roots = selectSceneRoots(objects);
+        setPhase("ready");
+        // Let authored Spline start actions materialize cloned geometry before rotating its roots.
+        initializationTimer = window.setTimeout(() => {
+          if (disposed) return;
+          rotationsRef.current = roots.map((object) => ({
+            base: readRotation(object.rotation),
+            object,
+          }));
+          rotateToMode(modeRef.current, true);
+          if (modeRef.current === "hidden") application?.stop();
+        }, SCENE_SETTLE_MS);
       })
       .catch(() => {
         if (!disposed) setPhase("error");
@@ -184,59 +204,72 @@ export function SplineScene({
 
     return () => {
       disposed = true;
-      host.replaceChildren();
+      if (initializationTimer !== undefined) window.clearTimeout(initializationTimer);
+      stopRotation();
+      rotationsRef.current = [];
+      applicationRef.current = null;
+      application?.dispose();
     };
-  }, [background, eventsTarget, hint, label, live, scene]);
+  }, [live, scene]);
+
+  const startDrag = (event: ReactPointerEvent<HTMLElement>): void => {
+    if (mode !== "interaction" || rotationsRef.current.length === 0) return;
+    stopRotation();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    dragRef.current = {
+      pointerId: event.pointerId,
+      targets: rotationsRef.current.map(({ object }) => ({
+        base: readRotation(object.rotation),
+        object,
+      })),
+      x: event.clientX,
+      y: event.clientY,
+    };
+  };
+
+  const drag = (event: ReactPointerEvent<HTMLElement>): void => {
+    const origin = dragRef.current;
+    if (origin === null || event.pointerId !== origin.pointerId) return;
+    const deltaX = (event.clientX - origin.x) * 0.006;
+    const deltaY = (event.clientY - origin.y) * 0.004;
+    origin.targets.forEach(({ base, object }) => {
+      object.rotation.x = base.x + deltaY;
+      object.rotation.y = base.y + deltaX;
+    });
+  };
+
+  const finishDrag = (event: ReactPointerEvent<HTMLElement>): void => {
+    if (dragRef.current?.pointerId !== event.pointerId) return;
+    dragRef.current = null;
+    event.currentTarget.releasePointerCapture(event.pointerId);
+  };
 
   return (
     <figure
       aria-label={description}
       className={["spline-scene", className].filter(Boolean).join(" ")}
+      data-mode={mode}
       data-phase={phase}
-      data-poster={poster}
-      ref={rootRef}
+      onPointerCancel={finishDrag}
+      onPointerDown={startDrag}
+      onPointerMove={drag}
+      onPointerUp={finishDrag}
     >
       <div aria-hidden="true" className="spline-scene__poster">
-        {poster === "cloner" ? (
-          <div className="spline-poster spline-poster--cloner">
-            <i />
-            <i />
-            <i />
-            <i />
-            <i />
-          </div>
-        ) : (
-          <div className="spline-poster spline-poster--orbit">
-            <i />
-            <i />
-            <i />
-            <i />
-          </div>
-        )}
+        <div className="spline-poster spline-poster--cloner">
+          <i />
+          <i />
+          <i />
+          <i />
+          <i />
+        </div>
       </div>
-      <div
+      <canvas
         aria-hidden={phase === "ready" ? undefined : true}
-        className="spline-scene__viewer"
-        ref={viewerHostRef}
+        aria-label={label}
+        className="spline-scene__canvas"
+        ref={canvasRef}
       />
-      {sourceHref === undefined ? null : (
-        <figcaption className="spline-scene__caption">
-          <span aria-live="polite">
-            {renderMode !== "audience"
-              ? "Interactive in Audience View"
-              : phase === "error"
-                ? "Live scene unavailable · poster shown"
-                : phase === "loading"
-                  ? "Loading live 3D"
-                  : phase === "ready"
-                    ? "Drag to orbit · scroll to zoom"
-                    : "Poster shown"}
-          </span>
-          <a href={sourceHref} rel="noreferrer" target="_blank">
-            Remix the scene <span aria-hidden="true">↗</span>
-          </a>
-        </figcaption>
-      )}
     </figure>
   );
 }

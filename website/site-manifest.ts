@@ -71,7 +71,7 @@ export const demoMounts = [
   },
   {
     description:
-      "Two live Spline scenes show how spatial depth can carry atmosphere, evidence, context, and direct inspection.",
+      "One live Spline scene turns through atmosphere, evidence, context, and direct inspection.",
     id: "spatial",
     label: "Spatial stories",
     slug: "spatial",

@@ -18,38 +18,39 @@ visual system treats depth as evidence or interaction rather than permanent spec
 ## Signature moments
 
 1. **A scene can carry the room** → official cloner scene → begins as right-side atmosphere →
-   becomes the centered evidence → docks at lower contrast behind the lifecycle explanation →
-   deterministic cloner poster in reduced-motion, document, speaker, and export surfaces.
-2. **Interaction can change understanding** → official orbit scene → begins as a stable poster →
-   becomes a directly manipulable camera → a Step names the audience's new ownership → same poster
-   plus final statement outside the live audience.
+   turns to expose its repeated structure → settles at lower contrast behind the lifecycle
+   explanation → deterministic cloner poster in reduced-motion, document, speaker, and export
+   surfaces.
+2. **Interaction can change understanding** → the same cloner scene turns to a fourth authored
+   angle → direct drag becomes available only when manipulation is the lesson → a Step names the
+   audience's new ownership → the same poster carries the final meaning outside the live audience.
 
 ## Motion
 
-- Keep both Spline canvases outside native View Transition capture.
-- Let the persistent Stage scene move as live DOM with fixed `760 × 720` bounds. Translate and fade
-  the shell; never resize or stretch its captured geometry.
-- Cut between the persistent and interactive chapters. One WebGL scene is active at a time.
-- Let the audience manipulate the orbit scene directly; do not add automatic camera choreography.
+- Keep the single Spline canvas outside native View Transition capture.
+- Keep the persistent Stage shell fixed at `760 × 720`. Rotate the modeled roots between authored
+  states; never translate, resize, or stretch the canvas to imply a new angle.
+- Let each automatic turn settle before the scene changes narrative jobs.
+- Enable direct drag only on the interaction slide, after the authored turn has established its
+  starting angle.
 - Keep reduced-motion and non-audience surfaces immediately settled.
 
 ## Sources and licensing boundary
 
 - Official Viewer examples and copyable embeds: <https://viewer.spline.design/>
-- Viewer integration documentation:
-  <https://docs.spline.design/exporting-your-scene/web/exporting-as-spline-viewer>
+- Spline Code API documentation:
+  <https://docs.spline.design/exporting-your-scene/web/code-api-for-web>
 - Spline optimization guidance:
   <https://docs.spline.design/exporting-your-scene/how-to-optimize-your-scene>
-- Runtime: `@splinetool/viewer@1.12.98`, loaded from the official documented unpkg entry point.
+- Runtime: `@splinetool/runtime@1.12.98`, installed only by this focused example.
 - Cloner scene:
   <https://prod.spline.design/fJ2ptJKzT-sDkpfO/scene.splinecode>
 - Cloner remix source:
   <https://app.spline.design/file/4ace4b60-c262-4340-a06e-904da30bfa34>
-- Orbit scene remix:
-  <https://app.spline.design/file/5e551c2f-7f10-4a4f-80fc-5b0e6f7f8008>
 
-The remote scenes, runtime, Spline branding, and model assets are not copied into this repository.
-The original CSS posters are the deterministic fallback. Sources were verified on 2026-07-26.
+The remote scene, Spline branding, and model assets are not copied into this repository. The
+version-pinned runtime is bundled by the example, and the original CSS poster is its deterministic
+fallback. Sources were verified on 2026-07-26.
 
 ## Avoid
 

@@ -1,4 +1,3 @@
-import { SplineScene } from "./SplineScene.tsx";
 import "@drever/brand/fonts.css";
 import "@drever/brand/tokens.css";
 import "./spatial-stories.css";
@@ -15,11 +14,11 @@ import "../showcase-return.css";
     </h1>
     <p>Two presentation-native roles for a live 3D scene—without letting it take over the story.</p>
   </header>
-  <span className="spatial-opening__source">Live scene · Spline Viewer</span>
+  <span className="spatial-opening__source">Live scene · Spline Runtime</span>
 </div>
 
 <Note>
-  This first Spline scene lives in the persistent Stage, outside slide snapshots. It establishes the
+  The live Spline scene lives in the persistent Stage, outside slide snapshots. It establishes the
   room as an atmosphere before the deck asks it to explain anything.
 </Note>
 
@@ -32,18 +31,17 @@ import "../showcase-return.css";
   <header>
     <span className="spatial-kicker">01 · Scene as evidence</span>
     <h2>Repetition makes scale visible.</h2>
-    <p>The field moves into the center because the structure itself is now the point.</p>
+    <p>The field turns toward the room because the structure itself is now the point.</p>
   </header>
   <span className="spatial-scene-alternative">
     The visual is a field of repeated rounded forms whose shared shape makes the system's scale
     immediately legible.
   </span>
-  <span className="spatial-evidence__caption">One scene · one focal job</span>
 </div>
 
 <Note>
-  The same live DOM becomes the evidence. Only its placement and visual priority change; the scene
-  is not captured, reloaded, or stretched through a View Transition.
+  The same live DOM becomes the evidence. Only its angle and visual priority change; the scene is
+  not captured, reloaded, or stretched through a View Transition.
 </Note>
 
 ---
@@ -87,33 +85,31 @@ import "../showcase-return.css";
 <SlideTransition from="previous" mode="local" />
 <SlideTransition from="next" mode="local" />
 
-<div aria-label="Put the object in the audience's hands" className="spatial-slide spatial-interaction">
+<div aria-label="Let the audience turn the same spatial scene" className="spatial-slide spatial-interaction">
   <header>
     <span className="spatial-kicker">02 · Scene as interaction</span>
-    <h2>Put the object in their hands.</h2>
+    <h2>Now hand them the point of view.</h2>
   </header>
 
-<SplineScene
-  background="#11121a"
-  className="spatial-interaction__scene"
-  description="An official Spline character scene that the audience can orbit and zoom"
-  hint
-  label="Interactive 3D character"
-  poster="orbit"
-  scene="https://prod.spline.design/U9O6K7fXziMEU7Wu/scene.splinecode"
-  sourceHref="https://app.spline.design/file/5e551c2f-7f10-4a4f-80fc-5b0e6f7f8008"
-/>
+<p className="spatial-interaction__prompt">Drag the same scene to choose your own angle.</p>
 
-<p className="spatial-interaction__prompt">Audience View: drag to orbit.</p>
+<Step at={1} className="spatial-interaction__payoff">
+  <span>The audience now owns the point of view.</span>
+</Step>
 
-  <Step at={1} className="spatial-interaction__payoff">
-    <span>The audience now owns the camera.</span>
-  </Step>
+  <a
+    className="spatial-interaction__source"
+    href="https://app.spline.design/file/4ace4b60-c262-4340-a06e-904da30bfa34"
+    rel="noreferrer"
+    target="_blank"
+  >
+    Remix the official scene <span aria-hidden="true">↗</span>
+  </a>
 </div>
 
 <Note>
-  Let someone drag and zoom before advancing once. Direct manipulation is the lesson here, so the
-  scene—not presentation navigation—owns the camera. The Step then names what changed.
+  Let someone drag the same object they have watched across the previous three slides. Direct
+  manipulation is the lesson here, so the scene—not a surprise character—owns the point of view.
 </Note>
 
 ---
