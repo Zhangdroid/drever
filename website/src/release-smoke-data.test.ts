@@ -7,6 +7,7 @@ import {
   parseReleaseSmokeData,
   parseReleaseSmokeRun,
   readableReleaseSmokeMessage,
+  releaseSmokeHistory,
   resolveReleaseSmokeOrigin,
 } from "./release-smoke-data";
 
@@ -97,6 +98,33 @@ describe("release smoke data", () => {
     expect(parseReleaseSmokeRun({ ...runSource, kind: "preview" }).kind).toBe("preview");
   });
 
+  it("hides a seed preview after its source commit has a release run", () => {
+    const release = parseReleaseSmokeRun(runSource);
+    const preview = {
+      ...release,
+      id: "preview-run",
+      kind: "preview" as const,
+    };
+
+    expect(releaseSmokeHistory({ latest: release, runs: [release, preview] })).toEqual([]);
+    expect(releaseSmokeHistory({ latest: preview, runs: [preview] })).toEqual([]);
+  });
+
+  it("keeps previews that have not been superseded by the same release commit", () => {
+    const latest = parseReleaseSmokeRun(runSource);
+    const preview = {
+      ...latest,
+      id: "preview-run",
+      kind: "preview" as const,
+      release: {
+        ...latest.release,
+        commit: "different-release-commit",
+      },
+    };
+
+    expect(releaseSmokeHistory({ latest, runs: [latest, preview] })).toEqual([preview]);
+  });
+
   it("rejects manifest and transcript mismatches", () => {
     expect(() =>
       parseReleaseSmokeData(
@@ -137,6 +165,16 @@ describe("release smoke data", () => {
     sameOriginRun.cases[0]!.deck.audience = "/release-smoke/runs/1/guided/deck/";
 
     expect(() => parseReleaseSmokeRun(sameOriginRun)).toThrow(
+      "must use an isolated Drever Pages origin",
+    );
+  });
+
+  it("rejects mutable branch aliases as archival deck evidence", () => {
+    const branchRun = structuredClone(runSource);
+    branchRun.cases[0]!.deck.audience =
+      "https://automation-release-smoke-1.drever-website.pages.dev/release-smoke/runs/1/guided/deck/";
+
+    expect(() => parseReleaseSmokeRun(branchRun, legacyReleaseSmokeOrigin)).toThrow(
       "must use an isolated Drever Pages origin",
     );
   });

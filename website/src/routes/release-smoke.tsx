@@ -6,6 +6,7 @@ import { PageHero } from "../components/page-hero";
 import {
   loadReleaseSmokeData,
   readableReleaseSmokeMessage,
+  releaseSmokeHistory,
   type ReleaseSmokeCase,
   type ReleaseSmokeData,
   type ReleaseSmokeRun,
@@ -231,7 +232,7 @@ function PublishedReleaseSmokePage({
   const [selectedCaseId, setSelectedCaseId] = useState(selectedRun.cases[0]?.id ?? "");
   const selectedCase =
     selectedRun.cases.find((scenario) => scenario.id === selectedCaseId) ?? selectedRun.cases[0];
-  const archivedRuns = data.runs.filter((run) => run.id !== latest.id);
+  const archivedRuns = releaseSmokeHistory(data);
 
   if (selectedCase === undefined)
     throw new Error("A release smoke run requires at least one case.");

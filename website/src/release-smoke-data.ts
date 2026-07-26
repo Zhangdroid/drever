@@ -1,5 +1,5 @@
 export const defaultReleaseSmokeOrigin = "https://drever-release-smoke.pages.dev";
-export const legacyReleaseSmokeOrigin = "https://8bf3dcda.drever-website.pages.dev";
+export const legacyReleaseSmokeOrigin = "https://3cc63cd1.drever-website.pages.dev";
 
 export type ReleaseSmokeCaseMode = "guided" | "surprise-me";
 export type ReleaseSmokeCaseStatus = "failed" | "passed";
@@ -54,6 +54,16 @@ export interface ReleaseSmokeData {
   latest: ReleaseSmokeRun | null;
   runs: ReleaseSmokeRun[];
 }
+
+export const releaseSmokeHistory = ({ latest, runs }: ReleaseSmokeData): ReleaseSmokeRun[] => {
+  const releasedCommits = new Set(
+    runs.filter((run) => run.kind === "release").map((run) => run.release.commit),
+  );
+  return runs.filter(
+    (run) =>
+      run.id !== latest?.id && !(run.kind === "preview" && releasedCommits.has(run.release.commit)),
+  );
+};
 
 export const readableReleaseSmokeMessage = (value: string): string =>
   value
@@ -148,6 +158,10 @@ const expectUrl = (value: unknown, context: string): string => {
 const pagesProjectHost = (hostname: string, projectHostname: string) =>
   hostname === projectHostname || hostname.endsWith(`.${projectHostname}`);
 
+const immutablePagesDeploymentHost = (hostname: string, projectHostname: string) =>
+  hostname === projectHostname ||
+  new RegExp(`^[a-f\\d]{8}\\.${projectHostname.replaceAll(".", "\\.")}$`, "u").test(hostname);
+
 const expectUntrustedDeckUrl = (
   value: unknown,
   context: string,
@@ -165,8 +179,10 @@ const expectUntrustedDeckUrl = (
     url.protocol !== "https:" ||
     url.username !== "" ||
     url.password !== "" ||
-    ![configuredHostname, defaultHostname, legacyHostname].some((hostname) =>
-      pagesProjectHost(url.hostname, hostname),
+    !(
+      url.hostname === configuredHostname ||
+      immutablePagesDeploymentHost(url.hostname, defaultHostname) ||
+      immutablePagesDeploymentHost(url.hostname, legacyHostname)
     )
   ) {
     throw new Error(`${context} must use an isolated Drever Pages origin.`);

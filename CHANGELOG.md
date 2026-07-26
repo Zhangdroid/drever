@@ -11,6 +11,12 @@ section, while commit snapshots use the current Unreleased section.
   of Git and into a dedicated Cloudflare Pages Direct Upload deployment, with a
   short-lived GitHub Actions bundle retained only for diagnostics.
 
+### Fixed
+
+- Restored the public release-smoke decks from their immutable Pages deployment
+  and hid bootstrap previews once the same package commit has a formal release
+  run.
+
 ## [0.2.4] - 2026-07-25
 
 ### Changed
