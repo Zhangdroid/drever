@@ -420,6 +420,8 @@ describe("generated private application", () => {
       expect(source).toContain("? await createDocument(presentationOptions)");
       expect(source).toContain('container.removeAttribute("data-drever-ready")');
       expect(source).toContain('container.setAttribute("data-drever-ready", "")');
+      expect(source).toContain("globalThis.__dreverExperimentalTextLayout");
+      expect(source).toContain('"virtual:drever/experimental-text-layout"');
       expect(source).not.toContain("console.error");
       expect(html).not.toContain("data-drever-export-bootstrap");
 
@@ -521,6 +523,8 @@ describe("generated private application", () => {
       expect(source).toContain("globalThis.__dreverExportHandle");
       expect(source).not.toContain("createViewer");
       expect(source).not.toContain("createSpeaker");
+      expect(source).not.toContain("__dreverExperimentalTextLayout");
+      expect(source).not.toContain("virtual:drever/experimental-text-layout");
       expect(source).not.toContain('from "virtual:drever/runtime"');
       expect(source).not.toContain("data-drever-dev-source");
     } finally {

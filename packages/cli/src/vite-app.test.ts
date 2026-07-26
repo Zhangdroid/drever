@@ -12,6 +12,7 @@ describe("resolveFrameworkViteConfig", () => {
     const config = resolveFrameworkViteConfig();
 
     expect(config.dedupe).toEqual(["react", "react-dom"]);
+    expect(config.exclude).toEqual(["@chenglou/pretext"]);
     expect(config.warmup).toEqual(["./entry.js"]);
     expect(config.optimize).toEqual([
       "drever",
@@ -27,6 +28,12 @@ describe("resolveFrameworkViteConfig", () => {
     expect(
       config.aliases.find(({ find }) => find instanceof RegExp && find.test("drever"))?.replacement,
     ).toMatch(/packages\/cli\/(?:dist\/runtime\.mjs|src\/runtime\.ts)$/u);
+    expect(
+      config.aliases.find(
+        ({ find }) =>
+          find instanceof RegExp && find.test("virtual:drever/experimental-text-layout"),
+      )?.replacement,
+    ).toMatch(/packages\/cli\/(?:dist|src)\/experimental-text-layout\.(?:mjs|ts)$/u);
     expect(
       config.aliases
         .filter(({ find }) => find instanceof RegExp && find.test("react"))

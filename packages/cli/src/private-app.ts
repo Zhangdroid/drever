@@ -511,6 +511,13 @@ try {
 container.setAttribute("data-drever-ready", "");
 
 if (import.meta.hot) {
+  const runExperimentalTextLayoutAudit = async () => {
+    const { auditExperimentalTextLayout } = await import(
+      "virtual:drever/experimental-text-layout"
+    );
+    return auditExperimentalTextLayout(container);
+  };
+  globalThis.__dreverExperimentalTextLayout = runExperimentalTextLayoutAudit;
   let stopPublishingCurrentPosition;
   if (
     typeof presentation.getPosition === "function" &&
@@ -658,6 +665,9 @@ if (import.meta.hot) {
     publishCurrentPosition();
   }
   import.meta.hot.dispose(() => {
+    if (globalThis.__dreverExperimentalTextLayout === runExperimentalTextLayoutAudit) {
+      delete globalThis.__dreverExperimentalTextLayout;
+    }
     stopPublishingCurrentPosition?.();
     void presentation.destroy().catch(reportPresentationError);
   });
