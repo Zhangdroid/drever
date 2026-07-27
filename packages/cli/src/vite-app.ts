@@ -22,6 +22,9 @@ import { writeStaticDeckRoutes } from "./static-routes.ts";
 const workspaceFallbacks = Object.freeze({
   "drever/runtime": "../src/runtime.ts",
   "@drever/client": "../../client/src/index.ts",
+  "@drever/client/audience": "../../client/src/audience.ts",
+  "@drever/client/document": "../../client/src/document.ts",
+  "@drever/client/speaker": "../../client/src/speaker-entry.ts",
   "@drever/client/styles.css": "../../client/styles.css",
   "@drever/core": "../../core/src/index.ts",
   "@drever/designs/basic/layouts": "../../designs/src/basic/layouts.tsx",
@@ -36,6 +39,9 @@ const workspaceFallbacks = Object.freeze({
 const optimizedFrameworkDependencies = Object.freeze([
   "drever",
   "@drever/client",
+  "@drever/client/audience",
+  "@drever/client/document",
+  "@drever/client/speaker",
   "@drever/core",
   "@drever/designs/basic/layouts",
   "react",
@@ -79,6 +85,18 @@ const frameworkAliases = (): readonly Alias[] => [
     replacement: experimentalTextLayoutFile(),
   },
   { find: /^drever$/u, replacement: packageFile("drever/runtime") },
+  {
+    find: /^@drever\/client\/audience$/u,
+    replacement: packageFile("@drever/client/audience"),
+  },
+  {
+    find: /^@drever\/client\/document$/u,
+    replacement: packageFile("@drever/client/document"),
+  },
+  {
+    find: /^@drever\/client\/speaker$/u,
+    replacement: packageFile("@drever/client/speaker"),
+  },
   {
     find: /^@drever\/client\/styles\.css$/u,
     replacement: packageFile("@drever/client/styles.css"),
@@ -163,6 +181,7 @@ const inlineConfig = (
     configFile: false,
     optimizeDeps: { exclude: [...framework.exclude], include: [...framework.optimize] },
     plugins: [projectModuleResolver(project.root), ...plugins, ...project.plugins],
+    publicDir: join(project.root, "public"),
     resolve: { alias: aliases, dedupe: [...framework.dedupe] },
     root: appRoot,
     server: {
@@ -261,12 +280,13 @@ export const resolveSpeakerUrls = (resolvedUrls: ResolvedServerUrls | null): rea
 
 /** @internal Converts author-facing minutes into the speaker runtime's millisecond contract. */
 export const resolvePrivateAppOptions = (
-  config: Pick<DreverConfig, "canvas" | "focusTools" | "rehearsal" | "stage">,
+  config: Pick<DreverConfig, "canvas" | "deck" | "focusTools" | "rehearsal" | "stage">,
   root = ".",
 ): PrivateAppOptions => {
   const targetDurationMinutes = config.rehearsal?.targetDurationMinutes;
   return Object.freeze({
     ...(config.canvas === undefined ? {} : { canvas: config.canvas }),
+    ...(config.deck === undefined ? {} : { deck: config.deck }),
     ...(config.focusTools === undefined ? {} : { focusTools: config.focusTools }),
     ...(targetDurationMinutes === undefined
       ? {}
@@ -304,7 +324,7 @@ export const buildDreverProject = async (
       project.config.build?.sourcemap ?? false,
       options.quiet === true ? "silent" : undefined,
     );
-    await writeStaticDeckRoutes(project.outDir, manifest);
+    await writeStaticDeckRoutes(project.outDir, manifest, project.config.deck);
   } catch (cause) {
     throw buildFailure(cause, project, project.outDir);
   } finally {

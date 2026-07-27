@@ -47,13 +47,71 @@
   --drever-theme-code-canvas: var(--drever-ledger-code);
   --drever-theme-code-ink: var(--drever-ledger-code-ink);
   --drever-theme-radius: 6px;
-  font-family: Aptos, "Segoe UI", "Helvetica Neue", Arial, ui-sans-serif, system-ui, sans-serif;
+  --drever-theme-font-display-latin: Arial, "Helvetica Neue", "Segoe UI";
+  --drever-theme-font-body-latin: Aptos, "Segoe UI", "Helvetica Neue", Arial;
+  --drever-theme-font-cjk-sans-zh-hans:
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC";
+  --drever-theme-font-cjk-sans-zh-hant:
+    "PingFang TC", "PingFang HK", "Heiti TC", "Microsoft JhengHei", "Noto Sans CJK TC",
+    "Noto Sans TC";
+  --drever-theme-font-cjk-sans-ja:
+    "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, "Noto Sans CJK JP",
+    "Noto Sans JP";
+  --drever-theme-font-cjk-sans-ko:
+    "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans CJK KR", "Noto Sans KR";
+  --drever-theme-font-cjk-sans: var(--drever-theme-font-cjk-sans-zh-hans);
+  --drever-theme-font-cjk-title-weight: 700;
+  --drever-theme-font-cjk-title-line-height: 1.15;
+  --drever-theme-font-cjk-body-line-height: 1.58;
+  font-family:
+    var(--drever-theme-font-body-latin), var(--drever-theme-font-cjk-sans), ui-sans-serif,
+    system-ui, sans-serif;
   font-feature-settings:
     "tnum" 1,
     "lnum" 1;
   font-variant-numeric: tabular-nums lining-nums;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+}
+
+:where(:root:has(.drever-viewer), .drever-viewer):lang(zh-Hant),
+:where(:root:has(.drever-viewer), .drever-viewer):lang(zh-TW),
+:where(:root:has(.drever-viewer), .drever-viewer):lang(zh-HK),
+:where(:root:has(.drever-viewer), .drever-viewer):lang(zh-MO) {
+  --drever-theme-font-cjk-sans: var(--drever-theme-font-cjk-sans-zh-hant);
+}
+
+:where(:root:has(.drever-viewer), .drever-viewer):lang(ja) {
+  --drever-theme-font-cjk-sans: var(--drever-theme-font-cjk-sans-ja);
+}
+
+:where(:root:has(.drever-viewer), .drever-viewer):lang(ko) {
+  --drever-theme-font-cjk-sans: var(--drever-theme-font-cjk-sans-ko);
+}
+
+[data-drever-slide] :lang(zh) {
+  --drever-theme-font-cjk-sans: var(--drever-theme-font-cjk-sans-zh-hans);
+}
+
+[data-drever-slide] :lang(zh-Hant),
+[data-drever-slide] :lang(zh-TW),
+[data-drever-slide] :lang(zh-HK),
+[data-drever-slide] :lang(zh-MO) {
+  --drever-theme-font-cjk-sans: var(--drever-theme-font-cjk-sans-zh-hant);
+}
+
+[data-drever-slide] :lang(ja) {
+  --drever-theme-font-cjk-sans: var(--drever-theme-font-cjk-sans-ja);
+}
+
+[data-drever-slide] :lang(ko) {
+  --drever-theme-font-cjk-sans: var(--drever-theme-font-cjk-sans-ko);
+}
+
+:where([data-drever-slide] [lang]):where(:lang(zh), :lang(ja), :lang(ko)) {
+  font-family:
+    var(--drever-theme-font-body-latin), var(--drever-theme-font-cjk-sans), ui-sans-serif,
+    system-ui, sans-serif;
 }
 
 .drever-canvas {
@@ -141,7 +199,9 @@
 [data-drever-slide] :where(h1, h2, h3, h4, h5, h6) {
   max-width: 18ch;
   color: var(--drever-ledger-ink);
-  font-family: Arial, "Helvetica Neue", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  font-family:
+    var(--drever-theme-font-display-latin), var(--drever-theme-font-cjk-sans), ui-sans-serif,
+    system-ui, sans-serif;
   font-weight: 760;
   letter-spacing: -0.045em;
   text-wrap: balance;
@@ -578,7 +638,9 @@
 
 [data-drever-slide] .drever-ledger-metric__value {
   color: var(--drever-ledger-metric-tone);
-  font-family: Arial, "Helvetica Neue", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  font-family:
+    var(--drever-theme-font-display-latin), var(--drever-theme-font-cjk-sans), ui-sans-serif,
+    system-ui, sans-serif;
   font-size: clamp(104px, 10vw, 154px);
   font-weight: 790;
   letter-spacing: -0.072em;
@@ -756,6 +818,23 @@
 
 [data-drever-slide] :where(:lang(zh), :lang(ja), :lang(ko)) {
   letter-spacing: normal;
+  text-transform: none;
+}
+
+[data-drever-slide] :where(h1, h2, h3, h4, h5, h6):where(:lang(zh), :lang(ja), :lang(ko)) {
+  font-family:
+    var(--drever-theme-font-display-latin), var(--drever-theme-font-cjk-sans), ui-sans-serif,
+    system-ui, sans-serif;
+  font-weight: var(--drever-theme-font-cjk-title-weight);
+  line-height: var(--drever-theme-font-cjk-title-line-height);
+}
+
+[data-drever-slide]
+  :where(p, li, blockquote, figcaption, th, td):where(:lang(zh), :lang(ja), :lang(ko)) {
+  font-family:
+    var(--drever-theme-font-body-latin), var(--drever-theme-font-cjk-sans), ui-sans-serif,
+    system-ui, sans-serif;
+  line-height: var(--drever-theme-font-cjk-body-line-height);
 }
 
 [data-drever-slide] ::selection {

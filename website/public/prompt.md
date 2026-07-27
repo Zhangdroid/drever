@@ -66,6 +66,13 @@ topic has an established visual language and research is allowed, consult curren
 sources for color, typography, imagery, and motion cues. Respect asset and font licenses, and create
 an original interpretation instead of copying a website.
 
+Create or update `drever.config.ts` so `deck.lang` matches the authored presentation language using
+a valid BCP 47 tag. Add the concise published title and description when known, choose `dir` when
+the writing direction needs to be explicit, and include icon or social preview URLs only when real
+assets exist. Pair every social preview image with concise alternative text. When that image is a
+local `public/` asset, also set `deck.url` to the real canonical public URL so link-preview metadata
+is absolute. Never leave a non-English deck declared as English.
+
 Unless the user explicitly asks for a fast plain draft, use the project-local design workflow for a
 subject-led visual system rather than stopping at a generic preset. Plan a few signature moments
 that make the subject recognizable, then support them with quieter slides. A signature scene must

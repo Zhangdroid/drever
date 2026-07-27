@@ -20,7 +20,7 @@ function Page() {
       <DocMdx content={Content} />
       <ManualSetup />
       <DocNext
-        description="Keep zero config or choose the exact project controls you need."
+        description="Keep the generated metadata config small or add only the project controls you need."
         href="/docs/configuration/"
         label="Configuration"
       />

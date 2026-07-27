@@ -1,4 +1,5 @@
 import { defineTheme } from "@drever/compiler";
+import { CJK_HANDWRITTEN_FONT_STACKS } from "../cjk-typography.ts";
 
 const PACKAGE = "@drever/designs/fieldnote";
 
@@ -58,11 +59,16 @@ export const theme = defineTheme({
       codeInk: "#f8f4e8",
     },
     typography: {
-      display: "Caveat, Kaiti SC, STKaiti, KaiTi, Bradley Hand, Segoe Print, cursive",
-      body: "Caveat, Kaiti SC, STKaiti, KaiTi, Bradley Hand, Segoe Print, cursive",
+      display: "Caveat, Bradley Hand, Segoe Print, cursive",
+      body: "Caveat, Bradley Hand, Segoe Print, cursive",
       mono: "SFMono-Regular, Consolas, ui-monospace, monospace",
       titleSize: 88,
       bodySize: 30,
+      cjk: {
+        handwritten: CJK_HANDWRITTEN_FONT_STACKS,
+        titleLineHeight: 1.15,
+        bodyLineHeight: 1.5,
+      },
     },
     space: { slideX: 108, slideY: 82, rhythm: 24 },
     shape: { radius: 5, borderWidth: 1 },

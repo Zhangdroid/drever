@@ -8,6 +8,9 @@ to use the installed `drever-create-deck` skill. In Codex, paste:
 In Claude Code, use `/drever-create-deck` instead of `$drever-create-deck`.
 
 The editable presentation lives in `slides.mdx`.
+The typed `drever.config.ts` starts with an explicit English language contract. The agent
+will update its language, direction, title, and sharing metadata to match the
+presentation it authors.
 
 ## Manual commands
 

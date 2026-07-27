@@ -5,8 +5,47 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-26
+
+### Added
+
+- Added typed deck document metadata for canonical URL, language, direction,
+  title, description, icon, and social previews; production builds now derive
+  an omitted title from the first slide, preserve that language in tagged PDF
+  export, require an explicit authored language for web/PDF delivery, validate
+  local public metadata assets, and emit absolute link-preview image URLs at
+  every static route.
+- Added public audience, document, and speaker client entrypoints so generated
+  applications can load only the selected presentation JavaScript runtime.
+- Added a scheduled full browser suite alongside focused pull-request coverage,
+  plus concise project setup, contribution templates, ownership, and community
+  guidance for the public repository.
+
+### Changed
+
+- Added explicit CJK font stacks and language-aware tracking, casing, and
+  leading to every official design study, including locale-correct Simplified
+  Chinese, Traditional Chinese, Japanese, and Korean glyph selection for both
+  whole decks and mixed-language content.
+- Split generated JavaScript by presentation surface; the speaker chunk also
+  avoids audience-only controls while all surfaces retain the shared client
+  stylesheet.
+- Kept Vite+ inside the repository toolchain while publishing the CLI against
+  upstream Vite 8, and reduced the PDF automation dependency to Playwright Core
+  with a Drever-owned command that installs its exact matching Chromium
+  revision without the unused headless-shell payload.
+
 ### Fixed
 
+- Preserved Chinese, Japanese, and Korean glyphs in PDF exports with
+  export-safe locale-specific sans, serif, and handwritten fallback stacks.
+- Kept fixed English presentation controls, loading states, and browser notices
+  isolated from authored language and writing direction, derived RTL document
+  direction when omitted, and prevented unsupported document-only language
+  tags from breaking PDF browser startup.
+- Kept export-page labels explicitly English without retagging authored slide
+  content, and refreshed manifest titles after development edits instead of
+  leaving browser and navigation labels stale.
 - Kept the adaptive website header in sync with structural dark surfaces across
   documentation, showcase, and release-smoke pages.
 - Gave the Docs handoff card enough reading width and simplified its supporting
@@ -275,7 +314,8 @@ section, while commit snapshots use the current Unreleased section.
 - Added parallel source, unit, package, browser, export, and website checks in CI.
 - Deployed the prerendered public website and per-branch previews through Cloudflare Pages.
 
-[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/Zhangdroid/drever/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Zhangdroid/drever/compare/v0.2.6...v0.3.0
 [0.2.6]: https://github.com/Zhangdroid/drever/compare/v0.2.5...v0.2.6
 [0.2.5]: https://github.com/Zhangdroid/drever/compare/v0.2.4...v0.2.5

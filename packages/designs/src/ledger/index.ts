@@ -1,4 +1,5 @@
 import { defineTheme } from "@drever/compiler";
+import { CJK_SANS_FONT_STACKS } from "../cjk-typography.ts";
 
 const PACKAGE = "@drever/designs/ledger";
 
@@ -80,6 +81,11 @@ export const theme = defineTheme({
       titleSize: 72,
       bodySize: 26,
       numerals: "tabular lining",
+      cjk: {
+        sans: CJK_SANS_FONT_STACKS,
+        titleLineHeight: 1.15,
+        bodyLineHeight: 1.58,
+      },
     },
     space: { slideX: 104, slideY: 78, rhythm: 22 },
     shape: { radius: 6, borderWidth: 1 },

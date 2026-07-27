@@ -39,11 +39,11 @@ Vite+ is a repository implementation detail. Public configuration exposes
 Drever concepts and a curated subset of common settings. A separate adapter API
 may expose Vite types to plugin developers.
 
-While Vite+ uses its pre-1.0 package version for the Vite-compatible runtime,
-the workspace permits only the tested Vite peer range (`^8` or Vite+ `0.2.5`).
-This temporary exception is not a claim of universal compatibility. The first
-publication must add a clean-consumer install of the packed packages to the
-release gate, so workspace resolution cannot hide a second Vite copy.
+The workspace override exercises the Vite-compatible runtime bundled with
+Vite+, while the published CLI declares upstream Vite 8. Plugin peer ranges
+accept both tested implementations because plugin authors may develop inside a
+Vite+ workspace. The release gate installs the packed packages in a clean
+consumer so workspace resolution cannot hide the public dependency graph.
 
 ## Dependency admission rule
 

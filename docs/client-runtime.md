@@ -12,8 +12,9 @@ visual overview without creating another presentation store.
 ## Generated application entry
 
 The canonical Vite adapter exposes the compiled deck and four private virtual
-module boundaries. The interactive entry combines the viewer-specific modules
-as follows:
+module boundaries. The generated route bootstrap imports the shared deck
+contract eagerly, then loads exactly one interactive surface through an
+explicit client subpath:
 
 The generated project's `drever-env.d.ts` contains this type-only import, so
 TypeScript can resolve those private modules without hand-written shims:
@@ -23,20 +24,19 @@ import "@drever/vite/virtual-modules";
 ```
 
 ```tsx
-import { createDocument, createSpeaker, createViewer } from "@drever/client";
 import "@drever/client/styles.css";
 import { components as registry } from "virtual:drever/mdx-components";
 import { runSetup, theme } from "virtual:drever/runtime";
 import "virtual:drever/styles.css";
 import Content, { deckManifest } from "./slides.mdx";
 
-const container = document.querySelector("#app");
+const container = document.querySelector("#drever-root");
 const base = document.querySelector('meta[name="drever-base"]');
-if (!(container instanceof HTMLElement)) {
-  throw new Error('Drever requires an HTMLElement matching "#app".');
+if (!(container instanceof Element)) {
+  throw new Error("Drever could not find its viewer root.");
 }
 if (!(base instanceof HTMLMetaElement)) {
-  throw new Error("Drever requires its generated route base.");
+  throw new Error("Drever could not find its route base.");
 }
 
 const baseURL = new URL(base.content, document.baseURI);
@@ -58,12 +58,17 @@ const presentationOptions = {
   registry,
   runtime: { runSetup, theme },
 };
-const presentation =
-  routePath === "document"
-    ? await createDocument(presentationOptions)
-    : routePath === "speaker" || routePath.startsWith("speaker/")
-      ? await createSpeaker(presentationOptions)
-      : await createViewer(presentationOptions);
+let presentation;
+if (routePath === "document") {
+  const { createDocument } = await import("@drever/client/document");
+  presentation = await createDocument(presentationOptions);
+} else if (routePath === "speaker" || routePath.startsWith("speaker/")) {
+  const { createSpeaker } = await import("@drever/client/speaker");
+  presentation = await createSpeaker(presentationOptions);
+} else {
+  const { createViewer } = await import("@drever/client/audience");
+  presentation = await createViewer(presentationOptions);
+}
 
 if (import.meta.hot) {
   import.meta.hot.dispose(() => {
@@ -71,6 +76,12 @@ if (import.meta.hot) {
   });
 }
 ```
+
+`@drever/client` remains the complete public facade for direct integrations.
+Generated applications use the surface subpaths so the bootstrap does not
+eagerly import all three interactive entrypoints and Rollup can split them by
+route. Shared React, canvas, manifest, theme, and presentation code may still
+become common chunks when it is used by more than one surface.
 
 The inputs have distinct owners:
 
@@ -230,7 +241,8 @@ nonce/hash metadata a first-class build artifact.
 
 The speaker namespace uses `/speaker`, `/speaker/2`, and `/speaker/2/4`. It has
 the same sparse position semantics, history behavior, reloadability, and static
-build entries as the audience namespace.
+route entries as the audience namespace. The route bootstrap loads its separate
+`@drever/client/speaker` chunk only after resolving that namespace.
 
 The document namespace is exactly `/document`. It renders the complete deck and
 uses slide-id fragments only as table-of-contents anchors. A static build emits

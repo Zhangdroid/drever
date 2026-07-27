@@ -4,6 +4,8 @@ export type {
   DreverCanvasConfig,
   DreverConfig,
   DreverConfigExport,
+  DreverDeckConfig,
+  DreverDeckSocialConfig,
   DreverFocusHighlighterConfig,
   DreverFocusLaserConfig,
   DreverFocusPenConfig,

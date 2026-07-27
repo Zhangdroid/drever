@@ -1,4 +1,5 @@
 import { defineTheme } from "@drever/compiler";
+import { CJK_SANS_FONT_STACKS, CJK_SERIF_FONT_STACKS } from "../cjk-typography.ts";
 
 const PACKAGE = "@drever/designs/editorial";
 
@@ -56,10 +57,16 @@ export const theme = defineTheme({
     },
     typography: {
       display: "Iowan Old Style, Palatino Linotype, Book Antiqua, Georgia, serif",
-      body: "Aptos, Inter, ui-sans-serif, system-ui, sans-serif",
+      body: "Aptos, Inter, Segoe UI Variable, ui-sans-serif, system-ui, sans-serif",
       mono: "SFMono-Regular, Consolas, ui-monospace, monospace",
       titleSize: 82,
       bodySize: 27,
+      cjk: {
+        sans: CJK_SANS_FONT_STACKS,
+        serif: CJK_SERIF_FONT_STACKS,
+        titleLineHeight: 1.14,
+        bodyLineHeight: 1.58,
+      },
     },
     space: { slideX: 108, slideY: 82, rhythm: 24 },
     shape: { radius: 2, borderWidth: 1 },

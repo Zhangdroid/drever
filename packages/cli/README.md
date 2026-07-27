@@ -6,7 +6,10 @@ The unscoped Drever command line package. Create an AI-ready project in one comm
 npm create drever@latest my-deck
 ```
 
-The command creates a zero-config MDX deck, a presentation brief, and project-local skills for Codex and Claude Code. It installs dependencies by default; use `--no-install` for automation or `--open codex` / `--open claude` to open the project with a prepared task.
+The command creates a metadata-ready MDX deck, a presentation brief, and
+project-local skills for Codex and Claude Code. It installs dependencies by
+default; use `--no-install` for automation or `--open codex` / `--open claude`
+to open the project with a prepared task.
 
 A project needs only an MDX deck:
 
@@ -31,6 +34,7 @@ npm exec -- drever dev slides.mdx
 npm exec -- drever current --json
 npm exec -- drever mcp slides.mdx
 npm exec -- drever build slides.mdx --json
+npm exec -- drever browser install
 npm exec -- drever export pdf slides.mdx --slides 2-5,8 --steps --output slides-export.pdf --json
 ```
 
@@ -51,13 +55,21 @@ entry, then reports project-local installation and PDF-browser readiness as
 non-blocking warnings. It never installs software or starts a browser.
 
 PDF export uses Playwright's Chromium runtime without loading it for `dev` or
-`build`. Install the browser once with `npx playwright install chromium` (or
-`npx playwright install --with-deps chromium` in CI).
+`build`. Install its exact matching browser once with
+`npm exec -- drever browser install`. Linux environments that also need
+operating-system packages can use
+`npm exec -- drever browser install --with-deps`.
 
 ```ts
 import { defineConfig } from "drever";
 
 export default defineConfig({
+  deck: {
+    title: "Choose what happens next",
+    description: "The evidence and one decision the room can act on.",
+    lang: "en",
+    dir: "ltr",
+  },
   canvas: { width: 1600, height: 900 },
   focusTools: {
     pen: { color: "#ff4f8b", width: 8 },

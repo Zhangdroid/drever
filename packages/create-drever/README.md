@@ -6,7 +6,8 @@ Create an AI-ready Drever presentation:
 npm create drever@latest my-deck
 ```
 
-The generated project contains a zero-config MDX deck, a presentation brief, and project-local skills for Codex and Claude Code.
+The generated project contains a metadata-ready MDX deck, a presentation brief,
+and project-local skills for Codex and Claude Code.
 
 Open the new directory in your preferred coding agent and ask:
 

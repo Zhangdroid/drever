@@ -4,6 +4,9 @@ Drever favors a small, readable implementation over a broad compatibility
 surface. Keep each change easy to inspect and tied to a concrete product
 contract.
 
+Participation in this project is governed by the
+[Code of Conduct](./CODE_OF_CONDUCT.md).
+
 ## Language
 
 Write repository-facing text in English. This includes documentation, source

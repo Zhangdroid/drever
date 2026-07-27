@@ -70,6 +70,65 @@ const runBrowserSupportBootstrap = (
 };
 
 describe("generated private application", () => {
+  it("renders explicit document metadata in the initial HTML and escapes authored values", async () => {
+    const app = await createPrivateApp("/project/slides.mdx", {
+      deck: {
+        title: "Research & <Design>",
+        description: 'A "quoted" summary & result.',
+        lang: "zh-CN",
+        dir: "ltr",
+        icon: "https://slides.test/deck-icon.svg?variant=one&size=32",
+        url: "https://slides.test/research/",
+        social: {
+          image: "https://slides.test/cover.png?size=large&format=webp",
+          imageAlt: "绿色封面 & diagram",
+        },
+      },
+    });
+    try {
+      const [html, source] = await Promise.all([
+        readFile(join(app.root, "index.html"), "utf8"),
+        readFile(join(app.root, "entry.js"), "utf8"),
+      ]);
+
+      expect(html).toContain('<html lang="zh-CN" dir="ltr"');
+      expect(html).toContain("<title>Research &amp; &lt;Design&gt;</title>");
+      expect(html).toContain(
+        '<meta name="description" content="A &quot;quoted&quot; summary &amp; result." />',
+      );
+      expect(html).toContain(
+        '<meta property="og:title" content="Research &amp; &lt;Design&gt;" />',
+      );
+      expect(html).toContain('<link rel="canonical" href="https://slides.test/research/" />');
+      expect(html).toContain('<meta property="og:url" content="https://slides.test/research/" />');
+      expect(html).toContain(
+        '<meta property="og:image" content="https://slides.test/cover.png?size=large&amp;format=webp" />',
+      );
+      expect(html).toContain('<meta property="og:image:alt" content="绿色封面 &amp; diagram" />');
+      expect(html).toContain('<meta name="twitter:card" content="summary_large_image" />');
+      expect(html).toContain(
+        '<link rel="icon" href="https://slides.test/deck-icon.svg?variant=one&amp;size=32" />',
+      );
+      expect(source).toContain('document.title = "Research & <Design>"');
+    } finally {
+      await app.dispose();
+    }
+  });
+
+  it("anchors local document icons to the presentation root during development", async () => {
+    const app = await createPrivateApp("/project/slides.mdx", {
+      deck: { icon: "./icon.svg?v=1", lang: "en" },
+    });
+    try {
+      const html = await readFile(join(app.root, "index.html"), "utf8");
+
+      expect(html).toContain('<link rel="icon" href="/icon.svg?v=1" />');
+      expect(html).not.toContain('<link rel="icon" href="./icon.svg?v=1" />');
+    } finally {
+      await app.dispose();
+    }
+  });
+
   it("gates the presentation before runtime when a required browser primitive is missing", async () => {
     const app = await createPrivateApp("/project/slides.mdx");
     try {
@@ -82,8 +141,19 @@ describe("generated private application", () => {
       expect(html).toContain('data-drever-browser-support="checking"');
       expect(html).toContain("data-drever-browser-support-gate");
       expect(html).toContain("data-drever-loading");
+      expect(html).toContain(
+        'aria-labelledby="drever-browser-support-title"\n      dir="ltr"\n      lang="en"',
+      );
+      expect(html).toContain(
+        'data-drever-loading\n      dir="ltr"\n      lang="en"\n      role="status"',
+      );
       expect(html).toContain('role="status"');
       expect(html).toContain("Preparing the presentation");
+      expect(html).toContain('<html lang="und" dir="ltr"');
+      expect(html).toContain("<title>Drever</title>");
+      expect(html).toContain("viewBox=&#39;0 0 32 32&#39;");
+      expect(html).not.toContain("xmlns='http://www.w3.org/2000/svg'/%3E");
+      expect(source).toContain('document.title = deckManifest.slides[0]?.title ?? "Drever"');
       expect(html.indexOf("data-drever-loading")).toBeLessThan(html.indexOf('src="/entry.js"'));
       expect(source).toContain('document.querySelector("[data-drever-loading]")');
       expect(source).toContain("finally {");
@@ -417,7 +487,7 @@ describe("generated private application", () => {
       );
       expect(source).toContain('const routePath = relativePath.replace(/\\/+$/u, "");');
       expect(source).toContain('routePath === "document"');
-      expect(source).toContain("? await createDocument(presentationOptions)");
+      expect(source).toContain("presentation = await createDocument(presentationOptions)");
       expect(source).toContain('container.removeAttribute("data-drever-ready")');
       expect(source).toContain('container.setAttribute("data-drever-ready", "")');
       expect(source).toContain("globalThis.__dreverExperimentalTextLayout");
@@ -484,16 +554,21 @@ describe("generated private application", () => {
       expect(source).toContain(
         "stage: { background: StageBackground, foreground: StageForeground }",
       );
-      expect(source).toContain("? await createDocument(presentationOptions)");
+      expect(source).toContain("presentation = await createDocument(presentationOptions)");
       expect(source).toContain("const interactiveOptions = {");
       expect(source).toContain("...presentationOptions,");
       expect(source).toContain(
         'focusTools: {"highlighter":{"color":"#ffe66d","opacity":0.28,"width":30},"laser":{"color":"#ff4567"},"pen":{"color":"var(--drever-theme-accent)","width":7.5}}',
       );
       expect(source).toContain(
-        '? await createSpeaker({\n      ...interactiveOptions,\n      rehearsal: {"targetDurationMs":1110000}',
+        'presentation = await createSpeaker({\n      ...interactiveOptions,\n      rehearsal: {"targetDurationMs":1110000}',
       );
-      expect(source).toContain(": await createViewer(interactiveOptions)");
+      expect(source).toContain('await import("@drever/client/document")');
+      expect(source).toContain('await import("@drever/client/speaker")');
+      expect(source).toContain('await import("@drever/client/audience")');
+      expect(source).not.toContain(
+        'import { createDocument, createSpeaker, createViewer } from "@drever/client"',
+      );
       expect(source.match(/focusTools:/gu)).toHaveLength(1);
       expect(source.match(/rehearsal:/gu)).toHaveLength(1);
     } finally {
@@ -504,6 +579,11 @@ describe("generated private application", () => {
   it("keeps the export bundle isolated from interactive viewer runtime code", async () => {
     const app = await createPrivateExportApp("/project/slides.mdx", {
       canvas: { height: 900, width: 1_600 },
+      deck: {
+        description: "A localized export.",
+        lang: "ar",
+        title: "قرار واضح",
+      },
       includeSteps: true,
       stage: { foreground: "/project/Chrome.tsx" },
     });
@@ -514,6 +594,9 @@ describe("generated private application", () => {
       ]);
 
       expect(html).not.toContain("data-drever-loading");
+      expect(html).toContain('<html lang="ar" dir="rtl"');
+      expect(html).toContain("<title>قرار واضح</title>");
+      expect(html).toContain('<meta name="description" content="A localized export." />');
       expect(source).toContain('import { createExport } from "@drever/client"');
       expect(source).toContain('import { runExportSetup } from "virtual:drever/export-runtime"');
       expect(source).toContain("includeSteps: true");
@@ -521,6 +604,7 @@ describe("generated private application", () => {
       expect(source).toContain('import StageForeground from "/project/Chrome.tsx"');
       expect(source).toContain("stage: { foreground: StageForeground }");
       expect(source).toContain("globalThis.__dreverExportHandle");
+      expect(source).toContain('document.title = "قرار واضح"');
       expect(source).not.toContain("createViewer");
       expect(source).not.toContain("createSpeaker");
       expect(source).not.toContain("__dreverExperimentalTextLayout");

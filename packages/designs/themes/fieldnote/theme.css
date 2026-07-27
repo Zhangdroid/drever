@@ -51,9 +51,62 @@
   --drever-theme-code-canvas: var(--drever-fieldnote-code);
   --drever-theme-code-ink: var(--drever-fieldnote-code-ink);
   --drever-theme-radius: 5px;
-  font-family: Caveat, "Kaiti SC", STKaiti, KaiTi, "Bradley Hand", "Segoe Print", cursive;
+  --drever-theme-font-display-latin: Caveat, "Bradley Hand", "Segoe Print";
+  --drever-theme-font-body-latin: Caveat, "Bradley Hand", "Segoe Print";
+  --drever-theme-font-cjk-handwritten-zh-hans: "Kaiti SC", STKaiti, KaiTi, "Noto Serif CJK SC";
+  --drever-theme-font-cjk-handwritten-zh-hant: "Kaiti TC", BiauKai, DFKai-SB, "Noto Serif CJK TC";
+  --drever-theme-font-cjk-handwritten-ja:
+    Klee, "Hiragino Maru Gothic ProN", "Yu Gothic", "Noto Sans CJK JP";
+  --drever-theme-font-cjk-handwritten-ko:
+    "Nanum Pen Script", "Nanum Brush Script", "Apple SD Gothic Neo", "Malgun Gothic",
+    "Noto Sans CJK KR";
+  --drever-theme-font-cjk-handwritten: var(--drever-theme-font-cjk-handwritten-zh-hans);
+  --drever-theme-font-cjk-title-weight: 400;
+  --drever-theme-font-cjk-title-line-height: 1.15;
+  --drever-theme-font-cjk-body-line-height: 1.5;
+  font-family:
+    var(--drever-theme-font-body-latin), var(--drever-theme-font-cjk-handwritten), cursive;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+}
+
+:where(:root:has(.drever-viewer), .drever-viewer):lang(zh-Hant),
+:where(:root:has(.drever-viewer), .drever-viewer):lang(zh-TW),
+:where(:root:has(.drever-viewer), .drever-viewer):lang(zh-HK),
+:where(:root:has(.drever-viewer), .drever-viewer):lang(zh-MO) {
+  --drever-theme-font-cjk-handwritten: var(--drever-theme-font-cjk-handwritten-zh-hant);
+}
+
+:where(:root:has(.drever-viewer), .drever-viewer):lang(ja) {
+  --drever-theme-font-cjk-handwritten: var(--drever-theme-font-cjk-handwritten-ja);
+}
+
+:where(:root:has(.drever-viewer), .drever-viewer):lang(ko) {
+  --drever-theme-font-cjk-handwritten: var(--drever-theme-font-cjk-handwritten-ko);
+}
+
+[data-drever-slide] :lang(zh) {
+  --drever-theme-font-cjk-handwritten: var(--drever-theme-font-cjk-handwritten-zh-hans);
+}
+
+[data-drever-slide] :lang(zh-Hant),
+[data-drever-slide] :lang(zh-TW),
+[data-drever-slide] :lang(zh-HK),
+[data-drever-slide] :lang(zh-MO) {
+  --drever-theme-font-cjk-handwritten: var(--drever-theme-font-cjk-handwritten-zh-hant);
+}
+
+[data-drever-slide] :lang(ja) {
+  --drever-theme-font-cjk-handwritten: var(--drever-theme-font-cjk-handwritten-ja);
+}
+
+[data-drever-slide] :lang(ko) {
+  --drever-theme-font-cjk-handwritten: var(--drever-theme-font-cjk-handwritten-ko);
+}
+
+:where([data-drever-slide] [lang]):where(:lang(zh), :lang(ja), :lang(ko)) {
+  font-family:
+    var(--drever-theme-font-body-latin), var(--drever-theme-font-cjk-handwritten), cursive;
 }
 
 .drever-canvas {
@@ -100,7 +153,8 @@
 [data-drever-slide] :where(h1, h2, h3, h4, h5, h6) {
   max-width: 17ch;
   color: var(--drever-fieldnote-ink);
-  font-family: Caveat, "Kaiti SC", STKaiti, KaiTi, "Bradley Hand", "Segoe Print", cursive;
+  font-family:
+    var(--drever-theme-font-display-latin), var(--drever-theme-font-cjk-handwritten), cursive;
   font-weight: 650;
   letter-spacing: -0.035em;
   text-wrap: balance;
@@ -179,7 +233,8 @@
   left: 0;
   color: var(--drever-fieldnote-blue-strong);
   content: counter(fieldnote-list) ".";
-  font-family: Caveat, "Kaiti SC", STKaiti, KaiTi, "Bradley Hand", "Segoe Print", cursive;
+  font-family:
+    var(--drever-theme-font-display-latin), var(--drever-theme-font-cjk-handwritten), cursive;
   font-size: 1.25em;
   font-weight: 650;
 }
@@ -215,7 +270,8 @@
   max-width: 31ch;
   padding: 14px 22px 14px 36px;
   color: var(--drever-fieldnote-ink);
-  font-family: Caveat, "Kaiti SC", STKaiti, KaiTi, "Bradley Hand", "Segoe Print", cursive;
+  font-family:
+    var(--drever-theme-font-display-latin), var(--drever-theme-font-cjk-handwritten), cursive;
   font-size: 43px;
   font-weight: 570;
   letter-spacing: -0.025em;
@@ -502,13 +558,29 @@
 }
 
 .drever-fieldnote-annotated__notes :where(li, p) {
-  font-family: Caveat, "Kaiti SC", STKaiti, KaiTi, "Bradley Hand", "Segoe Print", cursive;
+  font-family:
+    var(--drever-theme-font-display-latin), var(--drever-theme-font-cjk-handwritten), cursive;
   font-size: 31px;
   line-height: 1.18;
 }
 
 [data-drever-slide] :where(:lang(zh), :lang(ja), :lang(ko)) {
   letter-spacing: normal;
+  text-transform: none;
+}
+
+[data-drever-slide] :where(h1, h2, h3, h4, h5, h6):where(:lang(zh), :lang(ja), :lang(ko)) {
+  font-family:
+    var(--drever-theme-font-display-latin), var(--drever-theme-font-cjk-handwritten), cursive;
+  font-weight: var(--drever-theme-font-cjk-title-weight);
+  line-height: var(--drever-theme-font-cjk-title-line-height);
+}
+
+[data-drever-slide]
+  :where(p, li, blockquote, figcaption, th, td):where(:lang(zh), :lang(ja), :lang(ko)) {
+  font-family:
+    var(--drever-theme-font-body-latin), var(--drever-theme-font-cjk-handwritten), cursive;
+  line-height: var(--drever-theme-font-cjk-body-line-height);
 }
 
 [data-drever-slide] ::selection {

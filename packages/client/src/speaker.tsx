@@ -44,7 +44,7 @@ import type {
 } from "./presentation-state.ts";
 import { resolveRehearsalPace, type RehearsalPace, type RehearsalStore } from "./rehearsal.ts";
 import type { StageComponents } from "./stage.tsx";
-import { Viewer } from "./viewer.tsx";
+import { Viewer } from "./viewer-surface.tsx";
 
 export type SpeakerProps = Readonly<{
   Content: MDXContent;
@@ -132,19 +132,23 @@ const RehearsalPanel = ({
 
   return (
     <div
-      aria-label="Rehearsal timer"
+      aria-labelledby="drever-speaker-rehearsal-label"
       className="drever-speaker__timer"
       data-drever-speaker-controls=""
+      dir="ltr"
       role="group"
     >
+      <span className="drever-visually-hidden" id="drever-speaker-rehearsal-label" lang="en">
+        Rehearsal timer
+      </span>
       <div className="drever-speaker__metric">
-        <span>Elapsed</span>
+        <span lang="en">Elapsed</span>
         <time data-testid="rehearsal-elapsed" dateTime={durationDateTime(snapshot.elapsedMs)}>
           {formatSpeakerElapsedTime(snapshot.elapsedMs)}
         </time>
       </div>
       <div className="drever-speaker__metric drever-speaker__metric--slide">
-        <span>Current slide</span>
+        <span lang="en">Current slide</span>
         <time
           data-testid="rehearsal-current-slide"
           dateTime={durationDateTime(snapshot.currentSlideElapsedMs)}
@@ -157,7 +161,7 @@ const RehearsalPanel = ({
           className="drever-speaker__metric drever-speaker__metric--target"
           data-rehearsal-pace={overtime > 0 ? "over" : "remaining"}
         >
-          <span>{targetLabel}</span>
+          <span lang="en">{targetLabel}</span>
           <time data-testid="rehearsal-pace" dateTime={durationDateTime(targetValue)}>
             {formatSpeakerElapsedTime(targetValue)}
           </time>
@@ -168,15 +172,18 @@ const RehearsalPanel = ({
           className="drever-speaker__metric drever-speaker__metric--pace"
           data-rehearsal-status={pace}
         >
-          <span>Pace</span>
-          <output data-testid="rehearsal-status">{paceLabel(pace)}</output>
+          <span lang="en">Pace</span>
+          <output data-testid="rehearsal-status" lang="en">
+            {paceLabel(pace)}
+          </output>
         </div>
       )}
       <label className="drever-speaker__target">
-        <span>Target min</span>
+        <span lang="en">Target min</span>
         <input
           aria-label="Target duration in minutes"
           data-testid="rehearsal-target"
+          lang="en"
           min={Number.MIN_VALUE}
           onChange={(event) => {
             const minutes = event.currentTarget.valueAsNumber;
@@ -191,12 +198,12 @@ const RehearsalPanel = ({
         />
       </label>
       <details className="drever-speaker__timings" data-drever-keyboard="ignore">
-        <summary aria-label="Open per-slide timing summary">
+        <summary aria-label="Open per-slide timing summary" lang="en">
           <ClockIcon />
           <span>Timings</span>
         </summary>
         <div className="drever-speaker__timings-popover" data-testid="rehearsal-timings">
-          <strong>Per-slide timing</strong>
+          <strong lang="en">Per-slide timing</strong>
           <ol>
             {snapshot.slides.map((timing) => {
               const slide = manifest.slides[timing.slideIndex] as SlideManifest;
@@ -207,8 +214,14 @@ const RehearsalPanel = ({
                   key={timing.slideId}
                 >
                   <span>
-                    <strong>{slide.title ?? `Slide ${timing.slideIndex + 1}`}</strong>
-                    <small>
+                    <strong dir="auto">
+                      {slide.title ?? (
+                        <span dir="ltr" lang="en">
+                          Slide {timing.slideIndex + 1}
+                        </span>
+                      )}
+                    </strong>
+                    <small lang="en">
                       {timing.visits === 0
                         ? "Not visited"
                         : `${timing.visits} ${timing.visits === 1 ? "visit" : "visits"}`}
@@ -223,11 +236,21 @@ const RehearsalPanel = ({
           </ol>
         </div>
       </details>
-      <button className="drever-speaker__rehearsal-toggle" onClick={rehearsal.toggle} type="button">
+      <button
+        className="drever-speaker__rehearsal-toggle"
+        lang="en"
+        onClick={rehearsal.toggle}
+        type="button"
+      >
         {snapshot.running ? <PauseIcon /> : <PlayIcon />}
         <span>{snapshot.running ? "Pause" : "Resume"}</span>
       </button>
-      <button className="drever-speaker__rehearsal-reset" onClick={rehearsal.reset} type="button">
+      <button
+        className="drever-speaker__rehearsal-reset"
+        lang="en"
+        onClick={rehearsal.reset}
+        type="button"
+      >
         <ResetIcon />
         <span>Reset</span>
       </button>
@@ -353,7 +376,7 @@ const Preview = ({
       className="drever-speaker__preview"
       data-testid={testId}
     >
-      <span className="drever-speaker__preview-label" id={`${testId}-label`}>
+      <span className="drever-speaker__preview-label" dir="ltr" id={`${testId}-label`} lang="en">
         {label}
       </span>
       <div aria-hidden="true" className="drever-speaker__preview-surface" inert>
@@ -513,7 +536,7 @@ export const Speaker = ({
   return (
     <div className="drever-speaker" data-drever-speaker="" ref={speakerRef}>
       <header className="drever-speaker__header">
-        <div className="drever-speaker__brand">
+        <div className="drever-speaker__brand" dir="ltr" lang="en">
           <strong>Drever</strong>
           <span>Speaker view</span>
         </div>
@@ -540,6 +563,8 @@ export const Speaker = ({
           <section
             aria-labelledby="speaker-next-label"
             className="drever-speaker__preview drever-speaker__preview--end"
+            dir="ltr"
+            lang="en"
           >
             <span className="drever-speaker__preview-label" id="speaker-next-label">
               Next
@@ -561,13 +586,15 @@ export const Speaker = ({
         )}
 
         <section className="drever-speaker__notes" aria-labelledby="speaker-notes-heading">
-          <div className="drever-speaker__notes-heading">
+          <div className="drever-speaker__notes-heading" dir="ltr" lang="en">
             <span id="speaker-notes-heading">Notes</span>
             <small>{positionLabel(position)}</small>
           </div>
           <div className="drever-speaker__notes-body" data-testid="speaker-notes" tabIndex={0}>
             {slide.speakerNotes.length === 0 ? (
-              <p className="drever-speaker__notes-empty">No speaker notes for this slide.</p>
+              <p className="drever-speaker__notes-empty" dir="ltr" lang="en">
+                No speaker notes for this slide.
+              </p>
             ) : (
               slide.speakerNotes.map((note, index) => <p key={index}>{note.plainText}</p>)
             )}
@@ -575,7 +602,12 @@ export const Speaker = ({
         </section>
       </main>
 
-      <footer className="drever-speaker__controls" data-drever-speaker-controls="">
+      <footer
+        className="drever-speaker__controls"
+        data-drever-speaker-controls=""
+        dir="ltr"
+        lang="en"
+      >
         <div className="drever-speaker__progress-group">
           <button
             aria-controls="drever-speaker-slide-dialog"
@@ -705,7 +737,7 @@ export const Speaker = ({
         ref={navigatorDialogRef}
       >
         <div className="drever-speaker__slide-dialog-content">
-          <header>
+          <header dir="ltr" lang="en">
             <div>
               <span>Drever speaker</span>
               <h2 id="drever-speaker-slide-dialog-title">Jump to a slide</h2>
@@ -714,7 +746,7 @@ export const Speaker = ({
               <CloseIcon />
             </button>
           </header>
-          <label className="drever-speaker__slide-search">
+          <label className="drever-speaker__slide-search" dir="ltr" lang="en">
             <span className="drever-visually-hidden">Find a slide</span>
             <input
               onChange={(event) => setNavigatorQuery(event.currentTarget.value)}
@@ -724,7 +756,13 @@ export const Speaker = ({
               value={navigatorQuery}
             />
           </label>
-          <p aria-atomic="true" aria-live="polite" className="drever-visually-hidden">
+          <p
+            aria-atomic="true"
+            aria-live="polite"
+            className="drever-visually-hidden"
+            dir="ltr"
+            lang="en"
+          >
             {visibleSlides.length === 0
               ? "No slides found."
               : `${visibleSlides.length} ${visibleSlides.length === 1 ? "slide" : "slides"} found.`}
@@ -734,18 +772,37 @@ export const Speaker = ({
               <li key={target.id}>
                 <button
                   aria-current={target.index === position.slideIndex ? "page" : undefined}
-                  aria-label={`Go to slide ${target.index + 1}: ${slideTitle(target)}`}
                   onClick={() => jumpToSlide(target)}
                   type="button"
                 >
-                  <span>{String(target.index + 1).padStart(2, "0")}</span>
-                  <strong>{slideTitle(target)}</strong>
-                  {target.index === position.slideIndex ? <small>Current</small> : null}
+                  <span aria-hidden="true">{String(target.index + 1).padStart(2, "0")}</span>
+                  <strong aria-hidden="true" dir={target.title === undefined ? "ltr" : "auto"}>
+                    {target.title ?? <span lang="en">Slide {target.index + 1}</span>}
+                  </strong>
+                  {target.index === position.slideIndex ? (
+                    <small aria-hidden="true" dir="ltr" lang="en">
+                      Current
+                    </small>
+                  ) : null}
+                  <span className="drever-visually-hidden">
+                    <span dir="ltr" lang="en">
+                      Go to slide {target.index + 1}:{" "}
+                    </span>
+                    {target.title === undefined ? (
+                      <span dir="ltr" lang="en">
+                        Slide {target.index + 1}
+                      </span>
+                    ) : (
+                      <span>{target.title}</span>
+                    )}
+                  </span>
                 </button>
               </li>
             ))}
             {visibleSlides.length === 0 ? (
-              <li className="drever-speaker__slide-empty">No slides match “{navigatorQuery}”.</li>
+              <li className="drever-speaker__slide-empty" dir="ltr" lang="en">
+                No slides match “{navigatorQuery}”.
+              </li>
             ) : null}
           </ol>
         </div>

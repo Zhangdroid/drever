@@ -1,6 +1,7 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import type { ElementBounds } from "./support/element-bounds.ts";
 import { monitorPageHealth } from "./support/page-health.ts";
+import { waitForDreverReady } from "./support/drever-ready.ts";
 import {
   captureNextViewTransition,
   monitorViewTransitions,
@@ -73,6 +74,7 @@ test("plain Steps preserve absolute geometry while MotionGroup keeps directional
 }) => {
   const health = monitorPageHealth(page);
   await page.goto("/");
+  await waitForDreverReady(page);
 
   await page.evaluate((activeSlideSelector) => {
     const slide = document.querySelector(activeSlideSelector);
@@ -218,6 +220,7 @@ test("the fixed shell keeps one raster contract in both directions", async ({ pa
   const health = monitorPageHealth(page);
   await monitorViewTransitions(page);
   await page.goto("/2");
+  await waitForDreverReady(page);
 
   const shell = page.locator(`${activeSlide} [data-testid="shared-shell"]`);
   const shellCopy = page.locator(`${activeSlide} [data-testid="shell-copy"]`);
@@ -335,6 +338,7 @@ test("reduced motion commits every recipe without capturing a transition", async
   await monitorViewTransitions(page);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/2");
+  await waitForDreverReady(page);
 
   for (const destination of [3, 4, 5, 6, 7]) {
     await page.keyboard.press("ArrowRight");
