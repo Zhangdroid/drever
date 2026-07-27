@@ -54,7 +54,7 @@ const demoContent = {
     meta: "Studio · 11 slides",
   },
   spatial: {
-    meta: "Cinema · 5 slides · Live 3D",
+    meta: "Cinema · 6 slides · Live 3D",
   },
   basic: {
     meta: "Basic · 5 slides",

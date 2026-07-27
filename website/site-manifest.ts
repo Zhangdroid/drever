@@ -71,7 +71,7 @@ export const demoMounts = [
   },
   {
     description:
-      "One live Spline scene turns through atmosphere, evidence, context, and direct inspection.",
+      "Three live Spline studies frame persistent structure, a moving object, and ambient depth.",
     id: "spatial",
     label: "Spatial stories",
     slug: "spatial",

@@ -8,8 +8,10 @@ section, while commit snapshots use the current Unreleased section.
 ### Added
 
 - Added a focused Spatial Stories showcase that carries one official Spline
-  cloner scene through authored 3D rotations, with one persistent runtime and
-  deterministic original posters for non-audience surfaces.
+  cloner scene through authored 3D rotations, then contrasts it with a focused
+  moving object and a CC0 ambient community scene, while keeping one remote 3D
+  renderer at a time and deterministic original posters for non-audience
+  surfaces.
 
 ## [0.6.0] - 2026-07-26
 

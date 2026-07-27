@@ -6,6 +6,11 @@ export default defineConfig({
     height: 720,
     width: 1280,
   },
+  deck: {
+    description:
+      "See how live 3D can carry structure, focused motion, and atmosphere without taking over the story.",
+    lang: "en",
+  },
   rehearsal: {
     targetDurationMinutes: 4,
   },

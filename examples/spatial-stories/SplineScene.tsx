@@ -1,14 +1,9 @@
 import type { Application as SplineApplication, SPEObject } from "@splinetool/runtime";
 import { useDreverRenderMode } from "@drever/core";
-import {
-  useEffect,
-  useRef,
-  useState,
-  type PointerEvent as ReactPointerEvent,
-  type ReactElement,
-} from "react";
+import { useEffect, useRef, useState, type ReactElement } from "react";
 
-export type SplineSceneMode = "context" | "evidence" | "hidden" | "interaction" | "opening";
+export type SplineSceneMode = "context" | "evidence" | "hidden" | "object" | "opening";
+export type SplineSceneVariant = "cloner" | "object";
 
 type ScenePhase = "error" | "loading" | "poster" | "ready";
 type SceneObject = SPEObject & {
@@ -17,13 +12,8 @@ type SceneObject = SPEObject & {
 };
 type Rotation = Readonly<{ x: number; y: number; z: number }>;
 type RotationRecord = Readonly<{ base: Rotation; object: SceneObject }>;
-type DragState = Readonly<{
-  pointerId: number;
-  targets: RotationRecord[];
-  x: number;
-  y: number;
-}>;
 type SplineRuntime = typeof import("@splinetool/runtime");
+type ClonerSceneMode = Extract<SplineSceneMode, "context" | "evidence" | "opening">;
 
 let runtimePromise: Promise<SplineRuntime> | undefined;
 
@@ -31,17 +21,21 @@ const ROTATION_DURATION_MS = 1050;
 const SCENE_SETTLE_MS = 400;
 
 const loadSplineRuntime = (): Promise<SplineRuntime> => {
-  runtimePromise ??= import("@splinetool/runtime");
+  runtimePromise ??= import("@splinetool/runtime").catch((error: unknown) => {
+    runtimePromise = undefined;
+    throw error;
+  });
   return runtimePromise;
 };
 
-const modeRotations: Record<Exclude<SplineSceneMode, "hidden">, Rotation> = {
+const modeRotations: Record<ClonerSceneMode, Rotation> = {
   opening: { x: 0, y: 0, z: 0 },
   evidence: { x: -0.08, y: 0.34, z: 0.03 },
   context: { x: 0.12, y: 0.62, z: -0.05 },
-  interaction: { x: -0.14, y: 0.92, z: 0.04 },
 };
 
+const isClonerMode = (mode: SplineSceneMode): mode is ClonerSceneMode =>
+  mode === "opening" || mode === "evidence" || mode === "context";
 const easeOutQuint = (progress: number): number => 1 - (1 - progress) ** 5;
 const mix = (from: number, to: number, progress: number): number => from + (to - from) * progress;
 const readRotation = ({ x, y, z }: Rotation): Rotation => ({ x, y, z });
@@ -85,6 +79,7 @@ export type SplineSceneProps = Readonly<{
   mode: SplineSceneMode;
   reducedMotion?: boolean;
   scene: string;
+  variant: SplineSceneVariant;
 }>;
 
 /** Keeps one Spline runtime mounted while the authored slide states reframe its 3D objects. */
@@ -95,17 +90,17 @@ export function SplineScene({
   mode,
   reducedMotion: authoredReducedMotion,
   scene,
+  variant,
 }: SplineSceneProps): ReactElement {
   const renderMode = useDreverRenderMode();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const applicationRef = useRef<SplineApplication>(null);
   const animationFrameRef = useRef<number>(undefined);
-  const dragRef = useRef<DragState>(null);
   const modeRef = useRef(mode);
   const rotationsRef = useRef<RotationRecord[]>([]);
   const reducedMotion = useReducedMotion(authoredReducedMotion);
   const [phase, setPhase] = useState<ScenePhase>("poster");
-  const live = renderMode === "audience" && !reducedMotion;
+  const live = renderMode === "audience" && !reducedMotion && mode !== "hidden";
 
   const stopRotation = (): void => {
     if (animationFrameRef.current === undefined) return;
@@ -115,7 +110,7 @@ export function SplineScene({
 
   const rotateToMode = (nextMode: SplineSceneMode, immediate = false): void => {
     stopRotation();
-    if (nextMode === "hidden" || rotationsRef.current.length === 0) return;
+    if (!isClonerMode(nextMode) || rotationsRef.current.length === 0) return;
 
     const offset = modeRotations[nextMode];
     const transitions = rotationsRef.current.map(({ base, object }) => ({
@@ -184,19 +179,21 @@ export function SplineScene({
         applicationRef.current = application;
         await application.load(scene);
         if (disposed) return;
-        const objects = application.getAllObjects() as SceneObject[];
-        const roots = selectSceneRoots(objects);
+        application.setGlobalEvents(false);
         setPhase("ready");
-        // Let authored Spline start actions materialize cloned geometry before rotating its roots.
-        initializationTimer = window.setTimeout(() => {
-          if (disposed) return;
-          rotationsRef.current = roots.map((object) => ({
-            base: readRotation(object.rotation),
-            object,
-          }));
-          rotateToMode(modeRef.current, true);
-          if (modeRef.current === "hidden") application?.stop();
-        }, SCENE_SETTLE_MS);
+        if (variant === "cloner") {
+          const objects = application.getAllObjects() as SceneObject[];
+          const roots = selectSceneRoots(objects);
+          // Let authored Spline start actions materialize cloned geometry before rotating its roots.
+          initializationTimer = window.setTimeout(() => {
+            if (disposed) return;
+            rotationsRef.current = roots.map((object) => ({
+              base: readRotation(object.rotation),
+              object,
+            }));
+            rotateToMode(modeRef.current, true);
+          }, SCENE_SETTLE_MS);
+        }
       })
       .catch(() => {
         if (!disposed) setPhase("error");
@@ -210,39 +207,7 @@ export function SplineScene({
       applicationRef.current = null;
       application?.dispose();
     };
-  }, [live, scene]);
-
-  const startDrag = (event: ReactPointerEvent<HTMLElement>): void => {
-    if (mode !== "interaction" || rotationsRef.current.length === 0) return;
-    stopRotation();
-    event.currentTarget.setPointerCapture(event.pointerId);
-    dragRef.current = {
-      pointerId: event.pointerId,
-      targets: rotationsRef.current.map(({ object }) => ({
-        base: readRotation(object.rotation),
-        object,
-      })),
-      x: event.clientX,
-      y: event.clientY,
-    };
-  };
-
-  const drag = (event: ReactPointerEvent<HTMLElement>): void => {
-    const origin = dragRef.current;
-    if (origin === null || event.pointerId !== origin.pointerId) return;
-    const deltaX = (event.clientX - origin.x) * 0.006;
-    const deltaY = (event.clientY - origin.y) * 0.004;
-    origin.targets.forEach(({ base, object }) => {
-      object.rotation.x = base.x + deltaY;
-      object.rotation.y = base.y + deltaX;
-    });
-  };
-
-  const finishDrag = (event: ReactPointerEvent<HTMLElement>): void => {
-    if (dragRef.current?.pointerId !== event.pointerId) return;
-    dragRef.current = null;
-    event.currentTarget.releasePointerCapture(event.pointerId);
-  };
+  }, [live, scene, variant]);
 
   return (
     <figure
@@ -250,13 +215,11 @@ export function SplineScene({
       className={["spline-scene", className].filter(Boolean).join(" ")}
       data-mode={mode}
       data-phase={phase}
-      onPointerCancel={finishDrag}
-      onPointerDown={startDrag}
-      onPointerMove={drag}
-      onPointerUp={finishDrag}
+      data-variant={variant}
+      role="img"
     >
       <div aria-hidden="true" className="spline-scene__poster">
-        <div className="spline-poster spline-poster--cloner">
+        <div className={`spline-poster spline-poster--${variant}`}>
           <i />
           <i />
           <i />
@@ -265,8 +228,8 @@ export function SplineScene({
         </div>
       </div>
       <canvas
-        aria-hidden={phase === "ready" ? undefined : true}
-        aria-label={label}
+        aria-hidden="true"
+        data-label={label}
         className="spline-scene__canvas"
         ref={canvasRef}
       />
