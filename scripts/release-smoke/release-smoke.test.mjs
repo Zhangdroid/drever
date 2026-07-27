@@ -278,6 +278,10 @@ test("keeps Claude headless, resumed, and limited to direct file-authoring tools
     "--model",
     "claude-opus-5",
   ]);
+  assert.deepEqual(initial.slice(initial.indexOf("--effort"), initial.indexOf("--effort") + 2), [
+    "--effort",
+    "medium",
+  ]);
   assert.deepEqual(initial.slice(initial.indexOf("--tools"), initial.indexOf("--tools") + 2), [
     "--tools",
     "Edit,Glob,Grep,Read,Write",

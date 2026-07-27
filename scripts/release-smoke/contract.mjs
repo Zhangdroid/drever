@@ -127,6 +127,8 @@ export const createClaudePrintArguments = ({ model, sessionId, turn }) => [
   turn,
   "--output-format",
   "json",
+  "--effort",
+  "medium",
   "--tools",
   "Edit,Glob,Grep,Read,Write",
   "--permission-mode",

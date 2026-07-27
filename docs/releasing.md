@@ -156,9 +156,11 @@ Maintainers can also dispatch the smoke manually for any published version.
 The smoke is intentionally separate from npm publication: a nondeterministic AI
 failure remains visible without making an already verified registry release
 appear to have failed. Each journey runs independently through
-`gpt-5.6-sol` with medium reasoning and `claude-opus-5`, then publishes both
-results as a direct comparison. Cost is controlled by running this expensive
-evidence once for stable releases by default, not by weakening either model.
+`gpt-5.6-sol` and `claude-opus-5`, both at medium reasoning effort, then
+publishes both results as a direct comparison. The shared effort level keeps
+the comparison balanced while bounding latency and token use. Cost is further
+controlled by running this expensive evidence once for stable releases by
+default.
 The Codex half may qualify for OpenAI's complimentary
 shared-traffic allowance only when project data sharing is enabled, the
 organization is eligible, and daily quota remains; otherwise normal API billing
