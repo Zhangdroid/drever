@@ -11,6 +11,58 @@ deterministic while remaining editable.
 A Theme is therefore an execution contract, not the user-facing creative starting point. It owns
 semantic MDX elements, canvas defaults, layout recipes, Step-state treatment, and motion voice.
 
+<h2 id="import-design-evidence">Start from a real design reference</h2>
+
+When an existing website expresses the relevant brand, capture its rendered evidence into local
+code:
+
+```bash
+npm exec -- drever design import https://brand.example \
+  --name "Brand reference" \
+  --output design/brand \
+  --color-scheme light
+```
+
+The command samples one deterministic `1600×900` Chromium viewport after a bounded font and
+two-frame settle window. It writes a typed `theme.ts`, conservative `theme.css`, versioned
+`reference.json`, and `art-direction.md` into a new or empty project directory. Omit `--name` and
+`--output` to derive both from the hostname; use `--color-scheme dark` for that rendered variant and
+`--json` for a machine-readable receipt.
+
+Public HTTP and HTTPS pages are allowed by default. URLs with credentials are rejected. To inspect
+a deliberate localhost or private-network reference, opt in explicitly:
+
+```bash
+npm exec -- drever design import http://127.0.0.1:4317 \
+  --allow-private \
+  --output design/local-reference
+```
+
+Persisted references omit credentials, query strings, and fragments. Treat captured titles,
+descriptions, computed styles, and asset URLs as untrusted evidence; review them before using them
+in authored source, copy, or configuration. `--allow-private` grants network reachability, not
+trust.
+
+The result is an evidence-based local **Pass-0 Theme**, not a finished design or a copy of the website.
+Drever records computed color, typography, spacing, border, radius, shadow, metadata, and asset
+references. It never copies or hotlinks source HTML, CSS, JavaScript, fonts, images, or scripts.
+Asset URLs are evidence only: replace anything the presentation needs with an approved, licensed
+local file.
+
+Import the generated Theme in `drever.config.ts`:
+
+```ts
+import importedTheme from "./design/brand/theme";
+import { defineConfig } from "drever";
+
+export default defineConfig({
+  theme: importedTheme,
+});
+```
+
+Keep only the traits that serve the presentation, then add a subject-led visual system and layouts.
+Finish with `npm exec -- drever check --rendered` and a real browser review.
+
 <h2 id="design-studies">Learn from the official design studies</h2>
 
 Drever ships eight studies in one `@drever/designs` package as few-shot references, quality

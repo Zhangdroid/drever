@@ -63,6 +63,14 @@ palette, typography, imagery, and motion while respecting asset and font license
 official designs are optional vocabulary rather than a required scan or imitation step; Basic is
 the neutral fallback. The resulting subject-led system stays local so every build is deterministic.
 
+When a real website is the relevant brand reference, `drever design import <url>` can create a local
+Pass-0 Theme from deterministic rendered evidence. It does not copy or hotlink source code, fonts,
+images, or scripts. Public pages are allowed by default; credentials are rejected, and localhost or
+private-network references require deliberate `--allow-private` opt-in. Persisted URLs omit query
+strings and fragments. The agent must treat captured metadata and values as untrusted evidence to
+review, not a finished design or permission to reuse referenced assets. See
+[Themes and art direction](/docs/themes/#import-design-evidence).
+
 Motion follows the same subject-led rule. Ask the agent to explain how a key object changes role
 across the story—for example, hinting below the canvas, entering as evidence, then docking at low
 contrast as context—instead of requesting a list of effects. Use an external tool only when a
@@ -95,6 +103,23 @@ This is planning evidence, not rendered evidence. It does not judge overflow, co
 quality, media readiness, or runtime component behavior.
 
 <h2 id="rendered-review">Review the rendered result</h2>
+
+Run the product-level rendered preflight first:
+
+```bash
+npm exec -- drever check --rendered --json
+```
+
+It builds an isolated inspection app and visits Step 0 plus every exact authored Step at the
+configured canvas. Stable diagnostics identify clipping, canvas overflow, persistent geometry
+changes, suspicious density, and runtime failures. The versioned rendered receipt records the
+receipt and ruleset versions, canvas, `chromium` engine, optional browser version, captured state
+count, status, and any skip or failure reason. The CLI emits the current typed report V2; a stored
+legacy V1 report is source-only and does not satisfy this rendered gate.
+
+This gives an agent reproducible machine evidence, not visual taste. Geometry and density findings
+remain warnings that need judgment, and the command does not score contrast, hierarchy, motion
+quality, or aesthetic fit.
 
 The project-local review skill prefers
 [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp) when it is connected. It
@@ -149,9 +174,10 @@ workspace tools so permissions, diffs, checks, and Git rollback remain visible.
 1. Describe the audience, decision, constraints, and desired deliverables in `brief.md`.
 2. Ask the agent to create or revise the presentation.
 3. Inspect `npm exec -- drever context --json` and fix `npm run check -- --json` diagnostics.
-4. Review every changed Step in Audience View and the complete `/document` surface.
-5. Review Speaker View when notes, timing, or focus behavior changed.
-6. Build and deliver the static website or PDF from the same verified project.
+4. Run `npm run check -- --rendered --json` and fix proven layout defects.
+5. Review every changed Step in Audience View and the complete `/document` surface.
+6. Review Speaker View when notes, timing, or focus behavior changed.
+7. Build and deliver the static website or PDF from the same verified project.
 
 Ask for outcomes in natural language. Keep the commands available as a transparent, deterministic
 contract underneath.

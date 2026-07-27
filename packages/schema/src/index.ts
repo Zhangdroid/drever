@@ -9,6 +9,8 @@ export type {
   DreverAuthoringPlugin,
   DreverAuthoringSlide,
   DreverAuthoringTheme,
+  DreverAuthoringContextV1,
+  DreverAuthoringContextV2,
 } from "./authoring-context.ts";
 export { DREVER_CURRENT_POSITION_VERSION } from "./current-position.ts";
 export type {
@@ -69,6 +71,16 @@ export type {
   ThemeManifest,
 } from "./extension.ts";
 export type { JsonArray, JsonObject, JsonPrimitive, JsonValue } from "./json.ts";
-export { DECK_PREFLIGHT_VERSION } from "./preflight.ts";
-export type { DeckPreflightReport, DeckPreflightSummary } from "./preflight.ts";
+export {
+  DECK_PREFLIGHT_VERSION,
+  RENDERED_PREFLIGHT_RULESET_VERSION,
+  RENDERED_PREFLIGHT_VERSION,
+} from "./preflight.ts";
+export type {
+  DeckPreflightReport,
+  DeckPreflightReportV1,
+  DeckPreflightReportV2,
+  DeckPreflightSummary,
+  RenderedPreflightReceipt,
+} from "./preflight.ts";
 export type { SourceFragment, SourcePoint, SourceRange } from "./source.ts";

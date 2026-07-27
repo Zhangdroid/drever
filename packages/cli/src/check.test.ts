@@ -1,6 +1,7 @@
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { DECK_PREFLIGHT_VERSION, type DeckPreflightReportV1 } from "@drever/schema";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 import { checkDeck, formatCheckHuman, formatCheckJson } from "./check.ts";
 
@@ -13,7 +14,7 @@ afterEach(async () => {
 });
 
 const report = {
-  version: 1,
+  version: DECK_PREFLIGHT_VERSION,
   sourcePath: "talk.mdx",
   slideCount: 2,
   summary: { errors: 1, warnings: 1, info: 0 },
@@ -62,6 +63,19 @@ describe("check output", () => {
       "summary",
       "diagnostics",
     ]);
+  });
+
+  it("keeps legacy source-only reports readable without inventing rendered evidence", () => {
+    const legacy = {
+      version: 1,
+      sourcePath: "legacy.mdx",
+      slideCount: 1,
+      summary: { errors: 0, warnings: 0, info: 0 },
+      diagnostics: [],
+    } satisfies DeckPreflightReportV1;
+
+    expect(JSON.parse(formatCheckJson(legacy))).toEqual(legacy);
+    expect(formatCheckHuman(legacy)).not.toContain("Rendered preflight");
   });
 });
 

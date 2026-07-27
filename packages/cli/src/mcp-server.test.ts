@@ -1,4 +1,8 @@
-import type { DreverAuthoringContext, DreverCurrentPosition } from "@drever/schema";
+import type {
+  DreverAuthoringContext,
+  DreverAuthoringContextV1,
+  DreverCurrentPosition,
+} from "@drever/schema";
 import { Readable } from "node:stream";
 import { describe, expect, it, vi } from "vite-plus/test";
 import { MCP_PROTOCOL_VERSION, MCP_TOOLS, runMcpServer } from "./mcp-server.ts";
@@ -54,7 +58,16 @@ const context = {
       },
     ],
   },
-  design: { theme: { id: "test" }, layouts: [], components: [], elements: [] },
+  design: {
+    theme: {
+      id: "test",
+      tokens: {},
+      manifest: { title: "Test", summary: "Legacy context fixture." },
+    },
+    layouts: [],
+    components: [],
+    elements: [],
+  },
   plugins: [],
   preflight: {
     version: 1,
@@ -63,7 +76,7 @@ const context = {
     summary: { errors: 0, info: 0, warnings: 0 },
     diagnostics: [],
   },
-} as unknown as DreverAuthoringContext;
+} satisfies DreverAuthoringContextV1;
 
 const current: DreverCurrentPosition = {
   version: 2,

@@ -1,7 +1,7 @@
 import {
   DECK_PREFLIGHT_VERSION,
   type DeckIR,
-  type DeckPreflightReport,
+  type DeckPreflightReportV2,
   type DeckPreflightSummary,
   type Diagnostic,
   type SlideIR,
@@ -379,7 +379,7 @@ const report = (
   sourcePath: string,
   slideCount: number,
   diagnostics: readonly Diagnostic[],
-): DeckPreflightReport => {
+): DeckPreflightReportV2 => {
   const ordered = diagnostics.toSorted(compareDiagnostics);
   return createJsonSnapshot({
     version: DECK_PREFLIGHT_VERSION,
@@ -394,7 +394,7 @@ const report = (
 export const preflightDeck = (
   source: string,
   options: PreflightDeckOptions = {},
-): DeckPreflightReport => {
+): DeckPreflightReportV2 => {
   const parsed = parseDeck(source, options);
   const sourcePath = options.path ?? "slides.mdx";
   if (!parsed.ok) {

@@ -9,10 +9,10 @@ import type {
 } from "./extension.ts";
 import type { JsonObject } from "./json.ts";
 import type { DeckManifest, SlideManifest } from "./deck-manifest.ts";
-import type { DeckPreflightReport } from "./preflight.ts";
+import type { DeckPreflightReportV1, DeckPreflightReportV2 } from "./preflight.ts";
 import type { SourceFragment } from "./source.ts";
 
-export const DREVER_AUTHORING_CONTEXT_VERSION = 1 as const;
+export const DREVER_AUTHORING_CONTEXT_VERSION = 2 as const;
 
 export type DreverAuthoringSlide = SlideManifest &
   Readonly<{
@@ -71,13 +71,27 @@ export type DreverAuthoringDesign = Readonly<{
   elements: readonly ThemeElementName[];
 }>;
 
-/** Stable, JSON-safe input for agents that author or review one resolved deck. */
-export type DreverAuthoringContext = Readonly<{
-  version: typeof DREVER_AUTHORING_CONTEXT_VERSION;
+type DreverAuthoringContextBase = Readonly<{
   sourcePath: string;
   canvas: CanvasDefinition;
   deck: DreverAuthoringDeck;
   design: DreverAuthoringDesign;
   plugins: readonly DreverAuthoringPlugin[];
-  preflight: DeckPreflightReport;
 }>;
+
+/** Legacy authoring context paired with the source-only preflight contract. */
+export type DreverAuthoringContextV1 = DreverAuthoringContextBase &
+  Readonly<{
+    version: 1;
+    preflight: DeckPreflightReportV1;
+  }>;
+
+/** Current authoring context paired with the current preflight contract. */
+export type DreverAuthoringContextV2 = DreverAuthoringContextBase &
+  Readonly<{
+    version: typeof DREVER_AUTHORING_CONTEXT_VERSION;
+    preflight: DeckPreflightReportV2;
+  }>;
+
+/** Every authoring-context version that current consumers can inspect safely. */
+export type DreverAuthoringContext = DreverAuthoringContextV1 | DreverAuthoringContextV2;

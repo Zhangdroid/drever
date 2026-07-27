@@ -122,6 +122,12 @@ style. Research only material needed for factual accuracy, authorized assets, or
 subject or brand cue. Do not research Drever's own design catalog as a prerequisite. Respect asset
 and font licenses, and create an original interpretation instead of copying a website.
 
+When an established public website is the relevant design reference, the project-local
+`drever-create-design` skill may use `npm exec -- drever design import <url>` to capture computed
+design evidence into a local Pass-0 Theme. Refine that output against the presentation brief; it is
+not a finished design and it does not copy or hotlink the source site's code, fonts, images, or
+scripts.
+
 Create or update `drever.config.ts` so `deck.lang` matches the authored presentation language using
 a valid BCP 47 tag. Add the concise published title and description when known, choose `dir` when
 the writing direction needs to be explicit, and include icon or social preview URLs only when real
@@ -210,8 +216,10 @@ After blocking defects are fixed, ask what one scene the audience will remember 
 belong to an unrelated topic. If there is no defensible answer, redesign exactly one high-value beat
 instead of decorating the whole deck.
 
-After the preview is live, run the project-local context and check workflows. Prefer a connected
-Chrome DevTools MCP server for the final rendered pass, then follow the version-matched project-local
+After the preview is live, run `npm exec -- drever check --rendered --json`. Fix machine-proven
+clipping and canvas overflow; inspect geometry and density warnings in the live deck rather than
+treating advisory thresholds as aesthetic verdicts. Prefer a connected Chrome DevTools MCP server
+for the final rendered pass, then follow the version-matched project-local
 review skill for screenshots, interaction, runtime evidence, and the dev-only experimental Pretext
 layout probe. The probe is advisory; rendered DOM and pixels remain authoritative. Inspect every
 slide at Step 0 and every exact authored Step route at the configured canvas; representative

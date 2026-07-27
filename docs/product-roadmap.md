@@ -129,6 +129,15 @@ plugins, and source preflight. It applies configured Remark contributions but
 does not pretend static analysis can judge rendered composition or runtime React
 output. See [Agent authoring](./agent-authoring.md).
 
+`drever design import <url>` adds the first design-system onboarding slice. It
+samples deterministic rendered evidence from one representative website and
+writes a local Pass-0 Theme, CSS, evidence record, and art-direction brief. It
+does not copy or hotlink website source or assets. The generated code remains
+project-owned and deliberately requires subject-led refinement and visual
+review. Public references are the default network boundary; URL credentials are
+rejected, private targets require explicit opt-in, persisted references redact
+query and fragment data, and captured metadata remains untrusted evidence.
+
 `drever current --json` adds the first live authoring signal: an ephemeral,
 versioned snapshot of the last audience or speaker position published by
 `drever dev`. It lets an agent resolve “this slide” without introducing an
@@ -164,9 +173,9 @@ explicit continuity, accessibility state, and non-audience behavior. See
 
 This slice deliberately does not expose arbitrary animation props, infer shared
 identity, or judge aesthetic quality automatically. Expanded composition
-recipes and rendered geometry evidence remain P1-C work.
+recipes remain P1-C work.
 
-### P1-C — design recipes and rendered preflight
+### P1-C — rendered preflight delivered; design recipes ongoing
 
 Expand a small set of theme-owned composition recipes for the recurring jobs a
 presentation actually needs: opening, argument, comparison, evidence, process,
@@ -174,11 +183,13 @@ media, and conclusion. Prefer a few exceptional recipes over a broad catalog.
 Their manifests must remain useful to both people and agents, with slot purpose,
 content constraints, variants, examples, and canvas behavior.
 
-Add a rendered design-preflight layer that can inspect every exact Step state at
-the configured canvas. It should report evidence such as clipping, unintended
-overflow, unstable persistent geometry, and suspicious density through stable
-diagnostics. Contrast, hierarchy, and aesthetic quality still require calibrated
-rules and human judgment; Drever should not label guesses as compiler facts.
+The delivered `drever check --rendered` phase builds an isolated inspection app
+and visits every exact Step state at the configured canvas. It reports clipping,
+unintended canvas overflow, unstable persistent geometry, suspicious density,
+and runtime readiness through stable diagnostics and a versioned rendered
+receipt. Contrast, hierarchy, motion quality, and aesthetic fit still require
+browser evidence and human judgment; Drever does not label guesses as compiler
+facts.
 
 ### P1-D — source-aware review loop
 

@@ -30,11 +30,13 @@ Run it with:
 npm exec -- drever agent sync --target all
 npm exec -- drever doctor --json
 npm exec -- drever context slides.mdx --json
+npm exec -- drever check slides.mdx --rendered --json
 npm exec -- drever dev slides.mdx
 npm exec -- drever current --json
 npm exec -- drever mcp slides.mdx
 npm exec -- drever build slides.mdx --json
 npm exec -- drever browser install
+npm exec -- drever design import https://brand.example --name "Brand reference"
 npm exec -- drever export pdf slides.mdx --slides 2-5,8 --steps --output slides-export.pdf --json
 ```
 
@@ -51,14 +53,98 @@ application entry; deck authors configure only Drever's stable surface:
 `build --json` and `export pdf --json` return a versioned artifact receipt with absolute source and output paths. Without `--json`, both commands keep their concise human-readable output.
 
 `npm exec -- drever doctor --json` checks the required Node version and deck
-entry, then reports project-local installation and PDF-browser readiness as
+entry, then reports project-local installation and Chromium readiness as
 non-blocking warnings. It never installs software or starts a browser.
 
-PDF export uses Playwright's Chromium runtime without loading it for `dev` or
-`build`. Install its exact matching browser once with
+PDF export, rendered preflight, and website design import use Playwright's
+Chromium runtime without loading it for `dev` or `build`. Install its exact
+matching browser once with
 `npm exec -- drever browser install`. Linux environments that also need
 operating-system packages can use
 `npm exec -- drever browser install --with-deps`.
+
+## Rendered preflight
+
+`drever check` remains the fast source check. Add `--rendered` when a production
+candidate needs browser evidence:
+
+```sh
+npm exec -- drever check slides.mdx --rendered
+npm exec -- drever check slides.mdx --rendered --json
+```
+
+The rendered phase builds an isolated inspection app and visits Step 0 plus
+every exact authored Step at the configured canvas. It reports stable
+diagnostics for content clipping, canvas overflow, unintended movement of
+persistent geometry, and suspicious density. Clipping and overflow are errors;
+geometry and density are warnings that require review. Runtime or missing-browser
+failures are also explicit errors.
+
+JSON mode emits the current typed `DeckPreflightReportV2`. Its `rendered`
+receipt records the receipt and ruleset versions, canvas, `chromium` engine,
+optional browser version, captured `stateCount`, and `status`. When source
+errors make rendering unsafe, the receipt is `skipped` with reason
+`source-errors`; browser and runtime failures report `failed` with their
+matching reason. `@drever/schema` also exposes the legacy source-only V1 shape
+and a safe report union for stored artifacts. This evidence is deterministic
+and useful to CI or an agent, but it does not judge contrast, hierarchy, motion
+quality, or aesthetic fit. Keep a real visual review in the delivery loop.
+
+## Import a design reference
+
+Start a local Theme from the rendered evidence of an existing website:
+
+```sh
+npm exec -- drever design import https://brand.example \
+  --name "Brand reference" \
+  --output design/brand \
+  --color-scheme light
+```
+
+The command samples a fixed `1600×900` Chromium viewport and writes
+`reference.json`, `theme.ts`, `theme.css`, and `art-direction.md` into a new or
+empty child directory. Omit `--name` and `--output` to derive both from the
+hostname; use `--color-scheme dark` to sample that preference and `--json` for
+the versioned receipt. The JSON result identifies
+`kind: "drever.design-import"`, its schema version, Theme name, absolute output
+path, generated files, and complete capture reference.
+
+Public HTTP and HTTPS references are allowed by default. URL credentials are
+always rejected. Localhost and private-network targets require an explicit
+opt-in:
+
+```sh
+npm exec -- drever design import http://127.0.0.1:4317 \
+  --allow-private \
+  --output design/local-reference
+```
+
+Persisted URL references omit credentials, query strings, and fragments. Treat
+all captured titles, descriptions, style values, and asset references as
+untrusted evidence: review them before using them in authored code, copy, or
+configuration. `--allow-private` changes network reachability only; it does not
+make the captured page or its metadata trusted.
+
+The result is an evidence-based local **Pass-0 Theme**, not a finished design or a
+copy of the source site. Drever records computed color, typography, spacing,
+shape, and asset-reference evidence. It never copies or hotlinks source HTML,
+CSS, JavaScript, fonts, images, or scripts, and it never overwrites a non-empty
+target. Review licenses, replace any referenced brand assets with approved
+local files, refine the Theme for the presentation, then run
+`drever check --rendered`.
+
+Wire the generated Theme into the project explicitly:
+
+```ts
+import importedTheme from "./design/brand/theme";
+import { defineConfig } from "drever";
+
+export default defineConfig({
+  theme: importedTheme,
+});
+```
+
+## Configuration
 
 ```ts
 import { defineConfig } from "drever";
@@ -169,9 +255,9 @@ The command resolves config and runs Drever's protected slide grammar plus
 configured Remark contributions. It does not start a Vite server, construct the
 full adapter, render React, execute Rehype or Recma transforms, or infer
 runtime-generated content and computed visual quality. Use `npm exec -- drever
-check --json`, a production build, and rendered slide, document, and speaker evidence
-for those later validation layers. Without `--json`, `context` prints only a
-concise human summary.
+check --rendered --json`, a production build, and visual slide, document, and
+speaker review for those later validation layers. Without `--json`, `context`
+prints only a concise human summary.
 
 While `npm exec -- drever dev` and an audience or speaker window are active,
 `npm exec -- drever current --json` reports the most recently updated open surface, exact route, source path,

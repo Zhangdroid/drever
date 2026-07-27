@@ -207,7 +207,7 @@ test("the built CLI exposes the canonical basic-deck authoring context", async (
   const { stdout } = await runCli(projectRoot, "context", "--json");
   const context = JSON.parse(stdout) as AuthoringContext;
 
-  expect(context.version).toBe(1);
+  expect(context.version).toBe(2);
   expect(context.sourcePath).toBe(sourcePath);
   expect(context.canvas).toEqual({ width: 1_600, height: 900 });
   expect(context.deck.version).toBe(2);
@@ -290,7 +290,7 @@ test("the built CLI exposes the canonical basic-deck authoring context", async (
     { id: "@drever/plugin-tailwindcss", origin: "default", version: "0.0.0" },
   ]);
   expect(context.preflight).toEqual({
-    version: 1,
+    version: 2,
     sourcePath,
     slideCount: 5,
     summary: { errors: 0, warnings: 0, info: 0 },

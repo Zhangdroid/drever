@@ -16,15 +16,29 @@ export type {
   DreverStageConfig,
 } from "./config.ts";
 
-export { DREVER_AUTHORING_CONTEXT_VERSION, definePlugin, defineTheme } from "@drever/compiler";
+export {
+  DECK_PREFLIGHT_VERSION,
+  DREVER_AUTHORING_CONTEXT_VERSION,
+  RENDERED_PREFLIGHT_RULESET_VERSION,
+  RENDERED_PREFLIGHT_VERSION,
+  definePlugin,
+  defineTheme,
+} from "@drever/compiler";
 export type {
   ComponentManifest,
   DeckManifest,
+  DeckPreflightReport,
+  DeckPreflightReportV1,
+  DeckPreflightReportV2,
+  DeckPreflightSummary,
   DreverAuthoringContext,
+  DreverAuthoringContextV1,
+  DreverAuthoringContextV2,
   DreverAuthoringSlide,
   DreverPlugin,
   LayoutDefinition,
   PluginConfigManifest,
+  RenderedPreflightReceipt,
   SlideManifest,
   SpeakerNote,
   ThemeDefinition,

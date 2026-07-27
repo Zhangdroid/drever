@@ -14,6 +14,8 @@ export {
   DECK_PREFLIGHT_VERSION,
   DECK_MANIFEST_VERSION,
   DREVER_EXTENSION_API_VERSION,
+  RENDERED_PREFLIGHT_RULESET_VERSION,
+  RENDERED_PREFLIGHT_VERSION,
 } from "@drever/schema";
 export type {
   BuildPluginReference,
@@ -30,8 +32,13 @@ export type {
   DreverAuthoringPlugin,
   DreverAuthoringSlide,
   DreverAuthoringTheme,
+  DreverAuthoringContextV1,
+  DreverAuthoringContextV2,
   DeckPreflightReport,
+  DeckPreflightReportV1,
+  DeckPreflightReportV2,
   DeckPreflightSummary,
+  RenderedPreflightReceipt,
   DeckManifest,
   LayoutDefinition,
   ModuleReference,

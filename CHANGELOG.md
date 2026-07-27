@@ -5,6 +5,35 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-07-27
+
+### Added
+
+- Added `drever check --rendered`, which builds an isolated production
+  inspection app, visits Step 0 and every exact authored Step at the configured
+  canvas, and emits stable diagnostics for clipping, canvas overflow,
+  persistent-geometry instability, suspicious density, and runtime readiness.
+  The current typed V2 JSON report includes a rendered receipt with receipt and
+  ruleset versions, canvas, Chromium engine, optional browser version, captured
+  state count, status, and explicit skip or failure reason.
+- Added `drever design import <url>` to derive a project-owned Pass-0 Theme,
+  stylesheet, evidence record, and art-direction brief from deterministic
+  rendered website evidence. The importer writes only to a new or empty local
+  directory and copies or hotlinks no source HTML, CSS, JavaScript, font, image,
+  or script asset. Public HTTP and HTTPS references are allowed by default;
+  credential-bearing URLs are rejected, localhost and private-network targets
+  require `--allow-private`, persisted references redact query strings and
+  fragments, and captured metadata remains untrusted evidence.
+
+### Changed
+
+- Advanced the emitted deck preflight report to typed V2 so source and optional
+  rendered diagnostics share one stable summary and diagnostic vocabulary,
+  while retaining a typed source-only V1 shape and report union for stored
+  consumers. Advanced the authoring context to typed V2 with a corresponding
+  V1-or-V2 union. Rendered preflight complements rather than replaces visual
+  review.
+
 ## [0.7.1] - 2026-07-27
 
 ### Added
@@ -373,7 +402,9 @@ section, while commit snapshots use the current Unreleased section.
 - Added parallel source, unit, package, browser, export, and website checks in CI.
 - Deployed the prerendered public website and per-branch previews through Cloudflare Pages.
 
-[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/Zhangdroid/drever/compare/v0.7.1...v0.8.0
+[0.7.1]: https://github.com/Zhangdroid/drever/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/Zhangdroid/drever/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/Zhangdroid/drever/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/Zhangdroid/drever/compare/v0.4.0...v0.5.0

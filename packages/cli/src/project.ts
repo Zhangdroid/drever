@@ -145,7 +145,8 @@ export type ResolveDreverEntryOptions = Readonly<{
   root: string;
 }>;
 
-export type ResolveDreverProjectOptions = ResolveDreverEntryOptions;
+export type ResolveDreverProjectOptions = ResolveDreverEntryOptions &
+  Readonly<{ includeSourceLocations?: boolean }>;
 export type ResolveDreverPlanOptions = ResolveDreverEntryOptions;
 
 export const resolveDreverEntry = async ({
@@ -195,6 +196,7 @@ export const resolveDreverProject = async (
 
   let deckManifest: DeckManifest | undefined;
   const pluginResult = await createDreverVitePlugins(resolved.plan, {
+    ...(options.includeSourceLocations === true ? { includeSourceLocations: true } : {}),
     root: resolved.root,
     onDeckManifest(manifest, path) {
       if (path === resolved.entry || path === canonicalEntry) {

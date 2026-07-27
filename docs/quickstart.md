@@ -15,7 +15,8 @@ application, and export a portable PDF.
 - Node.js 24.18 or newer.
 - A current desktop browser with Navigation API and `NavigateEvent.signal`,
   `Document.startViewTransition`, `BroadcastChannel`, and `ResizeObserver`.
-- Playwright Chromium for PDF export. Install it once with
+- Playwright Chromium for PDF export, rendered preflight, and website design
+  import. Install it once with
   `npm exec -- drever browser install`. Linux environments that also need
   operating-system packages can use
   `npm exec -- drever browser install --with-deps`.
@@ -167,7 +168,7 @@ reread on every tool call; restart the process after config, theme, or plugin
 changes. The tools never modify source. Agents edit normal project files and run
 the existing checks, leaving permissions and Git review in one place.
 
-## Check accessibility
+## Check source and rendered layout
 
 Run the source-based preflight before presenting or building:
 
@@ -208,6 +209,35 @@ inside opaque runtime components. Review those qualities in the rendered deck;
 custom components remain responsible for exposing accessible semantics. Use the
 `/document` surface described below to inspect the fully revealed reading order
 and browser accessibility tree.
+
+Add the rendered phase for deterministic layout evidence:
+
+```bash
+npm exec -- drever check --rendered
+npm exec -- drever check talks/keynote.mdx --rendered --json
+```
+
+Drever builds an isolated inspection app and visits Step 0 plus every exact
+authored Step at the configured canvas. Stable diagnostics report:
+
+- visible content clipped by an owning surface;
+- visible content outside the canvas;
+- persistent geometry that unexpectedly moves or resizes between Steps;
+- suspicious density supported by multiple rendered signals.
+
+Clipping and overflow are errors. Geometry and density are warnings because a
+deliberate reflow or information-rich slide can be valid. A missing browser or
+runtime failure is an error rather than a silent skip.
+
+JSON mode emits the current typed report V2 with `sourcePath`, `slideCount`,
+`summary`, `diagnostics`, and a `rendered` receipt. That receipt records its
+schema and ruleset versions, canvas, `chromium` engine, optional browser
+version, captured `stateCount`, and `status`. Source errors produce a `skipped`
+receipt with reason `source-errors`; browser and runtime failures produce
+`failed` receipts with their corresponding reason. The schema package also
+models the legacy source-only V1 shape for stored artifacts. The report is
+machine evidence, not an aesthetic score. Review contrast, hierarchy, reading
+order, transitions, and the presentation's visual fit in the real browser.
 
 Start the viewer and create a production build:
 
@@ -291,6 +321,68 @@ font assets: self-host an embeddable webfont when the export host does not
 provide the required Chinese, Japanese, or Korean glyphs. A system fallback
 that paints correctly in Chromium is not proof that Chromium can embed that
 face in a PDF.
+
+## Import an existing design reference
+
+Use a representative public or local website as evidence for a project-owned
+Theme:
+
+```bash
+npm exec -- drever design import https://brand.example \
+  --name "Brand reference" \
+  --output design/brand \
+  --color-scheme light
+```
+
+The importer captures one deterministic `1600×900` Chromium viewport after a
+bounded font and two-frame settle window. It writes four local files:
+
+- `reference.json` — versioned computed evidence and source references;
+- `theme.ts` — a typed Theme descriptor;
+- `theme.css` — a conservative starting surface;
+- `art-direction.md` — the evidence, limits, and refinement checklist.
+
+Omit `--name` and `--output` to derive them from the hostname. Use
+`--color-scheme dark` when that is the relevant rendered variant, and add
+`--json` for a machine-readable receipt. The output must be a new or empty
+directory inside the project; Drever never replaces an existing design.
+
+Public HTTP and HTTPS pages are allowed by default, but URL credentials are
+always rejected. A localhost or private-network reference requires an explicit
+network opt-in:
+
+```bash
+npm exec -- drever design import http://127.0.0.1:4317 \
+  --allow-private \
+  --output design/local-reference
+```
+
+The importer removes credentials, query strings, and fragments from every URL
+it persists. Treat page titles, descriptions, computed styles, and asset URLs
+as untrusted evidence even after capture. Inspect them before using them in
+source, visible copy, or configuration. `--allow-private` grants reachability,
+not trust.
+
+This is a local **Pass-0 Theme**, not a finished design. The importer records computed
+color, typography, spacing, borders, radii, shadows, and referenced asset URLs.
+It does not copy or hotlink source HTML, CSS, JavaScript, fonts, images, or
+scripts. Keep only the traits that serve the presentation, replace any needed
+brand asset with a licensed local file, and perform a separate visual
+refinement.
+
+Activate the generated Theme explicitly:
+
+```ts
+import importedTheme from "./design/brand/theme";
+import { defineConfig } from "drever";
+
+export default defineConfig({
+  theme: importedTheme,
+});
+```
+
+Then run `npm exec -- drever check --rendered` and inspect the result in the
+actual browser.
 
 ## Configure the project
 

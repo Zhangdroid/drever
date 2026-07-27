@@ -1,4 +1,4 @@
-import { expect, type Page } from "@playwright/test";
+import { expect, type Page, type Request } from "@playwright/test";
 
 type PageFailure = Readonly<{
   kind: "console" | "pageerror" | "request" | "response";
@@ -8,6 +8,14 @@ type PageFailure = Readonly<{
 export type PageHealth = Readonly<{
   expectHealthy(): void;
 }>;
+
+const isViteOptimizerCancellation = (request: Request): boolean => {
+  if (request.resourceType() !== "script" || request.failure()?.errorText !== "net::ERR_ABORTED") {
+    return false;
+  }
+
+  return new URL(request.url()).pathname.startsWith("/.vite/deps/");
+};
 
 /** Captures failures that DOM assertions often miss in a client-rendered application. */
 export const monitorPageHealth = (page: Page): PageHealth => {
@@ -22,6 +30,11 @@ export const monitorPageHealth = (page: Page): PageHealth => {
     failures.push({ kind: "pageerror", message: error.message });
   });
   page.on("requestfailed", (request) => {
+    // Vite may replace its cold dependency graph and reload while the first
+    // page is opening. Chromium reports the superseded script as aborted even
+    // though the replacement graph loads successfully.
+    if (isViteOptimizerCancellation(request)) return;
+
     failures.push({
       kind: "request",
       message: `${request.method()} ${request.url()}: ${request.failure()?.errorText ?? "unknown failure"}`,

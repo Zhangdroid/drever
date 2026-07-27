@@ -26,6 +26,7 @@ export type CreateDreverVitePluginsOptions = Readonly<{
   importModule?: ImportModule;
   include?: MdxOptions["include"];
   exclude?: MdxOptions["exclude"];
+  includeSourceLocations?: boolean;
   onDeckManifest?: (manifest: DeckManifest, path: string) => void;
 }>;
 
@@ -123,7 +124,7 @@ export const createDreverVitePlugins = async (
     };
     return Object.create(Object.getPrototypeOf(mdxPlugin) as object | null, descriptors) as Plugin;
   };
-  const buildMdxPlugin = createCanonicalMdxPlugin("build", false);
+  const buildMdxPlugin = createCanonicalMdxPlugin("build", options.includeSourceLocations === true);
   const devMdxPlugin = createCanonicalMdxPlugin("serve", true);
   const reactPlugins = react({ include: /\.(?:md|mdx|[jt]sx?)$/u });
 

@@ -62,6 +62,39 @@ describe("parseCommand", () => {
       entry: "decks/keynote.mdx",
       name: "mcp",
     });
+    expect(
+      parseCommand(["design", "import", "https://react.dev/", "--color-scheme", "dark", "--json"]),
+    ).toEqual({
+      action: "import",
+      allowPrivate: false,
+      colorScheme: "dark",
+      json: true,
+      name: "design",
+      output: "design/react-dev",
+      themeName: "React Dev",
+      url: "https://react.dev/",
+    });
+    expect(
+      parseCommand([
+        "design",
+        "import",
+        "https://example.com",
+        "--name",
+        "Launch system",
+        "--output",
+        "design/launch",
+        "--allow-private",
+      ]),
+    ).toEqual({
+      action: "import",
+      allowPrivate: true,
+      colorScheme: "light",
+      json: false,
+      name: "design",
+      output: "design/launch",
+      themeName: "Launch system",
+      url: "https://example.com",
+    });
   });
 
   it("models PDF export flags independently of their position", () => {
@@ -105,16 +138,18 @@ describe("parseCommand", () => {
   });
 
   it("models strict check flags independently of the entry position", () => {
-    expect(parseCommand(["check"])).toEqual({ json: false, name: "check" });
+    expect(parseCommand(["check"])).toEqual({ json: false, name: "check", rendered: false });
     expect(parseCommand(["check", "--json", "decks/keynote.mdx"])).toEqual({
       entry: "decks/keynote.mdx",
       json: true,
       name: "check",
+      rendered: false,
     });
-    expect(parseCommand(["check", "slides.mdx", "--json"])).toEqual({
+    expect(parseCommand(["check", "slides.mdx", "--rendered", "--json"])).toEqual({
       entry: "slides.mdx",
       json: true,
       name: "check",
+      rendered: true,
     });
   });
 
@@ -123,6 +158,7 @@ describe("parseCommand", () => {
     [["build", "--watch"], "Unknown build flag: --watch"],
     [["build", "one.mdx", "two.mdx"], "build accepts at most one deck entry path."],
     [["check", "--json", "--json"], "--json can be specified only once."],
+    [["check", "--rendered", "--rendered"], "--rendered can be specified only once."],
     [["check", "--fix"], "Unknown check flag: --fix"],
     [["check", "one.mdx", "two.mdx"], "check accepts at most one deck entry path."],
   ])("rejects invalid check arguments: %j", (arguments_, message) => {
@@ -157,6 +193,22 @@ describe("parseCommand", () => {
       ["browser", "install", "--with-deps", "--with-deps"],
       "--with-deps can be specified only once.",
     ],
+    [["design"], "Design action is required."],
+    [["design", "create"], "Unknown design action: create"],
+    [["design", "import"], "design import requires a website URL."],
+    [
+      ["design", "import", "https://example.com", "--color-scheme", "sepia"],
+      "--color-scheme requires light or dark.",
+    ],
+    [
+      ["design", "import", "https://example.com", "--allow-private", "--allow-private"],
+      "--allow-private can be specified only once.",
+    ],
+    [
+      ["design", "import", "https://user:secret@example.com"],
+      "design import does not accept website URLs with embedded credentials.",
+    ],
+    [["design", "import", "https://example.com", "--output"], "--output requires a value."],
     [["mcp", "one.mdx", "two.mdx"], "mcp accepts at most one deck entry path."],
     [["mcp", "--port"], "mcp accepts at most one deck entry path."],
   ])("rejects invalid agent and context arguments: %j", (arguments_, message) => {
@@ -345,7 +397,77 @@ describe("runCli browser", () => {
     });
 
     expect(installBrowser).toHaveBeenCalledWith({ withDeps: true });
-    expect(output).toBe("Playwright Chromium is ready for Drever PDF export.\n");
+    expect(output).toBe(
+      "Playwright Chromium is ready for Drever PDF export, rendered preflight, and design import.\n",
+    );
+  });
+});
+
+describe("runCli design import", () => {
+  it("captures before loading project config and prints the exact config handoff", async () => {
+    const root = await mkdtemp(join(tmpdir(), "drever-design-cli-test-"));
+    directories.push(root);
+    await writeFile(join(root, "drever.config.ts"), "export default { invalid: true };\n");
+    const imported = join(root, "design", "example");
+    const importDesign = vi.fn(async () => ({
+      files: ["reference.json", "theme.ts", "theme.css", "art-direction.md"] as const,
+      kind: "drever.design-import" as const,
+      name: "Example",
+      output: imported,
+      reference: {
+        capture: {
+          capturedAt: "2026-07-27T12:00:00.000Z",
+          colorScheme: "light" as const,
+          viewport: { height: 900, width: 1600 },
+        },
+        evidence: {
+          assets: [],
+          borders: [],
+          colors: [],
+          description: "",
+          dir: "ltr",
+          finalUrl: "https://example.com/",
+          lang: "en",
+          radii: [],
+          shadows: [],
+          spacing: [],
+          themeColor: "",
+          title: "Example",
+          typography: { body: [], heading: [] },
+        },
+        source: { requestedUrl: "https://example.com/" },
+        version: 1 as const,
+      },
+      version: 1 as const,
+    }));
+    let output = "";
+
+    await runCli(
+      [
+        "design",
+        "import",
+        "https://example.com",
+        "--name",
+        "Example",
+        "--output",
+        "design/example",
+      ],
+      {
+        cwd: root,
+        importDesign,
+        stdout: { write: (chunk) => ((output += String(chunk)), true) },
+      },
+    );
+
+    expect(importDesign).toHaveBeenCalledWith({
+      allowPrivate: false,
+      colorScheme: "light",
+      name: "Example",
+      output: "design/example",
+      root,
+      url: "https://example.com",
+    });
+    expect(output).toContain('import theme from "./design/example/theme.ts"');
   });
 });
 

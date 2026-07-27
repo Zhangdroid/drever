@@ -351,6 +351,16 @@ export const buildDreverExportApp = async (
   }
 };
 
+/** @internal Builds portable audience routes in temporary storage for rendered preflight. */
+export const buildDreverInspectionApp = async (
+  project: ResolvedDreverProject,
+  appRoot: string,
+): Promise<BuiltDreverExportApp> => {
+  const built = await buildDreverExportApp(project, appRoot);
+  await writeStaticDeckRoutes(built.outDir, built.manifest, project.config.deck);
+  return built;
+};
+
 export const serveDreverProject = async (
   project: ResolvedDreverProject,
 ): Promise<ViteDevServer> => {

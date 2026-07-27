@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { mkdtemp, realpath, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, realpath, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
@@ -37,7 +37,7 @@ const runCheck = (cwd: string, ...arguments_: string[]) =>
   execute(process.execPath, [cli, "check", ...arguments_], {
     cwd,
     env: environment,
-    timeout: 30_000,
+    timeout: arguments_.includes("--rendered") ? 90_000 : 30_000,
   });
 
 const runFailingCheck = async (cwd: string, ...arguments_: string[]): Promise<CliFailure> =>
@@ -55,7 +55,7 @@ test("the built CLI emits an empty JSON accessibility report for a clean deck", 
   const report = parseReport(stdout);
 
   expect(report).toEqual({
-    version: 1,
+    version: 2,
     sourcePath: join(projectRoot, "slides.mdx"),
     slideCount: 5,
     summary: { errors: 0, warnings: 0, info: 0 },
@@ -89,7 +89,7 @@ This slide has no title.
 
     const report = parseReport(failure.stdout);
     expect(report).toMatchObject({
-      version: 1,
+      version: 2,
       sourcePath,
       slideCount: 3,
       summary: { errors: 3, warnings: 0, info: 0 },
@@ -138,6 +138,76 @@ test("warnings remain machine-readable without failing the command", async () =>
         source: { path: join(root, "slides.mdx"), start: { line: 3 } },
       },
     ]);
+  } finally {
+    await rm(root, { force: true, recursive: true });
+  }
+});
+
+test("rendered check inspects exact Step states without writing a production build", async () => {
+  test.setTimeout(120_000);
+  const root = await realpath(await mkdtemp(join(tmpdir(), "drever-render-check-e2e-")));
+  try {
+    await writeFile(
+      join(root, "slides.mdx"),
+      `import { Step } from "drever";
+
+<style>{\`
+  [data-step-state="pending"].reflow-evidence { display: none; }
+\`}</style>
+
+# Rendered evidence
+
+<svg aria-label="Status glyph" width="20" height="20" viewBox="0 0 20 20">
+  <circle cx="10" cy="10" r="8" />
+</svg>
+
+<div
+  aria-label="Framed illustration"
+  role="img"
+  style={{ width: 80, height: 48, overflow: "clip", border: "2px solid currentColor" }}
+>
+  <span aria-hidden="true" style={{ display: "block", width: 76, height: 48 }} />
+</div>
+
+<p style={{ width: 180, height: 44, overflow: "auto", whiteSpace: "nowrap" }}>
+  This required sentence is visibly clipped by its authored surface.
+</p>
+
+<Step at={1} className="reflow-evidence">
+  <p>New evidence takes real layout space.</p>
+</Step>
+
+## Persistent decision
+`,
+    );
+
+    const failure = await runFailingCheck(root, "--rendered", "--json");
+    const report = parseReport(failure.stdout) as CheckReport &
+      Readonly<{
+        rendered: Readonly<{
+          browserVersion?: string;
+          engine: string;
+          rulesetVersion: number;
+          stateCount: number;
+          status: string;
+          version: number;
+        }>;
+      }>;
+
+    expect(report.rendered, JSON.stringify(report, null, 2)).toEqual(
+      expect.objectContaining({
+        browserVersion: expect.any(String),
+        engine: "chromium",
+        rulesetVersion: 1,
+        stateCount: 2,
+        status: "failed",
+        version: 1,
+      }),
+    );
+    expect(report.diagnostics.map(({ code }) => code)).toEqual(
+      expect.arrayContaining(["DREVER_RENDER_CONTENT_CLIPPED", "DREVER_RENDER_GEOMETRY_UNSTABLE"]),
+    );
+    expect(await readdir(root)).not.toContain("dist");
   } finally {
     await rm(root, { force: true, recursive: true });
   }

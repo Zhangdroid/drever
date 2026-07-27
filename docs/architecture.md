@@ -18,10 +18,11 @@ MDX source
      -> Accessibility Report
      -> Compile Plan
         -> Deck Artifact
+           -> Rendered Preflight
            -> Audience Viewer / Document View / Speaker View / Export Document
 
 Future consumers of the same artifact:
-  -> Thumbnail Overview / Design Inspector
+  -> Design Inspector
 ```
 
 The Deck IR is serializable and independent from React, Vite, and the filesystem.
@@ -47,6 +48,18 @@ dynamic component output remain explicit review responsibilities rather than
 heuristic diagnostics.
 The check path resolves configuration and the deck entry without creating a
 CompilePlan, running build-module factories, or materializing build caches.
+`drever check --rendered` adds a separate product phase after source preflight.
+When source errors do not make rendering unsafe, it creates an isolated
+production inspection app and visits Step 0 plus every exact compiled Step at
+the configured canvas in deterministic Chromium. Stable diagnostics cover
+clipping, canvas overflow, persistent-geometry drift, suspicious density, and
+runtime readiness. Its versioned receipt records the canvas, engine, captured
+state count, status, explicit skip or failure reason, receipt and ruleset
+versions, and the browser version when capture starts. The CLI emits the current
+typed V2 report. The schema retains a source-only V1 type plus a report union so
+stored artifacts can be inspected without pretending they contain rendered
+evidence. The phase provides machine evidence; it does not convert contrast,
+hierarchy, motion quality, or aesthetic judgment into guessed compiler facts.
 
 Agent authoring is a separate distribution and CLI boundary. `create-drever`
 bootstraps an empty workspace, pins its compatible local `drever`, and installs
@@ -78,6 +91,23 @@ snapshot per dev-server session and `drever current --json` selects the most
 recent open surface. Vite client disconnects remove or roll back session state;
 document and export entries never publish. Production builds contain none of
 this authoring channel.
+
+`drever design import <url>` is an evidence adapter, not a website copier. It
+loads one HTTP or HTTPS page in an isolated fixed Chromium viewport, gives fonts
+and two animation frames a bounded settle window, and samples visible computed
+color, typography, spacing, border, radius, shadow, metadata, and
+asset-reference evidence. It writes a project-local Pass-0 Theme, stylesheet,
+evidence record, and art-direction brief atomically into a new or empty child
+directory. Source HTML, CSS, JavaScript, fonts, images, and scripts are neither
+copied nor hotlinked; asset URLs remain inert references for license-aware
+replacement.
+
+The network boundary allows public HTTP and HTTPS by default, rejects URL
+credentials, and requires `--allow-private` for localhost or private-network
+targets. Persisted references redact query strings and fragments. Captured page
+metadata and computed values remain untrusted evidence regardless of network
+location or opt-in; they are never an authority for executable source,
+configuration, licensing, or visible claims.
 
 `drever mcp [entry]` is a separate read-only adapter over the same domains. Its
 dependency-free stdio transport implements MCP `2025-11-25` and writes only
@@ -226,12 +256,13 @@ build-time tools such as MDX, Shiki, Tailwind, and KaTeX are allowed because
 their implementations are not Drever's product advantage.
 
 Playwright Core is a CLI-only dependency for deterministic Chromium PDF
-capture. It is loaded only by `export pdf` and the browser-readiness check in
-`doctor`; `drever browser install` explicitly installs the Chromium revision
-declared by that exact dependency. Browser
-automation, PDF tagging, page sizing, and process cleanup are infrastructure,
-while Drever retains page planning, readiness, plugin lifecycle, and error
-semantics.
+capture, rendered preflight, and website design evidence. It is loaded only by
+those explicit commands and the browser-readiness check in `doctor`; `drever
+browser install` explicitly installs the Chromium revision declared by that
+exact dependency. Browser automation, PDF tagging, page sizing, computed-style
+capture, and process cleanup are infrastructure, while Drever retains page
+planning, evidence analysis, readiness, plugin lifecycle, output ownership, and
+error semantics.
 
 Vite+ is the internal toolchain for formatting, linting, type checking, tests,
 packing, and tasks. Published CLI builds depend on upstream Vite 8, and public
@@ -253,6 +284,10 @@ The accessibility CLI wraps those diagnostics in a versioned report containing
 `sourcePath`, `slideCount`, and explicit error, warning, and info totals. JSON
 mode writes the artifact to standard output even when errors set a failing exit
 status, allowing CI and AI tools to inspect the complete result.
+Rendered mode adds a separately versioned receipt while preserving the same
+diagnostic vocabulary and summary. Source errors skip browser work explicitly;
+missing-browser and runtime failures become machine-readable errors rather than
+partial success.
 The authoring-context schema is versioned independently and embeds the complete
 preflight report rather than defining a second diagnostic vocabulary.
 
@@ -270,8 +305,10 @@ preflight report rather than defining a second diagnostic vocabulary.
   rejecting-plugin cleanup.
 - A serverless Playwright project runs the built `drever check` CLI against a
   clean example and temporary failing source, asserting report schema, exit
-  semantics, stable codes, and exact locations without substituting test-only
-  compiler calls.
+  semantics, stable codes, exact locations, and rendered-state evidence without
+  substituting test-only compiler calls.
+- Design-import E2E serves a controlled website, runs the built public command,
+  and compiles the generated Theme instead of testing only string templates.
 - CLI tests exercise agent-kit ownership conflicts and plugin-aware context
   compilation. Serverless end-to-end tests verify the packaged skills,
   idempotent sync, and the real example's authoring-context JSON.

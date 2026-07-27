@@ -1,4 +1,4 @@
-import { basename, extname, resolve } from "node:path";
+import { basename, extname, relative, resolve, sep } from "node:path";
 import type { ViteDevServer } from "vite";
 import { loadDreverConfig, type LoadDreverConfigOptions } from "./config.ts";
 import { DreverCliError } from "./errors.ts";
@@ -25,6 +25,11 @@ import { createArtifactReceipt, writeArtifactReceipt } from "./artifact-receipt.
 import { DREVER_VERSION } from "./package-version.ts";
 import type { RunDoctorRequest } from "./doctor.ts";
 import type { BrowserInstallRequest } from "./browser-install.ts";
+import type {
+  DesignImportColorScheme,
+  DesignImportReceipt,
+  ImportWebsiteDesignOptions,
+} from "./design-import.ts";
 
 export type AgentCommand = Readonly<{
   action: "sync";
@@ -53,6 +58,7 @@ export type CheckCommand = Readonly<{
   entry?: string;
   json: boolean;
   name: "check";
+  rendered: boolean;
 }>;
 
 export type ContextCommand = Readonly<{
@@ -64,6 +70,17 @@ export type ContextCommand = Readonly<{
 export type CurrentCommand = Readonly<{
   json: boolean;
   name: "current";
+}>;
+
+export type DesignCommand = Readonly<{
+  action: "import";
+  allowPrivate: boolean;
+  colorScheme: DesignImportColorScheme;
+  json: boolean;
+  name: "design";
+  output: string;
+  themeName: string;
+  url: string;
 }>;
 
 export type DoctorCommand = Readonly<{
@@ -99,6 +116,7 @@ export type DreverCommand =
   | ContextCommand
   | CreateCommand
   | CurrentCommand
+  | DesignCommand
   | DoctorCommand
   | ExportPdfCommand
   | McpCommand
@@ -114,13 +132,15 @@ export type PdfExportRequest = Readonly<{
 const EXPORT_PDF_USAGE =
   "Usage: drever export pdf [entry] [--steps] [--slides <range>] [-o|--output <path>] [--json]";
 const BUILD_USAGE = "Usage: drever build [entry] [--json]";
-const CHECK_USAGE = "Usage: drever check [entry] [--json]";
+const CHECK_USAGE = "Usage: drever check [entry] [--rendered] [--json]";
 const CONTEXT_USAGE = "Usage: drever context [entry] [--json]";
 const CURRENT_USAGE = "Usage: drever current [--json]";
 const DOCTOR_USAGE = "Usage: drever doctor [--json]";
 const MCP_USAGE = "Usage: drever mcp [entry]";
 const AGENT_SYNC_USAGE = "Usage: drever agent sync [--target <all|auto|codex|claude>]";
 const BROWSER_INSTALL_USAGE = "Usage: drever browser install [--with-deps]";
+const DESIGN_IMPORT_USAGE =
+  "Usage: drever design import <url> [--name <name>] [--output <directory>] [--color-scheme <light|dark>] [--allow-private] [--json]";
 const CONFIG_COMMAND = {
   build: "build",
   check: "check",
@@ -132,7 +152,7 @@ const CONFIG_COMMAND = {
   Record<
     Exclude<
       DreverCommand,
-      AgentCommand | BrowserCommand | CreateCommand | CurrentCommand | DoctorCommand
+      AgentCommand | BrowserCommand | CreateCommand | CurrentCommand | DesignCommand | DoctorCommand
     >["name"],
     LoadDreverConfigOptions["command"]
   >
@@ -275,6 +295,7 @@ const parseBuild = (arguments_: readonly string[]): BuildCommand => {
 const parseCheck = (arguments_: readonly string[]): CheckCommand => {
   let entry: string | undefined;
   let json = false;
+  let rendered = false;
 
   for (const argument of arguments_) {
     if (argument === "--json") {
@@ -282,6 +303,13 @@ const parseCheck = (arguments_: readonly string[]): CheckCommand => {
         invalidArgument("--json can be specified only once.", CHECK_USAGE);
       }
       json = true;
+      continue;
+    }
+    if (argument === "--rendered") {
+      if (rendered) {
+        invalidArgument("--rendered can be specified only once.", CHECK_USAGE);
+      }
+      rendered = true;
       continue;
     }
     if (argument.startsWith("-")) {
@@ -296,6 +324,7 @@ const parseCheck = (arguments_: readonly string[]): CheckCommand => {
   return Object.freeze({
     json,
     name: "check",
+    rendered,
     ...(entry === undefined ? {} : { entry }),
   });
 };
@@ -412,6 +441,119 @@ const parseBrowser = (arguments_: readonly string[]): BrowserCommand => {
   return Object.freeze({ action: "install", name: "browser", withDeps });
 };
 
+const designIdentity = (source: string): Readonly<{ name: string; output: string }> => {
+  let url: URL;
+  try {
+    url = new URL(source);
+  } catch {
+    return invalidArgument("design import requires an absolute website URL.", DESIGN_IMPORT_USAGE);
+  }
+  if (url.username !== "" || url.password !== "") {
+    return invalidArgument(
+      "design import does not accept website URLs with embedded credentials.",
+      DESIGN_IMPORT_USAGE,
+    );
+  }
+  const identity = url.hostname
+    .replace(/^www\./u, "")
+    .split(".")
+    .filter(Boolean)
+    .join("-");
+  const slug =
+    identity
+      .normalize("NFKD")
+      .toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}]+/gu, "-")
+      .replace(/^-|-$/gu, "") || "reference";
+  const name = slug
+    .split("-")
+    .filter(Boolean)
+    .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
+    .join(" ");
+  return { name, output: `design/${slug}` };
+};
+
+const parseDesign = (arguments_: readonly string[]): DesignCommand => {
+  const [action, ...rest] = arguments_;
+  if (action !== "import") {
+    invalidArgument(
+      action === undefined ? "Design action is required." : `Unknown design action: ${action}`,
+      DESIGN_IMPORT_USAGE,
+    );
+  }
+  let colorScheme: DesignImportColorScheme = "light";
+  let colorSchemeSet = false;
+  let allowPrivate = false;
+  let json = false;
+  let output: string | undefined;
+  let themeName: string | undefined;
+  let url: string | undefined;
+  for (let index = 0; index < rest.length; index += 1) {
+    const argument = rest[index] as string;
+    if (argument === "--json") {
+      if (json) invalidArgument("--json can be specified only once.", DESIGN_IMPORT_USAGE);
+      json = true;
+      continue;
+    }
+    if (argument === "--allow-private") {
+      if (allowPrivate) {
+        invalidArgument("--allow-private can be specified only once.", DESIGN_IMPORT_USAGE);
+      }
+      allowPrivate = true;
+      continue;
+    }
+    if (argument === "--name" || argument === "--output" || argument === "--color-scheme") {
+      const value =
+        rest[index + 1] ?? invalidArgument(`${argument} requires a value.`, DESIGN_IMPORT_USAGE);
+      if (value.length === 0 || value.startsWith("-")) {
+        invalidArgument(`${argument} requires a value.`, DESIGN_IMPORT_USAGE);
+      }
+      if (argument === "--name") {
+        if (themeName !== undefined) {
+          invalidArgument("--name can be specified only once.", DESIGN_IMPORT_USAGE);
+        }
+        themeName = value;
+      } else if (argument === "--output") {
+        if (output !== undefined) {
+          invalidArgument("--output can be specified only once.", DESIGN_IMPORT_USAGE);
+        }
+        output = value;
+      } else {
+        if (colorSchemeSet) {
+          invalidArgument("--color-scheme can be specified only once.", DESIGN_IMPORT_USAGE);
+        }
+        if (value !== "light" && value !== "dark") {
+          invalidArgument("--color-scheme requires light or dark.", DESIGN_IMPORT_USAGE);
+        }
+        colorScheme = value as DesignImportColorScheme;
+        colorSchemeSet = true;
+      }
+      index += 1;
+      continue;
+    }
+    if (argument.startsWith("-")) {
+      invalidArgument(`Unknown design import flag: ${argument}`, DESIGN_IMPORT_USAGE);
+    }
+    if (url !== undefined) {
+      invalidArgument("design import accepts exactly one website URL.", DESIGN_IMPORT_USAGE);
+    }
+    url = argument;
+  }
+  const resolvedUrl =
+    url ?? invalidArgument("design import requires a website URL.", DESIGN_IMPORT_USAGE);
+  const defaults = designIdentity(resolvedUrl);
+  return Object.freeze({
+    action: "import",
+    allowPrivate,
+    colorScheme,
+    json,
+    name: "design",
+    output: output ?? defaults.output,
+    themeName: themeName ?? defaults.name,
+    url: resolvedUrl,
+  });
+};
+
 const parseMcp = (arguments_: readonly string[]): McpCommand => {
   const [entry, ...rest] = arguments_;
   if (rest.length > 0 || entry?.startsWith("-") === true) {
@@ -426,11 +568,12 @@ Usage:
   drever create [directory] [options]
   drever dev [entry]
   drever build [entry] [--json]
-  drever check [entry] [--json]
+  drever check [entry] [--rendered] [--json]
   drever context [entry] [--json]
   drever current [--json]
   drever doctor [--json]
   drever browser install [--with-deps]
+  drever design import <url> [options]
   drever mcp [entry]
   drever export pdf [entry] [--steps] [--slides <range>] [-o|--output <path>] [--json]
   drever agent sync [--target <all|auto|codex|claude>]
@@ -460,6 +603,9 @@ export const parseCommand = (arguments_: readonly string[]): DreverCommand | "he
   }
   if (command === "browser") {
     return parseBrowser(rest);
+  }
+  if (command === "design") {
+    return parseDesign(rest);
   }
   if (command === "mcp") {
     return parseMcp(rest);
@@ -507,6 +653,7 @@ export type RunCliOptions = Readonly<{
   cwd?: string;
   environment?: NodeJS.ProcessEnv;
   exportPdf?: (request: PdfExportRequest) => Promise<void>;
+  importDesign?: (request: ImportWebsiteDesignOptions) => Promise<DesignImportReceipt>;
   installBrowser?: (request: BrowserInstallRequest) => Promise<void>;
   runDoctor?: (request: RunDoctorRequest) => Promise<CheckExitCode>;
   syncAgentKit?: (options: SyncAgentKitOptions) => Promise<AgentSyncResult>;
@@ -537,6 +684,11 @@ const formatAgentSyncResult = ({ files }: AgentSyncResult): string => {
   const count = (status: AgentSyncResult["files"][number]["status"]): number =>
     files.filter((file) => file.status === status).length;
   return `Synced Drever agent kit: ${count("created")} created, ${count("updated")} updated, ${count("unchanged")} unchanged.\n`;
+};
+
+const designImportPath = (root: string, output: string): string => {
+  const path = relative(root, output).split(sep).join("/");
+  return path.startsWith(".") ? path : `./${path}`;
 };
 
 export const runCli = async (
@@ -581,7 +733,35 @@ export const runCli = async (
         await browser.installBrowser(request);
       });
     await installBrowser({ withDeps: command.withDeps });
-    output.write("Playwright Chromium is ready for Drever PDF export.\n");
+    output.write(
+      "Playwright Chromium is ready for Drever PDF export, rendered preflight, and design import.\n",
+    );
+    return;
+  }
+  if (command.name === "design") {
+    const importDesign =
+      options.importDesign ??
+      (async (request: ImportWebsiteDesignOptions): Promise<DesignImportReceipt> => {
+        const design = await import("./design-import.ts");
+        return design.importWebsiteDesign(request);
+      });
+    const result = await importDesign({
+      allowPrivate: command.allowPrivate,
+      colorScheme: command.colorScheme,
+      name: command.themeName,
+      output: command.output,
+      root,
+      url: command.url,
+    });
+    if (command.json) {
+      output.write(`${JSON.stringify(result, null, 2)}\n`);
+    } else {
+      const path = designImportPath(root, result.output);
+      output.write(
+        `Imported rendered design evidence to ${result.output}\n` +
+          `Next: import theme from "${path}/theme.ts" in drever.config.ts, then run drever check --rendered.\n`,
+      );
+    }
     return;
   }
   if (command.name === "agent") {
@@ -618,18 +798,33 @@ export const runCli = async (
     root,
   });
   if (command.name === "check") {
-    const entry = await resolveDreverEntry({
-      config: loaded.config,
-      ...(command.entry === undefined ? {} : { entry: command.entry }),
-      root,
-    });
+    const project = command.rendered
+      ? await resolveDreverProject({
+          config: loaded.config,
+          ...(command.entry === undefined ? {} : { entry: command.entry }),
+          includeSourceLocations: true,
+          root,
+        })
+      : undefined;
+    const entry =
+      project?.entry ??
+      (await resolveDreverEntry({
+        config: loaded.config,
+        ...(command.entry === undefined ? {} : { entry: command.entry }),
+        root,
+      }));
     const checkDeck =
       options.checkDeck ??
       (async (request: CheckDeckRequest): Promise<CheckExitCode> => {
         const checker = await import("./check.ts");
         return checker.checkDeck(request);
       });
-    return checkDeck({ entry, json: command.json, stdout: output });
+    return checkDeck({
+      entry,
+      json: command.json,
+      ...(project === undefined ? {} : { project }),
+      stdout: output,
+    });
   }
   if (command.name === "context") {
     const project = await resolveDreverPlan({

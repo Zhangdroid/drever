@@ -22,6 +22,41 @@ The command exits nonzero for errors; warnings stay visible without blocking del
 Preflight is not a visual oracle. Inspect rendered overflow, contrast, reading order, component
 semantics, and motion in the actual browser surfaces.
 
+<h2 id="rendered-check">Check every rendered state</h2>
+
+Add `--rendered` when a production candidate needs deterministic browser evidence:
+
+```bash
+npm run check -- --rendered
+npm run check -- --rendered --json
+```
+
+Drever builds an isolated inspection app and visits Step 0 plus every exact authored Step at the
+configured canvas. Stable diagnostics report clipped content, content outside the canvas,
+unexpected movement or resizing of persistent geometry, and suspicious density supported by
+multiple rendered signals.
+
+Clipping and overflow are errors. Geometry and density are warnings because deliberate reflow and
+information-rich slides can be valid. Missing Chromium and runtime failures are explicit errors.
+Install the matching browser with `npm exec -- drever browser install`.
+
+| Code                              | Severity | Evidence                                                |
+| --------------------------------- | -------- | ------------------------------------------------------- |
+| `DREVER_RENDER_CONTENT_CLIPPED`   | Error    | Visible content is cut by an owning surface.            |
+| `DREVER_RENDER_CANVAS_OVERFLOW`   | Error    | Visible content extends beyond the configured canvas.   |
+| `DREVER_RENDER_GEOMETRY_UNSTABLE` | Warning  | Persistent content moves or resizes between Steps.      |
+| `DREVER_RENDER_DENSITY_HIGH`      | Warning  | Multiple rendered density signals cross their limits.   |
+| `DREVER_RENDER_BROWSER_MISSING`   | Error    | The matching Playwright Chromium is unavailable.        |
+| `DREVER_RENDER_RUNTIME_FAILED`    | Error    | A route, application, or capture invariant did not run. |
+
+JSON mode emits the current typed report V2. Its `rendered` receipt records the receipt and ruleset
+versions, canvas, `chromium` engine, optional browser version, captured state count, status, and any
+skip or failure reason. Source errors produce a `skipped` receipt instead of starting an unsafe
+build. The schema also models a legacy source-only V1 report for stored artifacts; it does not
+count as rendered evidence. This is stable machine evidence for CI and agents, not an aesthetic
+score. Continue to inspect contrast, hierarchy, reading order, motion, and the presentation's
+visual fit in the actual browser.
+
 <h2 id="static-build">Build a static website</h2>
 
 ```bash
@@ -159,13 +194,15 @@ The human commands expose stable JSON forms for agents and automation:
 npm exec -- drever doctor --json
 npm exec -- drever context --json
 npm run check -- --json
+npm run check -- --rendered --json
 npm run build -- --json
 npm run export -- --json
 ```
 
-Run source checks on every change. Build and browser-test the presentation states that changed.
-Keep visual review focused on real layouts and transitions instead of adding cosmetic E2E cases for
-every style detail.
+Run the fast source check on every change. Use rendered preflight at a production boundary or after
+layout and Step changes, then browser-test the presentation states that changed. Keep visual review
+focused on real layouts and transitions instead of adding cosmetic E2E cases for every style
+detail.
 
 <h2 id="troubleshooting">Troubleshooting and support</h2>
 

@@ -5,6 +5,7 @@ import {
   type DeckIR,
   type DeckManifest,
   type DreverAuthoringContext,
+  type DreverAuthoringContextV2,
   type DreverAuthoringLayout,
   type DreverAuthoringTheme,
 } from "@drever/schema";
@@ -166,7 +167,7 @@ const curateLayout = (
 
 export const createAuthoringContext = async (
   project: ResolvedDreverPlan,
-): Promise<DreverAuthoringContext> => {
+): Promise<DreverAuthoringContextV2> => {
   const source = await readSource(project.entry);
   const parsed = parseSource(source, project.entry);
   const manifest = await compileManifest(source, project);
@@ -206,7 +207,7 @@ export const writeAuthoringContext = async ({
   project,
   json,
   stdout,
-}: WriteAuthoringContextRequest): Promise<DreverAuthoringContext> => {
+}: WriteAuthoringContextRequest): Promise<DreverAuthoringContextV2> => {
   const context = await createAuthoringContext(project);
   stdout.write(json ? formatAuthoringContextJson(context) : formatAuthoringContextHuman(context));
   return context;
