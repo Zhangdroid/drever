@@ -11,6 +11,7 @@ import {
   siteRoutes,
 } from "../website/site-manifest.ts";
 import { checkShowcases } from "./check-showcases.mjs";
+import { applyWebsitePresentationMetadata } from "./website-presentation-metadata.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const websiteOutput = join(root, "website", "dist", "client");
@@ -56,9 +57,6 @@ const collectFiles = async (directory, extension) => {
   return files;
 };
 
-const escapeAttribute = (value) =>
-  value.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;");
-
 const decoratePresentation = async (presentation, destination) => {
   const title = `${presentation.label} — Drever`;
   const canonical = presentationURL(presentation.slug);
@@ -67,33 +65,14 @@ const decoratePresentation = async (presentation, destination) => {
   await Promise.all(
     htmlFiles.map(async (path) => {
       const isRoot = path === join(destination, "index.html");
-      const metadata = [
-        `<meta name="description" content="${escapeAttribute(presentation.description)}" />`,
-        ...(isRoot ? [] : ['<meta name="robots" content="noindex, follow" />']),
-        `<link rel="canonical" href="${canonical}" />`,
-        `<meta property="og:title" content="${escapeAttribute(title)}" />`,
-        `<meta property="og:description" content="${escapeAttribute(presentation.description)}" />`,
-        '<meta property="og:type" content="website" />',
-        `<meta property="og:url" content="${canonical}" />`,
-        '<meta property="og:site_name" content="Drever" />',
-        `<meta property="og:image" content="${socialImageURL}" />`,
-        '<meta property="og:image:type" content="image/png" />',
-        '<meta property="og:image:width" content="1200" />',
-        '<meta property="og:image:height" content="630" />',
-        `<meta property="og:image:alt" content="${escapeAttribute(socialImageAlt)}" />`,
-        '<meta name="twitter:card" content="summary_large_image" />',
-        `<meta name="twitter:title" content="${escapeAttribute(title)}" />`,
-        `<meta name="twitter:description" content="${escapeAttribute(presentation.description)}" />`,
-        `<meta name="twitter:image" content="${socialImageURL}" />`,
-        `<meta name="twitter:image:alt" content="${escapeAttribute(socialImageAlt)}" />`,
-      ].join("\n    ");
-      const html = (await readFile(path, "utf8"))
-        .replace(
-          /<link rel="icon"[^>]*>/u,
-          '<link rel="icon" href="/favicon.svg" type="image/svg+xml" />',
-        )
-        .replace("<title>Drever</title>", `<title>${escapeAttribute(title)}</title>`)
-        .replace("</head>", `    ${metadata}\n  </head>`);
+      const html = applyWebsitePresentationMetadata(await readFile(path, "utf8"), {
+        canonical,
+        description: presentation.description,
+        indexable: isRoot,
+        socialImageAlt,
+        socialImageURL,
+        title,
+      });
       await writeFile(path, html);
     }),
   );
