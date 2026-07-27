@@ -6,6 +6,11 @@ network. Also read \`.release-smoke/constraints.md\`, which defines the narrow
 generation-stage boundary for this run. Begin with the optional briefing from
 the fetched prompt; do not assume that any question has already been answered.`;
 
+const sourceReview = `Before finishing, reread every authored file as literal source. Correct
+obvious MDX and JSX syntax defects, including unbalanced tags, malformed expressions, invalid
+imports, and Markdown delimiter runs used as visible placeholders. This is a source review, not a
+claim that validation ran.`;
+
 export const releaseSmokeScenarios = Object.freeze([
   Object.freeze({
     brief:
@@ -18,7 +23,7 @@ export const releaseSmokeScenarios = Object.freeze([
       "Skip remaining questions — surprise me. Choose the topic and every remaining creative decision, then create the presentation now.",
       `Review the complete authored draft once more. Keep its strongest idea, then refine the
 narrative, composition, hierarchy, motion, and small details wherever the source reveals a
-clear improvement. Do not run validation in this protected stage.`,
+clear improvement. ${sourceReview} Do not run validation in this protected stage.`,
     ]),
   }),
   Object.freeze({
@@ -41,7 +46,7 @@ Skip remaining questions — surprise me. Create the complete presentation now.`
       `Review the complete authored draft once more. Use expressive but purposeful motion and a
 calm launch-control or risk-radar visual language. Preserve what already works, then refine the
 narrative, composition, hierarchy, motion, and small details wherever the source reveals a clear
-improvement. Do not run validation in this protected stage.`,
+improvement. ${sourceReview} Do not run validation in this protected stage.`,
     ]),
   }),
 ]);

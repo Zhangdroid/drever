@@ -86,6 +86,7 @@ test("defines one real surprise journey and one fully guided journey", () => {
     assert.ok(scenario.turns.length >= 3);
     assert.match(scenario.turns[0], /^Fetch and follow https:\/\/drever\.dev\/prompt\.md\./u);
     assert.match(scenario.turns.at(-1), /refine the\s+narrative/iu);
+    assert.match(scenario.turns.at(-1), /reread every authored file as literal source/iu);
   }
   assert.match(
     getReleaseSmokeScenario("surprise-me").turns[1],
