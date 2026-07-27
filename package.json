@@ -16,6 +16,7 @@
     "demo:motion": "vp run -F @drever/example-motion-recipes dev",
     "demo:product": "vp run -F @drever/example-product-tour dev",
     "demo:scenes": "vp run -F @drever/example-room-scenes dev",
+    "demo:spatial": "vp run -F @drever/example-spatial-stories dev",
     "demo:showcases": "vp run --parallel -F @drever/example-product-tour -F @drever/example-motion-recipes -F @drever/example-feature-gallery dev",
     "deploy:website": "pnpm --dir website run deploy",
     "dev:website": "pnpm --dir website run dev",

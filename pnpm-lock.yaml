@@ -457,6 +457,30 @@ importers:
         specifier: 19.3.0-canary-83840902-20260719
         version: 19.3.0-canary-83840902-20260719
 
+  examples/spatial-stories:
+    devDependencies:
+      '@drever/brand':
+        specifier: workspace:*
+        version: link:../../packages/brand
+      '@drever/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@drever/designs':
+        specifier: workspace:*
+        version: link:../../packages/designs
+      '@splinetool/runtime':
+        specifier: 1.12.98
+        version: 1.12.98
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.17
+      drever:
+        specifier: workspace:*
+        version: link:../../packages/cli
+      react:
+        specifier: 19.3.0-canary-83840902-20260719
+        version: 19.3.0-canary-83840902-20260719
+
   examples/theme-showcase:
     devDependencies:
       '@drever/designs':
@@ -2024,6 +2048,9 @@ packages:
   '@speed-highlight/core@1.2.17':
     resolution: {integrity: sha512-Z92FwKpCtfaW1V0jTU/fh3QzYEZN8wDwrzRIBoADCJfn4mJCNcJN/XegifX7BDrQ8/h9Xh/JnbyMchL0FqXrkg==}
 
+  '@splinetool/runtime@1.12.98':
+    resolution: {integrity: sha512-UWZH/+4XtNgMMgmDiWhZS55WOwUDGuTj4uH6fiZV6Jol3d3v3z1RRBObspx8GMio0HajOYGg7FJ8TZdyBdpW4A==}
+
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
 
@@ -3379,6 +3406,10 @@ packages:
     resolution: {integrity: sha512-4a+OsYv9UktOJKE+l1A4OufDgdRF9PifWj+tJnHURo/P+WOxpG4GzUFL9qCalmWauao6ogiG+QvnCovwPoyAWA==}
     engines: {node: '>=12.20.0'}
 
+  on-change@4.0.0:
+    resolution: {integrity: sha512-PTu7C9Jsz4b+sNMDpH0eZFTr7uxdOtoDWRnhaVNK50bgrrnW5nvbWI0jm5DG9qOoTnIhBzE9xoKVFPD9xgtbdg==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+
   oniguruma-parser@0.12.2:
     resolution: {integrity: sha512-6HVa5oIrgMC6aA6WF6XyyqbhRPJrKR02L20+2+zpDtO5QAzGHAUGw5TKQvwi5vctNnRHkJYmjAhRVQF2EKdTQw==}
 
@@ -3537,6 +3568,9 @@ packages:
 
   scheduler@0.28.0-canary-83840902-20260719:
     resolution: {integrity: sha512-R+hOXfzZC9lGunT3FcgcaMxVnvpl1YkLiGeNgZB785/T8OPu4iwihsQIe4BAmT0ywMBVIVFr5886d5kycQpEQw==}
+
+  semver-compare@1.0.0:
+    resolution: {integrity: sha512-YM3/ITh2MJ5MtzaM429anh+x2jiLVjqILF4m4oyQB18W7Ggea7BfqdH/wGMK7dDiMghv/6WG7znWMwUDzJiXow==}
 
   semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
@@ -4583,6 +4617,11 @@ snapshots:
   '@sindresorhus/is@7.2.0': {}
 
   '@speed-highlight/core@1.2.17': {}
+
+  '@splinetool/runtime@1.12.98':
+    dependencies:
+      on-change: 4.0.0
+      semver-compare: 1.0.0
 
   '@standard-schema/spec@1.1.0': {}
 
@@ -6177,6 +6216,8 @@ snapshots:
 
   obug@2.1.4: {}
 
+  on-change@4.0.0: {}
+
   oniguruma-parser@0.12.2: {}
 
   oniguruma-to-es@4.3.6:
@@ -6541,6 +6582,8 @@ snapshots:
   rou3@0.8.1: {}
 
   scheduler@0.28.0-canary-83840902-20260719: {}
+
+  semver-compare@1.0.0: {}
 
   semver@6.3.1: {}
 

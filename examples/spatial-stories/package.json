@@ -1,0 +1,21 @@
+{
+  "name": "@drever/example-spatial-stories",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "drever build",
+    "check": "drever check --json",
+    "dev": "drever dev",
+    "export": "drever export pdf"
+  },
+  "devDependencies": {
+    "@drever/brand": "workspace:*",
+    "@drever/core": "workspace:*",
+    "@drever/designs": "workspace:*",
+    "@splinetool/runtime": "1.12.98",
+    "@types/react": "catalog:",
+    "drever": "workspace:*",
+    "react": "catalog:"
+  }
+}

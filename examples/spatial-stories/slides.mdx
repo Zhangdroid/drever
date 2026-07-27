@@ -1,0 +1,179 @@
+import "@drever/brand/fonts.css";
+import "@drever/brand/tokens.css";
+import "./spatial-stories.css";
+import "../showcase-return.css";
+
+<SlideTransition from="next" mode="local" />
+
+<div aria-label="When depth carries the idea" className="spatial-slide spatial-opening">
+  <header className="spatial-copy">
+    <span className="spatial-kicker">01 · Scene as atmosphere</span>
+    <h1>
+      <span>When depth </span>
+      <span>carries the idea.</span>
+    </h1>
+    <p>One live scene changes jobs with the story—then two more show how wide the medium can be.</p>
+  </header>
+  <span className="spatial-opening__source">Drever / Spatial stories · Spline Runtime</span>
+</div>
+
+<Note>
+  The live Spline scene lives in the persistent Stage, outside slide snapshots. It establishes the
+  room as an atmosphere before the deck asks it to explain anything.
+</Note>
+
+---
+
+<SlideTransition from="previous" mode="local" />
+<SlideTransition from="next" mode="local" />
+
+<div aria-label="Repetition makes scale visible" className="spatial-slide spatial-evidence">
+  <header className="spatial-copy">
+    <span className="spatial-kicker">02 · Scene as evidence</span>
+    <h2>Repetition makes scale visible.</h2>
+    <p>The field turns toward the room because the structure itself is now the point.</p>
+  </header>
+  <span className="spatial-scene-alternative">
+    The visual is a field of repeated rounded forms whose shared shape makes the system's scale
+    immediately legible.
+  </span>
+</div>
+
+<Note>
+  The same live DOM becomes the evidence. Only its angle and visual priority change; the scene is
+  not captured, reloaded, or stretched through a View Transition.
+</Note>
+
+---
+
+<SlideTransition from="previous" mode="local" />
+<SlideTransition from="next" mode="local" />
+
+<div aria-label="The scene changes jobs without changing identity" className="spatial-slide spatial-context">
+  <header className="spatial-copy">
+    <span className="spatial-kicker">03 · Scene as context</span>
+    <h2>Then lower the volume.</h2>
+    <p>The scene recedes once it has made the structure legible. The explanation takes the room.</p>
+  </header>
+
+  <ol aria-label="Three narrative roles for one spatial scene" className="spatial-lifecycle">
+    <li>
+      <span>01</span>
+      <strong>Atmosphere</strong>
+      <small>Establish the world</small>
+    </li>
+    <li>
+      <span>02</span>
+      <strong>Evidence</strong>
+      <small>Carry the claim</small>
+    </li>
+    <li data-current="">
+      <span>03</span>
+      <strong>Context</strong>
+      <small>Yield to the reading</small>
+    </li>
+  </ol>
+</div>
+
+<Note>
+  This is the same cloner scene in its third role. It stays recognizable, becomes quieter, and
+  yields once it has finished carrying the argument.
+</Note>
+
+---
+
+<SlideTransition from="previous" mode="local" />
+<SlideTransition from="next" mode="local" />
+
+<div aria-label="A focused form can carry quiet motion" className="spatial-slide spatial-object">
+  <header className="spatial-copy">
+    <span className="spatial-kicker">04 · Scene as object</span>
+    <h2>Give one form the motion.</h2>
+    <p>A slow, continuous rhythm can keep a focal object alive while the message stays still.</p>
+  </header>
+
+  <span className="spatial-object__caption">Official Spline “Follow” study · gently reframed</span>
+</div>
+
+<Note>
+  This is a different official Spline scene. Drever treats it as a single moving subject rather than
+  a whole environment, and keeps the copy quiet enough for the form to remain the focus.
+</Note>
+
+---
+
+<SlideTransition from="previous" mode="local" />
+<SlideTransition from="next" mode="local" />
+
+<div
+  aria-label="A spatial scene can become a quiet ambient background"
+  className="spatial-slide spatial-ambient"
+>
+  <header className="spatial-copy">
+    <span className="spatial-kicker">05 · Scene as environment</span>
+    <h2>Let the background breathe.</h2>
+    <p>Depth can fill the canvas without competing with the sentence in front of it.</p>
+  </header>
+
+<div aria-label="Rules for an ambient spatial background" className="spatial-ambient__rules">
+  <span>Lower contrast</span>
+  <span>Slower motion</span>
+  <span>Stable reading area</span>
+</div>
+
+  <a
+    className="spatial-ambient__source"
+    href="https://community.spline.design/file/cea96ce0-da30-46cc-bd5c-dc73a6497abd"
+    rel="noreferrer"
+    target="_blank"
+  >
+    Particle Nebula · CC0 <span aria-hidden="true">↗</span>
+  </a>
+</div>
+
+<Note>
+  The second additional scene is the CC0 Particle Nebula study from Spline Community. It becomes an
+  environment: lower contrast, slower perceived motion, and a stable reading surface prove that a
+  Spline scene does not need to look like a centered product demo.
+</Note>
+
+---
+
+<SlideTransition from="previous" mode="local" />
+
+<div
+  aria-label="Use depth only when flat would hide the point"
+  className="spatial-slide spatial-ending"
+>
+  <span className="spatial-kicker">A narrow, useful boundary</span>
+  <h2>
+    <span>Use depth only when flat{" "}</span>
+    <span>would hide the point.</span>
+  </h2>
+
+<div className="spatial-ending__criteria" aria-label="Three reasons to use a spatial scene">
+  <span>Reveal structure</span>
+  <span>Give form motion</span>
+  <span>Carry atmosphere</span>
+</div>
+
+  <nav aria-label="Continue from the spatial stories example" className="drever-example-exit">
+  <a
+    className="drever-example-exit__primary"
+    data-drever-showcase-return=""
+    href="https://drever.dev/docs/getting-started/"
+  >
+    <span>Start with Drever</span>
+    <span aria-hidden="true">↗</span>
+  </a>
+  <a className="drever-example-exit__secondary" href="https://viewer.spline.design/">
+    <span>Explore Spline Viewer</span>
+      <span aria-hidden="true">↗</span>
+    </a>
+  </nav>
+</div>
+
+<Note>
+  Close on the decision rule. Spline supplies the focused spatial capability while Drever owns the
+  narrative, navigation, notes, document view, and deterministic export.
+</Note>

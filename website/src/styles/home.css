@@ -409,7 +409,7 @@
 .hero-stage__orbit {
   position: absolute;
   top: 50%;
-  left: 69%;
+  left: 50%;
   border: 1px solid color-mix(in srgb, var(--site-continuity), transparent 66%);
   border-radius: 50%;
   transform: translate(-50%, -50%) rotate(-18deg);
@@ -458,7 +458,7 @@
 .hero-stage__core {
   position: absolute;
   top: 57%;
-  left: 69%;
+  left: 50%;
   width: 12%;
   aspect-ratio: 1;
   border: 1px solid color-mix(in srgb, var(--site-ink), transparent 68%);

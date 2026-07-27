@@ -184,6 +184,15 @@ focused working example instead of a library name, logo, or link. Let the
 external tool own only the smallest boundary that needs its capability; Drever
 continues to own navigation, history, notes, and delivery.
 
+The [`spatial-stories` example](../examples/spatial-stories/README.md) proves
+this boundary across official Viewer examples and one CC0 Spline Community
+study, with one remote 3D renderer at a time. One persistent Stage object
+rotates between authored atmosphere, evidence, and context states without
+entering slide snapshots; separate focused-object and ambient studies then
+demonstrate different narrative jobs. Document, speaker, reduced-motion,
+offline, and export surfaces use an original deterministic CSS poster for each
+study.
+
 Run continuous or repeating motion only when ongoing change is itself the
 subject, such as a live metric or signal moving through a network. Use a
 deterministic sequence, pause it when its audience surface is inactive, and

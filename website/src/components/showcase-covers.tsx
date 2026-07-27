@@ -2,7 +2,7 @@ import type { ThemeId } from "../site-data";
 import cinemaNightBusImage from "../../../examples/theme-showcase/assets/cinema-night-bus.jpg";
 import { HomeShowcaseCover } from "./showcase";
 
-export type StudyId = "architecture" | "features" | "motion" | "scenes";
+export type StudyId = "architecture" | "features" | "motion" | "scenes" | "spatial";
 
 export function StudyCover({ study }: { study: StudyId }) {
   if (study === "motion") {
@@ -74,6 +74,27 @@ export function StudyCover({ study }: { study: StudyId }) {
             <br />
             move the light.
           </strong>
+        </div>
+      </div>
+    );
+  }
+
+  if (study === "spatial") {
+    return (
+      <div className="study-cover study-cover--spatial" aria-hidden="true">
+        <header className="study-cover__meta">
+          <span>Live 3D · Spline</span>
+          <small>One scene · four roles</small>
+        </header>
+        <div className="spatial-study__field">
+          <i className="spatial-study__orbit" />
+          <div className="spatial-study__cluster">
+            <i />
+            <i />
+            <i />
+            <i />
+            <i />
+          </div>
         </div>
       </div>
     );

@@ -71,6 +71,14 @@ export const demoMounts = [
   },
   {
     description:
+      "Three live Spline studies frame persistent structure, a moving object, and ambient depth.",
+    id: "spatial",
+    label: "Spatial stories",
+    slug: "spatial",
+    source: "spatial-stories",
+  },
+  {
+    description:
       "The smallest complete project for learning slide boundaries, Steps, and delivery.",
     id: "basic",
     label: "Minimal reference",
