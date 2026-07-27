@@ -15,8 +15,9 @@ import {
 } from "./build-isolation.mjs";
 import { resolveAnthropicProxyTarget } from "./anthropic-proxy.mjs";
 import {
-  assertReleaseSmokeGenerationTree,
+  assertReleaseSmokeCheck,
   assertReleaseSmokeContext,
+  assertReleaseSmokeGenerationTree,
   collectReleaseSmokeSource,
   copyReleaseSmokeArtifactSeed,
   copyReleaseSmokeHandoff,
@@ -707,9 +708,9 @@ test("rejects symlinks that try to cross the source allowlist boundary", async (
   );
 });
 
-test("enforces the six-slide contract from Drever authoring context", () => {
-  const context = (slideCount) => ({
-    version: 1,
+test("accepts V1 and V2 authoring context while enforcing the six-slide contract", () => {
+  const context = (version, slideCount) => ({
+    version,
     deck: {
       slides: Array.from({ length: slideCount }, (_, index) => ({
         index,
@@ -717,12 +718,36 @@ test("enforces the six-slide contract from Drever authoring context", () => {
       })),
     },
   });
-  assert.deepEqual(assertReleaseSmokeContext(context(6)), {
-    slideCount: 6,
-    speakerNoteCount: 1,
+  for (const version of [1, 2]) {
+    assert.deepEqual(assertReleaseSmokeContext(context(version, 6)), {
+      slideCount: 6,
+      speakerNoteCount: 1,
+    });
+  }
+  assert.throws(
+    () => assertReleaseSmokeContext(context(undefined, 6)),
+    /invalid authoring receipt/u,
+  );
+  assert.throws(() => assertReleaseSmokeContext(context(0, 6)), /invalid authoring receipt/u);
+  assert.throws(() => assertReleaseSmokeContext(context(3, 6)), /invalid authoring receipt/u);
+  assert.throws(() => assertReleaseSmokeContext(context(2, 0)), /expected 1-6/u);
+  assert.throws(() => assertReleaseSmokeContext(context(2, 7)), /expected 1-6/u);
+});
+
+test("accepts clean V1 and V2 Drever check receipts", () => {
+  const check = (version, errors = 0, slideCount = 6) => ({
+    version,
+    slideCount,
+    summary: { errors },
   });
-  assert.throws(() => assertReleaseSmokeContext(context(0)), /expected 1-6/u);
-  assert.throws(() => assertReleaseSmokeContext(context(7)), /expected 1-6/u);
+  for (const version of [1, 2]) {
+    assert.doesNotThrow(() => assertReleaseSmokeCheck(check(version), 6));
+  }
+  assert.throws(() => assertReleaseSmokeCheck(check(undefined), 6), /clean release smoke receipt/u);
+  assert.throws(() => assertReleaseSmokeCheck(check(0), 6), /clean release smoke receipt/u);
+  assert.throws(() => assertReleaseSmokeCheck(check(3), 6), /clean release smoke receipt/u);
+  assert.throws(() => assertReleaseSmokeCheck(check(2, 1), 6), /clean release smoke receipt/u);
+  assert.throws(() => assertReleaseSmokeCheck(check(2, 0, 5), 6), /clean release smoke receipt/u);
 });
 
 test("moves a repeated run to the front without growing history forever", () => {

@@ -545,8 +545,13 @@ export const copyReleaseSmokeSource = async (source, projectRoot) => {
   return files;
 };
 
+const isSupportedReleaseSmokeReceiptVersion = (version) => version === 1 || version === 2;
+
 export const assertReleaseSmokeContext = (context) => {
-  if (context?.version !== 1 || !Array.isArray(context?.deck?.slides)) {
+  if (
+    !isSupportedReleaseSmokeReceiptVersion(context?.version) ||
+    !Array.isArray(context?.deck?.slides)
+  ) {
     throw new Error("Drever context returned an invalid authoring receipt.");
   }
   const slideCount = context.deck.slides.length;
@@ -558,6 +563,16 @@ export const assertReleaseSmokeContext = (context) => {
     0,
   );
   return { slideCount, speakerNoteCount };
+};
+
+export const assertReleaseSmokeCheck = (check, slideCount) => {
+  if (
+    !isSupportedReleaseSmokeReceiptVersion(check?.version) ||
+    check?.summary?.errors !== 0 ||
+    check.slideCount !== slideCount
+  ) {
+    throw new Error("Drever check did not return a clean release smoke receipt.");
+  }
 };
 
 export const mergeReleaseSmokeManifest = (manifest, entry, limit = 10) => {

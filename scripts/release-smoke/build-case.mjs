@@ -11,6 +11,7 @@ import {
   runReleaseSmokeBuildInContainer,
 } from "./build-isolation.mjs";
 import {
+  assertReleaseSmokeCheck,
   assertReleaseSmokeContext,
   copyReleaseSmokeSource,
   json,
@@ -397,9 +398,7 @@ const { slideCount, speakerNoteCount } = assertReleaseSmokeContext(context);
 if (scenario.mode === "guided" && speakerNoteCount === 0) {
   throw new Error("The guided release smoke deck must include at least one speaker note.");
 }
-if (check?.version !== 1 || check?.summary?.errors !== 0 || check.slideCount !== slideCount) {
-  throw new Error("Drever check did not return a clean release smoke receipt.");
-}
+assertReleaseSmokeCheck(check, slideCount);
 const website = build?.artifacts?.find((artifact) => artifact.kind === "website");
 if (build?.version !== 1 || build.ok !== true || typeof website?.path !== "string") {
   throw new Error("Drever build did not return a website artifact.");
