@@ -83,13 +83,12 @@ export function StudyCover({ study }: { study: StudyId }) {
     return (
       <div className="study-cover study-cover--spatial" aria-hidden="true">
         <header className="study-cover__meta">
-          <span>One live scene</span>
-          <small>Four authored angles</small>
+          <span>Live 3D · Spline</span>
+          <small>One scene · four roles</small>
         </header>
         <div className="spatial-study__field">
-          <div className="spatial-study__blocks">
-            <i />
-            <i />
+          <i className="spatial-study__orbit" />
+          <div className="spatial-study__cluster">
             <i />
             <i />
             <i />
@@ -97,10 +96,6 @@ export function StudyCover({ study }: { study: StudyId }) {
             <i />
           </div>
         </div>
-        <footer className="study-cover__foot">
-          <span>Atmosphere → evidence → interaction</span>
-          <small>Angle carries meaning</small>
-        </footer>
       </div>
     );
   }

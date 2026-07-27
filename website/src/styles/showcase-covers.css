@@ -476,9 +476,9 @@
 .study-cover--spatial {
   isolation: isolate;
   background:
-    radial-gradient(circle at 78% 24%, rgb(154 134 255 / 28%), transparent 30%),
-    radial-gradient(circle at 22% 78%, rgb(216 255 106 / 12%), transparent 27%),
-    linear-gradient(145deg, #161720, #0c0d12 66%);
+    radial-gradient(circle at 72% 26%, rgb(154 134 255 / 24%), transparent 34%),
+    radial-gradient(circle at 31% 72%, rgb(81 201 194 / 10%), transparent 28%),
+    linear-gradient(145deg, #15161f, #0c0d12 68%);
   color: #f4f1eb;
 }
 
@@ -486,107 +486,141 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(108deg, transparent 18%, rgb(255 255 255 / 3%) 48%, transparent 72%),
-    radial-gradient(ellipse at center, transparent 22%, rgb(0 0 0 / 28%));
+    linear-gradient(108deg, transparent 16%, rgb(255 255 255 / 3%) 48%, transparent 76%),
+    radial-gradient(ellipse at center, transparent 28%, rgb(0 0 0 / 24%));
   content: "";
   pointer-events: none;
 }
 
-.study-cover--spatial .study-cover__meta,
-.study-cover--spatial .study-cover__foot {
+.study-cover--spatial .study-cover__meta {
   color: rgb(244 241 235 / 72%);
 }
 
 .spatial-study__field {
   position: absolute;
-  inset: 14% 5% 12%;
-}
-
-.spatial-study__blocks {
-  position: absolute;
-  top: 5%;
-  left: 17%;
-  width: 66%;
-  height: 82%;
-  transform: rotateX(58deg) rotateZ(-34deg);
+  inset: 14% 5% 5%;
+  perspective: 48rem;
   transform-style: preserve-3d;
-  transition: transform 900ms var(--drever-brand-motion-easing-emphasized);
 }
 
-.spatial-study__blocks i {
+.spatial-study__orbit {
   position: absolute;
-  width: 19%;
-  aspect-ratio: 1;
-  border: 1px solid rgb(255 255 255 / 22%);
-  border-radius: clamp(0.35rem, 1vw, 0.8rem);
-  background:
-    linear-gradient(145deg, rgb(255 255 255 / 36%), transparent 42%),
-    linear-gradient(135deg, #8873ed, #4c399f);
-  box-shadow:
-    clamp(0.3rem, 1vw, 0.75rem) clamp(0.35rem, 1vw, 0.8rem) 0 #302a62,
-    0 1rem 2.2rem rgb(0 0 0 / 18%);
+  top: 52%;
+  left: 52%;
+  width: 74%;
+  height: 42%;
+  border: 1px solid rgb(154 134 255 / 26%);
+  border-radius: 50%;
+  opacity: 0.72;
+  transform: translate(-50%, -50%) rotate(-13deg);
   transition:
-    filter 720ms var(--drever-brand-motion-easing-standard),
-    transform 900ms var(--drever-brand-motion-easing-emphasized);
+    border-color 720ms ease,
+    transform 960ms var(--drever-brand-motion-easing-emphasized);
 }
 
-.spatial-study__blocks i:first-child {
-  top: 1%;
-  left: 25%;
+.spatial-study__orbit::before,
+.spatial-study__orbit::after {
+  position: absolute;
+  border-radius: 50%;
+  content: "";
 }
 
-.spatial-study__blocks i:nth-child(2) {
-  top: 4%;
-  left: 51%;
+.spatial-study__orbit::before {
+  top: 50%;
+  right: -0.22rem;
+  width: 0.42rem;
+  height: 0.42rem;
+  background: #d8ff6a;
+  box-shadow:
+    0 0 0 0.28rem rgb(216 255 106 / 8%),
+    0 0 1rem rgb(216 255 106 / 26%);
+  transform: translateY(-50%);
+}
+
+.spatial-study__orbit::after {
+  bottom: 8%;
+  left: 7%;
+  width: 0.28rem;
+  height: 0.28rem;
+  background: rgb(154 134 255 / 76%);
+  box-shadow: 0 0 0.8rem rgb(154 134 255 / 32%);
+}
+
+.spatial-study__cluster {
+  position: absolute;
+  top: 51%;
+  left: 53%;
+  width: 58%;
+  height: 64%;
+  transform: translate(-50%, -50%) rotateX(58deg) rotateZ(-34deg);
+  transform-style: preserve-3d;
+  transition: transform 960ms var(--drever-brand-motion-easing-emphasized);
+}
+
+.spatial-study__cluster > i {
+  position: absolute;
+  width: 28%;
+  height: 28%;
+  border: 1px solid rgb(255 255 255 / 22%);
+  border-radius: clamp(0.38rem, 1vw, 0.82rem);
   background:
-    linear-gradient(145deg, rgb(255 255 255 / 36%), transparent 42%),
-    linear-gradient(135deg, #f29c85, #a94f68);
+    linear-gradient(145deg, rgb(255 255 255 / 46%), transparent 42%),
+    linear-gradient(135deg, #a79af0, #6254bd);
+  box-shadow:
+    clamp(0.28rem, 0.8vw, 0.64rem) clamp(0.34rem, 0.9vw, 0.72rem) 0 #3b356f,
+    0 1.1rem 2.4rem rgb(0 0 0 / 20%);
 }
 
-.spatial-study__blocks i:nth-child(3) {
-  top: 32%;
-  left: 9%;
+.spatial-study__cluster > i:first-child {
+  top: 5%;
+  left: 11%;
+}
+
+.spatial-study__cluster > i:nth-child(2) {
+  top: 0;
+  left: 45%;
   background:
-    linear-gradient(145deg, rgb(255 255 255 / 42%), transparent 42%),
-    linear-gradient(135deg, #d8ed87, #789d4b);
+    linear-gradient(145deg, rgb(255 255 255 / 54%), transparent 42%),
+    linear-gradient(135deg, #d5d0ff, #8c7fea);
+  box-shadow:
+    clamp(0.28rem, 0.8vw, 0.64rem) clamp(0.34rem, 0.9vw, 0.72rem) 0 #514989,
+    0 1.1rem 2.4rem rgb(0 0 0 / 20%);
 }
 
-.spatial-study__blocks i:nth-child(4) {
-  top: 33%;
-  left: 36%;
-}
-
-.spatial-study__blocks i:nth-child(5) {
-  top: 31%;
-  left: 63%;
+.spatial-study__cluster > i:nth-child(3) {
+  top: 36%;
+  left: 24%;
   background:
-    linear-gradient(145deg, rgb(255 255 255 / 38%), transparent 42%),
-    linear-gradient(135deg, #a99bff, #5643b2);
+    linear-gradient(145deg, rgb(255 255 255 / 34%), transparent 42%),
+    linear-gradient(135deg, #5fd2c8, #277e83);
+  box-shadow:
+    clamp(0.28rem, 0.8vw, 0.64rem) clamp(0.34rem, 0.9vw, 0.72rem) 0 #245760,
+    0 1.1rem 2.4rem rgb(0 0 0 / 20%);
 }
 
-.spatial-study__blocks i:nth-child(6) {
-  top: 62%;
-  left: 22%;
+.spatial-study__cluster > i:nth-child(4) {
+  top: 34%;
+  left: 59%;
   background:
-    linear-gradient(145deg, rgb(255 255 255 / 36%), transparent 42%),
-    linear-gradient(135deg, #ef9c82, #a94f68);
+    linear-gradient(145deg, rgb(255 255 255 / 54%), transparent 42%),
+    linear-gradient(135deg, #c4baff, #7263d5);
 }
 
-.spatial-study__blocks i:nth-child(7) {
-  top: 61%;
-  left: 50%;
+.spatial-study__cluster > i:nth-child(5) {
+  top: 69%;
+  left: 43%;
   background:
-    linear-gradient(145deg, rgb(255 255 255 / 42%), transparent 42%),
-    linear-gradient(135deg, #d8ed87, #789d4b);
+    linear-gradient(145deg, rgb(255 255 255 / 48%), transparent 42%),
+    linear-gradient(135deg, #9183e4, #5548a5);
 }
 
-.catalog-demo[data-demo="spatial"]:is(:hover, :focus-within) .spatial-study__blocks {
-  transform: rotateX(50deg) rotateY(12deg) rotateZ(-24deg);
+.catalog-demo[data-demo="spatial"]:is(:hover, :focus-within) .spatial-study__cluster {
+  transform: translate(-50%, -50%) rotateX(50deg) rotateY(12deg) rotateZ(-24deg);
 }
 
-.catalog-demo[data-demo="spatial"]:is(:hover, :focus-within) .spatial-study__blocks i:nth-child(2) {
-  filter: brightness(1.12);
-  transform: translate(4%, -7%);
+.catalog-demo[data-demo="spatial"]:is(:hover, :focus-within) .spatial-study__orbit {
+  border-color: rgb(216 255 106 / 24%);
+  transform: translate(-50%, -50%) rotate(-6deg);
 }
 
 .catalog-demo:is(:hover, :focus-within) .feature-study__source {
@@ -657,15 +691,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .catalog-demo[data-demo="spatial"]:is(:hover, :focus-within) .spatial-study__blocks {
-    transform: rotateX(58deg) rotateZ(-34deg);
+  .catalog-demo[data-demo="spatial"]:is(:hover, :focus-within) .spatial-study__cluster {
+    transform: translate(-50%, -50%) rotateX(58deg) rotateZ(-34deg);
   }
 
-  .catalog-demo[data-demo="spatial"]:is(:hover, :focus-within)
-    .spatial-study__blocks
-    i:nth-child(2) {
-    filter: brightness(1.08);
-    transform: none;
+  .catalog-demo[data-demo="spatial"]:is(:hover, :focus-within) .spatial-study__orbit {
+    border-color: rgb(154 134 255 / 26%);
+    transform: translate(-50%, -50%) rotate(-13deg);
   }
 
   .catalog-demo:is(:hover, :focus-within) .scene-study__glow--lime {

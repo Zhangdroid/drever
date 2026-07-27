@@ -22,8 +22,9 @@ visual system treats depth as evidence or interaction rather than permanent spec
    explanation → deterministic cloner poster in reduced-motion, document, speaker, and export
    surfaces.
 2. **Interaction can change understanding** → the same cloner scene turns to a fourth authored
-   angle → direct drag becomes available only when manipulation is the lesson → a Step names the
-   audience's new ownership → the same poster carries the final meaning outside the live audience.
+   angle → direct drag becomes available only when manipulation reveals rows hidden by the front
+   view → a Step names the grid-to-volume insight → the same poster carries the final meaning
+   outside the live audience.
 
 ## Motion
 
@@ -31,6 +32,8 @@ visual system treats depth as evidence or interaction rather than permanent spec
 - Keep the persistent Stage shell fixed at `760 × 720`. Rotate the modeled roots between authored
   states; never translate, resize, or stretch the canvas to imply a new angle.
 - Let each automatic turn settle before the scene changes narrative jobs.
+- Let the left-side kicker, claim, and support copy enter as one short reading sequence while the
+  persistent scene remains the dominant continuity.
 - Enable direct drag only on the interaction slide, after the authored turn has established its
   starting angle.
 - Keep reduced-motion and non-audience surfaces immediately settled.

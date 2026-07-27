@@ -1,10 +1,12 @@
 # Spatial Stories
 
-This focused Drever study uses one official Spline cloner scene to demonstrate two
-presentation-native roles for live 3D:
+This focused Drever study uses one official Spline cloner scene to demonstrate four narrative
+jobs for live 3D:
 
-1. one persistent scene rotates from atmosphere to evidence to quiet context;
-2. the same scene unlocks direct drag when manipulation becomes the lesson.
+1. atmosphere establishes the world;
+2. evidence makes repetition legible;
+3. quiet context yields to the explanation;
+4. direct interaction reveals depth hidden by a front view.
 
 Run it after building the workspace packages:
 

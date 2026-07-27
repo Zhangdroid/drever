@@ -6,15 +6,15 @@ import "../showcase-return.css";
 <SlideTransition from="next" mode="local" />
 
 <div aria-label="When depth carries the idea" className="spatial-slide spatial-opening">
-  <header>
-    <span className="spatial-kicker">Drever / Spatial stories</span>
+  <header className="spatial-copy">
+    <span className="spatial-kicker">01 · Scene as atmosphere</span>
     <h1>
       <span>When depth </span>
       <span>carries the idea.</span>
     </h1>
-    <p>Two presentation-native roles for a live 3D scene—without letting it take over the story.</p>
+    <p>One live scene changes jobs with the story—atmosphere, evidence, context, interaction.</p>
   </header>
-  <span className="spatial-opening__source">Live scene · Spline Runtime</span>
+  <span className="spatial-opening__source">Drever / Spatial stories · Spline Runtime</span>
 </div>
 
 <Note>
@@ -28,8 +28,8 @@ import "../showcase-return.css";
 <SlideTransition from="next" mode="local" />
 
 <div aria-label="Repetition makes scale visible" className="spatial-slide spatial-evidence">
-  <header>
-    <span className="spatial-kicker">01 · Scene as evidence</span>
+  <header className="spatial-copy">
+    <span className="spatial-kicker">02 · Scene as evidence</span>
     <h2>Repetition makes scale visible.</h2>
     <p>The field turns toward the room because the structure itself is now the point.</p>
   </header>
@@ -50,8 +50,8 @@ import "../showcase-return.css";
 <SlideTransition from="next" mode="local" />
 
 <div aria-label="The scene changes jobs without changing identity" className="spatial-slide spatial-context">
-  <header>
-    <span className="spatial-kicker">A useful object lifecycle</span>
+  <header className="spatial-copy">
+    <span className="spatial-kicker">03 · Scene as context</span>
     <h2>Then lower the volume.</h2>
     <p>The scene recedes once it has made the structure legible. The explanation takes the room.</p>
   </header>
@@ -77,7 +77,8 @@ import "../showcase-return.css";
 
 <Note>
   This is the same cloner scene in its third role. It stays recognizable, becomes quieter, and
-  retires on the next slide because it has finished carrying the argument.
+  yields once it has finished carrying the argument. It returns at full priority only when the
+  audience can inspect it directly.
 </Note>
 
 ---
@@ -85,16 +86,26 @@ import "../showcase-return.css";
 <SlideTransition from="previous" mode="local" />
 <SlideTransition from="next" mode="local" />
 
-<div aria-label="Let the audience turn the same spatial scene" className="spatial-slide spatial-interaction">
-  <header>
-    <span className="spatial-kicker">02 · Scene as interaction</span>
-    <h2>Now hand them the point of view.</h2>
+<div aria-label="Turn the pattern to reveal its depth" className="spatial-slide spatial-interaction">
+  <header className="spatial-copy">
+    <span className="spatial-kicker">04 · Scene as interaction</span>
+    <h2>
+      <span>Turn the pattern.</span>
+      <span>Reveal the depth.</span>
+    </h2>
+    <p>A front view can look like a grid. Drag the same field to expose the rows behind it.</p>
   </header>
 
-<p className="spatial-interaction__prompt">Drag the same scene to choose your own angle.</p>
+<p className="spatial-interaction__prompt">
+  <span aria-hidden="true">↔</span>
+  Drag to rotate
+</p>
 
 <Step at={1} className="spatial-interaction__payoff">
-  <span>The audience now owns the point of view.</span>
+  <span>
+    <small>What the turn reveals</small>
+    <strong>The pattern is a volume, not a grid.</strong>
+  </span>
 </Step>
 
   <a
@@ -108,8 +119,9 @@ import "../showcase-return.css";
 </div>
 
 <Note>
-  Let someone drag the same object they have watched across the previous three slides. Direct
-  manipulation is the lesson here, so the scene—not a surprise character—owns the point of view.
+  Let someone drag the same object they have watched across the previous three slides. The turn is
+  useful because it reveals depth that a front view can hide; the interaction is evidence, not a
+  novelty.
 </Note>
 
 ---
