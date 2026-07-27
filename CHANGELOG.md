@@ -16,6 +16,11 @@ section, while commit snapshots use the current Unreleased section.
   scenario, 20-minute turn, $6 cumulative budget, and finite agent and proxy
   request counts.
 
+### Fixed
+
+- Preserved slide View Transitions when the audience toolbar navigates while
+  retaining immediate repeated clicks and stable button focus.
+
 ## [0.7.0] - 2026-07-26
 
 ### Added

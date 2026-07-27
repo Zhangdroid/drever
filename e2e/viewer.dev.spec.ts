@@ -1157,17 +1157,36 @@ test("a second slide navigation supersedes an in-flight transition cleanly", asy
   health.expectHealthy();
 });
 
-test("audience toolbar supports immediate back-to-back slide navigation", async ({ page }) => {
+test("audience toolbar accepts another click during an active slide transition", async ({
+  page,
+}) => {
   const health = monitorPageHealth(page);
   await monitorViewTransitions(page);
   await page.goto("/2/5");
 
   const next = page.getByRole("button", { name: "Next presentation state" });
-  await next.click();
-  await next.click();
+  const bounds = await next.boundingBox();
+  if (bounds === null) {
+    throw new Error("Expected the next toolbar button to be visible.");
+  }
+  const point = {
+    x: bounds.x + bounds.width / 2,
+    y: bounds.y + bounds.height / 2,
+  };
+
+  const first = await captureNextViewTransition(page, () => page.mouse.click(point.x, point.y));
+  await waitForViewTransition(page, first, "ready");
+  await expect(page).toHaveURL(/\/3$/u);
+
+  const second = await captureNextViewTransition(page, () => page.mouse.click(point.x, point.y));
+  await waitForViewTransition(page, second, "finished");
 
   await expect(page).toHaveURL(/\/4$/u);
   await expect(next).toBeFocused();
-  expect(await readViewTransitionCalls(page)).toEqual([]);
+  await waitForViewTransition(page, first, "finished");
+  expect(await readViewTransitionCalls(page)).toEqual([
+    { kind: "document", target: "document", types: ["drever-slide-forward"] },
+    { kind: "document", target: "document", types: ["drever-slide-forward"] },
+  ]);
   health.expectHealthy();
 });

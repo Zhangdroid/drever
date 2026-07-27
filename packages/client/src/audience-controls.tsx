@@ -15,7 +15,6 @@ import {
 import { DreverClientError } from "./client-error.ts";
 import { createFullscreenSession, PRESENTATION_IDLE_DELAY_MS } from "./fullscreen-session.ts";
 import { acceptsPresentationShortcut } from "./keyboard.ts";
-import type { PresentationNavigationIntent } from "./navigation.ts";
 import {
   CloseIcon,
   DocumentIcon,
@@ -51,7 +50,7 @@ export type AudienceControlsProps = Readonly<{
   manifest: DeckManifest;
   onCopyShareURL(position: DeckPosition): Promise<void>;
   onError(error: unknown): void;
-  onNavigate(command: DeckCommand, intent?: PresentationNavigationIntent): void | Promise<void>;
+  onNavigate(command: DeckCommand): void | Promise<void>;
   onOpenDocument(): void;
   onOpenSpeaker(): void;
   position: DeckPosition;
@@ -76,6 +75,16 @@ export type SlideNavigationItem = Readonly<{
 const compactText = (value: string | null | undefined): string | undefined => {
   const compact = value?.replace(/\s+/gu, " ").trim();
   return compact === undefined || compact.length === 0 ? undefined : compact;
+};
+
+const containsClientPoint = (element: Element, event: MouseEvent): boolean => {
+  const bounds = element.getBoundingClientRect();
+  return (
+    event.clientX >= bounds.left &&
+    event.clientX <= bounds.right &&
+    event.clientY >= bounds.top &&
+    event.clientY <= bounds.bottom
+  );
 };
 
 export const readSlideNavigationItems = (
@@ -348,7 +357,9 @@ export const AudienceControls = ({
   const hostRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const nextButtonRef = useRef<HTMLButtonElement>(null);
   const overviewRef = useRef<HTMLDivElement>(null);
+  const previousButtonRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const [fullscreen, setFullscreen] = useState(false);
   const [focusInteracting, setFocusInteracting] = useState(false);
@@ -425,10 +436,54 @@ export const AudienceControls = ({
   );
 
   const navigate = useCallback(
-    (command: DeckCommand, intent?: PresentationNavigationIntent): void =>
-      run(() => onNavigate(command, intent)),
+    (command: DeckCommand): void => run(() => onNavigate(command)),
     [onNavigate, run],
   );
+
+  useEffect(() => {
+    const document = hostRef.current?.ownerDocument;
+    if (document === undefined) {
+      return;
+    }
+
+    const targets = [
+      { button: previousButtonRef, command: { type: "previous" } },
+      { button: nextButtonRef, command: { type: "next" } },
+    ] as const;
+    // A named View Transition snapshot keeps the toolbar visible while its live buttons
+    // temporarily leave hit testing. Route that snapshot click to the matching real button.
+    const proxyToolbarSnapshotClick = (event: MouseEvent): void => {
+      if (event.button !== 0 || !document.documentElement.matches(":active-view-transition")) {
+        return;
+      }
+
+      const path = event.composedPath();
+      const target = targets.find(({ button }) => {
+        const element = button.current;
+        return (
+          element !== null &&
+          !element.disabled &&
+          !path.includes(element) &&
+          containsClientPoint(element, event)
+        );
+      });
+      if (target === undefined) {
+        return;
+      }
+      const button = target.button.current;
+      if (button === null) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      button.focus({ preventScroll: true });
+      navigate(target.command);
+    };
+
+    document.addEventListener("click", proxyToolbarSnapshotClick, true);
+    return () => document.removeEventListener("click", proxyToolbarSnapshotClick, true);
+  }, [navigate]);
 
   const copyShareURL = useCallback((): void => {
     const requestedPosition = position;
@@ -612,7 +667,8 @@ export const AudienceControls = ({
             aria-label="Previous presentation state"
             data-drever-tooltip="Previous step · ←"
             disabled={!progress.canGoPrevious}
-            onClick={() => navigate({ type: "previous" }, { skipViewTransition: true })}
+            onClick={() => navigate({ type: "previous" })}
+            ref={previousButtonRef}
             type="button"
           >
             <PreviousIcon />
@@ -636,7 +692,8 @@ export const AudienceControls = ({
             aria-label="Next presentation state"
             data-drever-tooltip="Next step · →"
             disabled={!progress.canGoNext}
-            onClick={() => navigate({ type: "next" }, { skipViewTransition: true })}
+            onClick={() => navigate({ type: "next" })}
+            ref={nextButtonRef}
             type="button"
           >
             <NextIcon />
