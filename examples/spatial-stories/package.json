@@ -11,7 +11,6 @@
   },
   "devDependencies": {
     "@drever/brand": "workspace:*",
-    "@drever/core": "workspace:*",
     "@drever/designs": "workspace:*",
     "@splinetool/runtime": "1.12.98",
     "@types/react": "catalog:",

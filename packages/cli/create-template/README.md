@@ -3,7 +3,7 @@
 Open this project folder in Codex, Claude Code, or another coding agent. Ask it
 to use the installed `drever-create-deck` skill. In Codex, paste:
 
-> Use `$drever-create-deck` to turn `brief.md` into a complete, validated Drever presentation. Inspect the result in a browser and deliver the requested outputs.
+> Use `$drever-create-deck` to turn `brief.md` into an early live Drever draft, then keep refining the same preview and deliver the requested outputs.
 
 In Claude Code, use `/drever-create-deck` instead of `$drever-create-deck`.
 

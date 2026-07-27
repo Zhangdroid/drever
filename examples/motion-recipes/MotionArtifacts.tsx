@@ -1,4 +1,4 @@
-import { useDreverRenderMode } from "@drever/core";
+import { useDreverRenderMode } from "drever";
 import { motion, useReducedMotion } from "motion/react";
 import {
   useEffect,

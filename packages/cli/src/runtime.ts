@@ -1,5 +1,6 @@
-export { MotionGroup, Note, SlideTransition, Step } from "@drever/core";
+export { MotionGroup, Note, SlideTransition, Step, useDreverRenderMode } from "@drever/core";
 export type {
+  DreverRenderMode,
   MotionFlow,
   MotionGroupProps,
   MotionIntent,

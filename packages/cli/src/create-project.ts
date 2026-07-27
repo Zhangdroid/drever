@@ -100,7 +100,7 @@ const AGENT_TARGETS = new Set<CreateAgentTarget>(["all", "auto", "claude", "code
 const OPEN_TARGETS = new Set<CreateOpenTarget>(["claude", "codex"]);
 const PACKAGE_MANAGERS = new Set<CreatePackageManager>(["bun", "npm", "pnpm", "yarn"]);
 const AGENT_PROMPT =
-  "Use the project-local Drever skills to turn brief.md into a complete presentation. Ask only for missing decisions, inspect the result in a browser, and deliver the requested outputs.";
+  "Use the project-local drever-create-deck skill to turn brief.md into an early live draft, then refine it into a complete presentation and deliver the requested outputs.";
 
 const invalidArgument = (message: string): never => {
   throw new DreverCliError("DREVER_ARGUMENT_INVALID", message, { hint: CREATE_USAGE });

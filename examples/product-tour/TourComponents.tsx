@@ -1,4 +1,4 @@
-import { MotionGroup } from "@drever/core";
+import { MotionGroup } from "drever";
 import { selectAudienceSignal, useAudienceSignal, type SignalId } from "./audience-signal.js";
 import { useId, type PropsWithChildren, type ReactElement } from "react";
 

@@ -13,7 +13,19 @@ Treat a Drever Theme as a deterministic internal contract, not the primary user 
 
 ## Start with a design brief
 
-1. Read the complete brief, deck, existing assets, local components, current design files, and `drever.config.ts` plus Stage modules when they exist. Use `drever_get_context` when available; otherwise run `npm exec -- drever context --json`.
+1. Determine the phase before reading the deck. For an existing stable deck or after the content
+   Draft 1 URL is live, read the complete brief and deck plus only the project-owned assets, local
+   components, design files, `drever.config.ts`, and Stage modules that the design will use or edit.
+   Use `drever_get_context` when available; otherwise run `npm exec -- drever context --json`. When
+   running in parallel before Draft 1, read the brief and stable project configuration, own only the
+   art-direction and asset plan, and do not run context or inspect or edit the in-progress deck until
+   the primary worker transfers ownership.
+   Treat that context, this skill, and the scaffold's documented imports as the complete public
+   contract. Do not inspect `node_modules`, declaration files, Drever package or repository source,
+   schemas, internals, official design implementations, or example decks to discover how to build
+   the design. The configured MDX entry supports local TypeScript, React, and CSS imports. After a
+   concrete compile or type diagnostic, inspect at most the one named public declaration or guide
+   needed to resolve it; do not perform broad symbol searches.
 2. Derive and record:
    - subject, central claim, source material, and dominant content types;
    - audience, desired action, familiarity, and accessibility needs;
@@ -35,9 +47,11 @@ Classify every major choice:
 
 Prefer subject-led decisions. Fallback beauty is valid; invented thematic meaning is not.
 
-## Use official designs as studies
+## Treat official designs as optional vocabulary
 
-Scan all eight studies in the single `@drever/designs` package. When source is available, inspect `packages/designs/src/<study>/index.ts`, `packages/designs/src/<study>/layouts.tsx`, `packages/designs/themes/<study>/theme.css`, and the relevant example deck for the two closest studies and one useful contrast:
+Derive the design directly from the brief. Do not scan the official studies, compare their source,
+or choose one merely because creation has started. The concise descriptions below are optional
+vocabulary when the brief leaves a material choice unresolved:
 
 - Basic — neutral hierarchy and spacing; use only as the context-insufficient fallback.
 - Editorial — publication rhythm, warm narrative, and evidence-led typography.
@@ -48,7 +62,11 @@ Scan all eight studies in the single `@drever/designs` package. When source is a
 - Cinema — title cards, stable media frames, captions, and editorial pacing.
 - Construct — teaching, facilitation, explicit parts, and meaningful assembly.
 
-Study how each turns a semantic premise into tokens, layouts, constraints, and motion. Do not combine recognizable surface motifs at random or expose this catalog as the main design decision.
+Use a study only when the project already selects it or one description clearly resolves a real
+design decision. Read its public guide only when that choice requires a documented layout or
+component; never inspect its implementation, CSS, declaration files, or example deck during normal
+creation. Do not announce a catalog choice as the art direction. Convert any useful principle into
+an original subject-led system and skip this list entirely when the brief already supports one.
 
 ## Produce one local design artifact
 
@@ -67,6 +85,49 @@ design/
 ```
 
 `art-direction.md` records the brief, subject-led evidence, fallback choices, source URLs, licenses, and the reason for each recurring motif. Keep it concise enough to review in a diff.
+
+Use this minimal public Theme shape instead of looking up framework types:
+
+```ts
+// design/theme.ts
+import { defineTheme } from "drever";
+
+export default defineTheme({
+  kind: "theme",
+  apiVersion: 1,
+  id: "local.subject",
+  baseURL: import.meta.url,
+  tokens: {
+    color: { canvas: "#f7f5ef", ink: "#171816", accent: "#3157d5" },
+    typography: {
+      display: "ui-sans-serif, system-ui, sans-serif",
+      body: "ui-sans-serif, system-ui, sans-serif",
+      mono: "ui-monospace, monospace",
+    },
+  },
+  styles: [{ specifier: "./theme.css", layer: "theme" }],
+  manifest: {
+    title: "Subject direction",
+    summary: "A local visual system derived from this presentation's brief.",
+    artDirection: {
+      keywords: ["subject-led", "clear"],
+      principles: ["Give every slide one dominant idea"],
+      avoid: ["Decoration without a narrative job"],
+    },
+  },
+});
+```
+
+Import that value into `drever.config.ts` and assign it to `theme`. Add layouts, elements, motion,
+canvas defaults, and richer JSON-safe tokens only when the deck uses them. MDX may import local
+TypeScript, React, and CSS directly; do not create a probe deck to confirm that capability.
+
+When Stage is useful, default-export a component that accepts `StageLayerProps` from `drever`.
+`position` contains `slideId`, `slideIndex`, and `step`; the remaining props are `canvas`,
+`manifest`, `reducedMotion`, and `renderMode`. The exact render modes are `audience`, `document`,
+`export`, `speaker-current`, and `speaker-next`. The background layer is `aria-hidden` and `inert`,
+so it must never own pointer, keyboard, or screen-reader interaction. Keep interaction in slide
+content or an intentional foreground component.
 
 Define a one-sentence visual premise and two or three signature moments before styling every slide.
 Record each in `art-direction.md` as **claim → focal artifact → initial state → meaningful
@@ -163,24 +224,26 @@ When a slide pairs a text-heavy narrative region with supporting content, make t
 
 ## Validate the result
 
-Treat the first applied design as Draft 1. Render it before polishing further, then perform a separate
-refinement pass against the actual deck. Preserve the visual premise, signature moments, and
-subject-led choices that work. Correct evidence-backed problems in hierarchy, composition rhythm,
-readability, background emphasis, motion, and consistency; do not restyle the deck wholesale or add
-decoration merely to make the second pass look different.
+Treat the first applied design as Design Pass 1. Render it before polishing further, then perform a
+separate refinement pass against the actual deck. Preserve the visual premise, signature moments,
+and subject-led choices that work. Correct evidence-backed problems in hierarchy, composition
+rhythm, readability, background emphasis, motion, and consistency; do not restyle the deck
+wholesale or add decoration merely to make the second pass look different.
 
-When this skill is part of new-deck creation, return control as soon as the coherent end-to-end
-Draft 1 renders so the creation workflow can share its stable development URL. Resume the design
-review against that same live preview without waiting for approval. Do not make a production build
-the prerequisite for the first useful preview, and do not run repeated production builds during
-visual iteration.
+When this skill is part of new-deck creation, it must not delay the coherent end-to-end content
+Draft 1 or its stable development URL. Resume the design work against that same live preview without
+waiting for approval. Do not make a production build the prerequisite for the first useful preview,
+and do not run repeated production builds during visual iteration. If the host can run this work in
+parallel with narrative authoring, start early but own only the art-direction and asset plan until
+the first preview; never edit the same MDX or styles from two workers. Apply the visual system after
+the content preview is stable or after the primary worker explicitly transfers ownership.
 
 1. Add tests only for meaningful contracts or component behavior; do not add snapshots that merely preserve CSS text.
 2. After the Draft 1 preview is live, run `npm exec -- drever context --json` and `npm exec -- drever check --json`.
-3. Inspect every slide at Step 0 and every exact Step state after the first applied design; representative sampling is not sufficient. For a narrowly scoped later edit, inspect every affected state and adjacent handoff. Changing shared tokens, layouts, Stage layers, or components requires the whole deck. Resolve every P0 readability defect before aesthetic polish, including computed descendant spacing and foregrounds on the most disruptive background frame. Check intermediate motion frames in both directions for coordinate rebasing, activation timing, and paint containment, not only endpoints.
+3. Inspect every slide at Step 0 and every exact Step state after Design Pass 1; representative sampling is not sufficient. For a narrowly scoped later edit, inspect every affected state and adjacent handoff. Changing shared tokens, layouts, Stage layers, or components requires the whole deck. Resolve every P0 readability defect before aesthetic polish, including computed descendant spacing and foregrounds on the most disruptive background frame. Check intermediate motion frames in both directions for coordinate rebasing, activation timing, and paint containment, not only endpoints.
 4. Check `/document`, reduced motion, and relevant speaker and export surfaces. Verify fonts and localized assets load without network-dependent generation.
 5. Review the result against `art-direction.md`: remove any prominent choice that cannot be justified as subject-led or clearly acknowledged as fallback.
-6. When the design is applied to a deck, use the project-local `drever-review-deck` skill as the rendered completion gate. Reinspect the whole deck after changing shared tokens, layouts, Stage layers, or components; source review and successful generation or build commands do not count as the Draft 1 rendered refinement.
+6. When the design is applied to a deck, use the project-local `drever-review-deck` skill as the rendered completion gate. Reinspect the whole deck after changing shared tokens, layouts, Stage layers, or components; source review and successful generation or build commands do not count as rendered refinement.
 7. Let the owning creation or delivery workflow run the final production build after the live design is stable. Run it here only when this skill is the sole workflow responsible for a production-ready design.
 
 Report the design premise, generated files, approved assets and licenses, subject-led decisions, fallback decisions, and validation evidence.

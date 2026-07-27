@@ -176,7 +176,7 @@ describe("agent kit sync", () => {
     const createDesign = await read(root, ".agents/skills/drever-create-design/SKILL.md");
     const openai = await read(root, ".agents/skills/drever-create-deck/agents/openai.yaml");
 
-    expect(createDeck).toContain("<!-- drever-preview-contract:v1 -->");
+    expect(createDeck).toContain("<!-- drever-preview-contract:v2 -->");
     expect(createDeck).toMatch(/time to first useful preview/iu);
     expect(createDeck).toMatch(/minimum preview gate/iu);
     expect(createDeck).toMatch(/Do not block[^.]*drever build[^.]*PDF export/isu);
@@ -185,11 +185,45 @@ describe("agent kit sync", () => {
     expect(createDeck).toMatch(/discard stale validation/iu);
     expect(createDeck).toMatch(/production build[^.]*only after[^.]*stable/iu);
     expect(createDeck).toMatch(/PDF only when requested/iu);
+    expect(createDeck).toMatch(/Parallel design[^.]*must not delay/iu);
     expect(agents).toMatch(/Share a coherent Draft 1 before exhaustive validation/iu);
     expect(agents).toMatch(/do not run repeated production builds/iu);
-    expect(createDesign).toMatch(/return control[^.]*coherent end-to-end\s+Draft 1 renders/iu);
+    expect(createDesign).toMatch(
+      /must not delay[^.]*coherent end-to-end content\s+Draft 1[^.]*stable development URL/iu,
+    );
     expect(createDesign).toMatch(/Do not make a production build[^.]*first useful preview/iu);
     expect(openai).toMatch(/early live draft[^.]*refine/iu);
+  });
+
+  it("installs the direct-authoring contract without framework archaeology", async () => {
+    const root = await temporaryDirectory("drever-agent-project-");
+    await syncAgentKit({ root });
+
+    const agents = await read(root, "AGENTS.md");
+    const createDeck = await read(root, ".agents/skills/drever-create-deck/SKILL.md");
+    const createDesign = await read(root, ".agents/skills/drever-create-design/SKILL.md");
+
+    expect(createDeck).toContain("<!-- drever-authoring-scope-contract:v1 -->");
+    for (const contents of [agents, createDeck, createDesign]) {
+      expect(contents).toMatch(/complete public\s+contract/iu);
+      expect(contents).toMatch(/do not (?:search or )?inspect[^.]*Drever[^.]*repository/iu);
+      expect(contents).toContain("`node_modules`");
+      expect(contents).toMatch(/declaration files/iu);
+      expect(contents).toMatch(/official design implementations/iu);
+      expect(contents).toMatch(/example decks/iu);
+      expect(contents).toMatch(/one named\s+public declaration\s+or\s+guide/iu);
+    }
+    expect(agents).toMatch(/Do not load every skill before Draft 1/iu);
+    expect(createDeck).toMatch(
+      /configured MDX entry supports local TypeScript,\s+React,\s+and CSS/iu,
+    );
+    expect(createDeck).toContain("`speaker-current`");
+    expect(createDeck).toContain("`speaker-next`");
+    expect(createDeck).toMatch(/there is no generic `speaker` result/iu);
+    expect(createDesign).toMatch(/Do not scan the official studies/iu);
+    expect(createDesign).toMatch(/do not run context[^.]*in-progress deck/iu);
+    expect(createDesign).not.toMatch(/Scan all eight studies/iu);
+    expect(createDesign).not.toMatch(/packages\/designs\/src\/<study>/u);
   });
 
   it("installs the varied transition and design-family contract", async () => {

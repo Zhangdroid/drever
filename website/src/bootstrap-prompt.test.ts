@@ -6,8 +6,13 @@ const createDeckSkill = await readFile(
   new URL("../../packages/cli/agent-kit/skills/drever-create-deck/SKILL.md", import.meta.url),
   "utf8",
 );
+const createDesignSkill = await readFile(
+  new URL("../../packages/cli/agent-kit/skills/drever-create-design/SKILL.md", import.meta.url),
+  "utf8",
+);
 const briefingContractMarker = /<!-- drever-briefing-contract:(v\d+) -->/u;
 const previewContractMarker = /<!-- drever-preview-contract:(v\d+) -->/u;
+const authoringScopeContractMarker = /<!-- drever-authoring-scope-contract:(v\d+) -->/u;
 
 const expectAdaptiveBriefingContract = (source: string): void => {
   expect(source).toMatch(/topic is missing[^.]*ask for it by itself/iu);
@@ -38,7 +43,7 @@ const expectPreviewFirstContract = (source: string): void => {
   expect(source).toMatch(/coherent Draft 1/iu);
   expect(source).toMatch(/every planned slide[^.]*real readable copy/iu);
   expect(source).toMatch(
-    /Defer optional third-party integrations[^.]*secondary choreography[^.]*export-only polish/iu,
+    /Defer[^.]*signature choreography[^.]*optional\s+third-party integrations[^.]*export-only polish/iu,
   );
   expect(source).toMatch(
     /minimum preview gate[^.]*entry\s+compiles[^.]*audience\s+route responds[^.]*first and last slides open/isu,
@@ -51,6 +56,22 @@ const expectPreviewFirstContract = (source: string): void => {
   expect(source).toMatch(/(?:a )?PDF only\s+when requested/iu);
   expect(source).toMatch(/never invent a preview URL/iu);
   expect(source).toMatch(/preview as Draft 1,\s+not delivery/iu);
+  expect(source).toMatch(/parallel (?:design|work|workers)/iu);
+  expect(source).toMatch(
+    /(?:(?:first preview|Draft 1 URL)[^.]*must not (?:delay|wait)|must not delay[^.]*Draft 1)/iu,
+  );
+};
+
+const expectAuthoringScopeContract = (source: string): void => {
+  expect(source).toMatch(/complete (?:Drever\s+)?(?:public\s+|authoring\s+)?contract/iu);
+  expect(source).toMatch(/do not (?:search or )?inspect[^.]*Drever repository/iu);
+  expect(source).toMatch(/`node_modules`/u);
+  expect(source).toMatch(/declaration files/iu);
+  expect(source).toMatch(/official design implementations/iu);
+  expect(source).toMatch(/example decks/iu);
+  expect(source).toMatch(/configured MDX entry[^.]*local TypeScript,\s+React,\s+and CSS/iu);
+  expect(source).toMatch(/concrete compile\s+or type diagnostic/iu);
+  expect(source).toMatch(/one named\s+public declaration\s+or\s+guide/iu);
 };
 
 describe("public bootstrap prompt", () => {
@@ -70,14 +91,31 @@ describe("public bootstrap prompt", () => {
     const promptVersion = prompt.match(previewContractMarker)?.[1];
     const skillVersion = createDeckSkill.match(previewContractMarker)?.[1];
 
-    expect(promptVersion).toBe("v1");
+    expect(promptVersion).toBe("v2");
     expect(skillVersion).toBe(promptVersion);
     expectPreviewFirstContract(prompt);
     expectPreviewFirstContract(createDeckSkill);
   });
 
+  it("authors from the public contract without framework archaeology", () => {
+    const promptVersion = prompt.match(authoringScopeContractMarker)?.[1];
+    const skillVersion = createDeckSkill.match(authoringScopeContractMarker)?.[1];
+
+    expect(promptVersion).toBe("v1");
+    expect(skillVersion).toBe(promptVersion);
+    expectAuthoringScopeContract(prompt);
+    expectAuthoringScopeContract(createDeckSkill);
+    expect(prompt).toMatch(/read only[^.]*`drever-create-deck` skill/iu);
+    expect(createDeckSkill).toMatch(
+      /Load the design,\s+authoring,\s+review,\s+or delivery skill only/iu,
+    );
+    expect(createDesignSkill).toMatch(/Do not scan the official studies/iu);
+    expect(createDesignSkill).not.toMatch(/Scan all eight studies/iu);
+    expect(createDesignSkill).not.toMatch(/packages\/designs\/src\/<study>/u);
+  });
+
   it("defines topic-specific signature moments and a refinement ceiling", () => {
-    expect(prompt).toMatch(/topic fingerprint/iu);
+    expect(prompt).toMatch(/topic\s+fingerprint/iu);
     expect(prompt).toMatch(
       /claim[^→]*→ focal\s+artifact[^→]*→ initial\s+state[^→]*→ meaningful\s+transformation[^→]*→ settled\s+payoff[^→]*→ static or reduced-motion\s+endpoint/iu,
     );

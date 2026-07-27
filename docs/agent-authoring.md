@@ -65,9 +65,9 @@ making focused source changes, reviewing presentation readiness, and delivering
 verified web or PDF artifacts. They instruct an agent to use semantic MDX,
 persist the generated visual system as a deterministic Theme contract, preserve
 exact Step routes, and verify the affected audience, document, speaker, and
-export states. The eight official Theme packages are equal design studies and
-quality references; Basic is only the neutral fallback when the brief does
-not justify a stronger direction.
+export states. The eight official designs are optional studies and quality
+references, not a required source scan; Basic is only the neutral fallback when
+the brief does not justify a stronger direction.
 
 The `SKILL.md` content is canonical across hosts. Codex-specific UI metadata is
 additive and is omitted from Claude's adapter. Teams should commit both adapters
@@ -90,6 +90,23 @@ would not change the story, evidence, visual direction, motion, or delivery.
 Every round has one **Skip remaining questions — surprise me** escape. Taking
 it fills unanswered decisions; it never replaces a missing topic unless the
 user explicitly asks for that.
+
+### Direct authoring contract
+
+The generated kit and `context --json` are the complete public API contract for
+deck creation. A normal creation session reads the active agent instructions,
+the creation skill, `brief.md`, `package.json`, the configured MDX entry and
+configuration, plus only project-owned files it will use or edit. It does not
+scan every skill before Draft 1.
+
+Agents must not inspect the Drever repository, `node_modules`, declaration
+files, schemas, internal types, compiler or CLI source, official design
+implementations, or example decks to discover the framework. Local TypeScript,
+React, and CSS imports from MDX are supported. Registered layouts and components
+are described by `context --json`. After a concrete diagnostic, an agent may
+inspect the one named public declaration or guide needed to resolve it; broad
+symbol searches remain out of scope unless the user is debugging or extending
+Drever itself.
 
 Use `--target auto` to update adapters already present in a project, or
 `--target codex` and `--target claude` to install one explicitly. Omitting
@@ -341,30 +358,32 @@ The full grammar and accessibility semantics are in
 For a new project:
 
 1. Run `npm create drever@latest <directory>` or let the global plugin invoke it.
-2. Complete `brief.md`, derive a subject-led visual system, then create the
-   configured MDX entry. Use an official design study only as a reference or
-   documented fallback.
-3. Start the development server as soon as the coherent end-to-end Draft 1
+2. Complete `brief.md`, create the full narrative with a deliberately simple,
+   stable, readable base composition, then write the configured MDX entry. Do
+   not scan official design source before authoring.
+3. Start the development server as soon as that coherent end-to-end Draft 1
    compiles. Verify the audience route plus the first and last slides, share the
-   stable URL as a non-blocking progress update, and keep working through HMR.
+   stable URL as a non-blocking progress update, and keep developing the visual
+   system through HMR.
 4. Run `npm exec -- drever context --json` to inspect the exact result and
    available design vocabulary.
 5. Run `npm exec -- drever check --json` and fix proven source defects.
 6. Inspect every authored Step state plus `/document`; inspect `/speaker` when
    notes, motion, or presentation behavior changed.
-7. Use the review skill for a separate audience-minded refinement pass. Preserve
-   successful choices, fix evidence-backed material issues, rebuild, and recheck
-   affected states; do not regenerate or add decoration merely to create a visible
-   second version.
+7. Continue the design workflow and use the review skill for a separate
+   audience-minded refinement pass. Preserve successful choices, fix
+   evidence-backed material issues, rebuild, and recheck affected states; do not
+   regenerate or add decoration merely to create a visible second version.
 8. Run the production build only after the refined preview is stable. Export a
    PDF only when requested and only from that latest state.
 9. For motion edits, verify forward and backward movement, persistent geometry,
    reduced motion, and the affected continuity boundary in a real browser.
 
 The early URL is a collaboration milestone, not delivery. It must contain the
-complete story, real copy, the chosen base visual system, and representative
-signature beats. Do not share a blank shell, partial storyboard, invented
-placeholder, broken route, or known unreadable slide merely to appear fast.
+complete story, real copy, and a stable readable base composition. Do not share
+a blank shell, partial storyboard, invented placeholder, broken route, or known
+unreadable slide merely to appear fast. The full visual system and signature
+beats continue on that same preview after this milestone.
 If user feedback arrives while checks are running, finish the current atomic
 edit, apply the story or factual correction first, discard stale evidence, and
 rerun only the affected gates.

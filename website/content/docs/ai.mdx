@@ -10,6 +10,11 @@ The bootstrap checks the workspace, creates a safe project, and then hands contr
 version-matched instructions installed inside that project. It does not duplicate the full
 authoring contract or silently change an existing Drever version.
 
+The installed kit is also the API boundary. Normal creation reads the brief, configuration, MDX,
+and only the project-owned components or design files it will edit. It does not scan `node_modules`,
+Drever declarations, framework source, official design implementations, or example decks. A narrow
+public declaration is a last resort for one concrete diagnostic, not a discovery workflow.
+
 The website copies an even smaller handoff—`Fetch and follow https://drever.dev/prompt.md`, plus the
 brief when one was entered. This direct fetch-and-follow instruction avoids activating a competing
 generic presentation workflow before Drever's current contract is loaded. If important choices are
@@ -27,14 +32,17 @@ equivalent local runner instead of assuming a global `drever` executable.
 <h2 id="preview-first">Review the story before the final build</h2>
 
 Drever's agent workflow optimizes for the first useful preview instead of hiding all work behind
-production validation. Once a coherent Draft 1 contains the complete story and base visual
-direction, the agent starts one stable local URL, verifies that its audience route and endpoints
-open, and shares it as a progress update. It keeps working without waiting for approval.
+production validation or a complete custom Theme. Once a coherent Draft 1 contains the complete
+story, real readable copy, and a stable base composition, the agent starts one stable local URL,
+verifies that its audience route and endpoints open, and shares it as a progress update. It keeps
+working without waiting for approval.
 
 Use that moment to review facts, structure, and emphasis. In parallel with your review, the agent
-uses the same live preview to inspect exact Steps, readability, layout, motion, Document View, and
-Speaker View when relevant. Feedback supersedes stale checks. The production build happens only
-after the refined preview is stable, and PDF export runs only when requested.
+continues the art direction, signature scenes, exact Steps, readability, layout, motion, Document
+View, and Speaker View when relevant on the same live preview. A host with parallel workers may
+derive the art-direction and asset plan beside narrative authoring, but the workers must not edit
+the same MDX or styles. Feedback supersedes stale checks. The production build happens only after
+the refined preview is stable, and PDF export runs only when requested.
 
 <h2 id="agent-first">Agent-first, not agent-only</h2>
 
@@ -51,9 +59,9 @@ New projects contain five local workflows for Codex and Claude Code:
 
 The design workflow derives its direction from the subject, audience, venue, source material, and
 purpose. When research is allowed, it can use current primary official sources as evidence for
-palette, typography, imagery, and motion while respecting asset and font licenses. It studies all
-eight official designs as equal references, uses Basic only as the neutral fallback, and persists
-the result locally so every build is deterministic.
+palette, typography, imagery, and motion while respecting asset and font licenses. The eight
+official designs are optional vocabulary rather than a required scan or imitation step; Basic is
+the neutral fallback. The resulting subject-led system stays local so every build is deterministic.
 
 Motion follows the same subject-led rule. Ask the agent to explain how a key object changes role
 across the story—for example, hinting below the canvas, entering as evidence, then docking at low

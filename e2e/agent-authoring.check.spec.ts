@@ -131,7 +131,7 @@ test("the built CLI installs an idempotent agent kit without loading project con
     expect(createDeck).not.toContain("choose the subject too");
     expect(createDeck).toContain("Never ask for supplied facts");
     expect(createDeck).toContain("record them in `brief.md`");
-    expect(createDeck).toContain("<!-- drever-preview-contract:v1 -->");
+    expect(createDeck).toContain("<!-- drever-preview-contract:v2 -->");
     expect(createDeck).toContain("time to first useful preview");
     expect(createDeck).toContain("minimum preview gate");
     expect(createDeck).toContain("non-blocking progress update");
@@ -145,19 +145,38 @@ test("the built CLI installs an idempotent agent kit without loading project con
     expect(createDeck).toContain("exactly one motion owner");
     expect(createDeck).toContain("full-canvas scene one stable positioned slide-relative root");
     expect(createDeck).toContain("Source review and successful commands do not count");
+    expect(createDeck).toContain("<!-- drever-authoring-scope-contract:v1 -->");
+    expect(createDeck).toMatch(/do not search or inspect[^.]*Drever repository/iu);
+    expect(createDeck).toContain("`node_modules`");
+    expect(createDeck).toMatch(/official design implementations/iu);
+    expect(createDeck).toMatch(
+      /configured MDX entry supports local TypeScript,\s+React,\s+and CSS/iu,
+    );
+    expect(createDeck).toMatch(/one named public declaration or guide/iu);
+    expect(createDeck).toMatch(/Parallel design[^.]*must not delay/iu);
 
     const createDesign = firstContents[5];
     if (createDesign === undefined) {
       throw new Error("Agent sync did not create the deck design skill.");
     }
     expect(createDesign).toMatch(
-      /return control as soon as the coherent end-to-end\s+Draft 1 renders/iu,
+      /must not delay[^.]*coherent end-to-end content\s+Draft 1[^.]*stable development URL/iu,
     );
     expect(createDesign).toMatch(
       /Do not make a production build\s+the prerequisite for the first useful preview/iu,
     );
+    expect(createDesign).toMatch(/Do not scan the official studies/iu);
+    expect(createDesign).toMatch(/do not run context[^.]*in-progress deck/iu);
+    expect(createDesign).not.toMatch(/Scan all eight studies/iu);
+    expect(createDesign).not.toMatch(/packages\/designs\/src\/<study>/u);
+    expect(createDesign).toMatch(/Use this minimal public Theme shape/iu);
+    expect(createDesign).toMatch(/background layer is `aria-hidden` and `inert`/iu);
+    expect(createDeck).toContain("`speaker-current`");
+    expect(createDeck).toContain("`speaker-next`");
+    expect(createDeck).toMatch(/there is no generic `speaker` result/iu);
     expect(agents).toContain("Share a coherent Draft 1 before exhaustive validation");
     expect(agents).toContain("do not run repeated production builds");
+    expect(agents).toMatch(/Do not load every skill before Draft 1/iu);
 
     for (const [index, contents] of firstContents.entries()) {
       if (agentFiles[index]?.endsWith("SKILL.md")) {

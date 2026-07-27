@@ -182,7 +182,7 @@ immutable position snapshots, navigation, subscriptions, lifetime
 `reportError` for failures from detached work. Hooks should pass
 `runtime.signal` to abortable work and
 must not install their own presentation router. Runtime components that render
-inside slides can use `useDreverRenderMode()` from `@drever/core` to distinguish
+inside slides can use `useDreverRenderMode()` from `drever` to distinguish
 `audience`, `document`, `speaker-current`, `speaker-next`, and `export` trees.
 Document mode mounts every slide at its final Step without running viewer setup
 hooks, so components should suppress autoplay, global listeners, and

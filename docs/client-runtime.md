@@ -291,14 +291,15 @@ authored per-slide timing model; moving backward naturally makes the status
 reflect the time already spent.
 
 Current and next previews are separate MDX render trees. Interactive components
-can call `useDreverRenderMode()` from `@drever/core`; it returns `audience`,
-`speaker-current`, or `speaker-next`. Components that own media, network work, or
-global listeners must suppress those effects in speaker previews. The runtime
-setup contract separately exposes `runtime.surface` as `audience` or `speaker`
-so plugin hooks can make the same decision. `inert` prevents preview interaction
-but is not an effect-suppression mechanism. Drever namespaces its generated
-slide DOM ids per preview; author components should use React `useId` or local
-refs instead of document-global hard-coded ids.
+can call `useDreverRenderMode()` from `drever`; its complete result set is
+`audience`, `document`, `export`, `speaker-current`, and `speaker-next`.
+Components that own media, network work, or global listeners must suppress
+those effects in speaker previews. The runtime setup contract separately
+exposes `runtime.surface` as `audience` or `speaker` so plugin hooks can make the
+same decision. `inert` prevents preview interaction but is not an
+effect-suppression mechanism. Drever namespaces its generated slide DOM ids per
+preview; author components should use React `useId` or local refs instead of
+document-global hard-coded ids.
 
 The **Open audience** control opens the equivalent audience path. Speaker and
 audience windows share one native `BroadcastChannel` isolated by origin and deck

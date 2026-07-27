@@ -11,11 +11,15 @@ Commands below use npm's project-local runner. In a pnpm, Yarn, or Bun project, 
 
 Start from the current workspace:
 
+<!-- drever-authoring-scope-contract:v1 -->
+
 1. Detect whether it is already a Drever project by inspecting `package.json`, the configured MDX entry, and `drever.config.ts` when that optional file exists.
-   - In an existing project, read its `AGENTS.md` or `CLAUDE.md` and project-local Drever skills. Use the installed project-local `drever` binary; never substitute `drever@latest`.
+   - In an existing project, read its `AGENTS.md` or `CLAUDE.md` and use this project-local creation skill. Load the design, authoring, review, or delivery skill only when that phase needs it. Use the installed project-local `drever` binary; never substitute `drever@latest`.
    - In an empty or missing target directory, run `npm create drever@latest [directory]`. The default scaffold installs dependencies and both project agent adapters. Preserve those defaults unless the user requested a specific package manager, agent, or no installation.
    - Never scaffold over a non-empty, non-Drever directory. Use a new directory when the intended target is clear; ask only when that choice materially changes the result.
-2. After scaffolding, work from the new project root and follow its project-local Drever skills. Inspect `package.json`, `brief.md`, existing assets, local components, the configured entry, and `drever.config.ts` when present. When a deck already exists, use `drever_get_context` if the read-only Drever MCP is connected; otherwise run `npm exec -- drever context --json`.
+2. After scaffolding, work from the new project root. Read `package.json`, `brief.md`, the configured entry, and `drever.config.ts` when present. Read an existing local asset, component, or design file only when you will use or edit it. When a deck already exists, use `drever_get_context` if the read-only Drever MCP is connected; otherwise run `npm exec -- drever context --json`.
+   - The generated scaffold, this skill, and the resolved authoring context are the complete public contract. During ordinary deck creation, do not search or inspect the Drever repository, `node_modules`, package source, declaration files, schemas, internal types, compiler or CLI code, official design implementations, or example decks.
+   - Do not grep framework symbols or create a probe deck to rediscover documented behavior. The configured MDX entry supports local TypeScript, React, and CSS imports. If a concrete compile or type diagnostic remains, inspect only the one named public declaration or guide needed to resolve it. Explore framework internals only when the user explicitly asks to debug or extend Drever itself.
 3. Resolve the brief through an adaptive interview whenever material choices remain. Infer the topic, language, audience, purpose, duration, venue, evidence, source material, brand constraints, delivery format, density, speaker-note depth, tone, motion intent, and desired action from what the user already supplied or attached.
    <!-- drever-briefing-contract:v2 -->
    - Reply and author in the user's language unless they request another language or the source material clearly requires it.
@@ -35,7 +39,7 @@ Start from the current workspace:
    - End every round with exactly one escape: **You can combine options, answer in your own words, or say “Skip remaining questions — surprise me” and I will choose the rest.** If the user takes it, stop asking and resolve every unanswered choice. “Surprise me” does not replace the topic unless the user explicitly requests that.
    - Never ask for supplied facts or silently choose a duration unless the user uses the skip-remaining escape. When the brief is sufficient, summarize the resolved direction and assumptions in two to four concise lines, do not ask for confirmation, record them in `brief.md`, and begin creating.
 4. Plan one dominant idea per slide: establish context, develop the argument, show evidence, and close with a clear conclusion.
-5. Use the project-local `drever-create-design` skill for every newly generated deck unless the user explicitly asks for a fast plain draft. Official designs are studies and foundations, not a substitute for topic-specific art direction; use Basic unchanged only as a documented neutral fallback.
+5. Give Draft 1 a deliberately simple, stable, readable base composition without waiting for a complete custom Theme. A lightweight subject cue is welcome only when it does not delay the content preview. After its stable preview is live, use the project-local `drever-create-design` skill when a fuller reusable visual system would materially improve the deck. Continue on the same preview instead of restarting the deck. Official designs are optional studies, not a required research step or a substitute for topic-specific art direction; use Basic unchanged only as a documented neutral fallback.
 6. Write the configured MDX entry, defaulting to `slides.mdx`.
 7. Create or update `drever.config.ts` so `deck.lang` is the valid BCP 47 tag
    for the authored language. Add a concise published title and description
@@ -46,10 +50,24 @@ Start from the current workspace:
    public URL so link-preview metadata is absolute. Never leave a non-English
    deck declared as English.
 
+Use the public authoring surface directly:
+
+- `Step`, `Note`, `MotionGroup`, `SlideTransition`, active Theme layouts, and active Plugin
+  components are registered MDX names. Do not import them from internal `@drever/*` packages.
+- Use the examples and prop manifests from `drever_get_context` or
+  `npm exec -- drever context --json` after Draft 1 when a registered layout or component is
+  relevant. Do not inspect its implementation.
+- Import project-local `.tsx`, `.ts`, and `.css` files directly from the MDX entry. Use
+  `useDreverRenderMode` from `drever` inside a local component that must distinguish audience,
+  document, speaker-preview, or export rendering. Its exact results are `audience`, `document`,
+  `export`, `speaker-current`, and `speaker-next`; there is no generic `speaker` result.
+- Import public configuration types, `defineTheme`, `StageLayerProps`, and `useStage` from `drever`.
+  Do not add direct framework-package dependencies to reach internal types.
+
 Design from the subject, not from a random attractive style:
 
 - Derive the visual direction from the topic, audience, purpose, tone, and source material before choosing a theme or custom CSS.
-- When the subject has an established visual language and research is allowed, inspect current primary official sources for palette, typography, marks, imagery, spatial rhythm, and motion cues. Prefer user-provided brand guidance when available. Do not infer a brand from search thumbnails or copy another presentation.
+- When factual accuracy, an authorized asset, or an established subject or brand language makes research useful, inspect current primary official sources for only the needed evidence. Prefer user-provided brand guidance when available. Do not delay Draft 1 for optional style research, infer a brand from search thumbnails, copy another presentation, or research Drever's own design catalog.
 - Reduce those findings to a small, explicit system: type roles, palette, grid, one recurring motif, image treatment, and motion voice. Use the closest Drever theme as the foundation, then add only the project CSS and components that make the subject recognizable.
 - Before authoring, choose two or three signature moments and record each as **claim → focal artifact → initial state → meaningful transformation → settled payoff → static or reduced-motion endpoint**. Put at least one in the opening third. The transformation must clarify causality, comparison, reveal, or role change; a generic fade or slide entrance alone is not a signature moment.
 - Apply the topic-fingerprint test to every signature scene: with its title and branding hidden, its focal artifact and relationship should still plausibly belong to this subject. A recolored card grid, generic gradient, or ordinary entrance does not pass. Let quieter slides create contrast around the signature beats.
@@ -60,7 +78,10 @@ Design from the subject, not from a random attractive style:
 - Treat the active Theme CSS as part of the input. Inside each bespoke scene, use a scoped, minimal normalization for Theme-owned Markdown margins, maximum widths, line height, text transform, and foreground before applying local roles. Verify the final computed descendants instead of assuming that a parent class or later source order wins; never apply a global reset to the whole deck.
 - Do not optimize local visual code for line count. A substantial CSS, SVG, canvas, or React scene is valid when it materially improves explanation or atmosphere, remains deterministic and maintainable, and passes rendered review.
 
-For example, a deck about React 19 should first inspect current official React sources instead of applying a generic technology gradient. It might derive its palette and type contrast from that language, use a licensed React mark as a quiet oversized Stage motif, and rotate one inner orbit at a meaningful chapter change. It should not copy the React website, animate the mark on every slide, or use the motif when it distracts from code and evidence.
+For example, a deck about React 19 may use current official React sources to verify the features it
+teaches and, when licensing permits, derive a restrained palette or orbit motif from that subject.
+It should not copy the React website, animate the mark on every slide, or make optional visual
+research block the first useful preview.
 
 Author with these rules:
 
@@ -95,13 +116,28 @@ Author with these rules:
 
 Use custom React only when interaction materially improves the explanation. Give every live motion or spatial integration accessible final semantics, keyboard behavior, reduced-motion output, deterministic loading and export readiness, and a stable poster or authored fallback for document and export surfaces when needed. Loop only when ongoing change is the subject; use a deterministic sequence, start its first meaningful update when the audience slide activates, pause it outside the active audience surface, and author a stable final state. Declare authored CSS keyframes only on an active selector such as `[data-drever-slide][data-slide-state="active"]`; for a Step-owned cue also require `[data-drever-step][data-step-state="active"]` and define the settled `complete` style separately. Inactive slides stay mounted, so a base `animation` can finish before the audience arrives. Drive an animated number, label, and chart from the same frame, keep number width stable, and never announce every interpolated value. Choose chart form from the question: bars compare, dots rank, lines show a path, areas emphasize magnitude over a path, and donuts show a bounded part of a whole. Prefer one series and one claim; do not add smoothing, dimensions, legends, or interaction that the explanation does not need. Reserve the largest transformed and painted footprint of 2D or 3D motion so no intermediate layer crosses a track, label, or adjacent copy. Keep continuously animated backgrounds and 3D subordinate to the claim. Give each element exactly one motion owner: a Step reveal, navigation continuity, or local live-DOM motion. Do not stack a Step entrance and child keyframe on the same spatial payload.
 
-<!-- drever-preview-contract:v1 -->
+<!-- drever-preview-contract:v2 -->
 
-Optimize for time to first useful preview, not time to first final artifact. Once the story, design, and interaction exist end to end as a coherent Draft 1, start the matching development server and keep one stable local URL through refinement. Draft 1 must contain every planned slide, real readable copy, the chosen subject-led visual direction, and representative Steps or signature moments. Never share a blank shell, partial storyboard, fabricated placeholder, broken route, or knowingly unreadable slide merely to appear fast. Complete correctness-critical source review before exposing factual claims; speed does not permit invention. Before this milestone, prioritize the story, real content, readable base composition, and at least one representative signature beat. Defer optional third-party integrations, secondary choreography, export-only polish, and production metadata that does not affect local rendering; never replace them with fake assets or claims.
+Optimize for time to first useful preview, not time to first final artifact. Once the full story exists
+end to end as a coherent Draft 1, start the matching development server and keep one stable local
+URL through refinement. Draft 1 must contain every planned slide, real readable copy, and a stable
+readable base composition. Never share a blank shell, partial storyboard, fabricated placeholder,
+broken route, or knowingly unreadable slide merely to appear fast. Complete correctness-critical
+source review before exposing factual claims; speed does not permit invention. Before this
+milestone, prioritize the story, real content, safe line lengths, and readable base composition.
+Defer the complete visual system, signature choreography, optional third-party integrations,
+export-only polish, and production metadata that does not affect local rendering; never replace
+them with fake assets or claims.
 
 Before sharing the URL, perform only the minimum preview gate: the authored entry compiles, the audience route responds, and the first and last slides open without a fatal runtime error. Do not block this milestone on `npm exec -- drever context --json`, exhaustive `npm exec -- drever check --json`, `npm exec -- drever build`, PDF export, every Step route, `/document`, `/speaker`, or pixel-level inspection. If command or browser access cannot verify the server, report the blocker and keep working; never invent a preview URL.
 
-As soon as that gate passes, send a non-blocking progress update: **Draft 1 is live at `<verified-url>`. The full story and visual direction are ready for content review; I am still checking readability, layout, motion, Steps, and browser behavior. You can send changes now while I keep refining.** Do not stop for approval. Keep the development server alive, use HMR for subsequent edits, and continue in the same turn. If feedback arrives, finish the current atomic edit, prioritize story and factual changes over polish, discard stale validation, update the same preview, and rerun only the affected review gates.
+As soon as that gate passes, send a non-blocking progress update: **Draft 1 is live at `<verified-url>`. The complete content structure and readable base layout are ready for review; I am continuing the visual system, motion, detailed layout, and browser checks on this same preview. You can send changes now while I keep refining.** Do not stop for approval. Keep the development server alive, use HMR for subsequent edits, and continue in the same turn. If feedback arrives, finish the current atomic edit, prioritize story and factual changes over polish, discard stale validation, update the same preview, and rerun only the affected review gates.
+
+When the host supports parallel workers, start one early to produce `art-direction.md`, an asset
+plan, and the signature-beat plan while the primary worker authors the full narrative. Give workers
+disjoint file ownership and never let them edit the MDX or styles concurrently. The design worker
+must not replace or restyle files that the content worker is still writing. Parallel design is
+optional and must not delay the stable Draft 1 URL.
 
 Treat that preview as Draft 1, not delivery. Run `npm exec -- drever context --json` and `npm exec -- drever check --json`, fix every proven error, then begin a separate refinement pass with the project-local `drever-review-deck` skill. Read the rendered Draft 1 as an audience member and prioritize high-impact improvements to the story, focus, density, composition, subject fit, readability, motion meaning, timing, continuity, and finish. Preserve successful ideas, signature moments, slide and Step routes, and intentional design decisions. Do not regenerate the deck wholesale, manufacture novelty, or add decoration merely to make a second version visibly different; leave sound choices alone.
 

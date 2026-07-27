@@ -163,7 +163,7 @@ describe("project creation", () => {
       "Open this project folder in Codex, Claude Code, or another coding agent.",
     );
     await expect(readFile(join(root, "README.md"), "utf8")).resolves.toContain(
-      "Use `$drever-create-deck` to turn `brief.md` into a complete, validated Drever presentation.",
+      "Use `$drever-create-deck` to turn `brief.md` into an early live Drever draft, then keep refining the same preview and deliver the requested outputs.",
     );
     await expect(readFile(join(root, "README.md"), "utf8")).resolves.toContain(
       "In Claude Code, use `/drever-create-deck` instead of `$drever-create-deck`.",
@@ -273,12 +273,14 @@ describe("create automation", () => {
     expect(codex.host).toBe("new");
     expect(codex.searchParams.get("path")).toBe("/tmp/my deck");
     expect(codex.searchParams.get("prompt")).toContain("brief.md");
+    expect(codex.searchParams.get("prompt")).toContain("drever-create-deck");
+    expect(codex.searchParams.get("prompt")).toContain("early live draft");
 
     const claude = new URL(createAgentDeepLink("claude", "/tmp/my deck"));
     expect(claude.protocol).toBe("claude-cli:");
     expect(claude.host).toBe("open");
     expect(claude.searchParams.get("cwd")).toBe("/tmp/my deck");
-    expect(claude.searchParams.get("q")).toContain("brief.md");
+    expect(claude.searchParams.get("q")).toBe(codex.searchParams.get("prompt"));
   });
 
   it("prints a stable JSON receipt for agent callers", async () => {

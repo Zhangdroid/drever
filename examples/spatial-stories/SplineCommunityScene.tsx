@@ -1,4 +1,4 @@
-import { useDreverRenderMode } from "@drever/core";
+import { useDreverRenderMode } from "drever";
 import { useEffect, useState, type ReactElement } from "react";
 
 export type SplineCommunitySceneProps = Readonly<{

@@ -276,11 +276,15 @@ try {
   }
   await writeFile(
     join(deckRoot, "slides.mdx"),
-    `import { Note, Step } from "drever";
+    `import { Note, Step, useDreverRenderMode } from "drever";
+
+export const RenderMode = () => <span>{useDreverRenderMode()}</span>;
 
 # Packed root import
 
 <Step>Browser-safe runtime import.</Step>
+
+<RenderMode />
 
 <Note>The packed consumer resolves authoring primitives from the root package.</Note>
 `,

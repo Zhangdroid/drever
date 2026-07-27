@@ -1,5 +1,5 @@
 import type { Application as SplineApplication, SPEObject } from "@splinetool/runtime";
-import { useDreverRenderMode } from "@drever/core";
+import { useDreverRenderMode } from "drever";
 import { useEffect, useRef, useState, type ReactElement } from "react";
 
 export type SplineSceneMode = "context" | "evidence" | "hidden" | "object" | "opening";

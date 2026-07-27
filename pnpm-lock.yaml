@@ -396,9 +396,6 @@ importers:
       '@drever/brand':
         specifier: workspace:*
         version: link:../../packages/brand
-      '@drever/core':
-        specifier: workspace:*
-        version: link:../../packages/core
       '@drever/designs':
         specifier: workspace:*
         version: link:../../packages/designs
@@ -420,9 +417,6 @@ importers:
       '@drever/brand':
         specifier: workspace:*
         version: link:../../packages/brand
-      '@drever/core':
-        specifier: workspace:*
-        version: link:../../packages/core
       '@drever/designs':
         specifier: workspace:*
         version: link:../../packages/designs
@@ -462,9 +456,6 @@ importers:
       '@drever/brand':
         specifier: workspace:*
         version: link:../../packages/brand
-      '@drever/core':
-        specifier: workspace:*
-        version: link:../../packages/core
       '@drever/designs':
         specifier: workspace:*
         version: link:../../packages/designs

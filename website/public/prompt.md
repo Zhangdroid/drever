@@ -96,17 +96,31 @@ project agent adapters enabled unless the user requested otherwise.
 
 ## Follow the project contract
 
-Enter the project and explicitly read the instructions for the current agent, the project-local
-Drever skills, `brief.md`, `package.json`, the configuration, and the configured MDX entry.
+<!-- drever-authoring-scope-contract:v1 -->
+
+Enter the project and read only the instructions for the current agent, the project-local
+`drever-create-deck` skill, `brief.md`, `package.json`, the configuration, and the configured MDX
+entry. Read an existing local component, design file, or asset only when you will use or edit it.
+Do not load the authoring, review, or delivery skills until that phase of work needs them.
+
+The generated scaffold and version-matched project instructions are the complete Drever authoring
+contract. During ordinary deck creation, do not search or inspect the Drever repository,
+`node_modules`, package source, declaration files, schemas, internal types, compiler or CLI code,
+official design implementations, or example decks. Do not grep framework symbols to rediscover an
+API that the installed contract already documents, and do not probe whether local MDX imports work:
+the configured MDX entry may import local TypeScript, React, and CSS modules. If a concrete compile
+or type diagnostic remains after using the documented public surface, inspect only the one named
+public declaration or guide needed to resolve it. Explore Drever internals only when the user
+explicitly asks to debug or extend Drever itself.
 
 The generated, version-matched project instructions override this bootstrap document. Never
 substitute `drever@latest` for the installed project version after creation.
 
-Write the normalized brief to `brief.md`, then follow the project-local creation workflow. Design
-from the subject, audience, and purpose rather than choosing a random attractive style. When a
-topic has an established visual language and research is allowed, consult current primary official
-sources for color, typography, imagery, and motion cues. Respect asset and font licenses, and create
-an original interpretation instead of copying a website.
+Write the normalized brief to `brief.md`, then author directly from the brief and documented public
+surface. Design from the subject, audience, and purpose rather than choosing a random attractive
+style. Research only material needed for factual accuracy, authorized assets, or a genuinely useful
+subject or brand cue. Do not research Drever's own design catalog as a prerequisite. Respect asset
+and font licenses, and create an original interpretation instead of copying a website.
 
 Create or update `drever.config.ts` so `deck.lang` matches the authored presentation language using
 a valid BCP 47 tag. Add the concise published title and description when known, choose `dir` when
@@ -115,14 +129,16 @@ assets exist. Pair every social preview image with concise alternative text. Whe
 local `public/` asset, also set `deck.url` to the real canonical public URL so link-preview metadata
 is absolute. Never leave a non-English deck declared as English.
 
-Unless the user explicitly asks for a fast plain draft, use the project-local design workflow for a
-subject-led visual system rather than stopping at a generic preset. Plan a few signature moments
-that make the subject recognizable, then support them with quieter slides. A signature scene must
-have a topic fingerprint: with its title and branding hidden, its focal artifact and relationship
-should still plausibly belong to this subject. Record each signature beat as **claim → focal
-artifact → initial state → meaningful transformation → settled payoff → static or reduced-motion
-endpoint**, and place at least one in the opening third. The transformation must clarify causality,
-comparison, reveal, or role change; a generic fade or slide entrance alone does not count.
+Give Draft 1 a deliberately simple, stable, readable base composition instead of blocking its
+preview on a complete custom Theme. A lightweight subject cue is welcome only when it does not delay
+the content preview. After Draft 1 is live, continue the project-local design workflow on the same
+preview and persist the fuller visual system only when it materially improves the deck. Plan a few
+signature moments that make the subject recognizable. A signature scene must have a topic
+fingerprint: with its title and branding hidden, its focal artifact and relationship should still
+plausibly belong to this subject. Record each signature beat as **claim → focal artifact → initial
+state → meaningful transformation → settled payoff → static or reduced-motion endpoint**, and place
+at least one in the opening third. The transformation must clarify causality, comparison, reveal, or
+role change; a generic fade or slide entrance alone does not count.
 
 Let each idea choose its composition instead of defaulting most slides to the same
 left-copy/right-artifact split. A substantial local visual implementation is welcome when it earns
@@ -153,18 +169,23 @@ Inactive slides stay mounted, so an ungated keyframe can finish before the audie
 
 ## Preview early, then finish the job
 
-<!-- drever-preview-contract:v1 -->
+<!-- drever-preview-contract:v2 -->
 
 Optimize for time to first useful preview, not time to first final artifact. Once the full story
 exists end to end as a coherent Draft 1, start the development server and keep one stable local URL
-through refinement. Draft 1 must contain every planned slide, real readable copy, the chosen
-subject-led visual direction, and representative Steps or signature moments. Never share a blank
-shell, partial storyboard, fabricated placeholder, broken route, or knowingly unreadable slide
-merely to appear fast. Finish correctness-critical source review before exposing a factual claim.
-Before this milestone, prioritize the story, real content, readable base composition, and at least
-one representative signature beat. Defer optional third-party integrations, secondary choreography,
-export-only polish, and production metadata that does not affect local rendering; never replace
-them with fake assets or claims.
+through refinement. Draft 1 must contain every planned slide, real readable copy, and a stable
+readable base composition. Never share a blank shell, partial storyboard, fabricated placeholder,
+broken route, or knowingly unreadable slide merely to appear fast. Finish correctness-critical
+source review before exposing a factual claim. Before this milestone, prioritize the story, real
+content, and readable base composition. Defer the complete visual system, signature choreography,
+optional third-party integrations, export-only polish, and production metadata that does not affect
+local rendering; never replace them with fake assets or claims.
+
+When the host supports parallel workers, start one worker early to derive a concise art direction,
+asset plan, and signature-beat plan while the primary worker authors the narrative. Give them
+disjoint file ownership and never let both edit the MDX or styles concurrently. The design worker
+must not replace or restyle files that the content worker is still writing. Parallel work is an
+optimization, not a prerequisite: the first preview must not wait for the complete design study.
 
 Before sharing the URL, perform only the minimum preview gate: the entry compiles, the audience
 route responds, and the first and last slides open without a fatal runtime error. Do not block this
@@ -173,12 +194,12 @@ Document or Speaker View, or pixel-level inspection. If the server cannot be ver
 blocker and keep working; never invent a preview URL.
 
 As soon as that gate passes, send a non-blocking progress update such as: **Draft 1 is live at
-`<verified-url>`. The full story and visual direction are ready for content review; I am still
-checking readability, layout, motion, Steps, and browser behavior. You can send changes now while I
-keep refining.** Do not stop for approval. Keep the server alive, use its HMR path for subsequent
-edits, and continue in the same turn. If feedback arrives, finish the current atomic edit, prioritize
-story and factual changes over polish, discard stale validation, update the same preview, and then
-rerun only the affected review gates.
+`<verified-url>`. The complete content structure and readable base layout are ready for review; I am
+continuing the visual system, motion, detailed layout, and browser checks on this same preview. You
+can send changes now while I keep refining.** Do not stop for approval. Keep the server alive, use
+its HMR path for subsequent edits, and continue in the same turn. If feedback arrives, finish the
+current atomic edit, prioritize story and factual changes over polish, discard stale validation,
+update the same preview, and then rerun only the affected review gates.
 
 Treat that preview as Draft 1, not delivery. Start a separate refinement pass based on what the
 audience can actually see and use. Prioritize high-impact improvements to narrative clarity, focus,

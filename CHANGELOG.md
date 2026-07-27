@@ -5,6 +5,8 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-07-26
+
 ### Added
 
 - Added a focused Spatial Stories showcase that carries one official Spline
@@ -12,6 +14,18 @@ section, while commit snapshots use the current Unreleased section.
   moving object and a CC0 ambient community scene, while keeping one remote 3D
   renderer at a time and deterministic original posters for non-audience
   surfaces.
+- Exposed `useDreverRenderMode` from the root `drever` authoring surface so
+  project-local components can distinguish audience, document, speaker, and
+  export rendering without importing an internal package.
+
+### Changed
+
+- Made AI creation author directly from the version-matched public contract
+  instead of scanning `node_modules`, declarations, Drever source, official
+  design implementations, and example decks. Draft 1 now exposes the complete
+  readable content structure before a full custom Theme, while the design
+  workflow can continue on the same preview or derive a disjoint art-direction
+  plan in parallel.
 
 ## [0.6.0] - 2026-07-26
 
@@ -341,7 +355,10 @@ section, while commit snapshots use the current Unreleased section.
 - Added parallel source, unit, package, browser, export, and website checks in CI.
 - Deployed the prerendered public website and per-branch previews through Cloudflare Pages.
 
-[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/Zhangdroid/drever/compare/v0.6.0...v0.7.0
+[0.6.0]: https://github.com/Zhangdroid/drever/compare/v0.5.0...v0.6.0
+[0.5.0]: https://github.com/Zhangdroid/drever/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/Zhangdroid/drever/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Zhangdroid/drever/compare/v0.2.6...v0.3.0
 [0.2.6]: https://github.com/Zhangdroid/drever/compare/v0.2.5...v0.2.6

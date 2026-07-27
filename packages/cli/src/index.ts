@@ -29,8 +29,16 @@ export type {
   SpeakerNote,
   ThemeDefinition,
 } from "@drever/compiler";
-export { MotionGroup, Note, SlideTransition, Step, useStage } from "./runtime.ts";
+export {
+  MotionGroup,
+  Note,
+  SlideTransition,
+  Step,
+  useDreverRenderMode,
+  useStage,
+} from "./runtime.ts";
 export type {
+  DreverRenderMode,
   MotionFlow,
   MotionGroupProps,
   MotionIntent,
