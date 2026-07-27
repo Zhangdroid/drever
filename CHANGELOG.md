@@ -5,6 +5,8 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-07-27
+
 ### Added
 
 - Added an independent Claude Opus 5 path to the post-release AI smoke, with
