@@ -46,6 +46,8 @@ section, while commit snapshots use the current Unreleased section.
 - Kept export-page labels explicitly English without retagging authored slide
   content, and refreshed manifest titles after development edits instead of
   leaving browser and navigation labels stale.
+- Replaced generated showcase metadata as one canonical set during website
+  assembly, avoiding stale titles and duplicate social tags.
 - Kept the adaptive website header in sync with structural dark surfaces across
   documentation, showcase, and release-smoke pages.
 - Gave the Docs handoff card enough reading width and simplified its supporting
