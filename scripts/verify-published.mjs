@@ -2,6 +2,7 @@ import { execFile } from "node:child_process";
 import { mkdir, mkdtemp, readFile, realpath, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 import { assertDistTag, assertReleaseVersion, readPublicPackages } from "./release.mjs";
 
@@ -124,6 +125,9 @@ try {
 
   const modules = join(packageConsumerRoot, "node_modules");
   const moduleRoot = (name) => join(modules, ...name.split("/"));
+  const publishedSchema = await import(
+    pathToFileURL(join(moduleRoot("@drever/schema"), "dist", "index.mjs")).href
+  );
   const packageRoots = {
     agent: moduleRoot("@drever/agent"),
   };
@@ -175,7 +179,7 @@ try {
   const contextResult = await run("npm", ["exec", "--", "drever", "context", "--json"], deckRoot);
   const context = JSON.parse(contextResult.stdout);
   if (
-    context.version !== 1 ||
+    context.version !== publishedSchema.DREVER_AUTHORING_CONTEXT_VERSION ||
     context.sourcePath !== join(deckRoot, "slides.mdx") ||
     context.deck?.slides?.length !== 1
   ) {
