@@ -169,11 +169,18 @@ subject-led choices that work. Correct evidence-backed problems in hierarchy, co
 readability, background emphasis, motion, and consistency; do not restyle the deck wholesale or add
 decoration merely to make the second pass look different.
 
+When this skill is part of new-deck creation, return control as soon as the coherent end-to-end
+Draft 1 renders so the creation workflow can share its stable development URL. Resume the design
+review against that same live preview without waiting for approval. Do not make a production build
+the prerequisite for the first useful preview, and do not run repeated production builds during
+visual iteration.
+
 1. Add tests only for meaningful contracts or component behavior; do not add snapshots that merely preserve CSS text.
-2. Run `npm exec -- drever context --json`, `npm exec -- drever check --json`, and `npm exec -- drever build`.
+2. After the Draft 1 preview is live, run `npm exec -- drever context --json` and `npm exec -- drever check --json`.
 3. Inspect every slide at Step 0 and every exact Step state after the first applied design; representative sampling is not sufficient. For a narrowly scoped later edit, inspect every affected state and adjacent handoff. Changing shared tokens, layouts, Stage layers, or components requires the whole deck. Resolve every P0 readability defect before aesthetic polish, including computed descendant spacing and foregrounds on the most disruptive background frame. Check intermediate motion frames in both directions for coordinate rebasing, activation timing, and paint containment, not only endpoints.
 4. Check `/document`, reduced motion, and relevant speaker and export surfaces. Verify fonts and localized assets load without network-dependent generation.
 5. Review the result against `art-direction.md`: remove any prominent choice that cannot be justified as subject-led or clearly acknowledged as fallback.
 6. When the design is applied to a deck, use the project-local `drever-review-deck` skill as the rendered completion gate. Reinspect the whole deck after changing shared tokens, layouts, Stage layers, or components; source review and successful generation or build commands do not count as the Draft 1 rendered refinement.
+7. Let the owning creation or delivery workflow run the final production build after the live design is stable. Run it here only when this skill is the sole workflow responsible for a production-ready design.
 
 Report the design premise, generated files, approved assets and licenses, subject-led decisions, fallback decisions, and validation evidence.

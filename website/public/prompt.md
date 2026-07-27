@@ -151,27 +151,53 @@ authored CSS `animation` declaration behind
 `[data-drever-step][data-step-state="active"]` and define the settled `complete` style separately.
 Inactive slides stay mounted, so an ungated keyframe can finish before the audience arrives.
 
-## Finish the job
+## Preview early, then finish the job
 
-Do not deliver the first complete build by default. Treat it as Draft 1: render the full story, then
-start a separate refinement pass based on what the audience can actually see and use. Prioritize
-high-impact improvements to narrative clarity, focus, density, composition, subject fit,
-readability, motion meaning, timing, continuity, and finish. Preserve successful ideas, signature
-moments, routes, Steps, and design decisions. Do not regenerate wholesale or add decoration merely
-to make the second version different; leave sound choices alone. After blocking defects are fixed,
-ask what one scene the audience will remember and why it could not belong to an unrelated topic. If
-there is no defensible answer, redesign exactly one high-value beat instead of decorating the whole
-deck.
+<!-- drever-preview-contract:v1 -->
 
-Use the project-local workflow to check and build the presentation. Start the development server
-and inspect the audience view when browser tooling is available. Prefer a connected Chrome DevTools
-MCP server for the final rendered pass, then follow the version-matched project-local review skill
-for screenshots, interaction, runtime evidence, and the dev-only experimental Pretext layout probe.
-The probe is advisory; rendered DOM and pixels remain authoritative. Inspect every slide at Step 0
-and every exact authored Step route at the configured canvas; representative sampling is not
-sufficient. Review the document view as well, and review the speaker view when notes or timing are
-involved. Source review and successful commands do not count as the Draft 1 rendered refinement.
-Export a PDF only when requested.
+Optimize for time to first useful preview, not time to first final artifact. Once the full story
+exists end to end as a coherent Draft 1, start the development server and keep one stable local URL
+through refinement. Draft 1 must contain every planned slide, real readable copy, the chosen
+subject-led visual direction, and representative Steps or signature moments. Never share a blank
+shell, partial storyboard, fabricated placeholder, broken route, or knowingly unreadable slide
+merely to appear fast. Finish correctness-critical source review before exposing a factual claim.
+Before this milestone, prioritize the story, real content, readable base composition, and at least
+one representative signature beat. Defer optional third-party integrations, secondary choreography,
+export-only polish, and production metadata that does not affect local rendering; never replace
+them with fake assets or claims.
+
+Before sharing the URL, perform only the minimum preview gate: the entry compiles, the audience
+route responds, and the first and last slides open without a fatal runtime error. Do not block this
+milestone on `drever context`, exhaustive `drever check`, `drever build`, PDF export, every Step,
+Document or Speaker View, or pixel-level inspection. If the server cannot be verified, report the
+blocker and keep working; never invent a preview URL.
+
+As soon as that gate passes, send a non-blocking progress update such as: **Draft 1 is live at
+`<verified-url>`. The full story and visual direction are ready for content review; I am still
+checking readability, layout, motion, Steps, and browser behavior. You can send changes now while I
+keep refining.** Do not stop for approval. Keep the server alive, use its HMR path for subsequent
+edits, and continue in the same turn. If feedback arrives, finish the current atomic edit, prioritize
+story and factual changes over polish, discard stale validation, update the same preview, and then
+rerun only the affected review gates.
+
+Treat that preview as Draft 1, not delivery. Start a separate refinement pass based on what the
+audience can actually see and use. Prioritize high-impact improvements to narrative clarity, focus,
+density, composition, subject fit, readability, motion meaning, timing, continuity, and finish.
+Preserve successful ideas, signature moments, routes, Steps, and design decisions. Do not regenerate
+wholesale or add decoration merely to make the second version different; leave sound choices alone.
+After blocking defects are fixed, ask what one scene the audience will remember and why it could not
+belong to an unrelated topic. If there is no defensible answer, redesign exactly one high-value beat
+instead of decorating the whole deck.
+
+After the preview is live, run the project-local context and check workflows. Prefer a connected
+Chrome DevTools MCP server for the final rendered pass, then follow the version-matched project-local
+review skill for screenshots, interaction, runtime evidence, and the dev-only experimental Pretext
+layout probe. The probe is advisory; rendered DOM and pixels remain authoritative. Inspect every
+slide at Step 0 and every exact authored Step route at the configured canvas; representative
+sampling is not sufficient. Review the document view as well, and review the speaker view when notes
+or timing are involved. Source review and successful commands do not count as the Draft 1 rendered
+refinement. Run the production build only after the refined preview is stable. Export a PDF only
+when requested and only from that latest stable state.
 
 Treat syntax-highlighted code, topic-specific visuals, stable motion, contrast, alignment, and
 overflow as rendered requirements rather than assumptions. Every visible authored string is a

@@ -7,6 +7,7 @@ const createDeckSkill = await readFile(
   "utf8",
 );
 const briefingContractMarker = /<!-- drever-briefing-contract:(v\d+) -->/u;
+const previewContractMarker = /<!-- drever-preview-contract:(v\d+) -->/u;
 
 const expectAdaptiveBriefingContract = (source: string): void => {
   expect(source).toMatch(/topic is missing[^.]*ask for it by itself/iu);
@@ -32,6 +33,26 @@ const expectAdaptiveBriefingContract = (source: string): void => {
   expect(source).not.toMatch(/choose the subject too|Or answer “Surprise me”/iu);
 };
 
+const expectPreviewFirstContract = (source: string): void => {
+  expect(source).toMatch(/time to first useful preview/iu);
+  expect(source).toMatch(/coherent Draft 1/iu);
+  expect(source).toMatch(/every planned slide[^.]*real readable copy/iu);
+  expect(source).toMatch(
+    /Defer optional third-party integrations[^.]*secondary choreography[^.]*export-only polish/iu,
+  );
+  expect(source).toMatch(
+    /minimum preview gate[^.]*entry\s+compiles[^.]*audience\s+route responds[^.]*first and last slides open/isu,
+  );
+  expect(source).toMatch(/Do not block[^.]*drever build[^.]*PDF export[^.]*every Step/isu);
+  expect(source).toMatch(/non-blocking progress update/iu);
+  expect(source).toMatch(/Do not stop for approval/iu);
+  expect(source).toMatch(/discard stale validation/iu);
+  expect(source).toMatch(/production build[^.]*only after[^.]*stable/iu);
+  expect(source).toMatch(/(?:a )?PDF only\s+when requested/iu);
+  expect(source).toMatch(/never invent a preview URL/iu);
+  expect(source).toMatch(/preview as Draft 1,\s+not delivery/iu);
+};
+
 describe("public bootstrap prompt", () => {
   it("keeps the public bootstrap and installed skill on one adaptive briefing contract", () => {
     const promptVersion = prompt.match(briefingContractMarker)?.[1];
@@ -43,6 +64,16 @@ describe("public bootstrap prompt", () => {
     expectAdaptiveBriefingContract(createDeckSkill);
     expect(prompt).toMatch(/summarize the resolved direction[^.]*two to four concise lines/isu);
     expect(createDeckSkill).toMatch(/record them in `brief\.md`/iu);
+  });
+
+  it("keeps first preview fast without weakening final delivery", () => {
+    const promptVersion = prompt.match(previewContractMarker)?.[1];
+    const skillVersion = createDeckSkill.match(previewContractMarker)?.[1];
+
+    expect(promptVersion).toBe("v1");
+    expect(skillVersion).toBe(promptVersion);
+    expectPreviewFirstContract(prompt);
+    expectPreviewFirstContract(createDeckSkill);
   });
 
   it("defines topic-specific signature moments and a refinement ceiling", () => {
@@ -65,7 +96,7 @@ describe("public bootstrap prompt", () => {
     expect(prompt).toMatch(/across every Step/iu);
     expect(prompt).toMatch(/fully contained within the shape or surface that visually owns it/iu);
     expect(prompt).toMatch(/usable inner silhouette[^.]*rectangular bounding box/iu);
-    expect(prompt).toMatch(/every slide at Step 0\s+and\s+every exact authored Step route/iu);
+    expect(prompt).toMatch(/every\s+slide at Step 0\s+and\s+every exact authored Step route/iu);
   });
 
   it("requires a varied transition vocabulary and structurally distinct references", () => {
@@ -90,12 +121,12 @@ describe("public bootstrap prompt", () => {
     expect(prompt).toMatch(/computed font size[^.]*margin,\s+padding,\s+gap/iu);
     expect(prompt).toMatch(/Theme-owned Markdown margins/iu);
     expect(prompt).toMatch(/full-canvas scene[^.]*stable positioned slide-relative root/iu);
-    expect(prompt).toMatch(/Source review[^.]*do not count as the Draft 1 rendered refinement/iu);
+    expect(prompt).toMatch(/Source review[^.]*do not count as the Draft 1 rendered\s+refinement/iu);
   });
 
   it("hands final rendering to browser evidence and keeps Pretext advisory", () => {
-    expect(prompt).toMatch(/Prefer a connected Chrome DevTools\s+MCP server/iu);
-    expect(prompt).toMatch(/dev-only experimental Pretext layout probe/iu);
+    expect(prompt).toMatch(/Prefer a connected\s+Chrome DevTools\s+MCP server/iu);
+    expect(prompt).toMatch(/dev-only experimental Pretext\s+layout probe/iu);
     expect(prompt).toMatch(/probe is advisory/iu);
     expect(prompt).toMatch(/rendered DOM and pixels remain authoritative/iu);
   });

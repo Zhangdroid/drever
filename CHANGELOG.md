@@ -5,6 +5,15 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-07-26
+
+### Changed
+
+- Made AI deck creation preview-first: agents now expose one stable, coherent
+  Draft 1 URL before exhaustive validation, keep refining through HMR without
+  waiting, and defer production builds and requested PDFs until the live draft
+  is stable.
+
 ## [0.5.0] - 2026-07-26
 
 ### Changed

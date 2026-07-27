@@ -167,6 +167,31 @@ describe("agent kit sync", () => {
     expect(reviewDeck).toMatch(/redesign exactly one high-value beat/iu);
   });
 
+  it("installs the preview-first progressive delivery contract", async () => {
+    const root = await temporaryDirectory("drever-agent-project-");
+    await syncAgentKit({ root });
+
+    const agents = await read(root, "AGENTS.md");
+    const createDeck = await read(root, ".agents/skills/drever-create-deck/SKILL.md");
+    const createDesign = await read(root, ".agents/skills/drever-create-design/SKILL.md");
+    const openai = await read(root, ".agents/skills/drever-create-deck/agents/openai.yaml");
+
+    expect(createDeck).toContain("<!-- drever-preview-contract:v1 -->");
+    expect(createDeck).toMatch(/time to first useful preview/iu);
+    expect(createDeck).toMatch(/minimum preview gate/iu);
+    expect(createDeck).toMatch(/Do not block[^.]*drever build[^.]*PDF export/isu);
+    expect(createDeck).toMatch(/non-blocking progress update/iu);
+    expect(createDeck).toMatch(/Do not stop for approval/iu);
+    expect(createDeck).toMatch(/discard stale validation/iu);
+    expect(createDeck).toMatch(/production build[^.]*only after[^.]*stable/iu);
+    expect(createDeck).toMatch(/PDF only when requested/iu);
+    expect(agents).toMatch(/Share a coherent Draft 1 before exhaustive validation/iu);
+    expect(agents).toMatch(/do not run repeated production builds/iu);
+    expect(createDesign).toMatch(/return control[^.]*coherent end-to-end\s+Draft 1 renders/iu);
+    expect(createDesign).toMatch(/Do not make a production build[^.]*first useful preview/iu);
+    expect(openai).toMatch(/early live draft[^.]*refine/iu);
+  });
+
   it("installs the varied transition and design-family contract", async () => {
     const root = await temporaryDirectory("drever-agent-project-");
     await syncAgentKit({ root });

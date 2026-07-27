@@ -344,17 +344,30 @@ For a new project:
 2. Complete `brief.md`, derive a subject-led visual system, then create the
    configured MDX entry. Use an official design study only as a reference or
    documented fallback.
-3. Run `npm exec -- drever context --json` to inspect the exact result and available design
-   vocabulary.
-4. Run `npm exec -- drever check --json` and fix proven source defects.
-5. Treat the complete first build as Draft 1. Inspect every authored Step state plus `/document`;
-   `/speaker` when notes, motion, or presentation behavior changed.
-6. Use the review skill for a separate audience-minded refinement pass. Preserve
+3. Start the development server as soon as the coherent end-to-end Draft 1
+   compiles. Verify the audience route plus the first and last slides, share the
+   stable URL as a non-blocking progress update, and keep working through HMR.
+4. Run `npm exec -- drever context --json` to inspect the exact result and
+   available design vocabulary.
+5. Run `npm exec -- drever check --json` and fix proven source defects.
+6. Inspect every authored Step state plus `/document`; inspect `/speaker` when
+   notes, motion, or presentation behavior changed.
+7. Use the review skill for a separate audience-minded refinement pass. Preserve
    successful choices, fix evidence-backed material issues, rebuild, and recheck
    affected states; do not regenerate or add decoration merely to create a visible
    second version.
-7. For motion edits, verify forward and backward movement, persistent geometry,
+8. Run the production build only after the refined preview is stable. Export a
+   PDF only when requested and only from that latest state.
+9. For motion edits, verify forward and backward movement, persistent geometry,
    reduced motion, and the affected continuity boundary in a real browser.
+
+The early URL is a collaboration milestone, not delivery. It must contain the
+complete story, real copy, the chosen base visual system, and representative
+signature beats. Do not share a blank shell, partial storyboard, invented
+placeholder, broken route, or known unreadable slide merely to appear fast.
+If user feedback arrives while checks are running, finish the current atomic
+edit, apply the story or factual correction first, discard stale evidence, and
+rerun only the affected gates.
 
 For an existing deck, start with `context --json`, read the complete affected
 source and local imports, and preserve unrelated slide boundaries and Step

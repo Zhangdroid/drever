@@ -4,8 +4,10 @@
    workflows.
 2. **Create** — turns the brief into readable MDX, speaker notes, a topic-specific visual system,
    and intentional motion.
-3. **Review** — checks the source, builds the static presentation, and inspects the rendered states
-   when browser tools are available.
+3. **Preview** — starts one stable local URL as soon as a coherent end-to-end Draft 1 compiles, then
+   invites content feedback without pausing the work.
+4. **Refine and deliver** — checks every rendered state, improves the same live draft, and only then
+   builds the production presentation or requested PDF.
 
 The public [`prompt.md`](/prompt.md) only starts the work. Once the project exists, its local
 instructions and skills take over so the agent always follows the contract for the installed Drever
@@ -21,6 +23,12 @@ instead of repeating a fixed questionnaire, and the escape ends the interview im
 
 The work happens in ordinary files on your machine. Setup succeeds when the agent leaves a running
 local preview, a readable `slides.mdx`, and the requested web or PDF outputs ready for review.
+
+The first URL is intentionally a progress milestone, not a claim that the deck is finished. Review
+the story, facts, and emphasis immediately while the agent continues checking readability, layout,
+motion, Steps, and browser behavior. Feedback can arrive during that pass; the agent updates the
+same live preview, discards stale checks, and delays the production build until the refined preview
+is stable.
 
 <h2 id="local-workflow">Know what runs where</h2>
 

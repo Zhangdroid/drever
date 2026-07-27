@@ -149,6 +149,12 @@ the generated ownership marker. User content outside that block is preserved.
 If any target is user-owned, malformed, or not a regular file, sync reports all
 conflicts and writes none of the planned files.
 
+New-deck creation is preview-first. Once a coherent end-to-end Draft 1 compiles,
+the agent keeps one development URL alive, shares it for immediate story and
+content review, and continues visual and technical refinement without waiting.
+The final check and production build remain completion gates; they no longer
+block the first useful preview or rerun after every small visual edit.
+
 Run `npm exec -- drever context [entry] --json` before substantial authoring or review. The
 versioned JSON document contains:
 

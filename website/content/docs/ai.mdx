@@ -24,6 +24,18 @@ explicit skip-remaining request.
 Command examples use npm. Project-local guidance detects pnpm, Yarn, and Bun and selects their
 equivalent local runner instead of assuming a global `drever` executable.
 
+<h2 id="preview-first">Review the story before the final build</h2>
+
+Drever's agent workflow optimizes for the first useful preview instead of hiding all work behind
+production validation. Once a coherent Draft 1 contains the complete story and base visual
+direction, the agent starts one stable local URL, verifies that its audience route and endpoints
+open, and shares it as a progress update. It keeps working without waiting for approval.
+
+Use that moment to review facts, structure, and emphasis. In parallel with your review, the agent
+uses the same live preview to inspect exact Steps, readability, layout, motion, Document View, and
+Speaker View when relevant. Feedback supersedes stale checks. The production build happens only
+after the refined preview is stable, and PDF export runs only when requested.
+
 <h2 id="agent-first">Agent-first, not agent-only</h2>
 
 Drever makes AI authoring a versioned project contract. It does not hide the source behind a hosted
