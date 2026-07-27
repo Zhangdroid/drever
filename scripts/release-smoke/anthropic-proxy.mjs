@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { createServer } from "node:http";
 import { request as requestHttps } from "node:https";
+import { RELEASE_SMOKE_CLAUDE_PROXY_TIMEOUT_MS } from "./limits.mjs";
 
 const apiOrigin = "https://api.anthropic.com";
 const maxBodyBytes = 8_000_000;
@@ -61,7 +62,7 @@ const forwardRequest = async ({ apiKey, incoming, model, response, target }) => 
   await new Promise((resolvePromise, rejectPromise) => {
     const upstream = requestHttps(
       target,
-      { headers, method: incoming.method, timeout: 12 * 60_000 },
+      { headers, method: incoming.method, timeout: RELEASE_SMOKE_CLAUDE_PROXY_TIMEOUT_MS },
       (upstreamResponse) => {
         response.writeHead(upstreamResponse.statusCode ?? 502, upstreamResponse.headers);
         upstreamResponse.pipe(response);

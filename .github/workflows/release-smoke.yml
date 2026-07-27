@@ -108,7 +108,7 @@ jobs:
     needs: prepare
     environment: ai-release-smoke
     runs-on: ubuntu-24.04
-    timeout-minutes: 40
+    timeout-minutes: 50
     permissions:
       contents: read
     strategy:
@@ -120,6 +120,9 @@ jobs:
         case:
           - surprise-me
           - guided
+    concurrency:
+      group: release-smoke-${{ github.run_id }}-${{ matrix.provider == 'claude' && 'claude' || matrix.case }}
+      cancel-in-progress: false
     env:
       AUTOMATION_ROOT: ${{ github.workspace }}/automation
       ARTIFACT_ROOT: ${{ github.workspace }}/release-smoke-work/active-${{ matrix.provider }}-${{ matrix.case }}/artifact

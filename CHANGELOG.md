@@ -11,7 +11,10 @@ section, while commit snapshots use the current Unreleased section.
   the same guided and surprise-me briefs shown beside Codex as live decks,
   source, conversations, timing, and verified build receipts. Both providers
   use medium reasoning effort for a balanced, bounded comparison, followed by
-  an explicit literal-source review before isolated validation.
+  an explicit literal-source review before isolated validation. Claude runs
+  serialize against the shared credential and use a bounded 35-minute
+  scenario, 20-minute turn, $6 cumulative budget, and finite agent and proxy
+  request counts.
 
 ## [0.7.0] - 2026-07-26
 

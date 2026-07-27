@@ -39,6 +39,16 @@ import {
   snapshotReleaseSmokeGenerationTree,
 } from "./contract.mjs";
 import {
+  RELEASE_SMOKE_CLAUDE_BUDGET_USD,
+  RELEASE_SMOKE_CLAUDE_MAX_TURNS,
+  RELEASE_SMOKE_CLAUDE_PROXY_TIMEOUT_MS,
+  RELEASE_SMOKE_CLAUDE_SCENARIO_TIMEOUT_MS,
+  RELEASE_SMOKE_CLAUDE_TURN_TIMEOUT_MS,
+  RELEASE_SMOKE_DEFAULT_TURN_TIMEOUT_MS,
+  releaseSmokeTimeoutMessage,
+  resolveReleaseSmokeTurnTimeout,
+} from "./limits.mjs";
+import {
   releaseSmokeAudienceStates,
   releaseSmokeStatePath,
   releaseSmokeTransitionIssues,
@@ -228,6 +238,28 @@ test("publishes only Claude's final result and retains its session id and usage"
       parseClaudeJson(
         JSON.stringify({
           type: "result",
+          subtype: "error_max_budget_usd",
+          is_error: true,
+        }),
+      ),
+    /\$6 release smoke scenario cost budget/u,
+  );
+  assert.throws(
+    () =>
+      parseClaudeJson(
+        JSON.stringify({
+          type: "result",
+          subtype: "error_max_turns",
+          is_error: true,
+        }),
+      ),
+    /80-turn release smoke limit/u,
+  );
+  assert.throws(
+    () =>
+      parseClaudeJson(
+        JSON.stringify({
+          type: "result",
           is_error: false,
           result: "",
           session_id: "session-1",
@@ -273,6 +305,12 @@ test("keeps Claude headless, resumed, and limited to direct file-authoring tools
     sessionId: "session-1",
     turn: "Continue",
   });
+  const budgeted = createClaudePrintArguments({
+    maxBudgetUsd: 2.3456,
+    model: "claude-opus-5",
+    sessionId: "session-1",
+    turn: "Finish",
+  });
 
   assert.deepEqual(initial.slice(0, 3), ["--bare", "--print", "Start"]);
   assert.deepEqual(initial.slice(initial.indexOf("--model"), initial.indexOf("--model") + 2), [
@@ -283,6 +321,14 @@ test("keeps Claude headless, resumed, and limited to direct file-authoring tools
     "--effort",
     "medium",
   ]);
+  assert.deepEqual(
+    initial.slice(initial.indexOf("--max-budget-usd"), initial.indexOf("--max-budget-usd") + 2),
+    ["--max-budget-usd", RELEASE_SMOKE_CLAUDE_BUDGET_USD.toFixed(4)],
+  );
+  assert.deepEqual(
+    initial.slice(initial.indexOf("--max-turns"), initial.indexOf("--max-turns") + 2),
+    ["--max-turns", String(RELEASE_SMOKE_CLAUDE_MAX_TURNS)],
+  );
   assert.deepEqual(initial.slice(initial.indexOf("--tools"), initial.indexOf("--tools") + 2), [
     "--tools",
     "Edit,Glob,Grep,Read,Write",
@@ -296,6 +342,67 @@ test("keeps Claude headless, resumed, and limited to direct file-authoring tools
   assert.ok(initial.includes("--disable-slash-commands"));
   assert.equal(initial.includes("--resume"), false);
   assert.deepEqual(resumed.slice(-2), ["--resume", "session-1"]);
+  assert.deepEqual(
+    budgeted.slice(budgeted.indexOf("--max-budget-usd"), budgeted.indexOf("--max-budget-usd") + 2),
+    ["--max-budget-usd", "2.3456"],
+  );
+  assert.throws(
+    () => createClaudePrintArguments({ maxBudgetUsd: 0, turn: "Start" }),
+    /positive remaining budget/u,
+  );
+});
+
+test("gives Claude longer turns inside one bounded scenario deadline", () => {
+  assert.equal(RELEASE_SMOKE_CLAUDE_SCENARIO_TIMEOUT_MS, 35 * 60_000);
+  assert.equal(RELEASE_SMOKE_CLAUDE_PROXY_TIMEOUT_MS, 21 * 60_000);
+  assert.equal(RELEASE_SMOKE_CLAUDE_TURN_TIMEOUT_MS, 20 * 60_000);
+  assert.ok(RELEASE_SMOKE_CLAUDE_PROXY_TIMEOUT_MS > RELEASE_SMOKE_CLAUDE_TURN_TIMEOUT_MS);
+  assert.equal(RELEASE_SMOKE_DEFAULT_TURN_TIMEOUT_MS, 12 * 60_000);
+  assert.equal(
+    resolveReleaseSmokeTurnTimeout({
+      providerId: "claude",
+      remainingScenarioMs: 30 * 60_000,
+    }),
+    20 * 60_000,
+  );
+  assert.equal(
+    resolveReleaseSmokeTurnTimeout({
+      providerId: "claude",
+      remainingScenarioMs: 7 * 60_000,
+    }),
+    7 * 60_000,
+  );
+  assert.equal(
+    resolveReleaseSmokeTurnTimeout({
+      providerId: "codex",
+      remainingScenarioMs: Number.POSITIVE_INFINITY,
+    }),
+    12 * 60_000,
+  );
+  assert.throws(
+    () => resolveReleaseSmokeTurnTimeout({ providerId: "claude", remainingScenarioMs: 0 }),
+    /scenario time limit/u,
+  );
+  assert.equal(
+    releaseSmokeTimeoutMessage({
+      providerId: "claude",
+      providerLabel: "Claude",
+      timeoutMs: 20 * 60_000,
+      turnCount: 3,
+      turnNumber: 1,
+    }),
+    "Claude exceeded the 20-minute turn limit during turn 1 of 3.",
+  );
+  assert.equal(
+    releaseSmokeTimeoutMessage({
+      providerId: "claude",
+      providerLabel: "Claude",
+      timeoutMs: 7 * 60_000,
+      turnCount: 3,
+      turnNumber: 3,
+    }),
+    "Claude exceeded the 35-minute scenario deadline during turn 3 of 3.",
+  );
 });
 
 test("denies every shell tool call in the secret-bearing generation stage", async () => {
@@ -954,6 +1061,7 @@ test("keeps provider keys isolated, pins both runners, and builds four keyless c
     workflow.indexOf("\n  generate:"),
     workflow.indexOf("\n  build:"),
   );
+  assert.match(generateJob, /timeout-minutes: 50/u);
   assert.doesNotMatch(generateJob, /prepare-project\.mjs|npm create/u);
   assert.match(generateJob, /QUARANTINE_ROOT:/u);
   assert.match(
@@ -971,6 +1079,10 @@ test("keeps provider keys isolated, pins both runners, and builds four keyless c
   assert.match(generateJob, /RELEASE_SMOKE_GENERATION_IMAGE: node@sha256:[0-9a-f]{64}/u);
   assert.match(generateJob, /if: matrix\.provider == 'codex'/u);
   assert.match(generateJob, /if: matrix\.provider == 'claude'/u);
+  assert.match(
+    generateJob,
+    /group: release-smoke-\$\{\{ github\.run_id \}\}-\$\{\{ matrix\.provider == 'claude' && 'claude' \|\| matrix\.case \}\}/u,
+  );
   assert.equal(workflow.match(/secrets\.OPENAI_API_KEY/gu)?.length, 1);
   assert.equal(workflow.match(/secrets\.CLAUDE_API_KEY/gu)?.length, 1);
   assert.doesNotMatch(workflow, /secrets\.ANTHROPIC_API_KEY/u);

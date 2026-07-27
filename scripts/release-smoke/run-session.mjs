@@ -16,6 +16,12 @@ import {
   snapshotReleaseSmokeGenerationTree,
 } from "./contract.mjs";
 import { createProtectedAnthropicProxy } from "./anthropic-proxy.mjs";
+import {
+  RELEASE_SMOKE_CLAUDE_BUDGET_USD,
+  RELEASE_SMOKE_CLAUDE_SCENARIO_TIMEOUT_MS,
+  releaseSmokeTimeoutMessage,
+  resolveReleaseSmokeTurnTimeout,
+} from "./limits.mjs";
 import { getReleaseSmokeProvider } from "./providers.mjs";
 import { getReleaseSmokeScenario } from "./scenarios.mjs";
 
@@ -171,10 +177,17 @@ const createClaudeContainerArguments = (arguments_, proxy) => {
   ];
 };
 
-const runProcess = (command, arguments_, outputPath, environment, secrets = []) =>
+const runProcess = (
+  command,
+  arguments_,
+  outputPath,
+  environment,
+  { secrets = [], timeoutMessage, timeoutMs },
+) =>
   new Promise((resolvePromise, rejectPromise) => {
     const output = [];
     const errors = [];
+    let timedOut = false;
     const child = spawn(command, arguments_, {
       cwd: projectRoot,
       env: environment,
@@ -182,9 +195,10 @@ const runProcess = (command, arguments_, outputPath, environment, secrets = []) 
     });
     let killTimer;
     const timer = setTimeout(() => {
+      timedOut = true;
       child.kill("SIGTERM");
       killTimer = setTimeout(() => child.kill("SIGKILL"), 5_000);
-    }, 12 * 60_000);
+    }, timeoutMs);
     child.stdout.on("data", (chunk) => output.push(chunk));
     child.stderr.on("data", (chunk) => errors.push(chunk));
     child.once("error", (error) => {
@@ -198,7 +212,7 @@ const runProcess = (command, arguments_, outputPath, environment, secrets = []) 
       try {
         const stdout = Buffer.concat(output).toString("utf8");
         await writeFile(outputPath, stdout, "utf8");
-        if (code === 0) {
+        if (code === 0 && !timedOut) {
           resolvePromise(stdout);
           return;
         }
@@ -211,9 +225,11 @@ const runProcess = (command, arguments_, outputPath, environment, secrets = []) 
         ).slice(-4_000);
         rejectPromise(
           new Error(
-            signal === null
-              ? `${provider.label} exited with code ${String(code)}.\n${diagnostic}`
-              : `${provider.label} was terminated by ${signal}.\n${diagnostic}`,
+            timedOut
+              ? `${timeoutMessage}\n${diagnostic}`
+              : signal === null
+                ? `${provider.label} exited with code ${String(code)}.\n${diagnostic}`
+                : `${provider.label} was terminated by ${signal}.\n${diagnostic}`,
           ),
         );
       } catch (error) {
@@ -296,8 +312,13 @@ const run = async () => {
 
   await assertReleaseSmokeGenerationTree(projectRoot, immutableSnapshot, requiredMutablePaths);
   const startedAt = new Date();
+  const scenarioDeadline =
+    provider.id === "claude"
+      ? startedAt.getTime() + RELEASE_SMOKE_CLAUDE_SCENARIO_TIMEOUT_MS
+      : Number.POSITIVE_INFINITY;
   const messages = [];
   const usage = [];
+  let remainingClaudeBudgetUsd = RELEASE_SMOKE_CLAUDE_BUDGET_USD;
   let conversationId;
   const proxy =
     provider.id === "claude" ? await createProtectedAnthropicProxy({ apiKey, model }) : undefined;
@@ -335,6 +356,7 @@ ${harnessContext}
       const agentArguments =
         provider.id === "claude"
           ? createClaudePrintArguments({
+              maxBudgetUsd: remainingClaudeBudgetUsd,
               model,
               sessionId: conversationId,
               turn: modelTurn,
@@ -348,11 +370,29 @@ ${harnessContext}
         provider.id === "claude"
           ? createClaudeContainerArguments(agentArguments, proxy)
           : agentArguments;
-      const stdout = await runProcess(command, arguments_, rawPath, environment, [
-        apiKey,
-        proxy?.token,
-      ]);
+      const timeoutMs = resolveReleaseSmokeTurnTimeout({
+        providerId: provider.id,
+        remainingScenarioMs: scenarioDeadline - Date.now(),
+      });
+      const stdout = await runProcess(command, arguments_, rawPath, environment, {
+        secrets: [apiKey, proxy?.token],
+        timeoutMessage: releaseSmokeTimeoutMessage({
+          providerId: provider.id,
+          providerLabel: provider.label,
+          timeoutMs,
+          turnCount: scenario.turns.length,
+          turnNumber: index + 1,
+        }),
+        timeoutMs,
+      });
       const result = provider.id === "claude" ? parseClaudeJson(stdout) : parseCodexJsonl(stdout);
+      if (provider.id === "claude") {
+        const turnCost = result.usage?.total_cost_usd;
+        if (typeof turnCost !== "number" || !Number.isFinite(turnCost) || turnCost < 0) {
+          throw new Error("Claude did not report valid release smoke cost usage.");
+        }
+        remainingClaudeBudgetUsd -= turnCost;
+      }
       const resultConversationId = provider.id === "claude" ? result.sessionId : result.threadId;
       await assertReleaseSmokeGenerationTree(projectRoot, immutableSnapshot, requiredMutablePaths);
       conversationId ??= resultConversationId;

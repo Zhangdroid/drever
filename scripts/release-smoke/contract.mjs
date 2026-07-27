@@ -1,5 +1,6 @@
 import { cp, lstat, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, extname, join, relative, resolve, sep } from "node:path";
+import { RELEASE_SMOKE_CLAUDE_BUDGET_USD, RELEASE_SMOKE_CLAUDE_MAX_TURNS } from "./limits.mjs";
 import { getReleaseSmokeProvider } from "./providers.mjs";
 
 export const RELEASE_SMOKE_SCHEMA_VERSION = 1;
@@ -121,30 +122,44 @@ export const createCodexExecArguments = ({ model, threadId, turn }) => {
     : ["exec", ...options, "resume", threadId, turn];
 };
 
-export const createClaudePrintArguments = ({ model, sessionId, turn }) => [
-  "--bare",
-  "--print",
+export const createClaudePrintArguments = ({
+  maxBudgetUsd = RELEASE_SMOKE_CLAUDE_BUDGET_USD,
+  model,
+  sessionId,
   turn,
-  "--output-format",
-  "json",
-  "--effort",
-  "medium",
-  "--tools",
-  "Edit,Glob,Grep,Read,Write",
-  "--permission-mode",
-  "dontAsk",
-  "--allowedTools",
-  "Edit,Glob,Grep,Read,Write",
-  "--disallowedTools",
-  "Agent,Bash,Task,WebFetch,WebSearch,mcp__*",
-  "--strict-mcp-config",
-  "--mcp-config",
-  '{"mcpServers":{}}',
-  "--no-chrome",
-  "--disable-slash-commands",
-  ...(model === undefined || model === "" ? [] : ["--model", model]),
-  ...(sessionId === undefined ? [] : ["--resume", sessionId]),
-];
+}) => {
+  if (!Number.isFinite(maxBudgetUsd) || maxBudgetUsd <= 0) {
+    throw new Error("Claude release smoke requires a positive remaining budget.");
+  }
+  return [
+    "--bare",
+    "--print",
+    turn,
+    "--output-format",
+    "json",
+    "--effort",
+    "medium",
+    "--max-budget-usd",
+    maxBudgetUsd.toFixed(4),
+    "--max-turns",
+    String(RELEASE_SMOKE_CLAUDE_MAX_TURNS),
+    "--tools",
+    "Edit,Glob,Grep,Read,Write",
+    "--permission-mode",
+    "dontAsk",
+    "--allowedTools",
+    "Edit,Glob,Grep,Read,Write",
+    "--disallowedTools",
+    "Agent,Bash,Task,WebFetch,WebSearch,mcp__*",
+    "--strict-mcp-config",
+    "--mcp-config",
+    '{"mcpServers":{}}',
+    "--no-chrome",
+    "--disable-slash-commands",
+    ...(model === undefined || model === "" ? [] : ["--model", model]),
+    ...(sessionId === undefined ? [] : ["--resume", sessionId]),
+  ];
+};
 
 export const releaseSmokeDeckMount = (runId, scenarioId) => {
   if (!/^\d+$/u.test(runId)) throw new Error(`Invalid release smoke run id: ${runId}`);
@@ -389,6 +404,18 @@ export const parseCodexJsonl = (source) => {
 
 export const parseClaudeJson = (source) => {
   const result = JSON.parse(source);
+  if (result?.type === "result" && result.is_error === true) {
+    if (result.subtype === "error_max_budget_usd") {
+      throw new Error(
+        `Claude reached the $${String(RELEASE_SMOKE_CLAUDE_BUDGET_USD)} release smoke scenario cost budget.`,
+      );
+    }
+    if (result.subtype === "error_max_turns") {
+      throw new Error(
+        `Claude reached the ${String(RELEASE_SMOKE_CLAUDE_MAX_TURNS)}-turn release smoke limit.`,
+      );
+    }
+  }
   if (
     result?.type !== "result" ||
     result.is_error === true ||
