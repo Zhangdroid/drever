@@ -113,17 +113,51 @@ test("the built CLI installs an idempotent agent kit without loading project con
     if (createDeck === undefined) {
       throw new Error("Agent sync did not create the deck creation skill.");
     }
+    expect(createDeck).toContain("<!-- drever-briefing-contract:v2 -->");
     expect(createDeck).toContain("Skip remaining questions — surprise me");
-    expect(createDeck).toContain("same opening round");
-    expect(createDeck).toContain("append exactly one escape");
+    expect(createDeck.match(/Skip remaining questions — surprise me/gu)).toHaveLength(1);
+    expect(createDeck).toContain("one to three questions per round");
+    expect(createDeck).toContain("two to four mutually distinct, topic-specific options");
+    expect(createDeck).toContain("state the consequence of each option");
+    expect(createDeck).toContain("at most one option **Recommended**");
+    expect(createDeck).toContain("1A, 2C, 3B");
+    expect(createDeck).toContain("At least one follow-up should depend on an earlier answer");
+    expect(createDeck).toContain("Decision, proposal, or sales");
+    expect(createDeck).toContain("Technical update or tutorial");
+    expect(createDeck).toContain("Research, report, or data story");
+    expect(createDeck).toContain("Product launch or demo");
+    expect(createDeck).toContain("Keynote, brand, or narrative");
+    expect(createDeck).toContain("Workshop or training");
     expect(createDeck).not.toContain("choose the subject too");
     expect(createDeck).toContain("Never ask for supplied facts");
+    expect(createDeck).toContain("record them in `brief.md`");
+    expect(createDeck).toContain("<!-- drever-preview-contract:v1 -->");
+    expect(createDeck).toContain("time to first useful preview");
+    expect(createDeck).toContain("minimum preview gate");
+    expect(createDeck).toContain("non-blocking progress update");
+    expect(createDeck).toContain("Do not stop for approval");
+    expect(createDeck).toContain("discard stale validation");
+    expect(createDeck).toMatch(/production build[^.]*only after the refined preview is stable/iu);
+    expect(createDeck).toContain("PDF only when requested");
     expect(createDeck).toContain("Never hand-build an unhighlighted `<pre>`");
     expect(createDeck).toContain("`Step` as a real DOM wrapper");
     expect(createDeck).toContain('[data-drever-slide][data-slide-state="active"]');
     expect(createDeck).toContain("exactly one motion owner");
     expect(createDeck).toContain("full-canvas scene one stable positioned slide-relative root");
     expect(createDeck).toContain("Source review and successful commands do not count");
+
+    const createDesign = firstContents[5];
+    if (createDesign === undefined) {
+      throw new Error("Agent sync did not create the deck design skill.");
+    }
+    expect(createDesign).toMatch(
+      /return control as soon as the coherent end-to-end\s+Draft 1 renders/iu,
+    );
+    expect(createDesign).toMatch(
+      /Do not make a production build\s+the prerequisite for the first useful preview/iu,
+    );
+    expect(agents).toContain("Share a coherent Draft 1 before exhaustive validation");
+    expect(agents).toContain("do not run repeated production builds");
 
     for (const [index, contents] of firstContents.entries()) {
       if (agentFiles[index]?.endsWith("SKILL.md")) {

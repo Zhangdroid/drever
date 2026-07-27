@@ -1,9 +1,27 @@
 import type { DeckManifest } from "@drever/schema";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import type { DreverDeckConfig } from "./config.ts";
 import { DreverCliError } from "./errors.ts";
+import { escapeHtml } from "./html.ts";
 
 const BASE_MARKER = '<meta name="drever-base" content="/" />';
+const ROOT_RELATIVE_DOCUMENT_ICON = /(<link rel="icon" href=")\/([^"]+)(" \/>)/u;
+const TITLE_ELEMENT = /<title>[\s\S]*?<\/title>/u;
+const TITLE_META = /(<meta (?:name="twitter:title"|property="og:title") content=")[^"]*("[^>]*>)/gu;
+
+const resolveDocumentTitle = (manifest: DeckManifest, deck?: DreverDeckConfig): string =>
+  deck?.title ?? manifest.slides[0]?.title ?? "Drever";
+
+const applyDocumentTitle = (source: string, title: string): string => {
+  const escaped = escapeHtml(title);
+  return source
+    .replace(TITLE_ELEMENT, () => `<title>${escaped}</title>`)
+    .replace(
+      TITLE_META,
+      (_match, prefix: string, suffix: string) => `${prefix}${escaped}${suffix}`,
+    );
+};
 
 export type StaticDeckRoute = Readonly<{
   segments: readonly string[];
@@ -162,7 +180,12 @@ const renderRouteHtml = (source: string, depth: number): string => {
       { hint: "Rebuild with matching versions of drever and @drever/client." },
     );
   }
-  const withBootstrap = deferStaticAssetRequests(source).replace(
+  const portableSource = source.replace(
+    ROOT_RELATIVE_DOCUMENT_ICON,
+    (_match, prefix: string, reference: string, suffix: string) =>
+      `${prefix}./${reference}${suffix}`,
+  );
+  const withBootstrap = deferStaticAssetRequests(portableSource).replace(
     BASE_MARKER,
     `<meta name="drever-base" content="./" />${renderStaticRouteBootstrap(depth)}`,
   );
@@ -174,9 +197,13 @@ const renderRouteHtml = (source: string, depth: number): string => {
 export const writeStaticDeckRoutes = async (
   outDir: string,
   manifest: DeckManifest,
+  deck?: DreverDeckConfig,
 ): Promise<void> => {
   const indexPath = join(outDir, "index.html");
-  const source = await readFile(indexPath, "utf8");
+  const source = applyDocumentTitle(
+    await readFile(indexPath, "utf8"),
+    resolveDocumentTitle(manifest, deck),
+  );
   const routes = createStaticDeckRoutes(manifest);
   await writeFile(indexPath, renderRouteHtml(source, 0), "utf8");
   await Promise.all(

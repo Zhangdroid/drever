@@ -26,6 +26,7 @@ import {
   readFirstExistingFile,
   RELEASE_SMOKE_ARTIFACT_SEED_PATHS,
   RELEASE_SMOKE_HANDOFF_PATHS,
+  RELEASE_SMOKE_MUTABLE_HANDOFF_PATHS,
   RELEASE_SMOKE_PRIVATE_PATHS,
   relativeMountedPathname,
   releaseSmokeDeckMount,
@@ -1040,26 +1041,39 @@ test("re-sanitizes downloaded handoff files before the secret-bearing runner sta
   });
 });
 
-test("rejects executable project configuration before every resumed Codex turn", async () => {
+test("allows deck configuration edits while protecting smoke harness control files", async () => {
   const root = await mkdtemp(join(tmpdir(), "drever-release-smoke-generation-tree-"));
   temporaryRoots.push(root);
   const immutablePaths = [
-    ...RELEASE_SMOKE_HANDOFF_PATHS.filter((path) => path !== "brief.md"),
+    ...RELEASE_SMOKE_HANDOFF_PATHS,
     ...RELEASE_SMOKE_PRIVATE_PATHS,
-  ];
+    "drever.config.ts",
+  ].filter((path) => !RELEASE_SMOKE_MUTABLE_HANDOFF_PATHS.includes(path));
   await Promise.all([
     ...RELEASE_SMOKE_HANDOFF_PATHS.map((path) => write(root, path, `${path}\n`)),
     ...RELEASE_SMOKE_PRIVATE_PATHS.map((path) => write(root, path, `${path}\n`)),
+    write(root, "drever.config.ts", "export default {};\n"),
   ]);
   const snapshot = await snapshotReleaseSmokeGenerationTree(root, immutablePaths);
   await Promise.all([
+    write(
+      root,
+      "drever.config.ts",
+      'export default { deck: { lang: "en", title: "Generated deck" } };\n',
+    ),
     write(root, "slides.mdx", "# Allowed authoring source\n"),
     write(root, "design/theme.css", ":root { color: black; }\n"),
   ]);
-  const validation = await assertReleaseSmokeGenerationTree(root, snapshot);
-  assert.equal(validation.files, 3);
+  const validation = await assertReleaseSmokeGenerationTree(root, snapshot, ["drever.config.ts"]);
+  assert.equal(validation.files, 4);
   assert.ok(validation.bytes > 0);
 
+  await rm(join(root, "drever.config.ts"));
+  await assert.rejects(
+    assertReleaseSmokeGenerationTree(root, snapshot, ["drever.config.ts"]),
+    /required authoring file was removed: drever\.config\.ts/u,
+  );
+  await write(root, "drever.config.ts", "export default {};\n");
   await write(root, ".codex/config.toml", "mcp_servers = {}\n");
   await assert.rejects(
     assertReleaseSmokeGenerationTree(root, snapshot),

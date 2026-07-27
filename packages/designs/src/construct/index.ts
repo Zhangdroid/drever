@@ -1,4 +1,5 @@
 import { defineTheme } from "@drever/compiler";
+import { CJK_SANS_FONT_STACKS } from "../cjk-typography.ts";
 
 const PACKAGE = "@drever/designs/construct";
 
@@ -81,12 +82,16 @@ export const theme = defineTheme({
       codeInk: "#fff7e8",
     },
     typography: {
-      display:
-        "Bricolage Grotesque, PingFang SC, Hiragino Sans GB, Microsoft YaHei, system-ui, sans-serif",
-      body: "Instrument Sans, PingFang SC, Hiragino Sans GB, Microsoft YaHei, system-ui, sans-serif",
+      display: "Bricolage Grotesque, system-ui, sans-serif",
+      body: "Instrument Sans, system-ui, sans-serif",
       mono: "SFMono-Regular, Consolas, ui-monospace, monospace",
       titleSize: 78,
       bodySize: 27,
+      cjk: {
+        sans: CJK_SANS_FONT_STACKS,
+        titleLineHeight: 1.14,
+        bodyLineHeight: 1.56,
+      },
     },
     space: { slideX: 96, slideY: 72, rhythm: 22 },
     shape: { radius: 4, borderWidth: 2 },

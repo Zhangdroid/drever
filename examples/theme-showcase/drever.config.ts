@@ -40,6 +40,10 @@ export default defineConfig({
   build: {
     outDir: `dist/${requestedTheme}`,
   },
+  deck: {
+    description: `The ${requestedTheme} Drever design study in a complete presentation.`,
+    lang: "en",
+  },
   entry: `decks/${requestedTheme}.mdx`,
   rehearsal: {
     targetDurationMinutes: 4,

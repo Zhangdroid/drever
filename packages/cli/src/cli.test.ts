@@ -48,6 +48,16 @@ describe("parseCommand", () => {
     });
     expect(parseCommand(["current", "--json"])).toEqual({ json: true, name: "current" });
     expect(parseCommand(["doctor", "--json"])).toEqual({ json: true, name: "doctor" });
+    expect(parseCommand(["browser", "install"])).toEqual({
+      action: "install",
+      name: "browser",
+      withDeps: false,
+    });
+    expect(parseCommand(["browser", "install", "--with-deps"])).toEqual({
+      action: "install",
+      name: "browser",
+      withDeps: true,
+    });
     expect(parseCommand(["mcp", "decks/keynote.mdx"])).toEqual({
       entry: "decks/keynote.mdx",
       name: "mcp",
@@ -140,6 +150,13 @@ describe("parseCommand", () => {
     [["current", "slides.mdx"], "Unknown current argument: slides.mdx"],
     [["doctor", "--json", "--json"], "--json can be specified only once."],
     [["doctor", "--fix"], "Unknown doctor argument: --fix"],
+    [["browser"], "Browser action is required."],
+    [["browser", "remove"], "Unknown browser action: remove"],
+    [["browser", "install", "--all"], "Unknown browser install argument: --all"],
+    [
+      ["browser", "install", "--with-deps", "--with-deps"],
+      "--with-deps can be specified only once.",
+    ],
     [["mcp", "one.mdx", "two.mdx"], "mcp accepts at most one deck entry path."],
     [["mcp", "--port"], "mcp accepts at most one deck entry path."],
   ])("rejects invalid agent and context arguments: %j", (arguments_, message) => {
@@ -313,6 +330,25 @@ describe("runCli doctor", () => {
   });
 });
 
+describe("runCli browser", () => {
+  it("installs the pinned browser without loading project config", async () => {
+    const root = await mkdtemp(join(tmpdir(), "drever-browser-cli-test-"));
+    directories.push(root);
+    await writeFile(join(root, "drever.config.ts"), "export default { invalid: true };\n");
+    const installBrowser = vi.fn(async () => {});
+    let output = "";
+
+    await runCli(["browser", "install", "--with-deps"], {
+      cwd: root,
+      installBrowser,
+      stdout: { write: (chunk) => ((output += String(chunk)), true) },
+    });
+
+    expect(installBrowser).toHaveBeenCalledWith({ withDeps: true });
+    expect(output).toBe("Playwright Chromium is ready for Drever PDF export.\n");
+  });
+});
+
 describe("runCli current", () => {
   it("reads the live position without loading project config", async () => {
     const root = await mkdtemp(join(tmpdir(), "drever-current-cli-test-"));
@@ -460,7 +496,10 @@ describe("runCli export", () => {
     const root = await mkdtemp(join(tmpdir(), "drever-export-cli-test-"));
     directories.push(root);
     await writeFile(join(root, "talk.mdx"), "# Talk\n");
-    await writeFile(join(root, "drever.config.ts"), 'export default { entry: "talk.mdx" };\n');
+    await writeFile(
+      join(root, "drever.config.ts"),
+      'export default { entry: "talk.mdx", deck: { lang: "en" } };\n',
+    );
     const exportPdf = vi.fn(async () => {});
     let output = "";
 
@@ -490,6 +529,7 @@ describe("runCli export", () => {
     directories.push(root);
     await writeFile(join(root, "slides.mdx"), "# Default\n");
     await writeFile(join(root, "keynote.mdx"), "# Keynote\n");
+    await writeFile(join(root, "drever.config.ts"), 'export default { deck: { lang: "en" } };\n');
     const exportPdf = vi.fn(async () => {});
 
     await runCli(["export", "pdf", "keynote.mdx", "-o", "exports/keynote.pdf"], {
@@ -511,6 +551,7 @@ describe("runCli export", () => {
     const root = await mkdtemp(join(tmpdir(), "drever-export-cli-test-"));
     directories.push(root);
     await writeFile(join(root, "slides.mdx"), "# Export receipt\n");
+    await writeFile(join(root, "drever.config.ts"), 'export default { deck: { lang: "en" } };\n');
     const exportPdf = vi.fn(async () => {});
     let output = "";
 

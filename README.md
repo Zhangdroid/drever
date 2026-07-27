@@ -27,6 +27,32 @@
   then present live, publish to the web, or export a PDF from one readable source.
 </p>
 
+## Start
+
+With Codex, Claude Code, or another coding agent:
+
+```text
+Fetch and follow https://drever.dev/prompt.md
+```
+
+Or create a project directly:
+
+```sh
+npm create drever@latest my-deck
+```
+
+The source stays readable:
+
+```mdx
+# One clear idea
+
+---
+
+# Reveal the next decision
+
+<Step>Show the evidence.</Step>
+```
+
 <p align="center">
   <a href="https://drever.dev">Website</a> ·
   <a href="https://drever.dev/docs/">Documentation</a> ·

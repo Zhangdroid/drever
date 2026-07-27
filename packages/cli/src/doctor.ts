@@ -38,7 +38,7 @@ export type RunDoctorRequest = InspectDoctorOptions &
   }>;
 
 const REQUIRED_NODE = "24.18.0";
-const CHROMIUM_HINT = "Run npx playwright install chromium, then run drever doctor again.";
+const CHROMIUM_HINT = "Run drever browser install, then run drever doctor again.";
 
 const check = (
   id: DoctorCheck["id"],
@@ -70,7 +70,7 @@ const defaultResolveLocalPackage = (root: string): string | undefined => {
 };
 
 const defaultChromiumPath = async (): Promise<string> => {
-  const { chromium } = await import("playwright");
+  const { chromium } = await import("playwright-core");
   return chromium.executablePath();
 };
 

@@ -15,6 +15,8 @@ const dependencyFields = [
   "optionalDependencies",
   "peerDependencies",
 ];
+const runtimeDependencyFields = ["dependencies", "optionalDependencies", "peerDependencies"];
+const vitePlusPackageNames = new Set(["vite-plus", "@voidzero-dev/vite-plus-core"]);
 
 export const repositoryUrl = "git+https://github.com/Zhangdroid/drever.git";
 export const runtimeVersionFiles = [
@@ -220,6 +222,14 @@ export async function setReleaseVersion(root = defaultRoot, version) {
 const dependencyEntries = (manifest) =>
   dependencyFields.flatMap((field) => Object.entries(manifest[field] ?? {}));
 
+const dependencyPackageName = ([name, range]) => {
+  if (typeof range !== "string" || !range.startsWith("npm:")) return name;
+  return /^npm:(@[^/]+\/[^@]+|[^@]+)@/u.exec(range)?.[1] ?? name;
+};
+
+const runtimeDependencyEntries = (manifest) =>
+  runtimeDependencyFields.flatMap((field) => Object.entries(manifest[field] ?? {}));
+
 export function normalizePackedManifest(manifest) {
   const normalized = { ...manifest };
   for (const field of dependencyFields) {
@@ -247,6 +257,27 @@ export function verifyPackedManifest({ manifest, packageDirectory, packageNames,
     }
     if (packageNames.has(name) && range !== version) {
       throw new Error(`${manifest.name} packed internal dependency ${name}@${range}.`);
+    }
+  }
+  if (manifest.name === "drever") {
+    const dependencies = manifest.dependencies ?? {};
+    const runtimeDependencies = runtimeDependencyEntries(manifest);
+    if (
+      dependencies["playwright-core"] === undefined ||
+      runtimeDependencies.some((entry) => dependencyPackageName(entry) === "playwright")
+    ) {
+      throw new Error("drever must publish Playwright Core as its browser automation runtime.");
+    }
+    if (
+      typeof dependencies.vite !== "string" ||
+      !/^\^8\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$/u.test(dependencies.vite)
+    ) {
+      throw new Error("drever must publish its standard Vite 8 runtime dependency.");
+    }
+    if (
+      runtimeDependencies.some((entry) => vitePlusPackageNames.has(dependencyPackageName(entry)))
+    ) {
+      throw new Error("drever must not publish Vite+ as a runtime dependency.");
     }
   }
 }

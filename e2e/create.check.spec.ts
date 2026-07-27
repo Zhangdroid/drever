@@ -33,7 +33,14 @@ test("a clean consumer can create, validate, and build a presentation", async ()
     };
 
     expect(receipt).toMatchObject({
-      files: ["package.json", "README.md", "brief.md", "slides.mdx", ".gitignore"],
+      files: [
+        "package.json",
+        "README.md",
+        "brief.md",
+        "drever.config.ts",
+        "slides.mdx",
+        ".gitignore",
+      ],
       installed: false,
       root,
       version: 1,

@@ -4,6 +4,7 @@ import { dirname, join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import {
   destroyExport,
+  resolveBrowserLocale,
   runWithCleanup,
   validatePdfSlideSelection,
   writePdf,
@@ -17,6 +18,18 @@ afterEach(async () => {
   await Promise.all(
     directories.splice(0).map((path) => rm(path, { force: true, recursive: true })),
   );
+});
+
+describe("resolveBrowserLocale", () => {
+  it("passes supported authored locales to Chromium without inventing a default", () => {
+    expect(resolveBrowserLocale("zh-CN")).toBe("zh-CN");
+    expect(resolveBrowserLocale("en")).toBe("en");
+    expect(resolveBrowserLocale()).toBeUndefined();
+  });
+
+  it("leaves document-only language tags such as und out of browser context options", () => {
+    expect(resolveBrowserLocale("und")).toBeUndefined();
+  });
 });
 
 describe("runWithCleanup", () => {

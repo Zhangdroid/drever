@@ -139,10 +139,24 @@ describe("agent kit sync", () => {
     const createDesign = await read(root, ".agents/skills/drever-create-design/SKILL.md");
     const reviewDeck = await read(root, ".agents/skills/drever-review-deck/SKILL.md");
 
-    expect(createDeck).toMatch(/same opening round/iu);
-    expect(createDeck).toMatch(/append exactly one escape/iu);
+    expect(createDeck).toContain("<!-- drever-briefing-contract:v2 -->");
+    expect(createDeck).toMatch(/topic is missing[^.]*ask for it by itself/iu);
+    expect(createDeck).toMatch(/one to three questions per round/iu);
+    expect(createDeck).toMatch(/two to four mutually distinct,\s+topic-specific options/iu);
+    expect(createDeck).toMatch(/consequence of each option/iu);
+    expect(createDeck).toMatch(/at most one option \*\*Recommended\*\*/iu);
+    expect(createDeck).toContain("1A, 2C, 3B");
+    expect(createDeck).toMatch(/follow-up should depend on an earlier answer/iu);
+    expect(createDeck).toMatch(/Decision,\s+proposal,\s+or sales/iu);
+    expect(createDeck).toMatch(/Technical update or tutorial/iu);
+    expect(createDeck).toMatch(/Research,\s+report,\s+or data story/iu);
+    expect(createDeck).toMatch(/Product launch or demo/iu);
+    expect(createDeck).toMatch(/Keynote,\s+brand,\s+or narrative/iu);
+    expect(createDeck).toMatch(/Workshop or training/iu);
     expect(createDeck).toContain("Skip remaining questions — surprise me");
+    expect(createDeck.match(/Skip remaining questions — surprise me/gu)).toHaveLength(1);
     expect(createDeck).not.toMatch(/choose the subject too|Or answer “Surprise me”/iu);
+    expect(createDeck).toMatch(/record them in `brief\.md`/iu);
     expect(createDeck).toMatch(/topic-fingerprint test/iu);
     expect(createDeck).toMatch(
       /claim[^→]*→ focal artifact[^→]*→ initial state[^→]*→ meaningful transformation[^→]*→ settled payoff[^→]*→ static or reduced-motion endpoint/iu,
@@ -151,6 +165,31 @@ describe("agent kit sync", () => {
     expect(createDesign).toMatch(/generic fade or slide entrance alone/iu);
     expect(reviewDeck).toMatch(/what one scene the audience will remember/iu);
     expect(reviewDeck).toMatch(/redesign exactly one high-value beat/iu);
+  });
+
+  it("installs the preview-first progressive delivery contract", async () => {
+    const root = await temporaryDirectory("drever-agent-project-");
+    await syncAgentKit({ root });
+
+    const agents = await read(root, "AGENTS.md");
+    const createDeck = await read(root, ".agents/skills/drever-create-deck/SKILL.md");
+    const createDesign = await read(root, ".agents/skills/drever-create-design/SKILL.md");
+    const openai = await read(root, ".agents/skills/drever-create-deck/agents/openai.yaml");
+
+    expect(createDeck).toContain("<!-- drever-preview-contract:v1 -->");
+    expect(createDeck).toMatch(/time to first useful preview/iu);
+    expect(createDeck).toMatch(/minimum preview gate/iu);
+    expect(createDeck).toMatch(/Do not block[^.]*drever build[^.]*PDF export/isu);
+    expect(createDeck).toMatch(/non-blocking progress update/iu);
+    expect(createDeck).toMatch(/Do not stop for approval/iu);
+    expect(createDeck).toMatch(/discard stale validation/iu);
+    expect(createDeck).toMatch(/production build[^.]*only after[^.]*stable/iu);
+    expect(createDeck).toMatch(/PDF only when requested/iu);
+    expect(agents).toMatch(/Share a coherent Draft 1 before exhaustive validation/iu);
+    expect(agents).toMatch(/do not run repeated production builds/iu);
+    expect(createDesign).toMatch(/return control[^.]*coherent end-to-end\s+Draft 1 renders/iu);
+    expect(createDesign).toMatch(/Do not make a production build[^.]*first useful preview/iu);
+    expect(openai).toMatch(/early live draft[^.]*refine/iu);
   });
 
   it("installs the varied transition and design-family contract", async () => {

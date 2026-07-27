@@ -166,14 +166,19 @@ document, and export trees. The speaker surface consumes that explicit artifact;
 the audience Slide Navigator combines the same manifest with deterministic
 reduced-motion renders of each slide's final Step.
 
-The CLI-generated application selects `createViewer`, `createDocument`, or
-`createSpeaker` from `@drever/client` based on the canonical route. All three
-receive compiled MDX `Content`, its `deckManifest`, the generated component
-registry, theme canvas, and target DOM element. The audience and speaker
-surfaces own navigation, keyboard controls, synchronization, runtime setup, and
-disposal. The document surface owns one static React tree with every final Step
-visible and does not start presentation setup hooks. See
-[Client runtime](./client-runtime.md).
+The CLI-generated route bootstrap dynamically imports `createViewer` from
+`@drever/client/audience`, `createDocument` from `@drever/client/document`, or
+`createSpeaker` from `@drever/client/speaker` after resolving the canonical
+route. This keeps the bootstrap from eagerly importing all three interactive
+entrypoints and gives Rollup route-specific split points while retaining
+`@drever/client` as the complete public facade for direct integrations. Shared
+presentation modules may still become common chunks. All three receive
+compiled MDX `Content`, its `deckManifest`, the generated component registry,
+theme canvas, and target DOM element. The audience and speaker surfaces own
+navigation, keyboard controls, synchronization, runtime setup, and disposal.
+The document surface owns one static React tree with every final Step visible
+and does not start presentation setup hooks. See [Client
+runtime](./client-runtime.md).
 
 PDF export uses a dedicated generated application and imports only the
 export-runtime lifecycle boundary. The CLI builds and serves it from an
@@ -220,14 +225,17 @@ motion grammar, design recipes, diagnostics, and plugin protocol. Specialist
 build-time tools such as MDX, Shiki, Tailwind, and KaTeX are allowed because
 their implementations are not Drever's product advantage.
 
-Playwright Library is a CLI-only dependency for deterministic Chromium PDF
-capture. It is dynamically imported only by `export pdf`; the separate browser
-binary is installed explicitly. Browser automation, PDF tagging, page sizing,
-and process cleanup are infrastructure, while Drever retains page planning,
-readiness, plugin lifecycle, and error semantics.
+Playwright Core is a CLI-only dependency for deterministic Chromium PDF
+capture. It is loaded only by `export pdf` and the browser-readiness check in
+`doctor`; `drever browser install` explicitly installs the Chromium revision
+declared by that exact dependency. Browser
+automation, PDF tagging, page sizing, and process cleanup are infrastructure,
+while Drever retains page planning, readiness, plugin lifecycle, and error
+semantics.
 
 Vite+ is the internal toolchain for formatting, linting, type checking, tests,
-packing, and tasks. Public integrations continue to speak the standard Vite API.
+packing, and tasks. Published CLI builds depend on upstream Vite 8, and public
+integrations continue to speak the standard Vite API.
 
 ## Errors and diagnostics
 

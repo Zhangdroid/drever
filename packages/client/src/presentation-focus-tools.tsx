@@ -251,6 +251,8 @@ export const PresentationFocusTools = ({
       <div
         className="drever-audience-focus-anchor"
         data-palette-open={paletteOpen ? "" : undefined}
+        dir="ltr"
+        lang="en"
       >
         <button
           aria-controls={toolbarId}

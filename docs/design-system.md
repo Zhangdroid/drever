@@ -487,6 +487,20 @@ CSS may map those values to brand custom properties, but authoring context must
 not receive unresolved `var(...)` strings. Preserve documented
 `--drever-theme-*` aliases so project styles remain compatible.
 
+Official studies must expose semantic Latin and locale-specific CJK font stacks
+in both token metadata and CSS. Simplified Chinese, Traditional Chinese,
+Japanese, and Korean must not share a Chinese-first fallback order. Inherited
+`:lang(zh)`, `:lang(ja)`, and `:lang(ko)` rules remove Latin-only casing and
+tracking and calibrate heading and prose line heights. This contract depends on
+an accurate `deck.lang`; do not treat a system-font fallback alone as CJK
+typography support.
+
+`tokens.typography.display` and `tokens.typography.body` describe the
+locale-neutral default stack; they must not concatenate every CJK locale into
+one value. Publish language-specific families only through
+`tokens.typography.cjk` and the matching semantic CSS variables, then let
+inherited `lang` select the correct stack.
+
 ## AI generation prompt
 
 Use this prompt when generating a Drever-branded documentation or product

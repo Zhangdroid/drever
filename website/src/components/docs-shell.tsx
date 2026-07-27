@@ -212,7 +212,7 @@ npm run dev`}</CodeBlock>
         <h2 id="inspect-and-deliver">Inspect and deliver</h2>
         <CodeBlock label="Shell">{`npm run check
 npm run build
-npx playwright install chromium
+npm exec -- drever browser install
 npm run export`}</CodeBlock>
         <p>
           Install Playwright Chromium only when a PDF is required. Read the{" "}

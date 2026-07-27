@@ -16,7 +16,7 @@ Translate the requested outcome into Drever's deterministic checks, build, and e
 3. Run `npm exec -- drever check --json` and inspect its report even when it exits nonzero. Do not deliver while errors remain.
 4. Run `npm exec -- drever build --json` for a website deliverable or before final browser inspection. Use the returned artifact receipt rather than guessing the output path. Verify the built entry, exact slide routes, assets, reload behavior, and `/document`.
 5. Run `npm exec -- drever export pdf [entry] --output <path> --json` when a PDF is requested. Add `--steps` only when the user wants every reveal state, and use `--slides` only for an explicit selection. Choose an intentional output path so the artifact is easy to find.
-6. If Playwright Chromium is missing, obtain the required permission to run `npx playwright install chromium`, then retry the export. Do not claim that a PDF exists before the retry succeeds.
+6. If Playwright Chromium is missing, obtain the required permission to run `npm exec -- drever browser install`, then retry the export. The command installs the Chromium revision required by the project-local Drever CLI. Use `--with-deps` only when the Linux host also needs Playwright's operating-system packages. Do not claim that a PDF exists before the retry succeeds.
 7. Stop temporary servers unless the user asked to keep a preview running.
 
 Before handoff, inspect the actual requested artifacts. Confirm that fonts, images, video fallbacks, Stage layers, motion end states, notes, and export-ready media behave correctly in the relevant surface. A successful command is necessary but not sufficient evidence of presentation readiness.

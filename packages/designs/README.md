@@ -44,4 +44,11 @@ The package root exposes the typed `officialDesigns` catalog and named Theme
 exports such as `editorialTheme`. Prefer a direct study subpath in project
 configuration so the dependency and intended visual language stay explicit.
 
+Every official study publishes separate semantic Latin and locale-specific CJK
+font stacks. `zh-Hans`, `zh-Hant`, `ja`, and `ko` select native glyph families
+instead of sharing one Chinese-first fallback order. The themes also remove
+Latin-only casing and tracking and apply calibrated heading and prose line
+heights. Keep `deck.lang` accurate so the browser and the selected design can
+apply those language-aware rules.
+
 The detailed reasoning behind each study lives in [`studies/`](./studies).

@@ -128,6 +128,15 @@ npm run export -- --slides 2-5,8
 npm run export -- --steps
 ```
 
+If `doctor` reports that Chromium is missing, install the exact revision used by the local Drever
+CLI, then retry:
+
+```bash
+npm exec -- drever browser install
+```
+
+Linux environments that also need Playwright's operating-system packages can add `--with-deps`.
+
 By default, export creates one page per slide at its final authored Step. `--steps` emits Step 0 and
 every exact compiled stop. `--slides` selects one-based slide numbers and inclusive ranges, and
 composes with `--steps`.
@@ -136,6 +145,11 @@ The export surface disables motion, awaits fonts and authored images, runs plugi
 rejects duplicate DOM IDs, and writes the file only after capture succeeds. Page order, state, and
 dimensions are deterministic; byte-for-byte PDF equality across Chromium and font environments is
 not part of the contract.
+
+Official designs prefer PDF-embeddable local CJK faces during export without downloading a font.
+Custom designs should self-host an embeddable webfont when the export host does not provide the
+required Chinese, Japanese, or Korean glyphs. A system fallback that paints in Chromium can still
+be unavailable to Chromium's PDF writer.
 
 <h2 id="continuous-delivery">Use the same evidence in CI</h2>
 

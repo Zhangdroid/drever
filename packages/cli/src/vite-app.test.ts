@@ -17,6 +17,9 @@ describe("resolveFrameworkViteConfig", () => {
     expect(config.optimize).toEqual([
       "drever",
       "@drever/client",
+      "@drever/client/audience",
+      "@drever/client/document",
+      "@drever/client/speaker",
       "@drever/core",
       "@drever/designs/basic/layouts",
       "react",
@@ -69,6 +72,7 @@ describe("resolvePrivateAppOptions", () => {
       resolvePrivateAppOptions(
         {
           canvas,
+          deck: { lang: "zh-CN", title: "发布状态" },
           focusTools: {
             highlighter: { color: "#ffe66d", opacity: 0.28, width: 30 },
             laser: { color: "#ff4567" },
@@ -81,6 +85,7 @@ describe("resolvePrivateAppOptions", () => {
       ),
     ).toEqual({
       canvas,
+      deck: { lang: "zh-CN", title: "发布状态" },
       focusTools: {
         highlighter: { color: "#ffe66d", opacity: 0.28, width: 30 },
         laser: { color: "#ff4567" },

@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { expectStableBounds, readElementBounds } from "./support/element-bounds.ts";
 import { monitorPageHealth } from "./support/page-health.ts";
+import { waitForDreverReady } from "./support/drever-ready.ts";
 import {
   captureNextViewTransition,
   monitorViewTransitions,
@@ -285,6 +286,7 @@ test("audience controls navigate exact states with a pointer", async ({ page }) 
 test("focus tools preserve marks across Steps and clear them across slides", async ({ page }) => {
   const health = monitorPageHealth(page);
   await page.goto("/2");
+  await waitForDreverReady(page);
 
   const controls = page.getByRole("navigation", { name: "Presentation controls" });
   const focusLauncher = controls.getByRole("button", { name: "Open focus tools" });
@@ -596,6 +598,7 @@ test("audience shortcuts skip Steps, search slides, and jump by number", async (
 test("audience pause screens and keyboard help are dismissible", async ({ page }) => {
   const health = monitorPageHealth(page);
   await page.goto("/2/5");
+  await waitForDreverReady(page);
 
   await page.keyboard.press("b");
   const blackPause = page.getByRole("button", {
@@ -999,6 +1002,7 @@ test("document transitions capture the deck while audience controls keep a stabl
   await monitorViewTransitions(page);
 
   await page.goto("/");
+  await waitForDreverReady(page);
   await page.evaluate(() => {
     Reflect.set(
       globalThis,
@@ -1074,6 +1078,7 @@ test("document transitions capture the deck while audience controls keep a stabl
 test("step motion keeps unchanged slide content stationary", async ({ page }) => {
   await monitorViewTransitions(page);
   await page.goto("/2");
+  await waitForDreverReady(page);
 
   const heading = page.locator('[data-drever-slide][data-slide-state="active"] h2');
   const lead = page.locator(`${activeSlide} > p`).first();
@@ -1117,6 +1122,7 @@ test("back-to-back Step commands commit only the newest exact state", async ({ p
   const health = monitorPageHealth(page);
   await monitorViewTransitions(page);
   await page.goto("/2");
+  await waitForDreverReady(page);
 
   await page.evaluate(() => {
     document.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "ArrowRight" }));
@@ -1133,6 +1139,7 @@ test("a second slide navigation supersedes an in-flight transition cleanly", asy
   const health = monitorPageHealth(page);
   await monitorViewTransitions(page);
   await page.goto("/2/5");
+  await waitForDreverReady(page);
 
   const first = await captureNextViewTransition(page, () => page.keyboard.press("ArrowRight"));
   await waitForViewTransition(page, first, "ready");

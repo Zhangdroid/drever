@@ -1,5 +1,11 @@
 # Quick start
 
+> [!NOTE]
+> This detailed repository reference helps maintainers and contributors verify
+> Drever's complete delivery surface. The canonical public user guides live in
+> [`website/content/docs`](../website/content/docs/) and are published at
+> [drever.dev/docs](https://drever.dev/docs/).
+
 This guide describes the current delivery slice: author and check an MDX deck,
 present it locally, publish an accessible reading view, build a standalone web
 application, and export a portable PDF.
@@ -10,8 +16,9 @@ application, and export a portable PDF.
 - A current desktop browser with Navigation API and `NavigateEvent.signal`,
   `Document.startViewTransition`, `BroadcastChannel`, and `ResizeObserver`.
 - Playwright Chromium for PDF export. Install it once with
-  `npx playwright install chromium`. CI images can use
-  `npx playwright install --with-deps chromium`.
+  `npm exec -- drever browser install`. Linux environments that also need
+  operating-system packages can use
+  `npm exec -- drever browser install --with-deps`.
 
 Drever deliberately has no legacy router or animation fallback. Its generated
 pages show an unsupported-browser screen before the runtime starts when a
@@ -240,8 +247,14 @@ live position.
 Export one page per slide at its final authored Step:
 
 ```bash
+npm exec -- drever browser install
 npm exec -- drever export pdf
 ```
+
+The install command resolves the Playwright Core version bundled with the local
+Drever CLI, so the downloaded Chromium revision always matches the exporter.
+Run it once per browser cache. Pass `--with-deps` on Linux when the host also
+needs Playwright's operating-system packages.
 
 The default output is `slides-export.pdf` in the project root. An explicit
 entry and output can appear with the export flags in any order:
@@ -272,6 +285,13 @@ The result is deterministic in page order, presentation state, dimensions, and
 readiness. PDF metadata can vary with Chromium and the host font environment,
 so byte-for-byte equality is not part of the contract.
 
+Official designs prefer PDF-embeddable local CJK faces during export without
+shipping or downloading a font. Custom designs remain responsible for their
+font assets: self-host an embeddable webfont when the export host does not
+provide the required Chinese, Japanese, or Korean glyphs. A system fallback
+that paints correctly in Chromium is not proof that Chromium can embed that
+face in a PDF.
+
 ## Configure the project
 
 Configuration is typed and intentionally exposes only curated settings:
@@ -282,6 +302,18 @@ import { defineConfig } from "drever";
 
 export default defineConfig({
   entry: "slides.mdx",
+  deck: {
+    title: "Choose what happens next",
+    description: "The evidence, tradeoffs, and one decision the room can act on.",
+    lang: "en",
+    dir: "ltr",
+    url: "https://slides.example/keynote/",
+    icon: "./icon.svg",
+    social: {
+      image: "./social-cover.png",
+      imageAlt: "Presentation cover",
+    },
+  },
   canvas: { width: 1600, height: 900 },
   focusTools: {
     pen: { color: "#ff4f8b", width: 8 },
@@ -304,6 +336,24 @@ export default defineConfig({
   },
 });
 ```
+
+`deck.url` is the public canonical URL for the presentation and ends with `/`. Set it before using
+a local `deck.social.image`; Drever resolves that image to the absolute URL
+required by link-preview crawlers. Local icons and social images belong below
+the project `public/` directory and are validated during config loading.
+
+`deck` owns the published document metadata. Set `lang` to the presentation's
+BCP 47 language tag so web assistive technology, tagged PDF export, and
+locale-aware theme typography use the right language. `dir` accepts `ltr`,
+`rtl`, or `auto`. A development preview without `lang` declares the document as
+`und` instead of making an unsafe guess; web builds and PDF exports require an
+explicit language. A production build derives an omitted title from the first
+slide's static title; description,
+icon, and social preview values remain explicit. Local metadata assets belong
+in `public/` and use `./` URLs. A local social image also requires `deck.url`,
+which lets Drever emit an absolute crawler-safe URL. A social image and its
+concise alternative text are configured together; an already hosted image can
+use its absolute HTTPS URL directly.
 
 `focusTools` customizes the interactive audience and speaker overlays without
 exposing Vite. Colors accept modern CSS values, including theme variables;

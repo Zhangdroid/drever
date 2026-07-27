@@ -1,14 +1,29 @@
-<h2 id="config-file">Start with zero config</h2>
+<h2 id="config-file">Start with one small config</h2>
 
-A new project runs without `drever.config.ts`. Add the file at the project root only when the
-presentation needs a different entry, canvas, theme, development server, build output, rehearsal
-target, focus tools, Stage, or plugin plan.
+Drever can preview and check a deck without `drever.config.ts`, but web builds and PDF exports
+require `deck.lang`. A generated project includes a small typed file so its published language is
+explicit from the first build. The title follows the first slide until
+the author chooses a separate published title. Expand that file only when the presentation needs a
+description, sharing metadata, different entry, canvas, theme, development server, build output,
+rehearsal target, focus tools, Stage, or plugin plan.
 
 ```ts
 import { defineConfig } from "drever";
 
 export default defineConfig({
   entry: "talk.mdx",
+  deck: {
+    title: "Choose what happens next",
+    description: "The evidence, tradeoffs, and one decision the room can act on.",
+    lang: "en",
+    dir: "ltr",
+    url: "https://slides.example/keynote/",
+    icon: "./icon.svg",
+    social: {
+      image: "./social-cover.png",
+      imageAlt: "Presentation cover",
+    },
+  },
   canvas: { width: 1600, height: 900 },
   server: { port: 4317, open: true, strictPort: true },
   build: { outDir: "dist", sourcemap: false },
@@ -33,6 +48,7 @@ being forwarded to Vite.
 | Setting      | Purpose                                                                           |
 | ------------ | --------------------------------------------------------------------------------- |
 | `entry`      | MDX entry path. The zero-config default is `slides.mdx`.                          |
+| `deck`       | Document title, description, language, direction, icon, and social preview image. |
 | `theme`      | One Drever theme definition. See the [theme guide](/docs/themes/).                |
 | `canvas`     | Positive integer `width` and `height` values for the authored surface.            |
 | `server`     | Curated development options: `host`, `open`, `port`, and `strictPort`.            |
@@ -42,8 +58,20 @@ being forwarded to Vite.
 | `stage`      | Background and foreground React module paths for persistent presentation layers.  |
 | `plugins`    | Ordered plugin definitions or typed registrations. See [plugins](/docs/plugins/). |
 
-Paths resolve from the project root. Keep Stage modules deterministic across Audience, Speaker,
-Document, and PDF surfaces.
+Entry, build, and Stage module paths resolve from the project root. Keep Stage modules
+deterministic across Audience, Speaker, Document, and PDF surfaces.
+
+Set `deck.lang` to the presentation's BCP 47 language tag, such as `en`, `zh-CN`, or `ja`. This
+language reaches the initial HTML document, tagged PDF export, assistive technology, and the
+official themes' locale-aware typography. `deck.dir` accepts `ltr`, `rtl`, or `auto`. A development
+preview without `deck.lang` declares the document language as `und` instead of making an unsafe
+guess; web builds and PDF exports require an explicit language. When `deck.title` is omitted, a
+production build uses the first slide's static title. Description and social image metadata remain
+optional. `deck.url` is the presentation's canonical public HTTPS URL and ends with `/`. Put local icon and social
+image files in `public/` and reference them with `./` URLs. Drever validates those files, and uses
+`deck.url` to turn a local social image into the absolute URL required by link-preview crawlers.
+Configure a social image and its concise alternative text together. An already hosted social image
+can use its absolute HTTPS URL directly.
 
 <h2 id="ownership">Keep the public surface small</h2>
 

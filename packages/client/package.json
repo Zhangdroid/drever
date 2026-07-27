@@ -21,6 +21,18 @@
       "types": "./dist/index.d.mts",
       "import": "./dist/index.mjs"
     },
+    "./audience": {
+      "types": "./dist/audience.d.mts",
+      "import": "./dist/audience.mjs"
+    },
+    "./document": {
+      "types": "./dist/document.d.mts",
+      "import": "./dist/document.mjs"
+    },
+    "./speaker": {
+      "types": "./dist/speaker.d.mts",
+      "import": "./dist/speaker.mjs"
+    },
     "./styles.css": "./styles.css",
     "./package.json": "./package.json"
   },

@@ -9,6 +9,7 @@ import {
   json,
   parseCodexJsonl,
   readFirstExistingFile,
+  RELEASE_SMOKE_MUTABLE_HANDOFF_PATHS,
   sanitizeTranscriptText,
   snapshotReleaseSmokeGenerationTree,
 } from "./contract.mjs";
@@ -66,8 +67,11 @@ if (Buffer.byteLength(harnessContext) > 500_000) {
 }
 const immutableSnapshot = await snapshotReleaseSmokeGenerationTree(
   projectRoot,
-  harnessFiles.map(([path]) => path).filter((path) => path !== "brief.md"),
+  harnessFiles
+    .map(([path]) => path)
+    .filter((path) => !RELEASE_SMOKE_MUTABLE_HANDOFF_PATHS.includes(path)),
 );
+const requiredMutablePaths = configuration === undefined ? [] : [configuration.path];
 await writeFile(
   join(codexHome, "hooks.json"),
   json({
@@ -148,7 +152,7 @@ await Promise.all([
   rm(rawRoot, { force: true, recursive: true }),
 ]);
 await mkdir(rawRoot, { recursive: true });
-await assertReleaseSmokeGenerationTree(projectRoot, immutableSnapshot);
+await assertReleaseSmokeGenerationTree(projectRoot, immutableSnapshot, requiredMutablePaths);
 const startedAt = new Date();
 const messages = [];
 const usage = [];
@@ -175,7 +179,7 @@ ${harnessContext}
       : turn;
   const arguments_ = createCodexExecArguments({ model, threadId, turn: modelTurn });
   const result = parseCodexJsonl(await runCodex(arguments_, rawPath));
-  await assertReleaseSmokeGenerationTree(projectRoot, immutableSnapshot);
+  await assertReleaseSmokeGenerationTree(projectRoot, immutableSnapshot, requiredMutablePaths);
   threadId ??= result.threadId;
   if (result.threadId !== threadId) {
     throw new Error("Codex changed thread id during the release smoke conversation.");

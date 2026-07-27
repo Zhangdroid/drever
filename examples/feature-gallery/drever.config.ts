@@ -5,6 +5,10 @@ import studioTheme from "@drever/designs/studio";
 import { defineConfig } from "drever";
 
 export default defineConfig({
+  deck: {
+    description: "Official Drever plugins and presentation capabilities in one working deck.",
+    lang: "en",
+  },
   plugins: [chartsPlugin, math({ strict: "warn", throwOnError: true }), mediaPlugin],
   rehearsal: {
     targetDurationMinutes: 12,

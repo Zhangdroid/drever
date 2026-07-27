@@ -81,8 +81,20 @@ Options:
   -h, --help                            Show this help
 `;
 
-const TEMPLATE_FILES = ["README.md", "brief.md", "slides.mdx", "gitignore"] as const;
-const PROJECT_TEMPLATE_FILES = ["README.md", "brief.md", "slides.mdx", ".gitignore"] as const;
+const TEMPLATE_FILES = [
+  "README.md",
+  "brief.md",
+  "drever.config.ts",
+  "slides.mdx",
+  "gitignore",
+] as const;
+const PROJECT_TEMPLATE_FILES = [
+  "README.md",
+  "brief.md",
+  "drever.config.ts",
+  "slides.mdx",
+  ".gitignore",
+] as const;
 const CREATED_FILES = ["package.json", ...PROJECT_TEMPLATE_FILES] as const;
 const AGENT_TARGETS = new Set<CreateAgentTarget>(["all", "auto", "claude", "codex", "none"]);
 const OPEN_TARGETS = new Set<CreateOpenTarget>(["claude", "codex"]);

@@ -327,7 +327,9 @@ broken one when necessary.
 
 The release process must not use `postinstall` scripts to modify user files or
 install Playwright Chromium. PDF browser installation remains an explicit,
-recoverable delivery step.
+recoverable delivery step owned by `drever browser install`, which resolves the
+CLI's installed Playwright Core version rather than asking a package runner to
+select one.
 
 ## References
 

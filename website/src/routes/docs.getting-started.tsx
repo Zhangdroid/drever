@@ -6,7 +6,7 @@ import { DocArticle, DocMdx, DocNext, ManualSetup } from "../components/docs-she
 import { pageHead } from "../seo";
 
 const description =
-  "Tell your AI agent what the presentation must achieve. It prepares, creates, checks, and leaves the deck ready to review.";
+  "Tell your AI agent what the presentation must achieve. It opens an early live draft, keeps refining it, and finishes with a verified deck.";
 
 export const Route = createFileRoute("/docs/getting-started")({
   component: Page,
@@ -20,7 +20,7 @@ function Page() {
       <DocMdx content={Content} />
       <ManualSetup />
       <DocNext
-        description="Keep zero config or choose the exact project controls you need."
+        description="Keep the generated metadata config small or add only the project controls you need."
         href="/docs/configuration/"
         label="Configuration"
       />

@@ -76,6 +76,9 @@ test("the public export command creates deterministic PDFs without touching the 
     const defaultPdf = await readFile(defaultOutput);
     expect(defaultPdf.subarray(0, 5).toString()).toBe("%PDF-");
     expect(pdfPageCount(defaultPdf)).toBe(5);
+    const defaultSource = defaultPdf.toString("latin1");
+    expect(defaultSource).toContain("/Title (Slides can stay useful.)");
+    expect(defaultSource).toContain("/Lang (en)");
 
     expect(await exportPdf(stepsOutput, { steps: true })).toContain(
       `Exported ${join(projectRoot, "slides.mdx")}`,
@@ -108,6 +111,7 @@ test("a failing export hook reports plugin context and never writes a partial PD
       writeFile(
         join(root, "drever.config.ts"),
         `export default {
+  deck: { lang: "en" },
   plugins: [{
     kind: "plugin",
     apiVersion: 1,
@@ -191,6 +195,7 @@ test("the export command materializes animated text before PDF capture", async (
       writeFile(
         join(root, "drever.config.ts"),
         `export default {
+  deck: { lang: "en" },
   plugins: [{
     kind: "plugin",
     apiVersion: 1,
@@ -257,7 +262,10 @@ test("a missing Chromium installation reports the exact recovery command", async
   const root = await mkdtemp(join(tmpdir(), "drever-export-browser-missing-e2e-"));
   const output = join(root, "failed.pdf");
   try {
-    await writeFile(join(root, "slides.mdx"), "# Browser installation contract\n");
+    await Promise.all([
+      writeFile(join(root, "slides.mdx"), "# Browser installation contract\n"),
+      writeFile(join(root, "drever.config.ts"), 'export default { deck: { lang: "en" } };\n'),
+    ]);
     const failure = await execute(process.execPath, [cli, "export", "pdf", "--output", output], {
       cwd: root,
       env: { ...process.env, PLAYWRIGHT_BROWSERS_PATH: join(root, "empty-browser-cache") },
@@ -267,7 +275,7 @@ test("a missing Chromium installation reports the exact recovery command", async
     expect(failure).toBeInstanceOf(Error);
     expect(failure.stderr).toContain("[DREVER_EXPORT_BROWSER_MISSING]");
     expect(failure.stderr).toContain("Drever PDF export requires Playwright Chromium.");
-    expect(failure.stderr).toContain("Run npx playwright install chromium, then retry the export.");
+    expect(failure.stderr).toContain("Run drever browser install, then retry the export.");
     await expect(stat(output)).rejects.toMatchObject({ code: "ENOENT" });
   } finally {
     await rm(root, { force: true, recursive: true });
@@ -283,6 +291,7 @@ test("a rejecting export disposer fails before writing the captured PDF", async 
       writeFile(
         join(root, "drever.config.ts"),
         `export default {
+  deck: { lang: "en" },
   plugins: [{
     kind: "plugin",
     apiVersion: 1,

@@ -153,6 +153,70 @@ test("rejects unresolved or mismatched packed dependencies", () => {
   );
 });
 
+test("keeps the packed CLI on Playwright Core and upstream Vite", () => {
+  const version = "0.0.0-commit.g0123456789ab";
+  const packageNames = new Set(["drever"]);
+  const createManifest = (dependencies, runtimeFields = {}) => ({
+    name: "drever",
+    version,
+    repository: { url: repositoryUrl, directory: "packages/cli" },
+    dependencies,
+    devDependencies: { "vite-plus": "0.2.5" },
+    ...runtimeFields,
+  });
+  const verify = (dependencies, runtimeFields) =>
+    verifyPackedManifest({
+      manifest: createManifest(dependencies, runtimeFields),
+      packageDirectory: "packages/cli",
+      packageNames,
+      version,
+    });
+  const dependencies = {
+    "playwright-core": "1.61.1",
+    vite: "^8.1.5",
+  };
+
+  assert.doesNotThrow(() => verify(dependencies));
+  assert.doesNotThrow(() => verify({ ...dependencies, vite: "^8.2.1" }));
+  assert.throws(() => verify({ playwright: "1.61.1", vite: "^8.1.5" }), /Playwright Core/u);
+  assert.throws(
+    () =>
+      verify({
+        "playwright-core": "1.61.1",
+        vite: "npm:@voidzero-dev/vite-plus-core@0.2.5",
+      }),
+    /standard Vite 8/u,
+  );
+  assert.throws(
+    () => verify({ ...dependencies, "vite-plus": "0.2.5" }),
+    /must not publish Vite\+/u,
+  );
+  for (const field of ["optionalDependencies", "peerDependencies"]) {
+    assert.throws(
+      () => verify(dependencies, { [field]: { playwright: "1.61.1" } }),
+      /Playwright Core/u,
+    );
+    assert.throws(
+      () => verify(dependencies, { [field]: { "vite-plus": "0.2.5" } }),
+      /must not publish Vite\+/u,
+    );
+  }
+  assert.throws(
+    () =>
+      verify(dependencies, {
+        optionalDependencies: { browser: "npm:playwright@1.61.1" },
+      }),
+    /Playwright Core/u,
+  );
+  assert.throws(
+    () =>
+      verify(dependencies, {
+        peerDependencies: { bundler: "npm:@voidzero-dev/vite-plus-core@0.2.5" },
+      }),
+    /must not publish Vite\+/u,
+  );
+});
+
 test("normalizes dependency order without changing conditional export order", () => {
   const first = normalizePackedManifest({
     dependencies: { zeta: "1.0.0", alpha: "1.0.0" },

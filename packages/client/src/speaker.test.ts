@@ -79,7 +79,13 @@ describe("speaker view state", () => {
       }),
     );
 
-    expect(markup).toContain('aria-label="Rehearsal timer"');
+    expect(markup.startsWith('<div class="drever-speaker" data-drever-speaker="">')).toBe(true);
+    expect(markup).toContain('<div class="drever-speaker__brand" dir="ltr" lang="en">');
+    expect(markup).toContain('aria-labelledby="drever-speaker-rehearsal-label"');
+    expect(markup).toContain(
+      'id="drever-speaker-rehearsal-label" lang="en">Rehearsal timer</span>',
+    );
+    expect(markup).not.toContain('aria-label="Rehearsal timer"');
     expect(markup).toContain('data-testid="rehearsal-elapsed"');
     expect(markup).toContain('data-testid="rehearsal-current-slide"');
     expect(markup).toContain('data-testid="rehearsal-pace"');
@@ -97,8 +103,19 @@ describe("speaker view state", () => {
     expect(markup).toContain('aria-expanded="false"');
     expect(markup).toContain('aria-haspopup="dialog"');
     expect(markup).toContain('id="drever-speaker-slide-dialog"');
-    expect(markup).toContain('aria-label="Go to slide 1: Opening claim"');
-    expect(markup).toContain('aria-label="Go to slide 2: Closing thought"');
+    expect(markup).toContain(
+      '<span dir="ltr" lang="en">Go to slide 1: </span><span>Opening claim</span>',
+    );
+    expect(markup).toContain(
+      '<span dir="ltr" lang="en">Go to slide 2: </span><span>Closing thought</span>',
+    );
+    expect(markup).not.toContain('aria-label="Go to slide 1: Opening claim"');
+    expect(markup).toContain(
+      'class="drever-speaker__preview-label" dir="ltr" id="speaker-current-label" lang="en"',
+    );
+    expect(markup).toContain(
+      'class="drever-speaker__controls" data-drever-speaker-controls="" dir="ltr" lang="en"',
+    );
     expect(markup).toContain('aria-label="Use audience laser pointer"');
     expect(markup).toContain('aria-keyshortcuts="L"');
     expect(markup).toContain('data-drever-tooltip="Laser · L"');

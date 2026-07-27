@@ -1,27 +1,16 @@
 /// <reference types="react/canary" />
 
-import {
-  DreverRenderModeProvider,
-  MDXRenderer,
-  SlideStateProvider,
-  type MDXComponents,
-  type MDXContent,
-  type DreverRenderMode,
-  type ResolvedSlideState,
-  type SlideIdentity,
-} from "@drever/core";
-import type { CanvasDefinition, DeckManifest, SlideManifest } from "@drever/schema";
+import type { SlideManifest } from "@drever/schema";
 import {
   startTransition,
   useCallback,
   useLayoutEffect,
   useRef,
   useState,
-  type RefObject,
   type ReactElement,
 } from "react";
 import { AudienceControls } from "./audience-controls.tsx";
-import { CanvasViewport, DEFAULT_CANVAS } from "./canvas.tsx";
+import { DEFAULT_CANVAS } from "./canvas.tsx";
 import { DreverClientError, isAbortError } from "./client-error.ts";
 import type { PresentationCommit, PresentationNavigationIntent } from "./navigation.ts";
 import type { PresentationFocusAppearance } from "./presentation-focus.ts";
@@ -33,7 +22,6 @@ import type {
   PresentationStateMachine,
   PresentationStore,
 } from "./presentation-state.ts";
-import { PresentationStage, type StageComponents } from "./stage.tsx";
 import {
   resolveLocalSlideTransition,
   setLocalSlideTransitionMode,
@@ -41,35 +29,15 @@ import {
   type PresentationViewTransition,
 } from "./view-transition.ts";
 import { scheduleStableMountNotification } from "./viewer-lifecycle.ts";
+import { ViewerSurface, type ViewerProps } from "./viewer-surface.tsx";
 
-export type ViewerProps = Readonly<{
-  Content: MDXContent;
-  canvas?: CanvasDefinition;
-  manifest: DeckManifest;
-  manageFocus?: boolean;
-  onPositionCommitted?: (position: DeckPosition) => void;
-  position: DeckPosition;
-  reducedMotion?: boolean;
-  registry?: MDXComponents;
-  renderMode?: DreverRenderMode;
-  stage?: StageComponents;
-}>;
+export { Viewer, resolveSlideState } from "./viewer-surface.tsx";
+export type { ViewerProps } from "./viewer-surface.tsx";
 
 const samePosition = (left: DeckPosition, right: DeckPosition): boolean =>
   left.slideId === right.slideId &&
   left.slideIndex === right.slideIndex &&
   left.step === right.step;
-
-export const resolveSlideState = (
-  position: DeckPosition,
-  slide: SlideIdentity,
-): ResolvedSlideState => {
-  const identified = slide.id !== undefined || slide.index !== undefined;
-  const idMatches = slide.id === undefined || slide.id === position.slideId;
-  const indexMatches = slide.index === undefined || slide.index === position.slideIndex;
-  const active = identified && idMatches && indexMatches;
-  return Object.freeze({ active, currentStep: active ? position.step : 0 });
-};
 
 /** Shows the most complete authored state in a slide overview thumbnail. */
 export const resolveSlidePreviewPosition = (slide: SlideManifest): DeckPosition =>
@@ -78,99 +46,6 @@ export const resolveSlidePreviewPosition = (slide: SlideManifest): DeckPosition 
     slideIndex: slide.index,
     step: slide.stepStops.at(-1) ?? 0,
   });
-
-/** A controlled React presentation surface. Navigation is owned by createViewer. */
-export const Viewer = (props: ViewerProps): ReactElement => <ViewerSurface {...props} />;
-
-type ViewerSurfaceProps = ViewerProps &
-  Readonly<{
-    canvasRef?: RefObject<HTMLDivElement | null>;
-    deckRef?: RefObject<HTMLDivElement | null>;
-    idPrefix?: string;
-  }>;
-
-const ViewerSurface = ({
-  Content,
-  canvas,
-  canvasRef,
-  deckRef: providedDeckRef,
-  idPrefix,
-  manageFocus = true,
-  onPositionCommitted,
-  manifest,
-  position,
-  reducedMotion = false,
-  registry,
-  renderMode = "audience",
-  stage,
-}: ViewerSurfaceProps): ReactElement => {
-  const localDeckRef = useRef<HTMLDivElement>(null);
-  const deckRef = providedDeckRef ?? localDeckRef;
-  const previousSlideRef = useRef(position.slideIndex);
-  const resolver = useCallback(
-    (slide: SlideIdentity): ResolvedSlideState => resolveSlideState(position, slide),
-    [position],
-  );
-  const resolvedCanvas = canvas ?? DEFAULT_CANVAS;
-
-  useLayoutEffect(() => {
-    if (!manageFocus) {
-      return;
-    }
-    const deck = deckRef.current;
-    if (deck === null) {
-      return;
-    }
-    const activeElement = deck.ownerDocument.activeElement;
-    const slideChanged = previousSlideRef.current !== position.slideIndex;
-    const presentationOwnedFocus =
-      activeElement === null ||
-      activeElement === deck.ownerDocument.body ||
-      deck.contains(activeElement);
-    const focusBecameHidden =
-      activeElement !== null &&
-      deck.contains(activeElement) &&
-      activeElement.closest("[inert], [aria-hidden='true']") !== null;
-    if ((slideChanged && presentationOwnedFocus) || focusBecameHidden) {
-      const activeSlide = deck.querySelector<HTMLElement>(
-        `[data-drever-slide][data-slide-index="${position.slideIndex}"]`,
-      );
-      activeSlide?.focus({ preventScroll: true });
-    }
-    previousSlideRef.current = position.slideIndex;
-  }, [manageFocus, position.slideIndex, position.step]);
-
-  useLayoutEffect(() => {
-    onPositionCommitted?.(position);
-  }, [onPositionCommitted, position]);
-
-  return (
-    <CanvasViewport canvas={resolvedCanvas} {...(canvasRef === undefined ? {} : { canvasRef })}>
-      <DreverRenderModeProvider mode={renderMode} {...(idPrefix === undefined ? {} : { idPrefix })}>
-        <PresentationStage
-          canvas={resolvedCanvas}
-          manifest={manifest}
-          position={position}
-          reducedMotion={reducedMotion}
-          renderMode={renderMode}
-          {...(stage === undefined ? {} : { stage })}
-        >
-          <div
-            className="drever-deck"
-            data-drever-deck=""
-            data-drever-reduced-motion={reducedMotion ? "" : undefined}
-            data-drever-render-mode={renderMode}
-            ref={deckRef}
-          >
-            <SlideStateProvider resolver={resolver}>
-              <MDXRenderer Content={Content} {...(registry === undefined ? {} : { registry })} />
-            </SlideStateProvider>
-          </div>
-        </PresentationStage>
-      </DreverRenderModeProvider>
-    </CanvasViewport>
-  );
-};
 
 export type ViewerCommitRegistrar = (commit: PresentationCommit) => () => void;
 

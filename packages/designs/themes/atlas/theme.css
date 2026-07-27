@@ -46,9 +46,83 @@
   --drever-theme-code-canvas: var(--drever-atlas-code);
   --drever-theme-code-ink: var(--drever-atlas-code-ink);
   --drever-theme-radius: 2px;
-  font-family: "Avenir Next", Aptos, "Noto Sans", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --drever-theme-font-display-latin:
+    "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Noto Serif", Georgia;
+  --drever-theme-font-body-latin: "Avenir Next", Aptos, "Noto Sans", "Segoe UI";
+  --drever-theme-font-cjk-sans-zh-hans:
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC";
+  --drever-theme-font-cjk-sans-zh-hant:
+    "PingFang TC", "PingFang HK", "Heiti TC", "Microsoft JhengHei", "Noto Sans CJK TC",
+    "Noto Sans TC";
+  --drever-theme-font-cjk-sans-ja:
+    "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, "Noto Sans CJK JP",
+    "Noto Sans JP";
+  --drever-theme-font-cjk-sans-ko:
+    "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans CJK KR", "Noto Sans KR";
+  --drever-theme-font-cjk-serif-zh-hans:
+    "Songti SC", STSong, SimSun, "Noto Serif CJK SC", "Noto Serif SC";
+  --drever-theme-font-cjk-serif-zh-hant:
+    "Songti TC", "LiSong Pro", PMingLiU, MingLiU, "Noto Serif CJK TC", "Noto Serif TC";
+  --drever-theme-font-cjk-serif-ja:
+    "Hiragino Mincho ProN", "Yu Mincho", YuMincho, "Noto Serif CJK JP", "Noto Serif JP";
+  --drever-theme-font-cjk-serif-ko: AppleMyungjo, Batang, "Noto Serif CJK KR", "Noto Serif KR";
+  --drever-theme-font-cjk-sans: var(--drever-theme-font-cjk-sans-zh-hans);
+  --drever-theme-font-cjk-serif: var(--drever-theme-font-cjk-serif-zh-hans);
+  --drever-theme-font-cjk-title-weight: 600;
+  --drever-theme-font-cjk-title-line-height: 1.15;
+  --drever-theme-font-cjk-body-line-height: 1.58;
+  font-family:
+    var(--drever-theme-font-body-latin), var(--drever-theme-font-cjk-sans), ui-sans-serif,
+    system-ui, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+}
+
+:where(:root:has(.drever-viewer), .drever-viewer):lang(zh-Hant),
+:where(:root:has(.drever-viewer), .drever-viewer):lang(zh-TW),
+:where(:root:has(.drever-viewer), .drever-viewer):lang(zh-HK),
+:where(:root:has(.drever-viewer), .drever-viewer):lang(zh-MO) {
+  --drever-theme-font-cjk-sans: var(--drever-theme-font-cjk-sans-zh-hant);
+  --drever-theme-font-cjk-serif: var(--drever-theme-font-cjk-serif-zh-hant);
+}
+
+:where(:root:has(.drever-viewer), .drever-viewer):lang(ja) {
+  --drever-theme-font-cjk-sans: var(--drever-theme-font-cjk-sans-ja);
+  --drever-theme-font-cjk-serif: var(--drever-theme-font-cjk-serif-ja);
+}
+
+:where(:root:has(.drever-viewer), .drever-viewer):lang(ko) {
+  --drever-theme-font-cjk-sans: var(--drever-theme-font-cjk-sans-ko);
+  --drever-theme-font-cjk-serif: var(--drever-theme-font-cjk-serif-ko);
+}
+
+[data-drever-slide] :lang(zh) {
+  --drever-theme-font-cjk-sans: var(--drever-theme-font-cjk-sans-zh-hans);
+  --drever-theme-font-cjk-serif: var(--drever-theme-font-cjk-serif-zh-hans);
+}
+
+[data-drever-slide] :lang(zh-Hant),
+[data-drever-slide] :lang(zh-TW),
+[data-drever-slide] :lang(zh-HK),
+[data-drever-slide] :lang(zh-MO) {
+  --drever-theme-font-cjk-sans: var(--drever-theme-font-cjk-sans-zh-hant);
+  --drever-theme-font-cjk-serif: var(--drever-theme-font-cjk-serif-zh-hant);
+}
+
+[data-drever-slide] :lang(ja) {
+  --drever-theme-font-cjk-sans: var(--drever-theme-font-cjk-sans-ja);
+  --drever-theme-font-cjk-serif: var(--drever-theme-font-cjk-serif-ja);
+}
+
+[data-drever-slide] :lang(ko) {
+  --drever-theme-font-cjk-sans: var(--drever-theme-font-cjk-sans-ko);
+  --drever-theme-font-cjk-serif: var(--drever-theme-font-cjk-serif-ko);
+}
+
+:where([data-drever-slide] [lang]):where(:lang(zh), :lang(ja), :lang(ko)) {
+  font-family:
+    var(--drever-theme-font-body-latin), var(--drever-theme-font-cjk-sans), ui-sans-serif,
+    system-ui, sans-serif;
 }
 
 .drever-canvas {
@@ -134,7 +208,7 @@
 [data-drever-slide] :where(h1, h2, h3, h4, h5, h6) {
   max-width: 18ch;
   color: var(--drever-atlas-ink);
-  font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Noto Serif", Georgia, serif;
+  font-family: var(--drever-theme-font-display-latin), var(--drever-theme-font-cjk-serif), serif;
   font-weight: 600;
   letter-spacing: -0.038em;
   text-wrap: balance;
@@ -260,7 +334,7 @@
   padding: 28px 42px;
   border-block: 1px solid var(--drever-atlas-border);
   color: var(--drever-atlas-ink);
-  font-family: "Iowan Old Style", "Palatino Linotype", "Noto Serif", Georgia, serif;
+  font-family: var(--drever-theme-font-display-latin), var(--drever-theme-font-cjk-serif), serif;
   font-size: 39px;
   font-weight: 560;
   letter-spacing: -0.028em;
@@ -626,7 +700,7 @@
 .drever-atlas-route__stop-content {
   max-width: 16ch;
   color: var(--drever-atlas-ink);
-  font-family: "Iowan Old Style", "Palatino Linotype", "Noto Serif", Georgia, serif;
+  font-family: var(--drever-theme-font-display-latin), var(--drever-theme-font-cjk-serif), serif;
   font-size: 24px;
   font-weight: 600;
   line-height: 1.18;
@@ -756,6 +830,21 @@
 
 [data-drever-slide] :where(:lang(zh), :lang(ja), :lang(ko)) {
   letter-spacing: normal;
+  text-transform: none;
+}
+
+[data-drever-slide] :where(h1, h2, h3, h4, h5, h6):where(:lang(zh), :lang(ja), :lang(ko)) {
+  font-family: var(--drever-theme-font-display-latin), var(--drever-theme-font-cjk-serif), serif;
+  font-weight: var(--drever-theme-font-cjk-title-weight);
+  line-height: var(--drever-theme-font-cjk-title-line-height);
+}
+
+[data-drever-slide]
+  :where(p, li, blockquote, figcaption, th, td):where(:lang(zh), :lang(ja), :lang(ko)) {
+  font-family:
+    var(--drever-theme-font-body-latin), var(--drever-theme-font-cjk-sans), ui-sans-serif,
+    system-ui, sans-serif;
+  line-height: var(--drever-theme-font-cjk-body-line-height);
 }
 
 [data-drever-slide] ::selection {

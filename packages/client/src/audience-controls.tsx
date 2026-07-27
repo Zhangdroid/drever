@@ -70,6 +70,7 @@ export type SlideNavigationItem = Readonly<{
   id: string;
   index: number;
   title: string;
+  titleLanguage?: "en";
 }>;
 
 const compactText = (value: string | null | undefined): string | undefined => {
@@ -87,15 +88,16 @@ export const readSlideNavigationItems = (
         `[data-drever-slide][data-slide-index="${slide.index}"]`,
       );
       const heading = element?.querySelector("h1, h2, h3, h4, h5, h6");
+      const title =
+        compactText(element?.getAttribute("aria-label")) ??
+        compactText(heading?.getAttribute("aria-label")) ??
+        compactText(slide.title) ??
+        compactText(heading?.textContent);
       return Object.freeze({
         id: slide.id,
         index: slide.index,
-        title:
-          compactText(element?.getAttribute("aria-label")) ??
-          compactText(heading?.getAttribute("aria-label")) ??
-          compactText(slide.title) ??
-          compactText(heading?.textContent) ??
-          `Slide ${slide.index + 1}`,
+        title: title ?? `Slide ${slide.index + 1}`,
+        ...(title === undefined ? { titleLanguage: "en" as const } : {}),
       });
     }),
   );
@@ -121,7 +123,6 @@ export const SlideOverviewItem = ({
   const cardRef = useRef<HTMLElement>(null);
   const [previewReady, setPreviewReady] = useState(false);
   const ordinal = slide.index + 1;
-  const label = `Go to slide ${ordinal}: ${slide.title}`;
 
   useEffect(() => {
     const card = cardRef.current;
@@ -162,17 +163,35 @@ export const SlideOverviewItem = ({
       </div>
       <div aria-hidden="true" className="drever-audience-slide-meta">
         <span>{String(ordinal).padStart(2, "0")}</span>
-        <strong>{slide.title}</strong>
-        {current ? <small>Now</small> : null}
+        <strong
+          dir={slide.titleLanguage === undefined ? undefined : "ltr"}
+          lang={slide.titleLanguage}
+        >
+          {slide.title}
+        </strong>
+        {current ? (
+          <small dir="ltr" lang="en">
+            Now
+          </small>
+        ) : null}
       </div>
       <button
         aria-current={current ? "page" : undefined}
-        aria-label={label}
         className="drever-audience-slide-link"
         onClick={onSelect}
         type="button"
       >
-        <span className="drever-visually-hidden">{label}</span>
+        <span className="drever-visually-hidden">
+          <span dir="ltr" lang="en">
+            Go to slide {ordinal}:{" "}
+          </span>
+          <span
+            dir={slide.titleLanguage === undefined ? undefined : "ltr"}
+            lang={slide.titleLanguage}
+          >
+            {slide.title}
+          </span>
+        </span>
       </button>
     </article>
   );
@@ -556,7 +575,12 @@ export const AudienceControls = ({
       ref={hostRef}
     >
       {mobileHintDismissed ? null : (
-        <aside aria-label="Mobile viewing options" className="drever-audience-mobile-hint">
+        <aside
+          aria-label="Mobile viewing options"
+          className="drever-audience-mobile-hint"
+          dir="ltr"
+          lang="en"
+        >
           <span>Rotate for the live deck.</span>
           <button
             aria-label="Read presentation as a document"
@@ -578,6 +602,8 @@ export const AudienceControls = ({
       <nav
         aria-label="Presentation controls"
         className="drever-audience-controls__bar"
+        dir="ltr"
+        lang="en"
         ref={barRef}
       >
         <div className="drever-audience-controls__scroll">
@@ -679,6 +705,8 @@ export const AudienceControls = ({
           aria-live="polite"
           className="drever-audience-share-status"
           data-share-result={visibleShareResult}
+          dir="ltr"
+          lang="en"
           role="status"
         >
           {visibleShareResult === "copied" ? "Link copied." : "Could not copy link."}
@@ -686,7 +714,14 @@ export const AudienceControls = ({
       )}
 
       {gotoBuffer.length === 0 ? null : (
-        <div aria-atomic="true" aria-live="polite" className="drever-audience-goto" role="status">
+        <div
+          aria-atomic="true"
+          aria-live="polite"
+          className="drever-audience-goto"
+          dir="ltr"
+          lang="en"
+          role="status"
+        >
           <span>Go to slide</span>
           <strong>{gotoBuffer}</strong>
           {gotoError === undefined ? <small>Press Enter</small> : <small>{gotoError}</small>}
@@ -698,6 +733,8 @@ export const AudienceControls = ({
           aria-label={`${pauseScreen === "black" ? "Black" : "White"} pause screen. Press Escape to return.`}
           className="drever-audience-pause"
           data-pause-screen={pauseScreen}
+          dir="ltr"
+          lang="en"
           onClick={() => setPauseScreen(undefined)}
           type="button"
         />
@@ -718,7 +755,7 @@ export const AudienceControls = ({
       >
         {panel === "overview" ? (
           <div className="drever-audience-dialog__content">
-            <header>
+            <header dir="ltr" lang="en">
               <div>
                 <span>Drever</span>
                 <h2 id="drever-audience-dialog-title">Slide navigator</h2>
@@ -727,7 +764,7 @@ export const AudienceControls = ({
                 <CloseIcon />
               </button>
             </header>
-            <label className="drever-audience-dialog__search">
+            <label className="drever-audience-dialog__search" dir="ltr" lang="en">
               <span className="drever-visually-hidden">Find a slide</span>
               <input
                 onChange={(event) => setQuery(event.currentTarget.value)}
@@ -752,11 +789,19 @@ export const AudienceControls = ({
                   />
                 );
               })}
-              {visibleSlides.length === 0 ? <p>No slides match “{query}”.</p> : null}
+              {visibleSlides.length === 0 ? (
+                <p dir="ltr" lang="en">
+                  No slides match “{query}”.
+                </p>
+              ) : null}
             </div>
           </div>
         ) : panel === "help" ? (
-          <div className="drever-audience-dialog__content drever-audience-dialog__content--help">
+          <div
+            className="drever-audience-dialog__content drever-audience-dialog__content--help"
+            dir="ltr"
+            lang="en"
+          >
             <header>
               <div>
                 <span>Drever</span>

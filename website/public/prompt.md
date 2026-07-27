@@ -2,34 +2,76 @@
 
 Use these instructions when a user asks you to create a Drever presentation.
 
-## Run a useful, optional briefing
+## Run a useful adaptive briefing
 
 Treat the user's accompanying message as the initial presentation brief. Reply in the user's
 language, and use that language for the deck unless they request another one or the source material
 clearly requires it.
 
-If the topic is missing, make it the first question. In the same opening round, ask up to two
-high-impact common questions that do not depend on knowing the topic, usually the audience outcome
-and duration. Do not advertise choosing the topic as a separate “Surprise me” mode. Infer
-everything the user already supplied before choosing questions.
+<!-- drever-briefing-contract:v2 -->
 
-Questions may span multiple rounds when an earlier answer enables a useful topic-specific
-follow-up. Ask one to three concise questions at a time, highest-impact first, and continue only
-while another answer would materially improve the result. In each round, put every concrete
-question first, then append exactly one escape: **Or say “Skip remaining questions — surprise me”
-and I will choose the rest.**
-Draw from:
+Infer everything the user already supplied before choosing questions: topic, audience, desired
+outcome, duration, language, venue, evidence, source material, brand constraints, delivery format,
+density, speaker-note depth, and motion intent. Inspect attached or local source material instead of
+asking the user to repeat it.
 
-1. What should the audience understand, decide, or do?
-2. How long is the presentation?
-3. Should slides be concise with fuller speaker notes, balanced, or reference-dense?
-4. Should motion be restrained, expressive, or intentionally experimental?
-5. Ask at most one topic-specific fork per round, such as practical code versus concepts,
-   comparison versus recommendation, or overview versus migration.
+If the topic is missing, ask for it by itself as a short open question. Do not advertise choosing
+the topic as a separate “Surprise me” mode or add the skip-remaining escape yet. Treat this as a
+topic gate, not an interview round. Once the topic is known, run an adaptive interview only for
+decisions whose answers would materially change the narrative, evidence, visual direction, motion,
+or delivery:
 
-Do not ask for information the user already gave. Never silently choose a duration unless the user
-uses the skip-remaining escape. If they use it at any point, stop asking, make reasonable
-assumptions, and continue. If the initial brief is already complete, proceed immediately.
+- Ask one to three questions per round. A nontrivial incomplete brief will usually need two or three
+  rounds and four to seven decisions; a simple or complete brief may need fewer. Never ask questions
+  merely to reach a quota.
+- Give every question two to four mutually distinct, topic-specific options plus the ability to
+  answer freely. Put a short consequence after each option so the user can see how it changes the
+  deck. Mark at most one option **Recommended**, and only when the known brief supports that
+  recommendation.
+- Number the questions and letter the options so the user can answer compactly, such as
+  `1A, 2C, 3B`. Ask one decision per question. The topic question is the only question that may omit
+  options.
+- Format each decision as a short subject-specific question followed by lettered options. Name the
+  choice first and its effect second—for example, `A — Working migration: centers code changes and
+upgrade risks`. Do not hide multiple decisions inside one option.
+- Avoid empty adjective menus such as “professional, playful, or bold.” Name the actual subject and
+  expose a real tradeoff. “Migration plan, working code patterns, or architectural overview” is
+  useful; “minimal, modern, or creative” is not.
+- Put all concrete questions first, then append exactly one escape to every round:
+  **You can combine options, answer in your own words, or say “Skip remaining questions — surprise
+  me” and I will choose the rest.**
+- After each answer, update the working brief and derive the next round from the highest-impact
+  uncertainties that remain. At least one follow-up should depend on an earlier answer when a
+  follow-up is needed. Do not repeat a supplied or settled choice.
+
+Choose questions from the presentation's actual job:
+
+- **Decision, proposal, or sales:** the decision, stakeholder objections, proof threshold, risks,
+  and final call to action.
+- **Technical update or tutorial:** audience baseline, application context, code or demo depth,
+  migration constraints, intended skill, and authoritative sources.
+- **Research, report, or data story:** central claim, comparison baseline, evidence confidence,
+  uncertainty, and the action the evidence should support.
+- **Product launch or demo:** user problem, workflow to show, differentiation, proof assets, and
+  desired conversion.
+- **Keynote, brand, or narrative:** point of view, emotional shift, narrative anchor, visual
+  metaphor, and ending.
+- **Workshop or training:** participant baseline, activity, pacing, expected artifact, and
+  facilitation constraints.
+
+Resolve the essentials early: who is in the room, what should change for them, and how long the
+speaker has. Then ask the most useful topic-specific forks. Ask about density, notes, visual
+direction, motion, interaction, or output only when the answer would alter the work. Visual options
+must be original directions derived from the subject—for example, a React 19 deck might choose
+between a code-first engineering review, a product interaction walkthrough, and a restrained
+React-orbit systems story—not generic theme labels.
+
+Never silently choose a duration unless the user uses the skip-remaining escape. If they use it at
+any point, stop asking, make reasonable assumptions for every unanswered choice, and continue.
+“Surprise me” fills unanswered choices; it does not replace a topic unless the user explicitly asks
+for that. If the initial brief is already complete, proceed immediately. When the interview ends,
+summarize the resolved direction and any assumptions in two to four concise lines, do not ask for
+another confirmation, and begin the work.
 
 ## Prepare a safe workspace
 
@@ -65,6 +107,13 @@ from the subject, audience, and purpose rather than choosing a random attractive
 topic has an established visual language and research is allowed, consult current primary official
 sources for color, typography, imagery, and motion cues. Respect asset and font licenses, and create
 an original interpretation instead of copying a website.
+
+Create or update `drever.config.ts` so `deck.lang` matches the authored presentation language using
+a valid BCP 47 tag. Add the concise published title and description when known, choose `dir` when
+the writing direction needs to be explicit, and include icon or social preview URLs only when real
+assets exist. Pair every social preview image with concise alternative text. When that image is a
+local `public/` asset, also set `deck.url` to the real canonical public URL so link-preview metadata
+is absolute. Never leave a non-English deck declared as English.
 
 Unless the user explicitly asks for a fast plain draft, use the project-local design workflow for a
 subject-led visual system rather than stopping at a generic preset. Plan a few signature moments
@@ -102,27 +151,53 @@ authored CSS `animation` declaration behind
 `[data-drever-step][data-step-state="active"]` and define the settled `complete` style separately.
 Inactive slides stay mounted, so an ungated keyframe can finish before the audience arrives.
 
-## Finish the job
+## Preview early, then finish the job
 
-Do not deliver the first complete build by default. Treat it as Draft 1: render the full story, then
-start a separate refinement pass based on what the audience can actually see and use. Prioritize
-high-impact improvements to narrative clarity, focus, density, composition, subject fit,
-readability, motion meaning, timing, continuity, and finish. Preserve successful ideas, signature
-moments, routes, Steps, and design decisions. Do not regenerate wholesale or add decoration merely
-to make the second version different; leave sound choices alone. After blocking defects are fixed,
-ask what one scene the audience will remember and why it could not belong to an unrelated topic. If
-there is no defensible answer, redesign exactly one high-value beat instead of decorating the whole
-deck.
+<!-- drever-preview-contract:v1 -->
 
-Use the project-local workflow to check and build the presentation. Start the development server
-and inspect the audience view when browser tooling is available. Prefer a connected Chrome DevTools
-MCP server for the final rendered pass, then follow the version-matched project-local review skill
-for screenshots, interaction, runtime evidence, and the dev-only experimental Pretext layout probe.
-The probe is advisory; rendered DOM and pixels remain authoritative. Inspect every slide at Step 0
-and every exact authored Step route at the configured canvas; representative sampling is not
-sufficient. Review the document view as well, and review the speaker view when notes or timing are
-involved. Source review and successful commands do not count as the Draft 1 rendered refinement.
-Export a PDF only when requested.
+Optimize for time to first useful preview, not time to first final artifact. Once the full story
+exists end to end as a coherent Draft 1, start the development server and keep one stable local URL
+through refinement. Draft 1 must contain every planned slide, real readable copy, the chosen
+subject-led visual direction, and representative Steps or signature moments. Never share a blank
+shell, partial storyboard, fabricated placeholder, broken route, or knowingly unreadable slide
+merely to appear fast. Finish correctness-critical source review before exposing a factual claim.
+Before this milestone, prioritize the story, real content, readable base composition, and at least
+one representative signature beat. Defer optional third-party integrations, secondary choreography,
+export-only polish, and production metadata that does not affect local rendering; never replace
+them with fake assets or claims.
+
+Before sharing the URL, perform only the minimum preview gate: the entry compiles, the audience
+route responds, and the first and last slides open without a fatal runtime error. Do not block this
+milestone on `drever context`, exhaustive `drever check`, `drever build`, PDF export, every Step,
+Document or Speaker View, or pixel-level inspection. If the server cannot be verified, report the
+blocker and keep working; never invent a preview URL.
+
+As soon as that gate passes, send a non-blocking progress update such as: **Draft 1 is live at
+`<verified-url>`. The full story and visual direction are ready for content review; I am still
+checking readability, layout, motion, Steps, and browser behavior. You can send changes now while I
+keep refining.** Do not stop for approval. Keep the server alive, use its HMR path for subsequent
+edits, and continue in the same turn. If feedback arrives, finish the current atomic edit, prioritize
+story and factual changes over polish, discard stale validation, update the same preview, and then
+rerun only the affected review gates.
+
+Treat that preview as Draft 1, not delivery. Start a separate refinement pass based on what the
+audience can actually see and use. Prioritize high-impact improvements to narrative clarity, focus,
+density, composition, subject fit, readability, motion meaning, timing, continuity, and finish.
+Preserve successful ideas, signature moments, routes, Steps, and design decisions. Do not regenerate
+wholesale or add decoration merely to make the second version different; leave sound choices alone.
+After blocking defects are fixed, ask what one scene the audience will remember and why it could not
+belong to an unrelated topic. If there is no defensible answer, redesign exactly one high-value beat
+instead of decorating the whole deck.
+
+After the preview is live, run the project-local context and check workflows. Prefer a connected
+Chrome DevTools MCP server for the final rendered pass, then follow the version-matched project-local
+review skill for screenshots, interaction, runtime evidence, and the dev-only experimental Pretext
+layout probe. The probe is advisory; rendered DOM and pixels remain authoritative. Inspect every
+slide at Step 0 and every exact authored Step route at the configured canvas; representative
+sampling is not sufficient. Review the document view as well, and review the speaker view when notes
+or timing are involved. Source review and successful commands do not count as the Draft 1 rendered
+refinement. Run the production build only after the refined preview is stable. Export a PDF only
+when requested and only from that latest stable state.
 
 Treat syntax-highlighted code, topic-specific visuals, stable motion, contrast, alignment, and
 overflow as rendered requirements rather than assumptions. Every visible authored string is a
