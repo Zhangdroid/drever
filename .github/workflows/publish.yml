@@ -232,7 +232,7 @@ jobs:
           gh release create "${arguments[@]}"
 
   smoke:
-    name: Queue Codex release smoke
+    name: Queue comparative AI release smoke
     needs: [audit, record]
     if: >
       inputs.ai_smoke == 'always' ||

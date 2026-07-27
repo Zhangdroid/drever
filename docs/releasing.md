@@ -143,7 +143,7 @@ After publishing, a clean npm consumer installs the exact public versions,
 creates a deck, checks it, builds it, and verifies the packaged Codex and
 Claude plugin versions.
 
-## Post-release Codex smoke
+## Post-release AI comparison smoke
 
 The publishing workflow's `ai_smoke` input defaults to `auto`: stable `latest`
 releases dispatch [`release-smoke.yml`](../.github/workflows/release-smoke.yml)
@@ -155,10 +155,11 @@ Maintainers can also dispatch the smoke manually for any published version.
 
 The smoke is intentionally separate from npm publication: a nondeterministic AI
 failure remains visible without making an already verified registry release
-appear to have failed. Generation uses the quality-first `gpt-5.6-sol` model
-with medium reasoning. Cost is controlled by running this expensive evidence
-once for stable releases by default, not by weakening the model that authors
-and judges the visual result. It may qualify for OpenAI's complimentary
+appear to have failed. Each journey runs independently through
+`gpt-5.6-sol` with medium reasoning and `claude-opus-5`, then publishes both
+results as a direct comparison. Cost is controlled by running this expensive
+evidence once for stable releases by default, not by weakening either model.
+The Codex half may qualify for OpenAI's complimentary
 shared-traffic allowance only when project data sharing is enabled, the
 organization is eligible, and daily quota remains; otherwise normal API billing
 applies. See
@@ -172,18 +173,23 @@ The workflow exercises two fixed user journeys against the public
 2. a user supplies a topic, answers the high-impact briefing questions, and
    gives concrete audience, duration, density, motion, and decision goals.
 
-Both projects start from the exact published `create-drever` version. The
+Each provider receives both journeys from the exact published `create-drever`
+version. The
 preparation job installs the release and reduces it to inert authoring context.
 A fresh secret-bearing runner downloads that context into quarantine and
 rebuilds it again from an exact regular-file allowlist before starting the
-official Codex Action. It receives `OPENAI_API_KEY` through the Action input
-and installs a `PreToolUse` hook configured to deny shell calls while the
-protected credential proxy is active. Codex receives the exact prompt, project
-contract, and skills as preloaded context and authors through `apply_patch`.
-Before every resumed turn, the harness rejects new executable configuration,
-symlinks, or changes to its immutable instructions. Generated project code
-cannot execute in this job. A separate job with no OpenAI secret installs the
-generated project, runs
+provider runner. Codex receives `OPENAI_API_KEY` through the pinned official
+Action and uses its protected proxy plus a shell-denial hook. Claude Code is
+pinned separately, runs in bare mode inside a read-only container, and reaches
+the Anthropic API only through a bounded loopback proxy that holds
+`CLAUDE_API_KEY`; the container sees a disposable proxy token instead of the
+real credential. Its available tools are limited to direct file reads and
+edits, with shell, network tools, subagents, skills, and MCP removed. Both
+providers receive the exact prompt, project contract, and provider-native
+skills as preloaded context. Before every resumed turn, the harness rejects new
+executable configuration, symlinks, or changes to its immutable instructions.
+Generated project code cannot execute in either credential-bearing job. A
+separate job with no model secret installs each generated project, runs
 `drever context`, checks and builds it in a digest-pinned, non-root,
 no-network container, and loads the audience, document, and speaker routes in
 Chromium. The browser audit traverses every exact audience slide and Step route,
@@ -191,9 +197,9 @@ checks the active state identity, samples each adjacent transition and settled
 frame, and rejects material clipping or a large Step layout rebase before the
 result can be published. The guided journey must also produce speaker notes.
 
-Successful runs retain a sanitized conversation, source allowlist, build
-receipts, and the real interactive static decks—never screenshots. A final job
-with no OpenAI secret assembles those generated files in its disposable Actions
+Successful runs retain both sanitized conversations, source allowlists, build
+receipts, and real interactive static decks—never screenshots. A final job
+with no model secret assembles those generated files in its disposable Actions
 workspace and uploads them to the dedicated `drever-release-smoke` Cloudflare
 Pages Direct Upload project. It first publishes a run-specific deck deployment,
 replaces the predictable branch alias with Cloudflare's unique hash URL, and
@@ -230,12 +236,13 @@ separate project.
 
 Create a protected GitHub environment named `ai-release-smoke`, limit it to
 the `main` branch, and add a required reviewer. Drever currently reuses the
-repository's existing `OPENAI_API_KEY`, but only the protected generation job
-references it; preparation, build, and publishing jobs do not. A same-name
-environment secret can later narrow the credential scope without changing the
-workflow. Do not expose the key as a job-level environment variable. The
-result publisher uses a Markdown summary file rather than raw terminal output
-so ANSI control sequences and raw logs cannot enter the workflow summary.
+repository's existing `OPENAI_API_KEY` and `CLAUDE_API_KEY`, but each secret is
+referenced only by its matching conditional generation step; preparation,
+other-provider generation, build, and publishing steps cannot read it.
+Same-name environment secrets can later narrow credential scope without
+changing the workflow. Do not expose either key at job scope. The result
+publisher uses a Markdown summary file rather than raw terminal output so ANSI
+control sequences and raw logs cannot enter the workflow summary.
 
 ## One-time npm bootstrap
 

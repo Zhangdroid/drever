@@ -17,6 +17,7 @@ import {
   redactStructuredPaths,
   relativeMountedPathname,
   releaseSmokeDeckMount,
+  RELEASE_SMOKE_RUN_SCHEMA_VERSION,
   RELEASE_SMOKE_SCHEMA_VERSION,
 } from "./contract.mjs";
 import {
@@ -26,12 +27,14 @@ import {
   releaseSmokeTransitionIssues,
 } from "./browser-audit.mjs";
 import { getReleaseSmokeScenario } from "./scenarios.mjs";
+import { getReleaseSmokeProvider, releaseSmokeCaseId } from "./providers.mjs";
 
 const execute = promisify(execFile);
-const [version, scenarioId, runId, sourceCommit, generationArgument, outputArgument] =
+const [version, providerId, scenarioId, runId, sourceCommit, generationArgument, outputArgument] =
   process.argv.slice(2);
 if (
   version === undefined ||
+  providerId === undefined ||
   scenarioId === undefined ||
   runId === undefined ||
   sourceCommit === undefined ||
@@ -39,11 +42,13 @@ if (
   outputArgument === undefined
 ) {
   throw new Error(
-    "Usage: node scripts/release-smoke/build-case.mjs <version> <scenario> <run-id> <source-commit> <generation-artifact> <output>",
+    "Usage: node scripts/release-smoke/build-case.mjs <version> <provider> <scenario> <run-id> <source-commit> <generation-artifact> <output>",
   );
 }
 assertReleaseVersion(version);
+const provider = getReleaseSmokeProvider(providerId);
 const scenario = getReleaseSmokeScenario(scenarioId);
+const caseId = releaseSmokeCaseId(providerId, scenarioId);
 if (!/^\d+$/u.test(runId)) throw new Error(`Invalid GitHub Actions run id: ${runId}`);
 if (!/^[0-9a-f]{40}$/u.test(sourceCommit)) {
   throw new Error(`Invalid release source commit: ${sourceCommit}`);
@@ -53,11 +58,11 @@ const generationRoot = resolve(generationArgument);
 const outputRoot = resolve(outputArgument);
 const workspaceRoot = resolve(
   process.env.RUNNER_TEMP ?? join(outputRoot, ".workspace"),
-  `drever-release-smoke-build-${scenarioId}`,
+  `drever-release-smoke-build-${caseId}`,
 );
 const projectRoot = join(workspaceRoot, "deck");
 const npmCache = join(workspaceRoot, "npm-cache");
-const caseRoot = join(outputRoot, scenarioId);
+const caseRoot = join(outputRoot, caseId);
 const receiptsRoot = join(caseRoot, "receipts");
 const parseJsonOutput = (output, command) => {
   const start = output.search(/^\{/mu);
@@ -337,15 +342,18 @@ const [generation, transcript] = await Promise.all([
 ]);
 if (
   generation.schemaVersion !== RELEASE_SMOKE_SCHEMA_VERSION ||
+  generation.provider?.id !== providerId ||
   generation.scenarioId !== scenarioId ||
   generation.version !== version ||
   transcript.schemaVersion !== RELEASE_SMOKE_SCHEMA_VERSION ||
+  transcript.providerId !== providerId ||
   transcript.scenarioId !== scenarioId
 ) {
   throw new Error("Generation artifact does not match the requested release smoke case.");
 }
 if (
-  generation.executionBoundary?.shell !== "pre-tool-use-deny-configured" ||
+  generation.executionBoundary?.credential !== "protected-provider-proxy" ||
+  generation.executionBoundary?.shell !== "tool-surface-deny-configured" ||
   generation.executionBoundary?.publication !== "allowlisted-source-only"
 ) {
   throw new Error("Generation artifact does not declare the required non-executable boundary.");
@@ -398,7 +406,7 @@ if (build?.version !== 1 || build.ok !== true || typeof website?.path !== "strin
 }
 const websitePath = resolveIsolatedProjectPath(projectRoot, website.path);
 const buildOutput = await assertSafeReleaseSmokeBuildOutput(websitePath);
-const deckMount = releaseSmokeDeckMount(runId, scenarioId);
+const deckMount = releaseSmokeDeckMount(runId, caseId);
 const browser = await runBrowserSmoke(websitePath, context, deckMount);
 const publicReceipt = (value) =>
   redactStructuredPaths(value, [
@@ -425,12 +433,19 @@ await Promise.all([
   writeFile(join(receiptsRoot, "browser.json"), json(publicReceipt(browser)), "utf8"),
 ]);
 
-const basePath = `/release-smoke/runs/${runId}/${scenarioId}`;
+const basePath = `/release-smoke/runs/${runId}/${caseId}`;
 await writeFile(
   join(caseRoot, "case.json"),
   json({
-    schemaVersion: RELEASE_SMOKE_SCHEMA_VERSION,
-    id: scenarioId,
+    schemaVersion: RELEASE_SMOKE_RUN_SCHEMA_VERSION,
+    id: caseId,
+    scenarioId,
+    provider: {
+      id: provider.id,
+      label: provider.label,
+      model: generation.model,
+      version: generation.runnerVersion,
+    },
     mode: scenario.mode,
     status: "passed",
     title: scenario.label,
@@ -450,16 +465,12 @@ await writeFile(
       `${browser.audience.stateCount} exact audience slide and Step states plus ${browser.audience.transitions.length} adjacent transition samples passed geometry and runtime audit`,
       "Document and speaker browser smoke passed",
       "Generated source executed as a non-root user in a no-network container without the repository or runner environment",
-      "Secret-bearing generation configured a shell-denial hook; only allowlisted authoring source was retained",
+      "Secret-bearing generation used a protected provider proxy and non-executable authoring tools; only allowlisted source was retained",
       `${sourceFiles.length} allowlisted source files crossed the secret boundary`,
     ],
     messages: transcript.messages,
     generatedAt: transcript.completedAt,
-    runner: {
-      codexVersion: generation.codexVersion,
-      model: generation.model,
-      nodeVersion: generation.nodeVersion,
-    },
+    nodeVersion: generation.nodeVersion,
     sourceCommit,
     version,
   }),

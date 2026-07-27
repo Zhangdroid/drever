@@ -8,6 +8,7 @@ import {
   parseReleaseSmokeRun,
   readableReleaseSmokeMessage,
   releaseSmokeHistory,
+  releaseSmokeScenarios,
   resolveReleaseSmokeOrigin,
 } from "./release-smoke-data";
 
@@ -59,6 +60,52 @@ const runSource = {
   ],
 };
 
+const comparisonRunSource = {
+  ...runSource,
+  schemaVersion: 2,
+  runner: {
+    nodeVersion: runSource.runner.nodeVersion,
+    promptUrl: runSource.runner.promptUrl,
+    workflowUrl: runSource.runner.workflowUrl,
+  },
+  cases: [
+    {
+      ...runSource.cases[0],
+      id: "codex-surprise-me",
+      provider: {
+        id: "codex",
+        label: "Codex",
+        model: "gpt-5.6-sol",
+        version: "0.145.0",
+      },
+      scenarioId: "surprise-me",
+    },
+    {
+      ...runSource.cases[0],
+      id: "claude-surprise-me",
+      provider: {
+        id: "claude",
+        label: "Claude",
+        model: "claude-opus-5",
+        version: "2.1.0",
+      },
+      scenarioId: "surprise-me",
+      deck: {
+        audience:
+          "https://a1b2c3d4.drever-release-smoke.pages.dev/release-smoke/runs/0.2.3-abc123/claude-surprise-me/deck/",
+        document:
+          "https://a1b2c3d4.drever-release-smoke.pages.dev/release-smoke/runs/0.2.3-abc123/claude-surprise-me/deck/document/",
+        source:
+          "https://a1b2c3d4.drever-release-smoke.pages.dev/release-smoke/runs/0.2.3-abc123/claude-surprise-me/source/slides.mdx",
+      },
+      messages: [
+        { role: "user", content: "Fetch and follow https://drever.dev/prompt.md." },
+        { role: "assistant", content: "What should the room decide?" },
+      ],
+    },
+  ],
+};
+
 const manifestSource = {
   schemaVersion: 1,
   latestRunId: "0.2.3-abc123",
@@ -86,6 +133,61 @@ describe("release smoke data", () => {
 
     expect(data.latest?.id).toBe("0.2.3-abc123");
     expect(data.latest?.cases[0]?.durationSeconds).toBe(92);
+  });
+
+  it("normalizes legacy Codex-only runs into the comparison contract", () => {
+    const run = parseReleaseSmokeRun(runSource);
+
+    expect(run.schemaVersion).toBe(1);
+    expect(run.cases[0]).toMatchObject({
+      id: "surprise-me",
+      provider: {
+        id: "codex",
+        label: "Codex",
+        model: "gpt-5",
+        version: "1.2.3",
+      },
+      scenarioId: "surprise-me",
+    });
+    expect(run.runner).toEqual({
+      nodeVersion: "24.18.0",
+      promptUrl: "https://drever.dev/prompt.md",
+      workflowUrl: "https://github.com/Zhangdroid/drever/actions/runs/1",
+    });
+  });
+
+  it("groups independent provider results under their shared scenario", () => {
+    const run = parseReleaseSmokeRun(comparisonRunSource);
+    const scenarios = releaseSmokeScenarios(run);
+
+    expect(run.schemaVersion).toBe(2);
+    expect(scenarios).toHaveLength(1);
+    expect(scenarios[0]).toMatchObject({
+      id: "surprise-me",
+      mode: "surprise-me",
+      results: [
+        { id: "codex-surprise-me", provider: { id: "codex" } },
+        { id: "claude-surprise-me", provider: { id: "claude" } },
+      ],
+    });
+  });
+
+  it("requires provider-qualified case ids in comparison runs", () => {
+    const mismatched = structuredClone(comparisonRunSource);
+    mismatched.cases[1]!.id = "wrong-id";
+
+    expect(() => parseReleaseSmokeRun(mismatched)).toThrow(
+      "release smoke transcript.cases[1].id must be claude-surprise-me",
+    );
+  });
+
+  it("requires providers to receive the same scenario contract", () => {
+    const mismatched = structuredClone(comparisonRunSource);
+    mismatched.cases[1]!.brief = "A different brief.";
+
+    expect(() => parseReleaseSmokeRun(mismatched)).toThrow(
+      "Release smoke providers must share the same scenario contract",
+    );
   });
 
   it("rejects fixture transcripts", () => {

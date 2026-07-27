@@ -9,7 +9,7 @@ the fetched prompt; do not assume that any question has already been answered.`;
 export const releaseSmokeScenarios = Object.freeze([
   Object.freeze({
     brief:
-      "Codex chooses a useful presentation topic and makes the remaining narrative, visual, and motion decisions without further briefing.",
+      "The model chooses a useful presentation topic and makes the remaining narrative, visual, and motion decisions without further briefing.",
     id: "surprise-me",
     label: "Surprise me",
     mode: "surprise-me",

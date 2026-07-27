@@ -147,7 +147,8 @@
 .release-smoke__conversation header span,
 .release-smoke__checks header span,
 .release-smoke__archive header > span,
-.release-smoke__preview > header span {
+.release-smoke__preview > header span,
+.release-smoke__result-heading > div > span {
   color: var(--site-continuity);
   font-size: 0.66rem;
   font-weight: 700;
@@ -318,10 +319,90 @@
 
 .release-smoke__preview > header p {
   max-width: 44rem;
-  margin: 0;
+  margin: 0.45rem 0 0;
   color: var(--site-muted);
   font-size: 0.88rem;
   line-height: 1.65;
+}
+
+.release-smoke__preview > header > div:last-child > strong {
+  color: var(--site-ink);
+  font-family: var(--drever-brand-font-family-display);
+  font-size: 1rem;
+  font-weight: 620;
+  letter-spacing: -0.02em;
+}
+
+.release-smoke__comparison {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1rem, 2.5vw, 2rem);
+}
+
+.release-smoke__comparison:has(> :only-child) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.release-smoke__result {
+  min-width: 0;
+  padding: clamp(0.85rem, 1.8vw, 1.2rem);
+  border: 1px solid color-mix(in srgb, var(--site-line), white 16%);
+  border-radius: 1.35rem;
+  background:
+    linear-gradient(145deg, rgb(255 255 255 / 62%), rgb(255 253 247 / 22%)),
+    color-mix(in srgb, var(--site-continuity-soft) 14%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 70%),
+    0 1.5rem 4rem rgb(25 23 43 / 5%);
+}
+
+.release-smoke__result[data-provider="claude"] {
+  background:
+    linear-gradient(145deg, rgb(255 255 255 / 62%), rgb(255 253 247 / 22%)),
+    color-mix(in srgb, #d97745 9%, transparent);
+}
+
+.release-smoke__result-heading {
+  display: flex;
+  min-height: 5.5rem;
+  padding: 0.25rem 0.2rem 1rem;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.release-smoke__result-heading h3 {
+  margin: 0.35rem 0 0;
+  font-family: var(--drever-brand-font-family-display);
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 610;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+}
+
+.release-smoke__result-heading dl {
+  display: grid;
+  min-width: 0;
+  margin: 0;
+  grid-template-columns: repeat(2, minmax(0, auto));
+  gap: 1.5rem;
+}
+
+.release-smoke__result-heading dt {
+  color: var(--site-muted);
+  font-size: 0.56rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.release-smoke__result-heading dd {
+  max-width: 12rem;
+  margin: 0.3rem 0 0;
+  overflow: hidden;
+  font-family: var(--drever-brand-font-family-mono);
+  font-size: 0.65rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .release-smoke__stage {
@@ -350,6 +431,7 @@
   display: flex;
   margin-block-start: 1.25rem;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.5rem;
 }
 
@@ -366,23 +448,17 @@
   color: var(--site-ink);
 }
 
-.release-smoke__evidence {
-  display: grid;
-  margin-block-start: clamp(4.5rem, 8vw, 8rem);
-  grid-template-columns: minmax(0, 1.45fr) minmax(18rem, 0.55fr);
-  gap: clamp(2.5rem, 6vw, 6rem);
-}
-
 .release-smoke__conversation header {
+  margin-block-start: clamp(3rem, 5vw, 4.5rem);
   padding-block-start: 1.2rem;
   border-top: 1px solid var(--site-line);
 }
 
-.release-smoke__conversation h2 {
+.release-smoke__conversation h4 {
   max-width: 16ch;
   margin: 0.65rem 0 0;
   font-family: var(--drever-brand-font-family-display);
-  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-size: clamp(1.65rem, 3vw, 2.6rem);
   font-weight: 600;
   letter-spacing: -0.045em;
   line-height: 0.98;
@@ -443,6 +519,7 @@
 
 .release-smoke__checks {
   height: fit-content;
+  margin-block-start: 1.5rem;
   padding: 1.4rem;
   border: 1px solid color-mix(in srgb, var(--site-line), white 20%);
   border-radius: 0.9rem;
@@ -601,9 +678,8 @@
     padding-inline-start: 0;
   }
 
-  .release-smoke__evidence {
-    grid-template-columns: minmax(0, 1fr) minmax(17rem, 0.55fr);
-    gap: 2.5rem;
+  .release-smoke__comparison {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -635,8 +711,7 @@
     flex-wrap: wrap;
   }
 
-  .release-smoke__cases,
-  .release-smoke__evidence {
+  .release-smoke__cases {
     grid-template-columns: 1fr;
   }
 
@@ -655,6 +730,15 @@
 
   .release-smoke__conversation li[data-role="assistant"] {
     margin-inline-start: 0.5rem;
+  }
+
+  .release-smoke__result-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .release-smoke__result-heading dl {
+    width: 100%;
   }
 
   .release-smoke__archive {

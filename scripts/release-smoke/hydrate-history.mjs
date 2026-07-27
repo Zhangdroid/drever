@@ -1,7 +1,11 @@
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { join, resolve } from "node:path";
-import { json, RELEASE_SMOKE_SCHEMA_VERSION } from "./contract.mjs";
+import {
+  json,
+  RELEASE_SMOKE_RUN_SCHEMA_VERSION,
+  RELEASE_SMOKE_SCHEMA_VERSION,
+} from "./contract.mjs";
 
 export const RELEASE_SMOKE_HISTORY_LIMIT = 10;
 export const RELEASE_SMOKE_MANIFEST_BYTES = 64 * 1024;
@@ -154,7 +158,10 @@ const parseManifest = (value, manifestUrl) => {
 
 const parseRun = (value, entry) => {
   const run = expectRecord(value, `Release smoke run ${entry.id}`);
-  if (run.schemaVersion !== RELEASE_SMOKE_SCHEMA_VERSION) {
+  if (
+    run.schemaVersion !== RELEASE_SMOKE_SCHEMA_VERSION &&
+    run.schemaVersion !== RELEASE_SMOKE_RUN_SCHEMA_VERSION
+  ) {
     throw new Error(`Release smoke run ${entry.id} has an unsupported schema version.`);
   }
   if (run.id !== entry.id) throw new Error(`Release smoke run id mismatch: ${entry.id}.`);

@@ -47,7 +47,7 @@ jobs:
           "$TRUSTED_WORKFLOW_REF"
 
   prepare:
-    name: Prepare · ${{ matrix.case }}
+    name: Prepare · ${{ matrix.provider }} · ${{ matrix.case }}
     needs: verify
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -56,16 +56,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        provider:
+          - codex
+          - claude
         case:
           - surprise-me
           - guided
     env:
-      ARTIFACT_ROOT: ${{ github.workspace }}/release-smoke-work/prepared-${{ matrix.case }}/artifact
+      ARTIFACT_ROOT: ${{ github.workspace }}/release-smoke-work/prepared-${{ matrix.provider }}-${{ matrix.case }}/artifact
       AUTOMATION_ROOT: ${{ github.workspace }}/automation
-      PREPARED_ROOT: ${{ github.workspace }}/release-smoke-work/prepared-${{ matrix.case }}
-      PROJECT_ROOT: ${{ github.workspace }}/release-smoke-work/prepared-${{ matrix.case }}/project
+      PREPARED_ROOT: ${{ github.workspace }}/release-smoke-work/prepared-${{ matrix.provider }}-${{ matrix.case }}
+      PROJECT_ROOT: ${{ github.workspace }}/release-smoke-work/prepared-${{ matrix.provider }}-${{ matrix.case }}/project
       RELEASE_SMOKE_VERSION: ${{ inputs.version }}
-      SCAFFOLD_ROOT: ${{ github.workspace }}/release-smoke-work/scaffold-${{ matrix.case }}
+      SCAFFOLD_ROOT: ${{ github.workspace }}/release-smoke-work/scaffold-${{ matrix.provider }}-${{ matrix.case }}
     steps:
       - name: Check out the trusted automation source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -84,6 +87,7 @@ jobs:
         run: >
           node "$AUTOMATION_ROOT/scripts/release-smoke/prepare-project.mjs"
           "$RELEASE_SMOKE_VERSION"
+          "${{ matrix.provider }}"
           "${{ matrix.case }}"
           "$SCAFFOLD_ROOT"
           "$PROJECT_ROOT"
@@ -92,7 +96,7 @@ jobs:
       - name: Upload the inert authoring context
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: release-smoke-prepared-${{ matrix.case }}-${{ github.run_id }}
+          name: release-smoke-prepared-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
           path: ${{ env.PREPARED_ROOT }}
           if-no-files-found: error
           include-hidden-files: true
@@ -100,7 +104,7 @@ jobs:
           retention-days: 1
 
   generate:
-    name: Generate · ${{ matrix.case }}
+    name: Generate · ${{ matrix.provider }} · ${{ matrix.case }}
     needs: prepare
     environment: ai-release-smoke
     runs-on: ubuntu-24.04
@@ -110,17 +114,24 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        provider:
+          - codex
+          - claude
         case:
           - surprise-me
           - guided
     env:
       AUTOMATION_ROOT: ${{ github.workspace }}/automation
-      ARTIFACT_ROOT: ${{ github.workspace }}/release-smoke-work/active-${{ matrix.case }}/artifact
+      ARTIFACT_ROOT: ${{ github.workspace }}/release-smoke-work/active-${{ matrix.provider }}-${{ matrix.case }}/artifact
+      CLAUDE_CLI_ROOT: ${{ github.workspace }}/release-smoke-work/claude-cli
+      CLAUDE_CONFIG_DIR: ${{ github.workspace }}/release-smoke-work/claude-${{ matrix.case }}
       CODEX_HOME: ${{ github.workspace }}/release-smoke-work/codex-${{ matrix.case }}
-      PROJECT_ROOT: ${{ github.workspace }}/release-smoke-work/active-${{ matrix.case }}/project
-      QUARANTINE_ROOT: ${{ github.workspace }}/release-smoke-work/quarantine-${{ matrix.case }}
-      RELEASE_SMOKE_MODEL: gpt-5.6-sol
+      PROJECT_ROOT: ${{ github.workspace }}/release-smoke-work/active-${{ matrix.provider }}-${{ matrix.case }}/project
+      QUARANTINE_ROOT: ${{ github.workspace }}/release-smoke-work/quarantine-${{ matrix.provider }}-${{ matrix.case }}
+      RELEASE_SMOKE_GENERATION_IMAGE: node@sha256:d45d78e7929b46875bbd4e29bea672d5bc48186c6c3588306521c815e78352d6
+      RELEASE_SMOKE_MODEL: ${{ matrix.provider == 'claude' && 'claude-opus-5' || 'gpt-5.6-sol' }}
       RELEASE_SMOKE_VERSION: ${{ inputs.version }}
+      RELEASE_SMOKE_WORK_ROOT: ${{ github.workspace }}/release-smoke-work
     steps:
       - name: Check out the trusted automation source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -138,17 +149,19 @@ jobs:
       - name: Download inert authoring context
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: release-smoke-prepared-${{ matrix.case }}-${{ github.run_id }}
+          name: release-smoke-prepared-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
           path: ${{ env.QUARANTINE_ROOT }}
 
       - name: Rebuild the authoring context from regular allowlisted files
         run: >
           node "$AUTOMATION_ROOT/scripts/release-smoke/activate-handoff.mjs"
+          "${{ matrix.provider }}"
           "$QUARANTINE_ROOT"
           "$PROJECT_ROOT"
           "$ARTIFACT_ROOT"
 
       - name: Start the protected Codex proxy
+        if: matrix.provider == 'codex'
         uses: openai/codex-action@52fe01ec70a42f454c9d2ebd47598f9fd6893d56 # v1
         with:
           allow-bots: true
@@ -159,10 +172,30 @@ jobs:
           safety-strategy: drop-sudo
           working-directory: ${{ env.PROJECT_ROOT }}
 
-      - name: Run the multi-turn creation journey
+      - name: Install the pinned Claude Code CLI
+        if: matrix.provider == 'claude'
+        run: |
+          npm install --global --prefix "$CLAUDE_CLI_ROOT" @anthropic-ai/claude-code@2.1.220
+          docker pull "$RELEASE_SMOKE_GENERATION_IMAGE"
+
+      - name: Run the Codex creation journey
+        if: matrix.provider == 'codex'
         run: >
           node "$AUTOMATION_ROOT/scripts/release-smoke/run-session.mjs"
           "$RELEASE_SMOKE_VERSION"
+          "${{ matrix.provider }}"
+          "${{ matrix.case }}"
+          "$PROJECT_ROOT"
+          "$ARTIFACT_ROOT"
+
+      - name: Run the Claude creation journey
+        if: matrix.provider == 'claude'
+        env:
+          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+        run: >
+          node "$AUTOMATION_ROOT/scripts/release-smoke/run-session.mjs"
+          "$RELEASE_SMOKE_VERSION"
+          "${{ matrix.provider }}"
           "${{ matrix.case }}"
           "$PROJECT_ROOT"
           "$ARTIFACT_ROOT"
@@ -170,14 +203,14 @@ jobs:
       - name: Upload allowlisted source and sanitized conversation
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: release-smoke-generated-${{ matrix.case }}-${{ github.run_id }}
+          name: release-smoke-generated-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
           path: ${{ env.ARTIFACT_ROOT }}
           if-no-files-found: error
           overwrite: true
           retention-days: 30
 
   build:
-    name: Build · ${{ matrix.case }}
+    name: Build · ${{ matrix.provider }} · ${{ matrix.case }}
     needs: generate
     runs-on: ubuntu-24.04
     timeout-minutes: 50
@@ -186,6 +219,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        provider:
+          - codex
+          - claude
         case:
           - surprise-me
           - guided
@@ -221,13 +257,14 @@ jobs:
       - name: Download generated source
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: release-smoke-generated-${{ matrix.case }}-${{ github.run_id }}
+          name: release-smoke-generated-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
           path: ${{ env.GENERATED_ROOT }}
 
       - name: Build and open every presentation surface without the API secret
         run: >
           node scripts/release-smoke/build-case.mjs
           "$RELEASE_SMOKE_VERSION"
+          "${{ matrix.provider }}"
           "${{ matrix.case }}"
           "${{ github.run_id }}"
           "$RELEASE_SMOKE_SOURCE_COMMIT"
@@ -237,7 +274,7 @@ jobs:
       - name: Upload the interactive result
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: release-smoke-built-${{ matrix.case }}-${{ github.run_id }}
+          name: release-smoke-built-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
           path: ${{ env.BUILT_ROOT }}
           if-no-files-found: error
           overwrite: true

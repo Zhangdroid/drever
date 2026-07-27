@@ -5,6 +5,12 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+### Added
+
+- Added an independent Claude Opus 5 path to the post-release AI smoke, with
+  the same guided and surprise-me briefs shown beside Codex as live decks,
+  source, conversations, timing, and verified build receipts.
+
 ## [0.7.0] - 2026-07-26
 
 ### Added

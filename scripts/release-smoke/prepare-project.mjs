@@ -5,23 +5,26 @@ import { dirname, join, resolve } from "node:path";
 import { promisify } from "node:util";
 import { assertReleaseVersion } from "../release.mjs";
 import { copyReleaseSmokeHandoff, json } from "./contract.mjs";
+import { getReleaseSmokeProvider } from "./providers.mjs";
 import { getReleaseSmokeScenario } from "./scenarios.mjs";
 
 const execute = promisify(execFile);
-const [version, scenarioId, scaffoldArgument, projectArgument, artifactArgument] =
+const [version, providerId, scenarioId, scaffoldArgument, projectArgument, artifactArgument] =
   process.argv.slice(2);
 if (
   version === undefined ||
+  providerId === undefined ||
   scenarioId === undefined ||
   scaffoldArgument === undefined ||
   projectArgument === undefined ||
   artifactArgument === undefined
 ) {
   throw new Error(
-    "Usage: node scripts/release-smoke/prepare-project.mjs <version> <scenario> <scaffold> <project> <artifact>",
+    "Usage: node scripts/release-smoke/prepare-project.mjs <version> <provider> <scenario> <scaffold> <project> <artifact>",
   );
 }
 assertReleaseVersion(version);
+const provider = getReleaseSmokeProvider(providerId);
 getReleaseSmokeScenario(scenarioId);
 
 const scaffoldRoot = resolve(scaffoldArgument);
@@ -49,7 +52,7 @@ const scaffold = await execute(
     scaffoldRoot,
     "--",
     "--agent",
-    "codex",
+    provider.agent,
     "--package-manager",
     "npm",
     "--json",
@@ -91,30 +94,34 @@ if (!prompt.startsWith("# Create a Drever presentation")) {
   throw new Error("The fetched Drever prompt does not have the expected heading.");
 }
 
-const handoff = await copyReleaseSmokeHandoff(scaffoldRoot, projectRoot);
+const handoff = await copyReleaseSmokeHandoff(scaffoldRoot, projectRoot, { providerId });
 const privateRoot = join(projectRoot, ".release-smoke");
-const agentInstructionsPath = join(projectRoot, "AGENTS.md");
-const agentInstructions = await readFile(agentInstructionsPath, "utf8");
+const instructionPaths = [provider.id === "claude" ? "CLAUDE.md" : "AGENTS.md"];
+const instructions = await Promise.all(
+  instructionPaths.map(async (path) => [path, await readFile(join(projectRoot, path), "utf8")]),
+);
 await Promise.all([
   mkdir(privateRoot, { recursive: true }),
   mkdir(join(artifactRoot, "receipts"), { recursive: true }),
 ]);
 await Promise.all([
-  writeFile(
-    agentInstructionsPath,
-    `${agentInstructions.trimEnd()}
+  ...instructions.map(([path, content]) =>
+    writeFile(
+      join(projectRoot, path),
+      `${content.trimEnd()}
 
 ## Release smoke generation boundary
 
 - This job is authoring-only. Shell execution is blocked while the protected
-  credential proxy is active.
+  model credential is active.
 - The release harness supplies the exact public prompt, project contract,
   relevant skills, and scaffold metadata as context.
-- Use \`apply_patch\` to create \`slides.mdx\` and other authoring source.
+- Use direct file-editing tools to create \`slides.mdx\` and other authoring source.
 - Do not run or claim checks, builds, servers, browsers, scripts, or generated
-  project code. A separate job without the OpenAI secret owns validation.
+  project code. A separate job without a model credential owns validation.
 `,
-    "utf8",
+      "utf8",
+    ),
   ),
   writeFile(join(privateRoot, "prompt.md"), prompt, "utf8"),
   writeFile(
@@ -128,8 +135,8 @@ This is a trusted, generation-only CI stage.
 - Do not use remote images, fonts, video, audio, embeds, APIs, or other external assets.
 - Do not add packages or edit package.json, lockfiles, agent instructions, or generated output.
 - Use only local MDX, CSS, TypeScript, React, SVG, and the installed Drever capabilities.
-- Shell execution is blocked by a deterministic \`PreToolUse\` hook while the credential proxy is active. The harness supplies the exact prompt, project contract, and relevant skills as context.
-- Use \`apply_patch\` to create \`slides.mdx\` and any other authoring source. Do not attempt package-manager commands, checks, builds, servers, browsers, scripts, or generated project code. A separate job with no API secret owns all execution and validation.
+- Shell execution is removed or deterministically denied while a model credential is active. The harness supplies the exact prompt, project contract, and relevant skills as context.
+- Use direct file-editing tools to create \`slides.mdx\` and any other authoring source. Do not attempt package-manager commands, checks, builds, servers, browsers, scripts, or generated project code. A separate job with no model credential owns all execution and validation.
 - Edit authoring source only. Do not claim that checks, builds, or visual review ran in this stage.
 `,
     "utf8",
@@ -140,6 +147,7 @@ This is a trusted, generation-only CI stage.
     join(artifactRoot, "prompt.json"),
     json({
       schemaVersion: 1,
+      providerId,
       sha256: createHash("sha256").update(prompt).digest("hex"),
       url: promptUrl,
     }),

@@ -13,14 +13,17 @@ import {
   RELEASE_SMOKE_BUILD_IMAGE,
   resolveIsolatedProjectPath,
 } from "./build-isolation.mjs";
+import { resolveAnthropicProxyTarget } from "./anthropic-proxy.mjs";
 import {
   assertReleaseSmokeGenerationTree,
   assertReleaseSmokeContext,
   collectReleaseSmokeSource,
   copyReleaseSmokeArtifactSeed,
   copyReleaseSmokeHandoff,
+  createClaudePrintArguments,
   createCodexExecArguments,
   mergeReleaseSmokeManifest,
+  parseClaudeJson,
   parseCodexJsonl,
   redactStructuredPaths,
   readFirstExistingFile,
@@ -28,6 +31,8 @@ import {
   RELEASE_SMOKE_HANDOFF_PATHS,
   RELEASE_SMOKE_MUTABLE_HANDOFF_PATHS,
   RELEASE_SMOKE_PRIVATE_PATHS,
+  RELEASE_SMOKE_RUN_SCHEMA_VERSION,
+  releaseSmokeHandoffPaths,
   relativeMountedPathname,
   releaseSmokeDeckMount,
   sanitizeTranscriptText,
@@ -46,6 +51,11 @@ import {
   releaseSmokeHistoryOrigin,
 } from "./hydrate-history.mjs";
 import { releaseSmokeSection, upsertReleaseSmokeSection } from "./record-release-link.mjs";
+import {
+  getReleaseSmokeProvider,
+  releaseSmokeCaseId,
+  releaseSmokeProviders,
+} from "./providers.mjs";
 import { getReleaseSmokeScenario, releaseSmokeScenarios } from "./scenarios.mjs";
 import { verifyPagesPreview } from "./verify-pages-preview.mjs";
 import { assertReleaseSmokeProvenance, requestJson } from "./verify-provenance.mjs";
@@ -89,6 +99,55 @@ test("defines one real surprise journey and one fully guided journey", () => {
   assert.throws(() => getReleaseSmokeScenario("unknown"), /Unknown release smoke scenario/u);
 });
 
+test("defines two named providers and one stable case id per provider and journey", () => {
+  assert.deepEqual(
+    releaseSmokeProviders.map(({ agent, id, label, model }) => ({ agent, id, label, model })),
+    [
+      {
+        agent: "codex",
+        id: "codex",
+        label: "Codex",
+        model: "gpt-5.6-sol",
+      },
+      {
+        agent: "claude",
+        id: "claude",
+        label: "Claude",
+        model: "claude-opus-5",
+      },
+    ],
+  );
+  assert.equal(releaseSmokeCaseId("codex", "guided"), "codex-guided");
+  assert.equal(releaseSmokeCaseId("claude", "surprise-me"), "claude-surprise-me");
+  assert.equal(getReleaseSmokeProvider("claude").agent, "claude");
+  assert.throws(() => getReleaseSmokeProvider("unknown"), /Unknown release smoke provider/u);
+  assert.throws(() => releaseSmokeCaseId("codex", "../guided"), /Invalid release smoke scenario/u);
+});
+
+test("keeps the Anthropic credential proxy on an exact API allowlist", () => {
+  assert.equal(
+    resolveAnthropicProxyTarget("POST", "/v1/messages")?.href,
+    "https://api.anthropic.com/v1/messages",
+  );
+  assert.equal(
+    resolveAnthropicProxyTarget("POST", "/v1/messages/count_tokens")?.href,
+    "https://api.anthropic.com/v1/messages/count_tokens",
+  );
+  assert.equal(
+    resolveAnthropicProxyTarget("GET", "/v1/models?limit=10")?.href,
+    "https://api.anthropic.com/v1/models?limit=10",
+  );
+  for (const [method, path] of [
+    ["POST", "//attacker.example/v1/messages"],
+    ["POST", "https://attacker.example/v1/messages"],
+    ["POST", "/v1/messages?redirect=https://attacker.example"],
+    ["GET", "/v1/messages"],
+    ["POST", "/v1/files"],
+  ]) {
+    assert.equal(resolveAnthropicProxyTarget(method, path), undefined);
+  }
+});
+
 test("publishes only assistant messages from Codex JSONL and retains the thread id", () => {
   const result = parseCodexJsonl(
     [
@@ -120,6 +179,55 @@ test("publishes only assistant messages from Codex JSONL and retains the thread 
   );
 });
 
+test("publishes only Claude's final result and retains its session id and usage", () => {
+  assert.deepEqual(
+    parseClaudeJson(
+      JSON.stringify({
+        type: "result",
+        subtype: "success",
+        is_error: false,
+        result: "What outcome should the room reach?",
+        session_id: "session-1",
+        total_cost_usd: 0.42,
+        usage: { input_tokens: 70, output_tokens: 12 },
+      }),
+    ),
+    {
+      message: "What outcome should the room reach?",
+      sessionId: "session-1",
+      usage: {
+        input_tokens: 70,
+        output_tokens: 12,
+        total_cost_usd: 0.42,
+      },
+    },
+  );
+  assert.throws(
+    () =>
+      parseClaudeJson(
+        JSON.stringify({
+          type: "result",
+          is_error: true,
+          result: "Failed",
+          session_id: "session-1",
+        }),
+      ),
+    /valid session turn/u,
+  );
+  assert.throws(
+    () =>
+      parseClaudeJson(
+        JSON.stringify({
+          type: "result",
+          is_error: false,
+          result: "",
+          session_id: "session-1",
+        }),
+      ),
+    /final assistant message/u,
+  );
+});
+
 test("keeps permission flags before resume and leaves model selection optional", () => {
   const initial = createCodexExecArguments({ turn: "Start" });
   const resumed = createCodexExecArguments({
@@ -147,6 +255,34 @@ test("keeps permission flags before resume and leaves model selection optional",
     "-m",
     "model-test",
   ]);
+});
+
+test("keeps Claude headless, resumed, and limited to direct file-authoring tools", () => {
+  const initial = createClaudePrintArguments({ model: "claude-opus-5", turn: "Start" });
+  const resumed = createClaudePrintArguments({
+    model: "claude-opus-5",
+    sessionId: "session-1",
+    turn: "Continue",
+  });
+
+  assert.deepEqual(initial.slice(0, 3), ["--bare", "--print", "Start"]);
+  assert.deepEqual(initial.slice(initial.indexOf("--model"), initial.indexOf("--model") + 2), [
+    "--model",
+    "claude-opus-5",
+  ]);
+  assert.deepEqual(initial.slice(initial.indexOf("--tools"), initial.indexOf("--tools") + 2), [
+    "--tools",
+    "Edit,Glob,Grep,Read,Write",
+  ]);
+  assert.deepEqual(
+    initial.slice(initial.indexOf("--disallowedTools"), initial.indexOf("--disallowedTools") + 2),
+    ["--disallowedTools", "Agent,Bash,Task,WebFetch,WebSearch,mcp__*"],
+  );
+  assert.ok(initial.includes("--strict-mcp-config"));
+  assert.ok(initial.includes("--no-chrome"));
+  assert.ok(initial.includes("--disable-slash-commands"));
+  assert.equal(initial.includes("--resume"), false);
+  assert.deepEqual(resumed.slice(-2), ["--resume", "session-1"]);
 });
 
 test("denies every shell tool call in the secret-bearing generation stage", async () => {
@@ -181,7 +317,10 @@ test("executes generated source in a non-root no-network container with minimal 
   assert.match(command, /target=\/harness\/isolated-build\.mjs,readonly/u);
   assert.equal(arguments_.filter((value) => value.startsWith("type=bind")).length, 2);
   assert.equal(arguments_.at(-3), RELEASE_SMOKE_BUILD_IMAGE);
-  assert.doesNotMatch(command, /github\/workspace|GITHUB_TOKEN|OPENAI_API_KEY/u);
+  assert.doesNotMatch(
+    command,
+    /github\/workspace|GITHUB_TOKEN|OPENAI_API_KEY|CLAUDE_API_KEY|ANTHROPIC_API_KEY/u,
+  );
   assert.throws(
     () =>
       createReleaseSmokeContainerArguments({
@@ -282,8 +421,8 @@ test("redacts nested receipt paths without truncating structured evidence", () =
 });
 
 test("maps the final website deck mount without accepting sibling paths", () => {
-  const mount = releaseSmokeDeckMount("123", "guided");
-  assert.equal(mount, "/release-smoke/runs/123/guided/deck");
+  const mount = releaseSmokeDeckMount("123", releaseSmokeCaseId("claude", "guided"));
+  assert.equal(mount, "/release-smoke/runs/123/claude-guided/deck");
   assert.equal(relativeMountedPathname(`${mount}/`, mount), "/");
   assert.equal(relativeMountedPathname(`${mount}/assets/deck.js`, mount), "/assets/deck.js");
   assert.equal(relativeMountedPathname(`${mount}/document/`, `${mount}/`), "/document/");
@@ -768,7 +907,7 @@ test("waits for transient Pages TLS and deployment propagation", async () => {
   assert.deepEqual(delays, [1_000, 2_000]);
 });
 
-test("keeps the OpenAI key inside the generation job and pins the Codex action", async () => {
+test("keeps provider keys isolated, pins both runners, and builds four keyless cases", async () => {
   const workflow = await readFile(
     new URL("../../.github/workflows/release-smoke.yml", import.meta.url),
     "utf8",
@@ -794,7 +933,10 @@ test("keeps the OpenAI key inside the generation job and pins the Codex action",
   );
   assert.match(workflow, /allow-bots: true/u);
   assert.match(workflow, /permission-profile: ":workspace"/u);
-  assert.match(workflow, /RELEASE_SMOKE_MODEL: gpt-5\.6-sol/u);
+  assert.match(
+    workflow,
+    /RELEASE_SMOKE_MODEL: \$\{\{ matrix\.provider == 'claude' && 'claude-opus-5' \|\| 'gpt-5\.6-sol' \}\}/u,
+  );
   const generateJob = workflow.slice(
     workflow.indexOf("\n  generate:"),
     workflow.indexOf("\n  build:"),
@@ -806,21 +948,51 @@ test("keeps the OpenAI key inside the generation job and pins the Codex action",
     /activate-handoff\.mjs[\s\S]+openai\/codex-action@52fe01ec70a42f454c9d2ebd47598f9fd6893d56/u,
   );
   assert.doesNotMatch(generateJob, /PREPARED_ROOT:/u);
-  assert.match(generateJob, /node "\$AUTOMATION_ROOT\/scripts\/release-smoke\/run-session\.mjs"/u);
+  assert.equal(
+    generateJob.match(/node "\$AUTOMATION_ROOT\/scripts\/release-smoke\/run-session\.mjs"/gu)
+      ?.length,
+    2,
+  );
+  assert.match(generateJob, /@anthropic-ai\/claude-code@2\.1\.220/u);
+  assert.doesNotMatch(generateJob, /@anthropic-ai\/claude-code@(?:latest|\^|~)/u);
+  assert.match(generateJob, /RELEASE_SMOKE_GENERATION_IMAGE: node@sha256:[0-9a-f]{64}/u);
+  assert.match(generateJob, /if: matrix\.provider == 'codex'/u);
+  assert.match(generateJob, /if: matrix\.provider == 'claude'/u);
   assert.equal(workflow.match(/secrets\.OPENAI_API_KEY/gu)?.length, 1);
+  assert.equal(workflow.match(/secrets\.CLAUDE_API_KEY/gu)?.length, 1);
+  assert.doesNotMatch(workflow, /secrets\.ANTHROPIC_API_KEY/u);
+  const codexCredentialStep = generateJob.slice(
+    generateJob.indexOf("      - name: Start the protected Codex proxy"),
+    generateJob.indexOf("      - name: Install the pinned Claude Code CLI"),
+  );
+  assert.match(codexCredentialStep, /secrets\.OPENAI_API_KEY/u);
+  assert.doesNotMatch(codexCredentialStep, /CLAUDE_API_KEY|ANTHROPIC_API_KEY/u);
+  const claudeCredentialStep = generateJob.slice(
+    generateJob.indexOf("      - name: Run the Claude creation journey"),
+    generateJob.indexOf("      - name: Upload allowlisted source"),
+  );
+  assert.match(claudeCredentialStep, /CLAUDE_API_KEY: \$\{\{ secrets\.CLAUDE_API_KEY \}\}/u);
+  assert.doesNotMatch(
+    claudeCredentialStep,
+    /OPENAI_API_KEY|ANTHROPIC_API_KEY|npm install|docker pull/u,
+  );
   assert.equal(workflow.match(/overwrite: true/gu)?.length, 4);
   assert.doesNotMatch(workflow, /run_attempt/u);
   assert.match(
     workflow,
-    /name: release-smoke-generated-\$\{\{ matrix\.case \}\}-\$\{\{ github\.run_id \}\}/u,
+    /name: release-smoke-generated-\$\{\{ matrix\.provider \}\}-\$\{\{ matrix\.case \}\}-\$\{\{ github\.run_id \}\}/u,
   );
   assert.match(
     workflow,
-    /name: release-smoke-prepared-\$\{\{ matrix\.case \}\}-\$\{\{ github\.run_id \}\}/u,
+    /name: release-smoke-prepared-\$\{\{ matrix\.provider \}\}-\$\{\{ matrix\.case \}\}-\$\{\{ github\.run_id \}\}/u,
   );
   assert.match(
     workflow,
-    /name: release-smoke-built-\$\{\{ matrix\.case \}\}-\$\{\{ github\.run_id \}\}/u,
+    /name: release-smoke-built-\$\{\{ matrix\.provider \}\}-\$\{\{ matrix\.case \}\}-\$\{\{ github\.run_id \}\}/u,
+  );
+  assert.equal(
+    workflow.match(/\n        provider:\n          - codex\n          - claude/gu)?.length,
+    3,
   );
   assert.doesNotMatch(workflow, /checks: read/u);
   assert.equal(workflow.match(/contents: write/gu)?.length, 1);
@@ -839,7 +1011,7 @@ test("keeps the OpenAI key inside the generation job and pins the Codex action",
   assert.doesNotMatch(workflow, /git (?:add|commit|push|switch)|RESULT_BRANCH: automation-/u);
   assert.doesNotMatch(workflow, /pull-requests: write|gh pr (?:create|edit)/u);
   const buildJob = workflow.slice(workflow.indexOf("\n  build:"));
-  assert.doesNotMatch(buildJob, /OPENAI_API_KEY/u);
+  assert.doesNotMatch(buildJob, /OPENAI_API_KEY|CLAUDE_API_KEY|ANTHROPIC_API_KEY/u);
   assert.doesNotMatch(workflow, /screenshot|export pdf/iu);
 });
 
@@ -959,8 +1131,14 @@ test("scaffolds outside the repository and isolates generated project execution"
   );
 
   assert.match(prepareProject, /cwd: dirname\(scaffoldRoot\)/u);
-  assert.match(prepareProject, /copyReleaseSmokeHandoff\(scaffoldRoot, projectRoot\)/u);
-  assert.match(workflow, /SCAFFOLD_ROOT: [^\n]+\/scaffold-\$\{\{ matrix\.case \}\}/u);
+  assert.match(
+    prepareProject,
+    /copyReleaseSmokeHandoff\(scaffoldRoot, projectRoot, \{ providerId \}\)/u,
+  );
+  assert.match(
+    workflow,
+    /SCAFFOLD_ROOT: [^\n]+\/scaffold-\$\{\{ matrix\.provider \}\}-\$\{\{ matrix\.case \}\}/u,
+  );
   assert.match(workflow, /path: \$\{\{ env\.PREPARED_ROOT \}\}/u);
   assert.doesNotMatch(workflow, /path: \$\{\{ env\.SCAFFOLD_ROOT \}\}/u);
   assert.match(
@@ -1004,6 +1182,47 @@ test("rebuilds the secret-runner handoff from an exact regular-file allowlist", 
     copyReleaseSmokeHandoff(scaffold, project),
     new RegExp(`not a regular file: ${skill.replaceAll("/", "\\/")}`, "u"),
   );
+});
+
+test("keeps Codex and Claude handoffs exact and mutually isolated", async () => {
+  const root = await mkdtemp(join(tmpdir(), "drever-release-smoke-provider-handoff-"));
+  temporaryRoots.push(root);
+  const scaffold = join(root, "scaffold");
+  const codexProject = join(root, "codex");
+  const claudeProject = join(root, "claude");
+  const codexPaths = releaseSmokeHandoffPaths("codex");
+  const claudePaths = releaseSmokeHandoffPaths("claude");
+  await Promise.all([
+    ...[...new Set([...codexPaths, ...claudePaths])].map((path) =>
+      write(scaffold, path, `${path}\n`),
+    ),
+    write(scaffold, ".codex/config.toml", "untrusted = true\n"),
+    write(scaffold, ".claude/settings.json", '{"untrusted":true}\n'),
+  ]);
+
+  const [codexReceipt, claudeReceipt] = await Promise.all([
+    copyReleaseSmokeHandoff(scaffold, codexProject, { providerId: "codex" }),
+    copyReleaseSmokeHandoff(scaffold, claudeProject, { providerId: "claude" }),
+  ]);
+
+  assert.deepEqual(
+    codexReceipt.files,
+    [...codexPaths].sort((left, right) => left.localeCompare(right)),
+  );
+  assert.deepEqual(
+    claudeReceipt.files,
+    [...claudePaths].sort((left, right) => left.localeCompare(right)),
+  );
+  assert.equal(await readFile(join(codexProject, "AGENTS.md"), "utf8"), "AGENTS.md\n");
+  assert.equal(await readFile(join(claudeProject, "CLAUDE.md"), "utf8"), "CLAUDE.md\n");
+  await assert.rejects(readFile(join(codexProject, "CLAUDE.md"), "utf8"), { code: "ENOENT" });
+  await assert.rejects(readFile(join(claudeProject, "AGENTS.md"), "utf8"), { code: "ENOENT" });
+  await assert.rejects(readFile(join(codexProject, ".claude/settings.json"), "utf8"), {
+    code: "ENOENT",
+  });
+  await assert.rejects(readFile(join(claudeProject, ".codex/config.toml"), "utf8"), {
+    code: "ENOENT",
+  });
 });
 
 test("re-sanitizes downloaded handoff files before the secret-bearing runner starts", async () => {
@@ -1096,7 +1315,7 @@ test("allows deck configuration edits while protecting smoke harness control fil
 test("browser smoke uses the final deep deck mount for every live surface", async () => {
   const source = await readFile(new URL("./build-case.mjs", import.meta.url), "utf8");
   const auditSource = await readFile(new URL("./browser-audit.mjs", import.meta.url), "utf8");
-  assert.match(source, /releaseSmokeDeckMount\(runId, scenarioId\)/u);
+  assert.match(source, /releaseSmokeDeckMount\(runId, caseId\)/u);
   assert.match(source, /runBrowserSmoke\(websitePath, context, deckMount\)/u);
   assert.match(source, /chromium\.launch\(\{ channel: "chromium", headless: true \}\)/u);
   assert.match(source, /url\.origin === server\.origin/u);
@@ -1119,7 +1338,7 @@ test("publisher assembles route data and directly previewable deck directories",
   const releaseCommit = "a".repeat(40);
   const harnessCommit = "b".repeat(40);
   const baseCase = {
-    schemaVersion: 1,
+    schemaVersion: RELEASE_SMOKE_RUN_SCHEMA_VERSION,
     status: "passed",
     durationSeconds: 12,
     checks: ["Drever check passed"],
@@ -1128,40 +1347,46 @@ test("publisher assembles route data and directly previewable deck directories",
       { role: "assistant", content: "Created it." },
     ],
     generatedAt: "2026-07-25T19:00:00.000Z",
-    runner: {
-      codexVersion: "codex-cli test",
-      model: "Codex default",
-      nodeVersion: "v24.18.0",
-    },
+    nodeVersion: "v24.18.0",
     sourceCommit: releaseCommit,
     version: "0.1.1",
   };
-  for (const scenario of releaseSmokeScenarios) {
-    const caseRoot = join(results, scenario.id);
-    await Promise.all([
-      write(
-        caseRoot,
-        "deck/index.html",
-        `<!doctype html><html><head></head><body><h1>${scenario.label}</h1></body></html>\n`,
-      ),
-      write(caseRoot, "source/slides.mdx", `# ${scenario.label}\n`),
-      write(
-        caseRoot,
-        "case.json",
-        JSON.stringify({
-          ...baseCase,
-          id: scenario.id,
-          mode: scenario.mode,
-          title: scenario.label,
-          brief: scenario.brief,
-          deck: {
-            audience: `/release-smoke/runs/123/${scenario.id}/deck/`,
-            document: `/release-smoke/runs/123/${scenario.id}/deck/document/`,
-            source: `/release-smoke/runs/123/${scenario.id}/source/slides.mdx`,
-          },
-        }),
-      ),
-    ]);
+  for (const provider of releaseSmokeProviders) {
+    for (const scenario of releaseSmokeScenarios) {
+      const id = releaseSmokeCaseId(provider.id, scenario.id);
+      const caseRoot = join(results, id);
+      await Promise.all([
+        write(
+          caseRoot,
+          "deck/index.html",
+          `<!doctype html><html><head></head><body><h1>${provider.label} · ${scenario.label}</h1></body></html>\n`,
+        ),
+        write(caseRoot, "source/slides.mdx", `# ${provider.label} · ${scenario.label}\n`),
+        write(
+          caseRoot,
+          "case.json",
+          JSON.stringify({
+            ...baseCase,
+            id,
+            scenarioId: scenario.id,
+            provider: {
+              id: provider.id,
+              label: provider.label,
+              model: provider.model,
+              version: `${provider.id}-cli test`,
+            },
+            mode: scenario.mode,
+            title: scenario.label,
+            brief: scenario.brief,
+            deck: {
+              audience: `/release-smoke/runs/123/${id}/deck/`,
+              document: `/release-smoke/runs/123/${id}/deck/document/`,
+              source: `/release-smoke/runs/123/${id}/source/slides.mdx`,
+            },
+          }),
+        ),
+      ]);
+    }
   }
   await write(
     website,
@@ -1187,11 +1412,33 @@ test("publisher assembles route data and directly previewable deck directories",
   const [run, publicManifest, deck, prBody] = await Promise.all([
     readFile(join(website, "public/release-smoke/runs/123/run.json"), "utf8").then(JSON.parse),
     readFile(join(website, "public/release-smoke/manifest.json"), "utf8").then(JSON.parse),
-    readFile(join(website, "public/release-smoke/runs/123/guided/deck/index.html"), "utf8"),
+    readFile(join(website, "public/release-smoke/runs/123/codex-guided/deck/index.html"), "utf8"),
     readFile(body, "utf8"),
   ]);
   assert.equal(publicManifest.latestRunId, "123");
-  assert.equal(run.cases.length, 2);
+  assert.equal(run.schemaVersion, RELEASE_SMOKE_RUN_SCHEMA_VERSION);
+  assert.equal(run.cases.length, 4);
+  assert.deepEqual(
+    run.cases.map(({ id, provider, scenarioId }) => ({
+      id,
+      provider: provider.id,
+      scenarioId,
+    })),
+    [
+      {
+        id: "codex-surprise-me",
+        provider: "codex",
+        scenarioId: "surprise-me",
+      },
+      { id: "codex-guided", provider: "codex", scenarioId: "guided" },
+      {
+        id: "claude-surprise-me",
+        provider: "claude",
+        scenarioId: "surprise-me",
+      },
+      { id: "claude-guided", provider: "claude", scenarioId: "guided" },
+    ],
+  );
   assert.equal(run.kind, "preview");
   assert.equal(run.release.commit, releaseCommit);
   assert.equal(run.harness.commit, harnessCommit);
@@ -1201,19 +1448,21 @@ test("publisher assembles route data and directly previewable deck directories",
   );
   assert.equal(
     run.cases[0].deck.audience,
-    "https://run-123.drever-release-smoke.pages.dev/release-smoke/runs/123/surprise-me/deck/",
+    "https://run-123.drever-release-smoke.pages.dev/release-smoke/runs/123/codex-surprise-me/deck/",
   );
   assert.equal(
     run.cases[0].deck.source,
-    "https://run-123.drever-release-smoke.pages.dev/release-smoke/runs/123/surprise-me/source/slides.mdx",
+    "https://run-123.drever-release-smoke.pages.dev/release-smoke/runs/123/codex-surprise-me/source/slides.mdx",
   );
   assert.equal(publicManifest.runs[0].transcript, "/release-smoke/runs/123/run.json");
-  assert.match(deck, /Guided answers/u);
+  assert.match(deck, /Codex · Guided answers/u);
   assert.match(deck, /Content-Security-Policy/u);
   assert.match(deck, /connect-src 'none'/u);
   assert.doesNotMatch(deck, /[ \t]+$/mu);
-  assert.match(prBody, /surprise-me\/deck\//u);
-  assert.match(prBody, /guided\/deck\//u);
+  assert.match(prBody, /codex-surprise-me\/deck\//u);
+  assert.match(prBody, /codex-guided\/deck\//u);
+  assert.match(prBody, /claude-surprise-me\/deck\//u);
+  assert.match(prBody, /claude-guided\/deck\//u);
   assert.match(prBody, /AI creation preview/u);
   assert.ok(prBody.includes(`release commit \`${releaseCommit}\``));
   assert.match(prBody, /separate local\s+validation process/u);
@@ -1233,7 +1482,7 @@ test("publisher assembles route data and directly previewable deck directories",
   ]);
   const [pinnedRun, pinnedCase, pinnedPrBody] = await Promise.all([
     readFile(join(website, "public/release-smoke/runs/123/run.json"), "utf8"),
-    readFile(join(website, "public/release-smoke/runs/123/surprise-me/case.json"), "utf8"),
+    readFile(join(website, "public/release-smoke/runs/123/codex-surprise-me/case.json"), "utf8"),
     readFile(body, "utf8"),
   ]);
   for (const output of [pinnedRun, pinnedCase, pinnedPrBody]) {
@@ -1262,7 +1511,11 @@ test("publisher assembles route data and directly previewable deck directories",
   );
   assert.match(
     reportBody,
-    /\[Surprise me interactive deck\]\(https:\/\/d369cf67\.drever-release-smoke\.pages\.dev/u,
+    /\[Codex · Surprise me interactive deck\]\(https:\/\/d369cf67\.drever-release-smoke\.pages\.dev/u,
+  );
+  assert.match(
+    reportBody,
+    /\[Claude · Surprise me interactive deck\]\(https:\/\/d369cf67\.drever-release-smoke\.pages\.dev/u,
   );
 
   const releaseBody = join(root, "release-pr.md");

@@ -4,10 +4,18 @@ export const legacyReleaseSmokeOrigin = "https://3cc63cd1.drever-website.pages.d
 export type ReleaseSmokeCaseMode = "guided" | "surprise-me";
 export type ReleaseSmokeCaseStatus = "failed" | "passed";
 export type ReleaseSmokeMessageRole = "assistant" | "user";
+export type ReleaseSmokeProviderId = "claude" | "codex";
 
 export interface ReleaseSmokeMessage {
   content: string;
   role: ReleaseSmokeMessageRole;
+}
+
+export interface ReleaseSmokeProvider {
+  id: ReleaseSmokeProviderId;
+  label: string;
+  model: string;
+  version: string;
 }
 
 export interface ReleaseSmokeCase {
@@ -22,7 +30,17 @@ export interface ReleaseSmokeCase {
   id: string;
   messages: ReleaseSmokeMessage[];
   mode: ReleaseSmokeCaseMode;
+  provider: ReleaseSmokeProvider;
+  scenarioId: string;
   status: ReleaseSmokeCaseStatus;
+  title: string;
+}
+
+export interface ReleaseSmokeScenario {
+  brief: string;
+  id: string;
+  mode: ReleaseSmokeCaseMode;
+  results: ReleaseSmokeCase[];
   title: string;
 }
 
@@ -41,13 +59,11 @@ export interface ReleaseSmokeRun {
     version: string;
   };
   runner: {
-    codexVersion: string;
-    model: string;
     nodeVersion: string;
     promptUrl: string;
     workflowUrl: string;
   };
-  schemaVersion: 1;
+  schemaVersion: 1 | 2;
 }
 
 export interface ReleaseSmokeData {
@@ -63,6 +79,34 @@ export const releaseSmokeHistory = ({ latest, runs }: ReleaseSmokeData): Release
     (run) =>
       run.id !== latest?.id && !(run.kind === "preview" && releasedCommits.has(run.release.commit)),
   );
+};
+
+const providerOrder: ReleaseSmokeProviderId[] = ["codex", "claude"];
+
+export const releaseSmokeScenarios = (run: ReleaseSmokeRun): ReleaseSmokeScenario[] => {
+  const scenarios = new Map<string, ReleaseSmokeScenario>();
+  for (const result of run.cases) {
+    const scenario = scenarios.get(result.scenarioId);
+    if (scenario === undefined) {
+      scenarios.set(result.scenarioId, {
+        brief: result.brief,
+        id: result.scenarioId,
+        mode: result.mode,
+        results: [result],
+        title: result.title,
+      });
+      continue;
+    }
+    scenario.results.push(result);
+  }
+
+  return [...scenarios.values()].map((scenario) => ({
+    ...scenario,
+    results: scenario.results.toSorted(
+      (left, right) =>
+        providerOrder.indexOf(left.provider.id) - providerOrder.indexOf(right.provider.id),
+    ),
+  }));
 };
 
 export const readableReleaseSmokeMessage = (value: string): string =>
@@ -204,9 +248,33 @@ const parseMessage = (value: unknown, context: string): ReleaseSmokeMessage => {
   };
 };
 
-const parseCase = (value: unknown, context: string, artifactOrigin: string): ReleaseSmokeCase => {
+const parseProvider = (value: unknown, context: string): ReleaseSmokeProvider => {
+  const provider = expectRecord(value, context);
+  return {
+    id: expectLiteral(provider.id, ["claude", "codex"], `${context}.id`),
+    label: expectString(provider.label, `${context}.label`),
+    model: expectString(provider.model, `${context}.model`),
+    version: expectString(provider.version, `${context}.version`),
+  };
+};
+
+const parseCase = (
+  value: unknown,
+  context: string,
+  artifactOrigin: string,
+  schemaVersion: 1 | 2,
+  legacyProvider: ReleaseSmokeProvider | undefined,
+): ReleaseSmokeCase => {
   const scenario = expectRecord(value, context);
   const deck = expectRecord(scenario.deck, `${context}.deck`);
+  const id = expectString(scenario.id, `${context}.id`);
+  const scenarioId =
+    schemaVersion === 1 ? id : expectString(scenario.scenarioId, `${context}.scenarioId`);
+  const provider =
+    schemaVersion === 1 ? legacyProvider! : parseProvider(scenario.provider, `${context}.provider`);
+  if (schemaVersion === 2 && id !== `${provider.id}-${scenarioId}`) {
+    throw new Error(`${context}.id must be ${provider.id}-${scenarioId}.`);
+  }
   return {
     brief: expectString(scenario.brief, `${context}.brief`),
     checks: expectArray(scenario.checks, `${context}.checks`).map((check, index) =>
@@ -218,11 +286,13 @@ const parseCase = (value: unknown, context: string, artifactOrigin: string): Rel
       source: expectUrl(deck.source, `${context}.deck.source`),
     },
     durationSeconds: expectNumber(scenario.durationSeconds, `${context}.durationSeconds`),
-    id: expectString(scenario.id, `${context}.id`),
+    id,
     messages: expectArray(scenario.messages, `${context}.messages`).map((message, index) =>
       parseMessage(message, `${context}.messages[${index}]`),
     ),
     mode: expectLiteral(scenario.mode, ["guided", "surprise-me"], `${context}.mode`),
+    provider,
+    scenarioId,
     status: expectLiteral(scenario.status, ["failed", "passed"], `${context}.status`),
     title: expectString(scenario.title, `${context}.title`),
   };
@@ -233,15 +303,53 @@ export const parseReleaseSmokeRun = (
   artifactOrigin = configuredReleaseSmokeOrigin,
 ): ReleaseSmokeRun => {
   const run = expectRecord(value, "release smoke transcript");
+  const schemaVersion = expectLiteral(
+    run.schemaVersion,
+    [1, 2],
+    "release smoke transcript.schemaVersion",
+  );
   const harness = expectRecord(run.harness, "release smoke transcript.harness");
   const release = expectRecord(run.release, "release smoke transcript.release");
   const runner = expectRecord(run.runner, "release smoke transcript.runner");
+  const legacyProvider =
+    schemaVersion === 1
+      ? {
+          id: "codex" as const,
+          label: "Codex",
+          model: expectString(runner.model, "release smoke transcript.runner.model"),
+          version: expectString(
+            runner.codexVersion,
+            "release smoke transcript.runner.codexVersion",
+          ),
+        }
+      : undefined;
   const cases = expectArray(run.cases, "release smoke transcript.cases").map((scenario, index) =>
-    parseCase(scenario, `release smoke transcript.cases[${index}]`, artifactOrigin),
+    parseCase(
+      scenario,
+      `release smoke transcript.cases[${index}]`,
+      artifactOrigin,
+      schemaVersion,
+      legacyProvider,
+    ),
   );
   if (cases.length === 0) throw new Error("A release smoke run must contain at least one case.");
   if (new Set(cases.map((scenario) => scenario.id)).size !== cases.length) {
     throw new Error("Release smoke case ids must be unique within a run.");
+  }
+  if (
+    new Set(cases.map((scenario) => `${scenario.scenarioId}:${scenario.provider.id}`)).size !==
+    cases.length
+  ) {
+    throw new Error("Release smoke provider results must be unique within each scenario.");
+  }
+  const scenarioContracts = new Map<string, string>();
+  for (const scenario of cases) {
+    const contract = JSON.stringify([scenario.brief, scenario.mode, scenario.title]);
+    const previousContract = scenarioContracts.get(scenario.scenarioId);
+    if (previousContract !== undefined && previousContract !== contract) {
+      throw new Error("Release smoke providers must share the same scenario contract.");
+    }
+    scenarioContracts.set(scenario.scenarioId, contract);
   }
 
   return {
@@ -259,16 +367,11 @@ export const parseReleaseSmokeRun = (
       version: expectString(release.version, "release smoke transcript.release.version"),
     },
     runner: {
-      codexVersion: expectString(
-        runner.codexVersion,
-        "release smoke transcript.runner.codexVersion",
-      ),
-      model: expectString(runner.model, "release smoke transcript.runner.model"),
       nodeVersion: expectString(runner.nodeVersion, "release smoke transcript.runner.nodeVersion"),
       promptUrl: expectUrl(runner.promptUrl, "release smoke transcript.runner.promptUrl"),
       workflowUrl: expectUrl(runner.workflowUrl, "release smoke transcript.runner.workflowUrl"),
     },
-    schemaVersion: expectLiteral(run.schemaVersion, [1], "release smoke transcript.schemaVersion"),
+    schemaVersion,
   };
 };
 

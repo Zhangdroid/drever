@@ -1,7 +1,9 @@
 import { cp, lstat, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, extname, join, relative, resolve, sep } from "node:path";
+import { getReleaseSmokeProvider } from "./providers.mjs";
 
 export const RELEASE_SMOKE_SCHEMA_VERSION = 1;
+export const RELEASE_SMOKE_RUN_SCHEMA_VERSION = 2;
 export const MAX_SLIDES = 6;
 export const MAX_SOURCE_FILES = 80;
 export const MAX_SOURCE_FILE_BYTES = 1_000_000;
@@ -15,6 +17,19 @@ export const RELEASE_SMOKE_HANDOFF_PATHS = Object.freeze([
   "brief.md",
   "package.json",
 ]);
+const claudeHandoffPaths = Object.freeze([
+  ".claude/skills/drever-author-deck/SKILL.md",
+  ".claude/skills/drever-create-deck/SKILL.md",
+  ".claude/skills/drever-create-design/SKILL.md",
+  ".claude/skills/drever-review-deck/SKILL.md",
+  "CLAUDE.md",
+  "brief.md",
+  "package.json",
+]);
+export const releaseSmokeHandoffPaths = (providerId) =>
+  getReleaseSmokeProvider(providerId).id === "claude"
+    ? claudeHandoffPaths
+    : RELEASE_SMOKE_HANDOFF_PATHS;
 export const RELEASE_SMOKE_PRIVATE_PATHS = Object.freeze([
   ".release-smoke/constraints.md",
   ".release-smoke/prompt.md",
@@ -49,7 +64,13 @@ const sourceExactPaths = new Set([
   "slides.mdx",
   "vite-env.d.ts",
 ]);
-const sourceIgnoredPaths = new Set(["AGENTS.md", "AGENTS.override.md", "README.md"]);
+const sourceIgnoredPaths = new Set([
+  "AGENTS.md",
+  "AGENTS.override.md",
+  "CLAUDE.md",
+  "CLAUDE.local.md",
+  "README.md",
+]);
 const handoffConfigurationPaths = ["drever.config.ts", "drever.config.mjs", "drever.config.js"];
 const maxHandoffFileBytes = 1_000_000;
 const maxHandoffBytes = 4_000_000;
@@ -99,6 +120,29 @@ export const createCodexExecArguments = ({ model, threadId, turn }) => {
     ? ["exec", ...options, turn]
     : ["exec", ...options, "resume", threadId, turn];
 };
+
+export const createClaudePrintArguments = ({ model, sessionId, turn }) => [
+  "--bare",
+  "--print",
+  turn,
+  "--output-format",
+  "json",
+  "--tools",
+  "Edit,Glob,Grep,Read,Write",
+  "--permission-mode",
+  "dontAsk",
+  "--allowedTools",
+  "Edit,Glob,Grep,Read,Write",
+  "--disallowedTools",
+  "Agent,Bash,Task,WebFetch,WebSearch,mcp__*",
+  "--strict-mcp-config",
+  "--mcp-config",
+  '{"mcpServers":{}}',
+  "--no-chrome",
+  "--disable-slash-commands",
+  ...(model === undefined || model === "" ? [] : ["--model", model]),
+  ...(sessionId === undefined ? [] : ["--resume", sessionId]),
+];
 
 export const releaseSmokeDeckMount = (runId, scenarioId) => {
   if (!/^\d+$/u.test(runId)) throw new Error(`Invalid release smoke run id: ${runId}`);
@@ -179,12 +223,12 @@ const copyBoundedRegularFiles = async (sourceRoot, destinationRoot, paths) => {
 export const copyReleaseSmokeHandoff = async (
   sourceRoot,
   projectRoot,
-  { includePrivate = false } = {},
+  { includePrivate = false, providerId = "codex" } = {},
 ) => {
   const source = resolve(sourceRoot);
   const configuration = await findHandoffConfiguration(source);
   const files = [
-    ...RELEASE_SMOKE_HANDOFF_PATHS,
+    ...releaseSmokeHandoffPaths(providerId),
     ...(includePrivate ? RELEASE_SMOKE_PRIVATE_PATHS : []),
     ...(configuration === undefined ? [] : [configuration]),
   ];
@@ -338,6 +382,31 @@ export const parseCodexJsonl = (source) => {
       typeof completed?.usage === "object" && completed.usage !== null
         ? completed.usage
         : undefined,
+  };
+};
+
+export const parseClaudeJson = (source) => {
+  const result = JSON.parse(source);
+  if (
+    result?.type !== "result" ||
+    result.is_error === true ||
+    typeof result.session_id !== "string" ||
+    result.session_id === ""
+  ) {
+    throw new Error("Claude did not complete a valid session turn.");
+  }
+  if (typeof result.result !== "string" || result.result.trim() === "") {
+    throw new Error("Claude did not emit a final assistant message.");
+  }
+  return {
+    message: result.result,
+    sessionId: result.session_id,
+    usage: {
+      ...(typeof result.usage === "object" && result.usage !== null ? result.usage : {}),
+      ...(typeof result.total_cost_usd === "number"
+        ? { total_cost_usd: result.total_cost_usd }
+        : {}),
+    },
   };
 };
 
