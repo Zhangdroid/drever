@@ -1,5 +1,7 @@
 import { useDreverRenderMode } from "drever";
-import { useEffect, useState, type ReactElement } from "react";
+import { useEffect, useRef, useState, type ReactElement } from "react";
+
+const REVEAL_DELAY_MS = 180;
 
 export type SplineCommunitySceneProps = Readonly<{
   className?: string;
@@ -18,8 +20,24 @@ export function SplineCommunityScene({
   const renderMode = useDreverRenderMode();
   const live = renderMode === "audience" && !reducedMotion;
   const [ready, setReady] = useState(false);
+  const revealFrame = useRef<number>(undefined);
+  const revealTimer = useRef<number>(undefined);
 
-  useEffect(() => setReady(false), [live, src]);
+  useEffect(() => {
+    setReady(false);
+    return () => {
+      if (revealFrame.current !== undefined) cancelAnimationFrame(revealFrame.current);
+      if (revealTimer.current !== undefined) window.clearTimeout(revealTimer.current);
+    };
+  }, [live, src]);
+
+  const revealScene = (): void => {
+    revealFrame.current = requestAnimationFrame(() => {
+      revealFrame.current = requestAnimationFrame(() => {
+        revealTimer.current = window.setTimeout(() => setReady(true), REVEAL_DELAY_MS);
+      });
+    });
+  };
 
   return (
     <figure
@@ -43,7 +61,7 @@ export function SplineCommunityScene({
           aria-hidden="true"
           className="spline-scene__frame"
           loading="eager"
-          onLoad={() => setReady(true)}
+          onLoad={revealScene}
           referrerPolicy="no-referrer"
           sandbox="allow-same-origin allow-scripts"
           src={src}

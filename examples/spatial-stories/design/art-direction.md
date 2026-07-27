@@ -23,8 +23,9 @@ spectacle.
    turns to expose its repeated structure → settles at lower contrast behind the lifecycle
    explanation → deterministic cloner poster in reduced-motion, document, speaker, and export
    surfaces.
-2. **One form can carry motion** → an isolated official Viewer study receives the visual focus →
-   copy remains still and concise → a purpose-built poster preserves the intended composition
+2. **Move the subject, not the room** → an isolated official Viewer study receives the visual
+   focus → a fixed frame makes the division of labor explicit → copy and composition remain still
+   while the form reveals its depth → a purpose-built poster preserves the intended composition
    outside the live audience.
 3. **Depth can remain ambient** → the CC0 Particle Nebula study from Spline Community fills the
    canvas → lower contrast and a stable reading area keep the claim primary → its poster preserves
@@ -43,6 +44,9 @@ spectacle.
   cloner's rotation choreography on unrelated scenes.
 - Change scenes only at a clear narrative boundary. Do not stack canvases or ask a View Transition
   to morph one WebGL payload into another.
+- Match remote-scene loading posters to the eventual scene's first-frame palette and composition.
+  Keep the poster above the renderer until the first remote frame has had time to settle, then fade
+  only the poster so loading never introduces a second visual idea.
 - Keep reduced-motion and non-audience surfaces immediately settled.
 
 ## Sources and licensing boundary
