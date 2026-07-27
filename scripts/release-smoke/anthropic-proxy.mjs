@@ -10,10 +10,11 @@ export const resolveAnthropicProxyTarget = (method, path) => {
   if (!path.startsWith("/") || path.startsWith("//") || path.includes("\\")) return;
   const target = new URL(path, apiOrigin);
   if (target.origin !== apiOrigin) return;
+  const messageSearchAllowed = target.search === "" || target.search === "?beta=true";
   const allowed =
     (method === "POST" &&
       (target.pathname === "/v1/messages" || target.pathname === "/v1/messages/count_tokens") &&
-      target.search === "") ||
+      messageSearchAllowed) ||
     (method === "GET" &&
       (/^\/v1\/models(?:\/[^/]+)?$/u.test(target.pathname) ||
         target.pathname === "/v1/organizations/me"));

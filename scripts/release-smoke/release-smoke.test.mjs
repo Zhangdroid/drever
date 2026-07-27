@@ -134,6 +134,14 @@ test("keeps the Anthropic credential proxy on an exact API allowlist", () => {
     "https://api.anthropic.com/v1/messages/count_tokens",
   );
   assert.equal(
+    resolveAnthropicProxyTarget("POST", "/v1/messages?beta=true")?.href,
+    "https://api.anthropic.com/v1/messages?beta=true",
+  );
+  assert.equal(
+    resolveAnthropicProxyTarget("POST", "/v1/messages/count_tokens?beta=true")?.href,
+    "https://api.anthropic.com/v1/messages/count_tokens?beta=true",
+  );
+  assert.equal(
     resolveAnthropicProxyTarget("GET", "/v1/models?limit=10")?.href,
     "https://api.anthropic.com/v1/models?limit=10",
   );
