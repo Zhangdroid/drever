@@ -202,15 +202,18 @@ const runProcess = (command, arguments_, outputPath, environment, secrets = []) 
           resolvePromise(stdout);
           return;
         }
-        const stderr = sanitizeTranscriptText(
-          redactExact(Buffer.concat(errors).toString("utf8"), secrets),
+        const diagnostic = sanitizeTranscriptText(
+          redactExact(
+            [Buffer.concat(errors).toString("utf8"), stdout].filter(Boolean).join("\n"),
+            secrets,
+          ),
           projectRoot,
         ).slice(-4_000);
         rejectPromise(
           new Error(
             signal === null
-              ? `${provider.label} exited with code ${String(code)}.\n${stderr}`
-              : `${provider.label} was terminated by ${signal}.\n${stderr}`,
+              ? `${provider.label} exited with code ${String(code)}.\n${diagnostic}`
+              : `${provider.label} was terminated by ${signal}.\n${diagnostic}`,
           ),
         );
       } catch (error) {
