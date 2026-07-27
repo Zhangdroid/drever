@@ -166,46 +166,55 @@ The generated route-aware entry combines those boundaries without exposing Vite
 configuration to an author:
 
 ```tsx
-import { createDocument, createSpeaker, createViewer } from "@drever/client";
 import "@drever/client/styles.css";
 import { components as registry } from "virtual:drever/mdx-components";
 import { runSetup, theme } from "virtual:drever/runtime";
 import "virtual:drever/styles.css";
 import Content, { deckManifest } from "./slides.mdx";
 
-const container = document.querySelector("#app");
+const container = document.querySelector("#drever-root");
 const base = document.querySelector('meta[name="drever-base"]');
-if (!(container instanceof HTMLElement)) {
-  throw new Error('Drever requires an HTMLElement matching "#app".');
+if (!(container instanceof Element)) {
+  throw new Error("Drever could not find its viewer root.");
 }
 if (!(base instanceof HTMLMetaElement)) {
-  throw new Error("Drever requires its generated route base.");
+  throw new Error("Drever could not find its route base.");
 }
 
 const baseURL = new URL(base.content, document.baseURI);
 const relativePath = new URL(document.URL).pathname.slice(baseURL.pathname.length);
 const routePath = relativePath.replace(/\/+$/u, "");
-const createPresentation =
-  routePath === "document"
-    ? createDocument
-    : routePath === "speaker" || routePath.startsWith("speaker/")
-      ? createSpeaker
-      : createViewer;
-const presentation = await createPresentation({
+const presentationOptions = {
   baseURL,
   Content,
   container,
   manifest: deckManifest,
   registry,
   runtime: { runSetup, theme },
-});
+};
+
+let presentation;
+if (routePath === "document") {
+  const { createDocument } = await import("@drever/client/document");
+  presentation = await createDocument(presentationOptions);
+} else if (routePath === "speaker" || routePath.startsWith("speaker/")) {
+  const { createSpeaker } = await import("@drever/client/speaker");
+  presentation = await createSpeaker(presentationOptions);
+} else {
+  const { createViewer } = await import("@drever/client/audience");
+  presentation = await createViewer(presentationOptions);
+}
 ```
 
 The `manifest` option receives the MDX module's `deckManifest` export. Keeping
 the option name independent from the generated binding makes embedding explicit
 without coupling the client package to one bundler module shape. The CLI owns
 this entry template; ordinary authors should not assemble low-level
-Navigation or React transition bridges.
+Navigation or React transition bridges. The route-specific client subpaths keep
+the bootstrap from eagerly importing all three interactive entrypoints and give
+Rollup route-specific split points. Shared presentation modules may still
+become common chunks. The root `@drever/client` export remains the complete
+public facade for direct integrations.
 
 The audience, speaker preview, and document surfaces supply state through core's
 `SlideStateProvider`. Its resolver receives a frozen `{id?, index?}` identity

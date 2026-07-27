@@ -570,15 +570,16 @@ const typeOf = (argument: EstreeNode): EstreeNode => ({
   argument,
 });
 
-// A title-only edit can use React Refresh; navigation or speaker-note changes need a new runtime.
+// Content-only edits can use React Refresh; manifest metadata changes need a new runtime.
 const manifestHotReloadSignature = (manifest: DeckManifest): string =>
   JSON.stringify({
     version: manifest.version,
-    slides: manifest.slides.map(({ id, index, speakerNotes, stepStops }) => ({
+    slides: manifest.slides.map(({ id, index, speakerNotes, stepStops, title }) => ({
       id,
       index,
       speakerNotes,
       stepStops,
+      title,
     })),
   });
 

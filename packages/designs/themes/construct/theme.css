@@ -54,10 +54,65 @@
   --drever-theme-code-canvas: var(--drever-construct-code);
   --drever-theme-code-ink: var(--drever-construct-code-ink);
   --drever-theme-radius: 4px;
+  --drever-theme-font-display-latin: "Bricolage Grotesque";
+  --drever-theme-font-body-latin: "Instrument Sans";
+  --drever-theme-font-cjk-sans-zh-hans:
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC";
+  --drever-theme-font-cjk-sans-zh-hant:
+    "PingFang TC", "PingFang HK", "Heiti TC", "Microsoft JhengHei", "Noto Sans CJK TC",
+    "Noto Sans TC";
+  --drever-theme-font-cjk-sans-ja:
+    "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, "Noto Sans CJK JP",
+    "Noto Sans JP";
+  --drever-theme-font-cjk-sans-ko:
+    "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans CJK KR", "Noto Sans KR";
+  --drever-theme-font-cjk-sans: var(--drever-theme-font-cjk-sans-zh-hans);
+  --drever-theme-font-cjk-title-weight: 700;
+  --drever-theme-font-cjk-title-line-height: 1.14;
+  --drever-theme-font-cjk-body-line-height: 1.56;
   font-family:
-    "Instrument Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+    var(--drever-theme-font-body-latin), var(--drever-theme-font-cjk-sans), system-ui, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+}
+
+:where(:root:has(.drever-viewer), .drever-viewer):lang(zh-Hant),
+:where(:root:has(.drever-viewer), .drever-viewer):lang(zh-TW),
+:where(:root:has(.drever-viewer), .drever-viewer):lang(zh-HK),
+:where(:root:has(.drever-viewer), .drever-viewer):lang(zh-MO) {
+  --drever-theme-font-cjk-sans: var(--drever-theme-font-cjk-sans-zh-hant);
+}
+
+:where(:root:has(.drever-viewer), .drever-viewer):lang(ja) {
+  --drever-theme-font-cjk-sans: var(--drever-theme-font-cjk-sans-ja);
+}
+
+:where(:root:has(.drever-viewer), .drever-viewer):lang(ko) {
+  --drever-theme-font-cjk-sans: var(--drever-theme-font-cjk-sans-ko);
+}
+
+[data-drever-slide] :lang(zh) {
+  --drever-theme-font-cjk-sans: var(--drever-theme-font-cjk-sans-zh-hans);
+}
+
+[data-drever-slide] :lang(zh-Hant),
+[data-drever-slide] :lang(zh-TW),
+[data-drever-slide] :lang(zh-HK),
+[data-drever-slide] :lang(zh-MO) {
+  --drever-theme-font-cjk-sans: var(--drever-theme-font-cjk-sans-zh-hant);
+}
+
+[data-drever-slide] :lang(ja) {
+  --drever-theme-font-cjk-sans: var(--drever-theme-font-cjk-sans-ja);
+}
+
+[data-drever-slide] :lang(ko) {
+  --drever-theme-font-cjk-sans: var(--drever-theme-font-cjk-sans-ko);
+}
+
+:where([data-drever-slide] [lang]):where(:lang(zh), :lang(ja), :lang(ko)) {
+  font-family:
+    var(--drever-theme-font-body-latin), var(--drever-theme-font-cjk-sans), system-ui, sans-serif;
 }
 
 .drever-canvas {
@@ -168,8 +223,7 @@
   max-width: 18ch;
   color: var(--drever-construct-ink);
   font-family:
-    "Bricolage Grotesque", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui,
-    sans-serif;
+    var(--drever-theme-font-display-latin), var(--drever-theme-font-cjk-sans), system-ui, sans-serif;
   font-stretch: 100%;
   font-weight: 700;
   letter-spacing: -0.038em;
@@ -305,8 +359,7 @@
   box-shadow: 10px 10px 0 var(--drever-theme-accent-soft);
   color: var(--drever-construct-ink);
   font-family:
-    "Bricolage Grotesque", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui,
-    sans-serif;
+    var(--drever-theme-font-display-latin), var(--drever-theme-font-cjk-sans), system-ui, sans-serif;
   font-size: 38px;
   font-stretch: 100%;
   font-weight: 650;
@@ -567,8 +620,7 @@
   box-shadow: 10px 10px 0 var(--drever-construct-ink);
   color: var(--drever-theme-accent-ink);
   font-family:
-    "Bricolage Grotesque", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui,
-    sans-serif;
+    var(--drever-theme-font-display-latin), var(--drever-theme-font-cjk-sans), system-ui, sans-serif;
   font-size: 27px;
   font-stretch: 100%;
   font-weight: 700;
@@ -704,8 +756,7 @@
 .drever-construct-assembly__part > div {
   color: var(--drever-construct-ink);
   font-family:
-    "Bricolage Grotesque", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui,
-    sans-serif;
+    var(--drever-theme-font-display-latin), var(--drever-theme-font-cjk-sans), system-ui, sans-serif;
   font-size: 22px;
   font-stretch: 100%;
   font-weight: 650;
@@ -725,8 +776,7 @@
   box-shadow: 12px 12px 0 var(--drever-construct-ink);
   color: var(--drever-theme-accent-ink);
   font-family:
-    "Bricolage Grotesque", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui,
-    sans-serif;
+    var(--drever-theme-font-display-latin), var(--drever-theme-font-cjk-sans), system-ui, sans-serif;
   font-size: 30px;
   font-stretch: 100%;
   font-weight: 700;
@@ -750,6 +800,21 @@
 
 [data-drever-slide] :where(:lang(zh), :lang(ja), :lang(ko)) {
   letter-spacing: normal;
+  text-transform: none;
+}
+
+[data-drever-slide] :where(h1, h2, h3, h4, h5, h6):where(:lang(zh), :lang(ja), :lang(ko)) {
+  font-family:
+    var(--drever-theme-font-display-latin), var(--drever-theme-font-cjk-sans), system-ui, sans-serif;
+  font-weight: var(--drever-theme-font-cjk-title-weight);
+  line-height: var(--drever-theme-font-cjk-title-line-height);
+}
+
+[data-drever-slide]
+  :where(p, li, blockquote, figcaption, th, td):where(:lang(zh), :lang(ja), :lang(ko)) {
+  font-family:
+    var(--drever-theme-font-body-latin), var(--drever-theme-font-cjk-sans), system-ui, sans-serif;
+  line-height: var(--drever-theme-font-cjk-body-line-height);
 }
 
 [data-drever-slide] ::selection {

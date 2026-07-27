@@ -1,6 +1,11 @@
 import { defineConfig } from "drever";
 
 export default defineConfig({
+  deck: {
+    description: "A small, runnable introduction to readable and interactive Drever slides.",
+    lang: "en",
+    title: "Slides can stay useful.",
+  },
   rehearsal: {
     targetDurationMinutes: 5,
   },

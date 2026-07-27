@@ -24,6 +24,7 @@ import type { RunMcpServerRequest } from "./mcp-server.ts";
 import { createArtifactReceipt, writeArtifactReceipt } from "./artifact-receipt.ts";
 import { DREVER_VERSION } from "./package-version.ts";
 import type { RunDoctorRequest } from "./doctor.ts";
+import type { BrowserInstallRequest } from "./browser-install.ts";
 
 export type AgentCommand = Readonly<{
   action: "sync";
@@ -35,6 +36,12 @@ export type BuildCommand = Readonly<{
   entry?: string;
   json: boolean;
   name: "build";
+}>;
+
+export type BrowserCommand = Readonly<{
+  action: "install";
+  name: "browser";
+  withDeps: boolean;
 }>;
 
 type DevCommand = Readonly<{
@@ -86,6 +93,7 @@ export type ExportPdfCommand = Readonly<{
 
 export type DreverCommand =
   | AgentCommand
+  | BrowserCommand
   | BuildCommand
   | CheckCommand
   | ContextCommand
@@ -112,6 +120,7 @@ const CURRENT_USAGE = "Usage: drever current [--json]";
 const DOCTOR_USAGE = "Usage: drever doctor [--json]";
 const MCP_USAGE = "Usage: drever mcp [entry]";
 const AGENT_SYNC_USAGE = "Usage: drever agent sync [--target <all|auto|codex|claude>]";
+const BROWSER_INSTALL_USAGE = "Usage: drever browser install [--with-deps]";
 const CONFIG_COMMAND = {
   build: "build",
   check: "check",
@@ -121,7 +130,10 @@ const CONFIG_COMMAND = {
   mcp: "check",
 } as const satisfies Readonly<
   Record<
-    Exclude<DreverCommand, AgentCommand | CreateCommand | CurrentCommand | DoctorCommand>["name"],
+    Exclude<
+      DreverCommand,
+      AgentCommand | BrowserCommand | CreateCommand | CurrentCommand | DoctorCommand
+    >["name"],
     LoadDreverConfigOptions["command"]
   >
 >;
@@ -379,6 +391,27 @@ const parseAgent = (arguments_: readonly string[]): AgentCommand => {
   });
 };
 
+const parseBrowser = (arguments_: readonly string[]): BrowserCommand => {
+  const [action, ...rest] = arguments_;
+  if (action !== "install") {
+    invalidArgument(
+      action === undefined ? "Browser action is required." : `Unknown browser action: ${action}`,
+      BROWSER_INSTALL_USAGE,
+    );
+  }
+  let withDeps = false;
+  for (const argument of rest) {
+    if (argument !== "--with-deps") {
+      invalidArgument(`Unknown browser install argument: ${argument}`, BROWSER_INSTALL_USAGE);
+    }
+    if (withDeps) {
+      invalidArgument("--with-deps can be specified only once.", BROWSER_INSTALL_USAGE);
+    }
+    withDeps = true;
+  }
+  return Object.freeze({ action: "install", name: "browser", withDeps });
+};
+
 const parseMcp = (arguments_: readonly string[]): McpCommand => {
   const [entry, ...rest] = arguments_;
   if (rest.length > 0 || entry?.startsWith("-") === true) {
@@ -397,6 +430,7 @@ Usage:
   drever context [entry] [--json]
   drever current [--json]
   drever doctor [--json]
+  drever browser install [--with-deps]
   drever mcp [entry]
   drever export pdf [entry] [--steps] [--slides <range>] [-o|--output <path>] [--json]
   drever agent sync [--target <all|auto|codex|claude>]
@@ -423,6 +457,9 @@ export const parseCommand = (arguments_: readonly string[]): DreverCommand | "he
   }
   if (command === "doctor") {
     return parseDoctor(rest);
+  }
+  if (command === "browser") {
+    return parseBrowser(rest);
   }
   if (command === "mcp") {
     return parseMcp(rest);
@@ -470,6 +507,7 @@ export type RunCliOptions = Readonly<{
   cwd?: string;
   environment?: NodeJS.ProcessEnv;
   exportPdf?: (request: PdfExportRequest) => Promise<void>;
+  installBrowser?: (request: BrowserInstallRequest) => Promise<void>;
   runDoctor?: (request: RunDoctorRequest) => Promise<CheckExitCode>;
   syncAgentKit?: (options: SyncAgentKitOptions) => Promise<AgentSyncResult>;
   serveMcp?: (request: RunMcpServerRequest) => Promise<void>;
@@ -534,6 +572,17 @@ export const runCli = async (
         return doctor.runDoctor(request);
       });
     return runDoctor({ json: command.json, root, stdout: output });
+  }
+  if (command.name === "browser") {
+    const installBrowser =
+      options.installBrowser ??
+      (async (request: BrowserInstallRequest): Promise<void> => {
+        const browser = await import("./browser-install.ts");
+        await browser.installBrowser(request);
+      });
+    await installBrowser({ withDeps: command.withDeps });
+    output.write("Playwright Chromium is ready for Drever PDF export.\n");
+    return;
   }
   if (command.name === "agent") {
     const syncAgentKit =

@@ -2,6 +2,10 @@ import editorialTheme from "@drever/designs/editorial";
 import { defineConfig } from "drever";
 
 export default defineConfig({
+  deck: {
+    description: "A gallery of meaningful motion recipes for live presentations.",
+    lang: "en",
+  },
   canvas: {
     height: 720,
     width: 1280,

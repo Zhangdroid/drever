@@ -43,6 +43,17 @@ describe("DeckDocument", () => {
     );
 
     expect(markup).toContain('data-drever-document=""');
+    expect(
+      markup.startsWith('<div class="drever-document drever-viewer" data-drever-document=""'),
+    ).toBe(true);
+    expect(markup).not.toMatch(/^<div class="drever-document drever-viewer"[^>]*(?:lang|dir)=/u);
+    expect(markup).toContain('<header class="drever-document__header" dir="ltr" lang="en">');
+    expect(markup).toContain(
+      '<nav aria-labelledby="drever-document-toc-label" class="drever-document__toc">',
+    );
+    expect(markup).toContain('id="drever-document-toc-label" lang="en">Slides</span>');
+    expect(markup).toContain("<span>Introduction</span>");
+    expect(markup).toContain('<span dir="ltr" lang="en">Slide 2</span>');
     expect(markup).toContain("--drever-canvas-width:1280");
     expect(markup).toContain('href="https://slides.test/talk/"');
     expect(markup).toContain('href="https://slides.test/talk/document?theme=dark#intro"');
@@ -50,7 +61,7 @@ describe("DeckDocument", () => {
     expect(markup).toContain('id="intro"');
     expect(markup).toContain('aria-label="Introduction"');
     expect(markup).toContain('id="demo"');
-    expect(markup).toContain('aria-label="Slide 2"');
+    expect(markup).not.toContain('aria-label="Slide 2"');
     expect(markup).toContain('data-current-step="7"');
     expect(markup).toContain('data-motion-intent="replace"');
     const openingTagFor = (content: string): string => {

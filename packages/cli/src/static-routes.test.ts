@@ -10,7 +10,7 @@ const directories: string[] = [];
 const manifest = {
   version: DECK_MANIFEST_VERSION,
   slides: [
-    { id: "slide-1", index: 0, speakerNotes: [], stepStops: [2] },
+    { id: "slide-1", index: 0, speakerNotes: [], stepStops: [2], title: "Opening $& intent" },
     { id: "slide-2", index: 1, speakerNotes: [], stepStops: [5] },
   ],
 } as const satisfies DeckManifest;
@@ -174,7 +174,7 @@ describe("static presentation routes", () => {
     await mkdir(join(outDir, "assets"));
     await writeFile(
       join(outDir, "index.html"),
-      '<meta name="drever-base" content="/" /><script src="./assets/app.js"></script>',
+      '<meta name="drever-base" content="/" /><link rel="icon" href="/icon.svg?v=1" /><script src="./assets/app.js"></script>',
       "utf8",
     );
 
@@ -184,6 +184,11 @@ describe("static presentation routes", () => {
     const document = await readFile(join(outDir, "document", "index.html"), "utf8");
     const audience = await readFile(join(outDir, "2", "5", "index.html"), "utf8");
     const speaker = await readFile(join(outDir, "speaker", "2", "5", "index.html"), "utf8");
+
+    for (const html of [root, document, audience, speaker]) {
+      expect(html).toContain('data-drever-href="./icon.svg?v=1"');
+      expect(html).not.toContain('href="/icon.svg?v=1"');
+    }
 
     const cases = [
       { html: root, page: "https://slides.test/", expectedBase: "https://slides.test/" },
@@ -294,6 +299,40 @@ describe("static presentation routes", () => {
     expect(audience).not.toContain('<script src="./assets/app.js"></script>');
   });
 
+  it("applies the first static slide title before copying every production route", async () => {
+    const outDir = await mkdtemp(join(tmpdir(), "drever-static-title-"));
+    directories.push(outDir);
+    await writeFile(
+      join(outDir, "index.html"),
+      [
+        "<!doctype html>",
+        '<html lang="en">',
+        "<head>",
+        '<meta name="drever-base" content="/" />',
+        '<meta property="og:title" content="Drever" />',
+        '<meta name="twitter:title" content="Drever" />',
+        "<title>Drever</title>",
+        "</head>",
+        "<body></body>",
+        "</html>",
+      ].join(""),
+      "utf8",
+    );
+
+    await writeStaticDeckRoutes(outDir, manifest);
+
+    for (const path of [
+      join(outDir, "index.html"),
+      join(outDir, "document", "index.html"),
+      join(outDir, "speaker", "index.html"),
+    ]) {
+      const html = await readFile(path, "utf8");
+      expect(html).toContain("<title>Opening $&amp; intent</title>");
+      expect(html).toContain('<meta property="og:title" content="Opening $&amp; intent" />');
+      expect(html).toContain('<meta name="twitter:title" content="Opening $&amp; intent" />');
+    }
+  });
+
   it("activates plugin-injected relative resources while preserving attributes and content", async () => {
     const outDir = await mkdtemp(join(tmpdir(), "drever-static-resources-"));
     directories.push(outDir);
@@ -307,6 +346,8 @@ describe("static presentation routes", () => {
         '<script type="module" integrity="sha384-test" src="./plugin/entry.js">fallback()</script>',
         '<link rel="manifest" href="./deck.webmanifest">',
         '<link rel="preload" as="image" imagesrcset="./cover.avif 1x, ./cover@2x.avif 2x">',
+        '<meta property="og:image" content="./social-cover.png">',
+        '<meta name="twitter:image" content="./social-cover.png">',
         '<video class="intro" poster="./poster.webp"></video>',
         "</head>",
         "<body>",
@@ -326,6 +367,8 @@ describe("static presentation routes", () => {
     expect(html).toContain('data-drever-imagesrcset="./cover.avif 1x, ./cover@2x.avif 2x"');
     expect(html).toContain('data-drever-poster="./poster.webp"');
     expect(html).toContain('data-drever-srcset="./cover.webp 1x, ./cover@2x.webp 2x"');
+    expect(html).toContain('<meta property="og:image" content="./social-cover.png">');
+    expect(html).toContain('<meta name="twitter:image" content="./social-cover.png">');
     expect(html).toContain('<a href="./speaker">Open speaker view</a>');
 
     const createElement = createFakeElementFactory();

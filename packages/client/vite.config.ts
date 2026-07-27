@@ -5,6 +5,12 @@ export default defineConfig({
   pack: {
     deps: { onlyBundle: [] },
     dts: true,
+    entry: {
+      audience: "src/audience.ts",
+      document: "src/document.ts",
+      index: "src/index.ts",
+      speaker: "src/speaker-entry.ts",
+    },
     exports: false,
     tsconfig: "tsconfig.build.json",
   },

@@ -64,7 +64,9 @@ export const Counter = () => {
 
 ---
 
-## Version one
+## Stable title
+
+<p data-testid="hmr-copy">Version one</p>
 
 <Step at={2}>The URL and Step must survive.</Step>
 
@@ -101,7 +103,7 @@ export const Counter = () => {
 
     const health = monitorPageHealth(page);
     await page.goto(`${url}/2/2`);
-    await expect(page.getByRole("heading", { name: "Version one" })).toBeVisible();
+    await expect(page.getByTestId("hmr-copy")).toHaveText("Version one");
     await page.getByTestId("hmr-counter").click();
     await expect(page.getByTestId("hmr-counter")).toHaveText("1");
     const token = crypto.randomUUID();
@@ -117,7 +119,9 @@ export const Counter = () => {
 
 ---
 
-## Version two
+## Stable title
+
+<p data-testid="hmr-copy">Version two</p>
 
 <Step at={2}>The URL and Step must survive.</Step>
 
@@ -125,7 +129,7 @@ export const Counter = () => {
 `,
     );
 
-    await expect(page.getByRole("heading", { name: "Version two" })).toBeVisible();
+    await expect(page.getByTestId("hmr-copy")).toHaveText("Version two");
     await expect(page).toHaveURL(`${url}/2/2`);
     expect(await page.evaluate(() => Reflect.get(window, "__dreverHmrToken"))).toBe(token);
     await expect(page.getByTestId("hmr-counter")).toHaveText("1");
@@ -139,7 +143,7 @@ export const Counter = () => {
 
 ---
 
-## Version three
+## Stable title
 
 <Step at={2}>The current stop remains valid.</Step>
 
@@ -150,7 +154,7 @@ export const Counter = () => {
     );
     await reload;
 
-    await expect(page.getByRole("heading", { name: "Version three" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Stable title" })).toBeVisible();
     await expect(page).toHaveURL(`${url}/2/2`);
     expect(await page.evaluate(() => Reflect.get(window, "__dreverHmrToken"))).toBeUndefined();
     await expect(page.getByTestId("hmr-counter")).toHaveText("0");
@@ -160,6 +164,29 @@ export const Counter = () => {
     await expect(
       page.getByText("The new navigation stop came from the updated manifest."),
     ).toBeVisible();
+
+    const titleReload = page.waitForEvent("load");
+    await writeFile(
+      slides,
+      `import { Counter } from "./Counter.tsx";
+
+# Revised HMR fixture
+
+---
+
+## Stable title
+
+<Step at={2}>The current stop remains valid.</Step>
+
+<Step at={4}>The new navigation stop came from the updated manifest.</Step>
+
+<Counter />
+`,
+    );
+    await titleReload;
+
+    await expect(page).toHaveTitle("Revised HMR fixture");
+    await expect(page).toHaveURL(`${url}/2/4`);
     health.expectHealthy();
   } finally {
     await stop(server);

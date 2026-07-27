@@ -69,7 +69,7 @@ describe("audience controls", () => {
     expect(items).toEqual([
       { id: "intro", index: 0, title: "Opening claim" },
       { id: "details", index: 1, title: "A sparse Step story" },
-      { id: "end", index: 2, title: "Slide 3" },
+      { id: "end", index: 2, title: "Slide 3", titleLanguage: "en" },
     ]);
     expect(Object.isFrozen(items)).toBe(true);
     expect(items.every(Object.isFrozen)).toBe(true);
@@ -128,9 +128,16 @@ describe("audience controls", () => {
     expect(markup).toContain('aria-label="Open document view"');
     expect(markup).toContain('aria-label="Open speaker view"');
     expect(markup).toContain('aria-label="Mobile viewing options"');
+    expect(markup).toContain(
+      'aria-label="Mobile viewing options" class="drever-audience-mobile-hint" dir="ltr" lang="en"',
+    );
+    expect(markup).toContain(
+      'aria-label="Presentation controls" class="drever-audience-controls__bar" dir="ltr" lang="en"',
+    );
     expect(markup).toContain('aria-label="Read presentation as a document"');
     expect(markup).toContain('aria-label="Dismiss mobile viewing hint"');
     expect(markup).toContain('aria-label="Open focus tools"');
+    expect(markup).toContain('class="drever-audience-focus-anchor" dir="ltr" lang="en"');
     expect(markup).toContain('aria-pressed="false"');
     expect(markup).toContain('aria-label="Enter fullscreen"');
     expect(markup).toContain('data-drever-tooltip="Enter fullscreen · F"');
@@ -157,7 +164,10 @@ describe("audience controls", () => {
     expect(markup).toContain('inert=""');
     expect(markup).toContain('style="aspect-ratio:1600 / 900"');
     expect(markup).toContain('aria-current="page"');
-    expect(markup).toContain('aria-label="Go to slide 1: Opening claim"');
+    expect(markup).toContain(
+      '<span dir="ltr" lang="en">Go to slide 1: </span><span>Opening claim</span>',
+    );
+    expect(markup).not.toContain('aria-label="Go to slide 1: Opening claim"');
     expect(renderPreview).not.toHaveBeenCalled();
     expect(markup.indexOf('data-drever-slide-preview=""')).toBeLessThan(markup.indexOf("<button"));
   });

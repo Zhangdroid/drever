@@ -1,7 +1,8 @@
 import { mkdtemp, realpath, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { DreverFocusToolsConfig } from "./config.ts";
+import type { DreverDeckConfig, DreverFocusToolsConfig } from "./config.ts";
+import { escapeHtml } from "./html.ts";
 
 export type PrivateApp = Readonly<{
   dispose(): Promise<void>;
@@ -10,6 +11,7 @@ export type PrivateApp = Readonly<{
 
 export type PrivateAppOptions = Readonly<{
   canvas?: Readonly<{ height: number; width: number }>;
+  deck?: DreverDeckConfig;
   focusTools?: DreverFocusToolsConfig;
   rehearsal?: Readonly<{ targetDurationMs?: number }>;
   stage?: Readonly<{
@@ -18,8 +20,72 @@ export type PrivateAppOptions = Readonly<{
   }>;
 }>;
 
+const DEFAULT_FAVICON =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2319172B'/%3E%3Cpath fill='%23C7F03A' d='M4 6h6v4H4zm8 0h6v4h-6z'/%3E%3Cpath fill='%23F6F3E9' d='M20 6h10v22H2V16h4v8h20V10h-6z'/%3E%3C/svg%3E";
+
+const resolveSocialImage = (deck: DreverDeckConfig): string | undefined => {
+  const image = deck.social?.image;
+  if (image === undefined || !image.startsWith("./") || deck.url === undefined) {
+    return image;
+  }
+  const base = new URL(deck.url);
+  if (!base.pathname.endsWith("/")) {
+    base.pathname += "/";
+  }
+  return new URL(image.slice(2), base).href;
+};
+
+const resolveDocumentIcon = (deck: DreverDeckConfig): string => {
+  const icon = deck.icon ?? DEFAULT_FAVICON;
+  return icon.startsWith("./") ? `/${icon.slice(2)}` : icon;
+};
+
+const documentMetadata = (deck: DreverDeckConfig = {}): string => {
+  const title = escapeHtml(deck.title ?? "Drever");
+  const canonical =
+    deck.url === undefined
+      ? ""
+      : `<link rel="canonical" href="${escapeHtml(deck.url)}" />
+    <meta property="og:url" content="${escapeHtml(deck.url)}" />
+    `;
+  const description =
+    deck.description === undefined
+      ? ""
+      : `
+    <meta name="description" content="${escapeHtml(deck.description)}" />
+    <meta property="og:description" content="${escapeHtml(deck.description)}" />
+    <meta name="twitter:description" content="${escapeHtml(deck.description)}" />`;
+  const socialImageUrl = resolveSocialImage(deck);
+  const socialImageAlt = deck.social?.imageAlt;
+  const socialImage =
+    socialImageUrl === undefined
+      ? ""
+      : `
+    <meta property="og:image" content="${escapeHtml(socialImageUrl)}" />${
+      socialImageAlt === undefined
+        ? ""
+        : `
+    <meta property="og:image:alt" content="${escapeHtml(socialImageAlt)}" />`
+    }
+    <meta name="twitter:image" content="${escapeHtml(socialImageUrl)}" />${
+      socialImageAlt === undefined
+        ? ""
+        : `
+    <meta name="twitter:image:alt" content="${escapeHtml(socialImageAlt)}" />`
+    }`;
+  return `${canonical}<link rel="icon" href="${escapeHtml(resolveDocumentIcon(deck))}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="${title}" />
+    <meta name="twitter:card" content="${
+      deck.social?.image === undefined ? "summary" : "summary_large_image"
+    }" />
+    <meta name="twitter:title" content="${title}" />${description}${socialImage}
+    <title>${title}</title>`;
+};
+
 export type PrivateExportAppOptions = Readonly<{
   canvas?: Readonly<{ height: number; width: number }>;
+  deck?: DreverDeckConfig;
   includeSteps: boolean;
   stage?: Readonly<{
     background?: string;
@@ -206,6 +272,8 @@ const browserSupportGate = `<main
       data-drever-browser-support-gate
       data-nosnippet
       aria-labelledby="drever-browser-support-title"
+      dir="ltr"
+      lang="en"
     >
       <header>
         <strong>Drever</strong>
@@ -321,7 +389,13 @@ html:not([data-drever-browser-support="supported"]) .drever-loading {
 }
 </style>`;
 
-const loadingShell = `<div class="drever-loading" data-drever-loading role="status">
+const loadingShell = `<div
+      class="drever-loading"
+      data-drever-loading
+      dir="ltr"
+      lang="en"
+      role="status"
+    >
       <div class="drever-loading__content">
         <div class="drever-loading__brand">
           <svg aria-hidden="true" viewBox="0 0 64 64">
@@ -388,24 +462,31 @@ globalThis.addEventListener("unhandledrejection", (event) => {
 const applicationHtml = ({
   bootstrap = "",
   browserSupport = true,
+  deck = {},
 }: Readonly<{
   bootstrap?: string;
   browserSupport?: boolean;
-}> = {}): string => `<!doctype html>
-<html lang="en"${
-  browserSupport
-    ? `
+  deck?: DreverDeckConfig;
+}> = {}): string => {
+  const language = deck.lang ?? "und";
+  const locale = new Intl.Locale(language) as Intl.Locale & {
+    getTextInfo(): Readonly<{ direction: "ltr" | "rtl" }>;
+  };
+  const direction = deck.dir ?? locale.getTextInfo().direction;
+  return `<!doctype html>
+<html lang="${escapeHtml(language)}" dir="${escapeHtml(direction)}"${
+    browserSupport
+      ? `
   data-drever-browser-support="checking"
   data-drever-browser-missing="navigation document-view-transition broadcast-channel resize-observer"`
-    : ""
-}>
+      : ""
+  }>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
     <meta name="drever-base" content="/" />
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" />
-    <title>Drever</title>
+    ${documentMetadata(deck)}
     ${
       browserSupport
         ? `${browserSupportStyles}\n    ${loadingStyles}\n    ${browserSupportBootstrap}`
@@ -421,6 +502,7 @@ ${bootstrap}
   </body>
 </html>
 `;
+};
 
 const stageModuleSource = (
   stage: PrivateAppOptions["stage"],
@@ -445,7 +527,7 @@ const stageModuleSource = (
 
 const viewerModuleSource = (
   entry: string,
-  { canvas, focusTools, rehearsal, stage }: PrivateAppOptions,
+  { canvas, deck, focusTools, rehearsal, stage }: PrivateAppOptions,
 ): string => {
   const stageSource = stageModuleSource(stage);
   const speakerOptions =
@@ -455,8 +537,7 @@ const viewerModuleSource = (
       ...interactiveOptions,
       rehearsal: ${JSON.stringify(rehearsal)},
     }`;
-  return `import { createDocument, createSpeaker, createViewer } from "@drever/client";
-import "@drever/client/styles.css";
+  return `import "@drever/client/styles.css";
 import Content, { deckManifest } from ${JSON.stringify(entry)};
 import { components } from "virtual:drever/mdx-components";
 import { runSetup, theme } from "virtual:drever/runtime";
@@ -490,6 +571,11 @@ const presentationOptions = {
   registry: components,
   runtime: { runSetup, theme },${canvas === undefined ? "" : `\n  canvas: ${JSON.stringify(canvas)},`}${stageSource.option}
 };
+document.title = ${
+    deck?.title === undefined
+      ? 'deckManifest.slides[0]?.title ?? "Drever"'
+      : JSON.stringify(deck.title)
+  };
 const interactiveOptions = ${
     focusTools === undefined
       ? "presentationOptions"
@@ -500,11 +586,16 @@ const interactiveOptions = ${
   };
 let presentation;
 try {
-  presentation = routePath === "document"
-    ? await createDocument(presentationOptions)
-    : routePath === "speaker" || routePath.startsWith("speaker/")
-      ? await createSpeaker(${speakerOptions})
-      : await createViewer(interactiveOptions);
+  if (routePath === "document") {
+    const { createDocument } = await import("@drever/client/document");
+    presentation = await createDocument(presentationOptions);
+  } else if (routePath === "speaker" || routePath.startsWith("speaker/")) {
+    const { createSpeaker } = await import("@drever/client/speaker");
+    presentation = await createSpeaker(${speakerOptions});
+  } else {
+    const { createViewer } = await import("@drever/client/audience");
+    presentation = await createViewer(interactiveOptions);
+  }
 } finally {
   loading?.remove();
 }
@@ -677,7 +768,7 @@ if (import.meta.hot) {
 
 const exportModuleSource = (
   entry: string,
-  { canvas, includeSteps, stage }: PrivateExportAppOptions,
+  { canvas, deck, includeSteps, stage }: PrivateExportAppOptions,
 ): string => {
   const stageSource = stageModuleSource(stage);
   return `import { createExport } from "@drever/client";
@@ -692,6 +783,11 @@ if (!(container instanceof Element)) {
   throw new Error("Drever could not find its export root.");
 }
 
+document.title = ${
+    deck?.title === undefined
+      ? 'deckManifest.slides[0]?.title ?? "Drever"'
+      : JSON.stringify(deck.title)
+  };
 globalThis.__dreverExportHandle = await createExport({
   Content,
   container,
@@ -736,7 +832,11 @@ export const createPrivateApp = async (
   entry: string,
   options: PrivateAppOptions = {},
 ): Promise<PrivateApp> =>
-  createGeneratedApp("drever-app-", viewerModuleSource(entry, options), applicationHtml());
+  createGeneratedApp(
+    "drever-app-",
+    viewerModuleSource(entry, options),
+    applicationHtml(options.deck === undefined ? {} : { deck: options.deck }),
+  );
 
 /** @internal Generates the isolated document used only by deterministic exporters. */
 export const createPrivateExportApp = async (
@@ -749,5 +849,6 @@ export const createPrivateExportApp = async (
     applicationHtml({
       bootstrap: exportBootstrapReporter,
       browserSupport: false,
+      ...(options.deck === undefined ? {} : { deck: options.deck }),
     }),
   );

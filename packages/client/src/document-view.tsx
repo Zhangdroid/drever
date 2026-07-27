@@ -68,7 +68,7 @@ const DocumentPage = ({
     return Object.freeze({
       active,
       currentStep: active ? position.step : 0,
-      ...(active ? { label: slide.title ?? `Slide ${slide.index + 1}` } : {}),
+      ...(active && slide.title !== undefined ? { label: slide.title } : {}),
     });
   };
 
@@ -116,7 +116,7 @@ export const DeckDocument = ({
 
   return (
     <div className="drever-document drever-viewer" data-drever-document="" style={style}>
-      <header className="drever-document__header">
+      <header className="drever-document__header" dir="ltr" lang="en">
         <div>
           <p>Drever document</p>
           <h1>Presentation transcript</h1>
@@ -124,13 +124,22 @@ export const DeckDocument = ({
         </div>
         <a href={audienceURL}>Return to presentation</a>
       </header>
-      <nav aria-label="Slides" className="drever-document__toc">
+      <nav aria-labelledby="drever-document-toc-label" className="drever-document__toc">
+        <span className="drever-visually-hidden" dir="ltr" id="drever-document-toc-label" lang="en">
+          Slides
+        </span>
         <ol>
           {manifest.slides.map((slide) => (
             <li key={slide.id}>
               <a href={slideURL(documentURL, slide.id)}>
                 <span>{String(slide.index + 1).padStart(2, "0")}</span>
-                {slide.title ?? `Slide ${slide.index + 1}`}
+                {slide.title === undefined ? (
+                  <span dir="ltr" lang="en">
+                    Slide {slide.index + 1}
+                  </span>
+                ) : (
+                  <span>{slide.title}</span>
+                )}
               </a>
             </li>
           ))}

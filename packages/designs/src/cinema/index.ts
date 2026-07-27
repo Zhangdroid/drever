@@ -1,4 +1,5 @@
 import { defineTheme } from "@drever/compiler";
+import { CJK_SANS_FONT_STACKS, CJK_SERIF_FONT_STACKS } from "../cjk-typography.ts";
 
 const PACKAGE = "@drever/designs/cinema";
 
@@ -77,6 +78,12 @@ export const theme = defineTheme({
       mono: "SFMono-Regular, Consolas, Liberation Mono, ui-monospace, monospace",
       titleSize: 86,
       bodySize: 26,
+      cjk: {
+        sans: CJK_SANS_FONT_STACKS,
+        serif: CJK_SERIF_FONT_STACKS,
+        titleLineHeight: 1.15,
+        bodyLineHeight: 1.58,
+      },
     },
     space: { slideX: 104, slideY: 76, rhythm: 24 },
     shape: { radius: 1, borderWidth: 1 },

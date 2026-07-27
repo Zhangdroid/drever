@@ -25,6 +25,14 @@ Start from the current workspace:
 4. Plan one dominant idea per slide: establish context, develop the argument, show evidence, and close with a clear conclusion.
 5. Use the project-local `drever-create-design` skill for every newly generated deck unless the user explicitly asks for a fast plain draft. Official designs are studies and foundations, not a substitute for topic-specific art direction; use Basic unchanged only as a documented neutral fallback.
 6. Write the configured MDX entry, defaulting to `slides.mdx`.
+7. Create or update `drever.config.ts` so `deck.lang` is the valid BCP 47 tag
+   for the authored language. Add a concise published title and description
+   when known, set `dir` when writing direction needs to be explicit, and
+   reference icon or social preview URLs only when the assets really exist.
+   Pair every social preview image with concise alternative text. When that
+   image is a local `public/` asset, also set `deck.url` to the real canonical
+   public URL so link-preview metadata is absolute. Never leave a non-English
+   deck declared as English.
 
 Design from the subject, not from a random attractive style:
 

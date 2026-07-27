@@ -1,6 +1,7 @@
 import { execFile, spawn } from "node:child_process";
 import { createServer } from "node:net";
 import { mkdir, mkdtemp, readFile, readdir, realpath, rm, stat, writeFile } from "node:fs/promises";
+import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -230,10 +231,14 @@ try {
   const createCli = join(consumerRoot, "node_modules", "create-drever", "dist", "bin.mjs");
   const dreverCli = join(consumerRoot, "node_modules", "drever", "dist", "bin.mjs");
   const dreverPackage = join(consumerRoot, "node_modules", "drever");
+  const dreverPackageRoot = await realpath(dreverPackage);
   const agentPlugin = join(consumerRoot, "node_modules", "@drever", "agent");
-  const [codexPlugin, claudePlugin] = await Promise.all([
+  const requireFromDrever = createRequire(join(dreverPackageRoot, "package.json"));
+  const [codexPlugin, claudePlugin, viteRuntime, playwrightRuntime] = await Promise.all([
     readJson(join(agentPlugin, ".codex-plugin", "plugin.json")),
     readJson(join(agentPlugin, ".claude-plugin", "plugin.json")),
+    readJson(requireFromDrever.resolve("vite/package.json")),
+    readJson(requireFromDrever.resolve("playwright-core/package.json")),
   ]);
   if (
     codexPlugin.name !== "drever" ||
@@ -241,6 +246,12 @@ try {
     codexPlugin.version !== claudePlugin.version
   ) {
     throw new Error("The packed @drever/agent plugin is incomplete or out of sync.");
+  }
+  if (viteRuntime.name !== "vite" || !viteRuntime.version.startsWith("8.")) {
+    throw new Error("The packed Drever CLI did not install upstream Vite 8.");
+  }
+  if (playwrightRuntime.name !== "playwright-core") {
+    throw new Error("The packed Drever CLI did not install Playwright Core.");
   }
   await Promise.all([
     compareTrees(
@@ -287,10 +298,38 @@ try {
     throw new Error("The packed Drever CLI returned an invalid build receipt.");
   }
   await stat(join(deckRoot, "dist", "index.html"));
+
+  const pdfOutput = join(deckRoot, "packed-export.pdf");
+  const exported = await run(
+    process.execPath,
+    [dreverCli, "export", "pdf", "--output", pdfOutput, "--json"],
+    deckRoot,
+  );
+  const exportReceipt = JSON.parse(exported.stdout);
+  if (
+    exportReceipt.command !== "export" ||
+    exportReceipt.sourcePath !== join(deckRoot, "slides.mdx") ||
+    exportReceipt.artifacts?.length !== 1 ||
+    exportReceipt.artifacts[0]?.kind !== "pdf" ||
+    exportReceipt.artifacts[0]?.path !== pdfOutput ||
+    exportReceipt.artifacts[0]?.steps !== false
+  ) {
+    throw new Error("The packed Drever CLI returned an invalid PDF export receipt.");
+  }
+  const pdf = await readFile(pdfOutput);
+  const pdfSource = pdf.toString("latin1");
+  if (
+    pdf.subarray(0, 5).toString() !== "%PDF-" ||
+    !/%%EOF\s*$/u.test(pdfSource) ||
+    (pdfSource.match(/\/Type\s*\/Page\b/gu)?.length ?? 0) !== 1
+  ) {
+    throw new Error("The packed Drever CLI did not create a valid one-page PDF.");
+  }
+
   await verifyDevRuntime(dreverCli, deckRoot);
 
   process.stdout.write(
-    `Verified packed create, check, build, and dev flows across ${publicPackages.length} packages.\n`,
+    `Verified packed create, check, build, export, and dev flows across ${publicPackages.length} packages.\n`,
   );
 } finally {
   await rm(temporaryRoot, { force: true, recursive: true });

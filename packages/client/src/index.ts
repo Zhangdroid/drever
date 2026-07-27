@@ -63,5 +63,5 @@ export type {
   StageLayerProps,
 } from "./stage.tsx";
 export { PRESENTATION_TRANSITION_TYPES } from "./view-transition.ts";
-export { Viewer } from "./viewer.tsx";
-export type { ViewerProps } from "./viewer.tsx";
+export { Viewer } from "./viewer-surface.tsx";
+export type { ViewerProps } from "./viewer-surface.tsx";

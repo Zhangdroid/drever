@@ -1,4 +1,5 @@
 import { defineTheme } from "@drever/compiler";
+import { CJK_SANS_FONT_STACKS } from "../cjk-typography.ts";
 
 const PACKAGE = "@drever/designs/studio";
 
@@ -58,10 +59,15 @@ export const theme = defineTheme({
     },
     typography: {
       display: "Aptos Display, Inter, Helvetica Neue, ui-sans-serif, system-ui, sans-serif",
-      body: "Aptos, Inter, ui-sans-serif, system-ui, sans-serif",
+      body: "Aptos, Inter, Helvetica Neue, ui-sans-serif, system-ui, sans-serif",
       mono: "SFMono-Regular, Consolas, ui-monospace, monospace",
       titleSize: 78,
       bodySize: 26,
+      cjk: {
+        sans: CJK_SANS_FONT_STACKS,
+        titleLineHeight: 1.14,
+        bodyLineHeight: 1.58,
+      },
     },
     space: { slideX: 96, slideY: 76, rhythm: 22 },
     shape: { radius: 10, borderWidth: 1 },

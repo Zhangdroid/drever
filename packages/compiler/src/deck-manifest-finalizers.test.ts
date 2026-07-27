@@ -694,11 +694,12 @@ describe("recmaDreverDeckManifest", () => {
           init: {
             value: JSON.stringify({
               version: manifest.version,
-              slides: manifest.slides.map(({ id, index, speakerNotes, stepStops }) => ({
+              slides: manifest.slides.map(({ id, index, speakerNotes, stepStops, title }) => ({
                 id,
                 index,
                 speakerNotes,
                 stepStops,
+                title,
               })),
             }),
           },

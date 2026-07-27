@@ -115,7 +115,7 @@ describe("project creation", () => {
     );
   });
 
-  it("creates a zero-config deck and both project-local agent adapters", async () => {
+  it("creates a metadata-ready deck and both project-local agent adapters", async () => {
     const parent = await temporaryDirectory();
     const root = join(parent, "Product Story");
 
@@ -155,6 +155,10 @@ describe("project creation", () => {
     await expect(readFile(join(root, "slides.mdx"), "utf8")).resolves.toContain(
       "What will you make clear?",
     );
+    const generatedConfig = await readFile(join(root, "drever.config.ts"), "utf8");
+    expect(generatedConfig).toContain('lang: "en"');
+    expect(generatedConfig).not.toContain("title:");
+    expect(generatedConfig).not.toContain("description:");
     await expect(readFile(join(root, "README.md"), "utf8")).resolves.toContain(
       "Open this project folder in Codex, Claude Code, or another coding agent.",
     );

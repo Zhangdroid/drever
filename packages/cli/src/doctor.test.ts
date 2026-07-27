@@ -84,7 +84,7 @@ describe("Drever environment inspection", () => {
         expect.objectContaining({
           id: "export.chromium",
           status: "warning",
-          hint: "Run npx playwright install chromium, then run drever doctor again.",
+          hint: "Run drever browser install, then run drever doctor again.",
         }),
       ]),
     );

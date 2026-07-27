@@ -1,0 +1,58 @@
+name: Bug report
+description: Report a reproducible problem in Drever.
+title: "bug: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve Drever. Please share the smallest reproduction that preserves the problem.
+
+  - type: input
+    id: version
+    attributes:
+      label: Drever version
+      placeholder: Paste the installed version or commit SHA.
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Include Node.js, package manager, operating system, and browser when relevant.
+      placeholder: Node.js 24, pnpm 11, macOS, Chrome
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: List the commands and source needed to reproduce the problem, or link to a minimal repository.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include exact diagnostics, logs, screenshots, or recordings when useful.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues for the same problem.
+          required: true
+        - label: This report does not contain secrets or a security vulnerability.
+          required: true

@@ -2,7 +2,7 @@ import { DEFAULT_CANVAS } from "@drever/client";
 import { randomUUID } from "node:crypto";
 import { access, mkdir, rename, rm, writeFile } from "node:fs/promises";
 import { basename, dirname, join } from "node:path";
-import { chromium, type Browser, type Page } from "playwright";
+import { chromium, type Browser, type Page } from "playwright-core";
 import { preview, type PreviewServer } from "vite";
 import type { PdfExportRequest, PdfSlideRange } from "./cli.ts";
 import { DreverCliError } from "./errors.ts";
@@ -11,7 +11,7 @@ import { buildDreverExportApp, resolvePrivateAppOptions } from "./vite-app.ts";
 
 const EXPORT_TIMEOUT = 30_000;
 const EXPORT_CLEANUP_TIMEOUT = 10_000;
-const BROWSER_INSTALL_HINT = "Run npx playwright install chromium, then retry the export.";
+const BROWSER_INSTALL_HINT = "Run drever browser install, then retry the export.";
 
 type ExportStage = "cleanup" | "pdf" | "preview" | "runtime" | "write";
 
@@ -59,6 +59,14 @@ const launchBrowser = async (): Promise<Browser> => {
     }
     throw exportFailure("runtime", "Drever could not start Chromium for PDF export.", cause);
   }
+};
+
+/** @internal Playwright rejects valid document tags such as `und` as browser locales. */
+export const resolveBrowserLocale = (lang?: string): string | undefined => {
+  if (lang === undefined) {
+    return;
+  }
+  return Intl.DateTimeFormat.supportedLocalesOf([lang])[0];
 };
 
 const appendSuppressedFailure = (primary: unknown, suppressed: unknown): unknown => {
@@ -497,6 +505,7 @@ export const exportPdf = async ({
   const { stage } = resolvePrivateAppOptions(project.config, project.root);
   const app = await createPrivateExportApp(project.entry, {
     canvas,
+    ...(project.config.deck === undefined ? {} : { deck: project.config.deck }),
     includeSteps: steps,
     ...(stage === undefined ? {} : { stage }),
   });
@@ -510,9 +519,10 @@ export const exportPdf = async ({
           const browser = await launchBrowser();
           return runWithCleanup(
             async () => {
+              const locale = resolveBrowserLocale(project.config.deck?.lang);
               const context = await browser.newContext({
                 deviceScaleFactor: 1,
-                locale: "en-US",
+                ...(locale === undefined ? {} : { locale }),
                 reducedMotion: "no-preference",
                 timezoneId: "UTC",
                 viewport: { height: canvas.height, width: canvas.width },
