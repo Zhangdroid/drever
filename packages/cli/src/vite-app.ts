@@ -45,6 +45,8 @@ const optimizedFrameworkDependencies = Object.freeze([
   "react-dom/client",
 ]);
 
+const unoptimizedFrameworkDependencies = Object.freeze(["@chenglou/pretext"]);
+
 const packageFile = (specifier: keyof typeof workspaceFallbacks): string => {
   let resolutionError: unknown;
   try {
@@ -63,7 +65,19 @@ const packageFile = (specifier: keyof typeof workspaceFallbacks): string => {
   throw resolutionError;
 };
 
+const experimentalTextLayoutFile = (): string => {
+  for (const relativePath of ["./experimental-text-layout.mjs", "./experimental-text-layout.ts"]) {
+    const path = fileURLToPath(new URL(relativePath, import.meta.url));
+    if (existsSync(path)) return path;
+  }
+  throw new TypeError("The internal experimental text-layout module is missing.");
+};
+
 const frameworkAliases = (): readonly Alias[] => [
+  {
+    find: /^virtual:drever\/experimental-text-layout$/u,
+    replacement: experimentalTextLayoutFile(),
+  },
   { find: /^drever$/u, replacement: packageFile("drever/runtime") },
   {
     find: /^@drever\/client\/styles\.css$/u,
@@ -93,12 +107,14 @@ const frameworkAliases = (): readonly Alias[] => [
 export const resolveFrameworkViteConfig = (): Readonly<{
   aliases: readonly Alias[];
   dedupe: readonly string[];
+  exclude: readonly string[];
   optimize: readonly string[];
   warmup: readonly string[];
 }> =>
   Object.freeze({
     aliases: frameworkAliases(),
     dedupe: Object.freeze(["react", "react-dom"]),
+    exclude: unoptimizedFrameworkDependencies,
     optimize: optimizedFrameworkDependencies,
     warmup: Object.freeze(["./entry.js"]),
   });
@@ -145,7 +161,7 @@ const inlineConfig = (
   return {
     appType: "spa",
     configFile: false,
-    optimizeDeps: { include: [...framework.optimize] },
+    optimizeDeps: { exclude: [...framework.exclude], include: [...framework.optimize] },
     plugins: [projectModuleResolver(project.root), ...plugins, ...project.plugins],
     resolve: { alias: aliases, dedupe: [...framework.dedupe] },
     root: appRoot,

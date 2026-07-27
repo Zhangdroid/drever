@@ -1,6 +1,5 @@
 import { useEffect, useRef, type ReactNode } from "react";
 
-import { creationStory } from "./creation-story-data";
 import { CopyButton } from "./copy-button";
 
 export function HeroStage() {
@@ -272,9 +271,6 @@ export function HeroStage() {
               <i />
               <i />
             </div>
-            <div className="hero-stage__story">
-              <strong>{creationStory.title}</strong>
-            </div>
             <div className="hero-stage__orbit hero-stage__orbit--wide">
               <i />
             </div>
@@ -400,7 +396,7 @@ export function CodeBlock({
   renderedCode?: ReactNode;
 }) {
   return (
-    <div className="code-block">
+    <div className="code-block" data-header-tone="dark">
       <div className="code-block__bar">
         <span>{label ?? "Code"}</span>
         <CopyButton label="code" value={children} />

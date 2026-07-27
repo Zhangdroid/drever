@@ -10,6 +10,7 @@ export default defineConfig({
     entry: {
       bin: "src/bin.ts",
       create: "src/create.ts",
+      "experimental-text-layout": "src/experimental-text-layout.ts",
       index: "src/index.ts",
       runtime: "src/runtime.ts",
     },

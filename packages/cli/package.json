@@ -43,6 +43,7 @@
     "test": "vp test"
   },
   "dependencies": {
+    "@chenglou/pretext": "catalog:",
     "@drever/client": "workspace:*",
     "@drever/compiler": "workspace:*",
     "@drever/core": "workspace:*",

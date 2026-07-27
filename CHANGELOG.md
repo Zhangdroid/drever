@@ -12,6 +12,24 @@ section, while commit snapshots use the current Unreleased section.
   state, with one persistent runtime and deterministic original posters for
   non-audience surfaces.
 
+### Fixed
+
+- Kept the adaptive website header in sync with structural dark surfaces across
+  documentation, showcase, and release-smoke pages.
+- Gave the Docs handoff card enough reading width and simplified its supporting
+  copy, while returning the homepage hero artwork to a text-free composition.
+
+## [0.3.0] - 2026-07-26
+
+### Added
+
+- Added a dev-only experimental Pretext typography probe for supported visible
+  plain-text blocks, with advisory predicted-versus-rendered layout evidence
+  that stays out of production and export bundles.
+- Made the installed deck-review workflow prefer Chrome DevTools MCP for its
+  final rendered gate, including exact-route screenshots, computed geometry,
+  real interaction, and console and network evidence.
+
 ## [0.2.6] - 2026-07-26
 
 ### Fixed
@@ -264,7 +282,8 @@ section, while commit snapshots use the current Unreleased section.
 - Added parallel source, unit, package, browser, export, and website checks in CI.
 - Deployed the prerendered public website and per-branch previews through Cloudflare Pages.
 
-[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.2.6...HEAD
+[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/Zhangdroid/drever/compare/v0.2.6...v0.3.0
 [0.2.6]: https://github.com/Zhangdroid/drever/compare/v0.2.5...v0.2.6
 [0.2.5]: https://github.com/Zhangdroid/drever/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/Zhangdroid/drever/compare/v0.2.3...v0.2.4

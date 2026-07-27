@@ -60,8 +60,7 @@ export function AIHandoff({
       </label>
       <footer>
         <p>
-          Copies one short handoff. The versioned workflow lives in prompt.md and the generated
-          project, so the instructions stay current.
+          Copies one short handoff. prompt.md and the generated project keep the workflow current.
         </p>
         <div>
           <a href="/prompt.md">Read prompt.md</a>

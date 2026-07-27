@@ -71,6 +71,27 @@ and source preflight.
 This is planning evidence, not rendered evidence. It does not judge overflow, contrast, animation
 quality, media readiness, or runtime component behavior.
 
+<h2 id="rendered-review">Review the rendered result</h2>
+
+The project-local review skill prefers
+[Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp) when it is connected. It
+uses the real development preview for exact-route screenshots, interaction, computed geometry,
+animation state, console output, and failed network requests. Another connected browser can provide
+the same evidence; a Chromium pass alone is not cross-browser proof.
+
+Development previews also expose a version-matched experimental typography probe:
+
+```js
+await globalThis.__dreverExperimentalTextLayout();
+```
+
+It uses [Pretext](https://github.com/chenglou/pretext) to compare predicted and rendered line layout
+for supported visible plain-text blocks. The result is advisory, not a replacement for browser
+layout or visual judgment. Rich inline markup, non-default wrapping or indentation, automatic
+hyphenation, columns, transforms, generic system fonts, and non-default word spacing or font shaping
+settings are skipped. The probe is absent from production and export bundles and never changes the
+presentation.
+
 <h2 id="current-position">Resolve “this slide”</h2>
 
 While `npm run dev` is running:

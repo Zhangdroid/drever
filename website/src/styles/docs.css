@@ -1233,6 +1233,7 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
 
 .docs-overview {
   max-width: 64rem;
+  container-type: inline-size;
 }
 
 .docs-overview > header {
@@ -1535,7 +1536,7 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   display: grid;
   margin-block-start: clamp(4rem, 8vw, 7rem);
   padding: clamp(2rem, 5vw, 4rem);
-  grid-template-columns: repeat(2, minmax(20rem, 1fr));
+  grid-template-columns: minmax(14rem, 0.72fr) minmax(26rem, 1.28fr);
   align-items: start;
   gap: clamp(2rem, 3vw, 3rem);
   background: var(--site-continuity-soft);
@@ -1585,8 +1586,22 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   padding: clamp(1.4rem, 3vw, 2rem);
 }
 
+.docs-overview__start .ai-handoff header h2 {
+  max-width: 28ch;
+  font-size: clamp(1.45rem, 2.2vw, 1.75rem);
+}
+
 .docs-overview__start .ai-handoff::before {
   left: clamp(1.4rem, 3vw, 2rem);
+}
+
+.docs-overview__start .ai-handoff footer {
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+.docs-overview__start .ai-handoff footer p {
+  max-width: 40rem;
 }
 
 .docs-overview__reference {
@@ -1696,6 +1711,16 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   from {
     opacity: 0;
     transform: translateY(0.28rem);
+  }
+}
+
+@container (max-width: 52rem) {
+  .docs-overview__start {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .docs-overview__start .ai-handoff {
+    max-width: none;
   }
 }
 

@@ -73,6 +73,7 @@ function ShowcasePage() {
           <a
             aria-label="Open the Product tour live presentation"
             className="featured-demo__visual featured-demo__visual--rich"
+            data-header-tone="dark"
             href={product.href}
           >
             <HomeShowcaseCover kind="product" />

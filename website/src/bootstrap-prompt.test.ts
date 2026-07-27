@@ -37,7 +37,7 @@ describe("public bootstrap prompt", () => {
     expect(prompt).toMatch(/across every Step/iu);
     expect(prompt).toMatch(/fully contained within the shape or surface that visually owns it/iu);
     expect(prompt).toMatch(/usable inner silhouette[^.]*rectangular bounding box/iu);
-    expect(prompt).toMatch(/every slide at Step 0 and\s+every exact authored Step route/iu);
+    expect(prompt).toMatch(/every slide at Step 0\s+and\s+every exact authored Step route/iu);
   });
 
   it("requires a varied transition vocabulary and structurally distinct references", () => {
@@ -63,5 +63,12 @@ describe("public bootstrap prompt", () => {
     expect(prompt).toMatch(/Theme-owned Markdown margins/iu);
     expect(prompt).toMatch(/full-canvas scene[^.]*stable positioned slide-relative root/iu);
     expect(prompt).toMatch(/Source review[^.]*do not count as the Draft 1 rendered refinement/iu);
+  });
+
+  it("hands final rendering to browser evidence and keeps Pretext advisory", () => {
+    expect(prompt).toMatch(/Prefer a connected Chrome DevTools\s+MCP server/iu);
+    expect(prompt).toMatch(/dev-only experimental Pretext layout probe/iu);
+    expect(prompt).toMatch(/probe is advisory/iu);
+    expect(prompt).toMatch(/rendered DOM and pixels remain authoritative/iu);
   });
 });
