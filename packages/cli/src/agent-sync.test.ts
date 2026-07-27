@@ -139,10 +139,24 @@ describe("agent kit sync", () => {
     const createDesign = await read(root, ".agents/skills/drever-create-design/SKILL.md");
     const reviewDeck = await read(root, ".agents/skills/drever-review-deck/SKILL.md");
 
-    expect(createDeck).toMatch(/same opening round/iu);
-    expect(createDeck).toMatch(/append exactly one escape/iu);
+    expect(createDeck).toContain("<!-- drever-briefing-contract:v2 -->");
+    expect(createDeck).toMatch(/topic is missing[^.]*ask for it by itself/iu);
+    expect(createDeck).toMatch(/one to three questions per round/iu);
+    expect(createDeck).toMatch(/two to four mutually distinct,\s+topic-specific options/iu);
+    expect(createDeck).toMatch(/consequence of each option/iu);
+    expect(createDeck).toMatch(/at most one option \*\*Recommended\*\*/iu);
+    expect(createDeck).toContain("1A, 2C, 3B");
+    expect(createDeck).toMatch(/follow-up should depend on an earlier answer/iu);
+    expect(createDeck).toMatch(/Decision,\s+proposal,\s+or sales/iu);
+    expect(createDeck).toMatch(/Technical update or tutorial/iu);
+    expect(createDeck).toMatch(/Research,\s+report,\s+or data story/iu);
+    expect(createDeck).toMatch(/Product launch or demo/iu);
+    expect(createDeck).toMatch(/Keynote,\s+brand,\s+or narrative/iu);
+    expect(createDeck).toMatch(/Workshop or training/iu);
     expect(createDeck).toContain("Skip remaining questions — surprise me");
+    expect(createDeck.match(/Skip remaining questions — surprise me/gu)).toHaveLength(1);
     expect(createDeck).not.toMatch(/choose the subject too|Or answer “Surprise me”/iu);
+    expect(createDeck).toMatch(/record them in `brief\.md`/iu);
     expect(createDeck).toMatch(/topic-fingerprint test/iu);
     expect(createDeck).toMatch(
       /claim[^→]*→ focal artifact[^→]*→ initial state[^→]*→ meaningful transformation[^→]*→ settled payoff[^→]*→ static or reduced-motion endpoint/iu,

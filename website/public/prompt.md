@@ -2,34 +2,76 @@
 
 Use these instructions when a user asks you to create a Drever presentation.
 
-## Run a useful, optional briefing
+## Run a useful adaptive briefing
 
 Treat the user's accompanying message as the initial presentation brief. Reply in the user's
 language, and use that language for the deck unless they request another one or the source material
 clearly requires it.
 
-If the topic is missing, make it the first question. In the same opening round, ask up to two
-high-impact common questions that do not depend on knowing the topic, usually the audience outcome
-and duration. Do not advertise choosing the topic as a separate “Surprise me” mode. Infer
-everything the user already supplied before choosing questions.
+<!-- drever-briefing-contract:v2 -->
 
-Questions may span multiple rounds when an earlier answer enables a useful topic-specific
-follow-up. Ask one to three concise questions at a time, highest-impact first, and continue only
-while another answer would materially improve the result. In each round, put every concrete
-question first, then append exactly one escape: **Or say “Skip remaining questions — surprise me”
-and I will choose the rest.**
-Draw from:
+Infer everything the user already supplied before choosing questions: topic, audience, desired
+outcome, duration, language, venue, evidence, source material, brand constraints, delivery format,
+density, speaker-note depth, and motion intent. Inspect attached or local source material instead of
+asking the user to repeat it.
 
-1. What should the audience understand, decide, or do?
-2. How long is the presentation?
-3. Should slides be concise with fuller speaker notes, balanced, or reference-dense?
-4. Should motion be restrained, expressive, or intentionally experimental?
-5. Ask at most one topic-specific fork per round, such as practical code versus concepts,
-   comparison versus recommendation, or overview versus migration.
+If the topic is missing, ask for it by itself as a short open question. Do not advertise choosing
+the topic as a separate “Surprise me” mode or add the skip-remaining escape yet. Treat this as a
+topic gate, not an interview round. Once the topic is known, run an adaptive interview only for
+decisions whose answers would materially change the narrative, evidence, visual direction, motion,
+or delivery:
 
-Do not ask for information the user already gave. Never silently choose a duration unless the user
-uses the skip-remaining escape. If they use it at any point, stop asking, make reasonable
-assumptions, and continue. If the initial brief is already complete, proceed immediately.
+- Ask one to three questions per round. A nontrivial incomplete brief will usually need two or three
+  rounds and four to seven decisions; a simple or complete brief may need fewer. Never ask questions
+  merely to reach a quota.
+- Give every question two to four mutually distinct, topic-specific options plus the ability to
+  answer freely. Put a short consequence after each option so the user can see how it changes the
+  deck. Mark at most one option **Recommended**, and only when the known brief supports that
+  recommendation.
+- Number the questions and letter the options so the user can answer compactly, such as
+  `1A, 2C, 3B`. Ask one decision per question. The topic question is the only question that may omit
+  options.
+- Format each decision as a short subject-specific question followed by lettered options. Name the
+  choice first and its effect second—for example, `A — Working migration: centers code changes and
+upgrade risks`. Do not hide multiple decisions inside one option.
+- Avoid empty adjective menus such as “professional, playful, or bold.” Name the actual subject and
+  expose a real tradeoff. “Migration plan, working code patterns, or architectural overview” is
+  useful; “minimal, modern, or creative” is not.
+- Put all concrete questions first, then append exactly one escape to every round:
+  **You can combine options, answer in your own words, or say “Skip remaining questions — surprise
+  me” and I will choose the rest.**
+- After each answer, update the working brief and derive the next round from the highest-impact
+  uncertainties that remain. At least one follow-up should depend on an earlier answer when a
+  follow-up is needed. Do not repeat a supplied or settled choice.
+
+Choose questions from the presentation's actual job:
+
+- **Decision, proposal, or sales:** the decision, stakeholder objections, proof threshold, risks,
+  and final call to action.
+- **Technical update or tutorial:** audience baseline, application context, code or demo depth,
+  migration constraints, intended skill, and authoritative sources.
+- **Research, report, or data story:** central claim, comparison baseline, evidence confidence,
+  uncertainty, and the action the evidence should support.
+- **Product launch or demo:** user problem, workflow to show, differentiation, proof assets, and
+  desired conversion.
+- **Keynote, brand, or narrative:** point of view, emotional shift, narrative anchor, visual
+  metaphor, and ending.
+- **Workshop or training:** participant baseline, activity, pacing, expected artifact, and
+  facilitation constraints.
+
+Resolve the essentials early: who is in the room, what should change for them, and how long the
+speaker has. Then ask the most useful topic-specific forks. Ask about density, notes, visual
+direction, motion, interaction, or output only when the answer would alter the work. Visual options
+must be original directions derived from the subject—for example, a React 19 deck might choose
+between a code-first engineering review, a product interaction walkthrough, and a restrained
+React-orbit systems story—not generic theme labels.
+
+Never silently choose a duration unless the user uses the skip-remaining escape. If they use it at
+any point, stop asking, make reasonable assumptions for every unanswered choice, and continue.
+“Surprise me” fills unanswered choices; it does not replace a topic unless the user explicitly asks
+for that. If the initial brief is already complete, proceed immediately. When the interview ends,
+summarize the resolved direction and any assumptions in two to four concise lines, do not ask for
+another confirmation, and begin the work.
 
 ## Prepare a safe workspace
 

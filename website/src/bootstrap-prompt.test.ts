@@ -2,19 +2,47 @@ import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vite-plus/test";
 
 const prompt = await readFile(new URL("../public/prompt.md", import.meta.url), "utf8");
+const createDeckSkill = await readFile(
+  new URL("../../packages/cli/agent-kit/skills/drever-create-deck/SKILL.md", import.meta.url),
+  "utf8",
+);
+const briefingContractMarker = /<!-- drever-briefing-contract:(v\d+) -->/u;
+
+const expectAdaptiveBriefingContract = (source: string): void => {
+  expect(source).toMatch(/topic is missing[^.]*ask for it by itself/iu);
+  expect(source).toMatch(/one to three questions per round/iu);
+  expect(source).toMatch(/two to four mutually distinct,\s+topic-specific options/iu);
+  expect(source).toMatch(/consequence (?:after|of) each option/iu);
+  expect(source).toMatch(/at most one option \*\*Recommended\*\*/iu);
+  expect(source).toContain("1A, 2C, 3B");
+  expect(source).toMatch(/combine options,\s+answer in your own words/iu);
+  expect(source).toMatch(/two or three\s+rounds and four to seven decisions/iu);
+  expect(source).toMatch(/follow-up should depend on an earlier answer/iu);
+  expect(source).toMatch(/Decision,\s+proposal,\s+or sales/iu);
+  expect(source).toMatch(/Technical update or tutorial/iu);
+  expect(source).toMatch(/Research,\s+report,\s+or data story/iu);
+  expect(source).toMatch(/Product launch or demo/iu);
+  expect(source).toMatch(/Keynote,\s+brand,\s+or narrative/iu);
+  expect(source).toMatch(/Workshop or training/iu);
+  expect(source.match(/Skip remaining questions — surprise\s+me/gu)).toHaveLength(1);
+  expect(source).toMatch(
+    /(?:append exactly one escape to every round|End every round with exactly one escape)/iu,
+  );
+  expect(source).toMatch(/stop asking[^.]*every unanswered choice/iu);
+  expect(source).not.toMatch(/choose the subject too|Or answer “Surprise me”/iu);
+};
 
 describe("public bootstrap prompt", () => {
-  it("asks one useful opening round and offers only the skip-remaining escape", () => {
-    const topicQuestion = prompt.indexOf("make it the first question");
-    const commonQuestions = prompt.indexOf("same opening round");
-    const surpriseEscape = prompt.indexOf("Skip remaining questions — surprise me");
+  it("keeps the public bootstrap and installed skill on one adaptive briefing contract", () => {
+    const promptVersion = prompt.match(briefingContractMarker)?.[1];
+    const skillVersion = createDeckSkill.match(briefingContractMarker)?.[1];
 
-    expect(topicQuestion).toBeGreaterThanOrEqual(0);
-    expect(commonQuestions).toBeGreaterThan(topicQuestion);
-    expect(surpriseEscape).toBeGreaterThan(topicQuestion);
-    expect(prompt).toMatch(/audience outcome\s+and duration/iu);
-    expect(prompt).toMatch(/append exactly one escape/iu);
-    expect(prompt).not.toMatch(/Or answer “Surprise me”|choose the subject too/iu);
+    expect(promptVersion).toBe("v2");
+    expect(skillVersion).toBe(promptVersion);
+    expectAdaptiveBriefingContract(prompt);
+    expectAdaptiveBriefingContract(createDeckSkill);
+    expect(prompt).toMatch(/summarize the resolved direction[^.]*two to four concise lines/isu);
+    expect(createDeckSkill).toMatch(/record them in `brief\.md`/iu);
   });
 
   it("defines topic-specific signature moments and a refinement ceiling", () => {

@@ -5,6 +5,14 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-07-26
+
+### Changed
+
+- Expanded the AI-first briefing into a short, adaptive multi-round interview
+  with topic-specific choices, visible trade-offs, contextual recommendations,
+  compact answers, and a skip-remaining escape in every round.
+
 ## [0.4.0] - 2026-07-26
 
 ### Added

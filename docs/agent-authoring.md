@@ -73,6 +73,24 @@ The `SKILL.md` content is canonical across hosts. Codex-specific UI metadata is
 additive and is omitted from Claude's adapter. Teams should commit both adapters
 so every authoring session starts from the same version-matched instructions.
 
+### Adaptive briefing contract
+
+Deck creation infers facts already present in the request, attachments, and
+workspace before asking anything. If the topic is absent, it asks for that
+first. Once the topic is known, each round contains one to three high-impact
+decisions with two to four topic-specific, lettered options. Each option states
+how it changes the deck, allows a combined or free-form answer, and only one may
+be marked recommended when the known brief justifies it.
+
+The interview resolves audience, desired change, and duration early, then
+routes later questions through the presentation's actual job: decision,
+technical teaching, research, product demonstration, narrative, or workshop.
+Follow-up questions depend on earlier answers and stop when another answer
+would not change the story, evidence, visual direction, motion, or delivery.
+Every round has one **Skip remaining questions — surprise me** escape. Taking
+it fills unanswered decisions; it never replaces a missing topic unless the
+user explicitly asks for that.
+
 Use `--target auto` to update adapters already present in a project, or
 `--target codex` and `--target claude` to install one explicitly. Omitting
 `--target` preserves the Codex-only compatibility behavior; the project creator
