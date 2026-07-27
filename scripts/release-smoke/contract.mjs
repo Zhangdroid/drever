@@ -19,6 +19,12 @@ export const RELEASE_SMOKE_PRIVATE_PATHS = Object.freeze([
   ".release-smoke/constraints.md",
   ".release-smoke/prompt.md",
 ]);
+export const RELEASE_SMOKE_MUTABLE_HANDOFF_PATHS = Object.freeze([
+  "brief.md",
+  "drever.config.js",
+  "drever.config.mjs",
+  "drever.config.ts",
+]);
 export const RELEASE_SMOKE_ARTIFACT_SEED_PATHS = Object.freeze([
   "prompt.json",
   "receipts/handoff.json",
@@ -202,7 +208,11 @@ export const snapshotReleaseSmokeGenerationTree = async (projectRoot, immutableP
   return snapshot;
 };
 
-export const assertReleaseSmokeGenerationTree = async (projectRoot, immutableSnapshot) => {
+export const assertReleaseSmokeGenerationTree = async (
+  projectRoot,
+  immutableSnapshot,
+  requiredMutablePaths = [],
+) => {
   const root = resolve(projectRoot);
   let fileCount = 0;
   let sourceBytes = 0;
@@ -260,6 +270,19 @@ export const assertReleaseSmokeGenerationTree = async (projectRoot, immutableSna
     } catch (error) {
       if (error instanceof Error && "code" in error && error.code === "ENOENT") {
         throw new Error(`Release smoke immutable file was removed during generation: ${path}`);
+      }
+      throw error;
+    }
+  }
+  for (const path of requiredMutablePaths) {
+    try {
+      const metadata = await lstat(join(root, ...path.split("/")));
+      if (!metadata.isFile()) {
+        throw new Error(`Release smoke required authoring file is not a regular file: ${path}`);
+      }
+    } catch (error) {
+      if (error instanceof Error && "code" in error && error.code === "ENOENT") {
+        throw new Error(`Release smoke required authoring file was removed: ${path}`);
       }
       throw error;
     }
