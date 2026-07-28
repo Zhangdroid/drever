@@ -118,6 +118,9 @@ test("defines one real surprise journey and one fully guided journey", () => {
     assert.match(scenario.turns.at(-2), /do not create the presentation yet/iu);
     assert.match(scenario.turns.at(-1), /^I approve the brief and slide outline\./u);
     assert.match(scenario.turns.at(-1), /refine the\s+narrative/iu);
+    assert.match(scenario.turns.at(-1), /inventory every slide's final visible static heading/iu);
+    assert.match(scenario.turns.at(-1), /make each heading distinct/iu);
+    assert.match(scenario.turns.at(-1), /keep that refrain as supporting copy/iu);
     assert.match(scenario.turns.at(-1), /reread every authored file as literal source/iu);
   }
   assert.match(

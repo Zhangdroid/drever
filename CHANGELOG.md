@@ -16,6 +16,8 @@ section, while commit snapshots use the current Unreleased section.
 
 ### Fixed
 
+- Made the final AI release-smoke source review explicitly inventory normalized
+  slide headings and keep a repeated closing refrain beneath a distinct title.
 - Kept the Motion showcase's anticipated browser bitmap out of viewport
   letterboxing before its authored entrance.
 - Returned pointer-activated audience toolbar actions to the presentation

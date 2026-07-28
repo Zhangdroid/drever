@@ -203,8 +203,11 @@ edits, with shell, network tools, subagents, skills, and MCP removed. Both
 providers receive the exact prompt, project contract, and provider-native
 skills as preloaded context. Before every resumed turn, the harness rejects new
 executable configuration, symlinks, or changes to its immutable instructions.
-The final authoring turn explicitly rereads the literal MDX, JSX, imports, and
-expressions for source-level syntax defects before handing the result off.
+The final authoring turn first inventories every slide's visible static
+heading, makes the normalized headings unique, and keeps any repeated closing
+refrain as supporting copy beneath a distinct title. It then rereads the
+literal MDX, JSX, imports, and expressions for source-level syntax defects
+before handing the result off.
 Generated project code cannot execute in either credential-bearing job. A
 separate job with no model secret installs each generated project, runs
 `drever context`, checks and builds it in a digest-pinned, non-root,

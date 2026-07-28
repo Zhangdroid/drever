@@ -6,10 +6,13 @@ network. Also read \`.release-smoke/constraints.md\`, which defines the narrow
 generation-stage boundary for this run. Begin with the optional briefing from
 the fetched prompt; do not assume that any question has already been answered.`;
 
-const sourceReview = `Before finishing, reread every authored file as literal source. Correct
-obvious MDX and JSX syntax defects, including unbalanced tags, malformed expressions, invalid
-imports, and Markdown delimiter runs used as visible placeholders. This is a source review, not a
-claim that validation ran.`;
+const sourceReview = `Before finishing, inventory every slide's final visible static heading in
+order and make each heading distinct after Unicode, case, and whitespace normalization. If the
+closing callback repeats an earlier phrase, keep that refrain as supporting copy beneath a
+different closing heading. Then reread every authored file as literal source. Correct obvious MDX
+and JSX syntax defects, including unbalanced tags, malformed expressions, invalid imports, and
+Markdown delimiter runs used as visible placeholders. This is a source review, not a claim that
+validation ran.`;
 
 const sharedTopic = "why black holes are not cosmic vacuum cleaners";
 const sharedEvidence = `Use this supplied science fixture as the complete factual basis:
