@@ -7,18 +7,21 @@ section, while commit snapshots use the current Unreleased section.
 
 ### Changed
 
-- Ran all four AI release-smoke journeys independently in parallel so the
-  protected environment presents one approval wave instead of serial Claude
-  approvals.
+- Put the full AI release smoke behind one protected approval, then ran all four
+  provider-and-briefing journeys independently in parallel. Failed cases now
+  receive bounded validation diagnostics and at most one provider repair turn
+  before a final keyless build; passing cases make no extra model call.
 - Reframed the comparative AI release smoke around a globally readable
   12-slide black-hole science story, with a 10-to-14-slide contract for longer
   narrative, diagram, motion, and speaker-note review, plus a bounded Claude
   budget sized to finish that larger artifact.
 - Presented the public AI generation evidence consistently as **Real AI runs**
-  in the documentation sidebar, page metadata, footer, and agent index.
+  in page metadata, the footer, and the agent index.
 
 ### Fixed
 
+- Made the documentation navigation roomier on common laptop screens while
+  keeping long sidebars smoothly scrollable and external destinations clear.
 - Made the final AI release-smoke source review explicitly inventory normalized
   slide headings and keep a repeated closing refrain beneath a distinct title.
 - Kept the Motion showcase's anticipated browser bitmap out of viewport

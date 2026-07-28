@@ -9,6 +9,7 @@ const execute = promisify(execFile);
 export const RELEASE_SMOKE_BUILD_IMAGE =
   "node@sha256:d45d78e7929b46875bbd4e29bea672d5bc48186c6c3588306521c815e78352d6";
 export const ISOLATED_BUILD_RECEIPT_PREFIX = "drever-release-smoke-receipt:";
+export const ISOLATED_BUILD_AUTHORING_FAILURE_PREFIX = "drever-release-smoke-authoring-failure:";
 export const MAX_BUILD_FILES = 1_000;
 export const MAX_BUILD_BYTES = 64 * 1024 * 1024;
 
@@ -102,6 +103,32 @@ export const parseIsolatedBuildReceipt = (output) => {
   return receipt;
 };
 
+export class ReleaseSmokeAuthoringFailure extends Error {
+  constructor(evidence) {
+    super(
+      `Generated presentation failed isolated Drever validation: ${
+        typeof evidence?.message === "string" && evidence.message !== ""
+          ? evidence.message
+          : "unknown authoring failure"
+      }`,
+    );
+    this.name = "ReleaseSmokeAuthoringFailure";
+    this.evidence = evidence;
+  }
+}
+
+export const parseIsolatedBuildAuthoringFailure = (output) => {
+  const line = output
+    .split(/\r?\n/u)
+    .findLast((candidate) => candidate.startsWith(ISOLATED_BUILD_AUTHORING_FAILURE_PREFIX));
+  if (line === undefined) return undefined;
+  const evidence = JSON.parse(line.slice(ISOLATED_BUILD_AUTHORING_FAILURE_PREFIX.length));
+  if (typeof evidence !== "object" || evidence === null || typeof evidence.message !== "string") {
+    throw new Error("The isolated release smoke build returned invalid authoring diagnostics.");
+  }
+  return evidence;
+};
+
 export const runReleaseSmokeBuildInContainer = async ({ projectRoot, runnerPath }) => {
   const arguments_ = createReleaseSmokeContainerArguments({ projectRoot, runnerPath });
   try {
@@ -115,6 +142,8 @@ export const runReleaseSmokeBuildInContainer = async ({ projectRoot, runnerPath 
     return parseIsolatedBuildReceipt(stdout);
   } catch (error) {
     if (error instanceof Error && "stdout" in error && typeof error.stdout === "string") {
+      const evidence = parseIsolatedBuildAuthoringFailure(error.stdout);
+      if (evidence !== undefined) throw new ReleaseSmokeAuthoringFailure(evidence);
       process.stdout.write(error.stdout);
     }
     throw error;

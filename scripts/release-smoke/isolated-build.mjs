@@ -6,6 +6,7 @@ const execute = promisify(execFile);
 const projectRoot = "/project";
 const executable = join(projectRoot, "node_modules", "drever", "dist", "bin.mjs");
 const receiptPrefix = "drever-release-smoke-receipt:";
+const failurePrefix = "drever-release-smoke-authoring-failure:";
 const environment = Object.freeze({
   CI: "true",
   FORCE_COLOR: "0",
@@ -34,8 +35,20 @@ const run = async (command) => {
   return parseJsonOutput(stdout, `drever ${command}`);
 };
 
-const context = await run("context");
-const check = await run("check");
-const build = await run("build");
-
-process.stdout.write(`${receiptPrefix}${JSON.stringify({ build, check, context })}\n`);
+try {
+  const context = await run("context");
+  const check = await run("check");
+  const build = await run("build");
+  process.stdout.write(`${receiptPrefix}${JSON.stringify({ build, check, context })}\n`);
+} catch (error) {
+  const evidence =
+    error instanceof Error
+      ? {
+          message: error.message,
+          stderr: "stderr" in error && typeof error.stderr === "string" ? error.stderr : "",
+          stdout: "stdout" in error && typeof error.stdout === "string" ? error.stdout : "",
+        }
+      : { message: String(error), stderr: "", stdout: "" };
+  process.stdout.write(`${failurePrefix}${JSON.stringify(evidence)}\n`);
+  process.exitCode = 2;
+}

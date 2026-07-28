@@ -158,13 +158,15 @@ failure remains visible without making an already verified registry release
 appear to have failed. Each journey runs independently through
 `gpt-5.6-sol` and `claude-opus-5`, both at medium reasoning effort, then
 publishes both results as a direct comparison. The shared effort level keeps
-the comparison balanced while bounding latency and token use. All four journeys
-run independently in parallel, so the protected environment presents one
-approval wave instead of serial Claude approvals. Each Claude journey has a
-35-minute scenario deadline, allows an individual turn up to 20 minutes, and
-carries its own cumulative $15 CLI budget plus agent-turn and proxy request
-limits. Cost is further controlled by running this expensive evidence once for
-stable releases by default.
+the comparison balanced while bounding latency and token use. One non-matrix
+authorization job owns the protected-environment approval for the whole run.
+After it passes, all four provider-and-briefing journeys generate independently
+in parallel; neither Claude case opens another approval. Each Claude journey
+has a 35-minute scenario deadline, allows an individual turn up to 20 minutes,
+and carries its own cumulative $15 CLI budget plus agent-turn and proxy request
+limits. A failed validation may spend at most one additional repair turn with a
+$3 Claude cap. Cost is further controlled by running this expensive evidence
+once for stable releases by default.
 The Codex half may qualify for OpenAI's complimentary
 shared-traffic allowance only when project data sharing is enabled, the
 organization is eligible, and daily quota remains; otherwise normal API billing
@@ -219,6 +221,18 @@ checks the active state identity, samples each adjacent transition and settled
 frame, and rejects material clipping or a large Step layout rebase before the
 result can be published. The guided journey must also produce speaker notes.
 
+When this validation reports an authored or rendered defect, the workflow
+returns its bounded, sanitized diagnostics to the same provider for exactly one
+narrow repair turn. That turn can read and edit only the allowlisted source,
+cannot run commands or network tools, and is explicitly forbidden from
+weakening or bypassing a check. Cases that already passed make no second model
+call and reuse their verified build. A second keyless build validates repaired
+source; any remaining failure stops publication rather than starting another
+repair loop. Unclassified runner, container, browser-infrastructure, artifact,
+or provenance failures stop immediately and never spend a repair call. The
+original conversation remains intact, with the repair turn and validation
+summary appended to its public provenance.
+
 Successful runs retain both sanitized conversations, source allowlists, build
 receipts, and real interactive static decks—never screenshots. A final job
 with no model secret assembles those generated files in its disposable Actions
@@ -257,14 +271,14 @@ an existing Direct Upload project, so the smoke evidence intentionally uses a
 separate project.
 
 Create a protected GitHub environment named `ai-release-smoke`, limit it to
-the `main` branch, and add a required reviewer. Drever currently reuses the
-repository's existing `OPENAI_API_KEY` and `CLAUDE_API_KEY`, but each secret is
-referenced only by its matching conditional generation step; preparation,
-other-provider generation, build, and publishing steps cannot read it.
-Same-name environment secrets can later narrow credential scope without
-changing the workflow. Do not expose either key at job scope. The result
-publisher uses a Markdown summary file rather than raw terminal output so ANSI
-control sequences and raw logs cannot enter the workflow summary.
+the `main` branch, and add a required reviewer. Only the single authorization
+job enters that environment. Drever reuses the repository's existing
+`OPENAI_API_KEY` and `CLAUDE_API_KEY`; each secret is referenced only by its
+matching initial-generation step and its conditional one-repair step.
+Preparation, other-provider work, validation, final build, and publishing
+cannot read it. Do not expose either key at job scope. The result publisher
+uses a Markdown summary file rather than raw terminal output so ANSI control
+sequences and raw logs cannot enter the workflow summary.
 
 ## One-time npm bootstrap
 

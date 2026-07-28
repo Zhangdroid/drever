@@ -7,6 +7,7 @@ import { promisify } from "node:util";
 import { assertReleaseVersion } from "../release.mjs";
 import {
   assertSafeReleaseSmokeBuildOutput,
+  ReleaseSmokeAuthoringFailure,
   resolveIsolatedProjectPath,
   runReleaseSmokeBuildInContainer,
 } from "./build-isolation.mjs";
@@ -65,6 +66,11 @@ const projectRoot = join(workspaceRoot, "deck");
 const npmCache = join(workspaceRoot, "npm-cache");
 const caseRoot = join(outputRoot, caseId);
 const receiptsRoot = join(caseRoot, "receipts");
+const repairableFailurePrefix = "drever-release-smoke-repairable:";
+const markRepairableFailure = (error) => {
+  const message = error instanceof Error ? error.message : String(error);
+  process.stderr.write(`${repairableFailurePrefix}${JSON.stringify({ message })}\n`);
+};
 const parseJsonOutput = (output, command) => {
   const start = output.search(/^\{/mu);
   if (start === -1) throw new Error(`${command} did not return a JSON receipt.`);
@@ -389,16 +395,37 @@ if (
   throw new Error(`The build job did not install Drever ${version} exactly.`);
 }
 
-const sourceFiles = await copyReleaseSmokeSource(join(generationRoot, "source"), projectRoot);
-const { build, check, context } = await runReleaseSmokeBuildInContainer({
-  projectRoot,
-  runnerPath: fileURLToPath(new URL("./isolated-build.mjs", import.meta.url)),
-});
-const { slideCount, speakerNoteCount } = assertReleaseSmokeContext(context);
-if (scenario.mode === "guided" && speakerNoteCount === 0) {
-  throw new Error("The guided release smoke deck must include at least one speaker note.");
+let sourceFiles;
+try {
+  sourceFiles = await copyReleaseSmokeSource(join(generationRoot, "source"), projectRoot);
+} catch (error) {
+  markRepairableFailure(error);
+  throw error;
 }
-assertReleaseSmokeCheck(check, slideCount);
+let build;
+let check;
+let context;
+try {
+  ({ build, check, context } = await runReleaseSmokeBuildInContainer({
+    projectRoot,
+    runnerPath: fileURLToPath(new URL("./isolated-build.mjs", import.meta.url)),
+  }));
+} catch (error) {
+  if (error instanceof ReleaseSmokeAuthoringFailure) markRepairableFailure(error);
+  throw error;
+}
+let slideCount;
+let speakerNoteCount;
+try {
+  ({ slideCount, speakerNoteCount } = assertReleaseSmokeContext(context));
+  if (scenario.mode === "guided" && speakerNoteCount === 0) {
+    throw new Error("The guided release smoke deck must include at least one speaker note.");
+  }
+  assertReleaseSmokeCheck(check, slideCount);
+} catch (error) {
+  markRepairableFailure(error);
+  throw error;
+}
 const website = build?.artifacts?.find((artifact) => artifact.kind === "website");
 if (build?.version !== 1 || build.ok !== true || typeof website?.path !== "string") {
   throw new Error("Drever build did not return a website artifact.");
@@ -406,7 +433,18 @@ if (build?.version !== 1 || build.ok !== true || typeof website?.path !== "strin
 const websitePath = resolveIsolatedProjectPath(projectRoot, website.path);
 const buildOutput = await assertSafeReleaseSmokeBuildOutput(websitePath);
 const deckMount = releaseSmokeDeckMount(runId, caseId);
-const browser = await runBrowserSmoke(websitePath, context, deckMount);
+let browser;
+try {
+  browser = await runBrowserSmoke(websitePath, context, deckMount);
+} catch (error) {
+  if (
+    error instanceof Error &&
+    error.message.startsWith("Browser smoke found presentation failures:")
+  ) {
+    markRepairableFailure(error);
+  }
+  throw error;
+}
 const publicReceipt = (value) =>
   redactStructuredPaths(value, [
     [projectRoot, "<project>"],

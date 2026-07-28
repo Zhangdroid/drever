@@ -46,6 +46,17 @@ jobs:
           "$GITHUB_REPOSITORY"
           "$TRUSTED_WORKFLOW_REF"
 
+  authorize:
+    name: Approve AI smoke budget
+    needs: verify
+    environment: ai-release-smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - name: Authorize all four AI journeys and bounded repairs
+        run: echo "The protected environment authorized this release-smoke run."
+
   prepare:
     name: Prepare · ${{ matrix.provider }} · ${{ matrix.case }}
     needs: verify
@@ -55,6 +66,7 @@ jobs:
       contents: read
     strategy:
       fail-fast: false
+      max-parallel: 4
       matrix:
         provider:
           - codex
@@ -105,14 +117,16 @@ jobs:
 
   generate:
     name: Generate · ${{ matrix.provider }} · ${{ matrix.case }}
-    needs: prepare
-    environment: ai-release-smoke
+    needs:
+      - authorize
+      - prepare
     runs-on: ubuntu-24.04
     timeout-minutes: 50
     permissions:
       contents: read
     strategy:
       fail-fast: false
+      max-parallel: 4
       matrix:
         provider:
           - codex
@@ -209,8 +223,8 @@ jobs:
           overwrite: true
           retention-days: 30
 
-  build:
-    name: Build · ${{ matrix.provider }} · ${{ matrix.case }}
+  validate:
+    name: Validate · ${{ matrix.provider }} · ${{ matrix.case }}
     needs: generate
     runs-on: ubuntu-24.04
     timeout-minutes: 50
@@ -218,6 +232,7 @@ jobs:
       contents: read
     strategy:
       fail-fast: false
+      max-parallel: 4
       matrix:
         provider:
           - codex
@@ -226,7 +241,7 @@ jobs:
           - surprise-me
           - guided
     env:
-      BUILT_ROOT: ${{ github.workspace }}/release-smoke-work/built
+      VALIDATION_ROOT: ${{ github.workspace }}/release-smoke-work/validation
       GENERATED_ROOT: ${{ github.workspace }}/release-smoke-work/generated
       RELEASE_SMOKE_BUILD_IMAGE: node@sha256:d45d78e7929b46875bbd4e29bea672d5bc48186c6c3588306521c815e78352d6
       RELEASE_SMOKE_SOURCE_COMMIT: ${{ inputs.source_commit }}
@@ -260,7 +275,260 @@ jobs:
           name: release-smoke-generated-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
           path: ${{ env.GENERATED_ROOT }}
 
-      - name: Build and open every presentation surface without the API secret
+      - name: Check, build, and open every presentation surface without a model secret
+        run: >
+          node scripts/release-smoke/validate-case.mjs
+          "$RELEASE_SMOKE_VERSION"
+          "${{ matrix.provider }}"
+          "${{ matrix.case }}"
+          "${{ github.run_id }}"
+          "$RELEASE_SMOKE_SOURCE_COMMIT"
+          "$GENERATED_ROOT"
+          "$VALIDATION_ROOT"
+
+      - name: Upload validation evidence and any passing build
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-smoke-validation-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
+          path: ${{ env.VALIDATION_ROOT }}
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 30
+
+  repair:
+    name: Repair · ${{ matrix.provider }} · ${{ matrix.case }}
+    needs:
+      - authorize
+      - validate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        provider:
+          - codex
+          - claude
+        case:
+          - surprise-me
+          - guided
+    env:
+      ARTIFACT_ROOT: ${{ github.workspace }}/release-smoke-work/candidate-${{ matrix.provider }}-${{ matrix.case }}
+      AUTOMATION_ROOT: ${{ github.workspace }}/automation
+      CLAUDE_CLI_ROOT: ${{ github.workspace }}/release-smoke-work/claude-cli
+      CLAUDE_CONFIG_DIR: ${{ github.workspace }}/release-smoke-work/claude-repair-${{ matrix.case }}
+      CODEX_HOME: ${{ github.workspace }}/release-smoke-work/codex-repair-${{ matrix.case }}
+      ORIGINAL_ROOT: ${{ github.workspace }}/release-smoke-work/original-${{ matrix.provider }}-${{ matrix.case }}
+      PREPARED_ROOT: ${{ github.workspace }}/release-smoke-work/prepared-${{ matrix.provider }}-${{ matrix.case }}
+      PROJECT_ROOT: ${{ github.workspace }}/release-smoke-work/repair-${{ matrix.provider }}-${{ matrix.case }}/project
+      QUARANTINE_ROOT: ${{ github.workspace }}/release-smoke-work/quarantine-${{ matrix.provider }}-${{ matrix.case }}
+      RELEASE_SMOKE_GENERATION_IMAGE: node@sha256:d45d78e7929b46875bbd4e29bea672d5bc48186c6c3588306521c815e78352d6
+      RELEASE_SMOKE_MODEL: ${{ matrix.provider == 'claude' && 'claude-opus-5' || 'gpt-5.6-sol' }}
+      RELEASE_SMOKE_VERSION: ${{ inputs.version }}
+      RELEASE_SMOKE_WORK_ROOT: ${{ github.workspace }}/release-smoke-work
+      VALIDATION_ROOT: ${{ github.workspace }}/release-smoke-work/validation-${{ matrix.provider }}-${{ matrix.case }}
+    steps:
+      - name: Check out the trusted automation source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: automation
+          persist-credentials: false
+          ref: ${{ github.sha }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.18.0
+          package-manager-cache: false
+
+      - name: Download original source
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-smoke-generated-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
+          path: ${{ env.ORIGINAL_ROOT }}
+
+      - name: Download validation evidence
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-smoke-validation-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
+          path: ${{ env.VALIDATION_ROOT }}
+
+      - name: Read the validation decision
+        id: validation
+        run: |
+          status="$(
+            node "$AUTOMATION_ROOT/scripts/release-smoke/read-validation-status.mjs" \
+              "$VALIDATION_ROOT/validation.json" \
+              "$RELEASE_SMOKE_VERSION" \
+              "${{ matrix.provider }}" \
+              "${{ matrix.case }}" \
+              "${{ github.run_id }}" \
+              "${{ inputs.source_commit }}"
+          )"
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+
+      - name: Reuse source that already passed
+        if: steps.validation.outputs.status == 'passed'
+        run: |
+          mkdir -p "$ARTIFACT_ROOT"
+          cp -R "$ORIGINAL_ROOT/." "$ARTIFACT_ROOT"
+
+      - name: Download inert authoring context for repair
+        if: steps.validation.outputs.status == 'repairable-failure'
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-smoke-prepared-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
+          path: ${{ env.QUARANTINE_ROOT }}
+
+      - name: Rebuild one repair context from allowlisted files
+        if: steps.validation.outputs.status == 'repairable-failure'
+        run: >
+          node "$AUTOMATION_ROOT/scripts/release-smoke/activate-repair.mjs"
+          "${{ matrix.provider }}"
+          "$QUARANTINE_ROOT"
+          "$ORIGINAL_ROOT"
+          "$PROJECT_ROOT"
+          "$ARTIFACT_ROOT"
+
+      - name: Start the protected Codex repair proxy
+        if: steps.validation.outputs.status == 'repairable-failure' && matrix.provider == 'codex'
+        uses: openai/codex-action@52fe01ec70a42f454c9d2ebd47598f9fd6893d56 # v1
+        with:
+          allow-bots: true
+          codex-version: 0.145.0
+          codex-home: ${{ env.CODEX_HOME }}
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          permission-profile: ":workspace"
+          safety-strategy: drop-sudo
+          working-directory: ${{ env.PROJECT_ROOT }}
+
+      - name: Install the pinned Claude Code CLI for repair
+        if: steps.validation.outputs.status == 'repairable-failure' && matrix.provider == 'claude'
+        run: |
+          npm install --global --prefix "$CLAUDE_CLI_ROOT" @anthropic-ai/claude-code@2.1.220
+          docker pull "$RELEASE_SMOKE_GENERATION_IMAGE"
+
+      - name: Run one Codex repair turn
+        if: steps.validation.outputs.status == 'repairable-failure' && matrix.provider == 'codex'
+        run: >
+          node "$AUTOMATION_ROOT/scripts/release-smoke/run-session.mjs"
+          "$RELEASE_SMOKE_VERSION"
+          "${{ matrix.provider }}"
+          "${{ matrix.case }}"
+          "$PROJECT_ROOT"
+          "$ARTIFACT_ROOT"
+          "$VALIDATION_ROOT/validation.json"
+
+      - name: Run one Claude repair turn
+        if: steps.validation.outputs.status == 'repairable-failure' && matrix.provider == 'claude'
+        env:
+          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+        run: >
+          node "$AUTOMATION_ROOT/scripts/release-smoke/run-session.mjs"
+          "$RELEASE_SMOKE_VERSION"
+          "${{ matrix.provider }}"
+          "${{ matrix.case }}"
+          "$PROJECT_ROOT"
+          "$ARTIFACT_ROOT"
+          "$VALIDATION_ROOT/validation.json"
+
+      - name: Upload the original or once-repaired candidate
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-smoke-candidate-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
+          path: ${{ env.ARTIFACT_ROOT }}
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 30
+
+  final_build:
+    name: Final build · ${{ matrix.provider }} · ${{ matrix.case }}
+    needs: repair
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        provider:
+          - codex
+          - claude
+        case:
+          - surprise-me
+          - guided
+    env:
+      BUILT_ROOT: ${{ github.workspace }}/release-smoke-work/built
+      CANDIDATE_ROOT: ${{ github.workspace }}/release-smoke-work/candidate
+      CASE_ID: ${{ matrix.provider }}-${{ matrix.case }}
+      RELEASE_SMOKE_BUILD_IMAGE: node@sha256:d45d78e7929b46875bbd4e29bea672d5bc48186c6c3588306521c815e78352d6
+      RELEASE_SMOKE_SOURCE_COMMIT: ${{ inputs.source_commit }}
+      RELEASE_SMOKE_VERSION: ${{ inputs.version }}
+      VALIDATION_ROOT: ${{ github.workspace }}/release-smoke-work/validation
+    steps:
+      - name: Check out the trusted automation source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+
+      - name: Download validation evidence
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-smoke-validation-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
+          path: ${{ env.VALIDATION_ROOT }}
+
+      - name: Download the original or once-repaired candidate
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-smoke-candidate-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
+          path: ${{ env.CANDIDATE_ROOT }}
+
+      - name: Read the validation decision
+        id: validation
+        run: |
+          status="$(
+            node scripts/release-smoke/read-validation-status.mjs \
+              "$VALIDATION_ROOT/validation.json" \
+              "$RELEASE_SMOKE_VERSION" \
+              "${{ matrix.provider }}" \
+              "${{ matrix.case }}" \
+              "${{ github.run_id }}" \
+              "$RELEASE_SMOKE_SOURCE_COMMIT"
+          )"
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+
+      - name: Reuse the already verified build
+        if: steps.validation.outputs.status == 'passed'
+        run: |
+          mkdir -p "$BUILT_ROOT"
+          cp -R "$VALIDATION_ROOT/$CASE_ID" "$BUILT_ROOT/"
+
+      - name: Set up Vite+ for repaired source
+        if: steps.validation.outputs.status == 'repairable-failure'
+        uses: voidzero-dev/setup-vp@250f29ce396baf5e8f24498e17c0dfdebabc26eb # v1
+        with:
+          node-version: 24.18.0
+          cache: true
+          run-install: false
+
+      - name: Install the browser smoke harness for repaired source
+        if: steps.validation.outputs.status == 'repairable-failure'
+        run: vp install --frozen-lockfile
+
+      - name: Install Chromium for repaired source
+        if: steps.validation.outputs.status == 'repairable-failure'
+        run: vp exec playwright install --with-deps --no-shell chromium
+
+      - name: Pull the isolated build image for repaired source
+        if: steps.validation.outputs.status == 'repairable-failure'
+        run: docker pull "$RELEASE_SMOKE_BUILD_IMAGE"
+
+      - name: Recheck and rebuild repaired source without a model secret
+        if: steps.validation.outputs.status == 'repairable-failure'
         run: >
           node scripts/release-smoke/build-case.mjs
           "$RELEASE_SMOKE_VERSION"
@@ -268,10 +536,10 @@ jobs:
           "${{ matrix.case }}"
           "${{ github.run_id }}"
           "$RELEASE_SMOKE_SOURCE_COMMIT"
-          "$GENERATED_ROOT"
+          "$CANDIDATE_ROOT"
           "$BUILT_ROOT"
 
-      - name: Upload the interactive result
+      - name: Upload the final interactive result
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: release-smoke-built-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
@@ -282,7 +550,7 @@ jobs:
 
   publish:
     name: Publish review deployment
-    needs: build
+    needs: final_build
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
