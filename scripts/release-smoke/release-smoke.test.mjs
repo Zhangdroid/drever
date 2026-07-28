@@ -80,6 +80,18 @@ import { assertReleaseSmokeProvenance, requestJson } from "./verify-provenance.m
 
 const temporaryRoots = [];
 const execute = promisify(execFile);
+
+const JS_CODE_CHAR_ESCAPE_MAP = {
+  "<": "\\u003C",
+  ">": "\\u003E",
+  "/": "\\u002F",
+  "\u2028": "\\u2028",
+  "\u2029": "\\u2029",
+};
+
+function escapeUnsafeJsLiteral(value) {
+  return value.replace(/[<>/\u2028\u2029]/g, (character) => JS_CODE_CHAR_ESCAPE_MAP[character]);
+}
 const write = async (root, path, content) => {
   const destination = join(root, path);
   await mkdir(dirname(destination), { recursive: true });
@@ -1561,7 +1573,7 @@ test("hard-fails release-smoke validation misuse before invoking the build", asy
     write(
       root,
       "build-case.mjs",
-      `await import("node:fs/promises").then(({ writeFile }) => writeFile(${JSON.stringify(marker)}, ""));\n`,
+      `await import("node:fs/promises").then(({ writeFile }) => writeFile(${escapeUnsafeJsLiteral(JSON.stringify(marker))}, ""));\n`,
     ),
   ]);
 
