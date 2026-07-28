@@ -39,10 +39,10 @@ export function HeroStage() {
 
     window.cancelAnimationFrame(pointerFrameRef.current ?? 0);
     pointerFrameRef.current = window.requestAnimationFrame(() => {
-      stage.style.setProperty("--hero-tilt-x", `${(-y * 8).toFixed(2)}deg`);
-      stage.style.setProperty("--hero-tilt-y", `${(x * 11).toFixed(2)}deg`);
-      stage.style.setProperty("--hero-shift-x", `${(x * 12).toFixed(2)}px`);
-      stage.style.setProperty("--hero-shift-y", `${(y * 9).toFixed(2)}px`);
+      stage.style.setProperty("--hero-tilt-x", `${(-y * 4).toFixed(2)}deg`);
+      stage.style.setProperty("--hero-tilt-y", `${(x * 6).toFixed(2)}deg`);
+      stage.style.setProperty("--hero-shift-x", `${(x * 6).toFixed(2)}px`);
+      stage.style.setProperty("--hero-shift-y", `${(y * 5).toFixed(2)}px`);
       stage.style.setProperty("--hero-pointer-x", `${((x + 1) * 50).toFixed(2)}%`);
       stage.style.setProperty("--hero-pointer-y", `${((y + 1) * 50).toFixed(2)}%`);
       stage.dataset.active = "true";
@@ -271,15 +271,14 @@ export function HeroStage() {
               <i />
               <i />
             </div>
-            <div className="hero-stage__orbit hero-stage__orbit--wide">
-              <i />
-            </div>
-            <div className="hero-stage__orbit hero-stage__orbit--tall">
-              <i />
-            </div>
-            <div className="hero-stage__core">
+            <div className="hero-stage__orbit hero-stage__orbit--upper" />
+            <div className="hero-stage__orbit hero-stage__orbit--lower" />
+            <div className="hero-stage__source">
               <span />
               <span />
+              <i />
+            </div>
+            <div className="hero-stage__outcome">
               <i />
             </div>
             <div className="hero-stage__frame">

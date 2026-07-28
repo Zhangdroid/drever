@@ -3,9 +3,8 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { AIHandoff, CopyAIHandoff } from "../components/ai-handoff";
 import { CopyButton } from "../components/copy-button";
-import { CreationStoryMap, StoryDirectionDemo } from "../components/creation-story";
+import { CreationJourney } from "../components/creation-journey";
 import { creationStory } from "../components/creation-story-data";
-import { ConnectedSourceDemo, RoomMomentDemo } from "../components/home-demos";
 import { ArrowIcon, ArrowUpRightIcon, PlayIcon } from "../components/icons";
 import { HeroStage, HomeShowcaseCover } from "../components/showcase";
 import { StudyCover } from "../components/showcase-covers";
@@ -145,75 +144,7 @@ function HomePage() {
         </div>
       </section>
 
-      <CreationStoryMap />
-
-      <div className="home-creation-sequence">
-        <section className="home-ai home-ai--brief" data-header-tone="dark">
-          <div className="home-ai__copy">
-            <span>01 · Begin with the change</span>
-            <h2>A presentation starts with one clear outcome.</h2>
-            <p>
-              Tell your agent what the room should understand, decide, or do. It asks only for the
-              missing context that would materially improve the result.
-            </p>
-            <Link className="button button--light" to="/docs/ai/">
-              See how AI creation works <ArrowIcon />
-            </Link>
-          </div>
-          <AIHandoff
-            heading="What should this presentation help the room decide?"
-            placeholder={creationStory.brief}
-          />
-        </section>
-
-        <section className="home-shape">
-          <div className="home-shape__copy">
-            <span>02 · Give the idea a visual language</span>
-            <h2>The subject decides how the story should feel.</h2>
-            <p>
-              Audience, evidence, and purpose become a visual premise, a recurring motif, and a few
-              meaningful moments—not a random attractive theme.
-            </p>
-            <Link className="text-link" to="/docs/themes/">
-              Explore art direction <ArrowIcon />
-            </Link>
-          </div>
-          <StoryDirectionDemo />
-        </section>
-
-        <section className="home-story" data-header-tone="dark">
-          <header className="home-story__heading">
-            <span>03 · Let the room shape the story</span>
-            <h2>A good slide knows what the room needs next.</h2>
-            <p>
-              The team asks for proof, so the next Step reveals proof. That moment can be paused,
-              revisited, or shared without losing its place.
-            </p>
-          </header>
-
-          <RoomMomentDemo />
-        </section>
-
-        <section className="home-source">
-          <div className="home-source__copy">
-            <span>04 · Keep the moment useful</span>
-            <h2 className="home-source__title">
-              <span className="home-source__title-line">One exact moment.</span>
-              <span className="home-source__title-line">Every useful</span>
-              <span className="home-source__title-accent">surface.</span>
-            </h2>
-            <p>
-              The same evidence, speaker context, and exact route remain connected in the live deck,
-              readable document, website, and PDF.
-            </p>
-            <Link className="text-link" to="/docs/authoring/">
-              Why Drever uses MDX <ArrowIcon />
-            </Link>
-          </div>
-
-          <ConnectedSourceDemo />
-        </section>
-      </div>
+      <CreationJourney />
 
       <section className="home-showcase">
         <header className="section-heading">
@@ -234,17 +165,23 @@ function HomePage() {
       </section>
 
       <section className="home-finale" data-header-tone="dark">
-        <span>Your presentation starts the same way</span>
-        <h2>Begin with what the room should change.</h2>
-        <p>
-          Bring one outcome. Drever and your agent can turn it into a story, a visual language, a
-          live room, and every useful surface after it.
-        </p>
-        <div>
-          <CopyAIHandoff className="button button--light" />
-          <Link className="text-link text-link--light" to="/docs/getting-started/">
-            Follow the creation workflow <ArrowIcon />
-          </Link>
+        <div className="home-finale__content">
+          <div className="home-finale__copy">
+            <span>Your presentation starts the same way</span>
+            <h2>Begin with what the room should change.</h2>
+            <p>
+              Bring one outcome. Drever and your agent can turn it into a story, a visual language,
+              a live room, and every useful surface after it.
+            </p>
+            <Link className="text-link text-link--light" to="/docs/getting-started/">
+              Follow the creation workflow <ArrowIcon />
+            </Link>
+          </div>
+
+          <AIHandoff
+            heading="What should this presentation help the room decide?"
+            placeholder={creationStory.brief}
+          />
         </div>
       </section>
     </main>
