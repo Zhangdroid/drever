@@ -158,11 +158,13 @@ failure remains visible without making an already verified registry release
 appear to have failed. Each journey runs independently through
 `gpt-5.6-sol` and `claude-opus-5`, both at medium reasoning effort, then
 publishes both results as a direct comparison. The shared effort level keeps
-the comparison balanced while bounding latency and token use. Claude journeys
-run serially, have a 35-minute scenario deadline, allow an individual turn up
-to 20 minutes, and carry a cumulative $15 CLI budget plus agent-turn and proxy
-request limits. Cost is further controlled by running this expensive evidence
-once for stable releases by default.
+the comparison balanced while bounding latency and token use. All four journeys
+run independently in parallel, so the protected environment presents one
+approval wave instead of serial Claude approvals. Each Claude journey has a
+35-minute scenario deadline, allows an individual turn up to 20 minutes, and
+carries its own cumulative $15 CLI budget plus agent-turn and proxy request
+limits. Cost is further controlled by running this expensive evidence once for
+stable releases by default.
 The Codex half may qualify for OpenAI's complimentary
 shared-traffic allowance only when project data sharing is enabled, the
 organization is eligible, and daily quota remains; otherwise normal API billing

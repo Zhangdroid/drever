@@ -7,6 +7,9 @@ section, while commit snapshots use the current Unreleased section.
 
 ### Changed
 
+- Ran all four AI release-smoke journeys independently in parallel so the
+  protected environment presents one approval wave instead of serial Claude
+  approvals.
 - Reframed the comparative AI release smoke around a globally readable
   12-slide black-hole science story, with a 10-to-14-slide contract for longer
   narrative, diagram, motion, and speaker-note review, plus a bounded Claude

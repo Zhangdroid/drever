@@ -120,9 +120,6 @@ jobs:
         case:
           - surprise-me
           - guided
-    concurrency:
-      group: release-smoke-${{ github.run_id }}-${{ matrix.provider == 'claude' && 'claude' || matrix.case }}
-      cancel-in-progress: false
     env:
       AUTOMATION_ROOT: ${{ github.workspace }}/automation
       ARTIFACT_ROOT: ${{ github.workspace }}/release-smoke-work/active-${{ matrix.provider }}-${{ matrix.case }}/artifact

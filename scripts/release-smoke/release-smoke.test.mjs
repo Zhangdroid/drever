@@ -1199,10 +1199,7 @@ test("keeps provider keys isolated, pins both runners, and builds four keyless c
   assert.match(generateJob, /RELEASE_SMOKE_GENERATION_IMAGE: node@sha256:[0-9a-f]{64}/u);
   assert.match(generateJob, /if: matrix\.provider == 'codex'/u);
   assert.match(generateJob, /if: matrix\.provider == 'claude'/u);
-  assert.match(
-    generateJob,
-    /group: release-smoke-\$\{\{ github\.run_id \}\}-\$\{\{ matrix\.provider == 'claude' && 'claude' \|\| matrix\.case \}\}/u,
-  );
+  assert.doesNotMatch(generateJob, /\n    concurrency:/u);
   assert.equal(workflow.match(/secrets\.OPENAI_API_KEY/gu)?.length, 1);
   assert.equal(workflow.match(/secrets\.CLAUDE_API_KEY/gu)?.length, 1);
   assert.doesNotMatch(workflow, /secrets\.ANTHROPIC_API_KEY/u);
