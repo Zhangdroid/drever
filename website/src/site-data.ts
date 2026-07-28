@@ -42,8 +42,7 @@ export const documentationNavigation = [
   {
     label: "Project",
     pages: [
-      { href: "/release-smoke/", label: realAIRunsLabel },
-      { href: "/changelog/", label: "Changelog" },
+      { exitsDocs: true, href: "/changelog/", label: "Changelog" },
       { href: "/docs/credits/", label: "Credits" },
     ],
   },

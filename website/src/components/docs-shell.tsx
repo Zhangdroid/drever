@@ -105,6 +105,7 @@ export function DocsShell() {
                       to={page.href}
                     >
                       <span>{page.label}</span>
+                      {"exitsDocs" in page && page.exitsDocs ? <ArrowUpRightIcon /> : null}
                     </Link>
                   );
                 })}
