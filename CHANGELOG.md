@@ -5,6 +5,8 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-07-27
+
 ### Changed
 
 - Made AI deck creation resolve visible slide density as an essential briefing
