@@ -5,6 +5,13 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+### Changed
+
+- Reframed the comparative AI release smoke around a globally readable
+  12-slide black-hole science story, with a 10-to-14-slide contract for longer
+  narrative, diagram, motion, and speaker-note review, plus a bounded Claude
+  budget sized to finish that larger artifact.
+
 ### Fixed
 
 - Kept the Motion showcase's anticipated browser bitmap out of viewport

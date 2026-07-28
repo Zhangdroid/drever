@@ -160,7 +160,7 @@ appear to have failed. Each journey runs independently through
 publishes both results as a direct comparison. The shared effort level keeps
 the comparison balanced while bounding latency and token use. Claude journeys
 run serially, have a 35-minute scenario deadline, allow an individual turn up
-to 20 minutes, and carry a cumulative $6 CLI budget plus agent-turn and proxy
+to 20 minutes, and carry a cumulative $15 CLI budget plus agent-turn and proxy
 request limits. Cost is further controlled by running this expensive evidence
 once for stable releases by default.
 The Codex half may qualify for OpenAI's complimentary
@@ -171,18 +171,21 @@ applies. See
 
 The workflow exercises two fixed user journeys against the public
 `https://drever.dev/prompt.md`. Both use the same stable, broadly understandable
-topic—a proposal for the first phase of a neighborhood park renewal, based on
-one supplied survey and budget constraint—so the briefing mode is the variable
-rather than the subject. This is a plausible presentation rather than a generic
-decision exercise, and the fictional fixture naturally supports data,
-comparison, spatial explanation, and decision motion without inviting
-unsupported external claims:
+science topic—why black holes are not cosmic vacuum cleaners—so the briefing
+mode is the variable rather than the subject. A supplied factual fixture keeps
+both providers away from external research and gives them the same material for
+stellar collapse, the event horizon, an equal-mass Sun thought experiment,
+orbits, close-range effects, detection, and an inverse-square comparison. The
+requested 12-slide story, enforced as a 10-to-14-slide build contract, is long
+enough to exercise a real narrative arc, readable diagrams, purposeful motion,
+and speaker notes without making an occasional one-slide model variance discard
+the entire paid run:
 
 1. a user supplies the topic, uses the briefing's **Skip remaining questions**
    escape to delegate every remaining creative decision, reviews the resulting
    brief and outline, then approves creation;
 2. a user supplies the same topic, answers the high-impact briefing questions,
-   and gives concrete audience, duration, density, motion, and decision goals
+   and gives concrete audience, duration, density, motion, and learning goals
    before approving the resulting brief and outline.
 
 Each provider receives both journeys from the exact published `create-drever`

@@ -130,7 +130,7 @@ await Promise.all([
 
 This is a trusted, generation-only CI stage.
 
-- Author no more than six slides.
+- Author 10 to 14 slides; aim for twelve.
 - Do not export a PDF or create screenshots.
 - Do not use remote images, fonts, video, audio, embeds, APIs, or other external assets.
 - Do not add packages or edit package.json, lockfiles, agent instructions, or generated output.

@@ -5,7 +5,8 @@ import { getReleaseSmokeProvider } from "./providers.mjs";
 
 export const RELEASE_SMOKE_SCHEMA_VERSION = 1;
 export const RELEASE_SMOKE_RUN_SCHEMA_VERSION = 2;
-export const MAX_SLIDES = 6;
+export const MIN_SLIDES = 10;
+export const MAX_SLIDES = 14;
 export const MAX_SOURCE_FILES = 80;
 export const MAX_SOURCE_FILE_BYTES = 1_000_000;
 export const MAX_SOURCE_BYTES = 8_000_000;
@@ -606,8 +607,10 @@ export const assertReleaseSmokeContext = (context) => {
     throw new Error("Drever context returned an invalid authoring receipt.");
   }
   const slideCount = context.deck.slides.length;
-  if (slideCount < 1 || slideCount > MAX_SLIDES) {
-    throw new Error(`Release smoke deck has ${slideCount} slides; expected 1-${MAX_SLIDES}.`);
+  if (slideCount < MIN_SLIDES || slideCount > MAX_SLIDES) {
+    throw new Error(
+      `Release smoke deck has ${slideCount} slides; expected ${MIN_SLIDES}-${MAX_SLIDES}.`,
+    );
   }
   const speakerNoteCount = context.deck.slides.reduce(
     (count, slide) => count + (Array.isArray(slide?.speakerNotes) ? slide.speakerNotes.length : 0),

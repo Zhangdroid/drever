@@ -32,6 +32,8 @@ import {
   readFirstExistingFile,
   RELEASE_SMOKE_ARTIFACT_SEED_PATHS,
   RELEASE_SMOKE_HANDOFF_PATHS,
+  MAX_SLIDES,
+  MIN_SLIDES,
   RELEASE_SMOKE_MUTABLE_HANDOFF_PATHS,
   RELEASE_SMOKE_PRIVATE_PATHS,
   RELEASE_SMOKE_RUN_SCHEMA_VERSION,
@@ -98,14 +100,21 @@ test("defines one real surprise journey and one fully guided journey", () => {
   for (const scenario of releaseSmokeScenarios) {
     assert.ok(scenario.turns.length >= 3);
     assert.match(scenario.turns[0], /^Fetch and follow https:\/\/drever\.dev\/prompt\.md\./u);
+    assert.match(scenario.turns.join("\n"), /why black holes are not cosmic vacuum cleaners/iu);
     assert.match(
       scenario.turns.join("\n"),
-      /a proposal for the first phase of a neighborhood park renewal/iu,
+      /same mass \+ same distance = same gravitational pull/iu,
     );
-    assert.match(scenario.turns.join("\n"), /46% want more shade/iu);
-    assert.match(scenario.turns.join("\n"), /34% want flexible\s+seating/iu);
-    assert.match(scenario.turns.join("\n"), /20% want\s+a small events area/iu);
-    assert.match(scenario.turns.at(-2), /complete brief and slide outline for review/iu);
+    assert.match(scenario.turns.join("\n"), /Earth would keep essentially the same orbit/iu);
+    assert.match(
+      scenario.turns.join("\n"),
+      /event horizon is a boundary beyond which signals, including light, cannot return/iu,
+    );
+    assert.match(scenario.turns.join("\n"), /1\/4 at\s+distance 2/iu);
+    assert.match(scenario.turns.join("\n"), /1\/16 at distance 4/iu);
+    assert.match(scenario.turns.join("\n"), /Create a 12-slide English presentation/iu);
+    assert.match(scenario.turns.join("\n"), /Do not browse or add named black holes/iu);
+    assert.match(scenario.turns.at(-2), /complete brief and 12-slide outline for review/iu);
     assert.match(scenario.turns.at(-2), /do not create the presentation yet/iu);
     assert.match(scenario.turns.at(-1), /^I approve the brief and slide outline\./u);
     assert.match(scenario.turns.at(-1), /refine the\s+narrative/iu);
@@ -115,11 +124,20 @@ test("defines one real surprise journey and one fully guided journey", () => {
     getReleaseSmokeScenario("surprise-me").turns[1],
     /Skip remaining questions — surprise me\./iu,
   );
-  assert.match(getReleaseSmokeScenario("guided").turns[2], /residents and community organizers/iu);
-  assert.match(getReleaseSmokeScenario("guided").turns[2], /first-phase\s+priority/iu);
   assert.match(
     getReleaseSmokeScenario("guided").turns[2],
-    /Skip remaining questions — surprise me\. Write the complete brief and slide outline/iu,
+    /high-school students from different countries/iu,
+  );
+  assert.match(getReleaseSmokeScenario("guided").turns[2], /12 minutes and want 12 slides/iu);
+  assert.match(getReleaseSmokeScenario("guided").turns[2], /same mass, same distance, same pull/iu);
+  assert.match(getReleaseSmokeScenario("guided").turns[2], /dark, high-contrast visual language/iu);
+  assert.match(
+    getReleaseSmokeScenario("guided").turns[2],
+    /at most one dominant motion idea per slide/iu,
+  );
+  assert.match(
+    getReleaseSmokeScenario("guided").turns[2],
+    /Skip remaining questions — surprise me\. Write the complete brief and 12-slide outline/iu,
   );
   assert.throws(() => getReleaseSmokeScenario("unknown"), /Unknown release smoke scenario/u);
 });
@@ -256,7 +274,7 @@ test("publishes only Claude's final result and retains its session id and usage"
           is_error: true,
         }),
       ),
-    /\$6 release smoke scenario cost budget/u,
+    /\$15 release smoke scenario cost budget/u,
   );
   assert.throws(
     () =>
@@ -777,7 +795,7 @@ test("rejects symlinks that try to cross the source allowlist boundary", async (
   );
 });
 
-test("accepts V1 and V2 authoring context while enforcing the six-slide contract", () => {
+test("accepts V1 and V2 authoring context while enforcing the release slide range", () => {
   const context = (version, slideCount) => ({
     version,
     deck: {
@@ -788,35 +806,40 @@ test("accepts V1 and V2 authoring context while enforcing the six-slide contract
     },
   });
   for (const version of [1, 2]) {
-    assert.deepEqual(assertReleaseSmokeContext(context(version, 6)), {
-      slideCount: 6,
+    assert.deepEqual(assertReleaseSmokeContext(context(version, 12)), {
+      slideCount: 12,
       speakerNoteCount: 1,
     });
+    assert.doesNotThrow(() => assertReleaseSmokeContext(context(version, MIN_SLIDES)));
+    assert.doesNotThrow(() => assertReleaseSmokeContext(context(version, MAX_SLIDES)));
   }
   assert.throws(
-    () => assertReleaseSmokeContext(context(undefined, 6)),
+    () => assertReleaseSmokeContext(context(undefined, 12)),
     /invalid authoring receipt/u,
   );
-  assert.throws(() => assertReleaseSmokeContext(context(0, 6)), /invalid authoring receipt/u);
-  assert.throws(() => assertReleaseSmokeContext(context(3, 6)), /invalid authoring receipt/u);
-  assert.throws(() => assertReleaseSmokeContext(context(2, 0)), /expected 1-6/u);
-  assert.throws(() => assertReleaseSmokeContext(context(2, 7)), /expected 1-6/u);
+  assert.throws(() => assertReleaseSmokeContext(context(0, 12)), /invalid authoring receipt/u);
+  assert.throws(() => assertReleaseSmokeContext(context(3, 12)), /invalid authoring receipt/u);
+  assert.throws(() => assertReleaseSmokeContext(context(2, MIN_SLIDES - 1)), /expected 10-14/u);
+  assert.throws(() => assertReleaseSmokeContext(context(2, MAX_SLIDES + 1)), /expected 10-14/u);
 });
 
 test("accepts clean V1 and V2 Drever check receipts", () => {
-  const check = (version, errors = 0, slideCount = 6) => ({
+  const check = (version, errors = 0, slideCount = 12) => ({
     version,
     slideCount,
     summary: { errors },
   });
   for (const version of [1, 2]) {
-    assert.doesNotThrow(() => assertReleaseSmokeCheck(check(version), 6));
+    assert.doesNotThrow(() => assertReleaseSmokeCheck(check(version), 12));
   }
-  assert.throws(() => assertReleaseSmokeCheck(check(undefined), 6), /clean release smoke receipt/u);
-  assert.throws(() => assertReleaseSmokeCheck(check(0), 6), /clean release smoke receipt/u);
-  assert.throws(() => assertReleaseSmokeCheck(check(3), 6), /clean release smoke receipt/u);
-  assert.throws(() => assertReleaseSmokeCheck(check(2, 1), 6), /clean release smoke receipt/u);
-  assert.throws(() => assertReleaseSmokeCheck(check(2, 0, 5), 6), /clean release smoke receipt/u);
+  assert.throws(
+    () => assertReleaseSmokeCheck(check(undefined), 12),
+    /clean release smoke receipt/u,
+  );
+  assert.throws(() => assertReleaseSmokeCheck(check(0), 12), /clean release smoke receipt/u);
+  assert.throws(() => assertReleaseSmokeCheck(check(3), 12), /clean release smoke receipt/u);
+  assert.throws(() => assertReleaseSmokeCheck(check(2, 1), 12), /clean release smoke receipt/u);
+  assert.throws(() => assertReleaseSmokeCheck(check(2, 0, 11), 12), /clean release smoke receipt/u);
 });
 
 test("moves a repeated run to the front without growing history forever", () => {
