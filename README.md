@@ -27,6 +27,14 @@
   then present live, publish to the web, or export a PDF from one readable source.
 </p>
 
+<p align="center">
+  <a href="https://drever.dev">Website</a> ·
+  <a href="https://drever.dev/docs/">Documentation</a> ·
+  <a href="https://drever.dev/showcase/">Showcase</a> ·
+  <a href="https://drever.dev/changelog/">Changelog</a> ·
+  <a href="./CONTRIBUTING.md">Contributing</a>
+</p>
+
 ## Start
 
 With Codex, Claude Code, or another coding agent:
@@ -52,14 +60,6 @@ The source stays readable:
 
 <Step>Show the evidence.</Step>
 ```
-
-<p align="center">
-  <a href="https://drever.dev">Website</a> ·
-  <a href="https://drever.dev/docs/">Documentation</a> ·
-  <a href="https://drever.dev/showcase/">Showcase</a> ·
-  <a href="https://drever.dev/changelog/">Changelog</a> ·
-  <a href="./CONTRIBUTING.md">Contributing</a>
-</p>
 
 <p align="center">
   <sub>Open source under the <a href="./LICENSE">MIT License</a>.</sub>
