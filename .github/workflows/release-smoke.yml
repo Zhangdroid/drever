@@ -1,238 +1,34 @@
-name: AI release smoke
+name: AI release smoke recovery · 0.9.0
 
 on:
   workflow_dispatch:
-    inputs:
-      source_commit:
-        description: Exact source commit recorded by the GitHub release
-        required: true
-        type: string
-      version:
-        description: Exact published Drever version
-        required: true
-        type: string
 
 permissions:
   contents: read
 
 concurrency:
-  group: ai-release-smoke-${{ inputs.version }}
+  group: ai-release-smoke-recovery-30321747285
   cancel-in-progress: false
 
+env:
+  RELEASE_SMOKE_SOURCE_COMMIT: 59554ca48cc132f3630bb9cf18c5673524ec1033
+  RELEASE_SMOKE_VERSION: 0.9.0
+  SOURCE_RUN_ID: "30321747285"
+
 jobs:
-  verify:
-    name: Verify release provenance
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    permissions:
-      contents: read
-    steps:
-      - name: Check out the immutable workflow source
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-          ref: ${{ github.sha }}
-
-      - name: Match npm, GitHub release, tag, and source commit
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_SMOKE_SOURCE_COMMIT: ${{ inputs.source_commit }}
-          RELEASE_SMOKE_VERSION: ${{ inputs.version }}
-          TRUSTED_WORKFLOW_REF: ${{ github.ref }}
-        run: >
-          node scripts/release-smoke/verify-provenance.mjs
-          "$RELEASE_SMOKE_VERSION"
-          "$RELEASE_SMOKE_SOURCE_COMMIT"
-          "$GITHUB_REPOSITORY"
-          "$TRUSTED_WORKFLOW_REF"
-
-  prepare:
-    name: Prepare · ${{ matrix.provider }} · ${{ matrix.case }}
-    needs: verify
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    permissions:
-      contents: read
-    strategy:
-      fail-fast: false
-      matrix:
-        provider:
-          - codex
-          - claude
-        case:
-          - surprise-me
-          - guided
-    env:
-      ARTIFACT_ROOT: ${{ github.workspace }}/release-smoke-work/prepared-${{ matrix.provider }}-${{ matrix.case }}/artifact
-      AUTOMATION_ROOT: ${{ github.workspace }}/automation
-      PREPARED_ROOT: ${{ github.workspace }}/release-smoke-work/prepared-${{ matrix.provider }}-${{ matrix.case }}
-      PROJECT_ROOT: ${{ github.workspace }}/release-smoke-work/prepared-${{ matrix.provider }}-${{ matrix.case }}/project
-      RELEASE_SMOKE_VERSION: ${{ inputs.version }}
-      SCAFFOLD_ROOT: ${{ github.workspace }}/release-smoke-work/scaffold-${{ matrix.provider }}-${{ matrix.case }}
-    steps:
-      - name: Check out the trusted automation source
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          path: automation
-          persist-credentials: false
-          ref: ${{ github.sha }}
-
-      - name: Set up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: 24.18.0
-          package-manager-cache: false
-
-      - name: Scaffold the exact release and cache the public prompt
-        run: >
-          node "$AUTOMATION_ROOT/scripts/release-smoke/prepare-project.mjs"
-          "$RELEASE_SMOKE_VERSION"
-          "${{ matrix.provider }}"
-          "${{ matrix.case }}"
-          "$SCAFFOLD_ROOT"
-          "$PROJECT_ROOT"
-          "$ARTIFACT_ROOT"
-
-      - name: Upload the inert authoring context
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: release-smoke-prepared-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
-          path: ${{ env.PREPARED_ROOT }}
-          if-no-files-found: error
-          include-hidden-files: true
-          overwrite: true
-          retention-days: 1
-
-  generate:
-    name: Generate · ${{ matrix.provider }} · ${{ matrix.case }}
-    needs: prepare
-    environment: ai-release-smoke
+  repair-build:
+    name: Repair and build · Claude · guided
     runs-on: ubuntu-24.04
     timeout-minutes: 50
     permissions:
+      actions: read
       contents: read
-    strategy:
-      fail-fast: false
-      matrix:
-        provider:
-          - codex
-          - claude
-        case:
-          - surprise-me
-          - guided
-    env:
-      AUTOMATION_ROOT: ${{ github.workspace }}/automation
-      ARTIFACT_ROOT: ${{ github.workspace }}/release-smoke-work/active-${{ matrix.provider }}-${{ matrix.case }}/artifact
-      CLAUDE_CLI_ROOT: ${{ github.workspace }}/release-smoke-work/claude-cli
-      CLAUDE_CONFIG_DIR: ${{ github.workspace }}/release-smoke-work/claude-${{ matrix.case }}
-      CODEX_HOME: ${{ github.workspace }}/release-smoke-work/codex-${{ matrix.case }}
-      PROJECT_ROOT: ${{ github.workspace }}/release-smoke-work/active-${{ matrix.provider }}-${{ matrix.case }}/project
-      QUARANTINE_ROOT: ${{ github.workspace }}/release-smoke-work/quarantine-${{ matrix.provider }}-${{ matrix.case }}
-      RELEASE_SMOKE_GENERATION_IMAGE: node@sha256:d45d78e7929b46875bbd4e29bea672d5bc48186c6c3588306521c815e78352d6
-      RELEASE_SMOKE_MODEL: ${{ matrix.provider == 'claude' && 'claude-opus-5' || 'gpt-5.6-sol' }}
-      RELEASE_SMOKE_VERSION: ${{ inputs.version }}
-      RELEASE_SMOKE_WORK_ROOT: ${{ github.workspace }}/release-smoke-work
-    steps:
-      - name: Check out the trusted automation source
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          path: automation
-          persist-credentials: false
-          ref: ${{ github.sha }}
-
-      - name: Set up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: 24.18.0
-          package-manager-cache: false
-
-      - name: Download inert authoring context
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: release-smoke-prepared-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
-          path: ${{ env.QUARANTINE_ROOT }}
-
-      - name: Rebuild the authoring context from regular allowlisted files
-        run: >
-          node "$AUTOMATION_ROOT/scripts/release-smoke/activate-handoff.mjs"
-          "${{ matrix.provider }}"
-          "$QUARANTINE_ROOT"
-          "$PROJECT_ROOT"
-          "$ARTIFACT_ROOT"
-
-      - name: Start the protected Codex proxy
-        if: matrix.provider == 'codex'
-        uses: openai/codex-action@52fe01ec70a42f454c9d2ebd47598f9fd6893d56 # v1
-        with:
-          allow-bots: true
-          codex-version: 0.145.0
-          codex-home: ${{ env.CODEX_HOME }}
-          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
-          permission-profile: ":workspace"
-          safety-strategy: drop-sudo
-          working-directory: ${{ env.PROJECT_ROOT }}
-
-      - name: Install the pinned Claude Code CLI
-        if: matrix.provider == 'claude'
-        run: |
-          npm install --global --prefix "$CLAUDE_CLI_ROOT" @anthropic-ai/claude-code@2.1.220
-          docker pull "$RELEASE_SMOKE_GENERATION_IMAGE"
-
-      - name: Run the Codex creation journey
-        if: matrix.provider == 'codex'
-        run: >
-          node "$AUTOMATION_ROOT/scripts/release-smoke/run-session.mjs"
-          "$RELEASE_SMOKE_VERSION"
-          "${{ matrix.provider }}"
-          "${{ matrix.case }}"
-          "$PROJECT_ROOT"
-          "$ARTIFACT_ROOT"
-
-      - name: Run the Claude creation journey
-        if: matrix.provider == 'claude'
-        env:
-          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
-        run: >
-          node "$AUTOMATION_ROOT/scripts/release-smoke/run-session.mjs"
-          "$RELEASE_SMOKE_VERSION"
-          "${{ matrix.provider }}"
-          "${{ matrix.case }}"
-          "$PROJECT_ROOT"
-          "$ARTIFACT_ROOT"
-
-      - name: Upload allowlisted source and sanitized conversation
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: release-smoke-generated-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
-          path: ${{ env.ARTIFACT_ROOT }}
-          if-no-files-found: error
-          overwrite: true
-          retention-days: 30
-
-  build:
-    name: Build · ${{ matrix.provider }} · ${{ matrix.case }}
-    needs: generate
-    runs-on: ubuntu-24.04
-    timeout-minutes: 50
-    permissions:
-      contents: read
-    strategy:
-      fail-fast: false
-      matrix:
-        provider:
-          - codex
-          - claude
-        case:
-          - surprise-me
-          - guided
     env:
       BUILT_ROOT: ${{ github.workspace }}/release-smoke-work/built
       GENERATED_ROOT: ${{ github.workspace }}/release-smoke-work/generated
       RELEASE_SMOKE_BUILD_IMAGE: node@sha256:d45d78e7929b46875bbd4e29bea672d5bc48186c6c3588306521c815e78352d6
-      RELEASE_SMOKE_SOURCE_COMMIT: ${{ inputs.source_commit }}
-      RELEASE_SMOKE_VERSION: ${{ inputs.version }}
     steps:
-      - name: Check out the trusted automation source
+      - name: Check out the recovery harness
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
@@ -254,51 +50,63 @@ jobs:
       - name: Pull the isolated build image
         run: docker pull "$RELEASE_SMOKE_BUILD_IMAGE"
 
-      - name: Download generated source
+      - name: Download the original Claude guided source
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: release-smoke-generated-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
+          name: release-smoke-generated-claude-guided-30321747285
           path: ${{ env.GENERATED_ROOT }}
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 30321747285
 
-      - name: Build and open every presentation surface without the API secret
+      - name: Repair the duplicate slide heading and record provenance
+        run: >
+          node scripts/release-smoke/recover-generated-title.mjs
+          "$GENERATED_ROOT"
+
+      - name: Build and verify the repaired case without provider secrets
         run: >
           node scripts/release-smoke/build-case.mjs
           "$RELEASE_SMOKE_VERSION"
-          "${{ matrix.provider }}"
-          "${{ matrix.case }}"
-          "${{ github.run_id }}"
+          "claude"
+          "guided"
+          "$SOURCE_RUN_ID"
           "$RELEASE_SMOKE_SOURCE_COMMIT"
           "$GENERATED_ROOT"
           "$BUILT_ROOT"
 
-      - name: Upload the interactive result
+      - name: Attach the repair disclosure to the published case
+        run: >
+          node scripts/release-smoke/disclose-recovery.mjs
+          "$GENERATED_ROOT"
+          "$BUILT_ROOT/claude-guided"
+
+      - name: Upload the repaired interactive result
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: release-smoke-built-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
+          name: release-smoke-built-claude-guided-recovery-${{ github.run_id }}
           path: ${{ env.BUILT_ROOT }}
           if-no-files-found: error
-          overwrite: true
           retention-days: 30
 
   publish:
-    name: Publish review deployment
-    needs: build
+    name: Publish recovered review deployment
+    needs: repair-build
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
+      actions: read
       contents: write
     env:
       AUTOMATION_ROOT: ${{ github.workspace }}/automation
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       PAGES_PROJECT: drever-release-smoke
+      RESULT_BRANCH: run-30321747285
       RESULT_SUMMARY: ${{ github.workspace }}/release-smoke-work/result-summary.md
-      RELEASE_SMOKE_SOURCE_COMMIT: ${{ inputs.source_commit }}
-      RELEASE_SMOKE_VERSION: ${{ inputs.version }}
       RESULTS_ROOT: ${{ github.workspace }}/release-smoke-work/results
-      RESULT_BRANCH: run-${{ github.run_id }}
     steps:
-      - name: Check out the automation source
+      - name: Check out the recovery harness
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: automation
@@ -316,12 +124,45 @@ jobs:
         working-directory: ${{ env.AUTOMATION_ROOT }}
         run: vp install --frozen-lockfile
 
-      - name: Download the built presentations
+      - name: Download original Codex surprise-me result
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          pattern: release-smoke-built-*-${{ github.run_id }}
+          name: release-smoke-built-codex-surprise-me-30321747285
           path: ${{ env.RESULTS_ROOT }}
-          merge-multiple: true
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 30321747285
+
+      - name: Download original Codex guided result
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-smoke-built-codex-guided-30321747285
+          path: ${{ env.RESULTS_ROOT }}
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 30321747285
+
+      - name: Download original Claude surprise-me result
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-smoke-built-claude-surprise-me-30321747285
+          path: ${{ env.RESULTS_ROOT }}
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 30321747285
+
+      - name: Download repaired Claude guided result
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-smoke-built-claude-guided-recovery-${{ github.run_id }}
+          path: ${{ env.RESULTS_ROOT }}
+
+      - name: Require exactly four complete cases
+        run: |
+          test -f "$RESULTS_ROOT/codex-surprise-me/case.json"
+          test -f "$RESULTS_ROOT/codex-guided/case.json"
+          test -f "$RESULTS_ROOT/claude-surprise-me/case.json"
+          test -f "$RESULTS_ROOT/claude-guided/case.json"
 
       - name: Hydrate the published release history
         run: >
@@ -330,11 +171,11 @@ jobs:
           "https://drever-release-smoke.pages.dev"
           "https://3cc63cd1.drever-website.pages.dev"
 
-      - name: Assemble the website data and review summary
+      - name: Assemble the original report ID
         run: >
           node "$AUTOMATION_ROOT/scripts/release-smoke/publish-results.mjs"
           "$RELEASE_SMOKE_VERSION"
-          "${{ github.run_id }}"
+          "$SOURCE_RUN_ID"
           "$RELEASE_SMOKE_SOURCE_COMMIT"
           "$GITHUB_REPOSITORY"
           "$RESULTS_ROOT"
@@ -342,6 +183,13 @@ jobs:
           "$RESULT_BRANCH"
           "release"
           "${{ github.sha }}"
+          "$RESULT_SUMMARY"
+
+      - name: Add public recovery provenance
+        run: >
+          node "$AUTOMATION_ROOT/scripts/release-smoke/disclose-recovered-run.mjs"
+          "$AUTOMATION_ROOT/website"
+          "$RESULTS_ROOT"
           "$RESULT_SUMMARY"
 
       - name: Build the isolated review site
@@ -357,7 +205,7 @@ jobs:
               "$PAGES_PROJECT" \
               "$RESULT_BRANCH" \
               "${{ github.sha }}" \
-              "Drever $RELEASE_SMOKE_VERSION · run ${{ github.run_id }}"
+              "Drever $RELEASE_SMOKE_VERSION · recovered run $SOURCE_RUN_ID"
           )"
           echo "origin=$origin" >> "$GITHUB_OUTPUT"
 
@@ -365,7 +213,7 @@ jobs:
         run: >
           node "$AUTOMATION_ROOT/scripts/release-smoke/pin-preview-origin.mjs"
           "$AUTOMATION_ROOT/website"
-          "${{ github.run_id }}"
+          "$SOURCE_RUN_ID"
           "$RESULT_BRANCH"
           "${{ steps.deck.outputs.origin }}"
           "$RESULT_SUMMARY"
@@ -383,16 +231,16 @@ jobs:
               "$PAGES_PROJECT" \
               "main" \
               "${{ github.sha }}" \
-              "Drever $RELEASE_SMOKE_VERSION · verified report"
+              "Drever $RELEASE_SMOKE_VERSION · recovered report"
           )"
           echo "origin=$origin" >> "$GITHUB_OUTPUT"
 
-      - name: Verify the immutable report deployment
+      - name: Verify the recovered report deployment
         run: >
           node "$AUTOMATION_ROOT/scripts/release-smoke/verify-pages-preview.mjs"
           "${{ steps.report.outputs.origin }}"
           "${{ steps.deck.outputs.origin }}"
-          "${{ github.run_id }}"
+          "$SOURCE_RUN_ID"
           "$RELEASE_SMOKE_VERSION"
           "$RELEASE_SMOKE_SOURCE_COMMIT"
           "${{ github.sha }}"
@@ -404,16 +252,15 @@ jobs:
           "${{ steps.deck.outputs.origin }}"
           "${{ steps.report.outputs.origin }}"
 
-      - name: Retain a downloadable site bundle
+      - name: Retain the recovered site bundle
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: release-smoke-site-${{ github.run_id }}
+          name: release-smoke-site-recovery-${{ github.run_id }}
           path: ${{ env.AUTOMATION_ROOT }}/website/dist/client
           if-no-files-found: error
-          overwrite: true
           retention-days: 30
 
-      - name: Add the immutable report to the GitHub release
+      - name: Update the GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: >
@@ -423,7 +270,7 @@ jobs:
           "${{ steps.report.outputs.origin }}"
           "https://github.com/$GITHUB_REPOSITORY/actions/runs/${{ github.run_id }}"
 
-      - name: Publish the review summary
+      - name: Publish the recovery summary
         run: |
           cat "$RESULT_SUMMARY" >> "$GITHUB_STEP_SUMMARY"
           echo >> "$GITHUB_STEP_SUMMARY"
