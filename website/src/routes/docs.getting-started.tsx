@@ -6,7 +6,7 @@ import { DocArticle, DocMdx, DocNext, ManualSetup } from "../components/docs-she
 import { pageHead } from "../seo";
 
 const description =
-  "Tell your AI agent what the presentation must achieve. It opens an early live draft, keeps refining it, and finishes with a verified deck.";
+  "Tell your AI agent what the presentation must achieve. Review its brief and outline, then refine one live draft into a verified deck.";
 
 export const Route = createFileRoute("/docs/getting-started")({
   component: Page,

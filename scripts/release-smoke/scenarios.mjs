@@ -11,40 +11,54 @@ obvious MDX and JSX syntax defects, including unbalanced tags, malformed express
 imports, and Markdown delimiter runs used as visible placeholders. This is a source review, not a
 claim that validation ran.`;
 
+const sharedTopic = "a proposal for the first phase of a neighborhood park renewal";
+const sharedEvidence = `Use this fictional community-planning exercise as the complete factual
+basis: residents must choose which improvement to fund first. A survey of 180
+residents found that 46% want more shade, 34% want flexible seating, and 20% want
+a small events area. The first-phase budget can fund only one option.`;
+const topicTurn = `Create a presentation about ${sharedTopic}.
+
+${sharedEvidence}`;
+
 export const releaseSmokeScenarios = Object.freeze([
   Object.freeze({
     brief:
-      "The model chooses a useful presentation topic and makes the remaining narrative, visual, and motion decisions without further briefing.",
+      "Propose the first phase of a neighborhood park renewal; the model makes every remaining narrative, visual, and motion decision.",
     id: "surprise-me",
     label: "Surprise me",
     mode: "surprise-me",
     turns: Object.freeze([
       sharedFirstTurn,
-      "Skip remaining questions — surprise me. Choose the topic and every remaining creative decision, then create the presentation now.",
-      `Review the complete authored draft once more. Keep its strongest idea, then refine the
+      `${topicTurn}
+
+Skip remaining questions — surprise me. Choose every remaining creative decision, then write the
+complete brief and slide outline for review. Do not create the presentation yet.`,
+      `I approve the brief and slide outline. Mark brief.md as Approved, then create the complete presentation now. Review the
+authored draft once more, keep its strongest idea, then refine the
 narrative, composition, hierarchy, motion, and small details wherever the source reveals a
 clear improvement. ${sourceReview} Do not run validation in this protected stage.`,
     ]),
   }),
   Object.freeze({
     brief:
-      "Show product, design, and engineering leads how to run an eight-minute pre-mortem that ends with three launch risks, owners, and next actions.",
+      "Propose the first phase of a neighborhood park renewal through a concise eight-minute decision story.",
     id: "guided",
     label: "Guided answers",
     mode: "guided",
     turns: Object.freeze([
       sharedFirstTurn,
-      "Create a presentation about running a useful pre-mortem before a product launch.",
-      `The audience is a small group of product, design, and engineering leads.
-I have eight minutes. By the end, they should be able to choose the three risks
-that deserve owners before launch. Keep visible slides concise and put useful
-facilitation detail in speaker notes. Use expressive but purposeful motion and a
-calm launch-control or risk-radar visual language. Keep the exercise reusable
-for any product instead of inventing a fictional launch.
+      topicTurn,
+      `The audience is residents and community organizers in a public meeting.
+I have eight minutes. By the end, they should be able to choose the first-phase
+priority and understand the trade-off behind it. Keep visible slides concise
+and put useful facilitation detail in speaker notes. Use expressive but
+purposeful motion and a warm civic-plan visual language with spatial layers.
+Do not invent additional survey results, costs, dates, locations, or promises.
 
-Skip remaining questions — surprise me. Create the complete presentation now.`,
-      `Review the complete authored draft once more. Use expressive but purposeful motion and a
-calm launch-control or risk-radar visual language. Preserve what already works, then refine the
+Skip remaining questions — surprise me. Write the complete brief and slide outline for review, but
+do not create the presentation yet.`,
+      `I approve the brief and slide outline. Mark brief.md as Approved, then create the complete presentation now. Use expressive but purposeful motion and a
+warm civic-plan visual language with spatial layers. Preserve what already works, then refine the
 narrative, composition, hierarchy, motion, and small details wherever the source reveals a clear
 improvement. ${sourceReview} Do not run validation in this protected stage.`,
     ]),

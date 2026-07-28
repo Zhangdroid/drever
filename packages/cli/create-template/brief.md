@@ -1,36 +1,52 @@
 # Presentation brief
 
-Describe the presentation in your own words. Your AI agent can turn this brief into a complete Drever deck.
+Status: Awaiting input
 
-## Goal
+Your AI agent will replace this starter with a reviewable plan and wait for approval before
+authoring the presentation.
 
-What should change after the presentation?
+## Objective
 
-## Audience
+- Topic:
+- Desired change:
+- Audience:
+- Audience baseline:
 
-Who will see it, and what do they already know?
+## Delivery
 
-## Content
+- Duration:
+- Planned slide count or range:
+- Language:
+- Venue and delivery format:
+- Deliverables: live presentation, website, PDF
 
-Add the facts, source material, and ideas that must be included.
-
-## Scope and evidence
+## Content and evidence
 
 - Must cover:
 - Can omit:
 - Claims or decisions that require evidence:
 - Preferred source authority:
+- Provided or permitted assets:
 
 ## Direction
 
-- Duration:
-- Venue and delivery format:
-- Language:
-- Slide density: concise with fuller notes, balanced, or reference-dense
+- Visible slide density: concise presenter-led, balanced, or detailed reader-led
+- Speaker-note strategy:
+- Narrative approach:
+- Visual direction:
 - Motion intensity: restrained, expressive, or intentionally experimental
-- Narrative lens:
-- Visual voice:
-- Visual references or official sources:
-- Motion or interaction references and tools:
-- Provided or permitted assets:
-- Deliverables: live presentation, website, PDF
+- Interaction intent:
+- Visual, motion, or interaction references:
+
+## Signature moments
+
+1.
+2.
+
+## Slide outline
+
+1. Working title — purpose, evidence or focal visual, and any material Notes, Steps, interaction, or motion.
+
+## Assumptions and open risks
+
+-

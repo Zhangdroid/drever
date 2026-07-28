@@ -14,27 +14,27 @@ const journeyStages = [
   },
   {
     id: "draft",
-    label: "First draft",
-    title: "Make something visible early.",
+    label: "Plan",
+    title: "Review the shape first.",
     description:
-      "Drever creates a rough, honest draft first—enough to review the story without pretending the design is finished.",
-    status: "First draft",
+      "AI turns the answers into a complete brief and page-by-page outline, then stops before authoring.",
+    status: "Awaiting approval",
   },
   {
     id: "iterate",
-    label: "Author pass",
-    title: "You direct the next pass.",
+    label: "Your review",
+    title: "Direct it before it becomes slides.",
     description:
-      "AI gets the deck moving. You decide what deserves emphasis, what should disappear, and what the room needs next.",
-    status: "Revision requested",
+      "Change the emphasis, density, order, or motion intent while the plan is still cheap to reshape.",
+    status: "Plan revised",
   },
   {
     id: "refine",
-    label: "Structure",
-    title: "Give every slide one job.",
+    label: "First draft",
+    title: "Make the approved story visible.",
     description:
-      "Evidence is reordered, extra detail moves to Notes, and one clear question becomes the spine of the story.",
-    status: "Story refined",
+      "Only after approval does Drever author the complete story, move detail to Notes, and open one live preview.",
+    status: "Draft live",
   },
   {
     id: "direction",
@@ -120,8 +120,8 @@ export function CreationJourney() {
         <span>One deck · becoming</span>
         <h2 id="home-journey-title">Watch a presentation earn its final form.</h2>
         <p>
-          The canvas stays put. The thinking gets clearer as you scroll—from raw brief to a live,
-          shareable room.
+          The canvas stays put. The thinking gets clearer as you scroll—from raw brief, through a
+          reviewed plan, to a live, shareable room.
         </p>
       </header>
 
@@ -206,16 +206,16 @@ function JourneyVisual({
             </div>
 
             <div className="home-journey__draft">
-              <small>Launch recommendation · Q3 pilot</small>
-              <h3>Setup research and rollout findings</h3>
+              <small>Brief · awaiting approval</small>
+              <h3>Seven-slide decision story</h3>
               <p>
-                Review three concepts, eleven screens, pilot completion, support volume, and the
-                proposed launch sequence.
+                Open with setup friction, compare three paths, reveal one proof point, and end with
+                a launch decision.
               </p>
               <ul>
-                <li>11 screens</li>
-                <li>14 metrics</li>
-                <li>3 concepts</li>
+                <li>8 minutes</li>
+                <li>Concise</li>
+                <li>Full Notes</li>
               </ul>
             </div>
 
@@ -224,7 +224,7 @@ function JourneyVisual({
                 <span>Your direction</span>
                 <small>You</small>
               </header>
-              <strong>Make the decision unmistakable.</strong>
+              <strong>Make the decision unmistakable before authoring.</strong>
               <ul>
                 <li>Keep one proof point.</li>
                 <li>Move the rest to Notes.</li>

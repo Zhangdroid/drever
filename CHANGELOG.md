@@ -7,6 +7,13 @@ section, while commit snapshots use the current Unreleased section.
 
 ### Changed
 
+- Made AI deck creation resolve visible slide density as an essential briefing
+  decision, persist a complete `brief.md` with slide count, direction, and a
+  numbered outline, and stop for explicit plan approval before authoring or
+  opening Draft 1.
+- Made the guided and surprise-me release-smoke journeys share one stable,
+  presentation-worthy neighborhood-park proposal and factual fixture so their
+  briefing modes can be compared without subject drift.
 - Reorganized the public documentation around the path from AI-assisted creation
   through authoring, presenting, and delivery; added one complete command
   reference with exact options, defaults, workflow links, and drift protection

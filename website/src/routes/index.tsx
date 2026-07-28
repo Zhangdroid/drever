@@ -112,7 +112,7 @@ function HomePage() {
             <div className="home-hero__prompt">
               <CopyAIHandoff className="button button--primary" describedBy="home-prompt-tooltip" />
               <span id="home-prompt-tooltip" role="tooltip">
-                Paste into Codex or Claude Code—the agent handles setup and opens a local preview.
+                The agent handles setup, pauses for plan approval, then opens a local preview.
               </span>
             </div>
             <a className="button home-hero__demo" href="/showcase/product/">

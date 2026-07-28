@@ -16,8 +16,10 @@ import {
 import { resolveAnthropicProxyTarget } from "./anthropic-proxy.mjs";
 import {
   assertReleaseSmokeCheck,
+  assertReleaseSmokeBrief,
   assertReleaseSmokeContext,
   assertReleaseSmokeGenerationTree,
+  assertReleaseSmokePlanReview,
   collectReleaseSmokeSource,
   copyReleaseSmokeArtifactSeed,
   copyReleaseSmokeHandoff,
@@ -96,17 +98,28 @@ test("defines one real surprise journey and one fully guided journey", () => {
   for (const scenario of releaseSmokeScenarios) {
     assert.ok(scenario.turns.length >= 3);
     assert.match(scenario.turns[0], /^Fetch and follow https:\/\/drever\.dev\/prompt\.md\./u);
+    assert.match(
+      scenario.turns.join("\n"),
+      /a proposal for the first phase of a neighborhood park renewal/iu,
+    );
+    assert.match(scenario.turns.join("\n"), /46% want more shade/iu);
+    assert.match(scenario.turns.join("\n"), /34% want flexible\s+seating/iu);
+    assert.match(scenario.turns.join("\n"), /20% want\s+a small events area/iu);
+    assert.match(scenario.turns.at(-2), /complete brief and slide outline for review/iu);
+    assert.match(scenario.turns.at(-2), /do not create the presentation yet/iu);
+    assert.match(scenario.turns.at(-1), /^I approve the brief and slide outline\./u);
     assert.match(scenario.turns.at(-1), /refine the\s+narrative/iu);
     assert.match(scenario.turns.at(-1), /reread every authored file as literal source/iu);
   }
   assert.match(
     getReleaseSmokeScenario("surprise-me").turns[1],
-    /^Skip remaining questions — surprise me\./iu,
+    /Skip remaining questions — surprise me\./iu,
   );
-  assert.match(getReleaseSmokeScenario("guided").turns[2], /reusable\s+for any product/iu);
+  assert.match(getReleaseSmokeScenario("guided").turns[2], /residents and community organizers/iu);
+  assert.match(getReleaseSmokeScenario("guided").turns[2], /first-phase\s+priority/iu);
   assert.match(
     getReleaseSmokeScenario("guided").turns[2],
-    /Skip remaining questions — surprise me\. Create the complete presentation now\./u,
+    /Skip remaining questions — surprise me\. Write the complete brief and slide outline/iu,
   );
   assert.throws(() => getReleaseSmokeScenario("unknown"), /Unknown release smoke scenario/u);
 });
@@ -652,7 +665,11 @@ test("copies only bounded authoring source and rejects remote assets", async () 
   const output = join(root, "artifact", "source");
   await Promise.all([
     write(project, "slides.mdx", "# A useful deck\n"),
-    write(project, "brief.md", "# Brief\n"),
+    write(
+      project,
+      "brief.md",
+      "# Brief\n\n**Status:** Approved\n\n- **Visible slide density:** Concise\n\n## Slide outline\n\n1. Opening — establish the decision.\n",
+    ),
     write(project, "Scene.tsx", "export const Scene = () => <svg />;\n"),
     write(project, "styles/theme.css", ".scene { color: rebeccapurple; }\n"),
     write(project, "public/grid.svg", '<svg xmlns="http://www.w3.org/2000/svg" />\n'),
@@ -690,6 +707,58 @@ test("copies only bounded authoring source and rejects remote assets", async () 
   await assert.rejects(
     collectReleaseSmokeSource(project, output),
     /contains a credential-shaped value: styles\/secret\.css/u,
+  );
+});
+
+test("requires an approved, density-aware brief with a numbered outline", () => {
+  const valid =
+    "# Brief\n\n**Status:** Approved\n\n- **Visible slide density:** Balanced\n\n## Slide outline\n\n1. Opening — establish the question.\n";
+
+  assert.doesNotThrow(() => assertReleaseSmokeBrief(valid));
+  assert.throws(
+    () => assertReleaseSmokeBrief(valid.replace("Approved", "Awaiting approval")),
+    /must record Status: Approved/u,
+  );
+  assert.throws(
+    () => assertReleaseSmokeBrief(valid.replace("Balanced", "")),
+    /nonempty visible slide density/u,
+  );
+  assert.throws(
+    () => assertReleaseSmokeBrief(valid.replace("1. Opening", "Opening")),
+    /numbered slide outline/u,
+  );
+});
+
+test("stops on a complete plan before authoring release-smoke presentation source", async () => {
+  const root = await mkdtemp(join(tmpdir(), "drever-release-smoke-plan-"));
+  temporaryRoots.push(root);
+  const project = join(root, "project");
+  await Promise.all([
+    write(
+      project,
+      "brief.md",
+      "# Brief\n\n**Status:** Awaiting approval\n\n- **Visible slide density:** Concise\n\n## Slide outline\n\n1. Opening — establish the decision.\n",
+    ),
+    write(project, "drever.config.ts", "export default {};\n"),
+  ]);
+
+  await assert.doesNotReject(assertReleaseSmokePlanReview(project, ["drever.config.ts"]));
+
+  await write(project, "slides.mdx", "# Premature deck\n");
+  await assert.rejects(
+    assertReleaseSmokePlanReview(project, ["drever.config.ts"]),
+    /created presentation source before plan approval: slides\.mdx/u,
+  );
+
+  await rm(join(project, "slides.mdx"));
+  await write(
+    project,
+    "brief.md",
+    "# Brief\n\n**Status:** Approved\n\n- **Visible slide density:** Concise\n\n## Slide outline\n\n1. Opening — establish the decision.\n",
+  );
+  await assert.rejects(
+    assertReleaseSmokePlanReview(project, ["drever.config.ts"]),
+    /must record Status: Awaiting approval/u,
   );
 });
 

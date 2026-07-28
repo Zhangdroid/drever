@@ -8,7 +8,7 @@ Treat the user's accompanying message as the initial presentation brief. Reply i
 language, and use that language for the deck unless they request another one or the source material
 clearly requires it.
 
-<!-- drever-briefing-contract:v2 -->
+<!-- drever-briefing-contract:v3 -->
 
 Infer everything the user already supplied before choosing questions: topic, audience, desired
 outcome, duration, language, venue, evidence, source material, brand constraints, delivery format,
@@ -59,19 +59,25 @@ Choose questions from the presentation's actual job:
 - **Workshop or training:** participant baseline, activity, pacing, expected artifact, and
   facilitation constraints.
 
-Resolve the essentials early: who is in the room, what should change for them, and how long the
-speaker has. Then ask the most useful topic-specific forks. Ask about density, notes, visual
-direction, motion, interaction, or output only when the answer would alter the work. Visual options
-must be original directions derived from the subject—for example, a React 19 deck might choose
-between a code-first engineering review, a product interaction walkthrough, and a restrained
-React-orbit systems story—not generic theme labels.
+Resolve the essentials early: who is in the room, what should change for them, how long the speaker
+has, and how much information belongs on the visible slides. Unless already supplied or delegated
+through the skip-remaining escape, visible slide density is a required decision. Its topic-specific
+options must distinguish a concise presenter-led deck with fuller speaker notes, a balanced deck, and
+a more detailed reader-led deck, and explain the consequences for visible copy, slide count, and
+notes. Do not ask a separate notes-depth question when the density answer already settles it. Then
+ask the most useful topic-specific forks. Ask about visual direction, motion, interaction, or output
+only when the answer would alter the work. Visual options must be original directions derived from
+the subject—for example, a React 19 deck might choose between a code-first engineering review, a
+product interaction walkthrough, and a restrained React-orbit systems story—not generic theme
+labels.
 
-Never silently choose a duration unless the user uses the skip-remaining escape. If they use it at
-any point, stop asking, make reasonable assumptions for every unanswered choice, and continue.
+Never silently choose a duration or density unless the user uses the skip-remaining escape. If they
+use it at any point, stop asking, make reasonable assumptions for every unanswered choice, and
+continue.
 “Surprise me” fills unanswered choices; it does not replace a topic unless the user explicitly asks
-for that. If the initial brief is already complete, proceed immediately. When the interview ends,
-summarize the resolved direction and any assumptions in two to four concise lines, do not ask for
-another confirmation, and begin the work.
+for that. If the initial brief is already complete, proceed to workspace preparation. When the
+interview ends, do not author the deck yet; first prepare the safe workspace and complete the plan
+review below.
 
 ## Prepare a safe workspace
 
@@ -116,11 +122,31 @@ explicitly asks to debug or extend Drever itself.
 The generated, version-matched project instructions override this bootstrap document. Never
 substitute `drever@latest` for the installed project version after creation.
 
-Write the normalized brief to `brief.md`, then author directly from the brief and documented public
-surface. Design from the subject, audience, and purpose rather than choosing a random attractive
-style. Research only material needed for factual accuracy, authorized assets, or a genuinely useful
-subject or brand cue. Do not research Drever's own design catalog as a prerequisite. Respect asset
-and font licenses, and create an original interpretation instead of copying a website.
+## Review the plan before authoring
+
+<!-- drever-plan-review-contract:v1 -->
+
+Replace the starter text in `brief.md` with a complete, concise plan. Mark its status as **Awaiting
+approval** and record the topic, audience, desired change, duration, planned slide count or range,
+language, venue and deliverables, visible slide density, speaker-note strategy, narrative approach,
+visual direction, motion intensity, interaction intent, evidence and assets, assumptions, and open
+risks. Add two or three planned signature moments and a numbered slide-by-slide outline. Give every
+slide a working title and one clear job; include its evidence or focal visual and any material Notes,
+Steps, interaction, or motion.
+
+Present the complete brief and outline to the user, name the `brief.md` path, invite edits or explicit
+approval, and stop. Do not replace the configured MDX entry, create design assets, start the
+development server, build, export, or announce a preview before approval. The skip-remaining escape
+delegates unanswered choices but does not skip this mandatory review gate, and wording such as
+“create it now” does not bypass it. If the user changes the plan, update `brief.md`, mark it
+**Awaiting approval**, present the material changes, and stop again. After explicit approval, mark it
+**Approved** and continue.
+
+Author directly from the approved brief and documented public surface. Design from the subject,
+audience, and purpose rather than choosing a random attractive style. Research only material needed
+for factual accuracy, authorized assets, or a genuinely useful subject or brand cue. Do not research
+Drever's own design catalog as a prerequisite. Respect asset and font licenses, and create an
+original interpretation instead of copying a website.
 
 When an established public website is the relevant design reference, the project-local
 `drever-create-design` skill may use `npm exec -- drever design import <url>` to capture computed
@@ -202,10 +228,11 @@ blocker and keep working; never invent a preview URL.
 As soon as that gate passes, send a non-blocking progress update such as: **Draft 1 is live at
 `<verified-url>`. The complete content structure and readable base layout are ready for review; I am
 continuing the visual system, motion, detailed layout, and browser checks on this same preview. You
-can send changes now while I keep refining.** Do not stop for approval. Keep the server alive, use
-its HMR path for subsequent edits, and continue in the same turn. If feedback arrives, finish the
-current atomic edit, prioritize story and factual changes over polish, discard stale validation,
-update the same preview, and then rerun only the affected review gates.
+can send changes now while I keep refining.** The plan has already been approved, so do not stop for
+another approval here. Keep the server alive, use its HMR path for subsequent edits, and continue in
+the same turn. If feedback arrives, finish the current atomic edit, prioritize story and factual
+changes over polish, discard stale validation, update the same preview, and then rerun only the
+affected review gates.
 
 Treat that preview as Draft 1, not delivery. Start a separate refinement pass based on what the
 audience can actually see and use. Prioritize high-impact improvements to narrative clarity, focus,

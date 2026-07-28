@@ -170,12 +170,20 @@ applies. See
 [OpenAI's data-sharing and complimentary-token policy](https://help.openai.com/en/articles/10306912-sharing-feedback-and-api-inputs-and-outputs-with-openai).
 
 The workflow exercises two fixed user journeys against the public
-`https://drever.dev/prompt.md`:
+`https://drever.dev/prompt.md`. Both use the same stable, broadly understandable
+topic—a proposal for the first phase of a neighborhood park renewal, based on
+one supplied survey and budget constraint—so the briefing mode is the variable
+rather than the subject. This is a plausible presentation rather than a generic
+decision exercise, and the fictional fixture naturally supports data,
+comparison, spatial explanation, and decision motion without inviting
+unsupported external claims:
 
-1. a user uses the briefing's **Skip remaining questions** escape and delegates
-   the topic plus all remaining creative decisions;
-2. a user supplies a topic, answers the high-impact briefing questions, and
-   gives concrete audience, duration, density, motion, and decision goals.
+1. a user supplies the topic, uses the briefing's **Skip remaining questions**
+   escape to delegate every remaining creative decision, reviews the resulting
+   brief and outline, then approves creation;
+2. a user supplies the same topic, answers the high-impact briefing questions,
+   and gives concrete audience, duration, density, motion, and decision goals
+   before approving the resulting brief and outline.
 
 Each provider receives both journeys from the exact published `create-drever`
 version. The

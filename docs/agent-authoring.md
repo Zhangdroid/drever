@@ -86,14 +86,25 @@ decisions with two to four topic-specific, lettered options. Each option states
 how it changes the deck, allows a combined or free-form answer, and only one may
 be marked recommended when the known brief justifies it.
 
-The interview resolves audience, desired change, and duration early, then
-routes later questions through the presentation's actual job: decision,
-technical teaching, research, product demonstration, narrative, or workshop.
-Follow-up questions depend on earlier answers and stop when another answer
-would not change the story, evidence, visual direction, motion, or delivery.
-Every round has one **Skip remaining questions — surprise me** escape. Taking
-it fills unanswered decisions; it never replaces a missing topic unless the
-user explicitly asks for that.
+The interview resolves audience, desired change, duration, and visible slide
+density early, then routes later questions through the presentation's actual
+job: decision, technical teaching, research, product demonstration, narrative,
+or workshop. Density is a required decision unless it was already supplied or
+delegated; its options make the trade-off between concise presenter-led slides
+with fuller notes, a balanced deck, and more detailed reader-led slides
+explicit. Follow-up questions depend on earlier answers and stop when another
+answer would not change the story, evidence, visual direction, motion, or
+delivery. Every round has one **Skip remaining questions — surprise me**
+escape. Taking it fills unanswered decisions; it never replaces a missing
+topic unless the user explicitly asks for that.
+
+Before authoring, the agent replaces the starter `brief.md` with the complete
+plan: objective, audience, duration, slide-count range, language, density,
+notes strategy, narrative and visual direction, motion intensity, evidence,
+assumptions, signature moments, and a numbered slide outline. It presents that
+plan and stops for explicit approval. The skip-remaining escape delegates
+choices but does not skip this mandatory review, and a request to “create it
+now” does not bypass the gate.
 
 ### Direct authoring contract
 
@@ -408,27 +419,30 @@ The full grammar and accessibility semantics are in
 For a new project:
 
 1. Run `npm create drever@latest <directory>` or let the global plugin invoke it.
-2. Complete `brief.md`, create the full narrative with a deliberately simple,
+2. Complete `brief.md` with the resolved direction and numbered slide outline,
+   present it to the user, and stop for explicit approval. Do not author the
+   configured MDX entry or start a preview before that approval.
+3. After approval, create the full narrative with a deliberately simple,
    stable, readable base composition, then write the configured MDX entry. Do
    not scan official design source before authoring.
-3. Start the development server as soon as that coherent end-to-end Draft 1
+4. Start the development server as soon as that coherent end-to-end Draft 1
    compiles. Verify the audience route plus the first and last slides, share the
    stable URL as a non-blocking progress update, and keep developing the visual
    system through HMR.
-4. Run `npm exec -- drever context --json` to inspect the exact result and
+5. Run `npm exec -- drever context --json` to inspect the exact result and
    available design vocabulary.
-5. Run `npm exec -- drever check --json` and fix proven source defects.
-6. Run `npm exec -- drever check --rendered --json`, fix layout errors, and
+6. Run `npm exec -- drever check --json` and fix proven source defects.
+7. Run `npm exec -- drever check --rendered --json`, fix layout errors, and
    review intentional geometry or density warnings.
-7. Inspect every authored Step state plus `/document`; inspect `/speaker` when
+8. Inspect every authored Step state plus `/document`; inspect `/speaker` when
    notes, motion, or presentation behavior changed.
-8. Continue the design workflow and use the review skill for a separate
+9. Continue the design workflow and use the review skill for a separate
    audience-minded refinement pass. Preserve successful choices, fix
    evidence-backed material issues, rebuild, and recheck affected states; do not
    regenerate or add decoration merely to create a visible second version.
-9. Run the production build only after the refined preview is stable. Export a
-   PDF only when requested and only from that latest state.
-10. For motion edits, verify forward and backward movement, persistent geometry,
+10. Run the production build only after the refined preview is stable. Export a
+    PDF only when requested and only from that latest state.
+11. For motion edits, verify forward and backward movement, persistent geometry,
     reduced motion, and the affected continuity boundary in a real browser.
 
 The early URL is a collaboration milestone, not delivery. It must contain the

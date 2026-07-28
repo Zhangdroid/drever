@@ -11,6 +11,7 @@ const createDesignSkill = await readFile(
   "utf8",
 );
 const briefingContractMarker = /<!-- drever-briefing-contract:(v\d+) -->/u;
+const planReviewContractMarker = /<!-- drever-plan-review-contract:(v\d+) -->/u;
 const previewContractMarker = /<!-- drever-preview-contract:(v\d+) -->/u;
 const authoringScopeContractMarker = /<!-- drever-authoring-scope-contract:(v\d+) -->/u;
 
@@ -36,6 +37,27 @@ const expectAdaptiveBriefingContract = (source: string): void => {
   );
   expect(source).toMatch(/stop asking[^.]*every unanswered choice/iu);
   expect(source).not.toMatch(/choose the subject too|Or answer “Surprise me”/iu);
+  expect(source).toMatch(/density is a required decision/iu);
+  expect(source).toMatch(/concise presenter-led[^.]*balanced[^.]*more detailed reader-led/iu);
+  expect(source).toMatch(/visible copy,\s+slide count,\s+and\s+notes/iu);
+  expect(source).toMatch(/Do not ask a separate notes-depth question/iu);
+};
+
+const expectPlanReviewContract = (source: string): void => {
+  expect(source).toMatch(/status as \*\*Awaiting\s+approval\*\*/iu);
+  expect(source).toMatch(/planned slide count or range/iu);
+  expect(source).toMatch(/speaker-note strategy/iu);
+  expect(source).toMatch(/motion intensity/iu);
+  expect(source).toMatch(/numbered slide-by-slide outline/iu);
+  expect(source).toMatch(/working title and one clear job/iu);
+  expect(source).toMatch(/Present the complete brief and outline/iu);
+  expect(source).toMatch(/invite edits or explicit\s+approval,\s+and stop/iu);
+  expect(source).toMatch(/mandatory (?:review gate|for a new deck)/iu);
+  expect(source).toMatch(/create it now[^.]*does not bypass/iu);
+  expect(source).toMatch(/After explicit\s+approval,\s+mark it\s+\*\*Approved\*\*/iu);
+  expect(source).toMatch(
+    /Do not[^.]*configured MDX entry[^.]*development server[^.]*build[^.]*export[^.]*preview/isu,
+  );
 };
 
 const expectPreviewFirstContract = (source: string): void => {
@@ -50,7 +72,7 @@ const expectPreviewFirstContract = (source: string): void => {
   );
   expect(source).toMatch(/Do not block[^.]*drever build[^.]*PDF export[^.]*every Step/isu);
   expect(source).toMatch(/non-blocking progress update/iu);
-  expect(source).toMatch(/Do not stop for approval/iu);
+  expect(source).toMatch(/do not stop[^.]*approval/iu);
   expect(source).toMatch(/discard stale validation/iu);
   expect(source).toMatch(/production build[^.]*only after[^.]*stable/iu);
   expect(source).toMatch(/(?:a )?PDF only\s+when requested/iu);
@@ -79,12 +101,20 @@ describe("public bootstrap prompt", () => {
     const promptVersion = prompt.match(briefingContractMarker)?.[1];
     const skillVersion = createDeckSkill.match(briefingContractMarker)?.[1];
 
-    expect(promptVersion).toBe("v2");
+    expect(promptVersion).toBe("v3");
     expect(skillVersion).toBe(promptVersion);
     expectAdaptiveBriefingContract(prompt);
     expectAdaptiveBriefingContract(createDeckSkill);
-    expect(prompt).toMatch(/summarize the resolved direction[^.]*two to four concise lines/isu);
-    expect(createDeckSkill).toMatch(/record them in `brief\.md`/iu);
+  });
+
+  it("stops on a complete brief and slide outline before authoring", () => {
+    const promptVersion = prompt.match(planReviewContractMarker)?.[1];
+    const skillVersion = createDeckSkill.match(planReviewContractMarker)?.[1];
+
+    expect(promptVersion).toBe("v1");
+    expect(skillVersion).toBe(promptVersion);
+    expectPlanReviewContract(prompt);
+    expectPlanReviewContract(createDeckSkill);
   });
 
   it("keeps first preview fast without weakening final delivery", () => {

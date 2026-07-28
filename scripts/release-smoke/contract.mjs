@@ -474,6 +474,55 @@ const walkSourceCandidates = async (root, directory = root) => {
   return paths;
 };
 
+const assertReleaseSmokeBriefShape = (source, status) => {
+  if (typeof source !== "string") {
+    throw new Error("Generated brief.md is missing.");
+  }
+  const normalized = source.replaceAll("**", "");
+  const statusPattern = new RegExp(
+    `^[ \\t]*(?:[-*][ \\t]+)?Status[ \\t]*:[ \\t]*${status}[ \\t]*$`,
+    "imu",
+  );
+  if (!statusPattern.test(normalized)) {
+    throw new Error(`Generated brief.md must record Status: ${status}.`);
+  }
+  if (
+    !/^[ \t]*(?:[-*][ \t]+)?Visible slide density[ \t]*:[ \t]*\S(?:[^\r\n]*\S)?[ \t]*$/imu.test(
+      normalized,
+    )
+  ) {
+    throw new Error("Generated brief.md must record a nonempty visible slide density.");
+  }
+  const outlineHeading = /^#{1,6}[ \t]+Slide outline[ \t]*$/imu.exec(normalized);
+  const outline =
+    outlineHeading === null
+      ? undefined
+      : normalized
+          .slice(outlineHeading.index + outlineHeading[0].length)
+          .split(/^#{1,6}[ \t]/mu, 1)[0];
+  if (outline === undefined || !/^[ \t]*1\.[ \t]+\S/mu.test(outline)) {
+    throw new Error("Generated brief.md must contain a numbered slide outline.");
+  }
+};
+
+export const assertReleaseSmokeBrief = (source) => assertReleaseSmokeBriefShape(source, "Approved");
+
+export const assertReleaseSmokePlanReview = async (projectRoot, retainedSourcePaths = []) => {
+  const root = resolve(projectRoot);
+  const files = (await walkSourceCandidates(root)).sort();
+  const allowed = new Set(["brief.md", ...retainedSourcePaths]);
+  const prematureSource = files.filter((path) => !allowed.has(path));
+  if (prematureSource.length > 0) {
+    throw new Error(
+      `Release smoke created presentation source before plan approval: ${prematureSource.join(", ")}.`,
+    );
+  }
+  if (!files.includes("brief.md")) {
+    throw new Error("Generated plan review is missing brief.md.");
+  }
+  assertReleaseSmokeBriefShape(await readFile(join(root, "brief.md"), "utf8"), "Awaiting approval");
+};
+
 export const collectReleaseSmokeSource = async (projectRoot, destination) => {
   const root = resolve(projectRoot);
   const target = resolve(destination);
@@ -482,6 +531,7 @@ export const collectReleaseSmokeSource = async (projectRoot, destination) => {
   }
   const files = (await walkSourceCandidates(root)).sort();
   if (!files.includes("slides.mdx")) throw new Error("Generated source is missing slides.mdx.");
+  if (!files.includes("brief.md")) throw new Error("Generated source is missing brief.md.");
   if (files.length > MAX_SOURCE_FILES) {
     throw new Error(
       `Generated source contains ${files.length} files; limit is ${MAX_SOURCE_FILES}.`,
@@ -515,6 +565,7 @@ export const collectReleaseSmokeSource = async (projectRoot, destination) => {
     }
     contents.push({ content, path });
   }
+  assertReleaseSmokeBrief(contents.find(({ path }) => path === "brief.md")?.content);
 
   await rm(target, { force: true, recursive: true });
   for (const { content, path } of contents) {

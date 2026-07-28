@@ -100,7 +100,7 @@ const AGENT_TARGETS = new Set<CreateAgentTarget>(["all", "auto", "claude", "code
 const OPEN_TARGETS = new Set<CreateOpenTarget>(["claude", "codex"]);
 const PACKAGE_MANAGERS = new Set<CreatePackageManager>(["bun", "npm", "pnpm", "yarn"]);
 const AGENT_PROMPT =
-  "Use the project-local drever-create-deck skill to turn brief.md into an early live draft, then refine it into a complete presentation and deliver the requested outputs.";
+  "Use the project-local drever-create-deck skill to write a reviewable plan and slide outline to brief.md, wait for my approval, then create the live draft and deliver the requested outputs.";
 
 const invalidArgument = (message: string): never => {
   throw new DreverCliError("DREVER_ARGUMENT_INVALID", message, { hint: CREATE_USAGE });
@@ -488,7 +488,7 @@ const formatCreateResult = (result: CreateProjectResult): string =>
       ? []
       : [
           "Open the project in Codex or Claude Code and say:",
-          "  Use Drever to turn brief.md into a complete presentation and deliver the requested outputs.",
+          "  Use Drever to write a reviewable plan and slide outline to brief.md, wait for my approval, then create the presentation and deliver the requested outputs.",
           "",
           "The project-local AI skills are ready.",
         ]),

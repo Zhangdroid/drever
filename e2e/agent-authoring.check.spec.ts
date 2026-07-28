@@ -113,7 +113,7 @@ test("the built CLI installs an idempotent agent kit without loading project con
     if (createDeck === undefined) {
       throw new Error("Agent sync did not create the deck creation skill.");
     }
-    expect(createDeck).toContain("<!-- drever-briefing-contract:v2 -->");
+    expect(createDeck).toContain("<!-- drever-briefing-contract:v3 -->");
     expect(createDeck).toContain("Skip remaining questions — surprise me");
     expect(createDeck.match(/Skip remaining questions — surprise me/gu)).toHaveLength(1);
     expect(createDeck).toContain("one to three questions per round");
@@ -130,12 +130,17 @@ test("the built CLI installs an idempotent agent kit without loading project con
     expect(createDeck).toContain("Workshop or training");
     expect(createDeck).not.toContain("choose the subject too");
     expect(createDeck).toContain("Never ask for supplied facts");
-    expect(createDeck).toContain("record them in `brief.md`");
+    expect(createDeck).toContain("visible slide density early");
+    expect(createDeck).toContain("<!-- drever-plan-review-contract:v1 -->");
+    expect(createDeck).toContain("numbered slide-by-slide outline");
+    expect(createDeck).toContain("invite edits or explicit approval, and stop");
+    expect(createDeck).toContain("mandatory for a new deck");
+    expect(createDeck).toMatch(/create it now[^.]*does not bypass/iu);
     expect(createDeck).toContain("<!-- drever-preview-contract:v2 -->");
     expect(createDeck).toContain("time to first useful preview");
     expect(createDeck).toContain("minimum preview gate");
     expect(createDeck).toContain("non-blocking progress update");
-    expect(createDeck).toContain("Do not stop for approval");
+    expect(createDeck).toMatch(/do not stop[^.]*approval/iu);
     expect(createDeck).toContain("discard stale validation");
     expect(createDeck).toMatch(/production build[^.]*only after the refined preview is stable/iu);
     expect(createDeck).toContain("PDF only when requested");
@@ -174,6 +179,7 @@ test("the built CLI installs an idempotent agent kit without loading project con
     expect(createDeck).toContain("`speaker-current`");
     expect(createDeck).toContain("`speaker-next`");
     expect(createDeck).toMatch(/there is no generic `speaker` result/iu);
+    expect(agents).toContain("brief.md` and slide-outline approval gate");
     expect(agents).toContain("Share a coherent Draft 1 before exhaustive validation");
     expect(agents).toContain("do not run repeated production builds");
     expect(agents).toMatch(/Do not load every skill before Draft 1/iu);

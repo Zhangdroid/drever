@@ -4,6 +4,7 @@ import { dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   assertReleaseSmokeGenerationTree,
+  assertReleaseSmokePlanReview,
   collectReleaseSmokeSource,
   createClaudePrintArguments,
   createCodexExecArguments,
@@ -395,6 +396,9 @@ ${harnessContext}
       }
       const resultConversationId = provider.id === "claude" ? result.sessionId : result.threadId;
       await assertReleaseSmokeGenerationTree(projectRoot, immutableSnapshot, requiredMutablePaths);
+      if (index === scenario.turns.length - 2) {
+        await assertReleaseSmokePlanReview(projectRoot, requiredMutablePaths);
+      }
       conversationId ??= resultConversationId;
       if (resultConversationId !== conversationId) {
         throw new Error(`${provider.label} changed conversation id during the release smoke.`);

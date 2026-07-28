@@ -139,7 +139,7 @@ describe("agent kit sync", () => {
     const createDesign = await read(root, ".agents/skills/drever-create-design/SKILL.md");
     const reviewDeck = await read(root, ".agents/skills/drever-review-deck/SKILL.md");
 
-    expect(createDeck).toContain("<!-- drever-briefing-contract:v2 -->");
+    expect(createDeck).toContain("<!-- drever-briefing-contract:v3 -->");
     expect(createDeck).toMatch(/topic is missing[^.]*ask for it by itself/iu);
     expect(createDeck).toMatch(/one to three questions per round/iu);
     expect(createDeck).toMatch(/two to four mutually distinct,\s+topic-specific options/iu);
@@ -156,7 +156,14 @@ describe("agent kit sync", () => {
     expect(createDeck).toContain("Skip remaining questions — surprise me");
     expect(createDeck.match(/Skip remaining questions — surprise me/gu)).toHaveLength(1);
     expect(createDeck).not.toMatch(/choose the subject too|Or answer “Surprise me”/iu);
-    expect(createDeck).toMatch(/record them in `brief\.md`/iu);
+    expect(createDeck).toMatch(/visible slide density early/iu);
+    expect(createDeck).toMatch(/density is a required decision/iu);
+    expect(createDeck).toMatch(/concise presenter-led[^.]*balanced[^.]*more detailed reader-led/iu);
+    expect(createDeck).toContain("<!-- drever-plan-review-contract:v1 -->");
+    expect(createDeck).toMatch(/numbered slide-by-slide outline/iu);
+    expect(createDeck).toMatch(/invite edits or explicit\s+approval,\s+and stop/iu);
+    expect(createDeck).toMatch(/mandatory for a new deck/iu);
+    expect(createDeck).toMatch(/create it now[^.]*does not bypass/iu);
     expect(createDeck).toMatch(/topic-fingerprint test/iu);
     expect(createDeck).toMatch(
       /claim[^→]*→ focal artifact[^→]*→ initial state[^→]*→ meaningful transformation[^→]*→ settled payoff[^→]*→ static or reduced-motion endpoint/iu,
@@ -181,7 +188,7 @@ describe("agent kit sync", () => {
     expect(createDeck).toMatch(/minimum preview gate/iu);
     expect(createDeck).toMatch(/Do not block[^.]*drever build[^.]*PDF export/isu);
     expect(createDeck).toMatch(/non-blocking progress update/iu);
-    expect(createDeck).toMatch(/Do not stop for approval/iu);
+    expect(createDeck).toMatch(/do not stop[^.]*approval/iu);
     expect(createDeck).toMatch(/discard stale validation/iu);
     expect(createDeck).toMatch(/production build[^.]*only after[^.]*stable/iu);
     expect(createDeck).toMatch(/PDF only when requested/iu);
@@ -192,7 +199,9 @@ describe("agent kit sync", () => {
       /must not delay[^.]*coherent end-to-end content\s+Draft 1[^.]*stable development URL/iu,
     );
     expect(createDesign).toMatch(/Do not make a production build[^.]*first useful preview/iu);
-    expect(openai).toMatch(/early live draft[^.]*refine/iu);
+    expect(openai).toMatch(
+      /reviewable plan and slide outline to brief\.md,\s+wait for my approval/iu,
+    );
   });
 
   it("installs the direct-authoring contract without framework archaeology", async () => {

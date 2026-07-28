@@ -54,6 +54,12 @@ From there, ask for the deliverable in natural language:
 > Turn brief.md into a concise presentation for this audience, inspect every
 > reveal, and deliver the website and PDF.
 
+The agent resolves audience, outcome, duration, and visible slide density before
+authoring. It then writes a complete `brief.md` with the planned slide count,
+direction, assumptions, and numbered slide outline and stops for approval. Once
+you approve that plan, it creates the live Draft 1 and continues refining the
+same preview.
+
 An installed global Drever plugin can handle the same request from an empty
 directory. It invokes the creator once, then delegates to the project-local
 skills and local Drever binary. Existing projects never substitute

@@ -11,6 +11,6 @@ and project-local skills for Codex and Claude Code.
 
 Open the new directory in your preferred coding agent and ask:
 
-> Use Drever to turn brief.md into a complete presentation and deliver the requested outputs.
+> Use Drever to write a reviewable plan and slide outline to brief.md, wait for my approval, then create the presentation and deliver the requested outputs.
 
 Use `npm create drever@latest -- --help` for non-interactive, agent-specific, and local-install options.
