@@ -13,7 +13,7 @@ import {
   type RefObject,
 } from "react";
 import { DreverClientError } from "./client-error.ts";
-import { createFullscreenSession, PRESENTATION_IDLE_DELAY_MS } from "./fullscreen-session.ts";
+import { createFullscreenSession } from "./fullscreen-session.ts";
 import { acceptsPresentationShortcut } from "./keyboard.ts";
 import {
   CloseIcon,
@@ -36,6 +36,7 @@ type PauseScreen = "black" | "white";
 type ShareResult = "copied" | "failed";
 
 const PRESENTATION_CONTROLS_REVEAL_ZONE_PX = 80;
+const PRESENTATION_CONTROLS_IDLE_DELAY_MS = 1_200;
 
 type ShareFeedback = Readonly<{
   positionKey: string;
@@ -85,6 +86,14 @@ const containsClientPoint = (element: Element, event: MouseEvent): boolean => {
     event.clientY >= bounds.top &&
     event.clientY <= bounds.bottom
   );
+};
+
+const releasePointerFocus = (
+  event: Readonly<{ currentTarget: HTMLButtonElement; detail: number }>,
+): void => {
+  if (event.detail > 0) {
+    event.currentTarget.blur();
+  }
 };
 
 export const readSlideNavigationItems = (
@@ -283,7 +292,7 @@ const useIdleControls = (
       if (controlsPinned || barRef.current?.contains(document.activeElement) === true) {
         return;
       }
-      timeout = window.setTimeout(() => setIdle(true), PRESENTATION_IDLE_DELAY_MS);
+      timeout = window.setTimeout(() => setIdle(true), PRESENTATION_CONTROLS_IDLE_DELAY_MS);
     };
     const show = (event: PointerEvent): void => {
       if (controlsPinned) {
@@ -477,7 +486,7 @@ export const AudienceControls = ({
 
       event.preventDefault();
       event.stopPropagation();
-      button.focus({ preventScroll: true });
+      button.blur();
       navigate(target.command);
     };
 
@@ -668,7 +677,10 @@ export const AudienceControls = ({
             data-drever-audience-navigation-control=""
             data-drever-tooltip="Previous step · ←"
             disabled={!progress.canGoPrevious}
-            onClick={() => navigate({ type: "previous" })}
+            onClick={(event) => {
+              releasePointerFocus(event);
+              navigate({ type: "previous" });
+            }}
             ref={previousButtonRef}
             type="button"
           >
@@ -694,7 +706,10 @@ export const AudienceControls = ({
             data-drever-audience-navigation-control=""
             data-drever-tooltip="Next step · →"
             disabled={!progress.canGoNext}
-            onClick={() => navigate({ type: "next" })}
+            onClick={(event) => {
+              releasePointerFocus(event);
+              navigate({ type: "next" });
+            }}
             ref={nextButtonRef}
             type="button"
           >
@@ -705,7 +720,10 @@ export const AudienceControls = ({
             aria-label="Copy link to current presentation state"
             data-drever-tooltip="Copy link"
             data-share-result={visibleShareResult}
-            onClick={copyShareURL}
+            onClick={(event) => {
+              releasePointerFocus(event);
+              copyShareURL();
+            }}
             type="button"
           >
             <ShareIcon />
@@ -714,7 +732,10 @@ export const AudienceControls = ({
             aria-keyshortcuts="D"
             aria-label="Open document view"
             data-drever-tooltip="Document view · D"
-            onClick={() => run(onOpenDocument)}
+            onClick={(event) => {
+              releasePointerFocus(event);
+              run(onOpenDocument);
+            }}
             type="button"
           >
             <DocumentIcon />
@@ -723,7 +744,10 @@ export const AudienceControls = ({
             aria-keyshortcuts="P"
             aria-label="Open speaker view"
             data-drever-tooltip="Speaker view · P"
-            onClick={() => run(onOpenSpeaker)}
+            onClick={(event) => {
+              releasePointerFocus(event);
+              run(onOpenSpeaker);
+            }}
             type="button"
           >
             <SpeakerIcon />
@@ -742,7 +766,10 @@ export const AudienceControls = ({
           aria-keyshortcuts="F"
           aria-label={fullscreen ? "Exit fullscreen" : "Enter fullscreen"}
           data-drever-tooltip={`${fullscreen ? "Exit" : "Enter"} fullscreen · F`}
-          onClick={toggleFullscreen}
+          onClick={(event) => {
+            releasePointerFocus(event);
+            toggleFullscreen();
+          }}
           type="button"
         >
           <FullscreenIcon active={fullscreen} />

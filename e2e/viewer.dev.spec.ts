@@ -268,7 +268,7 @@ test("audience controls navigate exact states with a pointer", async ({ page }) 
   await next.hover();
   await next.click();
   await expect(page).toHaveURL(/\/2$/u);
-  await expect(next).toBeFocused();
+  await expect(next).not.toBeFocused();
 
   await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/\/2\/2$/u);
@@ -276,7 +276,7 @@ test("audience controls navigate exact states with a pointer", async ({ page }) 
 
   await previous.click();
   await expect(page).toHaveURL(/\/2$/u);
-  await expect(previous).toBeFocused();
+  await expect(previous).not.toBeFocused();
 
   await page.keyboard.press("ArrowLeft");
   await expect(page).toHaveURL(/\/$/u);
@@ -442,8 +442,13 @@ test("audience controls leave the canvas after pointer inactivity and return on 
   await expect(controls).toHaveCSS("pointer-events", "auto");
 
   const next = controls.getByRole("button", { name: "Next presentation state" });
+  await next.click();
+  await expect(next).not.toBeFocused();
+  await expect.poll(() => host.getAttribute("data-drever-controls-idle")).toBe("");
+
+  await page.mouse.move(260, 220);
   await next.focus();
-  await page.waitForTimeout(2_000);
+  await page.waitForTimeout(1_400);
   await expect(host).not.toHaveAttribute("data-drever-controls-idle", "");
 });
 
@@ -1187,7 +1192,7 @@ test("audience toolbar accepts another click during an active slide transition",
   await waitForViewTransition(page, second, "finished");
 
   await expect(page).toHaveURL(/\/4$/u);
-  await expect(next).toBeFocused();
+  await expect(next).not.toBeFocused();
   await waitForViewTransition(page, first, "finished");
   expect(await readViewTransitionCalls(page)).toEqual([
     { kind: "document", target: "document", types: ["drever-slide-forward"] },

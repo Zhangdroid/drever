@@ -567,6 +567,11 @@
   left: 350px;
 }
 
+.browser-story--anticipate .story-browser,
+.drever-deck[data-drever-transition-mode="local"] .browser-story--arrive .story-browser {
+  view-transition-name: none !important;
+}
+
 .drever-deck[data-drever-transition-mode="local"][data-drever-transition-from="previous"]
   [data-slide-state="active"]
   .browser-story--arrive
@@ -789,12 +794,6 @@
   font-size: 10px;
 }
 
-:root:active-view-transition-type(drever-slide-backward):has(
-  .drever-deck [data-slide-state="active"] .browser-story--anticipate
-)::view-transition-new(drever-deck) {
-  animation-name: none;
-}
-
 :root::view-transition-group(drever-story-browser) {
   animation-duration: 680ms;
 }
@@ -804,19 +803,6 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
-}
-
-/* Reverse with the visible source bitmap; the destination is intentionally below the canvas. */
-:root:active-view-transition-type(drever-slide-backward):has(
-  .drever-deck [data-slide-state="active"] .browser-story--anticipate
-)::view-transition-old(drever-story-browser) {
-  opacity: 1;
-}
-
-:root:active-view-transition-type(drever-slide-backward):has(
-  .drever-deck [data-slide-state="active"] .browser-story--anticipate
-)::view-transition-new(drever-story-browser) {
-  opacity: 0;
 }
 
 /* Semantic text */

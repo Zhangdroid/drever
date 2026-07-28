@@ -5,6 +5,14 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+### Fixed
+
+- Kept the Motion showcase's anticipated browser bitmap out of viewport
+  letterboxing before its authored entrance.
+- Returned pointer-activated audience toolbar actions to the presentation
+  surface so navigation shortcuts remain immediate and the controls hide after
+  a shorter idle interval.
+
 ## [0.9.0] - 2026-07-27
 
 ### Changed
