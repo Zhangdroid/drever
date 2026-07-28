@@ -61,8 +61,14 @@ const forwardRequest = async ({ apiKey, incoming, model, response, target }) => 
   }
   await new Promise((resolvePromise, rejectPromise) => {
     const upstream = requestHttps(
-      target,
-      { headers, method: incoming.method, timeout: RELEASE_SMOKE_CLAUDE_PROXY_TIMEOUT_MS },
+      {
+        protocol: "https:",
+        hostname: "api.anthropic.com",
+        path: `${target.pathname}${target.search}`,
+        headers,
+        method: incoming.method,
+        timeout: RELEASE_SMOKE_CLAUDE_PROXY_TIMEOUT_MS,
+      },
       (upstreamResponse) => {
         response.writeHead(upstreamResponse.statusCode ?? 502, upstreamResponse.headers);
         upstreamResponse.pipe(response);
