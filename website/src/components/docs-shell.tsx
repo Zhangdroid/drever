@@ -95,7 +95,7 @@ export function DocsShell() {
           {documentationNavigation.map((section) => (
             <section key={section.label}>
               <h2>{section.label}</h2>
-              <nav aria-label={`${section.label} documentation`}>
+              <nav aria-label={`${section.label} pages`}>
                 {section.pages.map((page) => {
                   return (
                     <Link

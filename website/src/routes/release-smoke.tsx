@@ -14,13 +14,14 @@ import {
   type ReleaseSmokeScenario,
 } from "../release-smoke-data";
 import { pageHead } from "../seo";
+import { realAIRunsLabel } from "../site-data";
 
 const description =
   "Codex and Claude create presentations from the same fixed briefs in clean projects. Compare every real conversation and generated result.";
 
 export const Route = createFileRoute("/release-smoke")({
   component: ReleaseSmokePage,
-  head: () => pageHead("Release smoke", description, "/release-smoke"),
+  head: () => pageHead(realAIRunsLabel, description, "/release-smoke"),
 });
 
 const formatDate = (timestamp: string) =>
@@ -350,7 +351,7 @@ function PublishedReleaseSmokePage({
           </p>
         ) : null}
 
-        <nav aria-label="Release smoke scenarios" className="release-smoke__cases">
+        <nav aria-label="Real AI run scenarios" className="release-smoke__cases">
           {scenarios.map((scenario, index) => (
             <button
               aria-pressed={scenario.id === selectedScenario.id}
@@ -443,7 +444,7 @@ function LoadingReleaseSmokePage() {
         <div aria-live="polite" className="release-smoke__pending-copy" role="status">
           <p>
             The conversation, verification record, and interactive decks are loading from their
-            isolated release-smoke origin.
+            isolated evidence archive.
           </p>
         </div>
       </section>

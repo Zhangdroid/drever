@@ -11,6 +11,8 @@ section, while commit snapshots use the current Unreleased section.
   12-slide black-hole science story, with a 10-to-14-slide contract for longer
   narrative, diagram, motion, and speaker-note review, plus a bounded Claude
   budget sized to finish that larger artifact.
+- Presented the public AI generation evidence consistently as **Real AI runs**
+  in the documentation sidebar, page metadata, footer, and agent index.
 
 ### Fixed
 

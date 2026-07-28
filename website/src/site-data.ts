@@ -5,6 +5,8 @@ export const primaryNavigation = [
   { href: "/docs/", label: "Docs" },
 ] as const;
 
+export const realAIRunsLabel = "Real AI runs";
+
 export const documentationNavigation = [
   {
     label: "Start",
@@ -38,8 +40,12 @@ export const documentationNavigation = [
     ],
   },
   {
-    label: "About",
-    pages: [{ href: "/docs/credits/", label: "Credits" }],
+    label: "Project",
+    pages: [
+      { href: "/release-smoke/", label: realAIRunsLabel },
+      { href: "/changelog/", label: "Changelog" },
+      { href: "/docs/credits/", label: "Credits" },
+    ],
   },
 ] as const;
 
