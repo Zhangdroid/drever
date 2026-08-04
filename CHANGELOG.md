@@ -5,12 +5,19 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
-Release impact: **patch** — this is a compatible refinement to AI-authored visual review guidance.
+Release impact: **patch** — this batch contains compatible visual-review and audience-rendering
+refinements.
 
 ### Changed
 
 - Taught the bundled design and review skills to reject detached annotations, connector overshoot,
   and implementation details that visually overpower the audience-facing claim.
+
+### Fixed
+
+- Hid the audience toolbar before slide View Transition capture and kept it
+  out of the presentation until fresh pointer intent, preventing its rounded
+  glass surface from blurring content during navigation.
 
 ## [0.10.0] - 2026-08-03
 

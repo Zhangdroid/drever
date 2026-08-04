@@ -575,6 +575,23 @@
     opacity: 0;
     pointer-events: none;
     transform: translate(-50%, 8px);
+    view-transition-name: none;
+  }
+
+  :root:is(
+      :active-view-transition-type(drever-slide-forward),
+      :active-view-transition-type(drever-slide-backward),
+      :active-view-transition-type(drever-jump-forward),
+      :active-view-transition-type(drever-jump-backward)
+    )
+    .drever-audience-controls__bar,
+  .drever-audience-controls[data-drever-controls-navigation-hidden] .drever-audience-controls__bar {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 8px);
+    transition: none;
+    view-transition-name: none;
   }
 
   :root[data-drever-cursor-hidden],
@@ -1214,6 +1231,18 @@
 
     .drever-audience-controls[data-drever-controls-idle]:not([data-drever-controls-pinned])
       .drever-audience-controls__bar:not(:focus-within) {
+      transform: translateY(8px);
+    }
+
+    :root:is(
+        :active-view-transition-type(drever-slide-forward),
+        :active-view-transition-type(drever-slide-backward),
+        :active-view-transition-type(drever-jump-forward),
+        :active-view-transition-type(drever-jump-backward)
+      )
+      .drever-audience-controls__bar,
+    .drever-audience-controls[data-drever-controls-navigation-hidden]
+      .drever-audience-controls__bar {
       transform: translateY(8px);
     }
 
