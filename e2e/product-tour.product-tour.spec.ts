@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { waitForDreverReady } from "./support/drever-ready.ts";
 import { expectStableBounds, readElementBounds } from "./support/element-bounds.ts";
 import { monitorPageHealth } from "./support/page-health.ts";
 import {
@@ -9,6 +10,11 @@ import {
 } from "./support/view-transitions.ts";
 
 const activeSlide = '[data-drever-slide][data-slide-state="active"]';
+
+const gotoReady = async (page: Page, path: string): Promise<void> => {
+  await page.goto(path);
+  await waitForDreverReady(page);
+};
 
 type ElementContract = Readonly<{
   bounds: Readonly<{ height: number; width: number; x: number; y: number }>;
@@ -56,7 +62,7 @@ const transitionPseudos = (page: Page): Promise<readonly string[]> =>
 
 test("the audience choice persists and speaker view keeps private context", async ({ page }) => {
   const health = monitorPageHealth(page);
-  await page.goto("/4");
+  await gotoReady(page, "/4");
 
   await expect(page.locator(activeSlide)).toContainText("Ask the room.");
   const explore = page.getByRole("button", { name: "Let me try" });
@@ -108,7 +114,7 @@ test("the audience choice persists and speaker view keeps private context", asyn
 test("authored Steps and exact links restore the intended presentation state", async ({ page }) => {
   const health = monitorPageHealth(page);
 
-  await page.goto("/3");
+  await gotoReady(page, "/3");
   const directedBeat = page.locator(`${activeSlide} .tour-route__path [data-drever-step="1"]`);
   await expect(directedBeat).toHaveAttribute("data-step-state", "pending");
   await page.keyboard.press("ArrowRight");
@@ -116,7 +122,7 @@ test("authored Steps and exact links restore the intended presentation state", a
   await expect(directedBeat).toHaveAttribute("data-step-state", "active");
   await expect(directedBeat).toContainText("Ask the room");
 
-  await page.goto("/5");
+  await gotoReady(page, "/5");
   const outcomeSteps = page.locator(`${activeSlide} .tour-outcome__beats > [data-drever-step]`);
   await expect(outcomeSteps).toHaveCount(2);
   await expect(outcomeSteps.first()).toHaveAttribute("data-step-state", "pending");
@@ -134,7 +140,7 @@ test("authored Steps and exact links restore the intended presentation state", a
     page.locator(`${activeSlide} .tour-outcome__beats > [data-drever-step="2"]`),
   ).toHaveAttribute("data-step-state", "active");
 
-  await page.goto("/6");
+  await gotoReady(page, "/6");
   const decision = page.locator(
     `${activeSlide} .tour-decision__confirmation [data-drever-step="1"]`,
   );
@@ -144,7 +150,7 @@ test("authored Steps and exact links restore the intended presentation state", a
   await expect(decision).toHaveAttribute("data-step-state", "active");
   await expect(decision).toContainText("Approve the three-team pilot");
 
-  await page.goto("/8");
+  await gotoReady(page, "/8");
   const stateLink = page.getByRole("link", {
     name: "Open the shared slide state in a new tab",
   });
@@ -166,7 +172,7 @@ test("authored Steps and exact links restore the intended presentation state", a
   );
   await statePopup.close();
 
-  await page.goto("/9");
+  await gotoReady(page, "/9");
   const documentLink = page.getByRole("link", { name: "Open Document View in a new tab" });
   await expect(documentLink).toHaveAttribute("href", "document");
   const documentPopupPromise = page.waitForEvent("popup");
@@ -182,7 +188,7 @@ test("authored Steps and exact links restore the intended presentation state", a
 test("the global Stage keeps one identity while Steps and slides change", async ({ page }) => {
   const health = monitorPageHealth(page);
   await monitorViewTransitions(page);
-  await page.goto("/5");
+  await gotoReady(page, "/5");
 
   const canvas = page.locator("[data-drever-canvas]");
   const stage = page.locator("[data-drever-stage]");
@@ -279,7 +285,7 @@ test("the decision proof keeps stable geometry and paint through forward and rev
 }) => {
   const health = monitorPageHealth(page);
   await monitorViewTransitions(page);
-  await page.goto("/5/2");
+  await gotoReady(page, "/5/2");
 
   const group = page.locator(`${activeSlide} [data-motion-name="decision-proof"]`);
   const proof = page.locator(`${activeSlide} [data-testid="decision-proof"]`);
@@ -324,7 +330,7 @@ test("the story core and persistent headline preserve their continuity in both d
 }) => {
   const health = monitorPageHealth(page);
   await monitorViewTransitions(page);
-  await page.goto("/10");
+  await gotoReady(page, "/10");
 
   const coreGroup = page.locator(`${activeSlide} [data-motion-name="story-core"]`);
   const core = page.locator(`${activeSlide} [data-testid="story-core"]`);
@@ -415,7 +421,7 @@ test("reduced motion changes every authored state without capturing motion", asy
   await monitorViewTransitions(page);
   await page.emulateMedia({ reducedMotion: "reduce" });
 
-  await page.goto("/5");
+  await gotoReady(page, "/5");
   await page.getByRole("button", { name: "Next presentation state" }).click();
   await expect(page).toHaveURL(/\/5\/1$/u);
   await expect(page.locator(`${activeSlide} [data-drever-step="1"]`)).toHaveAttribute(
@@ -424,7 +430,7 @@ test("reduced motion changes every authored state without capturing motion", asy
   );
   expect(await readViewTransitionCalls(page)).toEqual([]);
 
-  await page.goto("/5/2");
+  await gotoReady(page, "/5/2");
   await expect(page.locator(`${activeSlide} [data-motion-name="decision-proof"]`)).toHaveCSS(
     "view-transition-name",
     "none",
@@ -436,7 +442,7 @@ test("reduced motion changes every authored state without capturing motion", asy
     "none",
   );
 
-  await page.goto("/10");
+  await gotoReady(page, "/10");
   await expect(page.locator(`${activeSlide} [data-motion-name="story-core"]`)).toHaveCSS(
     "view-transition-name",
     "none",
@@ -460,7 +466,7 @@ test("speaker and document surfaces render the complete story without motion ide
   const health = monitorPageHealth(page);
   await page.emulateMedia({ reducedMotion: "no-preference" });
 
-  await page.goto("/speaker/7");
+  await gotoReady(page, "/speaker/7");
   const speakerCurrent = page.getByTestId("speaker-current");
   const speakerNext = page.getByTestId("speaker-next");
   await expect(speakerCurrent.locator("[data-drever-stage]")).toHaveAttribute(
@@ -482,7 +488,7 @@ test("speaker and document surfaces render the complete story without motion ide
     speakerNext.locator(activeSlide).locator('[data-motion-name="decision-proof"]'),
   ).toHaveCSS("view-transition-name", "none");
 
-  await page.goto("/speaker/10");
+  await gotoReady(page, "/speaker/10");
   await expect(
     page.getByTestId("speaker-current").getByTestId("tour-stage-page-number"),
   ).toHaveText("10 / 12");
@@ -508,7 +514,7 @@ test("speaker and document surfaces render the complete story without motion ide
       .locator('[data-motion-name="story-core"]'),
   ).toHaveCSS("view-transition-name", "none");
 
-  await page.goto("/document");
+  await gotoReady(page, "/document");
   const documentPages = page.locator("[data-drever-document-page]");
   const documentStages = documentPages.locator("[data-drever-stage]");
   const documentBackgrounds = documentPages.getByTestId("tour-stage-background");
