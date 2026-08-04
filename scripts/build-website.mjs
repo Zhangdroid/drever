@@ -11,20 +11,21 @@ import {
   siteRoutes,
 } from "../website/site-manifest.ts";
 import { checkShowcases } from "./check-showcases.mjs";
+import { resolveTaskConcurrency } from "./run-concurrently.mjs";
 import { applyWebsitePresentationMetadata } from "./website-presentation-metadata.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const websiteOutput = join(root, "website", "dist", "client");
-const dreverBin = join(root, "packages", "cli", "dist", "bin.mjs");
+const themeShowcasePackage = "@drever/example-theme-showcase";
 const presentationMountRoot = "showcase";
 const presentationURL = (slug) => canonicalSiteURL(`${presentationMountRoot}/${slug}`);
 const socialImageURL = new URL("/social-card.png", siteOrigin).href;
 const socialImageAlt =
   "Drever turns an AI-directed presentation into a live story, document, and PDF.";
 
-const run = (command, args, cwd = root) =>
+const run = (command, args, cwd = root, env = process.env) =>
   new Promise((resolveRun, rejectRun) => {
-    const child = spawn(command, args, { cwd, stdio: "inherit" });
+    const child = spawn(command, args, { cwd, env, stdio: "inherit" });
     child.on("error", rejectRun);
     child.on("exit", (code, signal) => {
       if (code === 0) {
@@ -94,16 +95,43 @@ const assertNoGeneratedReleaseSmokeSource = async () => {
   }
 };
 
-const buildDemos = async () => {
-  for (const demo of demoMounts) {
-    await run(process.execPath, [dreverBin, "build"], join(root, "examples", demo.source));
+const buildDemos = (concurrency) => {
+  const filters = demoMounts.flatMap(({ source }) => ["-F", `@drever/example-${source}`]);
+  return run("vp", [
+    "run",
+    "--parallel",
+    "--concurrency-limit",
+    String(concurrency),
+    "--log",
+    "labeled",
+    ...filters,
+    "build:showcase",
+  ]);
+};
+
+const buildDesignStudies = (concurrency) =>
+  run("vp", ["run", "-F", themeShowcasePackage, "build:design-studies"], root, {
+    ...process.env,
+    DREVER_TASK_CONCURRENCY: String(concurrency),
+  });
+
+const buildPresentations = async (concurrency) => {
+  if (concurrency === 1) {
+    await buildDemos(1);
+    await buildDesignStudies(1);
+    return;
   }
+  await Promise.all([
+    buildDemos(Math.ceil(concurrency / 2)),
+    buildDesignStudies(Math.floor(concurrency / 2)),
+  ]);
 };
 
 const build = async () => {
+  const concurrency = resolveTaskConcurrency();
   await assertNoGeneratedReleaseSmokeSource();
   await run("vp", ["run", "build:packages"]);
-  await checkShowcases();
+  await checkShowcases(concurrency);
   const presentationSources = new Set(
     publicPresentationMounts.map((presentation) => presentation.source),
   );
@@ -117,8 +145,7 @@ const build = async () => {
   ]);
 
   await run("vp", ["run", "-F", "@drever/website", "build"]);
-  await buildDemos();
-  await run("vp", ["run", "-F", "@drever/example-theme-showcase", "build:all"]);
+  await buildPresentations(concurrency);
 };
 
 const assemblePresentations = async () => {

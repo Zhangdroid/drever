@@ -58,6 +58,14 @@ jobs:
       - name: Install dependencies
         run: vp install --frozen-lockfile
 
+      - name: Restore Vite Task outputs
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: node_modules/.vite/task-cache
+          key: vite-task-v17-${{ runner.os }}-${{ runner.arch }}-vp-0.2.5-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            vite-task-v17-${{ runner.os }}-${{ runner.arch }}-vp-0.2.5-
+
       - name: Build and verify the website
         run: vp exec pnpm run build:website
 

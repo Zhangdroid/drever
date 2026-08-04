@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
+import { resolveTaskConcurrency, runConcurrently } from "../../../scripts/run-concurrently.mjs";
 
 const COMMANDS = new Set(["build", "check", "dev"]);
 const DEFAULT_THEME = "fieldnote";
@@ -116,6 +117,13 @@ const runDrever = async ({ binary, command, forwarded, theme }) => {
   });
 };
 
+class ThemeCommandFailure extends Error {
+  constructor(exitCode) {
+    super(`The theme command exited with code ${exitCode}.`);
+    this.exitCode = exitCode;
+  }
+}
+
 const main = async () => {
   if (process.argv.includes("--help") || process.argv.includes("-h")) {
     console.log(usage);
@@ -160,16 +168,23 @@ const main = async () => {
   }
 
   const themes = options.all ? THEMES : [selectedTheme];
-  for (const theme of themes) {
-    const exitCode = await runDrever({
-      binary,
-      command: options.command,
-      forwarded: options.forwarded,
-      theme,
-    });
-    if (exitCode !== 0) {
-      return exitCode;
-    }
+  try {
+    await runConcurrently(
+      themes,
+      async (theme) => {
+        const exitCode = await runDrever({
+          binary,
+          command: options.command,
+          forwarded: options.forwarded,
+          theme,
+        });
+        if (exitCode !== 0) throw new ThemeCommandFailure(exitCode);
+      },
+      options.all ? resolveTaskConcurrency() : 1,
+    );
+  } catch (error) {
+    if (error instanceof ThemeCommandFailure) return error.exitCode;
+    throw error;
   }
 
   return 0;
