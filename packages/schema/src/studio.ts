@@ -60,6 +60,7 @@ export type DreverStudioState = Readonly<{
   version: typeof DREVER_STUDIO_PROTOCOL_VERSION;
   revision: number;
   phase: DreverStudioPhase;
+  agentConnected: boolean;
   commonBrief?: DreverStudioCommonBrief;
   adaptiveQuestions?: readonly DreverStudioQuestion[];
   adaptiveAnswers?: readonly DreverStudioAnswer[];

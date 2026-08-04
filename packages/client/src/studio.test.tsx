@@ -11,6 +11,7 @@ import {
   hydrateStudioAnswerDrafts,
   nextStudioMode,
   resolveStudioAnswers,
+  resolveStudioDuration,
   Studio,
   type StudioProps,
   submitStudioBrief,
@@ -80,6 +81,7 @@ const state = (value: Partial<DreverStudioState>): DreverStudioState => ({
   version: DREVER_STUDIO_PROTOCOL_VERSION,
   revision: 1,
   phase: "briefing",
+  agentConnected: false,
   latestActionRevision: 0,
   pendingActionCount: 0,
   ...value,
@@ -98,8 +100,43 @@ describe("Studio", () => {
     expect(markup).toContain("Presentation topic");
     expect(markup).toContain("Information density");
     expect(markup).toContain("Motion direction");
+    expect(markup).toContain("After the presentation");
+    expect(markup).toContain("No local agent is active.");
+    expect(markup).toContain('aria-label="Custom duration in minutes"');
     expect(markup).toContain("Skip the rest — surprise me");
     expect(markup).toContain('data-studio-phase="briefing"');
+  });
+
+  it("removes the offline notice when the local agent lease is active", () => {
+    const markup = render(state({ agentConnected: true }));
+
+    expect(markup).toContain("Local agent active recently");
+    expect(markup).not.toContain("No local agent is active.");
+  });
+
+  it("does not pretend disconnected queued work is already running", () => {
+    const markup = render(
+      state({
+        phase: "waiting-for-agent",
+        commonBrief: { topic: "A deliberate subject" },
+      }),
+    );
+
+    expect(markup).toContain("Request saved locally");
+    expect(markup).toContain("Nothing is running inside Studio itself.");
+    expect(markup).not.toContain("Reading the room");
+    expect(markup).not.toContain("Your agent is turning");
+  });
+
+  it("hydrates an arbitrary duration in the custom minutes field", () => {
+    const markup = render(
+      state({
+        commonBrief: { durationMinutes: 45, topic: "A deliberate subject" },
+      }),
+    );
+
+    expect(markup).toContain('aria-label="Custom duration in minutes"');
+    expect(markup).toContain('value="45"');
   });
 
   it("renders topic-specific questions supplied by the connected agent", () => {
@@ -185,6 +222,15 @@ describe("Studio", () => {
 });
 
 describe("Studio flow helpers", () => {
+  it("accepts a useful custom duration and rejects invalid values", () => {
+    expect(resolveStudioDuration("45")).toBe(45);
+    expect(resolveStudioDuration(" 90 ")).toBe(90);
+    expect(resolveStudioDuration("")).toBeUndefined();
+    expect(resolveStudioDuration("0")).toBeUndefined();
+    expect(resolveStudioDuration("12.5")).toBeUndefined();
+    expect(resolveStudioDuration("1441")).toBeUndefined();
+  });
+
   it("does not skip questions when the common brief was rejected", async () => {
     const onAction = vi
       .fn<StudioProps["onAction"]>()

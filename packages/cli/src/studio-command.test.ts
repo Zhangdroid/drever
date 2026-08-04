@@ -112,6 +112,7 @@ describe("Studio CLI bridge", () => {
       stdout: status.stdout,
     });
     expect(JSON.parse(status.read())).toMatchObject({
+      agentConnected: true,
       latestActionRevision: 1,
       pendingActionCount: 1,
       phase: "waiting-for-agent",

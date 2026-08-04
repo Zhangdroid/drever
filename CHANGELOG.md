@@ -18,6 +18,10 @@ includes visual-review and audience-rendering refinements.
 
 ### Changed
 
+- Made the experimental creation room's first brief clearer and more flexible with arbitrary
+  minute durations, plain-language audience-goal copy, readable option descriptions, and compact
+  recommendation badges. It now also distinguishes an active local coding-agent lease from an
+  unconnected room instead of presenting the transport itself as a live agent.
 - Taught the bundled design and review skills to reject detached annotations, connector overshoot,
   and implementation details that visually overpower the audience-facing claim.
 

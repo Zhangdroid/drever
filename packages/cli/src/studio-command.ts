@@ -5,6 +5,7 @@ import { DreverCliError } from "./errors.ts";
 import {
   createStudioSession,
   readStudioActionRecords,
+  writeStudioAgentHeartbeat,
   writeStudioAgentState,
 } from "./studio-plugin.ts";
 
@@ -40,6 +41,7 @@ export type RunStudioCommandRequest = Readonly<{
 }>;
 
 const formatJson = (value: unknown): string => `${JSON.stringify(value, null, 2)}\n`;
+const AGENT_HEARTBEAT_INTERVAL_MS = 30_000;
 
 const readPublication = async (root: string, file: string): Promise<unknown> => {
   const projectRoot = resolve(root);
@@ -122,14 +124,21 @@ const waitForActions = async (
   timeoutSeconds: number,
   now: () => number,
   delay: (milliseconds: number) => Promise<void>,
+  renewAgentLease: () => Promise<void>,
 ): Promise<Readonly<{ actions: readonly DreverStudioActionRecord[]; timedOut: boolean }>> => {
   const deadline = now() + timeoutSeconds * 1_000;
+  let nextHeartbeat = now() + AGENT_HEARTBEAT_INTERVAL_MS;
   while (true) {
     const actions = (await readStudioActionRecords(root)).filter(
       ({ revision }) => revision > after,
     );
     if (actions.length > 0) return Object.freeze({ actions, timedOut: false });
-    const remaining = deadline - now();
+    const currentTime = now();
+    if (currentTime >= nextHeartbeat) {
+      await renewAgentLease();
+      nextHeartbeat = currentTime + AGENT_HEARTBEAT_INTERVAL_MS;
+    }
+    const remaining = deadline - currentTime;
     if (remaining <= 0) return Object.freeze({ actions: [], timedOut: true });
     await delay(Math.min(remaining, 100));
   }
@@ -143,8 +152,12 @@ export const runStudioCommand = async ({
   root,
   stdout,
 }: RunStudioCommandRequest): Promise<void> => {
+  const heartbeat = async (): Promise<void> => {
+    await writeStudioAgentHeartbeat(root, new Date(now()));
+  };
   if (command.action === "status") {
-    const state = await createStudioSession(root).read();
+    await heartbeat();
+    const state = await createStudioSession(root, { now: () => new Date(now()) }).read();
     stdout.write(
       command.json
         ? formatJson(state)
@@ -153,7 +166,16 @@ export const runStudioCommand = async ({
     return;
   }
   if (command.action === "wait") {
-    const result = await waitForActions(root, command.after, command.timeoutSeconds, now, delay);
+    await heartbeat();
+    const result = await waitForActions(
+      root,
+      command.after,
+      command.timeoutSeconds,
+      now,
+      delay,
+      heartbeat,
+    );
+    await heartbeat();
     const latestActionRevision = result.actions.at(-1)?.revision ?? command.after;
     const value = Object.freeze({
       version: 1,
@@ -171,6 +193,7 @@ export const runStudioCommand = async ({
     );
     return;
   }
+  await heartbeat();
   const state = await publish(root, command.file);
   stdout.write(
     command.json ? formatJson(state) : `Published Studio agent state from ${command.file}.\n`,
