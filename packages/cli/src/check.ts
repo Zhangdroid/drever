@@ -11,6 +11,8 @@ import {
   type RenderedPreflightReceipt,
 } from "@drever/schema";
 import { readFile } from "node:fs/promises";
+import { dirname } from "node:path";
+import { loadDreverDeckPlan } from "./deck-plan.ts";
 import { DreverCliError } from "./errors.ts";
 import type { ResolvedDreverProject } from "./project.ts";
 import { checkRenderedProject } from "./rendered-check.ts";
@@ -21,6 +23,7 @@ export type CheckDeckRequest = Readonly<{
   entry: string;
   json: boolean;
   project?: ResolvedDreverProject;
+  root?: string;
   stdout: Pick<NodeJS.WriteStream, "write">;
 }>;
 
@@ -90,14 +93,22 @@ const readDeck = async (path: string): Promise<string> => {
   }
 };
 
-export const createCheckReport = async (entry: string): Promise<DeckPreflightReportV2> =>
-  preflightDeck(await readDeck(entry), { path: entry });
-
 const summarize = (diagnostics: readonly Diagnostic[]): DeckPreflightSummary => ({
   errors: diagnostics.filter(({ severity }) => severity === "error").length,
   warnings: diagnostics.filter(({ severity }) => severity === "warning").length,
   info: diagnostics.filter(({ severity }) => severity === "info").length,
 });
+
+export const createCheckReport = async (
+  entry: string,
+  root = dirname(entry),
+): Promise<DeckPreflightReportV2> => {
+  const report = preflightDeck(await readDeck(entry), { path: entry });
+  const plan = await loadDreverDeckPlan({ root, slideCount: report.slideCount });
+  if (plan.diagnostics.length === 0) return report;
+  const diagnostics = [...report.diagnostics, ...plan.diagnostics];
+  return { ...report, summary: summarize(diagnostics), diagnostics };
+};
 
 const skippedRenderedReceipt = (project: ResolvedDreverProject): RenderedPreflightReceipt => ({
   version: RENDERED_PREFLIGHT_VERSION,
@@ -131,9 +142,10 @@ export const checkDeck = async ({
   entry,
   json,
   project,
+  root,
   stdout,
 }: CheckDeckRequest): Promise<CheckExitCode> => {
-  const source = await createCheckReport(entry);
+  const source = await createCheckReport(entry, root);
   const report = project === undefined ? source : await withRenderedPreflight(source, project);
   stdout.write(json ? formatCheckJson(report) : formatCheckHuman(report));
   return report.summary.errors === 0 ? 0 : 1;

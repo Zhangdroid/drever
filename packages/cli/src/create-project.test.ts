@@ -165,11 +165,14 @@ describe("project creation", () => {
     expect(generatedBrief).toContain("Visible slide density");
     expect(generatedBrief).toContain("Speaker-note strategy");
     expect(generatedBrief).toContain("## Slide outline");
+    await expect(readFile(join(root, "drever.plan.json"), "utf8")).resolves.toBe(
+      `${JSON.stringify({ version: 1, status: "awaiting-input" }, null, 2)}\n`,
+    );
     await expect(readFile(join(root, "README.md"), "utf8")).resolves.toContain(
       "Open this project folder in Codex, Claude Code, or another coding agent.",
     );
     await expect(readFile(join(root, "README.md"), "utf8")).resolves.toContain(
-      "Use `$drever-create-deck` to write a reviewable plan and slide outline to `brief.md`, wait for my approval, then create the live Drever draft and deliver the requested outputs.",
+      "Use `$drever-create-deck` to write the reviewable `brief.md` and `drever.plan.json` story contract, wait for my approval, then create the live Drever draft and deliver the requested outputs.",
     );
     await expect(readFile(join(root, "README.md"), "utf8")).resolves.toContain(
       "In Claude Code, use `/drever-create-deck` instead of `$drever-create-deck`.",

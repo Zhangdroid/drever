@@ -823,6 +823,7 @@ export const runCli = async (
       entry,
       json: command.json,
       ...(project === undefined ? {} : { project }),
+      root,
       stdout: output,
     });
   }

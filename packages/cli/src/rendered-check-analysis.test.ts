@@ -19,6 +19,7 @@ const element = (
   layout = rect(),
   options: Readonly<{ source?: RenderedCheckSource; step?: number }> = {},
 ): RenderedCheckElement => ({
+  fragments: [layout],
   key,
   label: key,
   layout,
@@ -53,8 +54,12 @@ describe("rendered check analysis", () => {
     const clipped = element("title");
     const owner = { key: "div:0", rect: rect(0, 0, 120, 40), tag: "div" };
     const diagnostics = analyzeRenderedCheckFrames([
-      frame(0, { issues: [{ element: clipped, owner, type: "content-clipped" }] }),
-      frame(2, { issues: [{ element: clipped, owner, type: "content-clipped" }] }),
+      frame(0, {
+        issues: [{ element: clipped, evidence: "line-fragment", owner, type: "content-clipped" }],
+      }),
+      frame(2, {
+        issues: [{ element: clipped, evidence: "line-fragment", owner, type: "content-clipped" }],
+      }),
     ]);
 
     expect(diagnostics).toHaveLength(1);
@@ -179,6 +184,7 @@ describe("rendered check analysis", () => {
             element: element("exact", rect(), {
               source: { precision: "exact", range: sourceRange },
             }),
+            evidence: "line-fragment",
             owner,
             type: "content-clipped",
           },
@@ -192,6 +198,7 @@ describe("rendered check analysis", () => {
             element: element("ancestor", rect(), {
               source: { precision: "ancestor", range: sourceRange },
             }),
+            evidence: "line-fragment",
             owner,
             type: "content-clipped",
           },
@@ -213,6 +220,159 @@ describe("rendered check analysis", () => {
         element: {
           sourceMapping: { precision: "ancestor", range: sourceRange },
         },
+      },
+    });
+  });
+
+  it("preserves direct scroll-overflow evidence", () => {
+    const overflowing = element("scrolling-copy", rect(), {
+      source: { precision: "exact", range: sourceRange },
+    });
+    const diagnostics = analyzeRenderedCheckFrames([
+      frame(0, {
+        issues: [
+          {
+            element: overflowing,
+            evidence: "scroll-overflow",
+            overflow: { x: 84, y: 0 },
+            owner: { key: overflowing.key, rect: rect(), tag: "p" },
+            type: "content-clipped",
+          },
+        ],
+      }),
+    ]);
+
+    expect(diagnostics).toMatchObject([
+      {
+        code: "DREVER_RENDER_CONTENT_CLIPPED",
+        severity: "error",
+        source: sourceRange,
+        details: {
+          evidence: "scroll-overflow",
+          overflow: { x: 84, y: 0 },
+        },
+      },
+    ]);
+  });
+
+  it("aggregates a high-confidence content overlap across Step states", () => {
+    const first = element("decision", rect(100, 100, 300, 60), {
+      source: { precision: "exact", range: sourceRange },
+    });
+    const second = element("evidence", rect(220, 120, 300, 60));
+    const overlap = {
+      elements: [first, second] as const,
+      intersection: rect(220, 120, 180, 40),
+      type: "content-overlap" as const,
+    };
+    const diagnostics = analyzeRenderedCheckFrames([
+      frame(0, { issues: [overlap] }),
+      frame(2, { issues: [overlap] }),
+    ]);
+
+    expect(diagnostics).toMatchObject([
+      {
+        code: "DREVER_RENDER_CONTENT_OVERLAP",
+        severity: "error",
+        source: sourceRange,
+        details: {
+          elements: [{ key: "decision" }, { key: "evidence" }],
+          states: [
+            { route: "/", step: 0 },
+            { route: "/1/2", step: 2 },
+          ],
+        },
+      },
+    ]);
+  });
+
+  it("reports resolved low contrast and aggregates repeated states", () => {
+    const copy = element("supporting-copy", rect(), {
+      source: { precision: "exact", range: sourceRange },
+    });
+    const lowContrast = {
+      actual: 2.32,
+      background: "rgb(255 255 255)",
+      element: copy,
+      expected: 4.5,
+      fontSize: 16,
+      fontWeight: 400,
+      foreground: "rgb(174 174 174)",
+      largeText: false,
+      type: "text-contrast-low" as const,
+    };
+    const diagnostics = analyzeRenderedCheckFrames([
+      frame(0, { issues: [lowContrast] }),
+      frame(2, { issues: [lowContrast] }),
+    ]);
+
+    expect(diagnostics).toMatchObject([
+      {
+        code: "DREVER_RENDER_TEXT_CONTRAST_LOW",
+        severity: "error",
+        source: sourceRange,
+        details: {
+          actual: 2.32,
+          expected: 4.5,
+          largeText: false,
+          states: [
+            { route: "/", step: 0 },
+            { route: "/1/2", step: 2 },
+          ],
+        },
+      },
+    ]);
+  });
+
+  it("marks image and gradient contrast as indeterminate instead of passing it", () => {
+    const copy = element("gradient-copy", rect());
+    const diagnostics = analyzeRenderedCheckFrames([
+      frame(0, {
+        issues: [
+          {
+            element: copy,
+            reason: "background-image-or-gradient",
+            type: "text-contrast-indeterminate",
+          },
+        ],
+      }),
+    ]);
+
+    expect(diagnostics).toMatchObject([
+      {
+        code: "DREVER_RENDER_TEXT_CONTRAST_INDETERMINATE",
+        severity: "warning",
+        details: { reason: "background-image-or-gradient" },
+      },
+    ]);
+  });
+
+  it("summarizes repeated indeterminate contrast by reason", () => {
+    const first = element("gradient-copy", rect());
+    const second = element("gradient-copy-2", rect());
+    const issue = (copy: RenderedCheckElement) => ({
+      element: copy,
+      reason: "background-image-or-gradient",
+      type: "text-contrast-indeterminate" as const,
+    });
+    const diagnostics = analyzeRenderedCheckFrames([
+      frame(0, { issues: [issue(first)] }),
+      {
+        ...frame(0, { issues: [issue(second)] }),
+        route: "/2",
+        slide: { id: "second", index: 1, rect: rect(), step: 0 },
+      },
+    ]);
+
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0]).toMatchObject({
+      code: "DREVER_RENDER_TEXT_CONTRAST_INDETERMINATE",
+      details: {
+        reason: "background-image-or-gradient",
+        states: [
+          { route: "/", step: 0 },
+          { route: "/2", step: 0 },
+        ],
       },
     });
   });

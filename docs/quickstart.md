@@ -38,7 +38,7 @@ The command examples in this guide use npm. In projects installed with pnpm,
 Yarn, or Bun, use `pnpm exec drever`, `yarn exec drever`, or
 `bunx --no-install drever` respectively, plus that manager's script runner.
 
-The creator writes `brief.md`, `slides.mdx`, package scripts, and project-local
+The creator writes `brief.md`, `drever.plan.json`, `slides.mdx`, package scripts, and project-local
 skills for Codex and Claude Code, then installs a Drever version compatible with
 the creator. It fails rather than overwriting starter files in a non-empty
 target. Use `--no-install` only when another process will install dependencies,
@@ -55,10 +55,11 @@ From there, ask for the deliverable in natural language:
 > reveal, and deliver the website and PDF.
 
 The agent resolves audience, outcome, duration, and visible slide density before
-authoring. It then writes a complete `brief.md` with the planned slide count,
-direction, assumptions, and numbered slide outline and stops for approval. Once
-you approve that plan, it creates the live Draft 1 and continues refining the
-same preview.
+authoring. It then writes a complete `brief.md` plus a versioned
+`drever.plan.json` with stable slide jobs, evidence, focal artifacts,
+composition recipes, density, and motion ownership. It validates both and stops
+for approval. Once you approve that plan, it creates the live Draft 1 and
+continues refining the same preview.
 
 An installed global Drever plugin can handle the same request from an empty
 directory. It invokes the creator once, then delegates to the project-local
@@ -227,11 +228,15 @@ Drever builds an isolated inspection app and visits Step 0 plus every exact
 authored Step at the configured canvas. Stable diagnostics report:
 
 - visible content clipped by an owning surface;
-- visible content outside the canvas;
+- visible content outside the canvas or directly overflowing its own box;
+- high-confidence sibling text or opaque-content overlap;
+- resolved solid-color text contrast below the WCAG threshold;
 - persistent geometry that unexpectedly moves or resizes between Steps;
-- suspicious density supported by multiple rendered signals.
+- suspicious density supported by multiple rendered signals;
+- complex gradient, image, blended, or translucent paint that cannot be proven automatically.
 
-Clipping and overflow are errors. Geometry and density are warnings because a
+Clipping, overflow, overlap, and resolved contrast failures are errors. Geometry,
+density, and indeterminate paint are warnings because a
 deliberate reflow or information-rich slide can be valid. A missing browser or
 runtime failure is an error rather than a silent skip.
 
@@ -242,8 +247,9 @@ version, captured `stateCount`, and `status`. Source errors produce a `skipped`
 receipt with reason `source-errors`; browser and runtime failures produce
 `failed` receipts with their corresponding reason. The schema package also
 models the legacy source-only V1 shape for stored artifacts. The report is
-machine evidence, not an aesthetic score. Review contrast, hierarchy, reading
-order, transitions, and the presentation's visual fit in the real browser.
+machine evidence, not an aesthetic score. Review complex-paint contrast,
+hierarchy, reading order, transitions, and the presentation's visual fit in the
+real browser.
 
 Start the viewer and create a production build:
 

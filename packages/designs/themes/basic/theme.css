@@ -435,7 +435,7 @@
 
 .drever-layout-cover:is([data-tone="dark"], [data-tone="accent"])
   :where(.drever-layout-cover__eyebrow, .drever-layout-cover__footer) {
-  color: rgb(248 249 255 / 72%);
+  color: rgb(248 249 255 / 88%);
 }
 
 .drever-layout-two-column {

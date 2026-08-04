@@ -67,13 +67,27 @@ const diagnostic = (
 const issueCode = (issue: RenderedCheckIssue): string => {
   if (issue.type === "canvas-overflow") return "DREVER_RENDER_CANVAS_OVERFLOW";
   if (issue.type === "content-clipped") return "DREVER_RENDER_CONTENT_CLIPPED";
+  if (issue.type === "content-overlap") return "DREVER_RENDER_CONTENT_OVERLAP";
+  if (issue.type === "text-contrast-low") return "DREVER_RENDER_TEXT_CONTRAST_LOW";
+  if (issue.type === "text-contrast-indeterminate") {
+    return "DREVER_RENDER_TEXT_CONTRAST_INDETERMINATE";
+  }
   return "DREVER_RENDER_RUNTIME_FAILED";
 };
 
-const issueKey = (frame: RenderedCheckFrame, issue: RenderedCheckIssue): string =>
-  issue.type === "active-slide-count"
-    ? `${issue.type}:${frame.route}`
-    : `${issue.type}:${frame.slide.id}:${issue.element.key}`;
+const issueKey = (frame: RenderedCheckFrame, issue: RenderedCheckIssue): string => {
+  if (issue.type === "active-slide-count") return `${issue.type}:${frame.route}`;
+  if (issue.type === "text-contrast-indeterminate") {
+    return `${issue.type}:${issue.reason}`;
+  }
+  if (issue.type === "content-overlap") {
+    return `${issue.type}:${frame.slide.id}:${issue.elements
+      .map(({ key }) => key)
+      .toSorted()
+      .join(":")}`;
+  }
+  return `${issue.type}:${frame.slide.id}:${issue.element.key}`;
+};
 
 const issueDiagnostic = (
   frame: RenderedCheckFrame,
@@ -109,21 +123,86 @@ const issueDiagnostic = (
       },
     );
   }
+  if (issue.type === "content-clipped") {
+    return diagnostic(
+      issueCode(issue),
+      "error",
+      issue.evidence === "scroll-overflow"
+        ? `Visible ${issue.element.tag} content exceeds its scroll surface on slide ${frame.slide.index + 1}.`
+        : `A visible line or content fragment is clipped by a ${issue.owner.tag} surface on slide ${frame.slide.index + 1}.`,
+      frame,
+      {
+        details: {
+          element: elementDetails(issue.element),
+          evidence: issue.evidence,
+          owner: { key: issue.owner.key, tag: issue.owner.tag },
+          ownerRect: issue.owner.rect,
+          ...(issue.overflow === undefined ? {} : { overflow: issue.overflow }),
+          rect: issue.element.rect,
+          states,
+        },
+        element: issue.element,
+        hint: "Give the content enough room or remove the unintended clipping boundary; do not hide required text.",
+      },
+    );
+  }
+  if (issue.type === "content-overlap") {
+    const sourceElement =
+      issue.elements.find(({ source }) => source?.precision === "exact") ?? issue.elements[0];
+    return diagnostic(
+      issueCode(issue),
+      "error",
+      `Readable content overlaps another independent element on slide ${frame.slide.index + 1}.`,
+      frame,
+      {
+        details: {
+          elements: issue.elements.map(elementDetails),
+          intersection: issue.intersection,
+          states,
+        },
+        element: sourceElement,
+        hint: 'Separate the elements, or mark a deliberate overlap with data-drever-overlap="allow". Mark non-content artwork with data-drever-visual-role="decoration".',
+      },
+    );
+  }
+  if (issue.type === "text-contrast-low") {
+    return diagnostic(
+      issueCode(issue),
+      "error",
+      `Text contrast is ${issue.actual.toFixed(2)}:1 instead of at least ${issue.expected.toFixed(1)}:1 on slide ${frame.slide.index + 1}.`,
+      frame,
+      {
+        details: {
+          actual: issue.actual,
+          background: issue.background,
+          element: elementDetails(issue.element),
+          expected: issue.expected,
+          fontSize: issue.fontSize,
+          fontWeight: issue.fontWeight,
+          foreground: issue.foreground,
+          largeText: issue.largeText,
+          states,
+        },
+        element: issue.element,
+        hint: "Increase the foreground/background contrast while preserving the intended hierarchy.",
+      },
+    );
+  }
   return diagnostic(
     issueCode(issue),
-    "error",
-    `Visible ${issue.element.tag} content is clipped by a ${issue.owner.tag} surface on slide ${frame.slide.index + 1}.`,
+    "warning",
+    states.length === 1
+      ? `Text contrast cannot be proven from solid computed colors on slide ${frame.slide.index + 1}.`
+      : `Text contrast cannot be proven from solid computed colors in ${states.length} rendered states, starting on slide ${frame.slide.index + 1}.`,
     frame,
     {
       details: {
         element: elementDetails(issue.element),
-        owner: { key: issue.owner.key, tag: issue.owner.tag },
-        ownerRect: issue.owner.rect,
-        rect: issue.element.rect,
+        reason: issue.reason,
         states,
       },
       element: issue.element,
-      hint: "Give the content enough room or remove the unintended clipping boundary; do not hide required text.",
+      hint: "Inspect this text against the rendered gradient, image, blend, or translucent surface; an indeterminate result is not a contrast pass.",
     },
   );
 };

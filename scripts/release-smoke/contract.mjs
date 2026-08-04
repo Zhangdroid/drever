@@ -1,5 +1,6 @@
 import { cp, lstat, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, extname, join, relative, resolve, sep } from "node:path";
+import { validateDreverDeckPlanValue } from "../../packages/schema/src/deck-plan.ts";
 import { RELEASE_SMOKE_CLAUDE_BUDGET_USD, RELEASE_SMOKE_CLAUDE_MAX_TURNS } from "./limits.mjs";
 import { getReleaseSmokeProvider } from "./providers.mjs";
 
@@ -17,6 +18,7 @@ export const RELEASE_SMOKE_HANDOFF_PATHS = Object.freeze([
   ".agents/skills/drever-review-deck/SKILL.md",
   "AGENTS.md",
   "brief.md",
+  "drever.plan.json",
   "package.json",
 ]);
 const claudeHandoffPaths = Object.freeze([
@@ -26,6 +28,7 @@ const claudeHandoffPaths = Object.freeze([
   ".claude/skills/drever-review-deck/SKILL.md",
   "CLAUDE.md",
   "brief.md",
+  "drever.plan.json",
   "package.json",
 ]);
 export const releaseSmokeHandoffPaths = (providerId) =>
@@ -38,6 +41,7 @@ export const RELEASE_SMOKE_PRIVATE_PATHS = Object.freeze([
 ]);
 export const RELEASE_SMOKE_MUTABLE_HANDOFF_PATHS = Object.freeze([
   "brief.md",
+  "drever.plan.json",
   "drever.config.js",
   "drever.config.mjs",
   "drever.config.ts",
@@ -60,6 +64,7 @@ const sourceDirectories = new Set([
 const sourceExtensions = new Set([".css", ".js", ".jsx", ".md", ".mdx", ".svg", ".ts", ".tsx"]);
 const sourceExactPaths = new Set([
   "brief.md",
+  "drever.plan.json",
   "drever.config.js",
   "drever.config.mjs",
   "drever.config.ts",
@@ -201,6 +206,19 @@ const findHandoffConfiguration = async (root) => {
   return undefined;
 };
 
+const findOptionalHandoffFile = async (root, path) => {
+  try {
+    const metadata = await lstat(join(root, path));
+    if (!metadata.isFile()) {
+      throw new Error(`Release smoke handoff file is not a regular file: ${path}`);
+    }
+    return path;
+  } catch (error) {
+    if (!(error instanceof Error && "code" in error && error.code === "ENOENT")) throw error;
+    return undefined;
+  }
+};
+
 const copyBoundedRegularFiles = async (sourceRoot, destinationRoot, paths) => {
   const source = resolve(sourceRoot);
   const destination = resolve(destinationRoot);
@@ -244,9 +262,14 @@ export const copyReleaseSmokeHandoff = async (
   { includePrivate = false, providerId = "codex" } = {},
 ) => {
   const source = resolve(sourceRoot);
-  const configuration = await findHandoffConfiguration(source);
+  const [configuration, deckPlan] = await Promise.all([
+    findHandoffConfiguration(source),
+    findOptionalHandoffFile(source, "drever.plan.json"),
+  ]);
   const files = [
-    ...releaseSmokeHandoffPaths(providerId),
+    ...releaseSmokeHandoffPaths(providerId).filter(
+      (path) => path !== "drever.plan.json" || deckPlan !== undefined,
+    ),
     ...(includePrivate ? RELEASE_SMOKE_PRIVATE_PATHS : []),
     ...(configuration === undefined ? [] : [configuration]),
   ];
@@ -508,10 +531,33 @@ const assertReleaseSmokeBriefShape = (source, status) => {
 
 export const assertReleaseSmokeBrief = (source) => assertReleaseSmokeBriefShape(source, "Approved");
 
-export const assertReleaseSmokePlanReview = async (projectRoot, retainedSourcePaths = []) => {
+const assertReleaseSmokePlan = (source, status) => {
+  let plan;
+  try {
+    plan = JSON.parse(source);
+  } catch {
+    throw new Error("Generated drever.plan.json must contain valid JSON.");
+  }
+  const validation = validateDreverDeckPlanValue(plan);
+  if (!validation.ok) {
+    const details = validation.issues
+      .map(({ code, field, message }) => `${code} at ${field}: ${message}`)
+      .join(" ");
+    throw new Error(`Generated drever.plan.json does not satisfy the V1 contract. ${details}`);
+  }
+  if (validation.value.status !== status) {
+    throw new Error(`Generated drever.plan.json must be a version-1 ${status} plan.`);
+  }
+};
+
+export const assertReleaseSmokePlanReview = async (
+  projectRoot,
+  retainedSourcePaths = [],
+  { requireDeckPlan = true } = {},
+) => {
   const root = resolve(projectRoot);
   const files = (await walkSourceCandidates(root)).sort();
-  const allowed = new Set(["brief.md", ...retainedSourcePaths]);
+  const allowed = new Set(["brief.md", "drever.plan.json", ...retainedSourcePaths]);
   const prematureSource = files.filter((path) => !allowed.has(path));
   if (prematureSource.length > 0) {
     throw new Error(
@@ -521,10 +567,24 @@ export const assertReleaseSmokePlanReview = async (projectRoot, retainedSourcePa
   if (!files.includes("brief.md")) {
     throw new Error("Generated plan review is missing brief.md.");
   }
+  const hasDeckPlan = files.includes("drever.plan.json");
+  if (requireDeckPlan && !hasDeckPlan) {
+    throw new Error("Generated plan review is missing drever.plan.json.");
+  }
   assertReleaseSmokeBriefShape(await readFile(join(root, "brief.md"), "utf8"), "Awaiting approval");
+  if (hasDeckPlan) {
+    assertReleaseSmokePlan(
+      await readFile(join(root, "drever.plan.json"), "utf8"),
+      "awaiting-approval",
+    );
+  }
 };
 
-export const collectReleaseSmokeSource = async (projectRoot, destination) => {
+export const collectReleaseSmokeSource = async (
+  projectRoot,
+  destination,
+  { requireDeckPlan = false } = {},
+) => {
   const root = resolve(projectRoot);
   const target = resolve(destination);
   if (isChildPath(root, target)) {
@@ -533,6 +593,10 @@ export const collectReleaseSmokeSource = async (projectRoot, destination) => {
   const files = (await walkSourceCandidates(root)).sort();
   if (!files.includes("slides.mdx")) throw new Error("Generated source is missing slides.mdx.");
   if (!files.includes("brief.md")) throw new Error("Generated source is missing brief.md.");
+  const hasDeckPlan = files.includes("drever.plan.json");
+  if (requireDeckPlan && !hasDeckPlan) {
+    throw new Error("Generated source is missing drever.plan.json.");
+  }
   if (files.length > MAX_SOURCE_FILES) {
     throw new Error(
       `Generated source contains ${files.length} files; limit is ${MAX_SOURCE_FILES}.`,
@@ -567,6 +631,8 @@ export const collectReleaseSmokeSource = async (projectRoot, destination) => {
     contents.push({ content, path });
   }
   assertReleaseSmokeBrief(contents.find(({ path }) => path === "brief.md")?.content);
+  const deckPlan = contents.find(({ path }) => path === "drever.plan.json")?.content;
+  if (deckPlan !== undefined) assertReleaseSmokePlan(deckPlan, "approved");
 
   await rm(target, { force: true, recursive: true });
   for (const { content, path } of contents) {

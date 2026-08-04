@@ -38,6 +38,7 @@ test("a clean consumer can create, validate, and build a presentation", async ()
         "README.md",
         "brief.md",
         "drever.config.ts",
+        "drever.plan.json",
         "slides.mdx",
         ".gitignore",
       ],
@@ -55,7 +56,8 @@ test("a clean consumer can create, validate, and build a presentation", async ()
     const checked = await run(root, dreverCli, "check", "--json");
     expect(JSON.parse(checked.stdout)).toMatchObject({
       slideCount: 1,
-      summary: { errors: 0, warnings: 0 },
+      summary: { errors: 0, warnings: 1 },
+      diagnostics: [{ code: "DREVER_PLAN_AWAITING_INPUT", severity: "warning" }],
     });
 
     const built = await run(root, dreverCli, "build", "--json");

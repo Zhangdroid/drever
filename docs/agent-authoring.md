@@ -99,19 +99,23 @@ escape. Taking it fills unanswered decisions; it never replaces a missing
 topic unless the user explicitly asks for that.
 
 Before authoring, the agent replaces the starter `brief.md` with the complete
-plan: objective, audience, duration, slide-count range, language, density,
-notes strategy, narrative and visual direction, motion intensity, evidence,
-assumptions, signature moments, and a numbered slide outline. It presents that
-plan and stops for explicit approval. The skip-remaining escape delegates
-choices but does not skip this mandatory review, and a request to “create it
-now” does not bypass the gate.
+human-readable plan and writes the versioned `drever.plan.json` contract. The
+latter gives every slide a stable ID and narrative job plus its purpose,
+evidence, focal artifact, composition recipe, density, and any explicit motion
+owner. These IDs remain stable within the ordered planning and review contract;
+the compiler still identifies rendered slides positionally. `drever check`
+validates the plan shape and approved slide count before the agent presents it and
+stops for approval. The skip-remaining escape delegates choices but does not
+skip this mandatory review, and a request to “create it now” does not bypass
+the gate.
 
 ### Direct authoring contract
 
 The generated kit and `context --json` are the complete public API contract for
 deck creation. A normal creation session reads the active agent instructions,
 the creation skill, `brief.md`, `package.json`, the configured MDX entry and
-configuration, plus only project-owned files it will use or edit. It does not
+configuration, plus `drever.plan.json` when the deck uses the planned workflow
+and only project-owned files it will use or edit. It does not
 scan every skill before Draft 1.
 
 Agents must not inspect the Drever repository, `node_modules`, declaration
@@ -295,19 +299,21 @@ npm exec -- drever check --rendered --json
 ```
 
 It builds an isolated inspection app, visits Step 0 and every exact authored
-Step at the configured canvas, and emits stable diagnostics for clipping,
-canvas overflow, persistent geometry changes, and suspicious density. The CLI
+Step at the configured canvas, and emits stable diagnostics for line-fragment
+clipping, canvas and direct scroll overflow, high-confidence sibling overlap,
+resolved solid-color contrast, persistent geometry changes, suspicious density,
+and indeterminate complex paint. The CLI
 emits the current typed report V2. Its rendered receipt records receipt and
 ruleset versions, canvas, `chromium` engine, optional browser version, captured
 state count, status, and any skip or failure reason. A stored legacy V1 report
 is source-only and cannot satisfy the rendered gate. This gives an agent
 reproducible evidence connected to slide, Step, and authored source when
-available. Errors block delivery; geometry and density warnings require
-judgment.
+available. Proven clipping, overflow, overlap, and contrast errors block
+delivery; geometry, density, and indeterminate-paint warnings require judgment.
 
-Rendered preflight deliberately does not claim to judge contrast, hierarchy,
-motion quality, or aesthetic fit. It complements rather than replaces the
-separate browser review below.
+Rendered preflight deliberately does not claim to judge contrast through images,
+gradients, blends, or translucency, nor hierarchy, motion quality, or aesthetic
+fit. It complements rather than replaces the separate browser review below.
 
 The project-local review skill prefers
 [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp)
@@ -419,9 +425,10 @@ The full grammar and accessibility semantics are in
 For a new project:
 
 1. Run `npm create drever@latest <directory>` or let the global plugin invoke it.
-2. Complete `brief.md` with the resolved direction and numbered slide outline,
-   present it to the user, and stop for explicit approval. Do not author the
-   configured MDX entry or start a preview before that approval.
+2. Complete `brief.md` and the versioned `drever.plan.json` story contract,
+   validate them, present the ordered plan to the user, and stop for explicit
+   approval. Do not author the configured MDX entry or start a preview before
+   that approval.
 3. After approval, create the full narrative with a deliberately simple,
    stable, readable base composition, then write the configured MDX entry. Do
    not scan official design source before authoring.

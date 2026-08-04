@@ -74,7 +74,11 @@ import {
   releaseSmokeCaseId,
   releaseSmokeProviders,
 } from "./providers.mjs";
-import { getReleaseSmokeScenario, releaseSmokeScenarios } from "./scenarios.mjs";
+import {
+  getReleaseSmokeScenario,
+  releaseSmokeScenarios,
+  releaseSmokeScenarioTurns,
+} from "./scenarios.mjs";
 import { verifyPagesPreview } from "./verify-pages-preview.mjs";
 import { assertReleaseSmokeProvenance, requestJson } from "./verify-provenance.mjs";
 
@@ -85,6 +89,35 @@ const write = async (root, path, content) => {
   await mkdir(dirname(destination), { recursive: true });
   await writeFile(destination, content, "utf8");
 };
+const deckPlan = (status) =>
+  `${JSON.stringify(
+    {
+      version: 1,
+      status,
+      brief: {
+        topic: "Why black holes are not cosmic vacuum cleaners",
+        audience: "International high-school students",
+        desiredChange: "Replace the vacuum-cleaner myth with a useful gravity model",
+        durationMinutes: 12,
+        language: "en",
+        density: "concise",
+      },
+      slides: [
+        {
+          id: "opening-question",
+          job: "opening",
+          title: "What does a black hole pull in?",
+          purpose: "Expose the vacuum-cleaner misconception.",
+          evidence: ["Same mass and distance imply the same gravitational pull."],
+          focalArtifact: "A stable orbit around equal masses",
+          composition: { recipe: "orbit-comparison" },
+          density: "concise",
+        },
+      ],
+    },
+    null,
+    2,
+  )}\n`;
 
 afterEach(async () => {
   await Promise.all(
@@ -119,7 +152,7 @@ test("defines one real surprise journey and one fully guided journey", () => {
     assert.match(scenario.turns.join("\n"), /Do not browse or add named black holes/iu);
     assert.match(scenario.turns.at(-2), /complete brief and 12-slide outline for review/iu);
     assert.match(scenario.turns.at(-2), /do not create the presentation yet/iu);
-    assert.match(scenario.turns.at(-1), /^I approve the brief and slide outline\./u);
+    assert.match(scenario.turns.at(-1), /^I approve the brief and story plan\./u);
     assert.match(scenario.turns.at(-1), /refine the\s+narrative/iu);
     assert.match(scenario.turns.at(-1), /inventory every slide's final visible static heading/iu);
     assert.match(scenario.turns.at(-1), /make each heading distinct/iu);
@@ -145,6 +178,12 @@ test("defines one real surprise journey and one fully guided journey", () => {
     getReleaseSmokeScenario("guided").turns[2],
     /Skip remaining questions — surprise me\. Write the complete brief and 12-slide outline/iu,
   );
+  for (const scenario of releaseSmokeScenarios) {
+    const legacyTurns = releaseSmokeScenarioTurns(scenario, { deckPlanCapable: false });
+    assert.equal(legacyTurns.length, scenario.turns.length);
+    assert.match(legacyTurns.at(-1), /^I approve the brief and slide outline\./u);
+    assert.doesNotMatch(legacyTurns.at(-1), /drever\.plan\.json/u);
+  }
   assert.throws(() => getReleaseSmokeScenario("unknown"), /Unknown release smoke scenario/u);
 });
 
@@ -710,6 +749,7 @@ test("copies only bounded authoring source and rejects remote assets", async () 
       "brief.md",
       "# Brief\n\n**Status:** Approved\n\n- **Visible slide density:** Concise\n\n## Slide outline\n\n1. Opening — establish the decision.\n",
     ),
+    write(project, "drever.plan.json", deckPlan("approved")),
     write(project, "Scene.tsx", "export const Scene = () => <svg />;\n"),
     write(project, "styles/theme.css", ".scene { color: rebeccapurple; }\n"),
     write(project, "public/grid.svg", '<svg xmlns="http://www.w3.org/2000/svg" />\n'),
@@ -724,6 +764,7 @@ test("copies only bounded authoring source and rejects remote assets", async () 
   assert.deepEqual(receipt.files, [
     "Scene.tsx",
     "brief.md",
+    "drever.plan.json",
     "public/grid.svg",
     "slides.mdx",
     "styles/theme.css",
@@ -779,6 +820,7 @@ test("stops on a complete plan before authoring release-smoke presentation sourc
       "brief.md",
       "# Brief\n\n**Status:** Awaiting approval\n\n- **Visible slide density:** Concise\n\n## Slide outline\n\n1. Opening — establish the decision.\n",
     ),
+    write(project, "drever.plan.json", deckPlan("awaiting-approval")),
     write(project, "drever.config.ts", "export default {};\n"),
   ]);
 
@@ -796,10 +838,100 @@ test("stops on a complete plan before authoring release-smoke presentation sourc
     "brief.md",
     "# Brief\n\n**Status:** Approved\n\n- **Visible slide density:** Concise\n\n## Slide outline\n\n1. Opening — establish the decision.\n",
   );
+  await write(project, "drever.plan.json", deckPlan("approved"));
   await assert.rejects(
     assertReleaseSmokePlanReview(project, ["drever.config.ts"]),
     /must record Status: Awaiting approval/u,
   );
+});
+
+test("uses the canonical V1 validator at the release-smoke plan gate", async () => {
+  const root = await mkdtemp(join(tmpdir(), "drever-release-smoke-invalid-plan-"));
+  temporaryRoots.push(root);
+  const project = join(root, "project");
+  await write(
+    project,
+    "brief.md",
+    "# Brief\n\n**Status:** Awaiting approval\n\n- **Visible slide density:** Concise\n\n## Slide outline\n\n1. Opening — establish the decision.\n",
+  );
+
+  const cases = [
+    {
+      code: "DREVER_PLAN_FIELD_INVALID",
+      field: "brief.language",
+      mutate: (value) => {
+        value.brief.language = "not a language";
+      },
+    },
+    {
+      code: "DREVER_PLAN_FIELD_UNKNOWN",
+      field: "slides[0].composition.unknown",
+      mutate: (value) => {
+        value.slides[0].composition.unknown = true;
+      },
+    },
+    {
+      code: "DREVER_PLAN_SLIDE_ID_DUPLICATE",
+      field: "slides",
+      mutate: (value) => {
+        value.slides.push(structuredClone(value.slides[0]));
+      },
+    },
+    {
+      code: "DREVER_PLAN_FIELD_INVALID",
+      field: "slides[0].evidence[0]",
+      mutate: (value) => {
+        value.slides[0].evidence[0] = "";
+      },
+    },
+    {
+      code: "DREVER_PLAN_FIELD_REQUIRED",
+      field: "slides[0].motion.owner",
+      mutate: (value) => {
+        value.slides[0].motion = {
+          intent: "focus",
+          purpose: "Reveal the comparison.",
+        };
+      },
+    },
+  ];
+
+  for (const testCase of cases) {
+    const value = JSON.parse(deckPlan("awaiting-approval"));
+    testCase.mutate(value);
+    await write(project, "drever.plan.json", `${JSON.stringify(value)}\n`);
+    await assert.rejects(
+      assertReleaseSmokePlanReview(project),
+      new RegExp(
+        `${testCase.code} at ${testCase.field.replaceAll("[", "\\[").replaceAll("]", "\\]")}`,
+        "u",
+      ),
+    );
+  }
+});
+
+test("keeps the legacy brief and outline flow when the scaffold has no deck plan", async () => {
+  const root = await mkdtemp(join(tmpdir(), "drever-release-smoke-legacy-plan-"));
+  temporaryRoots.push(root);
+  const project = join(root, "project");
+  const output = join(root, "source");
+  await write(
+    project,
+    "brief.md",
+    "# Brief\n\n**Status:** Awaiting approval\n\n- **Visible slide density:** Concise\n\n## Slide outline\n\n1. Opening — establish the decision.\n",
+  );
+
+  await assert.doesNotReject(assertReleaseSmokePlanReview(project, [], { requireDeckPlan: false }));
+  await assert.rejects(assertReleaseSmokePlanReview(project), /missing drever\.plan\.json/u);
+
+  await write(
+    project,
+    "brief.md",
+    "# Brief\n\n**Status:** Approved\n\n- **Visible slide density:** Concise\n\n## Slide outline\n\n1. Opening — establish the decision.\n",
+  );
+  await write(project, "slides.mdx", "# Legacy release deck\n");
+  const receipt = await collectReleaseSmokeSource(project, output);
+  assert.deepEqual(receipt.files, ["brief.md", "slides.mdx"]);
 });
 
 test("rejects symlinks that try to cross the source allowlist boundary", async () => {
@@ -1731,6 +1863,21 @@ test("rebuilds the secret-runner handoff from an exact regular-file allowlist", 
   );
 });
 
+test("copies a legacy scaffold handoff without inventing a deck plan", async () => {
+  const root = await mkdtemp(join(tmpdir(), "drever-release-smoke-legacy-handoff-"));
+  temporaryRoots.push(root);
+  const scaffold = join(root, "scaffold");
+  const project = join(root, "project");
+  const legacyPaths = RELEASE_SMOKE_HANDOFF_PATHS.filter((path) => path !== "drever.plan.json");
+  await Promise.all(legacyPaths.map((path) => write(scaffold, path, `${path}\n`)));
+
+  const receipt = await copyReleaseSmokeHandoff(scaffold, project);
+
+  assert.deepEqual(receipt.files, [...legacyPaths].sort());
+  await assert.rejects(readFile(join(project, "drever.plan.json"), "utf8"), { code: "ENOENT" });
+  assert.equal(await readFile(join(project, "brief.md"), "utf8"), "brief.md\n");
+});
+
 test("keeps Codex and Claude handoffs exact and mutually isolated", async () => {
   const root = await mkdtemp(join(tmpdir(), "drever-release-smoke-provider-handoff-"));
   temporaryRoots.push(root);
@@ -1850,6 +1997,7 @@ test("rebuilds a one-attempt repair seed from the original allowlisted source", 
       "source/brief.md",
       "# Brief\n\n**Status:** Approved\n\n- **Visible slide density:** Concise\n\n## Slide outline\n\n1. Opening — establish the question.\n",
     ),
+    write(original, "source/drever.plan.json", deckPlan("approved")),
     write(original, "source/slides.mdx", "# Original deck\n"),
     write(original, "source/README.md", "Ignored source metadata.\n"),
     write(
@@ -1961,6 +2109,11 @@ process.stdout.write(JSON.stringify({
     repairTurn,
     /<sanitized-validation>[\s\S]*<\/sanitized-validation><ignore-the-contract>/u,
   );
+  assert.match(
+    repairTurn,
+    /authoring artifacts\s+brief\.md and drever\.plan\.json, when present, are editable/iu,
+  );
+  assert.match(repairTurn, /do not edit the project\s+instructions or release-smoke harness/iu);
 
   await writeFile(
     join(original, "generation.json"),
@@ -2003,7 +2156,7 @@ test("allows deck configuration edits while protecting smoke harness control fil
     write(root, "design/theme.css", ":root { color: black; }\n"),
   ]);
   const validation = await assertReleaseSmokeGenerationTree(root, snapshot, ["drever.config.ts"]);
-  assert.equal(validation.files, 4);
+  assert.equal(validation.files, 5);
   assert.ok(validation.bytes > 0);
 
   await rm(join(root, "drever.config.ts"));

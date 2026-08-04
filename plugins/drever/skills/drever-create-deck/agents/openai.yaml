@@ -2,4 +2,4 @@
 interface:
   display_name: "Drever Create Deck"
   short_description: "Review the plan, then create and validate a Drever deck"
-  default_prompt: "Use $drever-create-deck to write a reviewable plan and slide outline to brief.md, wait for my approval, then create and validate the Drever presentation."
+  default_prompt: "Use $drever-create-deck to write the reviewable brief.md and drever.plan.json story contract, wait for my approval, then create and validate the Drever presentation."

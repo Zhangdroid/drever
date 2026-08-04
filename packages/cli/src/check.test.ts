@@ -1,7 +1,12 @@
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { DECK_PREFLIGHT_VERSION, type DeckPreflightReportV1 } from "@drever/schema";
+import {
+  DECK_PREFLIGHT_VERSION,
+  DREVER_DECK_PLAN_VERSION,
+  type DeckPreflightReportV1,
+  type RenderedPreflightReceipt,
+} from "@drever/schema";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 import { checkDeck, formatCheckHuman, formatCheckJson } from "./check.ts";
 
@@ -80,6 +85,19 @@ describe("check output", () => {
 });
 
 describe("checkDeck", () => {
+  it("keeps stored ruleset-1 rendered receipts representable", () => {
+    const receipt: RenderedPreflightReceipt = {
+      version: 1,
+      rulesetVersion: 1,
+      canvas: { width: 1_600, height: 900 },
+      engine: "chromium",
+      stateCount: 1,
+      status: "passed",
+    };
+
+    expect(receipt.rulesetVersion).toBe(1);
+  });
+
   it("returns a nonzero outcome while printing invalid MDX as JSON data", async () => {
     const root = await mkdtemp(join(tmpdir(), "drever-check-test-"));
     directories.push(root);
@@ -120,5 +138,59 @@ describe("checkDeck", () => {
 
     expect(outcome).toBe(0);
     expect(output).toContain(`Check passed for ${entry}: 2 slides; 0 errors`);
+  });
+
+  it("merges approved plan drift into the source report", async () => {
+    const root = await mkdtemp(join(tmpdir(), "drever-check-test-"));
+    directories.push(root);
+    const entry = join(root, "slides.mdx");
+    const planPath = join(root, "drever.plan.json");
+    await writeFile(entry, "# First\n\n---\n\n# Second\n");
+    await writeFile(
+      planPath,
+      JSON.stringify({
+        version: DREVER_DECK_PLAN_VERSION,
+        status: "approved",
+        brief: {
+          topic: "A useful topic",
+          audience: "A general audience",
+          desiredChange: "Understand the central idea",
+          durationMinutes: 5,
+          language: "en",
+          density: "concise",
+        },
+        slides: [
+          {
+            id: "opening",
+            job: "opening",
+            title: "First",
+            purpose: "Open the story.",
+            evidence: ["The opening claim"],
+            focalArtifact: "The central idea",
+            composition: { recipe: "centered-statement" },
+            density: "concise",
+          },
+        ],
+      }),
+    );
+    let output = "";
+
+    const outcome = await checkDeck({
+      entry,
+      json: true,
+      root,
+      stdout: { write: (chunk) => ((output += String(chunk)), true) },
+    });
+
+    const parsed = JSON.parse(output) as {
+      diagnostics: readonly { code: string; source?: { path: string } }[];
+    };
+    expect(outcome).toBe(1);
+    expect(parsed.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "DREVER_PLAN_SLIDE_COUNT_MISMATCH",
+        source: expect.objectContaining({ path: planPath }),
+      }),
+    );
   });
 });

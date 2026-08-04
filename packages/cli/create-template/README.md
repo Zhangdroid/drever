@@ -3,11 +3,13 @@
 Open this project folder in Codex, Claude Code, or another coding agent. Ask it
 to use the installed `drever-create-deck` skill. In Codex, paste:
 
-> Use `$drever-create-deck` to write a reviewable plan and slide outline to `brief.md`, wait for my approval, then create the live Drever draft and deliver the requested outputs.
+> Use `$drever-create-deck` to write the reviewable `brief.md` and `drever.plan.json` story contract, wait for my approval, then create the live Drever draft and deliver the requested outputs.
 
 In Claude Code, use `/drever-create-deck` instead of `$drever-create-deck`.
 
 The editable presentation lives in `slides.mdx`.
+The agent keeps the approved story structure in `drever.plan.json` so authoring and rendered review
+can compare the intended job of each slide with the result.
 The typed `drever.config.ts` starts with an explicit English language contract. The agent
 will update its language, direction, title, and sharing metadata to match the
 presentation it authors.

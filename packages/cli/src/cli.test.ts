@@ -563,6 +563,7 @@ export default ({ command, mode }: Environment) => ({
     expect(checkDeck).toHaveBeenCalledWith({
       entry: join(root, "talk.mdx"),
       json: true,
+      root,
       stdout,
     });
     expect((await readdir(root)).toSorted()).toEqual(authoredEntries);

@@ -35,9 +35,10 @@ equivalent local runner instead of assuming a global `drever` executable.
 
 When the interview is complete, the agent writes `brief.md` with the audience outcome, duration,
 planned slide count, language, visible density, notes strategy, narrative and visual direction,
-motion intensity, evidence, assumptions, signature moments, and a numbered slide outline. It shows
-that complete plan and stops for explicit approval before replacing `slides.mdx`, creating design
-assets, or starting a preview.
+motion intensity, evidence, assumptions, signature moments, and a numbered slide outline. It also
+writes the versioned `drever.plan.json` contract: stable slide IDs and jobs, purposes, evidence,
+focal artifacts, composition recipes, density, and explicit motion ownership. `drever check`
+validates that structure before the agent shows the complete plan and stops for explicit approval.
 
 The skip-remaining escape lets the agent make unresolved choices; it does not skip this checkpoint.
 You can edit the plan or approve it as written. A request to create immediately does not bypass the
@@ -126,15 +127,17 @@ npm exec -- drever check --rendered --json
 ```
 
 It builds an isolated inspection app and visits Step 0 plus every exact authored Step at the
-configured canvas. Stable diagnostics identify clipping, canvas overflow, persistent geometry
-changes, suspicious density, and runtime failures. The versioned rendered receipt records the
+configured canvas. Stable diagnostics identify line-fragment clipping, canvas and direct scroll
+overflow, high-confidence sibling overlap, resolved solid-color contrast failures, persistent
+geometry changes, suspicious density, indeterminate complex paint, and runtime failures. The versioned rendered receipt records the
 receipt and ruleset versions, canvas, `chromium` engine, optional browser version, captured state
 count, status, and any skip or failure reason. The CLI emits the current typed report V2; a stored
 legacy V1 report is source-only and does not satisfy this rendered gate.
 
-This gives an agent reproducible machine evidence, not visual taste. Geometry and density findings
-remain warnings that need judgment, and the command does not score contrast, hierarchy, motion
-quality, or aesthetic fit.
+This gives an agent reproducible machine evidence, not visual taste. Geometry, density, and complex
+paint findings remain warnings that need judgment. Solid colors can be checked deterministically;
+image, gradient, blended, or translucent backgrounds still require visual review, as do hierarchy,
+motion quality, and aesthetic fit.
 
 The project-local review skill prefers
 [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp) when it is connected. It
@@ -186,8 +189,8 @@ workspace tools so permissions, diffs, checks, and Git rollback remain visible.
 
 <h2 id="recommended-loop">Recommended loop</h2>
 
-1. Describe the audience, decision, constraints, and desired deliverables in `brief.md`.
-2. Review the agent's normalized brief and numbered slide outline, then approve or revise it.
+1. Describe the audience, decision, constraints, and desired deliverables.
+2. Review the agent's `brief.md` and validated `drever.plan.json`, then approve or revise them.
 3. Ask the agent to create or revise the presentation.
 4. Inspect `npm exec -- drever context --json` and fix `npm run check -- --json` diagnostics.
 5. Run `npm run check -- --rendered --json` and fix proven layout defects.

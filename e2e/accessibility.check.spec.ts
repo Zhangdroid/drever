@@ -13,6 +13,7 @@ delete environment.FORCE_COLOR;
 
 type CheckDiagnostic = Readonly<{
   code: string;
+  details?: Readonly<Record<string, unknown>>;
   hint?: string;
   message: string;
   severity: "error" | "info" | "warning";
@@ -143,7 +144,7 @@ test("warnings remain machine-readable without failing the command", async () =>
   }
 });
 
-test("rendered check inspects exact Step states without writing a production build", async () => {
+test("rendered check catches high-confidence visual failures without writing a production build", async () => {
   test.setTimeout(120_000);
   const root = await realpath(await mkdtemp(join(tmpdir(), "drever-render-check-e2e-")));
   try {
@@ -157,31 +158,61 @@ test("rendered check inspects exact Step states without writing a production bui
 
 # Rendered evidence
 
-<svg aria-label="Status glyph" width="20" height="20" viewBox="0 0 20 20">
-  <circle cx="10" cy="10" r="8" />
-</svg>
-
-<div
-  aria-label="Framed illustration"
-  role="img"
-  style={{ width: 80, height: 48, overflow: "clip", border: "2px solid currentColor" }}
->
-  <span aria-hidden="true" style={{ display: "block", width: 76, height: 48 }} />
+<div style={{ width: 280, height: 40, overflow: "hidden" }}>
+  <p style={{ margin: 0, lineHeight: "30px", whiteSpace: "pre-line" }}>{"The first line remains visible.\\nThe required second line is clipped."}</p>
 </div>
 
-<p style={{ width: 180, height: 44, overflow: "auto", whiteSpace: "nowrap" }}>
-  This required sentence is visibly clipped by its authored surface.
-</p>
+<p style={{ width: 180, overflowX: "auto", whiteSpace: "nowrap" }}>This required sentence exceeds its direct scroll surface.</p>
 
 <Step at={1} className="reflow-evidence">
   <p>New evidence takes real layout space.</p>
 </Step>
 
 ## Persistent decision
+
+---
+
+# Independent content must not collide
+
+<div style={{ position: "relative", height: 320 }}>
+  <p style={{ position: "absolute", inset: "30px auto auto 40px", width: 360, margin: 0, padding: 8, background: "#fff", color: "#111", fontSize: 16, lineHeight: "20px" }}>The decision needs a readable line.</p>
+  <p style={{ position: "absolute", inset: "40px auto auto 80px", width: 360, margin: 0, padding: 8, background: "#fff", color: "#111", fontSize: 16, lineHeight: "20px" }}>This independent evidence collides with it.</p>
+
+  <p style={{ position: "absolute", inset: "150px auto auto 40px", width: 280, margin: 0, padding: 8, background: "#fff", color: "#111", fontSize: 16, lineHeight: "20px" }}>Intentional decoration overlap.</p>
+  <div
+    aria-label="Decorative disk"
+    data-drever-visual-role="decoration"
+    role="img"
+    style={{ position: "absolute", inset: "145px auto auto 90px", zIndex: 2, width: 120, height: 45, background: "#111" }}
+  />
+
+  <p style={{ position: "absolute", inset: "260px auto auto 40px", width: 220, margin: 0, background: "#fff", color: "#111", fontSize: 16, lineHeight: "20px" }}>Allowed authored overlap.</p>
+  <p data-drever-overlap="allow" style={{ position: "absolute", inset: "260px auto auto 80px", width: 220, margin: 0, background: "#fff", color: "#111", fontSize: 16, lineHeight: "20px" }}>This pair is explicitly allowed.</p>
+</div>
+
+---
+
+# Contrast needs deterministic evidence
+
+<p style={{ padding: 12, backgroundColor: "#ffffff", color: "#aaaaaa", fontSize: 16 }}>This supporting copy is below the WCAG contrast threshold.</p>
+
+<div style={{ padding: 12, backgroundColor: "#ffffff" }}>
+  <span style={{ color: "#aaaaaa", fontSize: 16 }}>A custom component label must be checked too.</span>
+</div>
+
+<p style={{ padding: 12, backgroundColor: "#ffffff", color: "#333333", fontSize: 16 }}>This solid-color control remains readable.</p>
+
+<p style={{ padding: 12, backgroundImage: "linear-gradient(90deg, #ffffff, #777777)", color: "#222222" }}>Gradient contrast requires rendered inspection rather than a false pass.</p>
+
+<div style={{ position: "relative", width: 420, padding: 12, backgroundColor: "#ffffff", color: "#222222", fontSize: 16, lineHeight: "32px" }}>
+  <span style={{ position: "relative", zIndex: 2 }}>The first line has a solid background.<br />The second line crosses painted content.</span>
+  <div aria-hidden="true" style={{ position: "absolute", zIndex: 1, inset: "44px 0 auto 0", height: 32, backgroundColor: "#111111" }} />
+</div>
 `,
     );
 
     const failure = await runFailingCheck(root, "--rendered", "--json");
+    expect(failure.stdout, failure.stderr).not.toBe("");
     const report = parseReport(failure.stdout) as CheckReport &
       Readonly<{
         rendered: Readonly<{
@@ -198,15 +229,29 @@ test("rendered check inspects exact Step states without writing a production bui
       expect.objectContaining({
         browserVersion: expect.any(String),
         engine: "chromium",
-        rulesetVersion: 1,
-        stateCount: 2,
+        rulesetVersion: 2,
+        stateCount: 4,
         status: "failed",
         version: 1,
       }),
     );
-    expect(report.diagnostics.map(({ code }) => code)).toEqual(
-      expect.arrayContaining(["DREVER_RENDER_CONTENT_CLIPPED", "DREVER_RENDER_GEOMETRY_UNSTABLE"]),
-    );
+    const diagnosticsByCode = Map.groupBy(report.diagnostics, ({ code }) => code);
+    expect(diagnosticsByCode.get("DREVER_RENDER_CONTENT_CLIPPED")).toHaveLength(2);
+    expect(
+      diagnosticsByCode
+        .get("DREVER_RENDER_CONTENT_CLIPPED")
+        ?.map(({ details }) => details?.evidence),
+      JSON.stringify(report.diagnostics, null, 2),
+    ).toEqual(expect.arrayContaining(["line-fragment", "scroll-overflow"]));
+    expect(diagnosticsByCode.get("DREVER_RENDER_CONTENT_OVERLAP")).toHaveLength(1);
+    expect(diagnosticsByCode.get("DREVER_RENDER_TEXT_CONTRAST_LOW")).toHaveLength(2);
+    expect(diagnosticsByCode.get("DREVER_RENDER_TEXT_CONTRAST_INDETERMINATE")).toBeDefined();
+    expect(
+      diagnosticsByCode
+        .get("DREVER_RENDER_TEXT_CONTRAST_INDETERMINATE")
+        ?.map(({ details }) => details?.reason),
+    ).toContain("painted-content-behind-text");
+    expect(diagnosticsByCode.get("DREVER_RENDER_GEOMETRY_UNSTABLE")).toBeDefined();
     expect(await readdir(root)).not.toContain("dist");
   } finally {
     await rm(root, { force: true, recursive: true });
