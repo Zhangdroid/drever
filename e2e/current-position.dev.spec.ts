@@ -3,6 +3,7 @@ import { execFile } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import type { DreverCurrentPosition } from "@drever/schema";
+import { waitForDreverReady } from "./support/drever-ready.ts";
 import { monitorPageHealth } from "./support/page-health.ts";
 
 const demoRoot = fileURLToPath(new URL("../examples/basic/", import.meta.url));
@@ -26,6 +27,7 @@ test("drever dev exposes the live audience and speaker position to local agents"
   const health = monitorPageHealth(page);
 
   await page.goto("/2/2?theme=dark#notes");
+  await waitForDreverReady(page);
   await expect.poll(readCurrentPosition).toMatchObject({
     position: { slideId: "slide-2", slideIndex: 1, step: 2 },
     route: "/2/2?theme=dark#notes",
@@ -43,6 +45,7 @@ test("drever dev exposes the live audience and speaker position to local agents"
   });
 
   await page.goto("/speaker/3");
+  await waitForDreverReady(page);
   await expect.poll(readCurrentPosition).toMatchObject({
     position: { slideId: "slide-3", slideIndex: 2, step: 0 },
     route: "/speaker/3",

@@ -57,14 +57,16 @@ From there, ask for the deliverable in natural language:
 The agent resolves audience, outcome, duration, and visible slide density before
 authoring. It then writes a complete `brief.md` plus a versioned
 `drever.plan.json` with stable slide jobs, evidence, focal artifacts,
-composition recipes, density, and motion ownership. It validates both and stops
-for approval. Once you approve that plan, it creates the live Draft 1 and
+composition recipes, density, and motion ownership. It validates both, opens the
+plan-only `/storyboard` page, and stops for approval. This page does not require
+the MDX deck to compile. Once you approve that plan, it creates the live Draft 1 and
 continues refining the same preview.
 
 An installed global Drever plugin can handle the same request from an empty
 directory. It invokes the creator once, then delegates to the project-local
 skills and local Drever binary. Existing projects never substitute
-`drever@latest`.
+`drever@latest`: an edit uses the authoring workflow without a new-plan gate,
+while an explicit replacement returns to the plan and approval workflow.
 
 The authored source stays readable. A root-level line containing exactly `---`
 starts a new slide. Leave a blank line before it so Markdown cannot interpret

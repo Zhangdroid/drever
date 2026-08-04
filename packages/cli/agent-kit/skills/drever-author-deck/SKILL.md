@@ -73,9 +73,32 @@ evidence. Preserve successful neighboring work, routes, Steps, and design decisi
 material narrative, visual, motion, interaction, or surface regressions. Do not broaden the edit or
 add novelty merely to prove that a second pass happened.
 
-Run `npm exec -- drever context --json`, `npm exec -- drever check --rendered --json`, and `npm exec -- drever build`. Fix machine-proven clipping, canvas overflow, text overlap, direct scroll overflow, and resolved solid-color contrast errors; inspect geometry, density, and indeterminate-paint warnings against the actual slide instead of treating thresholds as aesthetic proof. Inspect every affected exact slide and Step route. For motion, inspect intermediate frames and the finished handoff in both directions; compare relevant `getBoundingClientRect()` values and computed spacing, foreground, and paint before, during, and after navigation, and verify invariant Step coordinate systems, active-state timing, full-canvas containment, and pointer focus. If a shared object appears to enlarge and then settle, repair or remove the mismatched continuity boundary before tuning duration or easing. Check reduced motion and `/document`; check `/speaker` when notes or presentation behavior changed, and export when Stage output or readiness changed. Verify reload and history after slide or Step topology changes.
+During authoring, run the fast source and affected-route loop: regenerate
+`npm exec -- drever context --json`, run `npm exec -- drever check --json`, and inspect every affected
+exact slide and Step route in the existing live preview. Fix proven source errors immediately. Treat
+visual observations as iteration evidence, not the exhaustive rendered completion gate. For motion,
+inspect intermediate frames and the finished handoff in both directions; compare relevant
+`getBoundingClientRect()` values and computed spacing, foreground, and paint before, during, and
+after navigation, and verify invariant Step coordinate systems, active-state timing, full-canvas
+containment, and pointer focus. If a shared object appears to enlarge and then settle, repair or
+remove the mismatched continuity boundary before tuning duration or easing. Check reduced motion and
+`/document`; check `/speaker` when notes or presentation behavior changed. Verify reload and history
+after slide or Step topology changes. Do not run a production build or a duplicate full rendered
+preflight here; the review skill owns the exhaustive rendered gate and delivery owns build and
+export.
 
-Before treating a material edit as complete, use the project-local `drever-review-deck` skill as a completion gate for the affected slides, their adjacent handoffs, and every surface the change can reach. Expand the gate to the whole deck when the edit changes its claims, story order, navigation topology, or a shared theme, layout, Stage layer, or component. Fix material issues and repeat the affected review passes; do not stop at source inspection or successful commands.
+Every context report, check, browser inspection, build, and export is valid only for the exact
+source, configuration, and assets that existed when it ran. Any user or agent mutation invalidates
+the affected evidence. If feedback arrives while a check is running, cancel it when possible or
+ignore its result, apply the feedback first, then rerun only the affected fast checks. Never cite
+stale evidence; evidence captured before the last relevant edit is stale.
+
+Once the requested edit and local refinement are stable, use the project-local
+`drever-review-deck` skill as the single rendered completion gate for the affected slides, their
+adjacent handoffs, and every surface the change can reach. Expand the gate to the whole deck when the
+edit changes its claims, story order, navigation topology, or a shared theme, layout, Stage layer,
+or component. Fix material issues and repeat only the affected review passes; do not stop at source
+inspection or successful commands.
 
 Do not simplify a meaningful bespoke scene merely because its generated CSS, SVG, canvas, or React
 implementation is long. Judge it by the visual job, determinism, maintainability, accessibility,

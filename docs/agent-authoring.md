@@ -77,6 +77,13 @@ The `SKILL.md` content is canonical across hosts. Codex-specific UI metadata is
 additive and is omitted from Claude's adapter. Teams should commit both adapters
 so every authoring session starts from the same version-matched instructions.
 
+Before loading a phase skill, classify the work. An empty or untouched starter
+and an explicit replacement use `drever-create-deck`; an edit to an authored
+deck uses `drever-author-deck` and preserves its approved plan. Never infer
+replacement from a generic creation request. If the target is ambiguous, ask
+whether to edit, replace, or create a named sibling project. The story-plan
+approval gate applies to new and replacement scopes, not ordinary edits.
+
 ### Adaptive briefing contract
 
 Deck creation infers facts already present in the request, attachments, and
@@ -98,7 +105,8 @@ delivery. Every round has one **Skip remaining questions — surprise me**
 escape. Taking it fills unanswered decisions; it never replaces a missing
 topic unless the user explicitly asks for that.
 
-Before authoring, the agent replaces the starter `brief.md` with the complete
+For a new or explicitly replacement-scoped deck, before authoring the agent
+replaces the starter `brief.md` with the complete
 human-readable plan and writes the versioned `drever.plan.json` contract. The
 latter gives every slide a stable ID and narrative job plus its purpose,
 evidence, focal artifact, composition recipe, density, and any explicit motion
@@ -426,48 +434,53 @@ For a new project:
 
 1. Run `npm create drever@latest <directory>` or let the global plugin invoke it.
 2. Complete `brief.md` and the versioned `drever.plan.json` story contract,
-   validate them, present the ordered plan to the user, and stop for explicit
-   approval. Do not author the configured MDX entry or start a preview before
-   that approval.
+   validate them, start the development server, and share the exact
+   `/storyboard` URL reported by Drever with the ordered plan. Stop for explicit
+   approval without authoring the configured MDX entry. The Storyboard is a
+   plan-only review surface, not a partial deck.
 3. After approval, create the full narrative with a deliberately simple,
    stable, readable base composition, then write the configured MDX entry. Do
    not scan official design source before authoring.
-4. Start the development server as soon as that coherent end-to-end Draft 1
-   compiles. Verify the audience route plus the first and last slides, share the
-   stable URL as a non-blocking progress update, and keep developing the visual
-   system through HMR.
-5. Run `npm exec -- drever context --json` to inspect the exact result and
-   available design vocabulary.
-6. Run `npm exec -- drever check --json` and fix proven source defects.
-7. Run `npm exec -- drever check --rendered --json`, fix layout errors, and
-   review intentional geometry or density warnings.
-8. Inspect every authored Step state plus `/document`; inspect `/speaker` when
-   notes, motion, or presentation behavior changed.
-9. Continue the design workflow and use the review skill for a separate
-   audience-minded refinement pass. Preserve successful choices, fix
-   evidence-backed material issues, rebuild, and recheck affected states; do not
-   regenerate or add decoration merely to create a visible second version.
-10. Run the production build only after the refined preview is stable. Export a
-    PDF only when requested and only from that latest state.
-11. For motion edits, verify forward and backward movement, persistent geometry,
-    reduced motion, and the affected continuity boundary in a real browser.
+4. Reuse the running development server as soon as that coherent end-to-end
+   Draft 1 compiles. Verify the audience route plus the first and last slides,
+   share the stable audience URL as a non-blocking progress update, and keep
+   developing the visual system through HMR.
+5. During authoring and design, run `npm exec -- drever context --json`, the
+   source-only `npm exec -- drever check --json`, and affected-route inspection
+   in the existing preview.
+6. Continue the design workflow, then use the review skill as the single owner
+   of the exhaustive rendered gate. It inspects every required Step and surface,
+   fixes evidence-backed material issues, and reruns affected review passes.
+7. After review evidence is fresh for the final authored state, use delivery for
+   the one production build. Export a PDF only when requested and only from that
+   latest state.
+8. For motion edits, verify forward and backward movement, persistent geometry,
+   reduced motion, and the affected continuity boundary in a real browser.
 
-The early URL is a collaboration milestone, not delivery. It must contain the
-complete story, real copy, and a stable readable base composition. Do not share
-a blank shell, partial storyboard, invented placeholder, broken route, or known
-unreadable slide merely to appear fast. The full visual system and signature
-beats continue on that same preview after this milestone.
-If user feedback arrives while checks are running, finish the current atomic
-edit, apply the story or factual correction first, discard stale evidence, and
-rerun only the affected gates.
+The pre-approval Storyboard URL is a collaboration milestone, not delivery. It
+must reflect the complete validated plan and may exist before MDX. The later
+audience URL must contain the complete story, real copy, and a stable readable
+base composition. Do not share a blank shell, invented placeholder, broken
+route, or known unreadable slide merely to appear fast. The full visual system
+and signature beats continue on that same server after this milestone.
+Every context report, check, browser inspection, build, and export describes
+only the exact source, configuration, and assets that existed when it ran. If
+user feedback or another mutation arrives while checks are running, cancel or
+ignore the stale result when possible, apply the correction first, and rerun
+only the affected gates after the last relevant edit. Delivery may reuse fresh
+review evidence; it repeats review only when an input changed.
 
-For an existing deck, start with `context --json`, read the complete affected
+For an existing deck edit, skip the new-plan approval gate, start with
+`context --json`, read the complete affected
 source and local imports, and preserve unrelated slide boundaries and Step
 stops. When the user refers to “this slide,” use `current --json` to resolve the
 live route first. When the user refers to one visible element, use its explicit
 Option/Alt-click `selection` when present instead of guessing from the whole
 slide. A route such as `/4/7` is public presentation state, not incidental
-markup. After editing, regenerate the context and repeat the relevant checks.
+markup. Preserve the approved plan and update it with source only when the edit
+changes the story. After editing, regenerate context and repeat the relevant
+fast checks, then use review as the rendered completion gate. An explicit full
+replacement returns to the new-deck plan and approval workflow.
 
 This foundation is deliberately file- and CLI-based. It makes agent changes
 reviewable in Git and usable across local and hosted coding agents without

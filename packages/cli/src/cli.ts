@@ -4,6 +4,7 @@ import { loadDreverConfig, type LoadDreverConfigOptions } from "./config.ts";
 import { DreverCliError } from "./errors.ts";
 import {
   resolveDreverEntry,
+  resolveDreverDevelopmentProject,
   resolveDreverPlan,
   resolveDreverProject,
   type ResolvedDreverProject,
@@ -861,7 +862,9 @@ export const runCli = async (
     });
     return;
   }
-  const project = await resolveDreverProject({
+  const resolveProject =
+    command.name === "dev" ? resolveDreverDevelopmentProject : resolveDreverProject;
+  const project = await resolveProject({
     config: loaded.config,
     ...(command.entry === undefined ? {} : { entry: command.entry }),
     root,

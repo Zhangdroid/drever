@@ -1,7 +1,7 @@
 <h2 id="public-handoff">Start from any coding agent</h2>
 
-The public [`prompt.md`](/prompt.md) is a small bootstrap for an empty workspace. Give it a brief in
-ordinary language:
+The public [`prompt.md`](/prompt.md) is a small bootstrap for an empty, new, or existing workspace.
+Give it a brief in ordinary language:
 
 > Fetch and follow https://drever.dev/prompt.md. Brief: “Help local residents compare three
 > proposals for a shared public space.”
@@ -9,6 +9,11 @@ ordinary language:
 The bootstrap checks the workspace, creates a safe project, and then hands control to the
 version-matched instructions installed inside that project. It does not duplicate the full
 authoring contract or silently change an existing Drever version.
+
+Before authoring, it distinguishes an empty or untouched starter, an explicit replacement, and an
+edit to an existing deck. New and replacement scopes use the reviewable plan gate. Existing edits
+preserve the approved plan and go directly to focused authoring; Drever never assumes that a generic
+creation request may replace authored work.
 
 The installed kit is also the API boundary. Normal creation reads the brief, configuration, MDX,
 and only the project-owned components or design files it will edit. It does not scan `node_modules`,
@@ -33,12 +38,16 @@ equivalent local runner instead of assuming a global `drever` executable.
 
 <h2 id="plan-review">Approve the plan before the first draft</h2>
 
-When the interview is complete, the agent writes `brief.md` with the audience outcome, duration,
+For a new or explicitly replacement-scoped deck, when the interview is complete, the agent writes
+`brief.md` with the audience outcome, duration,
 planned slide count, language, visible density, notes strategy, narrative and visual direction,
 motion intensity, evidence, assumptions, signature moments, and a numbered slide outline. It also
 writes the versioned `drever.plan.json` contract: stable slide IDs and jobs, purposes, evidence,
 focal artifacts, composition recipes, density, and explicit motion ownership. `drever check`
-validates that structure before the agent shows the complete plan and stops for explicit approval.
+validates that structure before the agent starts the development server, shares its exact
+`/storyboard` URL, shows the complete plan, and stops for explicit approval. This route renders only
+the persisted plan, so it remains available while `slides.mdx` is missing, incomplete, or temporarily
+broken.
 
 The skip-remaining escape lets the agent make unresolved choices; it does not skip this checkpoint.
 You can edit the plan or approve it as written. A request to create immediately does not bypass the
@@ -46,10 +55,10 @@ checkpoint.
 
 <h2 id="preview-first">Review the story before the final build</h2>
 
-Drever's agent workflow optimizes for the first useful preview instead of hiding all work behind
-production validation or a complete custom Theme. After the plan is approved, once a coherent Draft
-1 contains the complete
-story, real readable copy, and a stable base composition, the agent starts one stable local URL,
+Drever's agent workflow optimizes for two useful previews instead of hiding all work behind
+production validation or a complete custom Theme. The plan-only Storyboard arrives before approval.
+After the plan is approved, once a coherent Draft 1 contains the complete
+story, real readable copy, and a stable base composition, the agent reuses the stable local server,
 verifies that its audience route and endpoints open, and shares it as a progress update. It keeps
 working without waiting for approval.
 
@@ -57,8 +66,10 @@ Use that moment to review facts, structure, and emphasis. In parallel with your 
 continues the art direction, signature scenes, exact Steps, readability, layout, motion, Document
 View, and Speaker View when relevant on the same live preview. A host with parallel workers may
 derive the art-direction and asset plan beside narrative authoring, but the workers must not edit
-the same MDX or styles. Feedback supersedes stale checks. The production build happens only after
-the refined preview is stable, and PDF export runs only when requested.
+the same MDX or styles. Authoring and design use source-only and affected-route checks during this
+loop. The review workflow owns the exhaustive rendered gate, and delivery owns the one final build
+plus requested exports. Feedback or any later input change invalidates affected evidence; stale
+checks are cancelled or ignored and only the affected gates rerun after the edit.
 
 <h2 id="agent-first">Agent-first, not agent-only</h2>
 

@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { spawn, type ChildProcess } from "node:child_process";
 import { mkdir, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
+import { waitForDreverReady } from "./support/drever-ready.ts";
 import { monitorPageHealth } from "./support/page-health.ts";
 
 const cli = fileURLToPath(new URL("../packages/cli/dist/bin.mjs", import.meta.url));
@@ -103,6 +104,7 @@ export const Counter = () => {
 
     const health = monitorPageHealth(page);
     await page.goto(`${url}/2/2`);
+    await waitForDreverReady(page);
     await expect(page.getByTestId("hmr-copy")).toHaveText("Version one");
     await page.getByTestId("hmr-counter").click();
     await expect(page.getByTestId("hmr-counter")).toHaveText("1");

@@ -13,8 +13,8 @@ Inspect only enough of the current workspace to choose a safe target:
 - If it is empty, scaffold there.
 - Otherwise create a clearly named child directory without overwriting unrelated files.
 
-Verify that Node.js 24.18 or newer is available. Prefer an existing version manager; ask before
-changing the user's system environment or installing a system package manager.
+Require Node.js 24.18 or newer. Prefer an existing version manager; ask before changing the system
+environment.
 
 When scaffolding is required, create the new project with:
 
@@ -27,24 +27,30 @@ project agent adapters enabled unless the user requested otherwise.
 
 ## Follow the installed contract
 
-Enter the project and read its `AGENTS.md` or `CLAUDE.md` plus the project-local
-`drever-create-deck` skill completely. Follow that version-matched skill through its adaptive
-interview, reviewable `brief.md` and `drever.plan.json`, explicit plan approval, first useful live
-preview, focused design and authoring phases, rendered review, and requested delivery.
+Enter the project and read its `AGENTS.md` or `CLAUDE.md`. Before loading a phase skill, classify the
+scope. Use the project-local `drever-create-deck` skill for an empty or untouched starter and for an
+explicit request to replace the presentation. Use `drever-author-deck` for an edit to an existing
+authored deck; preserve its approved plan and do not restart new-deck approval. Never infer
+replacement. When an authored deck exists and the target is ambiguous, ask whether to edit it,
+replace it, or create a named sibling project.
 
-If an existing Drever project has no project-local adapter, use its detected package manager and
-installed version to run the equivalent of `npm exec -- drever agent sync --target codex` or
-`--target claude` for the current agent, then read the generated instruction and skill files. Do not
-replace the project version merely to obtain the workflow.
+For a new or replacement scope, follow the version-matched creation skill through its adaptive
+interview, reviewable `brief.md` and `drever.plan.json`, plan-only Storyboard preview, explicit plan approval, first useful live
+preview, focused design and authoring phases, rendered review, and requested delivery. For an edit,
+follow the authoring, review, and delivery skills required by the request.
+
+If an existing project has no local adapter, use its package manager and installed version to run
+the equivalent of `npm exec -- drever agent sync --target codex` or `--target claude`, then read the
+generated files.
 
 The generated project contract is authoritative. During ordinary creation, do not search the
 Drever repository, inspect `node_modules`, declarations, schemas, package source, internals,
-official design implementations, or example decks. Do not probe documented APIs. After a concrete
-diagnostic, inspect only the one named public declaration or guide needed to resolve it.
+official design implementations, or example decks. After a concrete diagnostic, inspect only the
+one named public declaration or guide needed to resolve it.
 
 Do not replace the installed project version with `drever@latest` after scaffolding. Detect the
 project's package manager and use its local executable for every command.
 
-The work is not complete when the plan is written, when a server starts, or when a build succeeds.
-Respect the mandatory plan-approval pause, then continue through the installed creation, design,
-authoring, review, and delivery contracts until the requested presentation is genuinely ready.
+The work is not complete when a plan is written, when a server starts, or when a build succeeds.
+Respect the mandatory plan-approval pause for new and replacement scopes, then continue through the
+installed contracts until the requested presentation is genuinely ready.

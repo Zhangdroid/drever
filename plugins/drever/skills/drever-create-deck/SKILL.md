@@ -13,24 +13,36 @@ runner. Never assume a global `drever` executable.
 
 ## Prepare the workspace
 
-<!-- drever-authoring-scope-contract:v2 -->
+<!-- drever-authoring-scope-contract:v3 -->
 
-1. Inspect `package.json`, the configured MDX entry, and `drever.config.ts` when it exists to decide
-   whether the current directory is already a Drever project.
+1. Inspect `package.json`, `drever.config.ts` when it exists, and only enough of the configured MDX
+   entry to decide whether the current directory is an untouched starter or an authored Drever
+   project.
 2. Use an existing project and its installed Drever version. In an empty directory, run
    `npm create drever@latest [directory]`. Never scaffold over unrelated files.
 3. Work from the project root. Read its `AGENTS.md` or `CLAUDE.md`, this skill, `brief.md`,
-   `package.json`, the configuration, the configured MDX entry, and `drever.plan.json` when present.
-   Read a local
-   component, design file, source document, or asset only when the task needs it.
+   `package.json`, the configuration, and `drever.plan.json` when present. Read the complete
+   configured MDX entry only after choosing the workflow below. Read a local component, design file,
+   source document, or asset only when the task needs it.
 4. Treat those version-matched files as the complete public contract. Do not inspect the Drever
    repository, `node_modules`, package source, declarations, schemas, internals, official design
    implementations, or example decks during ordinary creation. After a concrete diagnostic,
    inspect only the named public declaration or guide needed to resolve it.
 
-For an existing authored deck, use `drever_get_context` when the project MCP is connected;
-otherwise run `npm exec -- drever context --json`. Do not run context against the untouched starter
-deck merely to rediscover APIs documented by the installed skills.
+Classify the requested scope before loading another phase skill:
+
+- **New:** an empty directory or untouched starter. Continue with this skill.
+- **Replacement:** the user explicitly asks to replace the current presentation. Continue with this
+  skill, but do not change the authored entry until the replacement plan is approved.
+- **Edit:** an authored deck exists and the request changes that presentation. Stop this skill and
+  use the project-local `drever-author-deck` skill. Preserve any approved plan and do not require a
+  new-plan approval gate merely because the edit is material.
+
+Never infer replacement from a generic request to create a presentation. When an authored deck
+exists and the target is ambiguous, ask whether to edit it, replace it, or create a named sibling
+project. For an edit, use `drever_get_context` when the project MCP is connected; otherwise run
+`npm exec -- drever context --json`. Do not run context against the untouched starter merely to
+rediscover APIs documented by the installed skills.
 
 ## Resolve the brief
 
@@ -69,9 +81,10 @@ unanswered choices; it does not replace the topic unless the user explicitly ask
 
 ## Produce the reviewable story contract
 
-<!-- drever-plan-review-contract:v2 -->
+<!-- drever-plan-review-contract:v3 -->
 
-Before authoring slides, update both planning artifacts in one pass:
+For a new or explicitly replacement-scoped presentation, update both planning artifacts in one
+pass before authoring slides:
 
 - `brief.md` is the concise human-readable brief and numbered outline.
 - `drever.plan.json` is the machine-readable design contract. Keep it valid against the installed
@@ -131,39 +144,53 @@ repeat the same split layout by default. A technical sales slide may require a s
 architecture view, or metric because its evidence contract calls for one; not every presentation
 does. Prefer contextual requirements over universal sentence or screenshot quotas.
 
-Run `npm exec -- drever check --json` and fix every plan error before presenting it. Show the user
-the complete brief and ordered story, name both paths, invite edits or explicit approval, and stop.
-The skip-remaining escape does not bypass this gate. If the user changes the plan, update both files,
-keep them awaiting approval, and present the material changes again. After explicit approval, mark
-both files approved and continue.
+Run `npm exec -- drever check --json` and fix every plan error before presenting it. Then start the
+project's development script and use the exact **Storyboard** URL reported by Drever. This
+development-only route reads `drever.plan.json` without importing the deck MDX, Theme, or runtime,
+so it is the first useful visual preview even when `slides.mdx` is absent or incomplete. Never guess
+the URL, and do not author the deck merely to make this checkpoint visible.
+
+Show the user the complete brief and ordered story, name both paths, share the Storyboard URL,
+invite edits or explicit approval, and stop. Keep the server alive when the host permits it; plan
+edits update that page through HMR. The skip-remaining escape does not bypass this gate. If the user
+changes the plan, update both files, keep them awaiting approval, and present the material changes
+again. After explicit approval, mark both files approved and continue.
 
 ## Create the first useful preview
 
-<!-- drever-preview-contract:v3 -->
+<!-- drever-preview-contract:v5 -->
 
-After approval, load the project-local `drever-create-design` and `drever-author-deck` skills for
-their phases instead of duplicating their rules here. Let `drever.plan.json` remain the story and
-design contract while authoring.
+After approval, load the project-local `drever-author-deck` skill and let `drever.plan.json` remain
+the story and design contract while authoring. On a single-agent host, author the deliberately
+simple Draft 1 before starting design research or refinement. Do not finish a custom visual system
+before exposing the first useful preview.
 
-Start one development server and keep its URL stable. Build a coherent Draft 1 with every planned
+Reuse the running development server when one is already serving the Storyboard; otherwise start
+one server and keep its URL stable. Build a coherent Draft 1 with every planned
 slide, real readable copy, evidence, speaker notes, and a deliberately simple subject-led visual
 system. Do not wait for exhaustive inspection, production build, PDF export, or optional third-party
 polish before exposing it. Before sharing the URL, verify only that the entry compiles, the audience
 route responds, and the first and last slides open without a fatal runtime error.
 Share only a URL actually reported by the running server; never invent or guess a preview address.
 
-Share a non-blocking update when Draft 1 is ready, then continue in the same turn. If the host can
-run parallel workers, a design worker may prepare tokens, assets, and signature beats while the
-primary worker owns the narrative and MDX; never let two workers edit the same visual source. User
-feedback invalidates stale checks and takes priority over polish.
+Share a non-blocking update when Draft 1 is ready, then continue in the same turn and load the
+project-local `drever-create-design` skill for refinement. If the host can run parallel workers, a
+design worker may prepare tokens, assets, and signature beats before that milestone while the
+primary worker owns the narrative and MDX; never let two workers edit the same visual source.
+
+Every context report, check, browser inspection, build, and export describes only the exact source,
+configuration, and assets that existed when it ran. User feedback or any later mutation invalidates
+the affected evidence. Cancel or ignore an in-flight result when possible, apply feedback before
+polish, and rerun only the affected fast checks after the edit. Never cite stale evidence.
 
 ## Refine and deliver
 
-Run `npm exec -- drever context --json` and `npm exec -- drever check --rendered --json`. Fix every
-machine-proven error and inspect warnings in the live artifact. Load `drever-review-deck` for the
-separate rendered refinement pass; do not merely ask the model to “make it better.” Preserve sound
-choices and repair only affected slides and handoffs.
+Let authoring and design run source-only and affected-route checks while the preview changes. Once
+the refined preview is stable, load `drever-review-deck` as the single owner of the exhaustive
+rendered completion gate; do not run a duplicate full rendered preflight in this orchestration
+skill. Do not merely ask the model to “make it better.” Preserve sound choices and repair only
+affected slides and handoffs.
 
-Run the production build only after the refined preview is stable. Export PDF only when requested.
-Load `drever-deliver-deck` for final outputs. Report the project path, preview URL, requested output
-paths, assumptions, validation completed, and remaining judgment calls.
+After review evidence is fresh for the final authored state, load `drever-deliver-deck` for the one
+production build and any requested PDF export. Report the project path, preview URL, requested
+output paths, assumptions, validation completed, and remaining judgment calls.

@@ -10,10 +10,12 @@
   },
   "files": [
     "dist",
+    "storyboard.css",
     "styles.css"
   ],
   "type": "module",
   "sideEffects": [
+    "./storyboard.css",
     "./styles.css"
   ],
   "exports": {
@@ -33,6 +35,11 @@
       "types": "./dist/speaker.d.mts",
       "import": "./dist/speaker.mjs"
     },
+    "./storyboard": {
+      "types": "./dist/storyboard.d.mts",
+      "import": "./dist/storyboard.mjs"
+    },
+    "./storyboard.css": "./storyboard.css",
     "./styles.css": "./styles.css",
     "./package.json": "./package.json"
   },
