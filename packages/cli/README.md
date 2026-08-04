@@ -6,7 +6,8 @@ The unscoped Drever command line package. Create an AI-ready project in one comm
 npm create drever@latest my-deck
 ```
 
-The command creates a metadata-ready MDX deck, a presentation brief, and
+The command creates a metadata-ready MDX deck, a presentation brief, a versioned
+`drever.plan.json` story contract, and
 project-local skills for Codex and Claude Code. It installs dependencies by
 default; use `--no-install` for automation or `--open codex` / `--open claude`
 to open the project with a prepared task.
@@ -75,9 +76,12 @@ npm exec -- drever check slides.mdx --rendered --json
 
 The rendered phase builds an isolated inspection app and visits Step 0 plus
 every exact authored Step at the configured canvas. It reports stable
-diagnostics for content clipping, canvas overflow, unintended movement of
-persistent geometry, and suspicious density. Clipping and overflow are errors;
-geometry and density are warnings that require review. Runtime or missing-browser
+diagnostics for line-fragment clipping, canvas and direct scroll overflow,
+high-confidence sibling overlap, resolved solid-color contrast, unintended
+movement of persistent geometry, and suspicious density. Proven clipping,
+overflow, overlap, and contrast failures are errors; geometry, density, and
+paint that cannot be resolved through gradients, images, blending, or
+translucency remain warnings that require review. Runtime or missing-browser
 failures are also explicit errors.
 
 JSON mode emits the current typed `DeckPreflightReportV2`. Its `rendered`
@@ -86,9 +90,12 @@ optional browser version, captured `stateCount`, and `status`. When source
 errors make rendering unsafe, the receipt is `skipped` with reason
 `source-errors`; browser and runtime failures report `failed` with their
 matching reason. `@drever/schema` also exposes the legacy source-only V1 shape
-and a safe report union for stored artifacts. This evidence is deterministic
-and useful to CI or an agent, but it does not judge contrast, hierarchy, motion
-quality, or aesthetic fit. Keep a real visual review in the delivery loop.
+and a safe report union for stored artifacts. Receipt version 1 accepts both
+ruleset 1 and the current ruleset 2; compare the recorded ruleset with
+`RENDERED_PREFLIGHT_RULESET_VERSION` before reusing stored evidence. This evidence is deterministic
+and useful to CI or an agent, but it cannot judge hierarchy, motion quality,
+aesthetic fit, or contrast through complex paint. Keep a real visual review in
+the delivery loop.
 
 ## Import a design reference
 
@@ -235,9 +242,14 @@ the generated ownership marker. User content outside that block is preserved.
 If any target is user-owned, malformed, or not a regular file, sync reports all
 conflicts and writes none of the planned files.
 
-New-deck creation begins with a plan review. The agent writes the resolved brief
-and numbered slide outline to `brief.md` and waits for explicit approval before
-authoring. Once the approved plan becomes a coherent end-to-end Draft 1, the
+New-deck creation begins with a plan review. The agent writes the human-readable
+brief and outline to `brief.md`, records its smaller machine-checkable story
+contract in `drever.plan.json`, and waits for explicit approval before authoring.
+The machine-readable contract gives every slide a stable ID, narrative job,
+evidence, focal artifact, composition recipe, density, and optional single
+motion owner. Those IDs are stable planning and review labels; compiled slide
+identity remains positional, while the check validates plan shape, order, and
+approved slide count. Once the approved plan becomes a coherent end-to-end Draft 1, the
 agent keeps one development URL alive, shares it for immediate story and content
 review, and continues visual and technical refinement without another approval
 pause. The final check and production build remain completion gates; they no

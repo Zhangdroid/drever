@@ -32,6 +32,19 @@ export type {
 } from "./compile-plan.ts";
 export { DECK_IR_VERSION } from "./deck.ts";
 export type { DeckIR, SlideIR } from "./deck.ts";
+export { DREVER_DECK_PLAN_VERSION, validateDreverDeckPlanValue } from "./deck-plan.ts";
+export type {
+  DreverDeckPlan,
+  DreverDeckPlanBrief,
+  DreverDeckPlanComposition,
+  DreverDeckPlanDensity,
+  DreverDeckPlanMotion,
+  DreverDeckPlanSlide,
+  DreverDeckPlanSlideJob,
+  DreverDeckPlanStatus,
+  DreverDeckPlanValidationIssue,
+  DreverDeckPlanValidationResult,
+} from "./deck-plan.ts";
 export { DECK_MANIFEST_VERSION } from "./deck-manifest.ts";
 export type { DeckManifest, SlideManifest, SpeakerNote } from "./deck-manifest.ts";
 export type {
@@ -82,5 +95,6 @@ export type {
   DeckPreflightReportV2,
   DeckPreflightSummary,
   RenderedPreflightReceipt,
+  RenderedPreflightRulesetVersion,
 } from "./preflight.ts";
 export type { SourceFragment, SourcePoint, SourceRange } from "./source.ts";

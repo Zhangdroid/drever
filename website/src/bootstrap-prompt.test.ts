@@ -10,192 +10,88 @@ const createDesignSkill = await readFile(
   new URL("../../packages/cli/agent-kit/skills/drever-create-design/SKILL.md", import.meta.url),
   "utf8",
 );
-const briefingContractMarker = /<!-- drever-briefing-contract:(v\d+) -->/u;
-const planReviewContractMarker = /<!-- drever-plan-review-contract:(v\d+) -->/u;
-const previewContractMarker = /<!-- drever-preview-contract:(v\d+) -->/u;
-const authoringScopeContractMarker = /<!-- drever-authoring-scope-contract:(v\d+) -->/u;
+const authorDeckSkill = await readFile(
+  new URL("../../packages/cli/agent-kit/skills/drever-author-deck/SKILL.md", import.meta.url),
+  "utf8",
+);
+const reviewDeckSkill = await readFile(
+  new URL("../../packages/cli/agent-kit/skills/drever-review-deck/SKILL.md", import.meta.url),
+  "utf8",
+);
 
-const expectAdaptiveBriefingContract = (source: string): void => {
-  expect(source).toMatch(/topic is missing[^.]*ask for it by itself/iu);
-  expect(source).toMatch(/one to three questions per round/iu);
-  expect(source).toMatch(/two to four mutually distinct,\s+topic-specific options/iu);
-  expect(source).toMatch(/consequence (?:after|of) each option/iu);
-  expect(source).toMatch(/at most one option \*\*Recommended\*\*/iu);
-  expect(source).toContain("1A, 2C, 3B");
-  expect(source).toMatch(/combine options,\s+answer in your own words/iu);
-  expect(source).toMatch(/two or three\s+rounds and four to seven decisions/iu);
-  expect(source).toMatch(/follow-up should depend on an earlier answer/iu);
-  expect(source).toMatch(/Decision,\s+proposal,\s+or sales/iu);
-  expect(source).toMatch(/Technical update or tutorial/iu);
-  expect(source).toMatch(/Research,\s+report,\s+or data story/iu);
-  expect(source).toMatch(/Product launch or demo/iu);
-  expect(source).toMatch(/Keynote,\s+brand,\s+or narrative/iu);
-  expect(source).toMatch(/Workshop or training/iu);
-  expect(source.match(/Skip remaining questions — surprise\s+me/gu)).toHaveLength(1);
-  expect(source).toMatch(
-    /(?:append exactly one escape to every round|End every round with exactly one escape)/iu,
-  );
-  expect(source).toMatch(/stop asking[^.]*every unanswered choice/iu);
-  expect(source).not.toMatch(/choose the subject too|Or answer “Surprise me”/iu);
-  expect(source).toMatch(/density is a required decision/iu);
-  expect(source).toMatch(/concise presenter-led[^.]*balanced[^.]*more detailed reader-led/iu);
-  expect(source).toMatch(/visible copy,\s+slide count,\s+and\s+notes/iu);
-  expect(source).toMatch(/Do not ask a separate notes-depth question/iu);
-};
-
-const expectPlanReviewContract = (source: string): void => {
-  expect(source).toMatch(/status as \*\*Awaiting\s+approval\*\*/iu);
-  expect(source).toMatch(/planned slide count or range/iu);
-  expect(source).toMatch(/speaker-note strategy/iu);
-  expect(source).toMatch(/motion intensity/iu);
-  expect(source).toMatch(/numbered slide-by-slide outline/iu);
-  expect(source).toMatch(/working title and one clear job/iu);
-  expect(source).toMatch(/Present the complete brief and outline/iu);
-  expect(source).toMatch(/invite edits or explicit\s+approval,\s+and stop/iu);
-  expect(source).toMatch(/mandatory (?:review gate|for a new deck)/iu);
-  expect(source).toMatch(/create it now[^.]*does not bypass/iu);
-  expect(source).toMatch(/After explicit\s+approval,\s+mark it\s+\*\*Approved\*\*/iu);
-  expect(source).toMatch(
-    /Do not[^.]*configured MDX entry[^.]*development server[^.]*build[^.]*export[^.]*preview/isu,
-  );
-};
-
-const expectPreviewFirstContract = (source: string): void => {
-  expect(source).toMatch(/time to first useful preview/iu);
-  expect(source).toMatch(/coherent Draft 1/iu);
-  expect(source).toMatch(/every planned slide[^.]*real readable copy/iu);
-  expect(source).toMatch(
-    /Defer[^.]*signature choreography[^.]*optional\s+third-party integrations[^.]*export-only polish/iu,
-  );
-  expect(source).toMatch(
-    /minimum preview gate[^.]*entry\s+compiles[^.]*audience\s+route responds[^.]*first and last slides open/isu,
-  );
-  expect(source).toMatch(/Do not block[^.]*drever build[^.]*PDF export[^.]*every Step/isu);
-  expect(source).toMatch(/non-blocking progress update/iu);
-  expect(source).toMatch(/do not stop[^.]*approval/iu);
-  expect(source).toMatch(/discard stale validation/iu);
-  expect(source).toMatch(/production build[^.]*only after[^.]*stable/iu);
-  expect(source).toMatch(/(?:a )?PDF only\s+when requested/iu);
-  expect(source).toMatch(/never invent a preview URL/iu);
-  expect(source).toMatch(/preview as Draft 1,\s+not delivery/iu);
-  expect(source).toMatch(/parallel (?:design|work|workers)/iu);
-  expect(source).toMatch(
-    /(?:(?:first preview|Draft 1 URL)[^.]*must not (?:delay|wait)|must not delay[^.]*Draft 1)/iu,
-  );
-};
-
-const expectAuthoringScopeContract = (source: string): void => {
-  expect(source).toMatch(/complete (?:Drever\s+)?(?:public\s+|authoring\s+)?contract/iu);
-  expect(source).toMatch(/do not (?:search or )?inspect[^.]*Drever repository/iu);
-  expect(source).toMatch(/`node_modules`/u);
-  expect(source).toMatch(/declaration files/iu);
-  expect(source).toMatch(/official design implementations/iu);
-  expect(source).toMatch(/example decks/iu);
-  expect(source).toMatch(/configured MDX entry[^.]*local TypeScript,\s+React,\s+and CSS/iu);
-  expect(source).toMatch(/concrete compile\s+or type diagnostic/iu);
-  expect(source).toMatch(/one named\s+public declaration\s+or\s+guide/iu);
-};
+const wordCount = (source: string): number => source.trim().split(/\s+/u).length;
 
 describe("public bootstrap prompt", () => {
-  it("keeps the public bootstrap and installed skill on one adaptive briefing contract", () => {
-    const promptVersion = prompt.match(briefingContractMarker)?.[1];
-    const skillVersion = createDeckSkill.match(briefingContractMarker)?.[1];
-
-    expect(promptVersion).toBe("v3");
-    expect(skillVersion).toBe(promptVersion);
-    expectAdaptiveBriefingContract(prompt);
-    expectAdaptiveBriefingContract(createDeckSkill);
+  it("delegates quickly to the installed version-matched workflow", () => {
+    expect(wordCount(prompt)).toBeLessThan(450);
+    expect(prompt).toMatch(/Follow these instructions now[^.]*do not merely summarize/iu);
+    expect(prompt).toMatch(/project-local\s+`drever-create-deck` skill/iu);
+    expect(prompt).toMatch(/When scaffolding is required/iu);
+    expect(prompt).toMatch(/no project-local adapter[^.]*drever agent sync/iu);
+    expect(prompt).toMatch(/generated project contract is authoritative/iu);
+    expect(prompt).toMatch(/do not search the\s+Drever repository/iu);
+    expect(prompt).toContain("`node_modules`");
+    expect(prompt).not.toMatch(/drever-(?:briefing|plan-review|preview)-contract/iu);
+    expect(prompt).not.toMatch(/topic-fingerprint|usable inner silhouette|MotionGroup/iu);
   });
 
-  it("stops on a complete brief and slide outline before authoring", () => {
-    const promptVersion = prompt.match(planReviewContractMarker)?.[1];
-    const skillVersion = createDeckSkill.match(planReviewContractMarker)?.[1];
-
-    expect(promptVersion).toBe("v1");
-    expect(skillVersion).toBe(promptVersion);
-    expectPlanReviewContract(prompt);
-    expectPlanReviewContract(createDeckSkill);
-  });
-
-  it("keeps first preview fast without weakening final delivery", () => {
-    const promptVersion = prompt.match(previewContractMarker)?.[1];
-    const skillVersion = createDeckSkill.match(previewContractMarker)?.[1];
-
-    expect(promptVersion).toBe("v2");
-    expect(skillVersion).toBe(promptVersion);
-    expectPreviewFirstContract(prompt);
-    expectPreviewFirstContract(createDeckSkill);
-  });
-
-  it("authors from the public contract without framework archaeology", () => {
-    const promptVersion = prompt.match(authoringScopeContractMarker)?.[1];
-    const skillVersion = createDeckSkill.match(authoringScopeContractMarker)?.[1];
-
-    expect(promptVersion).toBe("v1");
-    expect(skillVersion).toBe(promptVersion);
-    expectAuthoringScopeContract(prompt);
-    expectAuthoringScopeContract(createDeckSkill);
-    expect(prompt).toMatch(/read only[^.]*`drever-create-deck` skill/iu);
+  it("keeps the adaptive interview in one canonical skill", () => {
+    expect(createDeckSkill).toContain("<!-- drever-authoring-scope-contract:v2 -->");
+    expect(createDeckSkill).toContain("<!-- drever-briefing-contract:v4 -->");
+    expect(createDeckSkill).toMatch(/one to\s+three decisions per round/iu);
+    expect(createDeckSkill).toMatch(/two to four topic-specific choices/iu);
+    expect(createDeckSkill).toMatch(/consequence of each choice/iu);
+    expect(createDeckSkill).toMatch(/at most one \*\*Recommended\*\* option/iu);
+    expect(createDeckSkill).toContain("1A, 2C");
+    expect(createDeckSkill.match(/Skip remaining questions — surprise me/gu)).toHaveLength(1);
     expect(createDeckSkill).toMatch(
-      /Load the design,\s+authoring,\s+review,\s+or delivery skill only/iu,
+      /audience, desired change, duration, and visible slide density/iu,
     );
-    expect(createDesignSkill).toMatch(/Do not scan the official studies/iu);
-    expect(createDesignSkill).not.toMatch(/Scan all eight studies/iu);
-    expect(createDesignSkill).not.toMatch(/packages\/designs\/src\/<study>/u);
+    expect(createDeckSkill).toMatch(/later\s+question should depend on an earlier answer/iu);
+    expect(createDeckSkill).not.toMatch(/choose the subject too|Or answer “Surprise me”/iu);
+    expect(createDeckSkill).toMatch(
+      /Never repeat supplied information or silently choose duration or density/iu,
+    );
   });
 
-  it("defines topic-specific signature moments and a refinement ceiling", () => {
-    expect(prompt).toMatch(/topic\s+fingerprint/iu);
-    expect(prompt).toMatch(
-      /claim[^→]*→ focal\s+artifact[^→]*→ initial\s+state[^→]*→ meaningful\s+transformation[^→]*→ settled\s+payoff[^→]*→ static or reduced-motion\s+endpoint/iu,
-    );
-    expect(prompt).toMatch(/generic fade or slide entrance alone does not count/iu);
-    expect(prompt).toMatch(/what one scene the audience will remember/iu);
-    expect(prompt).toMatch(/redesign exactly one high-value beat/iu);
+  it("requires a machine-checkable story contract before authoring", () => {
+    expect(createDeckSkill).toContain("<!-- drever-plan-review-contract:v2 -->");
+    expect(createDeckSkill).toContain("`brief.md`");
+    expect(createDeckSkill).toContain("`drever.plan.json`");
+    expect(createDeckSkill).toMatch(/stable lowercase hyphenated id/iu);
+    expect(createDeckSkill).toMatch(/narrative job/iu);
+    expect(createDeckSkill).toMatch(/evidence and one focal artifact/iu);
+    expect(createDeckSkill).toMatch(/composition recipe/iu);
+    expect(createDeckSkill).toMatch(/motion[^.]*named intent, purpose, and single owner/iu);
+    expect(createDeckSkill).toMatch(/check --json[^.]*before presenting/iu);
+    expect(createDeckSkill).toMatch(/invite edits or explicit approval, and stop/iu);
+    expect(createDeckSkill).toMatch(/After explicit approval,\s+mark\s+both files approved/iu);
+    expect(createDeckSkill).toMatch(/skip-remaining escape does not bypass this gate/iu);
   });
 
-  it("makes rendered text readability a blocking contract", () => {
-    expect(prompt).toMatch(/Every visible authored string is a\s+reading promise/iu);
-    expect(prompt).toMatch(
-      /not immediately legible at presentation distance[^.]*blocking P0 defect/iu,
-    );
-    expect(prompt).toMatch(/Do not\s+assume[^.]*wrapper[^.]*descendant text/iu);
-    expect(prompt).toMatch(/computed font size[^.]*foreground/iu);
-    expect(prompt).toMatch(/across every Step/iu);
-    expect(prompt).toMatch(/fully contained within the shape or surface that visually owns it/iu);
-    expect(prompt).toMatch(/usable inner silhouette[^.]*rectangular bounding box/iu);
-    expect(prompt).toMatch(/every\s+slide at Step 0\s+and\s+every exact authored Step route/iu);
+  it("separates first preview, deterministic checks, and human visual judgment", () => {
+    expect(createDeckSkill).toContain("<!-- drever-preview-contract:v3 -->");
+    expect(createDeckSkill).toMatch(/coherent Draft 1 with every planned\s+slide/iu);
+    expect(createDeckSkill).toMatch(/first and last slides open/iu);
+    expect(createDeckSkill).toMatch(/continue in the same turn/iu);
+    expect(createDeckSkill).toMatch(/feedback invalidates stale checks/iu);
+    expect(createDeckSkill).toMatch(/never invent or guess a preview address/iu);
+    expect(createDeckSkill).toContain("drever check --rendered --json");
+    expect(createDeckSkill).toMatch(/machine-proven error/iu);
+    expect(createDeckSkill).toMatch(/production build only after[^.]*preview is stable/iu);
+    expect(createDeckSkill).toMatch(/Export PDF only when requested/iu);
   });
 
-  it("requires a varied transition vocabulary and structurally distinct references", () => {
-    expect(prompt).toMatch(/transition\s+vocabulary rather than one effect on\s+every page/iu);
-    expect(prompt).toMatch(/direct cuts[^.]*restrained fades[^.]*local live-DOM/iu);
-    expect(prompt).toMatch(
-      /shared shell identical explicit width,\s+height,\s+aspect ratio,\s+and box\s+sizing/iu,
+  it("carries the approved plan through design, authoring, and review", () => {
+    expect(createDesignSkill).toMatch(/approved `drever\.plan\.json`/iu);
+    expect(createDesignSkill).toMatch(
+      /planned focal\s+artifact, composition recipe, density choice, and motion owner/iu,
     );
-    expect(prompt).toMatch(
-      /incompatible bounds,\s+use a cut,\s+replacement,\s+or\s+restrained\s+dissolve/iu,
-    );
-    expect(prompt).toMatch(/vary their narrative length,\s+density,\s+composition rhythm/iu);
-  });
-
-  it("requires stable Step geometry and rendered CSS evidence", () => {
-    expect(prompt).toMatch(/`Step` as a real DOM wrapper/iu);
-    expect(prompt).toMatch(/containing block[^.]*absolute descendant[^.]*invariant/iu);
-    expect(prompt).toContain('[data-drever-slide][data-slide-state="active"]');
-    expect(prompt).toContain('[data-drever-step][data-step-state="active"]');
-    expect(prompt).toMatch(/exactly one motion owner/iu);
-    expect(prompt).toMatch(/inactive slides stay mounted/iu);
-    expect(prompt).toMatch(/computed font size[^.]*margin,\s+padding,\s+gap/iu);
-    expect(prompt).toMatch(/Theme-owned Markdown margins/iu);
-    expect(prompt).toMatch(/full-canvas scene[^.]*stable positioned slide-relative root/iu);
-    expect(prompt).toMatch(/Source review[^.]*do not count as the Draft 1 rendered\s+refinement/iu);
-  });
-
-  it("hands final rendering to browser evidence and keeps Pretext advisory", () => {
-    expect(prompt).toMatch(/Prefer a connected\s+Chrome DevTools\s+MCP server/iu);
-    expect(prompt).toMatch(/dev-only experimental Pretext\s+layout probe/iu);
-    expect(prompt).toMatch(/probe is advisory/iu);
-    expect(prompt).toMatch(/rendered DOM and pixels remain authoritative/iu);
+    expect(authorDeckSkill).toMatch(/preserve its ordered planning labels, narrative jobs/iu);
+    expect(authorDeckSkill).toMatch(/compiled slide identity remains positional/iu);
+    expect(authorDeckSkill).toMatch(/text overlap, direct scroll overflow/iu);
+    expect(reviewDeckSkill).toMatch(/compare every planned narrative job/iu);
+    expect(reviewDeckSkill).toMatch(/resolved solid-color contrast failures/iu);
+    expect(reviewDeckSkill).toMatch(/indeterminate-paint warnings/iu);
   });
 });

@@ -43,6 +43,22 @@ facts outside this fixture.`;
 const topicTurn = `Create a 12-slide English presentation about ${sharedTopic}.
 
 ${sharedEvidence}`;
+const approvalPrefix = (deckPlanCapable) =>
+  deckPlanCapable
+    ? "I approve the brief and story plan. Mark brief.md and drever.plan.json as approved"
+    : "I approve the brief and slide outline. Mark brief.md as approved";
+const surpriseApprovalTurn = (
+  deckPlanCapable,
+) => `${approvalPrefix(deckPlanCapable)}, then create the complete presentation now. Review the
+authored draft once more, keep its strongest idea, then refine the
+narrative, composition, hierarchy, motion, and small details wherever the source reveals a
+clear improvement. ${sourceReview} Do not run validation in this protected stage.`;
+const guidedApprovalTurn = (
+  deckPlanCapable,
+) => `${approvalPrefix(deckPlanCapable)}, then create the complete presentation now. Use expressive but purposeful motion and a
+high-contrast orbital visual language. Preserve what already works, then refine the narrative,
+composition, hierarchy, motion, and small details wherever the source reveals a clear improvement.
+${sourceReview} Do not run validation in this protected stage.`;
 
 export const releaseSmokeScenarios = Object.freeze([
   Object.freeze({
@@ -50,6 +66,7 @@ export const releaseSmokeScenarios = Object.freeze([
       "Explain why black holes are not cosmic vacuum cleaners; the model makes every remaining narrative, visual, and motion decision.",
     id: "surprise-me",
     label: "Surprise me",
+    legacyApprovalTurn: surpriseApprovalTurn(false),
     mode: "surprise-me",
     turns: Object.freeze([
       sharedFirstTurn,
@@ -57,10 +74,7 @@ export const releaseSmokeScenarios = Object.freeze([
 
 Skip remaining questions — surprise me. Choose every remaining creative decision, then write the
 complete brief and 12-slide outline for review. Do not create the presentation yet.`,
-      `I approve the brief and slide outline. Mark brief.md as Approved, then create the complete presentation now. Review the
-authored draft once more, keep its strongest idea, then refine the
-narrative, composition, hierarchy, motion, and small details wherever the source reveals a
-clear improvement. ${sourceReview} Do not run validation in this protected stage.`,
+      surpriseApprovalTurn(true),
     ]),
   }),
   Object.freeze({
@@ -68,6 +82,7 @@ clear improvement. ${sourceReview} Do not run validation in this protected stage
       "Replace the cosmic-vacuum-cleaner myth with a clear 12-minute science story for an international high-school audience.",
     id: "guided",
     label: "Guided answers",
+    legacyApprovalTurn: guidedApprovalTurn(false),
     mode: "guided",
     turns: Object.freeze([
       sharedFirstTurn,
@@ -96,13 +111,15 @@ fixture.
 
 Skip remaining questions — surprise me. Write the complete brief and 12-slide outline for review,
 but do not create the presentation yet.`,
-      `I approve the brief and slide outline. Mark brief.md as Approved, then create the complete presentation now. Use expressive but purposeful motion and a
-high-contrast orbital visual language. Preserve what already works, then refine the narrative,
-composition, hierarchy, motion, and small details wherever the source reveals a clear improvement.
-${sourceReview} Do not run validation in this protected stage.`,
+      guidedApprovalTurn(true),
     ]),
   }),
 ]);
+
+export const releaseSmokeScenarioTurns = (scenario, { deckPlanCapable }) =>
+  deckPlanCapable
+    ? scenario.turns
+    : Object.freeze(scenario.turns.with(-1, scenario.legacyApprovalTurn));
 
 export const getReleaseSmokeScenario = (id) => {
   const scenario = releaseSmokeScenarios.find((candidate) => candidate.id === id);

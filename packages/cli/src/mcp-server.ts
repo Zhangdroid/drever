@@ -375,7 +375,7 @@ export const runMcpServer = async ({
   project,
   input,
   output,
-  check = () => createCheckReport(project.entry),
+  check = () => createCheckReport(project.entry, project.root),
   createContext = () => createAuthoringContext(project),
   readCurrent = () => readCurrentPosition(project.root),
 }: RunMcpServerRequest): Promise<void> => {

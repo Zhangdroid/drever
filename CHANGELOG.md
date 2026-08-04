@@ -5,7 +5,26 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+Release impact: **minor** — this batch adds compatible public planning and rendered-preflight
+capabilities.
+
+### Added
+
+- Added the versioned `drever.plan.json` story contract for AI-created decks.
+  Source preflight now validates the interview state, brief, stable slide IDs,
+  narrative jobs, evidence, focal artifacts, composition recipes, density, and
+  explicit motion ownership before authoring begins.
+- Expanded rendered preflight with line-fragment clipping, direct scroll
+  overflow, high-confidence sibling overlap, and resolved solid-color WCAG
+  contrast diagnostics. Complex image, gradient, blend, and translucent paint
+  remains an explicit review warning instead of receiving a false pass.
+
 ### Changed
+
+- Reduced the public AI bootstrap to a small handoff and made the installed,
+  version-matched creation skill the single workflow authority. Design,
+  authoring, review, and comparative AI release smoke now preserve and verify
+  the same approved story contract end to end.
 
 - Put the full AI release smoke behind one protected approval, then ran all four
   provider-and-briefing journeys independently in parallel. Failed cases now
@@ -20,6 +39,8 @@ section, while commit snapshots use the current Unreleased section.
 
 ### Fixed
 
+- Raised the Basic accent-cover eyebrow and footer contrast above the rendered
+  large-room readability threshold.
 - Made the documentation navigation roomier on common laptop screens while
   keeping long sidebars smoothly scrollable and external destinations clear.
 - Made the final AI release-smoke source review explicitly inventory normalized

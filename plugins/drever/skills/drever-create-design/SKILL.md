@@ -14,7 +14,7 @@ Treat a Drever Theme as a deterministic internal contract, not the primary user 
 ## Start with a design brief
 
 1. Determine the phase before reading the deck. For an existing stable deck or after the content
-   Draft 1 URL is live, read the complete brief and deck plus only the project-owned assets, local
+   Draft 1 URL is live, read the approved `drever.plan.json` when present, the complete brief, and the deck plus only the project-owned assets, local
    components, design files, `drever.config.ts`, and Stage modules that the design will use or edit.
    Use `drever_get_context` when available; otherwise run `npm exec -- drever context --json`. When
    running in parallel before Draft 1, read the brief and stable project configuration, own only the
@@ -33,6 +33,13 @@ Treat a Drever Theme as a deterministic internal contract, not the primary user 
    - brand rules, approved marks, fonts, imagery, attribution, and forbidden treatments;
    - tone, pacing, density, and practical constraints.
 3. State material assumptions. Ask only when a missing choice would substantially change the result.
+
+Use the approved plan as a constraint, not inspiration to reinterpret. Give every planned focal
+artifact, composition recipe, density choice, and motion owner a concrete implementation or record
+the deliberate replacement in `art-direction.md`. Keep the plan's stable labels and order aligned
+with the deck so review can compare intent with rendered evidence; runtime slide identity remains
+positional. If the plan is missing or not approved during new
+deck creation, return to the creation skill instead of designing an unreviewed story.
 
 ## Research before styling
 

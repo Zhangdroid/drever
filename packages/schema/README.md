@@ -45,7 +45,32 @@ count, status, and any explicit source-skip, browser, or runtime failure reason.
 `DeckPreflightReportV1` models the legacy source-only artifact, while
 `DeckPreflightReport` is the safe V1-or-V2 union. Consumers should narrow on the
 root `version` before reading `rendered`; a V1 report never proves rendered
-inspection.
+inspection. Receipt wire version 1 accepts rendered rulesets 1 and 2 so stored
+ruleset-1 evidence remains representable; compare `rulesetVersion` with
+`RENDERED_PREFLIGHT_RULESET_VERSION` before treating old evidence as current.
+
+## Deck plan contract
+
+`DREVER_DECK_PLAN_VERSION` and `DreverDeckPlan` define the dependency-light,
+serializable story contract used by AI authoring. Validate parsed JSON before
+using it:
+
+```ts
+import { validateDreverDeckPlanValue, type DreverDeckPlan } from "@drever/schema";
+
+const result = validateDreverDeckPlanValue(JSON.parse(source));
+if (!result.ok) {
+  for (const issue of result.issues) console.error(issue.field, issue.message);
+  throw new Error("Invalid Drever deck plan");
+}
+
+const plan: DreverDeckPlan = result.value;
+```
+
+The validator rejects unknown fields and validates every nested V1 value. A
+future incompatible plan shape receives a new `version`; consumers should not
+silently coerce it. Planning slide IDs are stable review labels, while the
+compiled audience runtime remains position-based.
 
 `DreverAuthoringContextV2` is the current context and pairs with the V2
 preflight report. `DreverAuthoringContextV1` retains the prior source-only

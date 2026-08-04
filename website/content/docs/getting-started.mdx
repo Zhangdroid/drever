@@ -2,7 +2,8 @@
 
 1. **Prepare** — creates a safe project and installs its version-matched Codex and Claude Code
    workflows.
-2. **Plan** — resolves the brief, writes a complete slide outline, and stops for your approval.
+2. **Plan** — resolves the brief, writes a complete outline plus a machine-checkable story
+   contract, and stops for your approval.
 3. **Create** — turns the approved plan into readable MDX, speaker notes, a topic-specific visual system,
    and intentional motion.
 4. **Preview** — starts one stable local URL as soon as a coherent end-to-end Draft 1 compiles, then
@@ -24,9 +25,12 @@ compactly—for example, `1A, 2C`—or use the single escape at the end of any r
 questions — surprise me**. The next round responds to your earlier choices instead of repeating a
 fixed questionnaire, and the escape ends the interview immediately.
 
-The agent then writes the resolved direction and a numbered slide outline to `brief.md`, shows the
-complete plan, and stops for approval. The escape delegates unanswered choices but does not bypass
-this review. Once you approve the plan, the agent starts authoring and opens the live Draft 1.
+The agent then writes the resolved direction and numbered outline to `brief.md`, records every
+slide's job, evidence, focal artifact, composition, density, and motion ownership in
+`drever.plan.json`, runs the fast source check, and stops for approval. The escape delegates
+unanswered choices but does not bypass this review. Once you approve the plan, the same contract
+guides initial design and authoring until the live Draft 1 opens; deeper rendered review then
+improves that same URL while you can already inspect the story.
 
 The work happens in ordinary files on your machine. Setup succeeds when the agent leaves a running
 local preview, a readable `slides.mdx`, and the requested web or PDF outputs ready for review.
