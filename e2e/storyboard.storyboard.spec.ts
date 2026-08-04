@@ -76,14 +76,11 @@ test("storyboard stays live before the authored deck can compile", async ({ page
   const root = await mkdtemp(join(tmpdir(), "drever-storyboard-e2e-"));
   const planPath = join(root, "drever.plan.json");
   const port = await availablePort();
-  await Promise.all([
-    writeFile(
-      join(root, "drever.config.ts"),
-      `export default { deck: { lang: "en" }, server: { host: "127.0.0.1", port: ${String(port)}, strictPort: true } };\n`,
-      "utf8",
-    ),
-    writeFile(planPath, JSON.stringify(plan("A black hole is not a vacuum cleaner")), "utf8"),
-  ]);
+  await writeFile(
+    join(root, "drever.config.ts"),
+    `export default { deck: { lang: "en" }, server: { host: "127.0.0.1", port: ${String(port)}, strictPort: true } };\n`,
+    "utf8",
+  );
 
   const server = spawn(process.execPath, [dreverCli, "dev"], {
     cwd: root,
@@ -101,6 +98,9 @@ test("storyboard stays live before the authored deck can compile", async ({ page
     await waitForServer(storyboardUrl, server);
     await page.goto(storyboardUrl);
     const storyboard = page.locator("[data-drever-storyboard]");
+    await expect(storyboard).toHaveAttribute("data-storyboard-state", "missing");
+
+    await writeFile(planPath, JSON.stringify(plan("A black hole is not a vacuum cleaner")), "utf8");
     await expect(storyboard).toHaveAttribute("data-storyboard-state", "ready");
     await expect(page.locator('[data-storyboard-slide="the-myth"]')).toContainText(
       "A black hole is not a vacuum cleaner",

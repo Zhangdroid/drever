@@ -95,7 +95,7 @@ export const createStoryboardPlanPlugin = ({ root }: Readonly<{ root: string }>)
     enforce: "pre",
     configureServer(value) {
       server = value;
-      value.watcher.add(planPath);
+      value.watcher.add(root);
       const update = (path: string): void => {
         if (normalizePath(path) !== normalizedPlanPath) return;
         if (refreshTimer !== undefined) clearTimeout(refreshTimer);
