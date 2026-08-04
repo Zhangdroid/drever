@@ -169,6 +169,13 @@ export const submitStudioBrief = async (
   if (skipRemaining) await onAction({ type: "skip-remaining-questions" });
 };
 
+export const resolveStudioDuration = (value: string): number | undefined => {
+  const normalized = value.trim();
+  if (!/^\d+$/u.test(normalized)) return undefined;
+  const duration = Number(normalized);
+  return Number.isSafeInteger(duration) && duration > 0 && duration <= 1_440 ? duration : undefined;
+};
+
 export const nextStudioMode = (
   mode: StudioMode,
   wasDraftAvailable: boolean,
@@ -273,14 +280,23 @@ const BriefScreen = ({
   const [topic, setTopic] = useState(existing?.topic ?? "");
   const [audience, setAudience] = useState(existing?.audience ?? "");
   const [desiredChange, setDesiredChange] = useState(existing?.desiredChange ?? "");
-  const [durationMinutes, setDurationMinutes] = useState(existing?.durationMinutes ?? 10);
+  const initialDuration = existing?.durationMinutes ?? 10;
+  const initialPreset = durationOptions.find((duration) => duration === initialDuration);
+  const [durationChoice, setDurationChoice] = useState<number | "custom">(
+    initialPreset ?? "custom",
+  );
+  const [customDuration, setCustomDuration] = useState(
+    initialPreset === undefined ? String(initialDuration) : "",
+  );
   const [density, setDensity] = useState<DensityChoice>(existing?.density ?? "balanced");
   const [motion, setMotion] = useState<MotionChoice>(existing?.motionIntensity ?? "agent-choice");
   const [submitting, setSubmitting] = useState(false);
+  const durationMinutes =
+    durationChoice === "custom" ? resolveStudioDuration(customDuration) : durationChoice;
 
   const submit = async (event: FormEvent, skipRemaining = false): Promise<void> => {
     event.preventDefault();
-    if (topic.trim() === "") return;
+    if (topic.trim() === "" || durationMinutes === undefined) return;
     const brief: DreverStudioCommonBrief = {
       topic: topic.trim(),
       ...(audience.trim() === "" ? {} : { audience: audience.trim() }),
@@ -336,11 +352,11 @@ const BriefScreen = ({
           </label>
           <label>
             <span>
-              Desired outcome <small>Optional</small>
+              After the presentation <small>Optional</small>
             </span>
             <input
               onChange={(event) => setDesiredChange(event.currentTarget.value)}
-              placeholder="What should change after the talk?"
+              placeholder="What should people understand, decide, or do?"
               value={desiredChange}
             />
           </label>
@@ -350,16 +366,44 @@ const BriefScreen = ({
           <legend>Duration</legend>
           <div>
             {durationOptions.map((duration) => (
-              <label data-selected={duration === durationMinutes ? "" : undefined} key={duration}>
+              <label data-selected={duration === durationChoice ? "" : undefined} key={duration}>
                 <input
-                  checked={duration === durationMinutes}
+                  checked={duration === durationChoice}
                   name="duration"
-                  onChange={() => setDurationMinutes(duration)}
+                  onChange={() => setDurationChoice(duration)}
                   type="radio"
                 />
                 {duration} min
               </label>
             ))}
+            <label
+              className="drever-studio-duration__custom"
+              data-selected={durationChoice === "custom" ? "" : undefined}
+            >
+              <span>Custom</span>
+              <span>
+                <input
+                  aria-invalid={
+                    durationChoice === "custom" && durationMinutes === undefined ? true : undefined
+                  }
+                  aria-label="Custom duration in minutes"
+                  inputMode="numeric"
+                  max={1_440}
+                  min={1}
+                  onChange={(event) => {
+                    setDurationChoice("custom");
+                    setCustomDuration(event.currentTarget.value);
+                  }}
+                  onFocus={() => setDurationChoice("custom")}
+                  placeholder="45"
+                  required={durationChoice === "custom"}
+                  step={1}
+                  type="number"
+                  value={customDuration}
+                />
+                <small>min</small>
+              </span>
+            </label>
           </div>
         </fieldset>
 
@@ -379,7 +423,7 @@ const BriefScreen = ({
         <footer className="drever-studio-brief__actions">
           <button
             className="drever-studio-button drever-studio-button--quiet"
-            disabled={submitting || topic.trim() === ""}
+            disabled={submitting || topic.trim() === "" || durationMinutes === undefined}
             onClick={(event) => void submit(event, true)}
             type="button"
           >
@@ -387,7 +431,7 @@ const BriefScreen = ({
           </button>
           <button
             className="drever-studio-button drever-studio-button--primary"
-            disabled={submitting || topic.trim() === ""}
+            disabled={submitting || topic.trim() === "" || durationMinutes === undefined}
             type="submit"
           >
             {submitting ? "Sending…" : "Shape the direction"}
@@ -406,11 +450,17 @@ const WaitingScreen = ({ state }: Readonly<{ state: DreverStudioState }>): React
       <span />
       <span />
     </div>
-    <p>{state.progress?.label ?? "Reading the room"}</p>
+    <p>
+      {state.agentConnected
+        ? (state.progress?.label ?? "Reading the room")
+        : "Request saved locally"}
+    </p>
     <h1>{state.commonBrief?.topic}</h1>
     <span>
-      {state.message ??
-        "Your agent is turning the first answers into a few topic-specific decisions."}
+      {state.agentConnected
+        ? (state.message ??
+          "Your agent is turning the first answers into a few topic-specific decisions.")
+        : "Nothing is running inside Studio itself. Start or resume the coding-agent task to continue."}
     </span>
   </main>
 );
@@ -423,6 +473,19 @@ const ErrorScreen = ({ state }: Readonly<{ state: DreverStudioState }>): ReactEl
       {state.message ?? "Resolve the reported agent error, then continue from this Studio session."}
     </span>
   </main>
+);
+
+const AgentConnectionNotice = (): ReactElement => (
+  <aside aria-live="polite" className="drever-studio-agent-notice">
+    <span aria-hidden="true" />
+    <div>
+      <strong>No local agent is active.</strong>
+      <span>
+        Studio does not run a model itself. Changes stay queued until the coding-agent task starts
+        or resumes the Drever workflow.
+      </span>
+    </div>
+  </aside>
 );
 
 const QuestionsScreen = ({
@@ -650,7 +713,7 @@ const FeedbackComposer = ({
         <div className="drever-studio-direction__summary">
           <span>Audience</span>
           <strong dir="auto">{state.commonBrief?.audience ?? "Agent chooses"}</strong>
-          <span>Outcome</span>
+          <span>After the presentation</span>
           <strong dir="auto">{state.commonBrief?.desiredChange ?? "Agent proposes"}</strong>
         </div>
       ) : (
@@ -864,9 +927,11 @@ export const Studio = (props: StudioProps): ReactElement => {
   const agentStatus =
     state.phase === "error"
       ? "Agent needs attention"
-      : state.pendingActionCount > 0
-        ? "Waiting for local agent"
-        : "Local agent bridge";
+      : !state.agentConnected
+        ? "No agent connected"
+        : state.pendingActionCount > 0
+          ? "Waiting for local agent"
+          : "Local agent active recently";
   const dispatch = async (action: StudioActionInput): Promise<void> => {
     setActionError(undefined);
     try {
@@ -882,7 +947,12 @@ export const Studio = (props: StudioProps): ReactElement => {
   };
 
   return (
-    <div className="drever-studio" data-drever-studio="" data-studio-phase={state.phase}>
+    <div
+      className="drever-studio"
+      data-agent-connected={state.agentConnected ? "" : undefined}
+      data-drever-studio=""
+      data-studio-phase={state.phase}
+    >
       <header className="drever-studio-header">
         <StudioIdentity />
         <StudioProgress state={state} />
@@ -891,6 +961,7 @@ export const Studio = (props: StudioProps): ReactElement => {
           {agentStatus}
         </div>
       </header>
+      {state.agentConnected ? null : <AgentConnectionNotice />}
       {screen === "brief" ? <BriefScreen onAction={dispatch} state={state} /> : null}
       {screen === "questions" ? <QuestionsScreen onAction={dispatch} state={state} /> : null}
       {screen === "waiting" ? <WaitingScreen state={state} /> : null}

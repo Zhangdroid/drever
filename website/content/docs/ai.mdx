@@ -47,6 +47,12 @@ or gains arbitrary file access. `slides.mdx`, `brief.md`, `drever.plan.json`, as
 and Git remain authoritative. The room exists only during development and is excluded from
 production, export, and audience bundles.
 
+Opening `/studio` by itself does not launch or wake a model. The coding-agent task that started the
+workflow must remain active and poll the local action journal; otherwise the room keeps the request
+waiting until that task resumes. This boundary keeps Studio provider-neutral and keeps credentials
+out of the browser, but it is not a hosted agent session. The room reports the absence of a recent
+local agent heartbeat instead of presenting the bridge itself as a live connection.
+
 If the host cannot keep the local server alive, cannot open a browser, or the user prefers chat, the
 same installed workflow asks the adaptive questions in the conversation and uses the plan-only
 `/storyboard` route for review. The approval gate and file contracts are identical.

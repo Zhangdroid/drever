@@ -23,7 +23,9 @@ export const DREVER_STUDIO_STATE_EVENT = "drever:studio-state";
 export const DREVER_STUDIO_STATE_REQUEST_EVENT = "drever:studio-state-request";
 export const DREVER_STUDIO_DIRECTORY = ".drever/studio";
 export const DREVER_STUDIO_AGENT_STATE_FILE = "state.json";
+export const DREVER_STUDIO_AGENT_HEARTBEAT_FILE = "agent-heartbeat.json";
 export const DREVER_STUDIO_ACTIONS_DIRECTORY = "actions";
+export const DREVER_STUDIO_AGENT_CONNECTION_TTL_MS = 5 * 60 * 1_000;
 
 const RESOLVED_MODULE_ID = `\0${DREVER_STUDIO_STATE_MODULE_ID}`;
 const MAX_PAYLOAD_BYTES = 32 * 1024;
@@ -49,7 +51,7 @@ const MOTION_INTENSITIES = new Set(["minimal", "measured", "expressive"]);
 
 type JsonRecord = Record<string, unknown>;
 type StudioSessionSnapshot = Readonly<{
-  agent?: DreverStudioAgentState;
+  agentLeaseExpiresAt?: number;
   records: readonly DreverStudioActionRecord[];
   state: DreverStudioState;
 }>;
@@ -289,6 +291,55 @@ const readJson = async (path: string): Promise<unknown> => {
   }
 };
 
+const decodeStudioAgentHeartbeat = (
+  value: unknown,
+): Readonly<{ seenAt: string; version: typeof DREVER_STUDIO_PROTOCOL_VERSION }> | undefined => {
+  if (
+    !isRecord(value) ||
+    !exactKeys(value, ["version", "seenAt"]) ||
+    value.version !== DREVER_STUDIO_PROTOCOL_VERSION ||
+    typeof value.seenAt !== "string" ||
+    Number.isNaN(Date.parse(value.seenAt))
+  ) {
+    return;
+  }
+  return Object.freeze({ version: DREVER_STUDIO_PROTOCOL_VERSION, seenAt: value.seenAt });
+};
+
+const readStudioAgentHeartbeat = async (
+  path: string,
+): Promise<ReturnType<typeof decodeStudioAgentHeartbeat>> => {
+  let source: string;
+  try {
+    source = await readFile(path, "utf8");
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return;
+    throw error;
+  }
+  try {
+    return decodeStudioAgentHeartbeat(JSON.parse(source) as unknown);
+  } catch {
+    return;
+  }
+};
+
+/** @internal Renews the local coding-agent lease without exposing provider credentials. */
+export const writeStudioAgentHeartbeat = async (root: string, seenAt: Date): Promise<void> => {
+  const directory = join(root, DREVER_STUDIO_DIRECTORY);
+  const path = join(directory, DREVER_STUDIO_AGENT_HEARTBEAT_FILE);
+  const temporaryPath = `${path}.${randomUUID()}.next`;
+  const heartbeat = Object.freeze({
+    version: DREVER_STUDIO_PROTOCOL_VERSION,
+    seenAt: seenAt.toISOString(),
+  });
+  await mkdir(directory, { recursive: true, mode: 0o700 });
+  await writeFile(temporaryPath, `${JSON.stringify(heartbeat, null, 2)}\n`, {
+    encoding: "utf8",
+    mode: 0o600,
+  });
+  await rename(temporaryPath, path);
+};
+
 const recordFileName = (revision: number): string => `${String(revision).padStart(8, "0")}.json`;
 
 const readActionRecords = async (
@@ -380,13 +431,34 @@ const reduceBrowserState = (records: readonly DreverStudioActionRecord[]) => {
 const stateWithoutRevision = async (
   root: string,
   records: readonly DreverStudioActionRecord[],
-): Promise<Omit<DreverStudioState, "revision">> => {
+  now: Date,
+): Promise<
+  Readonly<{
+    agentLeaseExpiresAt?: number;
+    state: Omit<DreverStudioState, "revision">;
+  }>
+> => {
   const agentPath = join(root, DREVER_STUDIO_DIRECTORY, DREVER_STUDIO_AGENT_STATE_FILE);
-  const agentValue = await readJson(agentPath);
+  const heartbeatPath = join(root, DREVER_STUDIO_DIRECTORY, DREVER_STUDIO_AGENT_HEARTBEAT_FILE);
+  const [agentValue, heartbeat] = await Promise.all([
+    readJson(agentPath),
+    readStudioAgentHeartbeat(heartbeatPath),
+  ]);
   const agent = agentValue === undefined ? undefined : decodeStudioAgentState(agentValue);
   if (agentValue !== undefined && agent === undefined) {
     throw new TypeError(`Invalid Drever Studio agent state: ${agentPath}`);
   }
+  const agentLastSeenAt = heartbeat?.seenAt;
+  const agentHeartbeatAge =
+    agentLastSeenAt === undefined ? undefined : now.getTime() - Date.parse(agentLastSeenAt);
+  const agentConnected =
+    agentHeartbeatAge !== undefined &&
+    agentHeartbeatAge >= 0 &&
+    agentHeartbeatAge < DREVER_STUDIO_AGENT_CONNECTION_TTL_MS;
+  const agentLeaseExpiresAt =
+    agentConnected && agentLastSeenAt !== undefined
+      ? Date.parse(agentLastSeenAt) + DREVER_STUDIO_AGENT_CONNECTION_TTL_MS
+      : undefined;
   const loadedPlan = await loadDreverDeckPlan({ root });
   const browser = reduceBrowserState(records);
   const handled = agent?.handledActionRevision ?? 0;
@@ -405,19 +477,25 @@ const stateWithoutRevision = async (
               ? "briefing"
               : "waiting-for-agent"));
   return Object.freeze({
-    version: DREVER_STUDIO_PROTOCOL_VERSION,
-    phase,
-    latestActionRevision,
-    pendingActionCount,
-    ...(browser.commonBrief === undefined ? {} : { commonBrief: browser.commonBrief }),
-    ...(agent?.adaptiveQuestions === undefined
-      ? {}
-      : { adaptiveQuestions: agent.adaptiveQuestions }),
-    ...(browser.adaptiveAnswers === undefined ? {} : { adaptiveAnswers: browser.adaptiveAnswers }),
-    ...(browser.skippedRemainingQuestions ? { skippedRemainingQuestions: true } : {}),
-    ...(plan === undefined ? {} : { plan }),
-    ...(agent?.progress === undefined ? {} : { progress: agent.progress }),
-    ...(agent?.message === undefined ? {} : { message: agent.message }),
+    ...(agentLeaseExpiresAt === undefined ? {} : { agentLeaseExpiresAt }),
+    state: Object.freeze({
+      version: DREVER_STUDIO_PROTOCOL_VERSION,
+      phase,
+      agentConnected,
+      latestActionRevision,
+      pendingActionCount,
+      ...(browser.commonBrief === undefined ? {} : { commonBrief: browser.commonBrief }),
+      ...(agent?.adaptiveQuestions === undefined
+        ? {}
+        : { adaptiveQuestions: agent.adaptiveQuestions }),
+      ...(browser.adaptiveAnswers === undefined
+        ? {}
+        : { adaptiveAnswers: browser.adaptiveAnswers }),
+      ...(browser.skippedRemainingQuestions ? { skippedRemainingQuestions: true } : {}),
+      ...(plan === undefined ? {} : { plan }),
+      ...(agent?.progress === undefined ? {} : { progress: agent.progress }),
+      ...(agent?.message === undefined ? {} : { message: agent.message }),
+    }),
   });
 };
 
@@ -426,8 +504,14 @@ const comparableState = (state: DreverStudioState): string => {
   return JSON.stringify(value);
 };
 
+const comparableActionState = (state: DreverStudioState): string => {
+  const { agentConnected: _agentConnected, revision: _revision, ...value } = state;
+  return JSON.stringify(value);
+};
+
 export type StudioSession = Readonly<{
   token: string;
+  agentLeaseExpiresAt(): Promise<number | undefined>;
   read(): Promise<DreverStudioState>;
   refresh(): Promise<Readonly<{ changed: boolean; state: DreverStudioState }>>;
   accept(value: unknown, local: boolean): Promise<DreverStudioActionAck>;
@@ -543,12 +627,18 @@ export const createStudioSession = (
 
   const load = async (revision?: number): Promise<StudioSessionSnapshot> => {
     const records = await readActionRecords(actionsDirectory);
-    const value = await stateWithoutRevision(root, records);
+    const resolved = await stateWithoutRevision(root, records, now());
     const state = Object.freeze({
-      ...value,
+      ...resolved.state,
       revision: revision ?? Math.max(records.at(-1)?.revision ?? 0, snapshot?.state.revision ?? 0),
     });
-    return Object.freeze({ records, state });
+    return Object.freeze({
+      records,
+      state,
+      ...(resolved.agentLeaseExpiresAt === undefined
+        ? {}
+        : { agentLeaseExpiresAt: resolved.agentLeaseExpiresAt }),
+    });
   };
   const current = async (): Promise<StudioSessionSnapshot> => {
     snapshot ??= await load();
@@ -557,6 +647,9 @@ export const createStudioSession = (
 
   return Object.freeze({
     token,
+    async agentLeaseExpiresAt() {
+      return (await current()).agentLeaseExpiresAt;
+    },
     async read() {
       return (await current()).state;
     },
@@ -564,12 +657,15 @@ export const createStudioSession = (
       const previous = await current();
       const candidate = await load(previous.state.revision);
       const changed = comparableState(previous.state) !== comparableState(candidate.state);
-      snapshot = changed
-        ? Object.freeze({
-            ...candidate,
-            state: Object.freeze({ ...candidate.state, revision: previous.state.revision + 1 }),
-          })
-        : previous;
+      const actionStateChanged =
+        comparableActionState(previous.state) !== comparableActionState(candidate.state);
+      snapshot = Object.freeze({
+        ...candidate,
+        state: Object.freeze({
+          ...candidate.state,
+          revision: actionStateChanged ? previous.state.revision + 1 : previous.state.revision,
+        }),
+      });
       return Object.freeze({ changed, state: snapshot.state });
     },
     async accept(value, local) {
@@ -669,9 +765,18 @@ export const createStudioSession = (
       });
       await rename(temporaryPath, path);
       const records = Object.freeze([...before.records, record]);
-      const valueAfter = await stateWithoutRevision(root, records);
-      const state = Object.freeze({ ...valueAfter, revision: before.state.revision + 1 });
-      snapshot = Object.freeze({ records, state });
+      const resolvedAfter = await stateWithoutRevision(root, records, now());
+      const state = Object.freeze({
+        ...resolvedAfter.state,
+        revision: before.state.revision + 1,
+      });
+      snapshot = Object.freeze({
+        records,
+        state,
+        ...(resolvedAfter.agentLeaseExpiresAt === undefined
+          ? {}
+          : { agentLeaseExpiresAt: resolvedAfter.agentLeaseExpiresAt }),
+      });
       return Object.freeze({
         version: DREVER_STUDIO_PROTOCOL_VERSION,
         requestId: action.requestId,
@@ -726,14 +831,35 @@ export const createStudioPlugin = ({ root }: Readonly<{ root: string }>): Plugin
   const agentStatePath = normalizePath(
     join(root, DREVER_STUDIO_DIRECTORY, DREVER_STUDIO_AGENT_STATE_FILE),
   );
+  const agentHeartbeatPath = normalizePath(
+    join(root, DREVER_STUDIO_DIRECTORY, DREVER_STUDIO_AGENT_HEARTBEAT_FILE),
+  );
   const planPath = normalizePath(join(root, DREVER_DECK_PLAN_FILE));
   const actionsPattern = `${normalizePath(join(root, DREVER_STUDIO_DIRECTORY, DREVER_STUDIO_ACTIONS_DIRECTORY))}/**`;
   let server: ViteDevServer | undefined;
   let updates = Promise.resolve();
   let refreshTimer: ReturnType<typeof setTimeout> | undefined;
+  let agentExpiryTimer: ReturnType<typeof setTimeout> | undefined;
+
+  const scheduleAgentExpiry = (expiresAt: number | undefined): void => {
+    if (agentExpiryTimer !== undefined) clearTimeout(agentExpiryTimer);
+    agentExpiryTimer = undefined;
+    if (expiresAt === undefined) return;
+    const remaining = expiresAt - Date.now();
+    agentExpiryTimer = setTimeout(
+      () => {
+        agentExpiryTimer = undefined;
+        updates = updates.then(publish).catch((error: unknown) => {
+          server?.config.logger.error(`Drever could not refresh Studio: ${String(error)}`);
+        });
+      },
+      Math.max(remaining + 25, 25),
+    );
+  };
 
   const publish = async (): Promise<void> => {
     const { changed, state } = await session.refresh();
+    scheduleAgentExpiry(await session.agentLeaseExpiresAt());
     if (!changed) return;
     const module = server?.moduleGraph.getModuleById(RESOLVED_MODULE_ID);
     if (module !== undefined) server?.moduleGraph.invalidateModule(module);
@@ -756,10 +882,16 @@ export const createStudioPlugin = ({ root }: Readonly<{ root: string }>): Plugin
         response.setHeader("Content-Type", "text/plain; charset=utf-8");
         response.end("Drever Studio is available only from this computer.\n");
       });
-      value.watcher.add([agentStatePath, planPath]);
+      value.watcher.add([agentStatePath, agentHeartbeatPath, planPath]);
       const update = (path: string): void => {
         const normalized = normalizePath(path);
-        if (normalized !== agentStatePath && normalized !== planPath) return;
+        if (
+          normalized !== agentStatePath &&
+          normalized !== agentHeartbeatPath &&
+          normalized !== planPath
+        ) {
+          return;
+        }
         if (refreshTimer !== undefined) clearTimeout(refreshTimer);
         refreshTimer = setTimeout(() => {
           refreshTimer = undefined;
@@ -810,10 +942,12 @@ export const createStudioPlugin = ({ root }: Readonly<{ root: string }>): Plugin
       value.ws.on(DREVER_STUDIO_STATE_REQUEST_EVENT, (_data, client) => {
         updates = updates
           .then(async () => {
+            const { state } = await session.refresh();
+            scheduleAgentExpiry(await session.agentLeaseExpiresAt());
             client.send({
               type: "custom",
               event: DREVER_STUDIO_STATE_EVENT,
-              data: await session.read(),
+              data: state,
             });
           })
           .catch((error: unknown) => {
@@ -822,6 +956,7 @@ export const createStudioPlugin = ({ root }: Readonly<{ root: string }>): Plugin
       });
       value.httpServer?.once("close", () => {
         if (refreshTimer !== undefined) clearTimeout(refreshTimer);
+        if (agentExpiryTimer !== undefined) clearTimeout(agentExpiryTimer);
         value.watcher.off("add", update);
         value.watcher.off("change", update);
         value.watcher.off("unlink", update);
@@ -832,7 +967,9 @@ export const createStudioPlugin = ({ root }: Readonly<{ root: string }>): Plugin
     },
     async load(id) {
       if (id !== RESOLVED_MODULE_ID) return;
-      return `export const studioState = ${JSON.stringify(await session.read())};\nexport const studioToken = ${JSON.stringify(session.token)};\n`;
+      const state = await session.read();
+      scheduleAgentExpiry(await session.agentLeaseExpiresAt());
+      return `export const studioState = ${JSON.stringify(state)};\nexport const studioToken = ${JSON.stringify(session.token)};\n`;
     },
   };
 };

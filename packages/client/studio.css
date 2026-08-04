@@ -227,6 +227,54 @@
     box-shadow: 0 0 0 3px rgb(91 69 216 / 12%);
   }
 
+  .drever-studio:not([data-agent-connected]) .drever-studio-agent-status > span {
+    background: #b5762f;
+    box-shadow: 0 0 0 3px rgb(181 118 47 / 13%);
+  }
+
+  .drever-studio-agent-notice {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    width: min(100% - 48px, 1240px);
+    margin: 28px auto -16px;
+    padding: 12px 14px;
+    border: 1px solid rgb(181 118 47 / 18%);
+    border-radius: 14px;
+    color: #5e5142;
+    background: rgb(255 250 239 / 72%);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 45%);
+    backdrop-filter: blur(16px) saturate(115%);
+  }
+
+  .drever-studio-agent-notice > span {
+    width: 7px;
+    height: 7px;
+    flex: none;
+    margin-top: 6px;
+    border-radius: 50%;
+    background: #b5762f;
+    box-shadow: 0 0 0 4px rgb(181 118 47 / 11%);
+  }
+
+  .drever-studio-agent-notice > div {
+    display: grid;
+    gap: 2px;
+  }
+
+  .drever-studio-agent-notice strong {
+    font-size: 0.72rem;
+    font-weight: 660;
+  }
+
+  .drever-studio-agent-notice div > span {
+    color: #786d60;
+    font-size: 0.68rem;
+    line-height: 1.5;
+  }
+
   .drever-studio-brief,
   .drever-studio-questions {
     position: relative;
@@ -372,11 +420,12 @@
 
   .drever-studio-duration > div {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
     margin-top: 11px;
   }
 
-  .drever-studio-duration label {
+  .drever-studio-duration > div > label:not(.drever-studio-duration__custom) {
     position: relative;
     display: grid;
     min-width: 74px;
@@ -391,19 +440,81 @@
     font-weight: 640;
   }
 
-  .drever-studio-duration label[data-selected] {
+  .drever-studio-duration > div > label[data-selected] {
     border-color: rgb(91 69 216 / 40%);
     color: #31533f;
     background: var(--studio-accent-soft);
   }
 
-  .drever-studio-duration input,
+  .drever-studio-duration > div > label:not(.drever-studio-duration__custom) input,
   .drever-studio-choice-grid input,
   .drever-studio-question input[type="radio"],
   .drever-studio-question input[type="checkbox"] {
     position: absolute;
     opacity: 0;
     pointer-events: none;
+  }
+
+  .drever-studio-duration__custom {
+    display: flex;
+    min-height: 40px;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 6px 5px 11px;
+    border: 1px solid var(--studio-border);
+    border-radius: 12px;
+    color: #5e6762;
+    background: rgb(255 255 252 / 50%);
+    cursor: text;
+    transition:
+      border-color 160ms ease,
+      background 160ms ease,
+      box-shadow 160ms ease;
+  }
+
+  .drever-studio-duration__custom:focus-within {
+    border-color: rgb(91 69 216 / 48%);
+    box-shadow: 0 0 0 4px rgb(91 69 216 / 9%);
+  }
+
+  .drever-studio-duration__custom > span:first-child {
+    color: inherit;
+    font-size: 0.68rem;
+    font-weight: 620;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .drever-studio-duration__custom > span:last-child {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+
+  .drever-studio-duration__custom input {
+    width: 54px;
+    min-height: 28px;
+    padding: 3px 6px;
+    border: 0;
+    border-radius: 7px;
+    background: rgb(255 255 252 / 66%);
+    box-shadow: none;
+    font-size: 0.76rem;
+    font-variant-numeric: tabular-nums;
+    text-align: end;
+  }
+
+  .drever-studio-duration__custom input:focus {
+    border: 0;
+    background: #fffef9;
+    box-shadow: none;
+  }
+
+  .drever-studio-duration__custom small {
+    padding-right: 2px;
+    color: #7c8580;
+    font-size: 0.62rem;
+    font-weight: 520;
   }
 
   .drever-studio-choice-grid {
@@ -443,6 +554,8 @@
     margin-top: 7px;
     color: #646d68;
     font-size: 0.7rem;
+    font-weight: 440;
+    letter-spacing: 0;
     line-height: 1.45;
     text-transform: none;
   }
@@ -450,10 +563,12 @@
   .drever-studio-choice-title {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    flex-wrap: wrap;
+    justify-content: flex-start;
     gap: 8px;
     color: #343c37 !important;
     font-size: 0.8rem !important;
+    font-weight: 650 !important;
     letter-spacing: 0 !important;
     text-transform: none !important;
   }
@@ -466,7 +581,9 @@
     background: rgb(91 69 216 / 10%);
     font-size: 0.53rem;
     font-weight: 720;
+    flex: none;
     letter-spacing: 0.05em;
+    white-space: nowrap;
     text-transform: uppercase;
   }
 
@@ -713,6 +830,11 @@
 
   .drever-studio-orbit span:nth-child(3)::after {
     display: none;
+  }
+
+  .drever-studio:not([data-agent-connected]) .drever-studio-orbit span {
+    opacity: 0.42;
+    animation-play-state: paused;
   }
 
   .drever-studio-workspace {
@@ -1228,6 +1350,11 @@
 
     .drever-studio-agent-status {
       display: none;
+    }
+
+    .drever-studio-agent-notice {
+      width: calc(100% - 28px);
+      margin-top: 28px;
     }
 
     .drever-studio-brief,

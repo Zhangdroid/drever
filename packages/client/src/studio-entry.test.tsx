@@ -16,6 +16,7 @@ const initialState = {
   version: DREVER_STUDIO_PROTOCOL_VERSION,
   revision: 0,
   phase: "briefing",
+  agentConnected: false,
   latestActionRevision: 0,
   pendingActionCount: 0,
 } as const satisfies DreverStudioState;

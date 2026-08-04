@@ -117,6 +117,10 @@ them. `status` creates or reads the local session and reports `latestActionRevis
 cursor for the next `wait`. `wait` returns every later action in order, defaults to 45 seconds, and
 accepts at most 300 seconds so an agent can poll in bounded turns.
 
+The room coordinates an agent task that is already running; opening `/studio` alone does not start
+or reconnect a model. If that task stops polling, submitted actions remain safely queued until it
+resumes.
+
 `publish` accepts a project-local JSON file containing only the versioned agent phase, handled
 action revision, optional adaptive questions, progress, and message. It validates the complete
 payload before replacing the visible agent state. The browser can request only the supported brief,

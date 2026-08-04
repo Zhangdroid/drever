@@ -4,12 +4,15 @@ import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 import {
   DREVER_STUDIO_ACTIONS_DIRECTORY,
+  DREVER_STUDIO_AGENT_CONNECTION_TTL_MS,
+  DREVER_STUDIO_AGENT_HEARTBEAT_FILE,
   DREVER_STUDIO_AGENT_STATE_FILE,
   DREVER_STUDIO_DIRECTORY,
   createStudioSession,
   decodeStudioAction,
   isLoopbackAddress,
   resolveStudioUrls,
+  writeStudioAgentHeartbeat,
 } from "./studio-plugin.ts";
 
 const directories: string[] = [];
@@ -109,6 +112,7 @@ describe("Studio session", () => {
       version: 1,
       revision: 0,
       phase: "briefing",
+      agentConnected: false,
       latestActionRevision: 0,
       pendingActionCount: 0,
     });
@@ -146,6 +150,72 @@ describe("Studio session", () => {
     ) as Record<string, unknown>;
     expect(record).toMatchObject({ revision: 1, receivedAt: "2026-08-03T12:00:00.000Z" });
     expect(record).not.toHaveProperty("path");
+  });
+
+  it("expires the local agent lease after its bounded heartbeat window", async () => {
+    const root = await createRoot();
+    let now = new Date("2026-08-03T12:00:00.000Z");
+    const session = createStudioSession(root, { now: () => now });
+
+    expect(await session.read()).toMatchObject({ agentConnected: false });
+    await writeStudioAgentHeartbeat(root, now);
+    expect(await session.refresh()).toMatchObject({
+      changed: true,
+      state: { agentConnected: true, revision: 0 },
+    });
+
+    now = new Date(now.getTime() + DREVER_STUDIO_AGENT_CONNECTION_TTL_MS - 1);
+    expect(await session.refresh()).toMatchObject({
+      changed: false,
+      state: { agentConnected: true },
+    });
+
+    now = new Date(now.getTime() + 1);
+    expect(await session.refresh()).toMatchObject({
+      changed: true,
+      state: { agentConnected: false, revision: 0 },
+    });
+    expect(
+      JSON.parse(
+        await readFile(
+          join(root, DREVER_STUDIO_DIRECTORY, DREVER_STUDIO_AGENT_HEARTBEAT_FILE),
+          "utf8",
+        ),
+      ),
+    ).toMatchObject({ version: 1, seenAt: "2026-08-03T12:00:00.000Z" });
+  });
+
+  it("renews an active lease without changing the browser revision", async () => {
+    const root = await createRoot();
+    let now = new Date("2026-08-03T12:00:00.000Z");
+    const session = createStudioSession(root, { now: () => now });
+    await writeStudioAgentHeartbeat(root, now);
+    expect(await session.read()).toMatchObject({ agentConnected: true, revision: 0 });
+    const firstExpiry = await session.agentLeaseExpiresAt();
+
+    now = new Date(now.getTime() + 30_000);
+    await writeStudioAgentHeartbeat(root, now);
+    expect(await session.refresh()).toMatchObject({
+      changed: false,
+      state: { agentConnected: true, revision: 0 },
+    });
+    expect(await session.agentLeaseExpiresAt()).toBeGreaterThan(firstExpiry ?? 0);
+  });
+
+  it("fails closed for malformed or future heartbeat records", async () => {
+    const root = await createRoot();
+    const now = new Date("2026-08-03T12:00:00.000Z");
+    const studioDirectory = join(root, DREVER_STUDIO_DIRECTORY);
+    const heartbeatPath = join(studioDirectory, DREVER_STUDIO_AGENT_HEARTBEAT_FILE);
+    await mkdir(studioDirectory, { recursive: true });
+    await writeFile(heartbeatPath, "not json\n", "utf8");
+
+    const malformed = createStudioSession(root, { now: () => now });
+    await expect(malformed.read()).resolves.toMatchObject({ agentConnected: false });
+
+    await writeStudioAgentHeartbeat(root, new Date(now.getTime() + 60_000));
+    const future = createStudioSession(root, { now: () => now });
+    await expect(future.read()).resolves.toMatchObject({ agentConnected: false });
   });
 
   it("rejects remote, unauthenticated, oversized, and stale mutations without writing files", async () => {
