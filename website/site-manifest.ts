@@ -64,7 +64,7 @@ export const demoMounts = [
   },
   {
     description:
-      "A technical tour through compilation, routing, extensions, runtime surfaces, and delivery.",
+      "An architectural tour from an approved story plan through Deck IR, compilation, routed surfaces, static delivery, and rendered evidence.",
     id: "architecture",
     label: "Architecture",
     slug: "architecture",

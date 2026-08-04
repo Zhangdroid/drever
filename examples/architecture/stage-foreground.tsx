@@ -3,9 +3,10 @@ import type { ReactElement } from "react";
 
 const chapterFor = (slideIndex: number, slideCount: number): string => {
   if (slideIndex === 0 || slideIndex === slideCount - 1) return "System";
-  if (slideIndex < 3) return "Contract";
+  if (slideIndex < 4) return "Contract";
   if (slideIndex < 5) return "Compile";
-  if (slideIndex < 8) return "Deliver";
+  if (slideIndex < 7) return "Extend";
+  if (slideIndex < 10) return "Deliver";
   return "Prove";
 };
 

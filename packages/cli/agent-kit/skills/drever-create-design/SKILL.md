@@ -207,6 +207,16 @@ padding, not merely the rectangular bounding box. If the copy cannot fit, enlarg
 owner, or move the label outside with an explicit association. Never repair it by clipping,
 overlap, or shrinking below presentation legibility.
 
+Treat non-overlap as a baseline, not proof of a sound composition. Give every status, label, and
+annotation a clear spatial owner and reading-order relationship; re-anchor or explicitly connect an
+item that looks detached or arbitrarily placed even when its bounding box is technically clear.
+Treat lines and connectors as topology: terminate them exactly at the intended node center, edge,
+or port and keep the stroke centered on its route. An unexplained overshoot is a defect, not visual
+character. Let the slide's claim own the strongest emphasis. Viewport dimensions, API signatures,
+filenames, and other implementation literals are supporting evidence unless that literal is the
+claim; keep them in a caption, receipt, note, or quieter layer instead of making them the focal
+headline.
+
 Treat typography as one deliberate system. When the premise is intentionally all-handwritten, carry that voice through headings, body copy, labels, and data instead of accidentally mixing unrelated type voices. Make exceptions only when the content semantics require a specialized face, such as literal code or a protected brand mark.
 
 Treat display-heading line breaks as editorial structure. Preserve complete short clauses and verb

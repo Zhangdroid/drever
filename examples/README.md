@@ -5,17 +5,17 @@ uses the public `drever` CLI, clean URL state, a speaker view, and a static
 production build. The basic example also serves as the final-state and
 sparse-Step PDF export fixture.
 
-| Example            | Purpose                                                                                      | Development URL         | Command                    |
-| ------------------ | -------------------------------------------------------------------------------------------- | ----------------------- | -------------------------- |
-| `basic`            | Small regression deck for the complete authoring and runtime contract.                       | `http://localhost:4317` | `vp run demo`              |
-| `product-tour`     | Audience-facing story about what Drever enables and why it exists.                           | `http://localhost:4320` | `vp run demo:product`      |
-| `architecture`     | Interactive walkthrough of Deck IR, compilation, extension ownership, routing, and delivery. | `http://localhost:4321` | `vp run demo:architecture` |
-| `motion-recipes`   | Story-led examples of meaningful object lifecycles, local motion, data, and spatial ideas.   | `http://localhost:4322` | `vp run demo:motion`       |
-| `feature-gallery`  | Executable gallery of MDX, React, official plugins, Steps, and delivery surfaces.            | `http://localhost:4324` | `vp run demo:features`     |
-| `room-scenes`      | Microphone-reactive rooms and a persistent ambient Stage.                                    | `http://localhost:4325` | `vp run demo:scenes`       |
-| `theme-showcase`   | Eight subject-led studies for the official design systems.                                   | `http://localhost:4326` | See its local README       |
-| `motion-contracts` | Internal geometry fixtures for shared shells, text, media, and motion intents.               | `http://localhost:4328` | See its local README       |
-| `spatial-stories`  | Three focused Spline studies: persistent structure, a moving object, and ambient depth.      | `http://localhost:4329` | `vp run demo:spatial`      |
+| Example            | Purpose                                                                                     | Development URL         | Command                    |
+| ------------------ | ------------------------------------------------------------------------------------------- | ----------------------- | -------------------------- |
+| `basic`            | Small regression deck for the complete authoring and runtime contract.                      | `http://localhost:4317` | `vp run demo`              |
+| `product-tour`     | Audience-facing story about what Drever enables and why it exists.                          | `http://localhost:4320` | `vp run demo:product`      |
+| `architecture`     | Interactive walkthrough from story plan and Deck IR to routed surfaces and rendered checks. | `http://localhost:4321` | `vp run demo:architecture` |
+| `motion-recipes`   | Story-led examples of meaningful object lifecycles, local motion, data, and spatial ideas.  | `http://localhost:4322` | `vp run demo:motion`       |
+| `feature-gallery`  | Executable gallery of MDX, React, official plugins, Steps, and delivery surfaces.           | `http://localhost:4324` | `vp run demo:features`     |
+| `room-scenes`      | Microphone-reactive rooms and a persistent ambient Stage.                                   | `http://localhost:4325` | `vp run demo:scenes`       |
+| `theme-showcase`   | Eight subject-led studies for the official design systems.                                  | `http://localhost:4326` | See its local README       |
+| `motion-contracts` | Internal geometry fixtures for shared shells, text, media, and motion intents.              | `http://localhost:4328` | See its local README       |
+| `spatial-stories`  | Three focused Spline studies: persistent structure, a moving object, and ambient depth.     | `http://localhost:4329` | `vp run demo:spatial`      |
 
 Use `vp run demo:showcases` to start Product Tour, Motion Recipes, and Feature Gallery
 together. Their local links use the same hostname with ports `4320`, `4322`, and `4324`;

@@ -1,14 +1,22 @@
 import type { StageLayerProps } from "drever";
 import type { ReactElement } from "react";
 
-type ArchitectureScene = "closing" | "contract" | "delivery" | "opening" | "pipeline" | "proof";
+type ArchitectureScene =
+  | "closing"
+  | "contract"
+  | "delivery"
+  | "design"
+  | "opening"
+  | "pipeline"
+  | "proof";
 
 const sceneFor = (slideIndex: number, slideCount: number): ArchitectureScene => {
   if (slideIndex === 0) return "opening";
   if (slideIndex === slideCount - 1) return "closing";
-  if (slideIndex < 3) return "contract";
+  if (slideIndex < 4) return "contract";
   if (slideIndex < 5) return "pipeline";
-  if (slideIndex < 8) return "delivery";
+  if (slideIndex < 7) return "design";
+  if (slideIndex < 10) return "delivery";
   return "proof";
 };
 
