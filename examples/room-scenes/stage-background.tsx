@@ -1,6 +1,6 @@
-import { AmbientStage, type AmbientStageState } from "@drever/scenes";
 import type { StageLayerProps } from "drever";
 import type { ReactElement } from "react";
+import { AmbientStage, type AmbientStageState } from "./components/ambient-stage.tsx";
 
 const states: readonly AmbientStageState[] = ["gather", "focus", "focus", "resolve"];
 

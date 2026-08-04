@@ -40,7 +40,7 @@ describe("music links", () => {
   });
 });
 
-describe("scene render surfaces", () => {
+describe("room component render surfaces", () => {
   it("offers one explicit microphone action without media or source choices", () => {
     const markup = renderToStaticMarkup(createElement(RoomAudio));
 

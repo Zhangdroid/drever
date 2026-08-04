@@ -1,5 +1,5 @@
-import { RoomAudio } from "@drever/scenes";
 import type { ReactElement } from "react";
+import { RoomAudio } from "./components/room-audio.tsx";
 
 export type OpeningRoomProps = Readonly<{
   "aria-label"?: string;

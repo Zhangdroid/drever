@@ -6,14 +6,21 @@
   "scripts": {
     "build": "drever build",
     "check": "drever check --json",
-    "dev": "drever dev"
+    "dev": "drever dev",
+    "test": "vp test"
   },
   "devDependencies": {
     "@drever/brand": "workspace:*",
+    "@drever/core": "workspace:*",
     "@drever/designs": "workspace:*",
-    "@drever/scenes": "workspace:*",
+    "@types/node": "catalog:",
     "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
     "drever": "workspace:*",
-    "react": "catalog:"
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

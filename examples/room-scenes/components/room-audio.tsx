@@ -230,7 +230,7 @@ const errorMessage = (cause: unknown): string => {
   return cause instanceof Error ? cause.message : "The microphone could not start.";
 };
 
-/** Treats a scene outside a Slide as active, while respecting its owning Slide when present. */
+/** Treats a component outside a Slide as active, while respecting its owning Slide when present. */
 export const isRoomAudioOwnerActive = (root: Element): boolean => {
   const slide = root.closest("[data-drever-slide]");
   return slide === null || slide.getAttribute("data-slide-state") === "active";

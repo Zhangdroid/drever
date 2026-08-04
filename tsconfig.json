@@ -45,7 +45,6 @@
       "@drever/plugin-media": ["./packages/plugin-media/src/index.ts"],
       "@drever/plugin-shiki": ["./packages/plugin-shiki/src/index.ts"],
       "@drever/plugin-tailwindcss": ["./packages/plugin-tailwindcss/src/index.ts"],
-      "@drever/scenes": ["./packages/scenes/src/index.ts"],
       "@drever/schema": ["./packages/schema/src/index.ts"],
       "@drever/vite": ["./packages/vite/src/index.ts"]
     },
