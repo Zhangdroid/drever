@@ -70,11 +70,16 @@ describe("public bootstrap prompt", () => {
     expect(createDeckSkill).toMatch(/composition recipe/iu);
     expect(createDeckSkill).toMatch(/motion[^.]*named intent, purpose, and single owner/iu);
     expect(createDeckSkill).toMatch(/check --json[^.]*before presenting/iu);
-    expect(createDeckSkill).toMatch(/invite edits or explicit approval, and stop/iu);
-    expect(createDeckSkill).toMatch(/exact \*\*Storyboard\*\* URL reported by Drever/iu);
-    expect(createDeckSkill).toMatch(/even when `slides\.mdx` is absent or incomplete/iu);
-    expect(createDeckSkill).toMatch(/After explicit approval,\s+mark\s+both files approved/iu);
-    expect(createDeckSkill).toMatch(/skip-remaining escape does not bypass this gate/iu);
+    expect(createDeckSkill).toMatch(/invite\s+edits or explicit\s+approval,\s+and stop/iu);
+    expect(createDeckSkill).toMatch(/Prefer the local creation room/iu);
+    expect(createDeckSkill).toContain("drever studio status --json");
+    expect(createDeckSkill).toContain("drever studio wait --after <latestActionRevision>");
+    expect(createDeckSkill).toContain("drever studio publish --file <path> --json");
+    expect(createDeckSkill).toMatch(/publish the `plan-review` phase/iu);
+    expect(createDeckSkill).toMatch(/exact \*\*Storyboard\*\* URL reported by\s+Drever/iu);
+    expect(createDeckSkill).toMatch(/without importing the deck MDX/iu);
+    expect(createDeckSkill).toMatch(/After explicit\s+approval,\s+mark\s+both files approved/iu);
+    expect(createDeckSkill).toMatch(/skip-remaining escape does not bypass either approval path/iu);
   });
 
   it("separates first preview, deterministic checks, and human visual judgment", () => {

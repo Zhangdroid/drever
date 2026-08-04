@@ -580,6 +580,9 @@ importers:
 
   packages/client:
     dependencies:
+      '@drever/brand':
+        specifier: workspace:*
+        version: link:../brand
       '@drever/core':
         specifier: workspace:*
         version: link:../core

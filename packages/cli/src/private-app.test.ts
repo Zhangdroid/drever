@@ -84,6 +84,11 @@ describe("generated private application", () => {
       ]);
 
       expect(entry).toContain('routePath === "storyboard"');
+      expect(entry).toContain('routePath === "studio"');
+      expect(entry).toContain('import("@drever/client/studio")');
+      expect(entry).toContain('import("@drever/client/studio.css")');
+      expect(entry).toContain('import("virtual:drever/studio-state")');
+      expect(entry).toContain('import.meta.hot.send("drever:studio-action"');
       expect(entry).toContain('import("@drever/client/storyboard")');
       expect(entry).toContain('import("@drever/client/storyboard.css")');
       expect(entry).toContain('import("virtual:drever/storyboard-plan")');

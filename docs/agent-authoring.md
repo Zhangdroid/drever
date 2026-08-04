@@ -84,6 +84,12 @@ replacement from a generic creation request. If the target is ambiguous, ask
 whether to edit, replace, or create a named sibling project. The story-plan
 approval gate applies to new and replacement scopes, not ordinary edits.
 
+When the development server reports a local creation-room URL, that experimental surface owns the
+common brief, adaptive questions, visual Storyboard approval, and deck- or slide-scoped feedback.
+The active coding agent polls its provider-neutral action journal and publishes progress; the
+browser does not call a model or write arbitrary project files. If the room is unavailable or the
+user prefers chat, the same contract runs conversationally and uses `/storyboard` for plan review.
+
 ### Adaptive briefing contract
 
 Deck creation infers facts already present in the request, attachments, and
@@ -433,11 +439,11 @@ The full grammar and accessibility semantics are in
 For a new project:
 
 1. Run `npm create drever@latest <directory>` or let the global plugin invoke it.
-2. Complete `brief.md` and the versioned `drever.plan.json` story contract,
-   validate them, start the development server, and share the exact
-   `/storyboard` URL reported by Drever with the ordered plan. Stop for explicit
-   approval without authoring the configured MDX entry. The Storyboard is a
-   plan-only review surface, not a partial deck.
+2. Start the development server and prefer its exact local creation-room URL for the common brief
+   and adaptive questions. Complete and validate `brief.md` plus the versioned `drever.plan.json`,
+   publish the visual Storyboard there, and stop for its explicit approval action without authoring
+   the configured MDX entry. When the room is unavailable, share the exact `/storyboard` URL and
+   collect approval in the conversation instead.
 3. After approval, create the full narrative with a deliberately simple,
    stable, readable base composition, then write the configured MDX entry. Do
    not scan official design source before authoring.
@@ -457,8 +463,8 @@ For a new project:
 8. For motion edits, verify forward and backward movement, persistent geometry,
    reduced motion, and the affected continuity boundary in a real browser.
 
-The pre-approval Storyboard URL is a collaboration milestone, not delivery. It
-must reflect the complete validated plan and may exist before MDX. The later
+The pre-approval creation room or standalone Storyboard URL is a collaboration milestone, not
+delivery. It must reflect the complete validated plan and may exist before MDX. The later
 audience URL must contain the complete story, real copy, and a stable readable
 base composition. Do not share a blank shell, invented placeholder, broken
 route, or known unreadable slide merely to appear fast. The full visual system

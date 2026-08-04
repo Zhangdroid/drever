@@ -18,6 +18,7 @@ import { createCurrentPositionPlugin } from "./current-position.ts";
 import { createPrivateApp, createPrivateDevApp, type PrivateAppOptions } from "./private-app.ts";
 import { DreverCliError } from "./errors.ts";
 import { createStoryboardPlanPlugin } from "./storyboard-plan-plugin.ts";
+import { createStudioPlugin, resolveStudioUrls } from "./studio-plugin.ts";
 import { writeStaticDeckRoutes } from "./static-routes.ts";
 
 const workspaceFallbacks = Object.freeze({
@@ -28,6 +29,8 @@ const workspaceFallbacks = Object.freeze({
   "@drever/client/speaker": "../../client/src/speaker-entry.ts",
   "@drever/client/storyboard": "../../client/src/storyboard-entry.ts",
   "@drever/client/storyboard.css": "../../client/storyboard.css",
+  "@drever/client/studio": "../../client/src/studio-entry.ts",
+  "@drever/client/studio.css": "../../client/studio.css",
   "@drever/client/styles.css": "../../client/styles.css",
   "@drever/core": "../../core/src/index.ts",
   "@drever/designs/basic/layouts": "../../designs/src/basic/layouts.tsx",
@@ -46,6 +49,7 @@ const optimizedFrameworkDependencies = Object.freeze([
   "@drever/client/document",
   "@drever/client/speaker",
   "@drever/client/storyboard",
+  "@drever/client/studio",
   "@drever/core",
   "@drever/designs/basic/layouts",
   "react",
@@ -108,6 +112,14 @@ const frameworkAliases = (): readonly Alias[] => [
   {
     find: /^@drever\/client\/storyboard\.css$/u,
     replacement: packageFile("@drever/client/storyboard.css"),
+  },
+  {
+    find: /^@drever\/client\/studio$/u,
+    replacement: packageFile("@drever/client/studio"),
+  },
+  {
+    find: /^@drever\/client\/studio\.css$/u,
+    replacement: packageFile("@drever/client/studio.css"),
   },
   {
     find: /^@drever\/client\/styles\.css$/u,
@@ -400,12 +412,16 @@ export const serveDreverProject = async (
     const server = await createServer(
       inlineConfig(project, app.root, [
         createStoryboardPlanPlugin({ root: project.root }),
+        createStudioPlugin({ root: project.root }),
         createCurrentPositionPlugin({ root: project.root, sourcePath: project.entry }),
       ]),
     );
     attachPrivateAppLifetime(server, app.dispose);
     await server.listen();
     server.printUrls();
+    for (const studioUrl of resolveStudioUrls(server.resolvedUrls)) {
+      server.config.logger.info(`  Creation room: ${studioUrl}`);
+    }
     for (const storyboardUrl of resolveStoryboardUrls(server.resolvedUrls)) {
       server.config.logger.info(`  Storyboard: ${storyboardUrl}`);
     }

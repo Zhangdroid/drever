@@ -5,8 +5,8 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
-Release impact: **minor** — this batch adds compatible rendered-quality diagnostics and a
-visual-refinement gate for AI-authored presentations.
+Release impact: **minor** — this batch adds a compatible local creation room, rendered-quality
+diagnostics, and a visual-refinement gate for AI-authored presentations.
 
 ### Added
 
@@ -16,6 +16,11 @@ visual-refinement gate for AI-authored presentations.
 - Added content-led scene recipes and practical typography, spacing, contrast,
   and CJK-aware review baselines to the installed design, authoring, and review
   skills.
+- Added an experimental, development-only local creation room for the common brief, adaptive
+  topic-specific questions, visual Storyboard approval, a real Audience View preview, and deck- or
+  slide-scoped feedback. A provider-neutral local action journal and `drever studio` agent commands
+  coordinate the existing coding agent without placing model credentials or editor code in the
+  production presentation.
 
 ### Changed
 
