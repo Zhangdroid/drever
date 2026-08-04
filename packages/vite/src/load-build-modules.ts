@@ -1,5 +1,5 @@
-import { createHash } from "node:crypto";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { createHash, randomUUID } from "node:crypto";
+import { link, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { isAbsolute, relative, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 import {
@@ -104,14 +104,10 @@ const contentAddressedModule = async (
   ].join("\n");
   const digest = createHash("sha256").update(source).digest("hex");
   const path = resolve(cacheDirectory, `${digest}.mjs`);
+  const temporaryPath = resolve(cacheDirectory, `.${digest}.${randomUUID()}.tmp`);
 
   await mkdir(cacheDirectory, { recursive: true });
-  try {
-    await writeFile(path, source, { encoding: "utf8", flag: "wx" });
-  } catch (error) {
-    if (!isErrorCode(error, "EEXIST")) {
-      throw error;
-    }
+  const assertCachedSource = async (): Promise<void> => {
     const cached = await readFile(path, "utf8");
     if (cached !== source) {
       throw importerFailure(
@@ -120,6 +116,27 @@ const contentAddressedModule = async (
         "Remove the damaged .drever cache directory and run the build again.",
       );
     }
+  };
+
+  try {
+    await assertCachedSource();
+    return path;
+  } catch (error) {
+    if (!isErrorCode(error, "ENOENT")) throw error;
+  }
+
+  try {
+    await writeFile(temporaryPath, source, { encoding: "utf8", flag: "wx" });
+    try {
+      await link(temporaryPath, path);
+    } catch (error) {
+      if (!isErrorCode(error, "EEXIST")) {
+        throw error;
+      }
+      await assertCachedSource();
+    }
+  } finally {
+    await rm(temporaryPath, { force: true });
   }
   return path;
 };

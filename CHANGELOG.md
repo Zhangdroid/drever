@@ -15,6 +15,8 @@ refinements.
 
 ### Fixed
 
+- Published build-module cache entries atomically so concurrent presentation builds can safely
+  reuse the same project cache without observing a partially written content-addressed proxy.
 - Hid the audience toolbar before slide View Transition capture and kept it
   out of the presentation until fresh pointer intent, preventing its rounded
   glass surface from blurring content during navigation.
