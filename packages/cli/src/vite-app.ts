@@ -15,8 +15,9 @@ import {
 import type { ResolvedDreverProject } from "./project.ts";
 import { resolveConfigPath, type DreverConfig } from "./config.ts";
 import { createCurrentPositionPlugin } from "./current-position.ts";
-import { createPrivateApp, type PrivateAppOptions } from "./private-app.ts";
+import { createPrivateApp, createPrivateDevApp, type PrivateAppOptions } from "./private-app.ts";
 import { DreverCliError } from "./errors.ts";
+import { createStoryboardPlanPlugin } from "./storyboard-plan-plugin.ts";
 import { writeStaticDeckRoutes } from "./static-routes.ts";
 
 const workspaceFallbacks = Object.freeze({
@@ -25,6 +26,8 @@ const workspaceFallbacks = Object.freeze({
   "@drever/client/audience": "../../client/src/audience.ts",
   "@drever/client/document": "../../client/src/document.ts",
   "@drever/client/speaker": "../../client/src/speaker-entry.ts",
+  "@drever/client/storyboard": "../../client/src/storyboard-entry.ts",
+  "@drever/client/storyboard.css": "../../client/storyboard.css",
   "@drever/client/styles.css": "../../client/styles.css",
   "@drever/core": "../../core/src/index.ts",
   "@drever/designs/basic/layouts": "../../designs/src/basic/layouts.tsx",
@@ -42,6 +45,7 @@ const optimizedFrameworkDependencies = Object.freeze([
   "@drever/client/audience",
   "@drever/client/document",
   "@drever/client/speaker",
+  "@drever/client/storyboard",
   "@drever/core",
   "@drever/designs/basic/layouts",
   "react",
@@ -96,6 +100,14 @@ const frameworkAliases = (): readonly Alias[] => [
   {
     find: /^@drever\/client\/speaker$/u,
     replacement: packageFile("@drever/client/speaker"),
+  },
+  {
+    find: /^@drever\/client\/storyboard$/u,
+    replacement: packageFile("@drever/client/storyboard"),
+  },
+  {
+    find: /^@drever\/client\/storyboard\.css$/u,
+    replacement: packageFile("@drever/client/storyboard.css"),
   },
   {
     find: /^@drever\/client\/styles\.css$/u,
@@ -278,6 +290,22 @@ export const resolveSpeakerUrls = (resolvedUrls: ResolvedServerUrls | null): rea
   return [...urls];
 };
 
+/** @internal Derives plan-only preview entry points from the URLs resolved by Vite. */
+export const resolveStoryboardUrls = (
+  resolvedUrls: ResolvedServerUrls | null,
+): readonly string[] => {
+  if (resolvedUrls === null) return [];
+  const urls = new Set<string>();
+  for (const audienceUrl of [...resolvedUrls.local, ...resolvedUrls.network]) {
+    const storyboardUrl = new URL(audienceUrl);
+    storyboardUrl.pathname = `${storyboardUrl.pathname.replace(/\/+$/u, "")}/storyboard`;
+    storyboardUrl.search = "";
+    storyboardUrl.hash = "";
+    urls.add(storyboardUrl.href);
+  }
+  return [...urls];
+};
+
 /** @internal Converts author-facing minutes into the speaker runtime's millisecond contract. */
 export const resolvePrivateAppOptions = (
   config: Pick<DreverConfig, "canvas" | "deck" | "focusTools" | "rehearsal" | "stage">,
@@ -364,19 +392,23 @@ export const buildDreverInspectionApp = async (
 export const serveDreverProject = async (
   project: ResolvedDreverProject,
 ): Promise<ViteDevServer> => {
-  const app = await createPrivateApp(
+  const app = await createPrivateDevApp(
     project.entry,
     resolvePrivateAppOptions(project.config, project.root),
   );
   try {
     const server = await createServer(
       inlineConfig(project, app.root, [
+        createStoryboardPlanPlugin({ root: project.root }),
         createCurrentPositionPlugin({ root: project.root, sourcePath: project.entry }),
       ]),
     );
     attachPrivateAppLifetime(server, app.dispose);
     await server.listen();
     server.printUrls();
+    for (const storyboardUrl of resolveStoryboardUrls(server.resolvedUrls)) {
+      server.config.logger.info(`  Storyboard: ${storyboardUrl}`);
+    }
     for (const speakerUrl of resolveSpeakerUrls(server.resolvedUrls)) {
       server.config.logger.info(`  Speaker view: ${speakerUrl} (press P from audience)`);
     }

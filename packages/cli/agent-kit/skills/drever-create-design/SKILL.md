@@ -260,11 +260,32 @@ the first preview; never edit the same MDX or styles from two workers. Apply the
 the content preview is stable or after the primary worker explicitly transfers ownership.
 
 1. Add tests only for meaningful contracts or component behavior; do not add snapshots that merely preserve CSS text.
-2. After the Draft 1 preview is live, run `npm exec -- drever context --json` and `npm exec -- drever check --rendered --json`. Fix clipping and canvas-overflow errors; inspect geometry and density warnings in the live deck instead of treating advisory thresholds as aesthetic verdicts.
-3. Inspect every slide at Step 0 and every exact Step state after Design Pass 1; representative sampling is not sufficient. For a narrowly scoped later edit, inspect every affected state and adjacent handoff. Changing shared tokens, layouts, Stage layers, or components requires the whole deck. Resolve every P0 readability defect before aesthetic polish, including computed descendant spacing and foregrounds on the most disruptive background frame. Check intermediate motion frames in both directions for coordinate rebasing, activation timing, and paint containment, not only endpoints.
+2. After the Draft 1 preview is live, run the fast design loop: regenerate
+   `npm exec -- drever context --json`, run `npm exec -- drever check --json`, and inspect affected
+   routes in the existing live preview. Fix proven source errors immediately. Do not run a production
+   build or a duplicate full rendered preflight here; the review skill owns the exhaustive rendered
+   gate and delivery owns build and export.
+3. Inspect every affected slide at Step 0 and every affected exact Step state after Design Pass 1.
+   For a new whole-deck design, that means every state; for a narrowly scoped later edit, inspect the
+   affected states and adjacent handoffs. Changing shared tokens, layouts, Stage layers, or
+   components affects the whole deck. Resolve every P0 readability defect before aesthetic polish,
+   including computed descendant spacing and foregrounds on the most disruptive background frame.
+   Check intermediate motion frames in both directions for coordinate rebasing, activation timing,
+   and paint containment, not only endpoints. Treat this live-preview pass as iteration evidence,
+   not the final rendered completion gate.
 4. Check `/document`, reduced motion, and relevant speaker and export surfaces. Verify fonts and localized assets load without network-dependent generation.
 5. Review the result against `art-direction.md`: remove any prominent choice that cannot be justified as subject-led or clearly acknowledged as fallback.
-6. When the design is applied to a deck, use the project-local `drever-review-deck` skill as the rendered completion gate. Reinspect the whole deck after changing shared tokens, layouts, Stage layers, or components; source review and successful generation or build commands do not count as rendered refinement.
-7. Let the owning creation or delivery workflow run the final production build after the live design is stable. Run it here only when this skill is the sole workflow responsible for a production-ready design.
+6. Once the applied design is stable, use the project-local `drever-review-deck` skill as the single
+   rendered completion gate. Reinspect the whole deck after changing shared tokens, layouts, Stage
+   layers, or components; source review and successful generation commands do not count as rendered
+   refinement.
+7. Let the delivery workflow run the one final production build after review evidence is fresh for
+   the final authored state.
+
+Every context report, check, browser inspection, build, and export is valid only for the exact
+source, configuration, and assets that existed when it ran. Any later mutation invalidates the
+affected evidence. If user feedback arrives while a check is running, cancel it when possible or
+ignore its result, apply the feedback first, and rerun only the affected fast checks. Never cite
+stale evidence; evidence captured before the last relevant edit is stale.
 
 Report the design premise, generated files, approved assets and licenses, subject-led decisions, fallback decisions, and validation evidence.

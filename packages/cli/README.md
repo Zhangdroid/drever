@@ -242,18 +242,26 @@ the generated ownership marker. User content outside that block is preserved.
 If any target is user-owned, malformed, or not a regular file, sync reports all
 conflicts and writes none of the planned files.
 
-New-deck creation begins with a plan review. The agent writes the human-readable
+New-deck creation and explicit replacement begin with a plan review. Edits to an
+authored deck use the focused authoring skill, preserve its approved plan, and
+do not restart that gate. The agent writes the human-readable
 brief and outline to `brief.md`, records its smaller machine-checkable story
-contract in `drever.plan.json`, and waits for explicit approval before authoring.
+contract in `drever.plan.json`, validates it, and opens the plan-only
+`/storyboard` surface before waiting for explicit approval. That route does not
+import the MDX entry, Theme, or presentation runtime, so it remains useful while
+the first deck source is absent or incomplete.
 The machine-readable contract gives every slide a stable ID, narrative job,
 evidence, focal artifact, composition recipe, density, and optional single
 motion owner. Those IDs are stable planning and review labels; compiled slide
 identity remains positional, while the check validates plan shape, order, and
-approved slide count. Once the approved plan becomes a coherent end-to-end Draft 1, the
-agent keeps one development URL alive, shares it for immediate story and content
+approved slide count. Once approved, the agent reuses the same development
+server. When the plan becomes a coherent end-to-end Draft 1, it shares the
+audience URL for immediate story and content
 review, and continues visual and technical refinement without another approval
-pause. The final check and production build remain completion gates; they no
-longer block the first useful preview or rerun after every small visual edit.
+pause. Authoring and design use source-only and affected-route checks while the
+preview changes. Review owns the exhaustive rendered gate; delivery reuses its
+fresh evidence and runs the one production build plus requested exports. Any
+later source, configuration, or asset mutation invalidates affected evidence.
 
 Run `npm exec -- drever context [entry] --json` before substantial authoring or review. The
 versioned JSON document contains:

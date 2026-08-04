@@ -97,6 +97,17 @@ export const resolvePluginRegistrations = (
   ]);
 };
 
+const ensureEntryExtension = (path: string): void => {
+  const extension = extname(path).toLowerCase();
+  if (extension !== ".md" && extension !== ".mdx") {
+    throw new DreverCliError(
+      "DREVER_ENTRY_EXTENSION_UNSUPPORTED",
+      `Deck entry must use .md or .mdx: ${path}`,
+      { details: { extension, path } },
+    );
+  }
+};
+
 const ensureEntry = async (path: string): Promise<void> => {
   let metadata;
   try {
@@ -108,14 +119,7 @@ const ensureEntry = async (path: string): Promise<void> => {
     throw entryNotFound(path);
   }
 
-  const extension = extname(path).toLowerCase();
-  if (extension !== ".md" && extension !== ".mdx") {
-    throw new DreverCliError(
-      "DREVER_ENTRY_EXTENSION_UNSUPPORTED",
-      `Deck entry must use .md or .mdx: ${path}`,
-      { details: { extension, path } },
-    );
-  }
+  ensureEntryExtension(path);
 };
 
 const resolveOutDir = (root: string, configured?: string): string => {
@@ -159,17 +163,21 @@ export const resolveDreverEntry = async ({
   return entry;
 };
 
-/** Resolves the entry and canonical extension plan without loading adapter modules. */
-export const resolveDreverPlan = async ({
+const resolveUncheckedEntry = ({
   config,
   entry: positionalEntry,
   root,
-}: ResolveDreverPlanOptions): Promise<ResolvedDreverPlan> => {
-  const entry = await resolveDreverEntry({
-    config,
-    ...(positionalEntry === undefined ? {} : { entry: positionalEntry }),
-    root,
-  });
+}: ResolveDreverEntryOptions): string => {
+  const entry = resolveConfigPath(root, positionalEntry ?? config.entry ?? DEFAULT_ENTRY);
+  ensureEntryExtension(entry);
+  return entry;
+};
+
+const createResolvedPlan = (
+  config: DreverConfig,
+  entry: string,
+  root: string,
+): ResolvedDreverPlan => {
   const planResult = createCompilePlan({
     theme: config.theme ?? basicTheme,
     plugins: resolvePluginRegistrations(config.plugins),
@@ -184,15 +192,39 @@ export const resolveDreverPlan = async ({
       },
     );
   }
-
   return Object.freeze({ config, entry, plan: planResult.value, root });
 };
 
-export const resolveDreverProject = async (
+/** Resolves the entry and canonical extension plan without loading adapter modules. */
+export const resolveDreverPlan = async ({
+  config,
+  entry: positionalEntry,
+  root,
+}: ResolveDreverPlanOptions): Promise<ResolvedDreverPlan> => {
+  const entry = await resolveDreverEntry({
+    config,
+    ...(positionalEntry === undefined ? {} : { entry: positionalEntry }),
+    root,
+  });
+  return createResolvedPlan(config, entry, root);
+};
+
+const resolveProject = async (
   options: ResolveDreverProjectOptions,
+  allowMissingEntry: boolean,
 ): Promise<ResolvedDreverProject> => {
-  const resolved = await resolveDreverPlan(options);
-  const canonicalEntry = await realpath(resolved.entry);
+  const resolved = allowMissingEntry
+    ? createResolvedPlan(options.config, resolveUncheckedEntry(options), options.root)
+    : await resolveDreverPlan(options);
+  let canonicalEntry: string;
+  try {
+    canonicalEntry = await realpath(resolved.entry);
+  } catch (cause) {
+    if (!allowMissingEntry || (cause as NodeJS.ErrnoException).code !== "ENOENT") {
+      throw cause;
+    }
+    canonicalEntry = resolved.entry;
+  }
 
   let deckManifest: DeckManifest | undefined;
   const pluginResult = await createDreverVitePlugins(resolved.plan, {
@@ -222,3 +254,12 @@ export const resolveDreverProject = async (
     plugins: pluginResult.value,
   });
 };
+
+export const resolveDreverProject = async (
+  options: ResolveDreverProjectOptions,
+): Promise<ResolvedDreverProject> => resolveProject(options, false);
+
+/** @internal Resolves dev plugins while allowing the storyboard to precede the MDX entry. */
+export const resolveDreverDevelopmentProject = async (
+  options: ResolveDreverProjectOptions,
+): Promise<ResolvedDreverProject> => resolveProject(options, true);

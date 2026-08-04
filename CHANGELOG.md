@@ -18,9 +18,16 @@ capabilities.
   overflow, high-confidence sibling overlap, and resolved solid-color WCAG
   contrast diagnostics. Complex image, gradient, blend, and translucent paint
   remains an explicit review warning instead of receiving a false pass.
+- Added a development-only `/storyboard` surface that renders the versioned
+  plan before deck authoring, updates through HMR, preserves the last valid
+  structure during partial writes, and never enters production deck builds.
 
 ### Changed
 
+- Routed new, replacement, and existing-deck AI requests through explicit workflows, exposed the
+  coherent Draft 1 before design refinement, and assigned exhaustive rendered review plus final
+  artifact builds to single owners so feedback invalidates stale evidence without repeating every
+  expensive gate.
 - Reduced the public AI bootstrap to a small handoff and made the installed,
   version-matched creation skill the single workflow authority. Design,
   authoring, review, and comparative AI release smoke now preserve and verify

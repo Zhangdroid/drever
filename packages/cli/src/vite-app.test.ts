@@ -5,6 +5,7 @@ import {
   resolvePrivateAppOptions,
   resolveServerFsAllow,
   resolveSpeakerUrls,
+  resolveStoryboardUrls,
 } from "./vite-app.ts";
 
 describe("resolveFrameworkViteConfig", () => {
@@ -20,6 +21,7 @@ describe("resolveFrameworkViteConfig", () => {
       "@drever/client/audience",
       "@drever/client/document",
       "@drever/client/speaker",
+      "@drever/client/storyboard",
       "@drever/core",
       "@drever/designs/basic/layouts",
       "react",
@@ -142,6 +144,24 @@ describe("resolveSpeakerUrls", () => {
 
   it("fails immediately when Vite violates its absolute URL contract", () => {
     expect(() => resolveSpeakerUrls({ local: ["not a URL"], network: [] })).toThrow(TypeError);
+  });
+});
+
+describe("resolveStoryboardUrls", () => {
+  it("derives local and network plan-preview URLs without carrying route state", () => {
+    expect(
+      resolveStoryboardUrls({
+        local: ["http://127.0.0.1:4317/talk/?slide=2#notes"],
+        network: ["https://slides.test/decks/keynote/"],
+      }),
+    ).toEqual([
+      "http://127.0.0.1:4317/talk/storyboard",
+      "https://slides.test/decks/keynote/storyboard",
+    ]);
+  });
+
+  it("returns no URLs before Vite resolves its listeners", () => {
+    expect(resolveStoryboardUrls(null)).toEqual([]);
   });
 });
 

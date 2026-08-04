@@ -766,6 +766,46 @@ if (import.meta.hot) {
 `;
 };
 
+const devDispatcherModuleSource = `const base = document.querySelector('meta[name="drever-base"]');
+if (!(base instanceof HTMLMetaElement)) {
+  throw new Error("Drever could not find its route base.");
+}
+const baseURL = new URL(base.content, document.baseURI);
+const relativePath = new URL(document.URL).pathname.slice(baseURL.pathname.length);
+const routePath = relativePath.replace(/\\/+$/u, "");
+
+if (routePath === "storyboard") {
+  document.documentElement.dataset.dreverBrowserMissing = "";
+  document.documentElement.dataset.dreverBrowserSupport = "supported";
+  const container = document.querySelector("#drever-root");
+  const loading = document.querySelector("[data-drever-loading]");
+  if (!(container instanceof Element)) {
+    throw new Error("Drever could not find its storyboard root.");
+  }
+  const [{ createStoryboard }, { storyboardPlan }] = await Promise.all([
+    import("@drever/client/storyboard"),
+    import("virtual:drever/storyboard-plan"),
+    import("@drever/client/storyboard.css"),
+  ]);
+  const storyboard = await createStoryboard({
+    container,
+    state: storyboardPlan,
+    onError: (error) => globalThis.reportError(error),
+  });
+  loading?.remove();
+  container.setAttribute("data-drever-ready", "");
+  if (import.meta.hot) {
+    const requestStoryboardPlan = () => import.meta.hot.send("drever:storyboard-plan-request");
+    import.meta.hot.on("drever:storyboard-plan", (state) => storyboard.update(state));
+    import.meta.hot.on("vite:ws:connect", requestStoryboardPlan);
+    requestStoryboardPlan();
+    import.meta.hot.dispose(() => void storyboard.destroy().catch(globalThis.reportError));
+  }
+} else {
+  await import("./presentation.js");
+}
+`;
+
 const exportModuleSource = (
   entry: string,
   { canvas, deck, includeSteps, stage }: PrivateExportAppOptions,
@@ -801,18 +841,15 @@ globalThis.__dreverExportHandle = await createExport({
 
 type GeneratedFileWriter = (path: string, contents: string) => Promise<void>;
 
-/** @internal Creates an isolated generated application with transactional initial writes. */
-export const createGeneratedApp = async (
+const createGeneratedFilesApp = async (
   prefix: string,
-  source: string,
-  documentSource: string,
-  writeGeneratedFile: GeneratedFileWriter = (path, contents) => writeFile(path, contents, "utf8"),
+  files: Readonly<Record<string, string>>,
+  writeGeneratedFile: GeneratedFileWriter,
 ): Promise<PrivateApp> => {
   const root = await realpath(await mkdtemp(join(tmpdir(), prefix)));
-  const writes = await Promise.allSettled([
-    writeGeneratedFile(join(root, "index.html"), documentSource),
-    writeGeneratedFile(join(root, "entry.js"), source),
-  ]);
+  const writes = await Promise.allSettled(
+    Object.entries(files).map(([path, contents]) => writeGeneratedFile(join(root, path), contents)),
+  );
   const failure = writes.find((result) => result.status === "rejected");
   if (failure?.status === "rejected") {
     await rm(root, { force: true, recursive: true });
@@ -828,6 +865,19 @@ export const createGeneratedApp = async (
   });
 };
 
+/** @internal Creates an isolated generated application with transactional initial writes. */
+export const createGeneratedApp = async (
+  prefix: string,
+  source: string,
+  documentSource: string,
+  writeGeneratedFile: GeneratedFileWriter = (path, contents) => writeFile(path, contents, "utf8"),
+): Promise<PrivateApp> =>
+  createGeneratedFilesApp(
+    prefix,
+    { "entry.js": source, "index.html": documentSource },
+    writeGeneratedFile,
+  );
+
 export const createPrivateApp = async (
   entry: string,
   options: PrivateAppOptions = {},
@@ -836,6 +886,21 @@ export const createPrivateApp = async (
     "drever-app-",
     viewerModuleSource(entry, options),
     applicationHtml(options.deck === undefined ? {} : { deck: options.deck }),
+  );
+
+/** @internal Keeps plan preview requests independent from the authored MDX graph in development. */
+export const createPrivateDevApp = async (
+  entry: string,
+  options: PrivateAppOptions = {},
+): Promise<PrivateApp> =>
+  createGeneratedFilesApp(
+    "drever-dev-app-",
+    {
+      "entry.js": devDispatcherModuleSource,
+      "index.html": applicationHtml(options.deck === undefined ? {} : { deck: options.deck }),
+      "presentation.js": viewerModuleSource(entry, options),
+    },
+    (path, contents) => writeFile(path, contents, "utf8"),
   );
 
 /** @internal Generates the isolated document used only by deterministic exporters. */

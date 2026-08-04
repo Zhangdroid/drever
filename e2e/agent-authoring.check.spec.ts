@@ -103,7 +103,7 @@ test("the built CLI installs an idempotent agent kit without loading project con
     expect(agents.startsWith(userInstructions)).toBe(true);
     expect(agents.match(/<!-- drever-agent-kit:start -->/gu)).toHaveLength(1);
     expect(agents.match(/<!-- drever-agent-kit:end -->/gu)).toHaveLength(1);
-    expect(agents).toContain("npm exec -- drever context --json");
+    expect(agents).toContain("npm exec -- drever");
     expect(agents).toContain("pnpm exec drever");
     expect(agents).toContain("yarn exec drever");
     expect(agents).toContain("bunx --no-install drever");
@@ -113,7 +113,7 @@ test("the built CLI installs an idempotent agent kit without loading project con
     if (createDeck === undefined) {
       throw new Error("Agent sync did not create the deck creation skill.");
     }
-    expect(createDeck).toContain("<!-- drever-authoring-scope-contract:v2 -->");
+    expect(createDeck).toContain("<!-- drever-authoring-scope-contract:v3 -->");
     expect(createDeck).toContain("<!-- drever-briefing-contract:v4 -->");
     expect(createDeck).toContain("Skip remaining questions — surprise me");
     expect(createDeck.match(/Skip remaining questions — surprise me/gu)).toHaveLength(1);
@@ -125,19 +125,19 @@ test("the built CLI installs an idempotent agent kit without loading project con
     expect(createDeck).not.toContain("choose the subject too");
     expect(createDeck).toContain("Never repeat supplied information");
     expect(createDeck).toMatch(/audience, desired change, duration, and visible slide density/iu);
-    expect(createDeck).toContain("<!-- drever-plan-review-contract:v2 -->");
+    expect(createDeck).toContain("<!-- drever-plan-review-contract:v3 -->");
     expect(createDeck).toContain("`drever.plan.json`");
     expect(createDeck).toContain("stable lowercase hyphenated id");
     expect(createDeck).toContain("composition recipe");
     expect(createDeck).toMatch(/motion[^.]*single owner/iu);
     expect(createDeck).toContain("invite edits or explicit approval, and stop");
+    expect(createDeck).toContain("exact **Storyboard** URL reported by Drever");
     expect(createDeck).toMatch(/After explicit approval[^.]*mark\s+both files approved/iu);
-    expect(createDeck).toContain("<!-- drever-preview-contract:v3 -->");
+    expect(createDeck).toContain("<!-- drever-preview-contract:v5 -->");
     expect(createDeck).toMatch(/coherent Draft 1 with every\s+planned\s+slide/u);
     expect(createDeck).toMatch(/first and last slides open/iu);
     expect(createDeck).toContain("continue in the same turn");
-    expect(createDeck).toMatch(/production build only after[^.]*preview is stable/iu);
-    expect(createDeck).toContain("Export PDF only when requested");
+    expect(createDeck).toMatch(/one\s+production build[^.]*requested PDF export/iu);
     expect(createDeck).toMatch(/do not inspect the Drever\s+repository/iu);
     expect(createDeck).toContain("`node_modules`");
     expect(createDeck).toMatch(/official design\s+implementations/iu);
@@ -167,12 +167,14 @@ test("the built CLI installs an idempotent agent kit without loading project con
     expect(authorDeck).toContain("`Step` as a real DOM wrapper");
     expect(authorDeck).toContain('[data-drever-slide][data-slide-state="active"]');
     expect(authorDeck).toContain("exactly one motion owner");
-    expect(authorDeck).toMatch(/text overlap, direct scroll overflow/iu);
+    expect(reviewDeck).toMatch(/text overlap, direct scroll overflow/iu);
     expect(reviewDeck).toMatch(/compare every planned narrative job/iu);
     expect(reviewDeck).toMatch(/resolved solid-color contrast failures/iu);
     expect(agents).toContain("brief.md` plus `drever.plan.json` approval gate");
-    expect(agents).toContain("Share a coherent Draft 1 before exhaustive validation");
-    expect(agents).toContain("do not run repeated production builds");
+    expect(agents).toMatch(/expose the coherent[^.]*Draft 1 before design refinement/iu);
+    expect(agents).toContain(
+      "do not run production builds or duplicate the full rendered preflight",
+    );
     expect(agents).toMatch(/Do not load every skill before Draft 1/iu);
 
     for (const [index, contents] of firstContents.entries()) {

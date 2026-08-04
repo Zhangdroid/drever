@@ -25,7 +25,7 @@ available for CI or manual use.
 | Command                                | Purpose                                               |
 | -------------------------------------- | ----------------------------------------------------- |
 | `drever create [directory] [options]`  | Create an AI-ready presentation project.              |
-| `drever dev [entry]`                   | Run the live Audience and Speaker preview.            |
+| `drever dev [entry]`                   | Run the live Storyboard, Audience, and Speaker views. |
 | `drever context [entry] [--json]`      | Resolve the complete authoring contract.              |
 | `drever current [--json]`              | Read the latest connected live presentation position. |
 | `drever mcp [entry]`                   | Serve the read-only Drever MCP over stdio.            |
@@ -89,8 +89,10 @@ See [Getting started](/docs/getting-started/).
 drever dev [entry]
 ```
 
-The command starts one HMR-enabled local preview and prints Audience and Speaker
-URLs. Configure `host`, `open`, `port`, and `strictPort` under `server` in
+The command starts one HMR-enabled local server and prints Storyboard and Speaker
+URLs beside Vite's Audience URL. `/storyboard` reads only `drever.plan.json`, so
+it can open before the configured MDX entry exists or compiles; Audience and
+Speaker still require the deck. Configure `host`, `open`, `port`, and `strictPort` under `server` in
 `drever.config.ts`; `dev` deliberately exposes no raw Vite flags and there is no
 separate `drever preview` command.
 

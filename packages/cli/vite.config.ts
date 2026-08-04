@@ -19,6 +19,7 @@ export default defineConfig({
   },
   test: {
     alias: {
+      "@drever/client/storyboard": source("../client/src/storyboard-entry.ts"),
       "@drever/client": source("../client/src/index.ts"),
       "@drever/compiler/internal": source("../compiler/src/internal.ts"),
       "@drever/compiler": source("../compiler/src/index.ts"),

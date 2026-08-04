@@ -11,13 +11,24 @@ Commands below use npm's project-local runner. In a pnpm, Yarn, or Bun project, 
 
 Respect the requested scope. Report findings without editing for review-only requests; apply and verify fixes when asked to fix or polish.
 
+This skill is the single owner of Drever's exhaustive rendered completion gate. Run it only after
+the requested authoring or design pass is stable; creation, authoring, and design workflows use
+source-only and affected-route checks while iterating. Every context report, check, browser
+inspection, build, and export is valid only for the exact source, configuration, and assets that
+existed when it ran. Any later mutation invalidates the affected evidence. If feedback arrives or a
+file changes while review is running, cancel the affected work when possible or ignore its result,
+apply the change first, and restart the affected review from fresh context. Never cite stale
+evidence; evidence captured before the last relevant edit is stale.
+
 1. When Drever MCP tools are available, start with `drever_get_current` and `drever_get_context`; use `drever_get_slide` for each affected source slice. Otherwise use `npm exec -- drever current --json` and `npm exec -- drever context --json`. Inspect the complete design contract, source map, and exact Step topology. When `drever.plan.json` exists, compare every planned narrative job, evidence requirement, focal artifact, composition recipe, density, and motion owner with the authored and rendered result; flag silent drift rather than judging the deck as an unrelated artifact.
 2. Run `npm exec -- drever check --rendered --json` and inspect every source and rendered finding even when the command exits nonzero. Require the current report V2 and its `rendered` receipt; inspect the receipt and ruleset versions, engine, optional browser version, state count, status, and reason instead of inferring capture from diagnostic prose. A stored V1 report is source-only and cannot satisfy the rendered gate. Treat clipping, canvas overflow, text overlap, direct scroll overflow, and resolved solid-color contrast failures as blocking machine evidence. Investigate geometry, density, and indeterminate-paint warnings in the live deck; they are stable review leads, not aesthetic verdicts. Use `drever_check` as the faster source-only companion when MCP is connected, not as a replacement for rendered preflight.
 3. Inspect every slide at Step 0 and every exact sparse Step state at the configured canvas size. Machine evidence narrows the search but does not judge hierarchy, beauty, motion meaning, contrast on complex paint, or intermediate frames. Use screenshots and audience judgment rather than judging source or a clean report alone. If rendered inspection cannot be obtained, report the missing evidence as a blocker and do not call the deck presentation-ready.
 4. Prefer a connected Chrome DevTools MCP server for the final rendered gate. Probe it once with `list_pages`, open or navigate to the project-local preview in an isolated context, and use `emulate` or `resize_page` to match the configured canvas. Before judging a route, use `evaluate_script` to await `document.fonts.ready` and two animation frames. For every exact route, take a fresh `take_snapshot` for structure and then a `take_screenshot` for appearance; use evaluated computed styles, bounding boxes, client and scroll dimensions, and current animations to investigate clipping, overflow, typography, and continuity. Exercise adjacent states in both directions with real keyboard or pointer input. At the end, inspect preserved `list_console_messages` and `list_network_requests` for runtime, font, and asset failures. Screenshots and audience judgment—not snapshots, metrics, Lighthouse, or passing commands—decide visual readiness, and Chromium evidence alone does not prove another browser. If Chrome DevTools MCP is unavailable, use another connected browser surface that provides real screenshots and interaction; if no rendered evidence is possible, keep the blocker from step 3.
 5. In a Drever development preview, run the version-matched `globalThis.__dreverExperimentalTextLayout()` probe through browser evaluation after fonts and paint settle. It uses Pretext to compare predicted and rendered line layout for supported visible plain-text blocks. Treat its report as advisory: inspect every finding in the actual DOM and screenshot, and do not infer a pass from an empty report. The probe deliberately skips rich inline markup, generated content, non-default wrapping or indentation, automatic hyphenation, columns, transforms, generic system fonts, and non-default word spacing or font shaping settings. Never auto-shrink copy or replace browser layout from this evidence.
 6. Inspect `/document` for reading order and fully revealed content. Inspect both `/speaker` previews for notes, synchronization, and presentation usability. Exercise exact audience routes and every applicable built, reduced-motion, document, speaker, and export state. For public or shared decks, verify that the closing next action uses visible canonical absolute links and remains useful in rendered audience, document, and export output.
-7. Build and test direct route loading when delivery is in scope. Export PDF only when requested or when export readiness is part of the review.
+7. Test direct route loading in the live preview when delivery is in scope. Do not run a production
+   build or export here; the delivery skill owns those artifacts after this rendered evidence is
+   fresh.
 
 Treat review as an iterative completion gate, not a final glance. A clean check and successful build prove structural validity, not narrative, visual, or interaction quality. Work through these passes:
 
@@ -34,7 +45,7 @@ happened.
 4. **Interaction and surfaces:** Use the deck rather than only looking at it. Verify navigation, hover, focus, keyboard behavior, toolbar and focus tools, exact routes, reload, history, speaker synchronization, `/speaker`, `/document`, reduced motion, and export-relevant states. Controls outside the slide remain stable and usable while slide content moves.
 5. **Technical and accessibility:** Check console output, fonts, assets, rendered names, roles, states, tab order, keyboard operation, visible focus, contrast, alternatives, captions, reading order, deterministic media, and relevant tests. At every Step state, confirm that accessible names and descriptions reveal only the information currently available visually; a persistent label must not summarize a pending Step outcome. Confirm that live behavior has an understandable static or reduced-motion result.
 
-For every prominent sentence, object, animation, background treatment, and control, ask what job it performs. Simplify or remove it when the answer does not serve the claim, audience, or operation of the deck. Fix the highest-severity causes, rebuild, and repeat the affected passes and adjacent handoffs until no material defect remains. If an external blocker or genuine user judgment remains, state it explicitly; never call a deck ready because its source looked plausible or a command succeeded.
+For every prominent sentence, object, animation, background treatment, and control, ask what job it performs. Simplify or remove it when the answer does not serve the claim, audience, or operation of the deck. Fix the highest-severity causes, refresh the live render, and repeat the affected passes and adjacent handoffs until no material defect remains. If an external blocker or genuine user judgment remains, state it explicitly; never call a deck ready because its source looked plausible or a command succeeded.
 
 Review for:
 
@@ -83,4 +94,10 @@ When Stage modules are configured, verify that the audience reuses the same back
 
 Fix the cause in authored MDX, configuration, local components, or styles. Do not patch generated output or add legacy-browser fallbacks.
 
-After fixing, rerun `npm exec -- drever context --json`, `npm exec -- drever check --rendered --json`, `npm exec -- drever build`, affected browser states, and relevant project tests. Reinspect the whole deck after changing a shared theme, layout, Stage layer, or component; otherwise reinspect affected states and adjacent handoffs. Source review and successful commands do not count as the Draft 1 rendered refinement. Report findings by severity with the slide, Step, source location, applied fix, and final evidence.
+After the last relevant source mutation, rerun `npm exec -- drever context --json`,
+`npm exec -- drever check --rendered --json`, affected browser states, and relevant project tests.
+Reinspect the whole deck after changing a shared theme, layout, Stage layer, or component; otherwise
+reinspect affected states and adjacent handoffs. Do not run the production build here. Source review
+and successful commands do not count as the Draft 1 rendered refinement. Report findings by
+severity with the slide, Step, source location, applied fix, and final evidence, and state that the
+evidence follows the final relevant edit.

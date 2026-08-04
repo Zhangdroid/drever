@@ -162,6 +162,12 @@ const projectDefinitions = [
     use: {},
     webServer: undefined,
   },
+  {
+    name: "storyboard-chromium",
+    testMatch: "**/*.storyboard.spec.ts",
+    use: {},
+    webServer: undefined,
+  },
 ] as const;
 
 const projectFilters = readProjectFilters(process.argv);

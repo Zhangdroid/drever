@@ -11,16 +11,36 @@ Commands below use npm's project-local runner. In a pnpm, Yarn, or Bun project, 
 
 Translate the requested outcome into Drever's deterministic checks, build, and export commands. Do not make the user choose internal commands when their desired artifact is clear.
 
-1. Run `npm exec -- drever doctor --json`, then inspect `package.json`, the configured MDX entry, and `drever.config.ts` when present. Treat missing project-local installation or Chromium as actionable environment warnings; do not change the environment unless the requested deliverable needs it. Use `drever_get_context` and `drever_check` when the read-only Drever MCP is connected, then use the CLI rendered gate below.
+1. Run `npm exec -- drever doctor --json`, then inspect `package.json`, the configured MDX entry, and `drever.config.ts` when present. Treat missing project-local installation or Chromium as actionable environment warnings; do not change the environment unless the requested deliverable needs it. Use `drever_get_context` and `drever_check` when the read-only Drever MCP is connected.
 2. Fix proven source errors only when the user asked for a finished deliverable. Preserve unrelated work and never edit generated files in `dist/` or `.drever/`.
-3. Run `npm exec -- drever context --json` and `npm exec -- drever check --rendered --json`; inspect the report even when the check exits nonzero. Require the current report V2 and its rendered receipt, including ruleset version, engine, state count, status, and reason. A stored source-only V1 report is not rendered evidence. Do not deliver while errors remain. Investigate geometry and density warnings in the actual artifact rather than treating advisory thresholds as proof of failure.
-4. Run `npm exec -- drever build --json` for a website deliverable or before final browser inspection. Use the returned artifact receipt rather than guessing the output path. Verify the built entry, exact slide routes, assets, reload behavior, and `/document`.
-5. Run `npm exec -- drever export pdf [entry] --output <path> --json` when a PDF is requested. Add `--steps` only when the user wants every reveal state, and use `--slides` only for an explicit selection. Choose an intentional output path so the artifact is easy to find.
-6. If Playwright Chromium is missing, obtain the required permission to run `npm exec -- drever browser install`, then retry the rendered check or export. The command installs the Chromium revision required by the project-local Drever CLI. Use `--with-deps` only when the Linux host also needs Playwright's operating-system packages. Do not claim that a rendered check or PDF succeeded before the retry does.
+3. For a finished or presentation-ready deliverable, require fresh evidence from the project-local
+   `drever-review-deck` skill. Reuse review evidence from the active workflow when no source,
+   configuration, or asset has changed since it was captured. If evidence is absent or any relevant
+   input changed, run the review skill again; do not duplicate its exhaustive rendered preflight in
+   this skill. Do not deliver while its blocking findings remain. A source-only report is not review
+   evidence.
+4. After review is fresh, run `npm exec -- drever build --json` once for a website deliverable or
+   before final built-output inspection. Use the returned artifact receipt rather than guessing the
+   output path. Verify the built entry, exact slide routes, assets, reload behavior, and `/document`.
+5. Run `npm exec -- drever export pdf [entry] --output <path> --json` when a PDF is requested. Add
+   `--steps` only when the user wants every reveal state, and use `--slides` only for an explicit
+   selection. Choose an intentional output path so the artifact is easy to find.
+6. If Playwright Chromium is missing, obtain the required permission to run
+   `npm exec -- drever browser install`, then return to review or retry the export. The command
+   installs the Chromium revision required by the project-local Drever CLI. Use `--with-deps` only
+   when the Linux host also needs Playwright's operating-system packages. Do not claim that rendered
+   review or PDF export succeeded before the retry does.
 7. Stop temporary servers unless the user asked to keep a preview running.
+
+Every context report, check, browser inspection, build, and export is valid only for the exact
+source, configuration, and assets that existed when it ran. Any later mutation invalidates affected
+review evidence and every derived artifact. If feedback arrives or built-output inspection requires
+a source fix, cancel or ignore in-flight results, apply the edit, return to the review skill for
+fresh affected evidence, then rebuild or re-export. Never hand off or cite stale evidence.
 
 Before handoff, inspect the actual requested artifacts. Confirm that fonts, images, video fallbacks, Stage layers, motion end states, notes, and export-ready media behave correctly in the relevant surface. A successful command is necessary but not sufficient evidence of presentation readiness.
 
-When the user asks for a finished or presentation-ready deliverable, use the project-local `drever-review-deck` skill as the completion gate before handoff and fix material issues within scope. For an explicitly mechanical draft build or export, respect that narrower scope but do not imply that the deck passed presentation-readiness review.
+For an explicitly mechanical draft build or export, respect that narrower scope and skip the review
+gate when requested, but do not imply that the deck passed presentation-readiness review.
 
 Report a compact artifact receipt containing the source entry, validation performed, exact build directory or preview URL, exact PDF path and page selection when applicable, and any remaining judgment calls. Never invent a URL, path, or successful export.

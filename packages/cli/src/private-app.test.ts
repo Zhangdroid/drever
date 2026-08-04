@@ -2,7 +2,12 @@ import { readFile, stat, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { runInNewContext } from "node:vm";
 import { describe, expect, it, vi } from "vite-plus/test";
-import { createGeneratedApp, createPrivateApp, createPrivateExportApp } from "./private-app.ts";
+import {
+  createGeneratedApp,
+  createPrivateApp,
+  createPrivateDevApp,
+  createPrivateExportApp,
+} from "./private-app.ts";
 
 const exportBootstrapSource = (html: string): string => {
   const match = html.match(/<script data-drever-export-bootstrap>(?<source>[\s\S]*?)<\/script>/u);
@@ -70,6 +75,28 @@ const runBrowserSupportBootstrap = (
 };
 
 describe("generated private application", () => {
+  it("keeps the storyboard bootstrap independent from the authored presentation graph", async () => {
+    const app = await createPrivateDevApp("/project/broken-slides.mdx");
+    try {
+      const [entry, presentation] = await Promise.all([
+        readFile(join(app.root, "entry.js"), "utf8"),
+        readFile(join(app.root, "presentation.js"), "utf8"),
+      ]);
+
+      expect(entry).toContain('routePath === "storyboard"');
+      expect(entry).toContain('import("@drever/client/storyboard")');
+      expect(entry).toContain('import("@drever/client/storyboard.css")');
+      expect(entry).toContain('import("virtual:drever/storyboard-plan")');
+      expect(entry).toContain('import("./presentation.js")');
+      expect(entry).not.toContain("broken-slides.mdx");
+      expect(entry).not.toContain("virtual:drever/runtime");
+      expect(presentation).toContain('from "/project/broken-slides.mdx"');
+      expect(presentation).toContain("virtual:drever/runtime");
+    } finally {
+      await app.dispose();
+    }
+  });
+
   it("renders explicit document metadata in the initial HTML and escapes authored values", async () => {
     const app = await createPrivateApp("/project/slides.mdx", {
       deck: {
@@ -569,6 +596,7 @@ describe("generated private application", () => {
       expect(source).not.toContain(
         'import { createDocument, createSpeaker, createViewer } from "@drever/client"',
       );
+      expect(source).not.toContain("storyboard");
       expect(source.match(/focusTools:/gu)).toHaveLength(1);
       expect(source.match(/rehearsal:/gu)).toHaveLength(1);
     } finally {
@@ -610,6 +638,7 @@ describe("generated private application", () => {
       expect(source).not.toContain("__dreverExperimentalTextLayout");
       expect(source).not.toContain("virtual:drever/experimental-text-layout");
       expect(source).not.toContain('from "virtual:drever/runtime"');
+      expect(source).not.toContain("storyboard");
       expect(source).not.toContain("data-drever-dev-source");
     } finally {
       await app.dispose();

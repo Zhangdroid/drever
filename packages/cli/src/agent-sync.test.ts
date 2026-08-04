@@ -114,16 +114,17 @@ describe("agent kit sync", () => {
     }
 
     const createDeck = await read(root, ".agents/skills/drever-create-deck/SKILL.md");
-    expect(createDeck).toMatch(/drever check --rendered --json/iu);
-    expect(createDeck).toMatch(/load `drever-review-deck`[^.]*rendered refinement pass/iu);
+    expect(createDeck).not.toMatch(/drever check --rendered --json/iu);
+    expect(installed.get("drever-review-deck")).toMatch(/drever check --rendered --json/iu);
+    expect(createDeck).toMatch(/`drever-review-deck`[^.]*single owner/iu);
     expect(installed.get("drever-create-design")).toMatch(
-      /every slide at Step 0 and every exact Step state/iu,
+      /every affected slide at Step 0 and every affected exact Step state/iu,
     );
     expect(installed.get("drever-review-deck")).toMatch(
       /every slide at Step 0 and every exact sparse Step state/iu,
     );
     expect(installed.get("drever-author-deck")).toMatch(
-      /every affected exact slide and Step route/iu,
+      /every affected\s+exact slide and Step route/iu,
     );
     expect(installed.get("drever-author-deck")).toMatch(
       /Expand the gate to the whole deck[^.]*shared theme/iu,
@@ -160,9 +161,11 @@ describe("agent kit sync", () => {
     expect(createDeck).toMatch(/`concise`[^;]*presenter-led/iu);
     expect(createDeck).toMatch(/`balanced`[^;]*visible evidence/iu);
     expect(createDeck).toMatch(/`detailed`[^;]*reader-led/iu);
-    expect(createDeck).toContain("<!-- drever-plan-review-contract:v2 -->");
+    expect(createDeck).toContain("<!-- drever-plan-review-contract:v3 -->");
     expect(createDeck).toMatch(/human-readable brief and numbered outline/iu);
     expect(createDeck).toMatch(/invite edits or explicit\s+approval,\s+and stop/iu);
+    expect(createDeck).toMatch(/exact \*\*Storyboard\*\* URL reported by Drever/iu);
+    expect(createDeck).toMatch(/without importing the deck MDX, Theme, or runtime/iu);
     expect(createDeck).toMatch(/skip-remaining escape does not bypass this gate/iu);
     expect(createDesign).toMatch(/topic-fingerprint test/iu);
     expect(createDesign).toMatch(
@@ -183,18 +186,20 @@ describe("agent kit sync", () => {
     const createDesign = await read(root, ".agents/skills/drever-create-design/SKILL.md");
     const openai = await read(root, ".agents/skills/drever-create-deck/agents/openai.yaml");
 
-    expect(createDeck).toContain("<!-- drever-preview-contract:v3 -->");
+    expect(createDeck).toContain("<!-- drever-preview-contract:v5 -->");
+    expect(createDeck).toMatch(/Reuse the running development server/iu);
     expect(createDeck).toMatch(/first useful preview/iu);
     expect(createDeck).toMatch(/Before sharing the URL[^.]*entry compiles/iu);
     expect(createDeck).toMatch(/Do not wait[^.]*production build[^.]*PDF export/isu);
     expect(createDeck).toMatch(/non-blocking update/iu);
     expect(createDeck).toMatch(/continue in the same turn/iu);
-    expect(createDeck).toMatch(/feedback invalidates stale checks/iu);
-    expect(createDeck).toMatch(/production build[^.]*only after[^.]*stable/iu);
-    expect(createDeck).toMatch(/PDF only when requested/iu);
+    expect(createDeck).toMatch(/later mutation invalidates[^.]*evidence/iu);
+    expect(createDeck).toMatch(/one\s+production build[^.]*requested PDF export/iu);
     expect(createDeck).toMatch(/design worker may prepare[^.]*primary worker owns/iu);
-    expect(agents).toMatch(/Share a coherent Draft 1 before exhaustive validation/iu);
-    expect(agents).toMatch(/do not run repeated production builds/iu);
+    expect(agents).toMatch(/expose the coherent[^.]*Draft 1 before design refinement/iu);
+    expect(agents).toMatch(
+      /do not run production builds or duplicate the full rendered preflight/iu,
+    );
     expect(createDesign).toMatch(
       /must not delay[^.]*coherent end-to-end content\s+Draft 1[^.]*stable development URL/iu,
     );
@@ -210,7 +215,7 @@ describe("agent kit sync", () => {
     const createDeck = await read(root, ".agents/skills/drever-create-deck/SKILL.md");
     const createDesign = await read(root, ".agents/skills/drever-create-design/SKILL.md");
 
-    expect(createDeck).toContain("<!-- drever-authoring-scope-contract:v2 -->");
+    expect(createDeck).toContain("<!-- drever-authoring-scope-contract:v3 -->");
     for (const contents of [agents, createDeck, createDesign]) {
       expect(contents).toMatch(/complete public\s+contract/iu);
       expect(contents).toMatch(/do not (?:search or )?inspect[^.]*Drever[^.]*repository/iu);
@@ -230,6 +235,49 @@ describe("agent kit sync", () => {
     expect(createDesign).toMatch(/do not run context[^.]*in-progress deck/iu);
     expect(createDesign).not.toMatch(/Scan all eight studies/iu);
     expect(createDesign).not.toMatch(/packages\/designs\/src\/<study>/u);
+  });
+
+  it("routes new, replacement, and edit scopes through one validation pipeline", async () => {
+    const root = await temporaryDirectory("drever-agent-project-");
+    await syncAgentKit({ root });
+
+    const agents = await read(root, "AGENTS.md");
+    const createDeck = await read(root, ".agents/skills/drever-create-deck/SKILL.md");
+    const createDesign = await read(root, ".agents/skills/drever-create-design/SKILL.md");
+    const authorDeck = await read(root, ".agents/skills/drever-author-deck/SKILL.md");
+    const reviewDeck = await read(root, ".agents/skills/drever-review-deck/SKILL.md");
+    const deliverDeck = await read(root, ".agents/skills/drever-deliver-deck/SKILL.md");
+
+    expect(createDeck).toContain("<!-- drever-authoring-scope-contract:v3 -->");
+    expect(createDeck).toMatch(/\*\*New:\*\*[^]*Continue with this skill/iu);
+    expect(createDeck).toMatch(/\*\*Replacement:\*\*[^]*explicitly asks[^]*plan is approved/iu);
+    expect(createDeck).toMatch(/\*\*Edit:\*\*[^]*use the project-local `drever-author-deck`/iu);
+    expect(createDeck).toMatch(/do not require a\s+new-plan approval gate/iu);
+    expect(createDeck).toMatch(/Never infer replacement/iu);
+    expect(agents).toMatch(/new or explicitly replacement-scoped deck uses `drever-create-deck`/iu);
+    expect(agents).toMatch(/edit to an authored deck[^.]*does not restart that gate/iu);
+
+    expect(createDeck).toMatch(
+      /single-agent host[^.]*Draft 1 before starting design research or refinement/iu,
+    );
+    expect(createDeck).toMatch(/load the\s+project-local `drever-create-design`[^.]*refinement/iu);
+
+    for (const contents of [createDeck, createDesign, authorDeck, deliverDeck]) {
+      expect(contents).not.toContain("drever check --rendered --json");
+    }
+    expect(reviewDeck).toContain("drever check --rendered --json");
+    expect(reviewDeck).toMatch(/single owner[^.]*exhaustive rendered completion gate/iu);
+    expect(deliverDeck).toMatch(/Reuse review evidence[^.]*when no source/iu);
+    expect(deliverDeck).toMatch(
+      /If evidence is absent or any relevant\s+input changed[^.]*review/iu,
+    );
+    expect(deliverDeck).toMatch(/drever build --json` once/iu);
+
+    for (const contents of [createDeck, createDesign, authorDeck, reviewDeck, deliverDeck]) {
+      expect(contents).toMatch(/mutation invalidates[^.]*evidence/iu);
+      expect(contents).toMatch(/cancel[^.]*ignore[^.]*result/iu);
+      expect(contents).toMatch(/Never (?:hand off or )?cite\s+stale\s+evidence/iu);
+    }
   });
 
   it("installs the varied transition and design-family contract", async () => {
