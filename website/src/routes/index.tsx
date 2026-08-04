@@ -12,7 +12,7 @@ import { demos } from "../site-data";
 import { pageHead } from "../seo";
 
 const description =
-  "An open-source presentation framework for creating expressive, interactive slides with AI, then presenting live, publishing to the web, or exporting PDF.";
+  "An AI-first presentation framework for approving the story early, directing one live React and MDX deck, and checking every rendered state before delivery.";
 
 type HomeDemo = (typeof demos)[number];
 
@@ -93,7 +93,7 @@ function HomePage() {
 
   return (
     <main id="main" tabIndex={-1}>
-      <section className="home-hero">
+      <section className="home-hero" data-header-tone="light">
         <div className="home-hero__copy">
           <h1>
             <span className="home-hero__line">Slides that</span>
@@ -105,14 +105,15 @@ function HomePage() {
             </span>
           </h1>
           <p className="home-hero__lede">
-            Create expressive presentations with AI, refine every detail, and respond to the room
-            live.
+            Start with a topic. Approve the story before slides exist, then keep directing one live
+            deck with your agent.
           </p>
           <div className="home-hero__actions">
             <div className="home-hero__prompt">
               <CopyAIHandoff className="button button--primary" describedBy="home-prompt-tooltip" />
               <span id="home-prompt-tooltip" role="tooltip">
-                The agent handles setup, pauses for plan approval, then opens a local preview.
+                Paste into Codex or Claude Code. It creates the project and opens a local creation
+                room for questions, approval, and feedback.
               </span>
             </div>
             <a className="button home-hero__demo" href="/showcase/product/">
@@ -146,7 +147,7 @@ function HomePage() {
 
       <CreationJourney />
 
-      <section className="home-showcase">
+      <section className="home-showcase" data-header-tone="light">
         <header className="section-heading">
           <div>
             <span>Finished stories · live in the browser</span>
@@ -170,8 +171,8 @@ function HomePage() {
             <span>Your presentation starts the same way</span>
             <h2>Begin with what the room should change.</h2>
             <p>
-              Bring one outcome. Drever and your agent can turn it into a story, a visual language,
-              a live room, and every useful surface after it.
+              Bring one outcome. Your agent returns with a storyboard for approval, opens the live
+              draft, and keeps every change in ordinary files you own.
             </p>
             <Link className="text-link text-link--light" to="/docs/getting-started/">
               Follow the creation workflow <ArrowIcon />
