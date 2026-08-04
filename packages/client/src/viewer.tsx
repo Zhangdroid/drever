@@ -9,6 +9,7 @@ import {
   useState,
   type ReactElement,
 } from "react";
+import { flushSync } from "react-dom";
 import { AudienceControls } from "./audience-controls.tsx";
 import { DEFAULT_CANVAS } from "./canvas.tsx";
 import { DreverClientError, isAbortError } from "./client-error.ts";
@@ -97,10 +98,15 @@ export const ViewerHost = ({
   ...viewerProps
 }: ViewerHostProps): ReactElement => {
   const [position, setPosition] = useState(store.getSnapshot);
+  const [controlsHiddenForNavigation, setControlsHiddenForNavigation] = useState(false);
   const reducedMotion = viewerProps.reducedMotion ?? false;
   const canvasRef = useRef<HTMLDivElement>(null);
   const deckRef = useRef<HTMLDivElement>(null);
   const pendingRef = useRef<PendingCommit | undefined>(undefined);
+  const revealControlsForPointerIntent = useCallback(
+    () => setControlsHiddenForNavigation(false),
+    [],
+  );
 
   useLayoutEffect(() => {
     return store.subscribe(() => {
@@ -155,6 +161,9 @@ export const ViewerHost = ({
 
         const changesSlide = change.from.slideIndex !== change.to.slideIndex;
         const deck = deckRef.current;
+        if (changesSlide) {
+          flushSync(() => setControlsHiddenForNavigation(true));
+        }
         if (reducedMotion || !changesSlide || options?.skipViewTransition === true) {
           if (deck !== null) {
             setLocalSlideTransitionMode(deck, undefined);
@@ -299,12 +308,14 @@ export const ViewerHost = ({
         canvasRef={canvasRef}
         deckRef={deckRef}
         {...(focusTools === undefined ? {} : { focusTools })}
+        hiddenForNavigation={controlsHiddenForNavigation}
         manifest={machine.manifest}
         onCopyShareURL={onCopyShareURL}
         onError={onError}
         onNavigate={onNavigate}
         onOpenDocument={onOpenDocument}
         onOpenSpeaker={onOpenSpeaker}
+        onPointerIntent={revealControlsForPointerIntent}
         position={position}
         remoteFocus={remoteFocus}
         renderSlidePreview={(slide) => (

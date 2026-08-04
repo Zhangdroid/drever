@@ -48,12 +48,14 @@ export type AudienceControlsProps = Readonly<{
   canvasRef: RefObject<HTMLDivElement | null>;
   deckRef: RefObject<HTMLDivElement | null>;
   focusTools?: PresentationFocusAppearance;
+  hiddenForNavigation: boolean;
   manifest: DeckManifest;
   onCopyShareURL(position: DeckPosition): Promise<void>;
   onError(error: unknown): void;
   onNavigate(command: DeckCommand): void | Promise<void>;
   onOpenDocument(): void;
   onOpenSpeaker(): void;
+  onPointerIntent(): void;
   position: DeckPosition;
   remoteFocus: PresentationFocusStore;
   renderSlidePreview(slide: SlideManifest): ReactNode;
@@ -76,16 +78,6 @@ export type SlideNavigationItem = Readonly<{
 const compactText = (value: string | null | undefined): string | undefined => {
   const compact = value?.replace(/\s+/gu, " ").trim();
   return compact === undefined || compact.length === 0 ? undefined : compact;
-};
-
-const containsClientPoint = (element: Element, event: MouseEvent): boolean => {
-  const bounds = element.getBoundingClientRect();
-  return (
-    event.clientX >= bounds.left &&
-    event.clientX <= bounds.right &&
-    event.clientY >= bounds.top &&
-    event.clientY <= bounds.bottom
-  );
 };
 
 const releasePointerFocus = (
@@ -353,12 +345,14 @@ export const AudienceControls = ({
   canvasRef,
   deckRef,
   focusTools,
+  hiddenForNavigation,
   manifest,
   onCopyShareURL,
   onError,
   onNavigate,
   onOpenDocument,
   onOpenSpeaker,
+  onPointerIntent,
   position,
   remoteFocus,
   renderSlidePreview,
@@ -366,9 +360,7 @@ export const AudienceControls = ({
   const hostRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const nextButtonRef = useRef<HTMLButtonElement>(null);
   const overviewRef = useRef<HTMLDivElement>(null);
-  const previousButtonRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const [fullscreen, setFullscreen] = useState(false);
   const [focusInteracting, setFocusInteracting] = useState(false);
@@ -451,48 +443,25 @@ export const AudienceControls = ({
 
   useEffect(() => {
     const document = hostRef.current?.ownerDocument;
-    if (document === undefined) {
+    if (document === undefined || !hiddenForNavigation) {
       return;
     }
 
-    const targets = [
-      { button: previousButtonRef, command: { type: "previous" } },
-      { button: nextButtonRef, command: { type: "next" } },
-    ] as const;
-    // A named View Transition snapshot keeps the toolbar visible while its live buttons
-    // temporarily leave hit testing. Route that snapshot click to the matching real button.
-    const proxyToolbarSnapshotClick = (event: MouseEvent): void => {
-      if (event.button !== 0 || !document.documentElement.matches(":active-view-transition")) {
+    const reveal = (event: PointerEvent): void => {
+      if (document.documentElement.matches(":active-view-transition")) {
         return;
       }
-
-      const path = event.composedPath();
-      const target = targets.find(({ button }) => {
-        const element = button.current;
-        return (
-          element !== null &&
-          !element.disabled &&
-          !path.includes(element) &&
-          containsClientPoint(element, event)
-        );
-      });
-      if (target === undefined) {
-        return;
+      if (event.type === "pointerdown" || event.movementX !== 0 || event.movementY !== 0) {
+        onPointerIntent();
       }
-      const button = target.button.current;
-      if (button === null) {
-        return;
-      }
-
-      event.preventDefault();
-      event.stopPropagation();
-      button.blur();
-      navigate(target.command);
     };
-
-    document.addEventListener("click", proxyToolbarSnapshotClick, true);
-    return () => document.removeEventListener("click", proxyToolbarSnapshotClick, true);
-  }, [navigate]);
+    document.addEventListener("pointerdown", reveal, { passive: true });
+    document.addEventListener("pointermove", reveal, { passive: true });
+    return () => {
+      document.removeEventListener("pointerdown", reveal);
+      document.removeEventListener("pointermove", reveal);
+    };
+  }, [hiddenForNavigation, onPointerIntent]);
 
   const copyShareURL = useCallback((): void => {
     const requestedPosition = position;
@@ -634,6 +603,7 @@ export const AudienceControls = ({
       className="drever-audience-controls"
       data-drever-audience-controls=""
       data-drever-controls-idle={controlsIdle ? "" : undefined}
+      data-drever-controls-navigation-hidden={hiddenForNavigation ? "" : undefined}
       data-drever-controls-pinned={focusPaletteOpen ? "" : undefined}
       data-drever-focus-interacting={focusInteracting ? "" : undefined}
       ref={hostRef}
@@ -681,7 +651,6 @@ export const AudienceControls = ({
               releasePointerFocus(event);
               navigate({ type: "previous" });
             }}
-            ref={previousButtonRef}
             type="button"
           >
             <PreviousIcon />
@@ -710,7 +679,6 @@ export const AudienceControls = ({
               releasePointerFocus(event);
               navigate({ type: "next" });
             }}
-            ref={nextButtonRef}
             type="button"
           >
             <NextIcon />

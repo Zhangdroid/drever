@@ -110,12 +110,14 @@ describe("audience controls", () => {
         canvas={{ height: 1080, width: 1920 }}
         canvasRef={{ current: null }}
         deckRef={{ current: null }}
+        hiddenForNavigation={false}
         manifest={manifest}
         onCopyShareURL={vi.fn()}
         onError={vi.fn()}
         onNavigate={vi.fn()}
         onOpenDocument={vi.fn()}
         onOpenSpeaker={vi.fn()}
+        onPointerIntent={vi.fn()}
         position={{ slideId: "intro", slideIndex: 0, step: 0 }}
         remoteFocus={createPresentationFocusStore({ slideId: "intro", slideIndex: 0, step: 0 })}
         renderSlidePreview={() => <div data-preview="" />}

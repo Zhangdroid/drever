@@ -268,10 +268,18 @@ test("audience controls navigate exact states with a pointer", async ({ page }) 
   await next.hover();
   await next.click();
   await expect(page).toHaveURL(/\/2$/u);
-  await expect(next).not.toBeFocused();
+  await expect(controls).not.toBeVisible();
+  await expect.poll(() => page.evaluate(() => document.activeElement?.tagName)).not.toBe("BUTTON");
 
   await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/\/2\/2$/u);
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.matches(":active-view-transition")))
+    .toBe(false);
+
+  await page.mouse.move(10, 10);
+  await page.mouse.move(220, 180);
+  await expect(controls).toBeVisible();
   await expect(position).toContainText("Step 1 of 2");
 
   await previous.click();
@@ -280,6 +288,11 @@ test("audience controls navigate exact states with a pointer", async ({ page }) 
 
   await page.keyboard.press("ArrowLeft");
   await expect(page).toHaveURL(/\/$/u);
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.matches(":active-view-transition")))
+    .toBe(false);
+  await page.mouse.move(10, 10);
+  await page.mouse.move(220, 180);
 
   const fullscreen = controls.getByRole("button", { name: "Enter fullscreen" });
   await expect(fullscreen).toBeEnabled();
@@ -428,14 +441,21 @@ test("focus tools preserve marks across Steps and clear them across slides", asy
 test("audience controls leave the canvas after pointer inactivity and return on intent", async ({
   page,
 }) => {
+  await monitorViewTransitions(page);
   await page.goto("/");
   const host = page.locator("[data-drever-audience-controls]");
-  const controls = page.getByRole("navigation", { name: "Presentation controls" });
+  const controls = page.locator(".drever-audience-controls__bar");
 
   await page.mouse.move(200, 200);
   await expect(host).not.toHaveAttribute("data-drever-controls-idle", "");
   await expect.poll(() => host.getAttribute("data-drever-controls-idle")).toBe("");
   await expect(controls).toHaveCSS("pointer-events", "none");
+  await expect(controls).toHaveCSS("view-transition-name", "none");
+  const transition = await captureNextViewTransition(page, () => page.keyboard.press("ArrowRight"));
+  await waitForViewTransition(page, transition, "ready");
+  await expect(controls).toHaveCSS("view-transition-name", "none");
+  await waitForViewTransition(page, transition, "finished");
+  await expect(page).toHaveURL(/\/2$/u);
 
   await page.mouse.move(260, 220);
   await expect(host).not.toHaveAttribute("data-drever-controls-idle", "");
@@ -1006,13 +1026,18 @@ test("audience controls remain usable within a narrow viewport", async ({ page }
   health.expectHealthy();
 });
 
-test("document transitions capture the deck while audience controls keep a stable group", async ({
+test("document transitions capture the deck while audience controls leave the snapshot", async ({
   page,
 }) => {
   await monitorViewTransitions(page);
 
   await page.goto("/");
   await waitForDreverReady(page);
+  const controlsHost = page.locator("[data-drever-audience-controls]");
+  const toolbar = page.locator(".drever-audience-controls__bar");
+  await expect(controlsHost).not.toHaveAttribute("data-drever-controls-navigation-hidden", "");
+  await expect(toolbar).toHaveCSS("visibility", "visible");
+  await expect(toolbar).toHaveCSS("view-transition-name", "drever-toolbar");
   await page.evaluate(() => {
     Reflect.set(
       globalThis,
@@ -1024,6 +1049,9 @@ test("document transitions capture the deck while audience controls keep a stabl
   const transition = await captureNextViewTransition(page, () => page.keyboard.press("ArrowRight"));
   await waitForViewTransition(page, transition, "ready");
   await expect(page).toHaveURL(/\/2$/u);
+  await expect(controlsHost).toHaveAttribute("data-drever-controls-navigation-hidden", "");
+  await expect(toolbar).toHaveCSS("visibility", "hidden");
+  await expect(toolbar).toHaveCSS("view-transition-name", "none");
 
   expect(await readViewTransitionCalls(page)).toEqual([
     { kind: "document", target: "document", types: ["drever-slide-forward"] },
@@ -1046,12 +1074,13 @@ test("document transitions capture the deck while audience controls keep a stabl
       };
     };
     return {
-      controlsAreStable:
+      controlsLeaveTheSnapshot:
         controls === Reflect.get(globalThis, "__dreverAudienceControls") &&
         !deck.contains(controls) &&
         !canvas.contains(controls) &&
         getComputedStyle(controls).viewTransitionName === "none" &&
-        getComputedStyle(toolbar).viewTransitionName === "drever-toolbar",
+        getComputedStyle(toolbar).viewTransitionName === "none" &&
+        getComputedStyle(toolbar).visibility === "hidden",
       deckName: getComputedStyle(deck).viewTransitionName,
       deckPairOverflow: getComputedStyle(
         document.documentElement,
@@ -1065,7 +1094,7 @@ test("document transitions capture the deck while audience controls keep a stabl
     };
   });
   expect(transitionStyles).toMatchObject({
-    controlsAreStable: true,
+    controlsLeaveTheSnapshot: true,
     deckName: "drever-deck",
     deckPairOverflow: "clip",
     newDeck: {
@@ -1079,6 +1108,11 @@ test("document transitions capture the deck while audience controls keep a stabl
     rootName: "none",
   });
   await waitForViewTransition(page, transition, "finished");
+  await expect(controlsHost).toHaveAttribute("data-drever-controls-navigation-hidden", "");
+  await page.mouse.move(10, 10);
+  await page.mouse.move(220, 180);
+  await expect(controlsHost).not.toHaveAttribute("data-drever-controls-navigation-hidden", "");
+  await expect(toolbar).toHaveCSS("visibility", "visible");
   await expect(page.locator('[data-drever-slide][data-slide-state="active"] h2')).toHaveCSS(
     "view-transition-name",
     "none",
@@ -1160,40 +1194,6 @@ test("a second slide navigation supersedes an in-flight transition cleanly", asy
   await expect(page).toHaveURL(/\/4$/u);
   await waitForViewTransition(page, first, "finished");
 
-  expect(await readViewTransitionCalls(page)).toEqual([
-    { kind: "document", target: "document", types: ["drever-slide-forward"] },
-    { kind: "document", target: "document", types: ["drever-slide-forward"] },
-  ]);
-  health.expectHealthy();
-});
-
-test("audience toolbar accepts another click during an active slide transition", async ({
-  page,
-}) => {
-  const health = monitorPageHealth(page);
-  await monitorViewTransitions(page);
-  await page.goto("/2/5");
-
-  const next = page.getByRole("button", { name: "Next presentation state" });
-  const bounds = await next.boundingBox();
-  if (bounds === null) {
-    throw new Error("Expected the next toolbar button to be visible.");
-  }
-  const point = {
-    x: bounds.x + bounds.width / 2,
-    y: bounds.y + bounds.height / 2,
-  };
-
-  const first = await captureNextViewTransition(page, () => page.mouse.click(point.x, point.y));
-  await waitForViewTransition(page, first, "ready");
-  await expect(page).toHaveURL(/\/3$/u);
-
-  const second = await captureNextViewTransition(page, () => page.mouse.click(point.x, point.y));
-  await waitForViewTransition(page, second, "finished");
-
-  await expect(page).toHaveURL(/\/4$/u);
-  await expect(next).not.toBeFocused();
-  await waitForViewTransition(page, first, "finished");
   expect(await readViewTransitionCalls(page)).toEqual([
     { kind: "document", target: "document", types: ["drever-slide-forward"] },
     { kind: "document", target: "document", types: ["drever-slide-forward"] },
