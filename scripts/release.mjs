@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { verifyPackedTarball } from "./package-contract.mjs";
 
 const execute = promisify(execFile);
 const defaultRoot = fileURLToPath(new URL("../", import.meta.url));
@@ -19,22 +20,6 @@ const runtimeDependencyFields = ["dependencies", "optionalDependencies", "peerDe
 const vitePlusPackageNames = new Set(["vite-plus", "@voidzero-dev/vite-plus-core"]);
 
 export const repositoryUrl = "git+https://github.com/Zhangdroid/drever.git";
-export const runtimeVersionFiles = [
-  "packages/plugin-charts/src/index.ts",
-  "packages/plugin-gfm/src/index.ts",
-  "packages/plugin-math/src/index.ts",
-  "packages/plugin-media/src/index.ts",
-  "packages/plugin-shiki/src/index.ts",
-  "packages/plugin-tailwindcss/src/index.ts",
-  "packages/designs/src/atlas/index.ts",
-  "packages/designs/src/basic/index.ts",
-  "packages/designs/src/cinema/index.ts",
-  "packages/designs/src/construct/index.ts",
-  "packages/designs/src/editorial/index.ts",
-  "packages/designs/src/fieldnote/index.ts",
-  "packages/designs/src/ledger/index.ts",
-  "packages/designs/src/studio/index.ts",
-];
 
 const json = (value) => `${JSON.stringify(value, null, 2)}\n`;
 const readJson = async (path) => JSON.parse(await readFile(path, "utf8"));
@@ -133,6 +118,20 @@ export async function readPublicPackages(root = defaultRoot) {
   return packages.filter(({ manifest }) => manifest.private !== true);
 }
 
+export async function readRuntimeVersionFiles(root = defaultRoot) {
+  const packages = await readPublicPackages(root);
+  const pluginFiles = packages
+    .filter(({ manifest }) => manifest.name.startsWith("@drever/plugin-"))
+    .map(({ relativeDirectory }) => `${relativeDirectory}/src/index.ts`);
+  const designs = packages.find(({ manifest }) => manifest.name === "@drever/designs");
+  if (designs === undefined) throw new Error("Missing public package @drever/designs.");
+  const designFiles = Object.keys(designs.manifest.exports ?? {}).flatMap((key) => {
+    const name = /^\.\/([^/.]+)$/u.exec(key)?.[1];
+    return name === undefined ? [] : [`${designs.relativeDirectory}/src/${name}/index.ts`];
+  });
+  return [...pluginFiles, ...designFiles].sort(compareText);
+}
+
 export async function cleanReleaseOutputs(root = defaultRoot) {
   const packages = await readPublicPackages(root);
   await Promise.all(
@@ -212,6 +211,7 @@ export async function setReleaseVersion(root = defaultRoot, version) {
       join(root, "plugins", "drever", ".codex-plugin", "plugin.json"),
     ].map((path) => updateVersionFile(path, version)),
   );
+  const runtimeVersionFiles = await readRuntimeVersionFiles(root);
   await Promise.all(
     runtimeVersionFiles.map((path) => updateRuntimeVersion(join(root, path), version)),
   );
@@ -373,7 +373,7 @@ export async function packRelease({ output, root = defaultRoot }) {
         maxBuffer: 10 * 1024 * 1024,
       });
       const intermediateTarball = resolvePackedPath(value.directory, stdout);
-      const intermediateManifest = await packedManifest(intermediateTarball);
+      const intermediateManifest = await verifyPackedTarball(intermediateTarball);
       verifyPackedManifest({
         manifest: intermediateManifest,
         packageDirectory: value.relativeDirectory,
@@ -386,7 +386,7 @@ export async function packRelease({ output, root = defaultRoot }) {
         temporaryRoot: packageRoot,
         tarball: intermediateTarball,
       });
-      const manifest = await packedManifest(tarball);
+      const manifest = await verifyPackedTarball(tarball);
       verifyPackedManifest({
         manifest,
         packageDirectory: value.relativeDirectory,
