@@ -72,7 +72,7 @@ The gates collectively:
 2. run unit and end-to-end tests;
 3. remove stale package outputs and build every workspace package;
 4. verify public package versions, licenses, repository metadata, runtime
-   descriptors, plugin manifests, and required tarball files;
+   descriptors, plugin manifests, and manifest-declared tarball entry points;
 5. pack all public packages;
 6. install those tarballs in a clean temporary project outside the workspace;
 7. run packed `create-drever`, then validate and build its generated deck with

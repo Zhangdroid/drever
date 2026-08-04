@@ -6,6 +6,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, test } from "node:test";
 import { promisify } from "node:util";
+import { publishedPackageTargets, verifyPackedContents } from "./package-contract.mjs";
 import {
   assertRegistryPackagesExist,
   assertDistTag,
@@ -14,10 +15,10 @@ import {
   normalizePackedManifest,
   orderPublicPackages,
   planRelease,
-  repositoryUrl,
-  runtimeVersionFiles,
-  setReleaseVersion,
   publishRelease,
+  readRuntimeVersionFiles,
+  repositoryUrl,
+  setReleaseVersion,
   verifyPackedManifest,
 } from "./release.mjs";
 
@@ -232,6 +233,56 @@ test("normalizes dependency order without changing conditional export order", ()
   assert.deepEqual(Object.keys(first.exports["."]), ["browser", "default"]);
 });
 
+test("derives packed file requirements from the public package manifest", () => {
+  const manifest = {
+    name: "@drever/example",
+    files: ["dist", "assets", "README.md"],
+    exports: {
+      ".": { types: "./dist/index.d.mts", import: "./dist/index.mjs" },
+      "./features/*": "./dist/features/*.mjs",
+      "./theme.css": "./assets/theme.css",
+    },
+    bin: { example: "dist/bin.mjs" },
+  };
+  const files = new Set([
+    "README.md",
+    "assets/theme.css",
+    "dist/bin.mjs",
+    "dist/features/chart.mjs",
+    "dist/index.d.mts",
+    "dist/index.mjs",
+    "package.json",
+  ]);
+
+  assert.deepEqual(
+    [...publishedPackageTargets(manifest)].sort((left, right) => left.localeCompare(right)),
+    [
+      "assets/theme.css",
+      "dist/bin.mjs",
+      "dist/features/*.mjs",
+      "dist/index.d.mts",
+      "dist/index.mjs",
+    ],
+  );
+  assert.doesNotThrow(() => verifyPackedContents({ files, manifest }));
+  assert.throws(
+    () =>
+      verifyPackedContents({
+        files: new Set([...files].filter((path) => !path.endsWith(".d.mts"))),
+        manifest,
+      }),
+    /missing published target dist\/index\.d\.mts/u,
+  );
+  assert.throws(
+    () =>
+      verifyPackedContents({
+        files: new Set([...files].filter((path) => path !== "README.md")),
+        manifest,
+      }),
+    /does not contain declared files entry README\.md/u,
+  );
+});
+
 test("rejects release receipt tarballs outside the audited directory", async () => {
   const root = await mkdtemp(join(tmpdir(), "drever-release-receipt-"));
   temporaryRoots.push(root);
@@ -289,18 +340,25 @@ test("updates every lockstep and mirrored runtime version", async () => {
   const root = await mkdtemp(join(tmpdir(), "drever-release-version-"));
   temporaryRoots.push(root);
   const version = "0.0.0-commit.g0123456789ab";
-  const packageDirectories = new Set([
-    "packages/core",
-    "plugins/drever",
-    ...runtimeVersionFiles.map((path) => path.split("/").slice(0, 2).join("/")),
-  ]);
-  const manifests = [...packageDirectories].map((directory) => [
-    `${directory}/package.json`,
-    {
-      name: directory === "plugins/drever" ? "@drever/agent" : `@drever/${directory.slice(9)}`,
-      version: "0.0.0",
-    },
-  ]);
+  const manifests = [
+    ["packages/core/package.json", { name: "@drever/core", version: "0.0.0" }],
+    ["packages/plugin/package.json", { name: "@drever/plugin", version: "0.0.0" }],
+    ["packages/plugin-charts/package.json", { name: "@drever/plugin-charts", version: "0.0.0" }],
+    [
+      "packages/designs/package.json",
+      {
+        name: "@drever/designs",
+        version: "0.0.0",
+        exports: {
+          "./atlas": { import: "./dist/atlas.mjs" },
+          "./atlas/theme.css": "./themes/atlas/theme.css",
+          "./studio": { import: "./dist/studio.mjs" },
+          "./studio/theme.css": "./themes/studio/theme.css",
+        },
+      },
+    ],
+    ["plugins/drever/package.json", { name: "@drever/agent", version: "0.0.0" }],
+  ];
   for (const [path, value] of manifests) {
     await mkdir(dirname(join(root, path)), { recursive: true });
     await writeFile(join(root, path), json(value), "utf8");
@@ -318,10 +376,17 @@ test("updates every lockstep and mirrored runtime version", async () => {
     await mkdir(dirname(join(root, path)), { recursive: true });
     await writeFile(join(root, path), json({ name: "drever", version: "0.0.0" }), "utf8");
   }
+  const runtimeVersionFiles = [
+    "packages/designs/src/atlas/index.ts",
+    "packages/designs/src/studio/index.ts",
+    "packages/plugin-charts/src/index.ts",
+  ];
   for (const path of runtimeVersionFiles) {
     await mkdir(dirname(join(root, path)), { recursive: true });
     await writeFile(join(root, path), 'export const value = {\n  version: "0.0.0",\n};\n', "utf8");
   }
+
+  assert.deepEqual(await readRuntimeVersionFiles(root), runtimeVersionFiles);
 
   await setReleaseVersion(root, version);
 

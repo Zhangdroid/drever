@@ -7,10 +7,11 @@ import { join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify, stripVTControlCharacters } from "node:util";
 import { chromium } from "@playwright/test";
+import { verifyPackedTarball } from "./package-contract.mjs";
+import { readPublicPackages } from "./release.mjs";
 
 const execute = promisify(execFile);
 const root = fileURLToPath(new URL("../", import.meta.url));
-const packageRoots = [join(root, "packages"), join(root, "plugins")];
 const temporaryRoot = await realpath(await mkdtemp(join(tmpdir(), "drever-consumer-")));
 const packsRoot = join(temporaryRoot, "packs");
 const consumerRoot = join(temporaryRoot, "consumer");
@@ -160,22 +161,7 @@ const compareTrees = async (expectedRoot, actualRoot, label) => {
   }
 };
 
-const publicPackages = (
-  await Promise.all(
-    packageRoots.map(async (packageRoot) =>
-      Promise.all(
-        (await readdir(packageRoot, { withFileTypes: true }))
-          .filter((entry) => entry.isDirectory())
-          .map(async (entry) => ({
-            directory: join(packageRoot, entry.name),
-            manifest: await readJson(join(packageRoot, entry.name, "package.json")),
-          })),
-      ),
-    ),
-  )
-)
-  .flat()
-  .filter(({ manifest }) => manifest.private !== true);
+const publicPackages = await readPublicPackages(root);
 
 try {
   await mkdir(packsRoot, { recursive: true });
@@ -185,6 +171,10 @@ try {
     const path = stdout.trim().split("\n").at(-1);
     if (path === undefined || !path.endsWith(".tgz")) {
       throw new Error(`Could not locate the packed tarball for ${manifest.name}.`);
+    }
+    const packedManifest = await verifyPackedTarball(path);
+    if (packedManifest.name !== manifest.name) {
+      throw new Error(`${manifest.name} packed as ${packedManifest.name}.`);
     }
     tarballs.set(manifest.name, path);
   }

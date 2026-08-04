@@ -20,40 +20,27 @@ test("every official plugin is documented and demonstrated", async () => {
   const plugins = await Promise.all(
     directories.map(async (directory) => {
       const manifest = await readJson(`packages/${directory}/package.json`);
-      return { directory, id: manifest.name };
+      return manifest.name;
     }),
   );
   const catalogs = await Promise.all(catalogFiles.map(async (path) => [path, await read(path)]));
-  const [
-    cliManifest,
-    cliFacade,
-    cliProject,
-    featureConfig,
-    featureManifest,
-    releaseSource,
-    visualCatalog,
-  ] = await Promise.all([
-    readJson("packages/cli/package.json"),
-    read("packages/cli/src/index.ts"),
-    read("packages/cli/src/project.ts"),
-    read("examples/feature-gallery/drever.config.ts"),
-    readJson("examples/feature-gallery/package.json"),
-    read("scripts/release.mjs"),
-    read("website/src/components/doc-showcase.tsx"),
-  ]);
+  const [cliManifest, cliFacade, cliProject, featureConfig, featureManifest, visualCatalog] =
+    await Promise.all([
+      readJson("packages/cli/package.json"),
+      read("packages/cli/src/index.ts"),
+      read("packages/cli/src/project.ts"),
+      read("examples/feature-gallery/drever.config.ts"),
+      readJson("examples/feature-gallery/package.json"),
+      read("website/src/components/doc-showcase.tsx"),
+    ]);
 
-  for (const { directory, id } of plugins) {
+  for (const id of plugins) {
     assert.equal(typeof id, "string", "Official plugin packages must have a package name.");
     for (const [path, source] of catalogs) {
       assert.ok(source.includes(id), `${id} is missing from ${path}`);
     }
 
     assert.ok(visualCatalog.includes(id), `${id} is missing from the visual website catalog`);
-    assert.ok(
-      releaseSource.includes(`packages/${directory}/src/index.ts`),
-      `${id} is missing from release runtime version metadata`,
-    );
-
     const includedByDefault = Object.hasOwn(cliManifest.dependencies, id);
     if (includedByDefault) {
       assert.ok(cliProject.includes(id), `${id} is not wired into the CLI defaults`);
