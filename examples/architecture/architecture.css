@@ -618,15 +618,15 @@
 .arch-story-approval {
   position: absolute;
   z-index: 3;
-  right: 401px;
-  bottom: -8px;
+  top: 298px;
+  right: 0;
   display: grid;
-  min-width: 302px;
-  min-height: 70px;
+  width: 286px;
+  min-height: 54px;
   box-sizing: border-box;
-  padding: 12px 21px 12px 67px;
+  padding: 9px 15px 9px 56px;
   border: 1px solid var(--arch-border-strong);
-  border-radius: 35px;
+  border-radius: 14px;
   align-content: center;
   background: rgb(24 16 79 / 94%);
   box-shadow: var(--arch-shadow);
@@ -638,18 +638,28 @@
   gap: 2px;
 }
 
+.arch-story-approval::before {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  width: 1px;
+  height: 20px;
+  background: linear-gradient(transparent, var(--arch-border-strong));
+  content: "";
+}
+
 .arch-story-approval > span {
   position: absolute;
-  top: 12px;
-  left: 13px;
+  top: 9px;
+  left: 11px;
   display: grid;
-  width: 44px;
-  height: 44px;
+  width: 34px;
+  height: 34px;
   border: 1px solid var(--arch-border-strong);
   border-radius: 50%;
   place-items: center;
   color: var(--arch-dim);
-  font-size: 20px;
+  font-size: 16px;
 }
 
 [data-drever-slide] .arch-story-approval strong {
@@ -670,7 +680,7 @@
 .arch-story-approval[data-state="active"] {
   border-color: rgb(219 255 79 / 68%);
   opacity: 1;
-  transform: translateY(-5px);
+  transform: translateY(-3px);
 }
 
 .arch-story-approval[data-state="active"] > span {
@@ -833,8 +843,8 @@
 .arch-compiler-track {
   position: absolute;
   top: 121px;
-  right: 95px;
-  left: 95px;
+  right: calc(10% - 11.2px);
+  left: calc(10% - 11.2px);
   height: 2px;
   overflow: hidden;
   background: var(--arch-border);
@@ -1043,12 +1053,10 @@
 
 .arch-evidence-probe__scan {
   position: absolute;
-  top: 0;
+  top: 44px;
   right: 18px;
-  bottom: 0;
   left: 18px;
   height: 1px;
-  margin: auto 0;
   background: linear-gradient(90deg, transparent, var(--arch-signal), transparent);
   box-shadow: 0 0 20px rgb(219 255 79 / 58%);
 }
@@ -1515,17 +1523,6 @@
   line-height: 1.45;
 }
 
-.arch-commit-code {
-  position: absolute;
-  right: 0;
-  bottom: 18px;
-  left: 0;
-  color: var(--arch-signal);
-  font-family: ui-monospace, SFMono-Regular, monospace;
-  font-size: 14px;
-  text-align: center;
-}
-
 .arch-surface-delivery {
   position: relative;
   display: grid;
@@ -1959,7 +1956,7 @@
 }
 
 .arch-failure-boundary[data-failed] .arch-resource-transaction > div {
-  opacity: 0.34;
+  opacity: 0.5;
   translate: -8px 0;
 }
 

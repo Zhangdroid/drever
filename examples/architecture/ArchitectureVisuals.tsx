@@ -298,9 +298,9 @@ export const DesignEvidence = (): ReactElement => (
     </span>
     <div className="arch-evidence-probe">
       <span className="arch-evidence-probe__scan" aria-hidden="true" />
-      <small>ISOLATED CHROMIUM</small>
-      <strong>1600 × 900</strong>
-      <span>computed evidence</span>
+      <small>ISOLATED BROWSER</small>
+      <strong>Visual evidence</strong>
+      <span>type · color · spacing · geometry</span>
     </div>
     <span className="arch-design-evidence__arrow" aria-hidden="true">
       →
@@ -370,9 +370,6 @@ export const CommitProtocol = (): ReactElement => {
           </div>
         ))}
       </div>
-      <code className="arch-commit-code">
-        {"document.startViewTransition({ types: ['forward'], update })"}
-      </code>
     </div>
   );
 };
@@ -449,8 +446,8 @@ export const RenderedPreflight = (): ReactElement => {
         </header>
         <div>
           <i className="arch-preflight-browser__scan" />
-          <strong>1600 × 900</strong>
-          <span>Slide + every Step</span>
+          <strong>Every state</strong>
+          <span>Slide + every Step · deck canvas</span>
         </div>
       </div>
       <div className="arch-preflight-result">

@@ -5,6 +5,13 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+Release impact: **patch** — this is a compatible refinement to AI-authored visual review guidance.
+
+### Changed
+
+- Taught the bundled design and review skills to reject detached annotations, connector overshoot,
+  and implementation details that visually overpower the audience-facing claim.
+
 ## [0.10.0] - 2026-08-03
 
 Release impact: **minor** — this batch adds compatible public planning and rendered-preflight
