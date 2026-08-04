@@ -23,6 +23,15 @@ if (!metadata.isFile() || metadata.size === 0 || metadata.size > 256_000) {
 }
 
 const validation = JSON.parse(await readFile(validationPath, "utf8"));
+const validVisualEvidence =
+  typeof validation?.visualEvidence === "object" &&
+  validation.visualEvidence !== null &&
+  /^[0-9a-f]{64}$/u.test(validation.visualEvidence.contactSheets?.settled?.sha256 ?? "") &&
+  /^[0-9a-f]{64}$/u.test(validation.visualEvidence.contactSheets?.transitions?.sha256 ?? "") &&
+  Array.isArray(validation.visualEvidence.attachments) &&
+  validation.visualEvidence.attachments.length === 2 &&
+  validation.visualEvidence.attachments[0] === "settled-contact-sheet.png" &&
+  validation.visualEvidence.attachments[1] === "transition-contact-sheet.png";
 if (
   validation?.schemaVersion !== 1 ||
   validation.version !== version ||
@@ -30,12 +39,15 @@ if (
   validation.scenarioId !== scenarioId ||
   validation.runId !== runId ||
   validation.sourceCommit !== sourceCommit ||
-  !["passed", "repairable-failure"].includes(validation.status) ||
+  !/^[0-9a-f]{64}$/u.test(validation.sourceSha256 ?? "") ||
+  !["review-required", "repairable-failure"].includes(validation.status) ||
   !Array.isArray(validation.diagnostics) ||
-  (validation.status === "passed" && validation.diagnostics.length !== 0) ||
+  (validation.status === "review-required" &&
+    (validation.diagnostics.length !== 0 || !validVisualEvidence)) ||
   (validation.status === "repairable-failure" &&
     (validation.diagnostics.length === 0 ||
       validation.diagnostics.length > 50 ||
+      (validation.visualEvidence !== null && !validVisualEvidence) ||
       validation.diagnostics.some(
         (diagnostic) =>
           typeof diagnostic !== "object" ||

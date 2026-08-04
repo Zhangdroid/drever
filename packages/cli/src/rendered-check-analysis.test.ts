@@ -19,6 +19,7 @@ const element = (
   layout = rect(),
   options: Readonly<{ source?: RenderedCheckSource; step?: number }> = {},
 ): RenderedCheckElement => ({
+  decorative: false,
   fragments: [layout],
   key,
   label: key,
@@ -27,6 +28,7 @@ const element = (
   ...(options.source === undefined ? {} : { source: options.source }),
   ...(options.step === undefined ? {} : { step: options.step }),
   tag: "h2",
+  textual: true,
 });
 
 const frame = (
@@ -102,6 +104,39 @@ describe("rendered check analysis", () => {
     ]);
 
     expect(diagnostics).toEqual([]);
+  });
+
+  it("warns only when readable text hugs a conservative canvas safe area", () => {
+    const diagnostics = analyzeRenderedCheckFrames([
+      frame(0, {
+        elements: [
+          element("edge-title", rect(8, 120, 360, 80)),
+          element("settled-copy", rect(24, 18, 360, 80)),
+          { ...element("edge-art", rect(0, 0, 1600, 900)), tag: "img", textual: false },
+        ],
+      }),
+    ]);
+
+    expect(diagnostics).toMatchObject([
+      {
+        code: "DREVER_RENDER_TEXT_SAFE_AREA",
+        severity: "warning",
+        details: {
+          clearance: {
+            "block-start": 120,
+            "inline-start": 8,
+          },
+          sides: ["inline-start"],
+          threshold: { block: 18, inline: 24 },
+        },
+      },
+    ]);
+  });
+
+  it("ignores explicitly decorative edge text in safe-area analysis", () => {
+    const decoration = { ...element("folio", rect(0, 0, 200, 40)), decorative: true };
+
+    expect(analyzeRenderedCheckFrames([frame(0, { elements: [decoration] })])).toEqual([]);
   });
 
   it("requires at least two language-neutral density signals", () => {

@@ -5,13 +5,32 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
-Release impact: **patch** — this batch contains compatible visual-review and audience-rendering
-refinements.
+Release impact: **minor** — this batch adds compatible rendered-quality diagnostics and a
+visual-refinement gate for AI-authored presentations.
+
+### Added
+
+- Added rendered text safe-area diagnostics for required copy that hugs the
+  canvas edge, including source evidence and a matching hard release-smoke
+  browser gate.
+- Added content-led scene recipes and practical typography, spacing, contrast,
+  and CJK-aware review baselines to the installed design, authoring, and review
+  skills.
 
 ### Changed
 
 - Taught the bundled design and review skills to reject detached annotations, connector overshoot,
   and implementation details that visually overpower the audience-facing claim.
+- Made every AI release-smoke candidate capture settled slides and adjacent
+  transition frames in a keyless browser job, return two bounded contact sheets
+  to its provider for one visual-refinement turn, and pass a fresh keyless build
+  before publication.
+- Kept full-canvas Stage backgrounds stationary by default and directed agents
+  to animate only meaningful inner paint, signals, or focal objects. Chapter
+  and closing palette changes now have an explicit live-background recipe.
+- Removed Real AI Runs from public website discovery while the automated visual
+  benchmark is being refined; retained runs remain directly addressable for
+  internal review.
 
 ### Fixed
 

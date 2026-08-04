@@ -166,6 +166,51 @@ most slides to a left-copy/right-artifact split. Let the content structure justi
 statements, full-canvas diagrams, single artifacts, sequences, comparisons, data fields, or
 asymmetric editorial layouts; visual variety without a narrative job is not a design system.
 
+<!-- drever-content-scene-contract:v1 -->
+
+## Translate content into a scene
+
+Before styling, classify each slide by its dominant reading job and record the chosen composition,
+focal object, motion owner, and static endpoint in `art-direction.md`. Use these recipes as tested
+starting points, not mandatory templates:
+
+- **Opening or chapter:** keep one short claim and one subject-specific focal artifact. After the
+  audience has had time to orient, a draw-on, highlight, or small state change may emphasize the
+  phrase that carries the premise. Avoid two prose-heavy focal regions.
+- **List or card sequence:** when order matters, keep the heading and layout fixed and reveal items
+  in reading order with `Step` or one deterministic stagger. When order does not matter, settle the
+  group together. Treat the group as one motion payload instead of giving every card an unrelated
+  effect.
+- **Dense text, quotation, or argument:** edit before shrinking. Move explanation to `Note` when the
+  room does not need to read it, then use weight, contrast-safe color, a rule, underline, or a
+  draw-on highlight on the few words that carry the claim. Use one emphasis grammar per claim; do
+  not animate or recolor every phrase.
+- **Comparison or table:** keep a stable aligned grid when people must look up exact values. Reveal
+  the changed row, column, or measure rather than moving the whole table. If breadth, velocity, or
+  competing streams are themselves the claim, a deterministic card wall, tag field, or slow
+  opposing row motion may replace the table; keep labels readable and provide a settled state.
+- **Process, route, or timeline:** keep milestones in one coordinate system and reveal them in
+  causal order. A signal must stay on its path and reach the authored endpoint. Persistent labels
+  and anchors do not drift while the active state changes.
+- **Metric or chart:** choose the visual encoding from the question—bars compare, dots rank, lines
+  trace a path, areas emphasize magnitude over a path, and donuts show a bounded part of a whole.
+  Animate only the series or measure whose meaning changed, and keep numbers in stable-width slots.
+- **Code, product surface, or interface:** show a real highlighted excerpt or credible artifact in
+  a stable media frame. Reveal the changed lines, state, or control; do not make the whole frame
+  enter repeatedly. Preserve a readable poster or final state for reduced motion and export.
+- **Image or media:** give the frame explicit geometry, crop, `object-fit`, and `object-position`.
+  Pan, zoom, or rotate only to direct attention to evidence, and reserve the largest painted
+  footprint before animating it.
+- **Section shift or close:** a meaningful chapter, conclusion, or call to action may introduce one
+  purposeful palette or atmosphere change. Keep the persistent Stage root stationary; transition
+  live inner color, glow, line, or signal layers and then bring in the new content. Never send the
+  full canvas background through the slide's View Transition or move it on every navigation edge.
+
+A quiet cut is a valid recipe. Add motion only when it clarifies order, causality, comparison,
+reveal, continuity, or a change of role. Across the deck, reserve a few subject-specific signature
+moments and let supporting slides remain calm; surprise comes from a meaningful departure at the
+right moment, not permanent activity.
+
 Implement `theme.ts` with `defineTheme`, `baseURL: import.meta.url`, a stable local ID, and:
 
 - semantic color, typography, spacing, shape, and motion tokens;
@@ -189,6 +234,43 @@ when the background itself is evidence or the meaningful scene. If a first glanc
 topology, particle, glow, or ambient motion before the title or evidence, reduce its contrast,
 opacity, sharpness, or motion amplitude. Give foreground cards enough opacity or a local scrim to
 separate them from the background before compromising legibility.
+
+## Use a presentation typography and spacing baseline
+
+Treat these values as practical starting ranges for a 1600 × 900 canvas, not universal quotas.
+Scale them with the configured canvas, language, venue, and content, then judge the rendered result
+at presentation distance.
+
+- Keep primary readable content inside an intentional safe area, normally about 6–8% of each canvas
+  dimension. Full-bleed backgrounds and media may cross it; readable overlays may not. Start panels
+  with roughly 24–40 CSS pixels of inner padding at this canvas size, and give non-rectangular
+  owners more room because their usable silhouette is smaller than their bounding box.
+- Start body copy around 28–36 CSS pixels, functional labels around 22–28, and display copy around
+  56–88, then adjust for distance and density. Treat 24 CSS pixels (18 points) as a floor rather
+  than a target for room-readable text, and avoid thin weights on projected or low-contrast media.
+- Use compact display leading only for short headings. Start multi-line body copy near 1.35–1.55;
+  CJK copy often needs the upper part of that range. Ensure authored surfaces still work when user
+  text spacing increases to 1.5 line height rather than clipping or overlapping.
+- Keep prose lines easy to reacquire, normally about 45–70 Latin characters or 20–36 CJK characters
+  per line. Recompose or split content before accepting long measure or tiny type. These are visual
+  targets, not automatic failures; proper nouns, code, charts, and intentional display lines differ.
+- Build spacing from a small consistent scale, usually multiples of 4 or 8. Outer safe area should
+  read as more generous than panel padding, and panel padding as more generous than related-item
+  gaps. Alignment is optical as well as numeric: correct the perceived edge of large type, round
+  marks, icons, and asymmetric shapes without breaking the shared grid.
+- Use type size, weight, spacing, and color to create hierarchy before adding another font. Keep
+  normal text at least 4.5:1 and large text at least 3:1 against every rendered background frame;
+  for projectors, ambient light, and essential copy, prefer visibly stronger separation.
+
+These baselines interpret primary guidance from
+[WCAG 2.2](https://www.w3.org/TR/WCAG22/),
+[Apple typography](https://developer.apple.com/design/human-interface-guidelines/typography) and
+[motion](https://developer.apple.com/design/human-interface-guidelines/motion),
+[Carbon typography](https://carbondesignsystem.com/elements/typography/type-sets/) and
+[spacing](https://carbondesignsystem.com/elements/spacing/overview/), and
+[Microsoft's accessible PowerPoint guidance](https://support.microsoft.com/en-us/office/make-your-powerpoint-presentations-accessible-to-people-with-disabilities-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25).
+The accessibility thresholds are minimum floors; rendered room legibility remains the deciding
+evidence.
 
 Every visible authored string is a reading promise. Treat any heading, body copy, label, caption,
 legend, annotation, link, code, table cell, or control that is not immediately legible at
@@ -283,6 +365,10 @@ the content preview is stable or after the primary worker explicitly transfers o
    Check intermediate motion frames in both directions for coordinate rebasing, activation timing,
    and paint containment, not only endpoints. Treat this live-preview pass as iteration evidence,
    not the final rendered completion gate.
+   Check safe areas, panel padding, line measure, line height, optical alignment, and contrast in
+   every inspected state. Confirm that the selected content-to-scene recipe still serves the claim
+   after rendering; replace a clever but illegible or purposeless treatment with the quieter
+   alternative.
 4. Check `/document`, reduced motion, and relevant speaker and export surfaces. Verify fonts and localized assets load without network-dependent generation.
 5. Review the result against `art-direction.md`: remove any prominent choice that cannot be justified as subject-led or clearly acknowledged as fallback.
 6. Once the applied design is stable, use the project-local `drever-review-deck` skill as the single

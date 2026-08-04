@@ -1,4 +1,5 @@
 import { cp, lstat, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { dirname, extname, join, relative, resolve, sep } from "node:path";
 import { validateDreverDeckPlanValue } from "../../packages/schema/src/deck-plan.ts";
 import { RELEASE_SMOKE_CLAUDE_BUDGET_USD, RELEASE_SMOKE_CLAUDE_MAX_TURNS } from "./limits.mjs";
@@ -51,6 +52,9 @@ export const RELEASE_SMOKE_ARTIFACT_SEED_PATHS = Object.freeze([
   "receipts/handoff.json",
   "receipts/scaffold.json",
 ]);
+export const RELEASE_SMOKE_VISUAL_EVIDENCE_PATH = ".release-smoke/evidence";
+export const RELEASE_SMOKE_VISUAL_REVIEW_RECEIPT =
+  "Settled and transition evidence from the pre-refinement source was supplied to the provider; the resulting source passed this fresh keyless rebuild";
 
 const sourceDirectories = new Set([
   "assets",
@@ -81,6 +85,11 @@ const sourceIgnoredPaths = new Set([
 const handoffConfigurationPaths = ["drever.config.ts", "drever.config.mjs", "drever.config.js"];
 const maxHandoffFileBytes = 1_000_000;
 const maxHandoffBytes = 4_000_000;
+const maxVisualEvidenceFileBytes = 16_000_000;
+const maxVisualEvidenceBytes = 64_000_000;
+const maxVisualEvidenceSlides = MAX_SLIDES;
+const maxVisualEvidenceTransitions = 128;
+const pngSignature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 const secretPatterns = [
   /\b(?:sk|sess)-[A-Za-z0-9_-]{16,}\b/gu,
   /\bnpm_[A-Za-z0-9]{16,}\b/gu,
@@ -104,7 +113,7 @@ const isChildPath = (root, path) => path === root || path.startsWith(`${root}${s
 const readJson = async (path) => JSON.parse(await readFile(path, "utf8"));
 export const json = (value) => `${JSON.stringify(value, null, 2)}\n`;
 
-export const createCodexExecArguments = ({ model, threadId, turn }) => {
+export const createCodexExecArguments = ({ images = [], model, threadId, turn }) => {
   const options = [
     "--json",
     "--skip-git-repo-check",
@@ -123,9 +132,10 @@ export const createCodexExecArguments = ({ model, threadId, turn }) => {
     "project_doc_fallback_filenames=[]",
     ...(model === undefined || model === "" ? [] : ["-m", model]),
   ];
+  const imageArguments = images.flatMap((image) => ["--image", image]);
   return threadId === undefined
-    ? ["exec", ...options, turn]
-    : ["exec", ...options, "resume", threadId, turn];
+    ? ["exec", ...options, ...imageArguments, turn]
+    : ["exec", ...options, "resume", ...imageArguments, threadId, turn];
 };
 
 export const createClaudePrintArguments = ({
@@ -278,6 +288,143 @@ export const copyReleaseSmokeHandoff = async (
 
 export const copyReleaseSmokeArtifactSeed = (sourceRoot, artifactRoot) =>
   copyBoundedRegularFiles(sourceRoot, artifactRoot, RELEASE_SMOKE_ARTIFACT_SEED_PATHS);
+
+const settledContactSheetPath = "settled-contact-sheet.png";
+const transitionContactSheetPath = "transition-contact-sheet.png";
+const visualEvidencePath = (path) =>
+  path === settledContactSheetPath ||
+  path === transitionContactSheetPath ||
+  /^states\/slide-\d{2}\.png$/u.test(path);
+
+export const readReleaseSmokeVisualEvidence = async (evidenceRoot, { required = false } = {}) => {
+  const root = resolve(evidenceRoot);
+  let manifestSource;
+  try {
+    const metadata = await lstat(join(root, "manifest.json"));
+    if (!metadata.isFile() || metadata.size === 0 || metadata.size > 64_000) {
+      throw new Error("Release smoke visual evidence manifest is invalid.");
+    }
+    manifestSource = await readFile(join(root, "manifest.json"), "utf8");
+  } catch (error) {
+    if (!required && error instanceof Error && "code" in error && error.code === "ENOENT") {
+      return undefined;
+    }
+    throw error;
+  }
+
+  const manifest = JSON.parse(manifestSource);
+  if (
+    manifest?.schemaVersion !== 1 ||
+    !/^[0-9a-f]{64}$/u.test(manifest.sourceSha256 ?? "") ||
+    manifest.viewport?.width !== 1600 ||
+    manifest.viewport?.height !== 900 ||
+    manifest.contactSheets?.settled?.path !== settledContactSheetPath ||
+    manifest.contactSheets?.transitions?.path !== transitionContactSheetPath ||
+    !Array.isArray(manifest.slides) ||
+    manifest.slides.length < MIN_SLIDES ||
+    manifest.slides.length > maxVisualEvidenceSlides ||
+    !Array.isArray(manifest.transitions) ||
+    manifest.transitions.length < manifest.slides.length - 1 ||
+    manifest.transitions.length > maxVisualEvidenceTransitions ||
+    !Array.isArray(manifest.attachments) ||
+    manifest.attachments.length !== 2 ||
+    !Array.isArray(manifest.reviewImages) ||
+    manifest.reviewImages.length !== manifest.slides.length + 2
+  ) {
+    throw new Error("Release smoke visual evidence does not satisfy the version-1 contract.");
+  }
+
+  const contactSheets = [manifest.contactSheets.settled, manifest.contactSheets.transitions];
+  const declared = [...contactSheets, ...manifest.slides];
+  const paths = declared.map((entry) => entry?.path);
+  const expectedAttachments = [settledContactSheetPath, transitionContactSheetPath];
+  if (
+    paths.some((path) => typeof path !== "string" || !visualEvidencePath(path)) ||
+    new Set(paths).size !== paths.length ||
+    manifest.attachments.some((path) => typeof path !== "string") ||
+    manifest.attachments.some((path, index) => path !== expectedAttachments[index]) ||
+    manifest.reviewImages.some((path, index) => path !== paths[index]) ||
+    new Set(manifest.reviewImages).size !== manifest.reviewImages.length ||
+    manifest.slides.some(
+      (slide, index) =>
+        slide.path !== `states/slide-${String(index + 1).padStart(2, "0")}.png` ||
+        slide.slide !== index + 1 ||
+        !Number.isInteger(slide.step) ||
+        slide.step < 0,
+    ) ||
+    manifest.transitions.some(
+      (transition) =>
+        typeof transition?.from !== "string" ||
+        !/^\/[^\s]*$/u.test(transition.from) ||
+        typeof transition.to !== "string" ||
+        !/^\/[^\s]*$/u.test(transition.to) ||
+        transition.sampledAtMilliseconds !== 80,
+    )
+  ) {
+    throw new Error("Release smoke visual evidence contains an invalid image allowlist.");
+  }
+
+  const files = [];
+  let totalBytes = Buffer.byteLength(manifestSource);
+  for (const entry of declared) {
+    if (
+      !Number.isInteger(entry.bytes) ||
+      entry.bytes <= pngSignature.length ||
+      entry.bytes > maxVisualEvidenceFileBytes ||
+      typeof entry.sha256 !== "string" ||
+      !/^[0-9a-f]{64}$/u.test(entry.sha256)
+    ) {
+      throw new Error(`Release smoke visual evidence metadata is invalid: ${entry.path}`);
+    }
+    const path = join(root, ...entry.path.split("/"));
+    const metadata = await lstat(path);
+    if (!metadata.isFile() || metadata.size !== entry.bytes) {
+      throw new Error(
+        `Release smoke visual evidence is not a matching regular file: ${entry.path}`,
+      );
+    }
+    const content = await readFile(path);
+    if (
+      !content.subarray(0, pngSignature.length).equals(pngSignature) ||
+      createHash("sha256").update(content).digest("hex") !== entry.sha256
+    ) {
+      throw new Error(`Release smoke visual evidence failed integrity checks: ${entry.path}`);
+    }
+    totalBytes += content.length;
+    if (totalBytes > maxVisualEvidenceBytes) {
+      throw new Error("Release smoke visual evidence exceeds the 64 MB limit.");
+    }
+    files.push({ content, path: entry.path });
+  }
+
+  return Object.freeze({
+    files: Object.freeze(files),
+    manifest: Object.freeze(manifest),
+    manifestSource,
+  });
+};
+
+export const copyReleaseSmokeVisualEvidence = async (sourceRoot, projectRoot) => {
+  const source = resolve(sourceRoot);
+  const destination = join(resolve(projectRoot), ...RELEASE_SMOKE_VISUAL_EVIDENCE_PATH.split("/"));
+  if (isChildPath(source, destination) || isChildPath(destination, source)) {
+    throw new Error("Release smoke visual evidence roots must be separate.");
+  }
+  const evidence = await readReleaseSmokeVisualEvidence(sourceRoot);
+  if (evidence === undefined) return undefined;
+  await rm(destination, { force: true, recursive: true });
+  await mkdir(destination, { recursive: true });
+  await writeFile(join(destination, "manifest.json"), evidence.manifestSource, "utf8");
+  for (const { content, path } of evidence.files) {
+    const output = join(destination, ...path.split("/"));
+    await mkdir(dirname(output), { recursive: true });
+    await writeFile(output, content);
+  }
+  return Object.freeze({
+    files: Object.freeze(["manifest.json", ...evidence.files.map(({ path }) => path)]),
+    manifest: evidence.manifest,
+  });
+};
 
 export const snapshotReleaseSmokeGenerationTree = async (projectRoot, immutablePaths) => {
   const root = resolve(projectRoot);
@@ -634,6 +781,16 @@ export const collectReleaseSmokeSource = async (
   const deckPlan = contents.find(({ path }) => path === "drever.plan.json")?.content;
   if (deckPlan !== undefined) assertReleaseSmokePlan(deckPlan, "approved");
 
+  const sourceHash = createHash("sha256");
+  for (const { content, path } of contents) {
+    const pathBytes = Buffer.from(path);
+    const contentBytes = Buffer.from(content);
+    sourceHash.update(`${String(pathBytes.length)}\n`);
+    sourceHash.update(pathBytes);
+    sourceHash.update(`${String(contentBytes.length)}\n`);
+    sourceHash.update(contentBytes);
+  }
+
   await rm(target, { force: true, recursive: true });
   for (const { content, path } of contents) {
     const output = join(target, ...path.split("/"));
@@ -643,6 +800,56 @@ export const collectReleaseSmokeSource = async (
   return Object.freeze({
     bytes: totalBytes,
     files: Object.freeze(files),
+    sha256: sourceHash.digest("hex"),
+  });
+};
+
+export const assertReleaseSmokeSourceReceipt = (declared, actual, label) => {
+  if (
+    typeof declared !== "object" ||
+    declared === null ||
+    !Number.isInteger(declared.bytes) ||
+    declared.bytes < 1 ||
+    !Array.isArray(declared.files) ||
+    declared.files.length === 0 ||
+    declared.files.some((path) => typeof path !== "string" || path === "") ||
+    !/^[0-9a-f]{64}$/u.test(declared.sha256 ?? "") ||
+    declared.bytes !== actual.bytes ||
+    declared.sha256 !== actual.sha256 ||
+    declared.files.length !== actual.files.length ||
+    declared.files.some((path, index) => path !== actual.files[index])
+  ) {
+    throw new Error(`${label} source receipt does not match its allowlisted source files.`);
+  }
+};
+
+export const releaseSmokeVisualReviewProvenance = (generation) => {
+  const review = generation?.visualReview;
+  const mechanicalRepair = generation?.repair;
+  const mechanicalHistoryValid =
+    mechanicalRepair === undefined ||
+    (mechanicalRepair?.kind === "mechanical-repair" &&
+      mechanicalRepair.visualEvidence === null &&
+      /^[0-9a-f]{64}$/u.test(mechanicalRepair.inputSourceSha256 ?? "") &&
+      /^[0-9a-f]{64}$/u.test(mechanicalRepair.outputSourceSha256 ?? "") &&
+      mechanicalRepair.outputSourceSha256 === review?.evidenceSourceSha256);
+  if (
+    review?.kind !== "visual-review" ||
+    !mechanicalHistoryValid ||
+    review.visualEvidence?.attachments !== 2 ||
+    !/^[0-9a-f]{64}$/u.test(review.evidenceSourceSha256 ?? "") ||
+    !/^[0-9a-f]{64}$/u.test(review.outputSourceSha256 ?? "") ||
+    !/^[0-9a-f]{64}$/u.test(review.visualEvidence.settledContactSheetSha256 ?? "") ||
+    !/^[0-9a-f]{64}$/u.test(review.visualEvidence.transitionContactSheetSha256 ?? "") ||
+    review.outputSourceSha256 !== generation.source?.sha256
+  ) {
+    throw new Error("Release smoke generation has no valid visual-review provenance.");
+  }
+  return Object.freeze({
+    evidenceSourceSha256: review.evidenceSourceSha256,
+    outputSourceSha256: review.outputSourceSha256,
+    settledContactSheetSha256: review.visualEvidence.settledContactSheetSha256,
+    transitionContactSheetSha256: review.visualEvidence.transitionContactSheetSha256,
   });
 };
 

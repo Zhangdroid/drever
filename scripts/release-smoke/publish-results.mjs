@@ -5,8 +5,10 @@ import {
   json,
   mergeReleaseSmokeManifest,
   readOptionalJson,
+  releaseSmokeVisualReviewProvenance,
   RELEASE_SMOKE_RUN_SCHEMA_VERSION,
   RELEASE_SMOKE_SCHEMA_VERSION,
+  RELEASE_SMOKE_VISUAL_REVIEW_RECEIPT,
 } from "./contract.mjs";
 import { releaseSmokeCaseId, releaseSmokeProviders } from "./providers.mjs";
 import { releaseSmokeScenarios } from "./scenarios.mjs";
@@ -121,7 +123,11 @@ const cases = await Promise.all(
     releaseSmokeScenarios.map(async (scenario) => {
       const id = releaseSmokeCaseId(provider.id, scenario.id);
       const source = join(resultsRoot, id);
-      const value = JSON.parse(await readFile(join(source, "case.json"), "utf8"));
+      const [value, generation] = await Promise.all([
+        readFile(join(source, "case.json"), "utf8").then(JSON.parse),
+        readFile(join(source, "generation.json"), "utf8").then(JSON.parse),
+      ]);
+      const visualReview = releaseSmokeVisualReviewProvenance(generation);
       if (
         value.schemaVersion !== RELEASE_SMOKE_RUN_SCHEMA_VERSION ||
         value.id !== id ||
@@ -131,7 +137,14 @@ const cases = await Promise.all(
         value.provider?.model !== provider.model ||
         value.version !== version ||
         value.sourceCommit !== releaseCommit ||
-        value.status !== "passed"
+        generation?.schemaVersion !== RELEASE_SMOKE_SCHEMA_VERSION ||
+        generation.version !== version ||
+        generation.provider?.id !== provider.id ||
+        generation.scenarioId !== scenario.id ||
+        value.status !== "passed" ||
+        !Array.isArray(value.checks) ||
+        !value.checks.includes(RELEASE_SMOKE_VISUAL_REVIEW_RECEIPT) ||
+        JSON.stringify(value.visualReview) !== JSON.stringify(visualReview)
       ) {
         throw new Error(`Built result does not match release smoke case: ${id}`);
       }
@@ -263,10 +276,14 @@ const validationSummary =
   resultKind === "preview"
     ? `Generated source crossed an allowlist boundary before a separate local
 validation process—without either provider key—installed, checked, built, and
-opened every live surface in Chromium.`
+opened every live surface in Chromium. Settled and transition evidence from
+that pre-refinement source was then supplied to one bounded provider turn. The
+resulting source passed a fresh keyless rebuild.`
     : `Generated source crossed an allowlist boundary before a separate
 job—without either provider secret—installed, checked, built, and opened every live
-surface in Chromium.`;
+surface in Chromium. One bounded provider turn then received settled and
+transition evidence from that pre-refinement source. The resulting source then
+passed a fresh keyless rebuild.`;
 await mkdir(dirname(bodyPath), { recursive: true });
 await writeFile(
   bodyPath,
@@ -280,10 +297,12 @@ ${deckLinks}
 - [Conversation and verification report](${previewOrigin}/release-smoke/)
 ${provenanceLink}
 
-No screenshots or PDFs are stored. Each linked deck is the production static
-build itself. Raw model reasoning and command streams are not published; the
-site receives only the sanitized user/assistant transcript and structured
-receipts. No generated smoke evidence is committed to the repository.
+Each linked deck is the production static build itself. Screenshots and PDFs
+are not published. Bounded contact sheets may be retained temporarily as
+internal validation evidence in 30-day workflow artifacts, but are not copied
+to Pages or the public report. Raw model reasoning and command streams are not
+published; the site receives only the sanitized user/assistant transcript and
+structured receipts. No generated smoke evidence is committed to the repository.
 `,
   "utf8",
 );

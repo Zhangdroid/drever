@@ -16,6 +16,59 @@ export const releaseSmokeStatePath = (mountPath, { slideIndex, slideNumber, step
   return `${mountPath}/${String(slideNumber)}${step === 0 ? "" : `/${String(step)}`}`;
 };
 
+const TEXT_SAFE_AREA_BLOCK_RATIO = 0.02;
+const TEXT_SAFE_AREA_INLINE_RATIO = 0.015;
+const TEXT_SAFE_AREA_MINIMUM = 6;
+
+const round = (value) => Math.round(value * 10) / 10;
+
+export const releaseSmokeTextSafeAreaIssues = (frame) => {
+  const canvas = frame.slide.rect;
+  const threshold = {
+    block: round(Math.max(TEXT_SAFE_AREA_MINIMUM, canvas.height * TEXT_SAFE_AREA_BLOCK_RATIO)),
+    inline: round(Math.max(TEXT_SAFE_AREA_MINIMUM, canvas.width * TEXT_SAFE_AREA_INLINE_RATIO)),
+  };
+  return (frame.textElements ?? []).flatMap((element) => {
+    if (element.decorative) return [];
+    const rect = element.rect;
+    if (
+      rect.width <= 0 ||
+      rect.height <= 0 ||
+      rect.x < canvas.x ||
+      rect.y < canvas.y ||
+      rect.x + rect.width > canvas.x + canvas.width ||
+      rect.y + rect.height > canvas.y + canvas.height
+    ) {
+      return [];
+    }
+    const clearance = {
+      "block-end": round(canvas.y + canvas.height - (rect.y + rect.height)),
+      "block-start": round(rect.y - canvas.y),
+      "inline-end": round(canvas.x + canvas.width - (rect.x + rect.width)),
+      "inline-start": round(rect.x - canvas.x),
+    };
+    const sides = Object.keys(clearance).filter((side) =>
+      side.startsWith("inline")
+        ? clearance[side] < threshold.inline
+        : clearance[side] < threshold.block,
+    );
+    return sides.length === 0
+      ? []
+      : [
+          {
+            type: "text-safe-area",
+            clearance,
+            key: element.key,
+            label: element.label,
+            rect,
+            sides,
+            tag: element.tag,
+            threshold,
+          },
+        ];
+  });
+};
+
 const largeLayoutChange = (before, after, slide) => {
   const widthChange = Math.abs(after.width - before.width);
   const heightChange = Math.abs(after.height - before.height);
@@ -102,6 +155,7 @@ export const captureReleaseSmokeFrame = () => {
       ],
       slide: { id: "", index: -1, rect: { height: 0, width: 0, x: 0, y: 0 }, step: 0 },
       stepElements: [],
+      textElements: [],
       visibleElementCount: 0,
     };
   }
@@ -116,6 +170,8 @@ export const captureReleaseSmokeFrame = () => {
   const slideRect = slide.getBoundingClientRect();
   const meaningfulSelector =
     'h1,h2,h3,h4,h5,h6,p,li,a,button,img[alt]:not([alt=""]),svg[aria-label],pre,code,table,[role="img"],[aria-label]';
+  const textSelector = "h1,h2,h3,h4,h5,h6,p,li,a,button,pre,code,th,td";
+  const fallbackTextOwners = new Set();
   const directText = (element) =>
     [...element.childNodes]
       .filter((node) => node.nodeType === Node.TEXT_NODE)
@@ -207,9 +263,64 @@ export const captureReleaseSmokeFrame = () => {
         }
       : null;
   };
+  const textPaintRect = (element) => {
+    const fragments = [];
+    const fallback = fallbackTextOwners.has(element);
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node !== null; node = walker.nextNode()) {
+      if (
+        (node.textContent ?? "").trim().length === 0 ||
+        (fallback
+          ? node.parentElement !== element
+          : node.parentElement?.closest(textSelector) !== element) ||
+        !isVisible(node.parentElement)
+      ) {
+        continue;
+      }
+      const range = document.createRange();
+      range.selectNode(node);
+      for (const fragment of range.getClientRects()) {
+        if (fragment.width > 0.5 && fragment.height > 0.5) fragments.push(fragment);
+      }
+    }
+    if (fragments.length === 0) return null;
+    const left = Math.min(...fragments.map(({ left }) => left));
+    const right = Math.max(...fragments.map(({ right }) => right));
+    const top = Math.min(...fragments.map(({ top }) => top));
+    const bottom = Math.max(...fragments.map(({ bottom }) => bottom));
+    return { x: left, y: top, width: right - left, height: bottom - top };
+  };
 
+  const textWalker = document.createTreeWalker(slide, NodeFilter.SHOW_TEXT);
+  for (let node = textWalker.nextNode(); node !== null; node = textWalker.nextNode()) {
+    const parent = node.parentElement;
+    if (
+      parent !== null &&
+      (node.textContent ?? "").trim().length > 0 &&
+      parent.closest(meaningfulSelector) === null &&
+      isVisible(parent)
+    ) {
+      fallbackTextOwners.add(parent);
+    }
+  }
   const meaningfulElements = [...slide.querySelectorAll("*")].filter(isMeaningful);
   const visibleElements = meaningfulElements.filter(isVisible);
+  const textElements = [...slide.querySelectorAll(textSelector), ...fallbackTextOwners].flatMap(
+    (element) => {
+      if (!isVisible(element)) return [];
+      const rect = textPaintRect(element);
+      if (rect === null) return [];
+      return [
+        {
+          decorative: element.closest('[data-drever-visual-role="decoration"]') !== null,
+          key: pathFor(element),
+          label: labelFor(element),
+          rect: roundedRect(rect),
+          tag: element.localName,
+        },
+      ];
+    },
+  );
   const issues = visibleElements.flatMap((element) => {
     const rect = element.getBoundingClientRect();
     if (rect.width <= 0.5 || rect.height <= 0.5) return [];
@@ -247,6 +358,7 @@ export const captureReleaseSmokeFrame = () => {
       step: Number(slide.getAttribute("data-current-step") ?? 0),
     },
     stepElements,
+    textElements,
     visibleElementCount: visibleElements.length,
   };
 };

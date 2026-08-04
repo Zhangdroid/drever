@@ -11,6 +11,9 @@ import type {
 } from "./rendered-check-browser.ts";
 
 const GEOMETRY_TOLERANCE = 2;
+const TEXT_SAFE_AREA_BLOCK_RATIO = 0.02;
+const TEXT_SAFE_AREA_INLINE_RATIO = 0.015;
+const TEXT_SAFE_AREA_MINIMUM = 6;
 
 type FindingState = Readonly<{
   route: string;
@@ -293,6 +296,96 @@ const analyzeGeometry = (frames: readonly RenderedCheckFrame[]): Diagnostic[] =>
   return diagnostics;
 };
 
+type CanvasSide = "block-end" | "block-start" | "inline-end" | "inline-start";
+
+const rounded = (value: number): number => Math.round(value * 10) / 10;
+
+const safeAreaEvidence = (
+  frame: RenderedCheckFrame,
+  element: RenderedCheckElement,
+):
+  | Readonly<{
+      clearance: Readonly<Record<CanvasSide, number>>;
+      sides: readonly CanvasSide[];
+      threshold: Readonly<{ block: number; inline: number }>;
+    }>
+  | undefined => {
+  if (element.decorative || !element.textual) return;
+  const canvas = frame.slide.rect;
+  const rect = element.rect;
+  if (
+    rect.width <= 0 ||
+    rect.height <= 0 ||
+    rect.x < canvas.x ||
+    rect.y < canvas.y ||
+    rect.x + rect.width > canvas.x + canvas.width ||
+    rect.y + rect.height > canvas.y + canvas.height
+  ) {
+    return;
+  }
+  const clearance = {
+    "block-end": rounded(canvas.y + canvas.height - (rect.y + rect.height)),
+    "block-start": rounded(rect.y - canvas.y),
+    "inline-end": rounded(canvas.x + canvas.width - (rect.x + rect.width)),
+    "inline-start": rounded(rect.x - canvas.x),
+  };
+  const threshold = {
+    block: rounded(Math.max(TEXT_SAFE_AREA_MINIMUM, canvas.height * TEXT_SAFE_AREA_BLOCK_RATIO)),
+    inline: rounded(Math.max(TEXT_SAFE_AREA_MINIMUM, canvas.width * TEXT_SAFE_AREA_INLINE_RATIO)),
+  };
+  const sides = (Object.keys(clearance) as CanvasSide[]).filter((side) =>
+    side.startsWith("inline")
+      ? clearance[side] < threshold.inline
+      : clearance[side] < threshold.block,
+  );
+  return sides.length === 0 ? undefined : { clearance, sides, threshold };
+};
+
+const analyzeTextSafeArea = (frames: readonly RenderedCheckFrame[]): Diagnostic[] => {
+  const grouped = new Map<
+    string,
+    {
+      evidence: NonNullable<ReturnType<typeof safeAreaEvidence>>;
+      frame: RenderedCheckFrame;
+      element: RenderedCheckElement;
+      states: FindingState[];
+    }
+  >();
+  for (const frame of frames) {
+    for (const element of frame.elements) {
+      const evidence = safeAreaEvidence(frame, element);
+      if (evidence === undefined) continue;
+      const key = `${frame.slide.id}:${element.key}`;
+      const state = { route: frame.route, step: frame.slide.step };
+      const existing = grouped.get(key);
+      if (existing === undefined) {
+        grouped.set(key, { element, evidence, frame, states: [state] });
+      } else {
+        existing.states.push(state);
+      }
+    }
+  }
+  return [...grouped.values()].map(({ element, evidence, frame, states }) =>
+    diagnostic(
+      "DREVER_RENDER_TEXT_SAFE_AREA",
+      "warning",
+      `Readable ${element.tag} content hugs the canvas edge on slide ${frame.slide.index + 1}.`,
+      frame,
+      {
+        details: {
+          clearance: evidence.clearance,
+          element: elementDetails(element),
+          sides: evidence.sides,
+          states,
+          threshold: evidence.threshold,
+        },
+        element,
+        hint: 'Move required text farther inside the canvas or add deliberate container padding. Full-bleed media may reach the edge; mark truly non-content text artwork with data-drever-visual-role="decoration".',
+      },
+    ),
+  );
+};
+
 type DensitySignal = "line-fragments" | "semantic-elements" | "text-area";
 type DensityState = FindingState &
   RenderedCheckFrame["density"] &
@@ -385,6 +478,9 @@ const compareDiagnostics = (left: Diagnostic, right: Diagnostic): number => {
 export const analyzeRenderedCheckFrames = (
   frames: readonly RenderedCheckFrame[],
 ): readonly Diagnostic[] =>
-  [...analyzeIssues(frames), ...analyzeGeometry(frames), ...analyzeDensity(frames)].toSorted(
-    compareDiagnostics,
-  );
+  [
+    ...analyzeIssues(frames),
+    ...analyzeTextSafeArea(frames),
+    ...analyzeGeometry(frames),
+    ...analyzeDensity(frames),
+  ].toSorted(compareDiagnostics);

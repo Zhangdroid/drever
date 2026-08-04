@@ -15,6 +15,7 @@ export type RenderedCheckSource = Readonly<{
 }>;
 
 export type RenderedCheckElement = Readonly<{
+  decorative: boolean;
   fragments: readonly RenderedCheckRect[];
   key: string;
   label: string;
@@ -23,6 +24,7 @@ export type RenderedCheckElement = Readonly<{
   source?: RenderedCheckSource;
   step?: number;
   tag: string;
+  textual: boolean;
 }>;
 
 export type RenderedCheckIssue =
@@ -286,6 +288,7 @@ export const captureRenderedCheckFrame = (route: string): RenderedCheckFrame => 
     const stepValue = Number(stepOwner?.getAttribute("data-drever-step"));
     const fragments = paintRects(element);
     return {
+      decorative: element.closest('[data-drever-visual-role="decoration"]') !== null,
       fragments: fragments.map(rectangle),
       key: keyFor(element, source),
       label: labelFor(element),
@@ -294,6 +297,7 @@ export const captureRenderedCheckFrame = (route: string): RenderedCheckFrame => 
       ...(source === undefined ? {} : { source }),
       ...(Number.isSafeInteger(stepValue) && stepValue > 0 ? { step: stepValue } : {}),
       tag: element.localName,
+      textual: element.matches(textSelector) || fallbackTextOwners.has(element),
     };
   };
   const outside = (

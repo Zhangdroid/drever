@@ -300,6 +300,32 @@ describe("agent kit sync", () => {
     expect(reviewDeck).toMatch(/grow-then-shrink/iu);
   });
 
+  it("installs content-led scene and presentation typography guidance", async () => {
+    const root = await temporaryDirectory("drever-agent-project-");
+    await syncAgentKit({ root });
+
+    const createDesign = await read(root, ".agents/skills/drever-create-design/SKILL.md");
+    const authorDeck = await read(root, ".agents/skills/drever-author-deck/SKILL.md");
+    const reviewDeck = await read(root, ".agents/skills/drever-review-deck/SKILL.md");
+
+    expect(createDesign).toContain("<!-- drever-content-scene-contract:v1 -->");
+    expect(createDesign).toMatch(/List or card sequence[^]*deterministic stagger/iu);
+    expect(createDesign).toMatch(/Dense text[^]*draw-on highlight/iu);
+    expect(createDesign).toMatch(/deterministic card wall, tag field, or slow[^]*row motion/iu);
+    expect(createDesign).toMatch(/primary readable content[^]*6–8%/iu);
+    expect(createDesign).toMatch(/20–36 CJK characters/iu);
+    expect(createDesign).toMatch(/WCAG 2\.2/iu);
+
+    for (const contents of [createDesign, authorDeck, reviewDeck]) {
+      expect(contents).toMatch(/Stage root[^.]*stationary|Stage root stays fixed/iu);
+      expect(contents).toMatch(/safe area/iu);
+      expect(contents).toMatch(/panel padding|inner space/iu);
+    }
+    expect(authorDeck).toMatch(/Map the dominant content form before choosing an effect/iu);
+    expect(reviewDeck).toMatch(/reading job rather than from an effect\s+catalog/iu);
+    expect(reviewDeck).toMatch(/full-canvas\s+background[^.]*every navigation edge/iu);
+  });
+
   it("installs stable Step, active-keyframe, and rendered CSS contracts", async () => {
     const root = await temporaryDirectory("drever-agent-project-");
     await syncAgentKit({ root });

@@ -53,7 +53,18 @@ test("drever dev exposes the live audience and speaker position to local agents"
   });
 
   await page.goto("/document");
-  await expect.poll(readCurrentPosition).toBeUndefined();
+  await expect
+    .poll(async () => {
+      const current = await readCurrentPosition();
+      return (
+        current?.position.slideId === "slide-3" &&
+        current.position.slideIndex === 2 &&
+        current.position.step === 0 &&
+        current.route === "/speaker/3" &&
+        current.surface === "speaker"
+      );
+    })
+    .toBe(false);
 
   health.expectHealthy();
 });
