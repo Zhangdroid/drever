@@ -69,10 +69,16 @@ pnpm run build:website
 pnpm run preview:website
 ```
 
-`build:website` builds workspace packages, rebuilds the curated examples,
-prerenders every static route, copies the standalone demos, and verifies the
-final output. `preview:website` serves that exact `dist/client` directory
-through the Cloudflare Pages development server.
+`build:website` builds workspace packages, checks the curated examples, builds
+or restores their cached outputs with bounded concurrency, prerenders every
+static route, copies the standalone demos, and verifies the final output.
+`preview:website` serves that exact `dist/client` directory through the
+Cloudflare Pages development server.
+
+The scheduler uses up to four tasks by default. Set
+`DREVER_TASK_CONCURRENCY=<number>` when a build host needs a lower or higher
+limit. Final assembly and verification always run, even when every leaf build
+is restored from cache.
 
 ## Cloudflare Pages
 

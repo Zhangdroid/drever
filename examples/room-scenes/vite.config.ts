@@ -1,7 +1,9 @@
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite-plus";
+import { showcaseRunConfig } from "../../scripts/showcase-run-config.ts";
 
 export default defineConfig({
+  run: showcaseRunConfig,
   test: {
     alias: {
       "@drever/core": fileURLToPath(new URL("../../packages/core/src/index.ts", import.meta.url)),
