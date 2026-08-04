@@ -261,7 +261,7 @@ describe("loadBuildModules", () => {
     });
   });
 
-  it("resolves bare ESM build modules from the project root through one content-addressed proxy", async () => {
+  it("atomically shares one content-addressed proxy across concurrent loaders", async () => {
     const root = await mkdtemp(join(tmpdir(), "drever-build-loader-"));
     const packageDirectory = join(root, "node_modules", "fixture-plugin");
     try {
@@ -284,14 +284,16 @@ describe("loadBuildModules", () => {
         build: { remark: [entry("remark", "fixture-plugin")] },
       });
 
-      const first = await loadBuildModules(plan, { root });
-      const second = await loadBuildModules(plan, { root });
+      const results = await Promise.all(
+        Array.from({ length: 16 }, () => loadBuildModules(plan, { root })),
+      );
 
-      expect(first.ok).toBe(true);
-      expect(second.ok).toBe(true);
+      expect(results.every((result) => result.ok)).toBe(true);
       const cacheDirectory = join(root, ".drever", "cache", "build-modules");
-      const files = (await readdir(cacheDirectory)).filter((file) => file.endsWith(".mjs"));
+      const cacheEntries = await readdir(cacheDirectory);
+      const files = cacheEntries.filter((file) => file.endsWith(".mjs"));
       expect(files).toHaveLength(1);
+      expect(cacheEntries.filter((file) => file.endsWith(".tmp"))).toHaveLength(0);
       expect(await readFile(join(cacheDirectory, files[0] as string), "utf8")).toContain(
         'import * as buildModule from "fixture-plugin";',
       );
