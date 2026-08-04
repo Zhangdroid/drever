@@ -1,5 +1,4 @@
 import type { Diagnostic, DreverDeckPlan } from "@drever/schema";
-import type { StoryboardState } from "@drever/client/storyboard";
 import { join } from "node:path";
 import { normalizePath, type Plugin, type ViteDevServer } from "vite";
 import {
@@ -13,7 +12,15 @@ export const DREVER_STORYBOARD_PLAN_EVENT = "drever:storyboard-plan";
 export const DREVER_STORYBOARD_PLAN_REQUEST_EVENT = "drever:storyboard-plan-request";
 const RESOLVED_MODULE_ID = `\0${DREVER_STORYBOARD_PLAN_MODULE_ID}`;
 
-const publicDiagnostics = (diagnostics: readonly Diagnostic[]): readonly Diagnostic[] =>
+type StoryboardDiagnostic = Pick<Diagnostic, "code" | "hint" | "message" | "severity">;
+type StoryboardState = Readonly<{
+  diagnostics: readonly StoryboardDiagnostic[];
+  plan?: DreverDeckPlan;
+  revision: number;
+  status: "invalid" | "missing" | "ready" | "waiting";
+}>;
+
+const publicDiagnostics = (diagnostics: readonly Diagnostic[]): readonly StoryboardDiagnostic[] =>
   diagnostics.map(({ source: _source, ...diagnostic }) => Object.freeze(diagnostic));
 
 const createState = (
