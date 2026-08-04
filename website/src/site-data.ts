@@ -62,7 +62,7 @@ const demoContent = {
     meta: "Incubating source study · 4 slides",
   },
   architecture: {
-    meta: "Studio · 11 slides",
+    meta: "Studio · 14 slides",
   },
   spatial: {
     meta: "Cinema · 6 slides · Live 3D",

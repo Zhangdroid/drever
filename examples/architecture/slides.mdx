@@ -5,87 +5,121 @@ import {
   BuildGraph,
   CommitProtocol,
   CompilerRail,
+  DesignEvidence,
   FailureBoundary,
   InvariantMap,
-  StaticTopology,
+  RenderedPreflight,
+  StoryContract,
+  SurfaceDelivery,
   TestBoundaries,
 } from "./ArchitectureVisuals.tsx";
 import "../showcase-return.css";
 import "./architecture.css";
 
-<section aria-label="One source. Every surface agrees." className="arch-slide arch-opening">
+<section aria-label="One story. Every surface agrees." className="arch-slide arch-opening">
   <div className="arch-opening__copy">
     <span className="arch-kicker">Drever / architecture</span>
     <h1>
-      {"One source."}
+      {"One story."}
       <br />
       <em>Every surface agrees.</em>
     </h1>
-    <p>Drever turns authored intent into one contract before it becomes a presentation.</p>
+    <p>Drever turns reviewed intent into one inspectable contract before it reaches the room.</p>
   </div>
   <BuildGraph />
 </section>
 
 <Note>
-  This is an architecture of agreement, not a package tour. Follow one idea from readable source to
-  every place it must remain true.
+  This is an architecture of agreement, not a package tour. Follow one story from a reviewable plan
+  to every place where its meaning, position, and evidence must remain true.
 </Note>
 
 ---
 
 <section className="arch-slide">
   <header className="arch-slide-heading">
-    <span className="arch-kicker">01 / The problem</span>
+    <span className="arch-kicker">01 / The invariant</span>
     <h1>
       <span>First, decide</span>
       <br />
       <span>what must never drift.</span>
     </h1>
-    <p>Slide, Step, notes, and URL need one semantic center.</p>
+    <p>Story, slides, Steps, notes, and URL need one semantic center.</p>
   </header>
   <InvariantMap />
 </section>
 
 <Note>
   Without a shared contract, the audience, speaker, document, and export surfaces each invent a
-  slightly different deck. Drever fixes the meaning before those surfaces exist.
+  slightly different deck. Drever fixes meaning and position before those surfaces exist.
 </Note>
 
 ---
 
 <section className="arch-slide">
   <header className="arch-slide-heading arch-slide-heading--compact">
-    <span className="arch-kicker">02 / The contract</span>
-    <h1>Before pixels, the deck is data.</h1>
+    <span className="arch-kicker">02 / Story contract</span>
+    <h1>Before source, the story earns approval.</h1>
   </header>
-  <ArtifactLineage />
-  <MotionGroup className="arch-step-caption" flow="inline" intent="replace">
+  <StoryContract />
+  <MotionGroup
+    className="arch-step-caption arch-step-caption--centered"
+    flow="inline"
+    intent="focus"
+  >
     <Step at={1}>
-      <p>Deck IR gives authored meaning a serializable shape.</p>
+      <p>The brief records audience, desired change, duration, language, and density.</p>
     </Step>
     <Step at={2}>
-      <p>The manifest freezes every valid runtime position.</p>
+      <p>The Storyboard renders the plan without importing MDX, Theme, or runtime.</p>
     </Step>
     <Step at={3}>
-      <p>Runtime reads the contract. It never reverse-engineers the DOM.</p>
+      <p>A human approves the contract before design and authoring begin.</p>
     </Step>
   </MotionGroup>
 </section>
 
 <Note>
-  Advance three times. The source remains readable, Deck IR owns semantics, the manifest owns valid
-  positions, and runtime only interprets the sealed result.
+  Advance three times. The versioned drever.plan.json is a pre-authoring contract, not a compiler
+  pass and not a production dependency. Its development-only Storyboard gives people a fast,
+  design-neutral place to review the story before expensive authoring starts.
 </Note>
 
 ---
 
 <section className="arch-slide">
   <header className="arch-slide-heading arch-slide-heading--compact">
-    <span className="arch-kicker">03 / The compiler</span>
-    <h1 aria-label="Five owned passes turn intent into certainty.">
-      <span>Five owned passes</span>
+    <span className="arch-kicker">03 / Artifact lineage</span>
+    <h1>Each boundary leaves evidence behind.</h1>
+  </header>
+  <ArtifactLineage />
+  <MotionGroup className="arch-step-caption" flow="inline" intent="replace">
+    <Step at={1}>
+      <p>Deck IR gives authored meaning exact, serializable source ranges.</p>
+    </Step>
+    <Step at={2}>
+      <p>CompilePlan freezes extension order and public capability as JSON-safe data.</p>
+    </Step>
+    <Step at={3}>
+      <p>The deck artifact seals positions, notes, components, and manifest identity.</p>
+    </Step>
+  </MotionGroup>
+</section>
+
+<Note>
+  Advance three times. MDX stays readable, Deck IR owns semantics and source evidence, CompilePlan
+  owns resolved extension order, and the final artifact owns every valid runtime position.
+</Note>
+
+---
+
+<section className="arch-slide">
+  <header className="arch-slide-heading arch-slide-heading--compact">
+    <span className="arch-kicker">04 / Protected compilation</span>
+    <h1 aria-label="Extensions can transform content—not the deck contract.">
+      <span>Extensions transform content—</span>
       <br />
-      <span>turn intent into certainty.</span>
+      <span>not the deck contract.</span>
     </h1>
   </header>
   <CompilerRail />
@@ -95,33 +129,54 @@ import "./architecture.css";
     intent="focus"
   >
     <Step at={1}>
-      <p>Split reserves root-level slide boundaries before extensions run.</p>
+      <p>Fixed grammar reserves root slide boundaries before extensions run.</p>
     </Step>
     <Step at={2}>
-      <p>Analyze builds Deck IR with exact source ranges.</p>
+      <p>Analysis records Deck IR and exact authored source fragments.</p>
     </Step>
     <Step at={3}>
-      <p>Resolve validates theme, plugins, order, and provenance.</p>
+      <p>A JSON-safe CompilePlan resolves Theme, plugins, order, and provenance.</p>
     </Step>
     <Step at={4}>
-      <p>Compile runs protected Remark, Rehype, and Recma phases.</p>
+      <p>MDX 3 runs protected Remark, Rehype, and Recma boundaries.</p>
     </Step>
     <Step at={5}>
-      <p>Seal validates the result and emits one immutable manifest.</p>
+      <p>The finalizer rejects structural drift and seals the manifest.</p>
     </Step>
   </MotionGroup>
 </section>
 
 <Note>
-  Advance five times. Boundary detection happens first, so plugin order can never change pagination.
-  Each pass has one owner and one artifact to hand forward.
+  Advance five times. The public pipeline uses MDX 3 and upstream Vite 8, while Drever owns fixed
+  pagination grammar, extension ordering, protected structure, and final artifact identity.
 </Note>
 
 ---
 
 <section className="arch-slide">
   <header className="arch-slide-heading">
-    <span className="arch-kicker">04 / Extension boundaries</span>
+    <span className="arch-kicker">05 / Design evidence</span>
+    <h1>
+      <span>A reference becomes evidence—</span>
+      <br />
+      <span>not source.</span>
+    </h1>
+    <p>Design import observes a page, then writes code the project owns.</p>
+  </header>
+  <DesignEvidence />
+</section>
+
+<Note>
+  The fixed Chromium probe samples computed visual evidence. It never copies or hotlinks source
+  HTML, CSS, JavaScript, fonts, or images. The result is a local Pass-0 Theme and art direction that
+  the author can refine for the subject.
+</Note>
+
+---
+
+<section className="arch-slide">
+  <header className="arch-slide-heading">
+    <span className="arch-kicker">06 / Extension boundaries</span>
     <h1>
       <span>Design changes expression.</span>
       <br />
@@ -141,23 +196,23 @@ import "./architecture.css";
 
 <section className="arch-slide">
   <header className="arch-slide-heading arch-slide-heading--compact">
-    <span className="arch-kicker">05 / Canonical position</span>
+    <span className="arch-kicker">07 / Canonical position</span>
     <h1>One coordinate drives every surface.</h1>
   </header>
   <RouteCompiler />
 </section>
 
 <Note>
-  Change surface, slide, and Step. The URL is a deterministic projection of the manifest, and
-  production materializes the exact same position as a static file.
+  Change surface, slide, and Step. The controls are derived from the compiled manifest. The URL is
+  its deterministic projection, and production materializes the same position as a static file.
 </Note>
 
 ---
 
 <section className="arch-slide">
   <header className="arch-slide-heading arch-slide-heading--compact">
-    <span className="arch-kicker">06 / Navigation</span>
-    <h1>Navigation commits that coordinate once.</h1>
+    <span className="arch-kicker">08 / Native navigation</span>
+    <h1>One platform transaction commits it.</h1>
   </header>
   <CommitProtocol />
   <MotionGroup
@@ -166,41 +221,76 @@ import "./architecture.css";
     intent="focus"
   >
     <Step at={1}>
-      <p>URL, React, and native capture enter one atomic update.</p>
+      <p>Navigation API owns cancellation, focus, history, and manual scroll.</p>
     </Step>
     <Step at={2}>
-      <p>The committed position publishes to speaker and audience together.</p>
+      <p>React commits inside a typed document View Transition.</p>
+    </Step>
+    <Step at={3}>
+      <p>BroadcastChannel publishes the committed position—never a half-state.</p>
     </Step>
   </MotionGroup>
 </section>
 
 <Note>
-  Advance twice. The document owns native capture while named groups limit the visual surface and
-  React owns the state commit. The Stage background remains live, and no surface observes a
-  half-finished position.
+  Advance three times. Drever targets current browsers directly: Navigation API, document View
+  Transitions, BroadcastChannel, and ResizeObserver are one explicit platform contract rather than a
+  stack of legacy fallbacks.
 </Note>
 
 ---
 
 <section className="arch-slide">
   <header className="arch-slide-heading">
-    <span className="arch-kicker">07 / Static delivery</span>
-    <h1>The coordinate becomes a real file.</h1>
-    <p>Every valid deep link can reload without an application server.</p>
+    <span className="arch-kicker">09 / Delivery</span>
+    <h1>One route loads one surface.</h1>
+    <p>Portable static files keep deep links, metadata, and audience bundles honest.</p>
   </header>
-  <StaticTopology />
+  <SurfaceDelivery />
 </section>
 
 <Note>
-  This is generation, not an SPA fallback. Each route computes its deployment mount before assets
-  activate, including when the deck lives below a subdirectory.
+  The route bootstrap dynamically imports audience, document, or speaker code after resolving the
+  canonical URL. Export has its own isolated app. Every manifest position becomes a real file, and
+  typed deck metadata produces language, canonical, Open Graph, Twitter, and icon markup.
 </Note>
 
 ---
 
 <section className="arch-slide">
   <header className="arch-slide-heading arch-slide-heading--compact">
-    <span className="arch-kicker">08 / Owned failure</span>
+    <span className="arch-kicker">10 / Rendered preflight</span>
+    <h1>Inspect every state—not one lucky frame.</h1>
+  </header>
+  <RenderedPreflight />
+  <MotionGroup
+    className="arch-step-caption arch-step-caption--centered arch-step-caption--evidence"
+    flow="block"
+    intent="focus"
+  >
+    <Step at={1}>
+      <p>Exact Slide and Step routes render at the configured canvas in deterministic Chromium.</p>
+    </Step>
+    <Step at={2}>
+      <p>Stable diagnostics expose clipping, overflow, overlap, contrast, drift, and density.</p>
+    </Step>
+    <Step at={3}>
+      <p>A versioned receipt gives AI and people evidence for the next repair pass.</p>
+    </Step>
+  </MotionGroup>
+</section>
+
+<Note>
+  Advance three times. drever check --rendered runs only after source safety, builds an isolated
+  inspection app, and records the canvas, Chromium version, ruleset, state count, and result. Image
+  and gradient contrast remain explicit review warnings rather than false passes.
+</Note>
+
+---
+
+<section className="arch-slide">
+  <header className="arch-slide-heading arch-slide-heading--compact">
+    <span className="arch-kicker">11 / Owned failure</span>
     <h1>
       <span>Failure is reversible—</span>
       <br />
@@ -228,7 +318,7 @@ import "./architecture.css";
 
 <section className="arch-slide">
   <header className="arch-slide-heading arch-slide-heading--compact">
-    <span className="arch-kicker">09 / Evidence</span>
+    <span className="arch-kicker">12 / Evidence</span>
     <h1>Prove each promise where it can break.</h1>
   </header>
   <TestBoundaries />
@@ -238,17 +328,21 @@ import "./architecture.css";
     intent="focus"
   >
     <Step at={1}>
-      <p>Compiler tests protect the semantic artifact—not generated JavaScript snapshots.</p>
+      <p>Compiler tests protect serializable contracts—not generated JavaScript snapshots.</p>
     </Step>
     <Step at={2}>
-      <p>Browser tests protect reloads, transitions, synchronization, and static mounts.</p>
+      <p>Rendered checks protect every exact state at the real canvas.</p>
+    </Step>
+    <Step at={3}>
+      <p>Browser and real-AI runs protect the experience at its outermost boundary.</p>
     </Step>
   </MotionGroup>
 </section>
 
 <Note>
-  Advance twice. Unit tests protect pure state. Compiler tests protect the contract. Browser tests
-  protect the product where real platform behavior can fail.
+  Advance three times. Pure state, compiled artifacts, rendered geometry, and real user outcomes
+  each need different evidence. Agents can read the same versioned context, current position, and
+  check report without becoming another source of truth.
 </Note>
 
 ---
@@ -264,7 +358,7 @@ import "./architecture.css";
       <br />
       <em>by default.</em>
     </h1>
-    <p>One story. One position. Every surface in sync.</p>
+    <p>One story. One position. Inspectable evidence at every boundary.</p>
     <span className="drever-example-exit">
       <a
         className="drever-example-exit__primary"
@@ -281,6 +375,6 @@ import "./architecture.css";
 </section>
 
 <Note>
-  Return to the opening graph, now fully resolved. The architecture succeeds when authors can focus
-  on the story while every delivery surface remains predictably consistent.
+  Return to the opening graph, now fully resolved. The architecture succeeds when people can shape
+  the story while every delivery surface and every review tool agrees on the same explicit contract.
 </Note>

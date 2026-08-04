@@ -197,6 +197,20 @@
   transform: translate(820px, 414px);
 }
 
+.arch-stage-background[data-scene="design"] .arch-stage-background__wash {
+  opacity: 0.48;
+  transform: translate3d(-210px, 82px, 0) scale(0.88);
+}
+
+.arch-stage-background[data-scene="design"] .arch-stage-background__graph {
+  opacity: 0.15;
+  transform: translate3d(18px, -18px, 0) scale(1);
+}
+
+.arch-stage-background[data-scene="design"] .arch-stage-background__signal {
+  transform: translate(934px, 326px);
+}
+
 .arch-stage-background[data-scene="delivery"] .arch-stage-background__wash {
   opacity: 0.42;
   transform: translate3d(-260px, 228px, 0) scale(0.84);

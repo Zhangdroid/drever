@@ -2,9 +2,10 @@
 
 ## Premise
 
-The deck is a **Living Build Graph**. Authored intent enters one system, becomes a sealed
-semantic contract, and leaves as several surfaces that still agree. The visual language
-should make ownership, causality, and shared state visible before it explains packages.
+The deck is a **Living Build Graph**. An approved story plan enters one system, becomes
+authored source and a sealed semantic contract, then leaves as route-selected surfaces
+and rendered evidence that still agree. The visual language should make approval,
+ownership, causality, and shared state visible before it explains packages.
 
 ## Visual system
 
@@ -26,7 +27,7 @@ should make ownership, causality, and shared state visible before it explains pa
 - Pair a concise claim with a mostly visual artifact. Do not place a second prose panel
   beside a text-heavy claim.
 - Reuse the same nodes and signal across the story so the audience sees one system being
-  resolved, not eleven unrelated diagrams.
+  resolved, not fourteen unrelated diagrams.
 - Prefer connected structures over dashboards, card inventories, and equal-weight grids.
 - Show code only when its exact syntax proves the current architectural decision.
 

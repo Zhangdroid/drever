@@ -103,35 +103,36 @@ export function StudyCover({ study }: { study: StudyId }) {
   return (
     <div className="study-cover study-cover--architecture" aria-hidden="true">
       <header className="study-cover__meta">
-        <span>Build graph</span>
-        <small>01 source · 04 surfaces</small>
+        <span>Story → proof</span>
+        <small>14 slides · 04 surfaces</small>
       </header>
       <div className="architecture-study__graph">
         <div className="architecture-study__node architecture-study__node--source">
-          <small>Author</small>
-          <strong>MDX</strong>
+          <small>Approve</small>
+          <strong>Plan</strong>
         </div>
         <i className="architecture-study__edge architecture-study__edge--one" />
         <div className="architecture-study__node architecture-study__node--compile">
           <small>Compile</small>
-          <strong>AST</strong>
+          <strong>Deck IR</strong>
         </div>
         <i className="architecture-study__edge architecture-study__edge--two" />
         <div className="architecture-study__node architecture-study__node--runtime">
-          <small>Runtime</small>
-          <strong>React</strong>
+          <small>Seal</small>
+          <strong>Manifest</strong>
         </div>
         <i className="architecture-study__edge architecture-study__edge--three" />
         <div className="architecture-study__outputs">
           <span>Audience</span>
           <span>Speaker</span>
           <span>Document</span>
+          <span>Export</span>
         </div>
         <b className="architecture-study__pulse" />
       </div>
       <footer className="study-cover__foot">
-        <span>Deterministic pipeline</span>
-        <small>Inspect every boundary</small>
+        <span>Routes select surfaces</span>
+        <small>Checks return evidence</small>
       </footer>
     </div>
   );

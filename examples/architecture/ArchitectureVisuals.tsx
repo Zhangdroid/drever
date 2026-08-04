@@ -25,20 +25,22 @@ export const BuildGraph = ({
 }: Readonly<{ resolved?: boolean }>): ReactElement => (
   <div className="arch-build-graph" data-resolved={resolved ? "" : undefined}>
     <svg aria-hidden="true" viewBox="0 0 760 430">
-      <path className="arch-edge" d="M130 215H165" />
-      <path className="arch-edge" d="M285 215H320" />
-      <path className="arch-edge" d="M440 215H475" />
-      <path className="arch-edge" d="M595 215H615" />
-      <path className="arch-edge" d="M615 215V89H632" />
-      <path className="arch-edge" d="M615 215V189H632" />
-      <path className="arch-edge" d="M615 215V289H632" />
-      <path className="arch-edge" d="M615 215V389H632" />
-      <path className="arch-edge arch-edge--signal" d="M130 215H615V89H632" pathLength="1" />
+      <path className="arch-edge" d="M112 215H130" />
+      <path className="arch-edge" d="M242 215H260" />
+      <path className="arch-edge" d="M372 215H390" />
+      <path className="arch-edge" d="M502 215H520" />
+      <path className="arch-edge" d="M632 215H640" />
+      <path className="arch-edge" d="M640 215V89H650" />
+      <path className="arch-edge" d="M640 215V189H650" />
+      <path className="arch-edge" d="M640 215V289H650" />
+      <path className="arch-edge" d="M640 215V389H650" />
+      <path className="arch-edge arch-edge--signal" d="M112 215H640V89H650" pathLength="1" />
     </svg>
+    <GraphNode className="arch-node--plan" detail="APPROVED" label="Story" />
     <GraphNode className="arch-node--source" detail="AUTHORED" label="MDX" />
     <GraphNode className="arch-node--ir" detail="SEMANTICS" label="Deck IR" />
-    <GraphNode className="arch-node--manifest" detail="CONTRACT" label="Manifest" signal />
-    <GraphNode className="arch-node--runtime" detail="INTERPRETER" label="Runtime" />
+    <GraphNode className="arch-node--compile" detail="RESOLVED" label="Plan" />
+    <GraphNode className="arch-node--artifact" detail="SEALED" label="Artifact" signal />
     <div className="arch-surface-stack">
       <GraphNode detail="SURFACE" label="Audience" signal={resolved} />
       <GraphNode detail="SURFACE" label="Speaker" signal={resolved} />
@@ -71,14 +73,91 @@ export const InvariantMap = (): ReactElement => (
     <div className="arch-contract-core">
       <small>SEMANTIC CENTER</small>
       <strong>Deck contract</strong>
-      <span>slides · steps · notes · source</span>
+      <span>story · slides · steps · notes · source</span>
     </div>
-    <Surface className="arch-drift--audience" label="Audience" value="04 / step 5" />
-    <Surface className="arch-drift--speaker" label="Speaker" value="04 / step 5" />
-    <Surface className="arch-drift--document" label="Document" value="04 / step 5" />
-    <Surface className="arch-drift--export" label="Export" value="04 / step 5" />
+    <Surface className="arch-drift--audience" label="Audience" value="09 / step 3" />
+    <Surface className="arch-drift--speaker" label="Speaker" value="09 / step 3" />
+    <Surface className="arch-drift--document" label="Document" value="09 / step 3" />
+    <Surface className="arch-drift--export" label="Export" value="09 / step 3" />
   </div>
 );
+
+const storyState = (index: number, active: number): "active" | "passed" | undefined => {
+  if (index === active) return "active";
+  if (index < active) return "passed";
+};
+
+export const StoryContract = (): ReactElement => {
+  const { position } = useStage();
+  const active = Math.min(position.step, 3);
+
+  return (
+    <div className="arch-story-contract" style={{ "--story-step": active } as CSSProperties}>
+      <svg aria-hidden="true" viewBox="0 0 1180 360">
+        <path d="M286 176H410" />
+        <path d="M770 176H894" />
+        <path className="arch-story-contract__signal" d="M286 176H894" pathLength="1" />
+      </svg>
+      <div className="arch-story-brief" data-state={storyState(0, active)}>
+        <small>brief.md</small>
+        <strong>What should change?</strong>
+        <span>Audience / outcome</span>
+        <span>Duration / density</span>
+        <span>Language / constraints</span>
+      </div>
+      <div className="arch-story-plan" data-state={storyState(1, active)}>
+        <header>
+          <span>drever.plan.json</span>
+          <small>v1</small>
+        </header>
+        <div>
+          <i />
+          <span>
+            <b>01</b> Open with the invariant
+          </span>
+        </div>
+        <div>
+          <i />
+          <span>
+            <b>02</b> Make the contract visible
+          </span>
+        </div>
+        <div>
+          <i />
+          <span>
+            <b>03</b> Prove the system boundary
+          </span>
+        </div>
+      </div>
+      <div className="arch-storyboard" data-state={storyState(2, active)}>
+        <header>
+          <span>/storyboard</span>
+          <small>DEV ONLY</small>
+        </header>
+        <div className="arch-storyboard__slide arch-storyboard__slide--opening">
+          <i />
+          <span />
+          <span />
+        </div>
+        <div className="arch-storyboard__slide">
+          <i />
+          <span />
+          <span />
+        </div>
+        <div className="arch-storyboard__slide">
+          <i />
+          <span />
+          <span />
+        </div>
+      </div>
+      <div className="arch-story-approval" data-state={storyState(3, active)}>
+        <span aria-hidden="true">✓</span>
+        <strong>Human approved</strong>
+        <small>AUTHORING MAY BEGIN</small>
+      </div>
+    </div>
+  );
+};
 
 type Artifact = Readonly<{
   code: ReactNode;
@@ -88,7 +167,7 @@ type Artifact = Readonly<{
 
 const ARTIFACTS = [
   {
-    label: "Authored source",
+    label: "Authored MDX",
     detail: "Readable intent",
     code: (
       <>
@@ -103,31 +182,31 @@ const ARTIFACTS = [
     detail: "Serializable meaning",
     code: (
       <>
-        <b>{"slide: { index: 3, id: 'proof' }"}</b>
-        <span>{"steps: [1]"}</span>
-        <span>{"note: { line: 5, value: 'Pause here.' }"}</span>
+        <b>{"slide: { index: 7, id: 'proof' }"}</b>
+        <span>{"sourceFragments: [{ start, end }]"}</span>
+        <span>{"steps: [1, 2, 3]"}</span>
       </>
     ),
   },
   {
-    label: "Manifest",
-    detail: "Frozen navigation contract",
+    label: "CompilePlan",
+    detail: "Resolved capability",
+    code: (
+      <>
+        <b>{'"theme": { "name": "architecture" }'}</b>
+        <span>{'"plugins": ["shiki", "mermaid"]'}</span>
+        <span>{'"build": { "remark": [...], "rehype": [...] }'}</span>
+      </>
+    ),
+  },
+  {
+    label: "Deck artifact",
+    detail: "Sealed positions",
     code: (
       <>
         <b>{'"id": "proof"'}</b>
-        <span>{'"stepStops": [1]'}</span>
+        <span>{'"stepStops": [1, 2, 3]'}</span>
         <span>{'"speakerNotes": [{ "format": "markdown" }]'}</span>
-      </>
-    ),
-  },
-  {
-    label: "Runtime",
-    detail: "One exact position",
-    code: (
-      <>
-        <b>{'"surface": "audience"'}</b>
-        <span>{'"slideIndex": 3'}</span>
-        <span>{'"step": 1'}</span>
       </>
     ),
   },
@@ -165,11 +244,11 @@ export const ArtifactLineage = (): ReactElement => {
 };
 
 const COMPILER_PASSES = [
-  ["Split", "Reserve slide boundaries"],
-  ["Analyze", "Build semantic IR"],
-  ["Resolve", "Order owned extensions"],
-  ["Compile", "Transform protected phases"],
-  ["Seal", "Validate and emit"],
+  ["Grammar", "Reserve root slide boundaries"],
+  ["Analyze", "Record Deck IR + source"],
+  ["Resolve", "Freeze JSON-safe CompilePlan"],
+  ["Transform", "Run protected MDX phases"],
+  ["Finalize", "Reject drift + seal artifact"],
 ] as const;
 
 export const CompilerRail = (): ReactElement => {
@@ -197,6 +276,48 @@ export const CompilerRail = (): ReactElement => {
   );
 };
 
+export const DesignEvidence = (): ReactElement => (
+  <div className="arch-design-evidence">
+    <div className="arch-reference-page">
+      <header>
+        <i />
+        <span />
+        <span />
+      </header>
+      <div className="arch-reference-page__headline" />
+      <div className="arch-reference-page__copy" />
+      <div className="arch-reference-page__swatches">
+        <i />
+        <i />
+        <i />
+      </div>
+      <small>PUBLIC REFERENCE</small>
+    </div>
+    <span className="arch-design-evidence__arrow" aria-hidden="true">
+      →
+    </span>
+    <div className="arch-evidence-probe">
+      <span className="arch-evidence-probe__scan" aria-hidden="true" />
+      <small>ISOLATED CHROMIUM</small>
+      <strong>1600 × 900</strong>
+      <span>computed evidence</span>
+    </div>
+    <span className="arch-design-evidence__arrow" aria-hidden="true">
+      →
+    </span>
+    <div className="arch-design-output">
+      <small>PROJECT-OWNED OUTPUT</small>
+      <strong>design/</strong>
+      <code>reference.json</code>
+      <code>theme.ts + theme.css</code>
+      <code>art-direction.md</code>
+    </div>
+    <p>
+      <b>No copied code.</b> No hotlinked assets. Evidence stays untrusted.
+    </p>
+  </div>
+);
+
 export const BoundaryMap = (): ReactElement => (
   <div className="arch-boundary-map">
     <div className="arch-boundary-orbit arch-boundary-orbit--design">
@@ -207,7 +328,7 @@ export const BoundaryMap = (): ReactElement => (
     <div className="arch-boundary-deck">
       <small>UNCHANGED SEMANTICS</small>
       <strong>Deck contract</strong>
-      <span>04 / step 5</span>
+      <span>slide · step · note</span>
     </div>
     <div className="arch-boundary-orbit arch-boundary-orbit--plugin">
       <span>PLUGIN</span>
@@ -221,9 +342,10 @@ export const BoundaryMap = (): ReactElement => (
 );
 
 const COMMIT_STATES = [
-  ["Intent", "navigate('/4/5')"],
-  ["Atomic update", "URL + React + transition"],
-  ["Publish", "speaker + audience"],
+  ["Intent", "navigation.navigate('/9/3')"],
+  ["Intercept", "signal + manual focus / scroll"],
+  ["Commit", "React inside document transition"],
+  ["Publish", "BroadcastChannel(position)"],
 ] as const;
 
 export const CommitProtocol = (): ReactElement => {
@@ -232,11 +354,6 @@ export const CommitProtocol = (): ReactElement => {
 
   return (
     <div className="arch-commit-protocol">
-      <div className="arch-commit-lanes">
-        <span>URL</span>
-        <span>React frame</span>
-        <span>Remote position</span>
-      </div>
       <div className="arch-commit-track" aria-hidden="true">
         <i style={{ "--commit-progress": active } as CSSProperties} />
       </div>
@@ -253,34 +370,105 @@ export const CommitProtocol = (): ReactElement => {
           </div>
         ))}
       </div>
-      <code className="arch-commit-code">{"document.startViewTransition({ update })"}</code>
+      <code className="arch-commit-code">
+        {"document.startViewTransition({ types: ['forward'], update })"}
+      </code>
     </div>
   );
 };
 
-export const StaticTopology = (): ReactElement => (
-  <div className="arch-static-topology">
-    <div className="arch-static-route">
-      <small>CANONICAL POSITION</small>
-      <strong>/speaker/4/5</strong>
+export const SurfaceDelivery = (): ReactElement => (
+  <div className="arch-surface-delivery">
+    <div className="arch-delivery-route">
+      <small>CANONICAL ROUTE</small>
+      <strong>/9/3</strong>
+      <span>routeDepth = 2</span>
     </div>
-    <span className="arch-static-arrow" aria-hidden="true">
+    <span className="arch-delivery-arrow" aria-hidden="true">
       →
     </span>
-    <div className="arch-static-file">
-      <small>REAL FILE</small>
-      <strong>dist/speaker/4/5/index.html</strong>
+    <div className="arch-delivery-bootstrap">
+      <small>ROUTE BOOTSTRAP</small>
+      <strong>select surface</strong>
+      <code>import("@drever/client/audience")</code>
     </div>
-    <div className="arch-static-tree" aria-label="Generated static route tree">
-      <span>dist/</span>
-      <span>├─ index.html</span>
-      <span>├─ 4/5/index.html</span>
-      <span>├─ document/index.html</span>
-      <span className="arch-static-tree__active">└─ speaker/4/5/index.html</span>
+    <div className="arch-delivery-surfaces" aria-label="Route-selected runtime surfaces">
+      <span data-active="">
+        <b>Audience</b>
+        <small>selected chunk</small>
+      </span>
+      <span>
+        <b>Document</b>
+        <small>not requested</small>
+      </span>
+      <span>
+        <b>Speaker</b>
+        <small>not requested</small>
+      </span>
+      <span>
+        <b>Export</b>
+        <small>isolated app</small>
+      </span>
     </div>
-    <p>No app server. No rewrite rule. Deep links survive reload.</p>
+    <div className="arch-delivery-seal">
+      <span>
+        <small>REAL FILE</small>
+        <strong>dist/9/3/index.html</strong>
+      </span>
+      <span>
+        <small>DOCUMENT METADATA</small>
+        <strong>lang · canonical · og:* · icon</strong>
+      </span>
+    </div>
   </div>
 );
+
+const PREFLIGHT_STATES = ["/1", "/3/1", "/3/2", "/9/3", "/11/3"] as const;
+
+export const RenderedPreflight = (): ReactElement => {
+  const { position } = useStage();
+  const active = Math.min(position.step, 3);
+
+  return (
+    <div className="arch-rendered-preflight" data-active={active}>
+      <div className="arch-preflight-states">
+        <small>EXACT MANIFEST STATES</small>
+        {PREFLIGHT_STATES.map((route, index) => (
+          <span key={route} data-scanned={active > 0 && index <= 3 ? "" : undefined}>
+            <i />
+            <code>{route}</code>
+          </span>
+        ))}
+      </div>
+      <div className="arch-preflight-browser">
+        <header>
+          <span />
+          <span />
+          <span />
+          <small>DETERMINISTIC CHROMIUM</small>
+        </header>
+        <div>
+          <i className="arch-preflight-browser__scan" />
+          <strong>1600 × 900</strong>
+          <span>Slide + every Step</span>
+        </div>
+      </div>
+      <div className="arch-preflight-result">
+        <header>
+          <span>rendered receipt</span>
+          <small>v1 · ruleset 2</small>
+        </header>
+        <code data-visible={active >= 2 ? "" : undefined}>DREVER_RENDER_CONTENT_CLIPPED</code>
+        <code data-visible={active >= 2 ? "" : undefined}>DREVER_RENDER_CONTENT_OVERLAP</code>
+        <code data-visible={active >= 2 ? "" : undefined}>DREVER_RENDER_TEXT_CONTRAST_LOW</code>
+        <footer data-visible={active >= 3 ? "" : undefined}>
+          <span>every exact state captured</span>
+          <strong>evidence ready → repair</strong>
+        </footer>
+      </div>
+    </div>
+  );
+};
 
 export const FailureBoundary = (): ReactElement => {
   const { position } = useStage();
@@ -305,9 +493,9 @@ export const FailureBoundary = (): ReactElement => {
       </div>
       <div className="arch-diagnostic">
         <span className="arch-diagnostic__trace" aria-hidden="true" />
-        <code>DREVER_COMPILE_STEP_INVALID</code>
-        <strong>Step `at` must be a positive static integer.</strong>
-        <span>slides.mdx:18:7 · compiler / analyze</span>
+        <code>drever:step-index-invalid</code>
+        <strong>Step at must be a positive safe integer.</strong>
+        <span>slides.mdx:18:7 · compiler / manifest</span>
         <p>One structured error for the CLI, overlay, tests, and AI repair.</p>
       </div>
     </div>
@@ -316,8 +504,9 @@ export const FailureBoundary = (): ReactElement => {
 
 const TEST_LAYERS = [
   ["unit", "Pure state", "Routes · ordering · diagnostics"],
-  ["compiler", "Artifact contract", "Deck IR · manifest · provenance"],
-  ["browser", "User reality", "Reloads · transitions · sync · static mounts"],
+  ["compiler", "Artifact contract", "Deck IR · plan · manifest"],
+  ["rendered", "Canvas evidence", "Clipping · contrast · drift"],
+  ["outcome", "User reality", "Browsers · exports · real AI runs"],
 ] as const;
 
 export const TestBoundaries = (): ReactElement => {
@@ -341,7 +530,7 @@ export const TestBoundaries = (): ReactElement => {
         ))}
         <div className="arch-test-contract">
           <span>ONE CONTRACT</span>
-          <strong>04 / step 5</strong>
+          <strong>09 / step 3</strong>
         </div>
       </div>
       <p>

@@ -154,7 +154,7 @@
   position: absolute;
   z-index: 2;
   display: grid;
-  width: 120px;
+  width: 112px;
   height: 76px;
   box-sizing: border-box;
   padding: 13px 15px;
@@ -194,38 +194,43 @@
   color: var(--arch-signal);
 }
 
+.arch-node--plan {
+  top: 177px;
+  left: 0;
+}
+
 .arch-node--source {
   top: 177px;
-  left: 10px;
+  left: 130px;
 }
 
 .arch-node--ir {
   top: 177px;
-  left: 165px;
+  left: 260px;
 }
 
-.arch-node--manifest {
+.arch-node--compile {
   top: 177px;
-  left: 320px;
+  left: 390px;
 }
 
-.arch-node--runtime {
+.arch-node--artifact {
   top: 177px;
-  left: 475px;
+  left: 520px;
 }
 
 .arch-surface-stack {
   position: absolute;
   z-index: 2;
   top: 60px;
-  left: 632px;
+  left: 650px;
   display: grid;
   gap: 42px;
 }
 
 .arch-surface-stack .arch-graph-node {
   position: relative;
-  width: 118px;
+  width: 104px;
   height: 58px;
   padding: 9px 12px;
   border-radius: 11px;
@@ -248,7 +253,7 @@
   height: 9px;
   border: 4px solid rgb(219 255 79 / 15%);
   border-radius: 50%;
-  offset-path: path("M130 215H615V89H632");
+  offset-path: path("M112 215H640V89H650");
   offset-distance: 0%;
   background: var(--arch-signal);
   box-shadow: 0 0 20px rgb(219 255 79 / 72%);
@@ -401,6 +406,278 @@
 .arch-drift--export {
   right: 75px;
   bottom: 5px;
+}
+
+.arch-story-contract {
+  position: relative;
+  width: min(1180px, 100%);
+  height: 360px;
+  justify-self: center;
+  margin-top: 38px;
+}
+
+.arch-story-contract > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.arch-story-contract > svg path {
+  fill: none;
+  stroke: var(--arch-border-strong);
+  stroke-width: 1.5;
+}
+
+.arch-story-contract > svg .arch-story-contract__signal {
+  stroke: var(--arch-signal);
+  stroke-dasharray: 0.04 0.96;
+  stroke-linecap: round;
+  stroke-width: 3;
+}
+
+.arch-story-brief,
+.arch-story-plan,
+.arch-storyboard {
+  position: absolute;
+  z-index: 1;
+  box-sizing: border-box;
+  border: 1px solid var(--arch-border);
+  background: rgb(21 13 68 / 78%);
+  box-shadow: var(--arch-shadow);
+  opacity: 0.66;
+  transition:
+    border-color 320ms ease,
+    opacity 320ms ease,
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.arch-story-brief[data-state="active"],
+.arch-story-plan[data-state="active"],
+.arch-storyboard[data-state="active"] {
+  border-color: rgb(219 255 79 / 56%);
+  opacity: 1;
+  transform: translateY(-6px);
+}
+
+.arch-story-brief[data-state="passed"],
+.arch-story-plan[data-state="passed"],
+.arch-storyboard[data-state="passed"] {
+  opacity: 0.9;
+}
+
+.arch-story-brief {
+  top: 74px;
+  left: 0;
+  display: grid;
+  width: 286px;
+  height: 204px;
+  padding: 27px;
+  border-radius: 18px 18px 42px 18px;
+  align-content: start;
+  gap: 10px;
+}
+
+.arch-story-brief > small,
+.arch-story-plan header span,
+.arch-storyboard header span {
+  color: var(--arch-signal);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+}
+
+[data-drever-slide] .arch-story-brief > strong {
+  margin-bottom: 7px;
+  color: var(--arch-ink);
+  font-family: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  font-size: 23px;
+  font-weight: 610;
+  letter-spacing: -0.035em;
+}
+
+.arch-story-brief > span {
+  color: var(--arch-muted);
+  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 14px;
+}
+
+.arch-story-plan {
+  top: 34px;
+  left: 410px;
+  display: grid;
+  width: 360px;
+  height: 282px;
+  padding: 24px;
+  border-radius: 22px;
+  align-content: start;
+  gap: 12px;
+}
+
+.arch-story-plan header,
+.arch-storyboard header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.arch-story-plan header small,
+.arch-storyboard header small {
+  color: var(--arch-dim);
+  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.arch-story-plan > div {
+  display: grid;
+  min-height: 54px;
+  padding: 0 15px;
+  border: 1px solid rgb(213 207 255 / 14%);
+  border-radius: 11px;
+  grid-template-columns: 10px 1fr;
+  align-items: center;
+  background: rgb(12 8 48 / 42%);
+  gap: 12px;
+}
+
+.arch-story-plan > div i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--arch-signal);
+  box-shadow: 0 0 14px rgb(219 255 79 / 42%);
+}
+
+.arch-story-plan > div span {
+  color: var(--arch-muted);
+  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 13px;
+}
+
+.arch-story-plan > div b {
+  margin-right: 8px;
+  color: var(--arch-dim);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.arch-storyboard {
+  top: 74px;
+  right: 0;
+  display: grid;
+  width: 286px;
+  height: 204px;
+  padding: 19px;
+  border-radius: 18px;
+  grid-template-columns: repeat(3, 1fr);
+  align-content: start;
+  gap: 9px;
+}
+
+.arch-storyboard header {
+  grid-column: 1 / -1;
+}
+
+.arch-storyboard__slide {
+  display: grid;
+  height: 106px;
+  padding: 12px 9px;
+  border: 1px solid rgb(213 207 255 / 18%);
+  border-radius: 9px;
+  align-content: end;
+  background: linear-gradient(150deg, rgb(155 140 255 / 20%), transparent 60%), rgb(12 8 48 / 52%);
+  gap: 6px;
+}
+
+.arch-storyboard__slide i {
+  width: 26px;
+  height: 26px;
+  border: 1px solid rgb(219 255 79 / 36%);
+  border-radius: 50%;
+}
+
+.arch-storyboard__slide span {
+  width: 100%;
+  height: 4px;
+  border-radius: 4px;
+  background: rgb(225 220 255 / 28%);
+}
+
+.arch-storyboard__slide span:last-child {
+  width: 68%;
+}
+
+.arch-storyboard__slide--opening {
+  background: linear-gradient(160deg, rgb(219 255 79 / 15%), transparent 60%), rgb(12 8 48 / 52%);
+}
+
+.arch-story-approval {
+  position: absolute;
+  z-index: 3;
+  right: 401px;
+  bottom: -8px;
+  display: grid;
+  min-width: 302px;
+  min-height: 70px;
+  box-sizing: border-box;
+  padding: 12px 21px 12px 67px;
+  border: 1px solid var(--arch-border-strong);
+  border-radius: 35px;
+  align-content: center;
+  background: rgb(24 16 79 / 94%);
+  box-shadow: var(--arch-shadow);
+  opacity: 0.62;
+  transition:
+    border-color 320ms ease,
+    opacity 320ms ease,
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  gap: 2px;
+}
+
+.arch-story-approval > span {
+  position: absolute;
+  top: 12px;
+  left: 13px;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--arch-border-strong);
+  border-radius: 50%;
+  place-items: center;
+  color: var(--arch-dim);
+  font-size: 20px;
+}
+
+[data-drever-slide] .arch-story-approval strong {
+  color: var(--arch-ink);
+  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 620;
+}
+
+.arch-story-approval small {
+  color: var(--arch-dim);
+  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.arch-story-approval[data-state="active"] {
+  border-color: rgb(219 255 79 / 68%);
+  opacity: 1;
+  transform: translateY(-5px);
+}
+
+.arch-story-approval[data-state="active"] > span {
+  border-color: var(--arch-signal);
+  background: var(--arch-signal);
+  box-shadow: 0 0 22px rgb(219 255 79 / 34%);
+  color: #18104f;
 }
 
 .arch-artifact-lineage {
@@ -639,8 +916,204 @@
   max-width: 16ch;
   color: var(--arch-dim);
   font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.35;
+}
+
+.arch-design-evidence {
+  position: relative;
+  display: grid;
+  width: min(1180px, 100%);
+  min-height: 390px;
+  justify-self: center;
+  margin-top: 18px;
+  grid-template-columns: 1fr auto 0.78fr auto 1fr;
+  align-items: center;
+  gap: 24px;
+}
+
+.arch-reference-page,
+.arch-design-output {
+  display: grid;
+  min-height: 250px;
+  box-sizing: border-box;
+  padding: 26px;
+  border: 1px solid var(--arch-border);
+  border-radius: 20px;
+  align-content: center;
+  background: rgb(21 13 68 / 72%);
+  box-shadow: var(--arch-shadow);
+}
+
+.arch-reference-page {
+  position: relative;
+  grid-template-columns: 1fr;
+  overflow: hidden;
+  gap: 13px;
+}
+
+.arch-reference-page header {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  display: flex;
+  height: 38px;
+  padding: 0 15px;
+  border-bottom: 1px solid rgb(213 207 255 / 14%);
+  align-items: center;
+  gap: 6px;
+}
+
+.arch-reference-page header i,
+.arch-reference-page header span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgb(225 220 255 / 34%);
+}
+
+.arch-reference-page__headline {
+  width: 76%;
+  height: 35px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--arch-violet-bright), var(--arch-signal));
+  opacity: 0.9;
+}
+
+.arch-reference-page__copy {
+  width: 58%;
+  height: 8px;
+  border-radius: 5px;
+  background: rgb(225 220 255 / 38%);
+}
+
+.arch-reference-page__swatches {
+  display: flex;
+  margin-top: 14px;
+  gap: 9px;
+}
+
+.arch-reference-page__swatches i {
+  width: 54px;
+  height: 54px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 13px;
+  background: #a894ff;
+}
+
+.arch-reference-page__swatches i:nth-child(2) {
+  background: #dbff4f;
+}
+
+.arch-reference-page__swatches i:nth-child(3) {
+  background: #fff2dc;
+}
+
+.arch-reference-page > small {
+  position: absolute;
+  right: 18px;
+  bottom: 17px;
+  color: var(--arch-dim);
+  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.arch-design-evidence__arrow {
+  color: var(--arch-signal);
+  font-size: 29px;
+}
+
+.arch-evidence-probe {
+  position: relative;
+  display: grid;
+  width: 216px;
+  height: 216px;
+  border: 1px solid rgb(219 255 79 / 52%);
+  border-radius: 50%;
+  place-content: center;
+  overflow: hidden;
+  background: radial-gradient(circle, rgb(155 140 255 / 17%), transparent 70%), rgb(21 13 68 / 72%);
+  box-shadow: 0 0 66px rgb(219 255 79 / 7%);
+  text-align: center;
+  gap: 7px;
+}
+
+.arch-evidence-probe__scan {
+  position: absolute;
+  top: 0;
+  right: 18px;
+  bottom: 0;
+  left: 18px;
+  height: 1px;
+  margin: auto 0;
+  background: linear-gradient(90deg, transparent, var(--arch-signal), transparent);
+  box-shadow: 0 0 20px rgb(219 255 79 / 58%);
+}
+
+.arch-evidence-probe small,
+.arch-evidence-probe span {
+  color: var(--arch-dim);
+  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+[data-drever-slide] .arch-evidence-probe strong {
+  color: var(--arch-ink);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 20px;
+  font-weight: 540;
+}
+
+.arch-design-output {
+  border-color: rgb(219 255 79 / 44%);
+  gap: 11px;
+}
+
+.arch-design-output > small {
+  color: var(--arch-signal);
+  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+[data-drever-slide] .arch-design-output > strong {
+  margin-bottom: 7px;
+  color: var(--arch-ink);
+  font-family: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  font-size: 30px;
+  font-weight: 610;
+}
+
+.arch-design-output code {
+  padding: 9px 11px;
+  border: 1px solid rgb(213 207 255 / 14%);
+  border-radius: 8px;
+  background: rgb(12 8 48 / 38%);
+  color: var(--arch-violet-soft);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 12px;
+}
+
+[data-drever-slide] .arch-design-evidence > p {
+  position: absolute;
+  right: 0;
+  bottom: -8px;
+  left: 0;
+  color: var(--arch-muted);
+  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 15px;
+  text-align: center;
+}
+
+[data-drever-slide] .arch-design-evidence > p b {
+  color: var(--arch-signal);
+  font-weight: 650;
 }
 
 .arch-boundary-map {
@@ -952,50 +1425,29 @@
   position: relative;
   display: grid;
   width: min(1180px, 100%);
-  min-height: 405px;
+  min-height: 390px;
   margin-top: 42px;
-  grid-template-columns: 160px 1fr;
   align-items: center;
-  gap: 24px;
-}
-
-.arch-commit-lanes {
-  display: grid;
-  align-self: stretch;
-  align-content: center;
-  gap: 60px;
-}
-
-.arch-commit-lanes span {
-  color: var(--arch-dim);
-  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-align: right;
-  text-transform: uppercase;
 }
 
 .arch-commit-track {
   position: absolute;
-  top: 82px;
-  right: 0;
-  bottom: 82px;
-  left: 184px;
-  border-top: 1px solid var(--arch-border);
-  border-bottom: 1px solid var(--arch-border);
-  background: linear-gradient(var(--arch-border), var(--arch-border)) 0 50% / 100% 1px no-repeat;
+  top: 192px;
+  right: 112px;
+  left: 112px;
+  height: 2px;
+  overflow: hidden;
+  background: var(--arch-border);
 }
 
 .arch-commit-track i {
   position: absolute;
-  top: -4px;
-  bottom: -4px;
+  top: 0;
+  bottom: 0;
   left: 0;
-  width: calc((var(--commit-progress) + 0.5) * 33.333%);
-  border-right: 2px solid var(--arch-signal);
-  background: linear-gradient(90deg, rgb(219 255 79 / 3%), rgb(219 255 79 / 9%));
-  box-shadow: 12px 0 30px rgb(219 255 79 / 8%);
+  width: calc((var(--commit-progress) + 0.5) * 25%);
+  background: var(--arch-signal);
+  box-shadow: 0 0 18px rgb(219 255 79 / 40%);
   transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -1003,15 +1455,14 @@
   position: relative;
   z-index: 1;
   display: grid;
-  grid-column: 2;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   align-items: center;
-  gap: 24px;
+  gap: 18px;
 }
 
 .arch-commit-states > div {
   display: grid;
-  min-height: 214px;
+  min-height: 206px;
   box-sizing: border-box;
   padding: 30px 25px;
   border: 1px solid var(--arch-border);
@@ -1019,7 +1470,7 @@
   align-content: center;
   background: rgb(21 13 68 / 68%);
   box-shadow: 0 20px 58px rgb(20 10 70 / 14%);
-  opacity: 0.45;
+  opacity: 0.68;
   transition:
     border-color 240ms ease,
     opacity 240ms ease,
@@ -1060,109 +1511,384 @@
 .arch-commit-states code {
   color: var(--arch-violet-soft);
   font-family: ui-monospace, SFMono-Regular, monospace;
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 1.45;
 }
 
 .arch-commit-code {
   position: absolute;
-  right: 20px;
-  bottom: 4px;
+  right: 0;
+  bottom: 18px;
+  left: 0;
   color: var(--arch-signal);
   font-family: ui-monospace, SFMono-Regular, monospace;
   font-size: 14px;
+  text-align: center;
 }
 
-.arch-static-topology {
+.arch-surface-delivery {
   position: relative;
   display: grid;
-  width: min(1120px, 100%);
-  min-height: 420px;
+  width: min(1180px, 100%);
+  min-height: 400px;
   justify-self: center;
-  margin-top: 4px;
-  grid-template-columns: 1fr auto 1.2fr;
+  margin-top: 16px;
+  grid-template-columns: 0.72fr auto 1.2fr 1fr;
   grid-template-rows: 1fr auto;
   align-items: center;
-  gap: 28px;
+  gap: 22px;
 }
 
-.arch-static-route,
-.arch-static-file {
+.arch-delivery-route,
+.arch-delivery-bootstrap {
   display: grid;
-  min-height: 156px;
+  min-height: 170px;
   box-sizing: border-box;
-  padding: 30px;
+  padding: 27px;
   border: 1px solid var(--arch-border);
   border-radius: 20px;
   align-content: center;
-  background: var(--arch-glass);
+  background: rgb(21 13 68 / 72%);
   box-shadow: var(--arch-shadow);
-  gap: 12px;
+  gap: 10px;
 }
 
-.arch-static-file {
-  border-color: rgb(219 255 79 / 52%);
-}
-
-.arch-static-route small,
-.arch-static-file small {
+.arch-delivery-route small,
+.arch-delivery-bootstrap small,
+.arch-delivery-seal small {
   color: var(--arch-dim);
   font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.13em;
 }
 
-[data-drever-slide] .arch-static-route strong,
-[data-drever-slide] .arch-static-file strong {
+[data-drever-slide] .arch-delivery-route strong {
+  color: var(--arch-signal);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 37px;
+  font-weight: 540;
+  letter-spacing: -0.05em;
+}
+
+.arch-delivery-route > span {
+  color: var(--arch-violet-soft);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 12px;
+}
+
+.arch-delivery-arrow {
+  color: var(--arch-signal);
+  font-size: 30px;
+}
+
+.arch-delivery-bootstrap {
+  border-color: rgb(219 255 79 / 48%);
+}
+
+[data-drever-slide] .arch-delivery-bootstrap strong {
+  color: var(--arch-ink);
+  font-family: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  font-size: 27px;
+  font-weight: 610;
+  letter-spacing: -0.035em;
+}
+
+.arch-delivery-bootstrap code {
   overflow-wrap: anywhere;
+  color: var(--arch-signal);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.arch-delivery-surfaces {
+  display: grid;
+  gap: 9px;
+}
+
+.arch-delivery-surfaces > span {
+  display: grid;
+  min-height: 54px;
+  padding: 0 16px;
+  border: 1px solid rgb(213 207 255 / 16%);
+  border-radius: 11px;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  background: rgb(21 13 68 / 54%);
+  opacity: 0.58;
+}
+
+.arch-delivery-surfaces > span[data-active] {
+  border-color: rgb(219 255 79 / 54%);
+  background: var(--arch-signal-soft);
+  opacity: 1;
+}
+
+.arch-delivery-surfaces b {
+  color: var(--arch-ink);
+  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 14px;
+}
+
+.arch-delivery-surfaces small {
+  color: var(--arch-dim);
+  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 10px;
+}
+
+.arch-delivery-surfaces > span[data-active] small {
+  color: var(--arch-signal);
+}
+
+.arch-delivery-seal {
+  display: grid;
+  grid-column: 1 / -1;
+  min-height: 88px;
+  padding: 17px 22px;
+  border: 1px solid var(--arch-border);
+  border-radius: 16px;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  background: rgb(12 8 48 / 50%);
+  gap: 34px;
+}
+
+.arch-delivery-seal > span {
+  display: grid;
+  gap: 7px;
+}
+
+.arch-delivery-seal > span + span {
+  padding-left: 34px;
+  border-left: 1px solid var(--arch-border);
+}
+
+[data-drever-slide] .arch-delivery-seal strong {
   color: var(--arch-ink);
   font-family: ui-monospace, SFMono-Regular, monospace;
-  font-size: 24px;
-  font-weight: 520;
-  letter-spacing: -0.03em;
+  font-size: 14px;
+  font-weight: 530;
 }
 
-[data-drever-slide] .arch-static-file strong {
-  color: var(--arch-signal);
-  font-size: 21px;
-}
-
-.arch-static-arrow {
-  color: var(--arch-signal);
-  font-size: 36px;
-}
-
-.arch-static-tree {
+.arch-rendered-preflight {
   display: grid;
-  grid-column: 1 / 4;
-  grid-template-columns: repeat(5, 1fr);
+  width: min(1200px, 100%);
+  min-height: 390px;
+  justify-self: center;
+  margin-top: 34px;
+  grid-template-columns: 0.72fr 1.1fr 1fr;
+  align-items: stretch;
+  gap: 20px;
+}
+
+.arch-preflight-states,
+.arch-preflight-browser,
+.arch-preflight-result {
+  display: grid;
+  box-sizing: border-box;
+  padding: 24px;
+  border: 1px solid var(--arch-border);
+  border-radius: 20px;
+  background: rgb(21 13 68 / 70%);
+  box-shadow: var(--arch-shadow);
+}
+
+.arch-preflight-states {
+  align-content: center;
+  gap: 11px;
+}
+
+.arch-preflight-states > small {
+  margin-bottom: 6px;
+  color: var(--arch-dim);
+  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.arch-preflight-states > span {
+  display: grid;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid rgb(213 207 255 / 14%);
+  border-radius: 9px;
+  grid-template-columns: 10px 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+.arch-preflight-states i {
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--arch-border-strong);
+  border-radius: 50%;
+  background: var(--arch-glass-solid);
+}
+
+.arch-preflight-states span[data-scanned] i {
+  border-color: var(--arch-signal);
+  background: var(--arch-signal);
+  box-shadow: 0 0 12px rgb(219 255 79 / 38%);
+}
+
+.arch-preflight-states code {
   color: var(--arch-violet-soft);
   font-family: ui-monospace, SFMono-Regular, monospace;
   font-size: 13px;
-  gap: 14px;
 }
 
-.arch-static-tree span {
-  padding: 13px 15px;
-  border: 1px solid var(--arch-border);
-  border-radius: 10px;
-  background: rgb(21 13 68 / 58%);
+.arch-preflight-browser {
+  overflow: hidden;
+  padding: 0;
+  border-color: rgb(219 255 79 / 42%);
 }
 
-.arch-static-tree__active {
-  border-color: rgb(219 255 79 / 42%) !important;
-  color: var(--arch-signal);
+.arch-preflight-browser header {
+  display: flex;
+  height: 48px;
+  padding: 0 17px;
+  border-bottom: 1px solid var(--arch-border);
+  align-items: center;
+  gap: 7px;
 }
 
-[data-drever-slide] .arch-static-topology > p {
+.arch-preflight-browser header > span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgb(225 220 255 / 30%);
+}
+
+.arch-preflight-browser header small {
+  margin-left: auto;
+  color: var(--arch-dim);
+  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.arch-preflight-browser > div {
+  position: relative;
+  display: grid;
+  margin: 20px;
+  border: 1px solid rgb(213 207 255 / 15%);
+  border-radius: 12px;
+  place-content: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 72% 24%, rgb(155 140 255 / 22%), transparent 34%), rgb(12 8 48 / 56%);
+  text-align: center;
+  gap: 8px;
+}
+
+.arch-preflight-browser__scan {
   position: absolute;
+  top: 18%;
   right: 0;
-  bottom: -42px;
   left: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--arch-signal), transparent);
+  box-shadow: 0 0 24px rgb(219 255 79 / 58%);
+  opacity: 0.25;
+  transition:
+    top 680ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 280ms ease;
+}
+
+.arch-rendered-preflight[data-active="1"] .arch-preflight-browser__scan,
+.arch-rendered-preflight[data-active="2"] .arch-preflight-browser__scan,
+.arch-rendered-preflight[data-active="3"] .arch-preflight-browser__scan {
+  top: 78%;
+  opacity: 1;
+}
+
+[data-drever-slide] .arch-preflight-browser strong {
+  color: var(--arch-ink);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 23px;
+  font-weight: 540;
+}
+
+.arch-preflight-browser > div > span {
   color: var(--arch-muted);
   font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
-  font-size: 16px;
-  text-align: center;
+  font-size: 13px;
+}
+
+.arch-preflight-result {
+  align-content: center;
+  gap: 11px;
+}
+
+.arch-preflight-result header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 9px;
+}
+
+.arch-preflight-result header span {
+  color: var(--arch-ink);
+  font-family: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  font-size: 21px;
+  font-weight: 610;
+}
+
+.arch-preflight-result header small {
+  color: var(--arch-dim);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 9px;
+}
+
+.arch-preflight-result > code {
+  padding: 10px 11px;
+  border: 1px solid rgb(213 207 255 / 14%);
+  border-radius: 8px;
+  background: rgb(12 8 48 / 38%);
+  color: var(--arch-muted);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 10px;
+  opacity: 0.45;
+  transition:
+    border-color 240ms ease,
+    color 240ms ease,
+    opacity 240ms ease;
+}
+
+.arch-preflight-result > code[data-visible] {
+  border-color: rgb(255 189 106 / 34%);
+  color: #ffcf93;
+  opacity: 1;
+}
+
+.arch-preflight-result footer {
+  display: grid;
+  margin-top: 10px;
+  opacity: 0.48;
+  transition: opacity 240ms ease;
+  gap: 5px;
+}
+
+.arch-preflight-result footer[data-visible] {
+  opacity: 1;
+}
+
+.arch-preflight-result footer span,
+.arch-preflight-result footer strong {
+  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px;
+}
+
+.arch-preflight-result footer span {
+  color: var(--arch-dim);
+}
+
+.arch-preflight-result footer strong {
+  color: var(--arch-signal);
+  font-weight: 650;
 }
 
 .arch-failure-boundary {
@@ -1322,36 +2048,30 @@
 
 .arch-test-ring {
   position: absolute;
-  display: grid;
   box-sizing: border-box;
   border: 1px solid var(--arch-border);
   border-radius: 50%;
-  align-content: end;
-  justify-items: center;
-  padding-bottom: 24px;
-  opacity: 0.4;
+  opacity: 0.58;
   transition:
     border-color 260ms ease,
     opacity 260ms ease,
     box-shadow 260ms ease;
-  gap: 3px;
 }
 
-.arch-test-ring--browser {
+.arch-test-ring--outcome {
   inset: 0;
-  padding-bottom: 18px;
+}
+
+.arch-test-ring--rendered {
+  inset: 42px 60px;
 }
 
 .arch-test-ring--compiler {
-  inset: 58px 82px;
-  padding-bottom: 14px;
+  inset: 84px 120px;
 }
 
 .arch-test-ring--unit {
-  inset: 116px 164px;
-  padding-top: 8px;
-  padding-bottom: 0;
-  align-content: start;
+  inset: 126px 180px;
 }
 
 .arch-test-ring--unit small {
@@ -1369,24 +2089,82 @@
 }
 
 .arch-test-ring span {
+  position: absolute;
   color: var(--arch-signal);
   font-family: ui-monospace, SFMono-Regular, monospace;
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
 [data-drever-slide] .arch-test-ring strong {
+  position: absolute;
   color: var(--arch-ink);
   font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 610;
 }
 
 .arch-test-ring small {
+  position: absolute;
   color: var(--arch-dim);
   font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
-  font-size: 10px;
+  font-size: 11px;
+}
+
+.arch-test-ring--unit span {
+  top: -28px;
+  left: 92px;
+}
+
+[data-drever-slide] .arch-test-ring--unit strong {
+  top: -12px;
+  left: 72px;
+}
+
+.arch-test-ring--compiler span {
+  top: 116px;
+  left: -72px;
+}
+
+[data-drever-slide] .arch-test-ring--compiler strong {
+  top: 132px;
+  left: -72px;
+}
+
+.arch-test-ring--compiler small {
+  top: 153px;
+  left: -72px;
+}
+
+.arch-test-ring--rendered span {
+  top: 214px;
+  left: -10px;
+}
+
+[data-drever-slide] .arch-test-ring--rendered strong {
+  top: 230px;
+  left: -10px;
+}
+
+.arch-test-ring--rendered small {
+  top: 251px;
+  left: -10px;
+}
+
+.arch-test-ring--outcome span {
+  top: 292px;
+  left: 404px;
+}
+
+[data-drever-slide] .arch-test-ring--outcome strong {
+  top: 308px;
+  left: 404px;
+}
+
+.arch-test-ring--outcome small {
+  top: 329px;
+  left: 404px;
 }
 
 .arch-test-contract {
@@ -1537,6 +2315,10 @@
     offset-distance: 100%;
   }
 
+  .arch-story-brief,
+  .arch-story-plan,
+  .arch-storyboard,
+  .arch-story-approval,
   .arch-lineage-stop,
   .arch-compiler-pass,
   .arch-compiler-track span,
@@ -1545,6 +2327,9 @@
   .arch-commit-states > div,
   .arch-resource-transaction > div,
   .arch-diagnostic__trace,
+  .arch-preflight-browser__scan,
+  .arch-preflight-result > code,
+  .arch-preflight-result footer,
   .arch-test-ring {
     transition-duration: 1ms !important;
   }

@@ -3,7 +3,8 @@ import architectureTheme from "./design/theme.ts";
 
 export default defineConfig({
   deck: {
-    description: "A visual tour through Drever's compiler, runtime, and delivery boundaries.",
+    description:
+      "A visual tour from an approved story plan through Drever's compiler, runtime surfaces, delivery, and rendered evidence.",
     lang: "en",
   },
   stage: {

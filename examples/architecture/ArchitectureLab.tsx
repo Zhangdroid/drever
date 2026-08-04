@@ -1,15 +1,7 @@
+import { useStage } from "@drever/client";
 import { Fragment, useState, type ReactElement } from "react";
 
 type Surface = "audience" | "speaker";
-
-const SLIDES = [1, 2, 4] as const;
-type SlideNumber = (typeof SLIDES)[number];
-
-const STEPS_BY_SLIDE: Readonly<Record<SlideNumber, readonly number[]>> = {
-  1: [0],
-  2: [0],
-  4: [0, 1, 2, 3, 4, 5],
-};
 
 const encodeRoute = (surface: Surface, slide: number, step: number): string => {
   const namespace = surface === "speaker" ? "/speaker" : "";
@@ -34,10 +26,19 @@ const RouteSegment = ({
  * a canonical URL and a reloadable static file.
  */
 export const RouteCompiler = (): ReactElement => {
+  const { manifest } = useStage();
+  const slideNumbers = [
+    1,
+    ...manifest.slides
+      .filter(({ stepStops }) => stepStops.length > 0)
+      .map(({ index }) => index + 1),
+  ];
+  const initialSlide = slideNumbers[Math.floor(slideNumbers.length / 2)] ?? 1;
+  const initialStops = manifest.slides[initialSlide - 1]?.stepStops ?? [];
   const [surface, setSurface] = useState<Surface>("speaker");
-  const [slide, setSlide] = useState<SlideNumber>(4);
-  const [step, setStep] = useState(5);
-  const validSteps = STEPS_BY_SLIDE[slide];
+  const [slide, setSlide] = useState(initialSlide);
+  const [step, setStep] = useState(initialStops.at(-1) ?? 0);
+  const validSteps = [0, ...(manifest.slides[slide - 1]?.stepStops ?? [])];
   const route = encodeRoute(surface, slide, step);
   const file = route === "/" ? "dist/index.html" : `dist${route}/index.html`;
   const routeSegments = [
@@ -46,9 +47,10 @@ export const RouteCompiler = (): ReactElement => {
     ...(step === 0 ? [] : [{ label: "step", value: String(step) }]),
   ];
 
-  const selectSlide = (nextSlide: SlideNumber): void => {
+  const selectSlide = (nextSlide: number): void => {
     setSlide(nextSlide);
-    if (!STEPS_BY_SLIDE[nextSlide].includes(step)) {
+    const nextSteps = manifest.slides[nextSlide - 1]?.stepStops ?? [];
+    if (step !== 0 && !nextSteps.includes(step)) {
       setStep(0);
     }
   };
@@ -71,7 +73,7 @@ export const RouteCompiler = (): ReactElement => {
         </fieldset>
         <fieldset>
           <legend>Slide</legend>
-          {SLIDES.map((candidate) => (
+          {slideNumbers.map((candidate) => (
             <button
               key={candidate}
               aria-pressed={slide === candidate}
