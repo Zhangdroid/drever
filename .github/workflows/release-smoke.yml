@@ -46,6 +46,40 @@ jobs:
           "$GITHUB_REPOSITORY"
           "$TRUSTED_WORKFLOW_REF"
 
+  resolve_agents:
+    name: Resolve stable agent CLIs
+    needs: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions: {}
+    outputs:
+      claude_version: ${{ steps.versions.outputs.claude_version }}
+      codex_version: ${{ steps.versions.outputs.codex_version }}
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.18.0
+          package-manager-cache: false
+
+      - name: Resolve each release channel once
+        id: versions
+        run: |
+          codex_version="$(npm view @openai/codex@latest version)"
+          claude_version="$(npm view @anthropic-ai/claude-code@stable version)"
+          version_pattern='^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$'
+          if [[ ! "$codex_version" =~ $version_pattern ]]; then
+            echo "npm returned an invalid Codex CLI version: $codex_version" >&2
+            exit 1
+          fi
+          if [[ ! "$claude_version" =~ $version_pattern ]]; then
+            echo "npm returned an invalid Claude Code CLI version: $claude_version" >&2
+            exit 1
+          fi
+          echo "codex_version=$codex_version" >> "$GITHUB_OUTPUT"
+          echo "claude_version=$claude_version" >> "$GITHUB_OUTPUT"
+          echo "Resolved Codex $codex_version and Claude Code $claude_version."
+
   authorize:
     name: Approve AI smoke budget
     needs: verify
@@ -120,6 +154,7 @@ jobs:
     needs:
       - authorize
       - prepare
+      - resolve_agents
     runs-on: ubuntu-24.04
     timeout-minutes: 50
     permissions:
@@ -137,8 +172,10 @@ jobs:
     env:
       AUTOMATION_ROOT: ${{ github.workspace }}/automation
       ARTIFACT_ROOT: ${{ github.workspace }}/release-smoke-work/active-${{ matrix.provider }}-${{ matrix.case }}/artifact
+      CLAUDE_CLI_VERSION: ${{ needs.resolve_agents.outputs.claude_version }}
       CLAUDE_CLI_ROOT: ${{ github.workspace }}/release-smoke-work/claude-cli
       CLAUDE_CONFIG_DIR: ${{ github.workspace }}/release-smoke-work/claude-${{ matrix.case }}
+      CODEX_CLI_VERSION: ${{ needs.resolve_agents.outputs.codex_version }}
       CODEX_HOME: ${{ github.workspace }}/release-smoke-work/codex-${{ matrix.case }}
       PROJECT_ROOT: ${{ github.workspace }}/release-smoke-work/active-${{ matrix.provider }}-${{ matrix.case }}/project
       QUARANTINE_ROOT: ${{ github.workspace }}/release-smoke-work/quarantine-${{ matrix.provider }}-${{ matrix.case }}
@@ -179,17 +216,17 @@ jobs:
         uses: openai/codex-action@52fe01ec70a42f454c9d2ebd47598f9fd6893d56 # v1
         with:
           allow-bots: true
-          codex-version: 0.145.0
+          codex-version: ${{ env.CODEX_CLI_VERSION }}
           codex-home: ${{ env.CODEX_HOME }}
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
           permission-profile: ":workspace"
           safety-strategy: drop-sudo
           working-directory: ${{ env.PROJECT_ROOT }}
 
-      - name: Install the pinned Claude Code CLI
+      - name: Install the resolved Claude Code CLI
         if: matrix.provider == 'claude'
         run: |
-          npm install --global --prefix "$CLAUDE_CLI_ROOT" @anthropic-ai/claude-code@2.1.220
+          npm install --global --prefix "$CLAUDE_CLI_ROOT" "@anthropic-ai/claude-code@$CLAUDE_CLI_VERSION"
           docker pull "$RELEASE_SMOKE_GENERATION_IMAGE"
 
       - name: Run the Codex creation journey
@@ -299,6 +336,7 @@ jobs:
     name: Repair · ${{ matrix.provider }} · ${{ matrix.case }}
     needs:
       - authorize
+      - resolve_agents
       - validate
     runs-on: ubuntu-24.04
     timeout-minutes: 25
@@ -317,8 +355,10 @@ jobs:
     env:
       ARTIFACT_ROOT: ${{ github.workspace }}/release-smoke-work/candidate-${{ matrix.provider }}-${{ matrix.case }}
       AUTOMATION_ROOT: ${{ github.workspace }}/automation
+      CLAUDE_CLI_VERSION: ${{ needs.resolve_agents.outputs.claude_version }}
       CLAUDE_CLI_ROOT: ${{ github.workspace }}/release-smoke-work/claude-cli
       CLAUDE_CONFIG_DIR: ${{ github.workspace }}/release-smoke-work/claude-repair-${{ matrix.case }}
+      CODEX_CLI_VERSION: ${{ needs.resolve_agents.outputs.codex_version }}
       CODEX_HOME: ${{ github.workspace }}/release-smoke-work/codex-repair-${{ matrix.case }}
       ORIGINAL_ROOT: ${{ github.workspace }}/release-smoke-work/original-${{ matrix.provider }}-${{ matrix.case }}
       PREPARED_ROOT: ${{ github.workspace }}/release-smoke-work/prepared-${{ matrix.provider }}-${{ matrix.case }}
@@ -397,17 +437,17 @@ jobs:
         uses: openai/codex-action@52fe01ec70a42f454c9d2ebd47598f9fd6893d56 # v1
         with:
           allow-bots: true
-          codex-version: 0.145.0
+          codex-version: ${{ env.CODEX_CLI_VERSION }}
           codex-home: ${{ env.CODEX_HOME }}
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
           permission-profile: ":workspace"
           safety-strategy: drop-sudo
           working-directory: ${{ env.PROJECT_ROOT }}
 
-      - name: Install the pinned Claude Code CLI for repair
+      - name: Install the resolved Claude Code CLI for repair
         if: steps.validation.outputs.status == 'repairable-failure' && matrix.provider == 'claude'
         run: |
-          npm install --global --prefix "$CLAUDE_CLI_ROOT" @anthropic-ai/claude-code@2.1.220
+          npm install --global --prefix "$CLAUDE_CLI_ROOT" "@anthropic-ai/claude-code@$CLAUDE_CLI_VERSION"
           docker pull "$RELEASE_SMOKE_GENERATION_IMAGE"
 
       - name: Run one Codex repair turn

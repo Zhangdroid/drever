@@ -1321,12 +1321,12 @@ test("approves once, runs four AI journeys in parallel, and repairs only failed 
     "runner context is unavailable in job-level env declarations",
   );
   assert.match(workflow, /openai\/codex-action@52fe01ec70a42f454c9d2ebd47598f9fd6893d56/u);
-  assert.match(workflow, /codex-version: 0\.145\.0/u);
+  assert.equal(workflow.match(/codex-version: \$\{\{ env\.CODEX_CLI_VERSION \}\}/gu)?.length, 2);
   assert.equal(workflow.match(/environment: ai-release-smoke/gu)?.length, 1);
   assert.doesNotMatch(workflow, /workflow_call:/u);
   assert.match(workflow, /source_commit:\s+description:[^\n]+\s+required: true/u);
   assert.doesNotMatch(workflow, /inputs\.source_commit \|\| github\.sha/u);
-  assert.equal(workflow.match(/runs-on: ubuntu-24\.04/gu)?.length, 8);
+  assert.equal(workflow.match(/runs-on: ubuntu-24\.04/gu)?.length, 9);
   assert.equal(workflow.match(/ref: \$\{\{ github\.sha \}\}/gu)?.length, 7);
   assert.doesNotMatch(workflow, /ref: main/u);
   assert.doesNotMatch(
@@ -1340,6 +1340,21 @@ test("approves once, runs four AI journeys in parallel, and repairs only failed 
     workflow,
     /RELEASE_SMOKE_MODEL: \$\{\{ matrix\.provider == 'claude' && 'claude-opus-5' \|\| 'gpt-5\.6-sol' \}\}/u,
   );
+  const resolveAgentsJob = workflow.slice(
+    workflow.indexOf("\n  resolve_agents:"),
+    workflow.indexOf("\n  authorize:"),
+  );
+  assert.match(resolveAgentsJob, /npm view @openai\/codex@latest version/u);
+  assert.match(resolveAgentsJob, /npm view @anthropic-ai\/claude-code@stable version/u);
+  assert.match(
+    resolveAgentsJob,
+    /codex_version: \$\{\{ steps\.versions\.outputs\.codex_version \}\}/u,
+  );
+  assert.match(
+    resolveAgentsJob,
+    /claude_version: \$\{\{ steps\.versions\.outputs\.claude_version \}\}/u,
+  );
+  assert.doesNotMatch(resolveAgentsJob, /OPENAI_API_KEY|CLAUDE_API_KEY|ANTHROPIC_API_KEY/u);
   const authorizeJob = workflow.slice(
     workflow.indexOf("\n  authorize:"),
     workflow.indexOf("\n  prepare:"),
@@ -1350,7 +1365,7 @@ test("approves once, runs four AI journeys in parallel, and repairs only failed 
     workflow.indexOf("\n  generate:"),
     workflow.indexOf("\n  validate:"),
   );
-  assert.match(generateJob, /needs:\s+- authorize\s+- prepare/u);
+  assert.match(generateJob, /needs:\s+- authorize\s+- prepare\s+- resolve_agents/u);
   assert.match(generateJob, /timeout-minutes: 50/u);
   assert.match(generateJob, /max-parallel: 4/u);
   assert.doesNotMatch(generateJob, /environment:/u);
@@ -1366,8 +1381,15 @@ test("approves once, runs four AI journeys in parallel, and repairs only failed 
       ?.length,
     2,
   );
-  assert.match(generateJob, /@anthropic-ai\/claude-code@2\.1\.220/u);
-  assert.doesNotMatch(generateJob, /@anthropic-ai\/claude-code@(?:latest|\^|~)/u);
+  assert.match(generateJob, /"@anthropic-ai\/claude-code@\$CLAUDE_CLI_VERSION"/u);
+  assert.match(
+    generateJob,
+    /CODEX_CLI_VERSION: \$\{\{ needs\.resolve_agents\.outputs\.codex_version \}\}/u,
+  );
+  assert.match(
+    generateJob,
+    /CLAUDE_CLI_VERSION: \$\{\{ needs\.resolve_agents\.outputs\.claude_version \}\}/u,
+  );
   assert.match(generateJob, /RELEASE_SMOKE_GENERATION_IMAGE: node@sha256:[0-9a-f]{64}/u);
   assert.match(generateJob, /if: matrix\.provider == 'codex'/u);
   assert.match(generateJob, /if: matrix\.provider == 'claude'/u);
@@ -1377,7 +1399,7 @@ test("approves once, runs four AI journeys in parallel, and repairs only failed 
   assert.doesNotMatch(workflow, /secrets\.ANTHROPIC_API_KEY/u);
   const codexCredentialStep = generateJob.slice(
     generateJob.indexOf("      - name: Start the protected Codex proxy"),
-    generateJob.indexOf("      - name: Install the pinned Claude Code CLI"),
+    generateJob.indexOf("      - name: Install the resolved Claude Code CLI"),
   );
   assert.match(codexCredentialStep, /secrets\.OPENAI_API_KEY/u);
   assert.doesNotMatch(codexCredentialStep, /CLAUDE_API_KEY|ANTHROPIC_API_KEY/u);
@@ -1404,6 +1426,7 @@ test("approves once, runs four AI journeys in parallel, and repairs only failed 
     workflow.indexOf("\n  repair:"),
     workflow.indexOf("\n  final_build:"),
   );
+  assert.match(repairJob, /needs:\s+- authorize\s+- resolve_agents\s+- validate/u);
   assert.doesNotMatch(repairJob, /environment:/u);
   assert.match(repairJob, /activate-repair\.mjs/u);
   assert.match(repairJob, /read-validation-status\.mjs/u);
