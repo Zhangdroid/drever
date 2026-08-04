@@ -44,6 +44,50 @@ project. For an edit, use `drever_get_context` when the project MCP is connected
 `npm exec -- drever context --json`. Do not run context against the untouched starter merely to
 rediscover APIs documented by the installed skills.
 
+## Prefer the local creation room
+
+For a new deck, start the development script before asking questions when the host can keep a local
+server alive. Use the exact **Creation room** URL printed by Drever; open it when browser control is
+available, otherwise give the URL to the user. The creation room is the preferred surface for the
+brief, adaptive questions, plan approval, and later feedback. Do not mirror its questions in chat.
+If the CLI does not report that URL or the user prefers chat, continue with the conversational
+workflow below.
+
+The creation room is a local, provider-neutral action inbox. Keep one action cursor and poll in
+bounded calls:
+
+```bash
+npm exec -- drever studio status --json
+npm exec -- drever studio wait --after <latestActionRevision> --timeout 45 --json
+```
+
+Use `latestActionRevision`, not the UI `revision`, as the next `--after` cursor. Process every
+returned action in order. Publish agent-owned state by writing a small project-local JSON file and
+running `npm exec -- drever studio publish --file <path> --json`. A publication contains only:
+
+```json
+{
+  "version": 1,
+  "phase": "waiting-for-agent",
+  "handledActionRevision": 1,
+  "progress": { "label": "Shaping topic-specific questions", "completed": 1, "total": 2 }
+}
+```
+
+Publish one to three topic-specific questions after `submit-common-brief`, unless the same batch
+contains `skip-remaining-questions`. Each question has a lowercase hyphenated `id`, `prompt`, two to
+four options with `id`, `label`, and `description`, optional `recommended`, and optional `multiple`.
+After answers or a skip, update `brief.md` and `drever.plan.json`, publish `plan-review`, and wait for
+`approve-plan` or feedback. After approval, mark the plan approved, publish `drafting`, create the
+complete Draft 1, then publish `preview`. Continue polling while the server is alive so slide- or
+deck-scoped feedback can be applied through the normal authoring and review workflow. Set
+`handledActionRevision` to the last action actually incorporated; never acknowledge work before it
+has been applied.
+
+Do not put API keys or provider transcripts in creation-room state. The MDX, brief, plan,
+configuration, assets, and Git history remain the source of truth. The room only coordinates the
+existing coding agent and displays the real Drever runtime.
+
 ## Resolve the brief
 
 <!-- drever-briefing-contract:v4 -->
@@ -144,17 +188,19 @@ repeat the same split layout by default. A technical sales slide may require a s
 architecture view, or metric because its evidence contract calls for one; not every presentation
 does. Prefer contextual requirements over universal sentence or screenshot quotas.
 
-Run `npm exec -- drever check --json` and fix every plan error before presenting it. Then start the
-project's development script and use the exact **Storyboard** URL reported by Drever. This
-development-only route reads `drever.plan.json` without importing the deck MDX, Theme, or runtime,
-so it is the first useful visual preview even when `slides.mdx` is absent or incomplete. Never guess
-the URL, and do not author the deck merely to make this checkpoint visible.
+Run `npm exec -- drever check --json` and fix every plan error before presenting it. When the local
+creation room is active, publish the `plan-review` phase and let its visual Storyboard own edits and
+explicit approval. Keep polling until `approve-plan` arrives or feedback changes the plan.
 
-Show the user the complete brief and ordered story, name both paths, share the Storyboard URL,
-invite edits or explicit approval, and stop. Keep the server alive when the host permits it; plan
-edits update that page through HMR. The skip-remaining escape does not bypass this gate. If the user
-changes the plan, update both files, keep them awaiting approval, and present the material changes
-again. After explicit approval, mark both files approved and continue.
+Otherwise start the project's development script and use the exact **Storyboard** URL reported by
+Drever. This development-only fallback reads `drever.plan.json` without importing the deck MDX,
+Theme, or runtime. Show the user the complete brief and ordered story in chat and share the URL.
+Then invite edits or explicit approval, and stop. Never guess the URL or author the deck merely to
+make this checkpoint visible.
+
+The skip-remaining escape does not bypass either approval path. If the user changes the plan, update
+both files, keep them awaiting approval, and present the material changes again. After explicit
+approval, mark both files approved and continue.
 
 ## Create the first useful preview
 
@@ -165,8 +211,8 @@ the story and design contract while authoring. On a single-agent host, author th
 simple Draft 1 before starting design research or refinement. Do not finish a custom visual system
 before exposing the first useful preview.
 
-Reuse the running development server when one is already serving the Storyboard; otherwise start
-one server and keep its URL stable. Build a coherent Draft 1 with every planned
+Reuse the running development server when one is already serving the creation room or Storyboard;
+otherwise start one server and keep its URL stable. Build a coherent Draft 1 with every planned
 slide, real readable copy, evidence, speaker notes, and a deliberately simple subject-led visual
 system. Do not wait for exhaustive inspection, production build, PDF export, or optional third-party
 polish before exposing it. Before sharing the URL, verify only that the entry compiles, the audience

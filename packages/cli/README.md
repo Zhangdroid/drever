@@ -33,6 +33,7 @@ npm exec -- drever doctor --json
 npm exec -- drever context slides.mdx --json
 npm exec -- drever check slides.mdx --rendered --json
 npm exec -- drever dev slides.mdx
+npm exec -- drever studio status --json
 npm exec -- drever current --json
 npm exec -- drever mcp slides.mdx
 npm exec -- drever build slides.mdx --json
@@ -246,10 +247,12 @@ New-deck creation and explicit replacement begin with a plan review. Edits to an
 authored deck use the focused authoring skill, preserve its approved plan, and
 do not restart that gate. The agent writes the human-readable
 brief and outline to `brief.md`, records its smaller machine-checkable story
-contract in `drever.plan.json`, validates it, and opens the plan-only
-`/storyboard` surface before waiting for explicit approval. That route does not
-import the MDX entry, Theme, or presentation runtime, so it remains useful while
-the first deck source is absent or incomplete.
+contract in `drever.plan.json`, and validates it. When a development host can
+keep the server alive, the agent prefers the experimental local creation room
+for the common brief, adaptive questions, visual Storyboard approval, and later
+deck- or slide-scoped feedback. Chat plus the plan-only `/storyboard` route is
+the fallback; that route does not import the MDX entry, Theme, or presentation
+runtime, so it remains useful while the first deck source is absent or incomplete.
 The machine-readable contract gives every slide a stable ID, narrative job,
 evidence, focal artifact, composition recipe, density, and optional single
 motion owner. Those IDs are stable planning and review labels; compiled slide
@@ -262,6 +265,12 @@ pause. Authoring and design use source-only and affected-route checks while the
 preview changes. Review owns the exhaustive rendered gate; delivery reuses its
 fresh evidence and runs the one production build plus requested exports. Any
 later source, configuration, or asset mutation invalidates affected evidence.
+
+The provider-neutral bridge uses `drever studio status`, `drever studio wait`,
+and `drever studio publish`. These are agent-facing commands over ephemeral
+`.drever/studio` state, not a hosted API. The browser never receives model
+credentials or arbitrary file access, and the creation room is excluded from
+production and export bundles.
 
 Run `npm exec -- drever context [entry] --json` before substantial authoring or review. The
 versioned JSON document contains:

@@ -5,6 +5,16 @@ Generated Drever clients select `createViewer` for audience paths and
 `createSpeaker` for `/speaker` paths; deck authors normally let the `drever` CLI
 create that bootstrap.
 
+The package also exposes a separate development-only `@drever/client/studio`
+entry and `studio.css` surface for Drever's experimental local creation room.
+It renders the common brief, agent-supplied adaptive questions, visual
+Storyboard review, the real Audience View draft, and deck- or slide-scoped
+feedback. The CLI loads it only for `/studio` during `drever dev`; it is not
+included in audience, production, document, speaker, or export bundles.
+Direct consumers import both `@drever/client/studio` and
+`@drever/client/studio.css`; the JavaScript entry deliberately does not inject
+styles into unrelated bundles.
+
 ```tsx
 import { createViewer } from "@drever/client";
 import "@drever/client/styles.css";

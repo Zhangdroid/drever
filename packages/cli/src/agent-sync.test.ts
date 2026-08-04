@@ -163,10 +163,10 @@ describe("agent kit sync", () => {
     expect(createDeck).toMatch(/`detailed`[^;]*reader-led/iu);
     expect(createDeck).toContain("<!-- drever-plan-review-contract:v3 -->");
     expect(createDeck).toMatch(/human-readable brief and numbered outline/iu);
-    expect(createDeck).toMatch(/invite edits or explicit\s+approval,\s+and stop/iu);
-    expect(createDeck).toMatch(/exact \*\*Storyboard\*\* URL reported by Drever/iu);
-    expect(createDeck).toMatch(/without importing the deck MDX, Theme, or runtime/iu);
-    expect(createDeck).toMatch(/skip-remaining escape does not bypass this gate/iu);
+    expect(createDeck).toMatch(/invite\s+edits or explicit\s+approval,\s+and stop/iu);
+    expect(createDeck).toMatch(/exact \*\*Storyboard\*\* URL reported by\s+Drever/iu);
+    expect(createDeck).toMatch(/without importing the deck MDX,\s+Theme, or runtime/iu);
+    expect(createDeck).toMatch(/skip-remaining escape does not bypass either approval path/iu);
     expect(createDesign).toMatch(/topic-fingerprint test/iu);
     expect(createDesign).toMatch(
       /claim[^→]*→ focal artifact[^→]*→ initial state[^→]*→ meaningful\s+transformation[^→]*→ settled payoff[^→]*→ static or reduced-motion endpoint/iu,

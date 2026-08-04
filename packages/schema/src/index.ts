@@ -98,3 +98,20 @@ export type {
   RenderedPreflightRulesetVersion,
 } from "./preflight.ts";
 export type { SourceFragment, SourcePoint, SourceRange } from "./source.ts";
+export { DREVER_STUDIO_PROTOCOL_VERSION } from "./studio.ts";
+export type {
+  DreverStudioAction,
+  DreverStudioActionAck,
+  DreverStudioActionRecord,
+  DreverStudioAgentState,
+  DreverStudioAnswer,
+  DreverStudioCommonBrief,
+  DreverStudioDensity,
+  DreverStudioFeedbackScope,
+  DreverStudioMotionIntensity,
+  DreverStudioPhase,
+  DreverStudioProgress,
+  DreverStudioQuestion,
+  DreverStudioQuestionOption,
+  DreverStudioState,
+} from "./studio.ts";

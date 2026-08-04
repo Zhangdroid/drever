@@ -31,6 +31,7 @@ import type {
   DesignImportReceipt,
   ImportWebsiteDesignOptions,
 } from "./design-import.ts";
+import type { RunStudioCommandRequest, StudioCommand } from "./studio-command.ts";
 
 export type AgentCommand = Readonly<{
   action: "sync";
@@ -121,6 +122,7 @@ export type DreverCommand =
   | DoctorCommand
   | ExportPdfCommand
   | McpCommand
+  | StudioCommand
   | DevCommand;
 
 export type PdfExportRequest = Readonly<{
@@ -142,6 +144,8 @@ const AGENT_SYNC_USAGE = "Usage: drever agent sync [--target <all|auto|codex|cla
 const BROWSER_INSTALL_USAGE = "Usage: drever browser install [--with-deps]";
 const DESIGN_IMPORT_USAGE =
   "Usage: drever design import <url> [--name <name>] [--output <directory>] [--color-scheme <light|dark>] [--allow-private] [--json]";
+const STUDIO_USAGE =
+  "Usage: drever studio <status [--json]|wait --after <revision> [--timeout <seconds>] [--json]|publish --file <path> [--json]>";
 const CONFIG_COMMAND = {
   build: "build",
   check: "check",
@@ -153,7 +157,13 @@ const CONFIG_COMMAND = {
   Record<
     Exclude<
       DreverCommand,
-      AgentCommand | BrowserCommand | CreateCommand | CurrentCommand | DesignCommand | DoctorCommand
+      | AgentCommand
+      | BrowserCommand
+      | CreateCommand
+      | CurrentCommand
+      | DesignCommand
+      | DoctorCommand
+      | StudioCommand
     >["name"],
     LoadDreverConfigOptions["command"]
   >
@@ -563,6 +573,81 @@ const parseMcp = (arguments_: readonly string[]): McpCommand => {
   return Object.freeze({ name: "mcp", ...(entry === undefined ? {} : { entry }) });
 };
 
+const parseStudio = (arguments_: readonly string[]): StudioCommand => {
+  const [action, ...rest] = arguments_;
+  if (action !== "status" && action !== "wait" && action !== "publish") {
+    invalidArgument(
+      action === undefined ? "Studio action is required." : `Unknown Studio action: ${action}`,
+      STUDIO_USAGE,
+    );
+  }
+  let after: number | undefined;
+  let file: string | undefined;
+  let json = false;
+  let timeoutSeconds = 45;
+  let timeoutSet = false;
+  for (let index = 0; index < rest.length; index += 1) {
+    const argument = rest[index] as string;
+    if (argument === "--json") {
+      if (json) invalidArgument("--json can be specified only once.", STUDIO_USAGE);
+      json = true;
+      continue;
+    }
+    if (argument !== "--after" && argument !== "--timeout" && argument !== "--file") {
+      invalidArgument(`Unknown Studio argument: ${argument}`, STUDIO_USAGE);
+    }
+    const raw = rest[index + 1];
+    if (raw === undefined || raw.length === 0 || raw.startsWith("-")) {
+      invalidArgument(`${argument} requires a value.`, STUDIO_USAGE);
+    }
+    if (argument === "--file") {
+      if (file !== undefined) invalidArgument("--file can be specified only once.", STUDIO_USAGE);
+      file = raw;
+    } else {
+      const value = Number(raw);
+      if (!Number.isSafeInteger(value) || value < (argument === "--timeout" ? 1 : 0)) {
+        invalidArgument(
+          `${argument} requires ${argument === "--timeout" ? "a positive" : "a non-negative"} integer.`,
+          STUDIO_USAGE,
+        );
+      }
+      if (argument === "--after") {
+        if (after !== undefined)
+          invalidArgument("--after can be specified only once.", STUDIO_USAGE);
+        after = value;
+      } else {
+        if (timeoutSet) invalidArgument("--timeout can be specified only once.", STUDIO_USAGE);
+        if (value > 300) invalidArgument("--timeout cannot exceed 300 seconds.", STUDIO_USAGE);
+        timeoutSeconds = value;
+        timeoutSet = true;
+      }
+    }
+    index += 1;
+  }
+  if (action === "status") {
+    if (after !== undefined || file !== undefined || timeoutSet) {
+      invalidArgument("studio status accepts only --json.", STUDIO_USAGE);
+    }
+    return Object.freeze({ action: "status", json, name: "studio" });
+  }
+  if (action === "wait") {
+    if (file !== undefined) invalidArgument("studio wait does not accept --file.", STUDIO_USAGE);
+    const afterRevision = after ?? invalidArgument("studio wait requires --after.", STUDIO_USAGE);
+    return Object.freeze({
+      action: "wait",
+      after: afterRevision,
+      json,
+      name: "studio",
+      timeoutSeconds,
+    });
+  }
+  if (after !== undefined || timeoutSet) {
+    invalidArgument("studio publish accepts --file and --json.", STUDIO_USAGE);
+  }
+  const publicationFile = file ?? invalidArgument("studio publish requires --file.", STUDIO_USAGE);
+  return Object.freeze({ action: "publish", file: publicationFile, json, name: "studio" });
+};
+
 export const HELP = `Drever — AI-first MDX presentations
 
 Usage:
@@ -572,6 +657,9 @@ Usage:
   drever check [entry] [--rendered] [--json]
   drever context [entry] [--json]
   drever current [--json]
+  drever studio status [--json]
+  drever studio wait --after <revision> [--timeout <seconds>] [--json]
+  drever studio publish --file <path> [--json]
   drever doctor [--json]
   drever browser install [--with-deps]
   drever design import <url> [options]
@@ -610,6 +698,9 @@ export const parseCommand = (arguments_: readonly string[]): DreverCommand | "he
   }
   if (command === "mcp") {
     return parseMcp(rest);
+  }
+  if (command === "studio") {
+    return parseStudio(rest);
   }
   if (command === "agent") {
     return parseAgent(rest);
@@ -657,6 +748,7 @@ export type RunCliOptions = Readonly<{
   importDesign?: (request: ImportWebsiteDesignOptions) => Promise<DesignImportReceipt>;
   installBrowser?: (request: BrowserInstallRequest) => Promise<void>;
   runDoctor?: (request: RunDoctorRequest) => Promise<CheckExitCode>;
+  runStudioCommand?: (request: RunStudioCommandRequest) => Promise<void>;
   syncAgentKit?: (options: SyncAgentKitOptions) => Promise<AgentSyncResult>;
   serveMcp?: (request: RunMcpServerRequest) => Promise<void>;
   stdin?: NodeJS.ReadableStream;
@@ -791,6 +883,16 @@ export const runCli = async (
         return current.writeCurrentPosition(request);
       });
     await writeCurrentPosition({ json: command.json, root, stdout: output });
+    return;
+  }
+  if (command.name === "studio") {
+    const runStudioCommand =
+      options.runStudioCommand ??
+      (async (request: RunStudioCommandRequest): Promise<void> => {
+        const studio = await import("./studio-command.ts");
+        await studio.runStudioCommand(request);
+      });
+    await runStudioCommand({ command, root, stdout: output });
     return;
   }
 

@@ -5,8 +5,16 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
-Release impact: **patch** — this batch contains compatible visual-review and audience-rendering
-refinements.
+Release impact: **minor** — this batch adds a compatible experimental creation-room capability and
+includes visual-review and audience-rendering refinements.
+
+### Added
+
+- Added an experimental, development-only local creation room for the common brief, adaptive
+  topic-specific questions, visual Storyboard approval, a real Audience View preview, and deck- or
+  slide-scoped feedback. A provider-neutral local action journal and `drever studio` agent commands
+  coordinate the existing coding agent without placing model credentials or editor code in the
+  production presentation.
 
 ### Changed
 

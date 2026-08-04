@@ -5,7 +5,7 @@ import { DocArticle, DocMdx, DocNext } from "../components/docs-shell";
 import { pageHead } from "../seo";
 
 const description =
-  "Use project-local skills, exact JSON authoring context, the live presentation position, and optional read-only MCP.";
+  "Use the local creation room, project-local skills, exact JSON context, rendered diagnostics, and optional read-only MCP without hiding the source.";
 
 export const Route = createFileRoute("/docs/ai")({
   component: Page,

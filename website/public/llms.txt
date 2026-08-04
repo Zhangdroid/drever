@@ -94,6 +94,8 @@ Document View. Audience paths such as `/5/2` select an exact slide and sparse St
 - Laser, Pen, and Highlighter in audience and speaker views.
 - Source accessibility preflight with human and stable JSON diagnostics.
 - Project-local Codex and Claude skills.
+- An experimental, development-only local creation room for the common brief, adaptive questions,
+  visual Storyboard approval, and deck- or slide-scoped feedback, backed by ordinary project files.
 - JSON authoring context and local live-position commands.
 - Optional dependency-free, read-only MCP server.
 - Default build-time GFM, Shiki, and reset-free Tailwind CSS.
@@ -108,5 +110,6 @@ Document View. Audience paths such as `/5/2` select an exact slide and sparse St
 
 Drever is under active development and its public API is not yet stable. Mermaid is intentionally
 deferred. Drever does not currently claim a hosted editor, real-time collaboration, cross-device
-remote control, PPTX/Keynote import or export, video export, or a visual layout oracle. The MCP
-server is read-only and does not edit presentation source.
+remote control, PPTX/Keynote import or export, video export, or a visual layout oracle. The local
+creation room coordinates an already-running coding agent and is not shipped with a production
+deck. The MCP server is read-only and does not edit presentation source.

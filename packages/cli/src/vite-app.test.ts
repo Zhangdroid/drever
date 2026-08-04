@@ -22,6 +22,7 @@ describe("resolveFrameworkViteConfig", () => {
       "@drever/client/document",
       "@drever/client/speaker",
       "@drever/client/storyboard",
+      "@drever/client/studio",
       "@drever/core",
       "@drever/designs/basic/layouts",
       "react",
