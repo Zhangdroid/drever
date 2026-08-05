@@ -657,6 +657,7 @@ export const serveDreverProject = async (
   let reloadTimer: ReturnType<typeof setTimeout> | undefined;
   let reloadUpdates = Promise.resolve();
   let restartUpdate = Promise.resolve();
+  let restartBarrier: Promise<void> | undefined;
   let reloadProject = async (): Promise<void> => undefined;
   let configReloadFailed = false;
   let shuttingDown = false;
@@ -664,22 +665,31 @@ export const serveDreverProject = async (
   let closeCurrentServer: (() => Promise<void>) | undefined;
   const parentSockets = new Set<Socket>();
   const parentServer = createHttpServer((request, response) => {
-    if (server === undefined) {
-      response.statusCode = 503;
-      response.setHeader("Content-Type", "text/plain; charset=utf-8");
-      response.end("The Drever development server is starting.\n");
-      return;
-    }
-    server.middlewares(request, response, (cause?: unknown) => {
-      if (response.writableEnded) return;
-      response.statusCode = cause === undefined ? 404 : 500;
-      response.setHeader("Content-Type", "text/plain; charset=utf-8");
-      response.end(
-        cause === undefined
-          ? "Not found.\n"
-          : `The Drever development server could not handle this request: ${cause instanceof Error ? cause.message : "Unknown middleware failure."}\n`,
-      );
-    });
+    const dispatch = (): void => {
+      if (response.destroyed || response.writableEnded) return;
+      const pendingRestart = restartBarrier;
+      if (pendingRestart !== undefined) {
+        void pendingRestart.then(dispatch);
+        return;
+      }
+      if (server === undefined) {
+        response.statusCode = 503;
+        response.setHeader("Content-Type", "text/plain; charset=utf-8");
+        response.end("The Drever development server is starting.\n");
+        return;
+      }
+      server.middlewares(request, response, (cause?: unknown) => {
+        if (response.writableEnded) return;
+        response.statusCode = cause === undefined ? 404 : 500;
+        response.setHeader("Content-Type", "text/plain; charset=utf-8");
+        response.end(
+          cause === undefined
+            ? "Not found.\n"
+            : `The Drever development server could not handle this request: ${cause instanceof Error ? cause.message : "Unknown middleware failure."}\n`,
+        );
+      });
+    };
+    dispatch();
   });
   parentServer.on("connection", (socket) => {
     parentSockets.add(socket);
@@ -819,6 +829,10 @@ export const serveDreverProject = async (
       );
       const previousInlineConfig = server.config.inlineConfig;
       let adopted = false;
+      let finishRestart: (() => void) | undefined;
+      restartBarrier = new Promise<void>((resolve) => {
+        finishRestart = resolve;
+      });
       try {
         restartUpdate = (async () => {
           if (shuttingDown) return;
@@ -840,6 +854,8 @@ export const serveDreverProject = async (
         })();
         await restartUpdate;
       } finally {
+        finishRestart?.();
+        restartBarrier = undefined;
         if (!adopted) await nextApp.dispose();
       }
     };

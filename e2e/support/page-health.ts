@@ -15,7 +15,11 @@ const isViteModuleCancellation = (request: Request): boolean => {
   }
 
   const pathname = new URL(request.url()).pathname;
-  return pathname.startsWith("/.vite/deps/") || pathname.startsWith("/@fs/");
+  return (
+    pathname.startsWith("/.vite/deps/") ||
+    pathname.startsWith("/@fs/") ||
+    pathname.startsWith("/@id/")
+  );
 };
 
 /** Captures failures that DOM assertions often miss in a client-rendered application. */

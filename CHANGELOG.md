@@ -26,8 +26,9 @@ coherent across progressive authoring and development-time configuration changes
 - Reloaded imported `drever.config.ts` dependencies, local theme modules, and Stage components in
   the same development listener, preserving the Studio URL and session; an invalid configuration
   now leaves the last valid preview running and recovers when its missing dependency is created.
-- Kept the public development listener stable while Vite rebuilds its configuration graph, so
-  browsers no longer hit transient connection resets while reloading virtual styles or Studio.
+- Kept the public development listener stable and held requests during Vite configuration-graph
+  swaps, so browsers no longer hit transient resets or stale-graph responses while reloading
+  virtual styles or Studio.
 
 ## [0.12.0] - 2026-08-05
 
