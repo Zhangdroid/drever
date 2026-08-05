@@ -105,6 +105,7 @@ describe("Studio", () => {
     expect(markup).toContain('aria-label="Custom duration in minutes"');
     expect(markup).toContain("Skip the rest — surprise me");
     expect(markup).toContain('data-studio-phase="briefing"');
+    expect(markup).not.toContain("Experimental");
   });
 
   it("removes the offline notice when the local agent lease is active", () => {
@@ -124,8 +125,33 @@ describe("Studio", () => {
 
     expect(markup).toContain("Request saved locally");
     expect(markup).toContain("Nothing is running inside Studio itself.");
+    expect(markup).toContain("Brief saved");
+    expect(markup).toContain("Waiting for a local agent");
+    expect(markup).toContain("Questions ready");
+    expect(markup).toContain("Paused");
+    expect(markup).not.toContain("No local agent is active.");
     expect(markup).not.toContain("Reading the room");
     expect(markup).not.toContain("Your agent is turning");
+  });
+
+  it("shows the connected agent's published activity and measurable progress", () => {
+    const markup = render(
+      state({
+        agentConnected: true,
+        commonBrief: { topic: "A deliberate subject" },
+        message: "Selecting the decisions that materially change the deck.",
+        phase: "waiting-for-agent",
+        progress: { completed: 1, label: "Reviewing the submitted brief", total: 3 },
+      }),
+    );
+
+    expect(markup).toContain("Agent activity");
+    expect(markup).toContain("Reviewing the submitted brief");
+    expect(markup).toContain("1 of 3");
+    expect(markup).toContain('aria-label="Reviewing the submitted brief" max="3" value="1"');
+    expect(markup).toContain("Agent update");
+    expect(markup).toContain("Selecting the decisions that materially change the deck.");
+    expect(markup).toContain('aria-current="step" data-status="active"');
   });
 
   it("hydrates an arbitrary duration in the custom minutes field", () => {

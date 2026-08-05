@@ -112,7 +112,7 @@ const publish = async (root: string, file: string): Promise<DreverStudioAgentSta
       {
         cause,
         details: { file },
-        hint: "Use only supported phases, questions, progress, and handledActionRevision fields.",
+        hint: 'For questions, publish {"version":1,"phase":"adaptive-questions","handledActionRevision":<revision>,"adaptiveQuestions":[...]}; put optional `recommended: true` on at most one option, never on the question.',
       },
     );
   }
