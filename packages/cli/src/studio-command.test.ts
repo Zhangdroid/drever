@@ -212,5 +212,25 @@ describe("Studio CLI bridge", () => {
         stdout: capture.stdout,
       }),
     ).rejects.toMatchObject({ code: "DREVER_STUDIO_PUBLICATION_PATH_INVALID" });
+
+    await writeFile(
+      join(root, "invalid-questions.json"),
+      JSON.stringify({ version: 1, phase: "questions", questions: [] }),
+    );
+    await expect(
+      runStudioCommand({
+        command: {
+          action: "publish",
+          file: "invalid-questions.json",
+          json: false,
+          name: "studio",
+        },
+        root,
+        stdout: capture.stdout,
+      }),
+    ).rejects.toMatchObject({
+      code: "DREVER_STUDIO_PUBLICATION_INVALID",
+      hint: expect.stringContaining('"phase":"adaptive-questions"'),
+    });
   });
 });

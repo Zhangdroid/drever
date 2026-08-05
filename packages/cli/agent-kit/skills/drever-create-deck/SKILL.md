@@ -46,6 +46,8 @@ rediscover APIs documented by the installed skills.
 
 ## Prefer the local creation room
 
+<!-- drever-studio-question-contract:v1 -->
+
 For a new deck, start the development script before asking questions when the host can keep a local
 server alive. Use the exact **Creation room** URL printed by Drever; open it when browser control is
 available, otherwise give the URL to the user. The creation room is the preferred surface for the
@@ -63,26 +65,82 @@ npm exec -- drever studio wait --after <latestActionRevision> --timeout 45 --jso
 
 Use `latestActionRevision`, not the UI `revision`, as the next `--after` cursor. Process every
 returned action in order. Publish agent-owned state by writing a small project-local JSON file and
-running `npm exec -- drever studio publish --file <path> --json`. A publication contains only:
+running `npm exec -- drever studio publish --file <path> --json`.
+
+Treat `submit-common-brief` as a latency-sensitive dispatch. Before doing any other work, use only
+that action's `brief` to choose the highest-value one to three missing decisions and publish the
+question round in one pass. Do not inspect or edit project files, browse or research the topic,
+start another worker, run `context` or `check`, inspect Drever source or schemas, or publish a
+progress-only state first. This round elicits direction; factual research and deck work begin only
+after the answers or skip action. Do not repeat audience, duration, density, language, desired
+change, or motion choices already present in the brief. Prefer a missing desired outcome, then a
+topic-specific scope or evidence fork, then a visual or delivery fork that would materially change
+the story.
+
+Write `.drever-studio-publication.json` and copy this exact structure, replacing the example
+revision and strings with values for the submitted brief:
 
 ```json
 {
   "version": 1,
-  "phase": "waiting-for-agent",
-  "handledActionRevision": 1,
-  "progress": { "label": "Shaping topic-specific questions", "completed": 1, "total": 2 }
+  "phase": "adaptive-questions",
+  "handledActionRevision": 7,
+  "adaptiveQuestions": [
+    {
+      "id": "coworker-outcome",
+      "prompt": "What should coworkers be able to do differently after this AI update?",
+      "options": [
+        {
+          "id": "spot-opportunities",
+          "label": "Spot useful opportunities",
+          "description": "Give them a practical filter for identifying worthwhile AI uses at work.",
+          "recommended": true
+        },
+        {
+          "id": "choose-tools",
+          "label": "Choose tools confidently",
+          "description": "Help them compare current tool categories before making an adoption decision."
+        }
+      ]
+    }
+  ]
 }
 ```
 
-Publish one to three topic-specific questions after `submit-common-brief`, unless the same batch
-contains `skip-remaining-questions`. Each question has a lowercase hyphenated `id`, `prompt`, two to
-four options with `id`, `label`, and `description`, optional `recommended`, and optional `multiple`.
-After answers or a skip, update `brief.md` and `drever.plan.json`, publish `plan-review`, and wait for
-`approve-plan` or feedback. After approval, mark the plan approved, publish `drafting`, create the
-complete Draft 1, then publish `preview`. Continue polling while the server is alive so slide- or
-deck-scoped feedback can be applied through the normal authoring and review workflow. Set
-`handledActionRevision` to the last action actually incorporated; never acknowledge work before it
-has been applied.
+For this publication, the root keys are exactly `version`, `phase`, `handledActionRevision`, and
+`adaptiveQuestions`; omit progress and messages. The phase is exactly `adaptive-questions`, never
+`questions` or `waiting-for-agent`. `adaptiveQuestions` contains one to three questions. Every
+question has only `id`, `prompt`, `options`, and optional boolean `multiple`; every option has only
+`id`, `label`, `description`, and optional boolean `recommended`. Put `recommended: true` on at most
+one option per question, never on the question. Question and option IDs are unique within their
+scope and match lowercase kebab case such as `evidence-style`; every question has two to four
+options. Do not emit `questions`, a question-level `recommended` ID, numbering, letter labels, null,
+or any extra field. Use the action record's `revision` as `handledActionRevision`.
+
+Run the publish command immediately. If it rejects the file, read that one CLI diagnostic and make
+one mechanical retry: keep only the first question, remove unknown fields, rename `questions` to
+`adaptiveQuestions`, set the phase to `adaptive-questions`, move any recommendation onto one option
+as a boolean, and conform the IDs and option count to the exact example above. Do not regenerate the
+round, inspect repository or package source, search for a schema, or start open-ended debugging. If
+that single retry also fails, publish this exact bounded failure state with the action revision and
+stop so the user receives a concrete result instead of an indefinite wait:
+
+```json
+{
+  "version": 1,
+  "phase": "error",
+  "handledActionRevision": 7,
+  "message": "Drever could not publish the question round. Please resubmit the brief."
+}
+```
+
+Skip question publication only when the same returned action batch contains
+`skip-remaining-questions` after that brief. After answers or a skip, update `brief.md` and
+`drever.plan.json`, publish `plan-review`, and wait for `approve-plan` or feedback. After approval,
+mark the plan approved, publish `drafting`, create the complete Draft 1, then publish `preview`.
+Continue polling while the server is alive so slide- or deck-scoped feedback can be applied through
+the normal authoring and review workflow. Set `handledActionRevision` to the last action actually
+incorporated; never acknowledge work before it has been applied.
 
 Do not put API keys or provider transcripts in creation-room state. The MDX, brief, plan,
 configuration, assets, and Git history remain the source of truth. The room only coordinates the

@@ -22,6 +22,11 @@ includes visual-review and audience-rendering refinements.
   minute durations, plain-language audience-goal copy, readable option descriptions, and compact
   recommendation badges. It now also distinguishes an active local coding-agent lease from an
   unconnected room instead of presenting the transport itself as a live agent.
+- Refined the creation room with a smaller navigation surface, calmer form typography, and a
+  truthful animated activity timeline driven by the local agent's published milestones. The
+  bundled creation skill now treats topic-specific questions as a latency-sensitive one-pass task,
+  uses an exact decoder-verified publication template, and bounds schema recovery instead of
+  inspecting project internals or entering open-ended debugging.
 - Taught the bundled design and review skills to reject detached annotations, connector overshoot,
   and implementation details that visually overpower the audience-facing claim.
 
@@ -32,6 +37,9 @@ includes visual-review and audience-rendering refinements.
 - Hid the audience toolbar before slide View Transition capture and kept it
   out of the presentation until fresh pointer intent, preventing its rounded
   glass surface from blurring content during navigation.
+- Preserved the submitted creation-room brief across entry-module hot updates by invalidating the
+  virtual startup state after every accepted action, and prevented an older agent publication from
+  moving a durable session back to the first screen.
 
 ## [0.10.0] - 2026-08-03
 

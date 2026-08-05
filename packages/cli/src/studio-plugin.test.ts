@@ -1,13 +1,18 @@
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, describe, expect, it } from "vite-plus/test";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
+import type { ViteDevServer, WebSocketClient } from "vite";
 import {
+  DREVER_STUDIO_ACTION_EVENT,
   DREVER_STUDIO_ACTIONS_DIRECTORY,
   DREVER_STUDIO_AGENT_CONNECTION_TTL_MS,
   DREVER_STUDIO_AGENT_HEARTBEAT_FILE,
   DREVER_STUDIO_AGENT_STATE_FILE,
   DREVER_STUDIO_DIRECTORY,
+  DREVER_STUDIO_STATE_EVENT,
+  DREVER_STUDIO_STATE_MODULE_ID,
+  createStudioPlugin,
   createStudioSession,
   decodeStudioAction,
   isLoopbackAddress,
@@ -331,6 +336,39 @@ describe("Studio session", () => {
     });
   });
 
+  it("reconstructs a submitted brief after reload without trusting an older agent phase", async () => {
+    const root = await createRoot();
+    const session = createStudioSession(root, { token: "studio-token" });
+    await session.accept(
+      {
+        token: "studio-token",
+        action: action({
+          type: "submit-common-brief",
+          brief: { topic: "A durable topic", audience: "A durable audience" },
+        }),
+      },
+      true,
+    );
+    const studioDirectory = join(root, DREVER_STUDIO_DIRECTORY);
+    await writeFile(
+      join(studioDirectory, DREVER_STUDIO_AGENT_STATE_FILE),
+      `${JSON.stringify({
+        version: 1,
+        phase: "briefing",
+        handledActionRevision: 1,
+        message: "An older publication is still on disk.",
+      })}\n`,
+      "utf8",
+    );
+
+    const reloaded = createStudioSession(root);
+    await expect(reloaded.read()).resolves.toMatchObject({
+      phase: "waiting-for-agent",
+      pendingActionCount: 0,
+      commonBrief: { topic: "A durable topic", audience: "A durable audience" },
+    });
+  });
+
   it("accepts approval and slide feedback only against the current persisted plan", async () => {
     const root = await createRoot();
     await writeFile(join(root, "drever.plan.json"), JSON.stringify(plan), "utf8");
@@ -360,6 +398,83 @@ describe("Studio session", () => {
       accepted: false,
       error: { code: "DREVER_STUDIO_SLIDE_UNKNOWN" },
     });
+  });
+});
+
+describe("Studio Vite state", () => {
+  it("invalidates the startup state module after accepting a durable browser action", async () => {
+    const root = await createRoot();
+    const listeners = new Map<string, (payload: unknown, client: WebSocketClient) => void>();
+    const stateModule = {};
+    const invalidateModule = vi.fn();
+    const send = vi.fn();
+    const plugin = createStudioPlugin({ root });
+    const server = {
+      config: { logger: { error: vi.fn() } },
+      middlewares: { use: vi.fn() },
+      moduleGraph: {
+        getModuleById: vi.fn(() => stateModule),
+        invalidateModule,
+      },
+      watcher: { add: vi.fn(), off: vi.fn(), on: vi.fn() },
+      ws: {
+        on(event: string, listener: (payload: unknown, client: WebSocketClient) => void) {
+          listeners.set(event, listener);
+        },
+        send,
+      },
+    } as unknown as ViteDevServer;
+    const configureServer = plugin.configureServer;
+    if (typeof configureServer !== "function") {
+      throw new TypeError("The Studio plugin is missing its server hook.");
+    }
+    await configureServer.call({} as never, server);
+    const load = plugin.load;
+    if (typeof load !== "function") {
+      throw new TypeError("The Studio plugin is missing its state-module loader.");
+    }
+    const resolvedStateId = `\0${DREVER_STUDIO_STATE_MODULE_ID}`;
+    const initialModule = await load.call({} as never, resolvedStateId);
+    if (typeof initialModule !== "string") {
+      throw new TypeError("The Studio plugin did not load its startup state module.");
+    }
+    const encodedToken = /export const studioToken = (?<token>.+);/u.exec(initialModule)?.groups
+      ?.token;
+    if (encodedToken === undefined) {
+      throw new TypeError("The Studio state module is missing its session token.");
+    }
+    const token = JSON.parse(encodedToken) as unknown;
+    const receiveAction = listeners.get(DREVER_STUDIO_ACTION_EVENT);
+    if (receiveAction === undefined) {
+      throw new TypeError("The Studio plugin did not register its action listener.");
+    }
+    const client = {
+      send: vi.fn(),
+      socket: { _socket: { remoteAddress: "127.0.0.1" } },
+    } as unknown as WebSocketClient;
+
+    receiveAction(
+      {
+        token,
+        action: action({ type: "submit-common-brief", brief: { topic: "A durable topic" } }),
+      },
+      client,
+    );
+
+    await vi.waitFor(() => {
+      expect(invalidateModule).toHaveBeenCalledWith(stateModule);
+      expect(send).toHaveBeenCalledWith({
+        type: "custom",
+        event: DREVER_STUDIO_STATE_EVENT,
+        data: expect.objectContaining({
+          phase: "waiting-for-agent",
+          commonBrief: { topic: "A durable topic" },
+        }),
+      });
+    });
+    const refreshedModule = await load.call({} as never, resolvedStateId);
+    expect(refreshedModule).toContain('"phase":"waiting-for-agent"');
+    expect(refreshedModule).toContain('"topic":"A durable topic"');
   });
 });
 

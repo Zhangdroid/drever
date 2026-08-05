@@ -238,7 +238,6 @@ const StudioIdentity = (): ReactElement => (
     <span>Drever</span>
     <i />
     <strong>Creation room</strong>
-    <small>Experimental</small>
   </div>
 );
 
@@ -443,30 +442,105 @@ const BriefScreen = ({
   );
 };
 
-const WaitingScreen = ({ state }: Readonly<{ state: DreverStudioState }>): ReactElement => (
-  <main className="drever-studio-waiting">
-    <div aria-hidden="true" className="drever-studio-orbit">
-      <span />
-      <span />
-      <span />
-    </div>
-    <p>
-      {state.agentConnected
-        ? (state.progress?.label ?? "Reading the room")
-        : "Request saved locally"}
-    </p>
-    <h1>{state.commonBrief?.topic}</h1>
-    <span>
-      {state.agentConnected
-        ? (state.message ??
-          "Your agent is turning the first answers into a few topic-specific decisions.")
-        : "Nothing is running inside Studio itself. Start or resume the coding-agent task to continue."}
-    </span>
-  </main>
-);
+const WaitingScreen = ({ state }: Readonly<{ state: DreverStudioState }>): ReactElement => {
+  const { progress } = state;
+  const progressCount =
+    progress?.completed === undefined
+      ? undefined
+      : progress.total === undefined
+        ? `${progress.completed} complete`
+        : `${progress.completed} of ${progress.total}`;
+  const currentActivity = state.agentConnected
+    ? (progress?.label ?? "Preparing the next step")
+    : "Waiting for a local agent";
+  const nextMilestone =
+    state.skippedRemainingQuestions === true ? "Storyboard ready" : "Questions ready";
+
+  return (
+    <main className="drever-studio-waiting">
+      <section className="drever-studio-waiting__hero">
+        <div aria-hidden="true" className="drever-studio-orbit">
+          <span />
+          <span />
+          <span />
+        </div>
+        <p>{state.agentConnected ? "Agent activity" : "Request saved locally"}</p>
+        <h1 dir="auto">{state.commonBrief?.topic}</h1>
+        <span>
+          {state.agentConnected
+            ? "Studio follows the status your agent publishes and advances as soon as the next result is ready."
+            : "Nothing is running inside Studio itself. Start or resume the coding-agent task to continue."}
+        </span>
+      </section>
+
+      <section aria-label="Agent activity" aria-live="polite" className="drever-studio-activity">
+        <header>
+          <span>Session activity</span>
+          <small data-active={state.agentConnected ? "" : undefined}>
+            <i aria-hidden="true" />
+            {state.agentConnected ? "Live" : "Paused"}
+          </small>
+        </header>
+        <ol>
+          <li data-status="complete">
+            <span aria-hidden="true" className="drever-studio-activity__marker">
+              <CheckIcon />
+            </span>
+            <div>
+              <strong>Brief saved</strong>
+              <span>Your topic and direction are stored in this Studio session.</span>
+            </div>
+          </li>
+          <li aria-current="step" data-status="active">
+            <span aria-hidden="true" className="drever-studio-activity__marker">
+              <SparkIcon />
+            </span>
+            <div>
+              <strong dir="auto">{currentActivity}</strong>
+              <span>
+                {progressCount ??
+                  (state.agentConnected
+                    ? "Latest published agent status"
+                    : "Resume the coding-agent task to continue")}
+              </span>
+              {progress?.completed !== undefined && progress.total !== undefined ? (
+                <progress
+                  aria-label={progress.label}
+                  max={progress.total}
+                  value={progress.completed}
+                />
+              ) : null}
+            </div>
+          </li>
+          <li data-status="pending">
+            <span aria-hidden="true" className="drever-studio-activity__marker">
+              03
+            </span>
+            <div>
+              <strong>{nextMilestone}</strong>
+              <span>Studio opens it as soon as the agent publishes it.</span>
+            </div>
+          </li>
+        </ol>
+        {state.agentConnected && state.message !== undefined ? (
+          <aside className="drever-studio-activity__note">
+            <SparkIcon aria-hidden="true" />
+            <div>
+              <small>Agent update</small>
+              <p dir="auto">{state.message}</p>
+            </div>
+          </aside>
+        ) : null}
+      </section>
+    </main>
+  );
+};
 
 const ErrorScreen = ({ state }: Readonly<{ state: DreverStudioState }>): ReactElement => (
-  <main aria-labelledby="drever-studio-error-title" className="drever-studio-waiting">
+  <main
+    aria-labelledby="drever-studio-error-title"
+    className="drever-studio-waiting drever-studio-waiting--error"
+  >
     <p>Agent needs attention</p>
     <h1 id="drever-studio-error-title">The draft paused.</h1>
     <span aria-live="assertive" role="alert">
@@ -961,7 +1035,9 @@ export const Studio = (props: StudioProps): ReactElement => {
           {agentStatus}
         </div>
       </header>
-      {state.agentConnected ? null : <AgentConnectionNotice />}
+      {state.agentConnected || screen === "waiting" || screen === "error" ? null : (
+        <AgentConnectionNotice />
+      )}
       {screen === "brief" ? <BriefScreen onAction={dispatch} state={state} /> : null}
       {screen === "questions" ? <QuestionsScreen onAction={dispatch} state={state} /> : null}
       {screen === "waiting" ? <WaitingScreen state={state} /> : null}

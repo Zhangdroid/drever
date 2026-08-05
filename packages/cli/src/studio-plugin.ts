@@ -465,10 +465,13 @@ const stateWithoutRevision = async (
   const latestActionRevision = records.at(-1)?.revision ?? 0;
   const pendingActionCount = records.filter(({ revision }) => revision > handled).length;
   const plan = loadedPlan.plan;
+  // The durable browser journal owns whether briefing is complete.
+  const publishedPhase =
+    browser.commonBrief !== undefined && agent?.phase === "briefing" ? undefined : agent?.phase;
   const phase: DreverStudioPhase =
     pendingActionCount > 0
       ? "waiting-for-agent"
-      : (agent?.phase ??
+      : (publishedPhase ??
         (plan?.status === "awaiting-approval"
           ? "plan-review"
           : plan?.status === "approved"
@@ -841,6 +844,11 @@ export const createStudioPlugin = ({ root }: Readonly<{ root: string }>): Plugin
   let refreshTimer: ReturnType<typeof setTimeout> | undefined;
   let agentExpiryTimer: ReturnType<typeof setTimeout> | undefined;
 
+  const invalidateStateModule = (): void => {
+    const module = server?.moduleGraph.getModuleById(RESOLVED_MODULE_ID);
+    if (module !== undefined) server?.moduleGraph.invalidateModule(module);
+  };
+
   const scheduleAgentExpiry = (expiresAt: number | undefined): void => {
     if (agentExpiryTimer !== undefined) clearTimeout(agentExpiryTimer);
     agentExpiryTimer = undefined;
@@ -861,8 +869,7 @@ export const createStudioPlugin = ({ root }: Readonly<{ root: string }>): Plugin
     const { changed, state } = await session.refresh();
     scheduleAgentExpiry(await session.agentLeaseExpiresAt());
     if (!changed) return;
-    const module = server?.moduleGraph.getModuleById(RESOLVED_MODULE_ID);
-    if (module !== undefined) server?.moduleGraph.invalidateModule(module);
+    invalidateStateModule();
     server?.ws.send({ type: "custom", event: DREVER_STUDIO_STATE_EVENT, data: state });
   };
 
@@ -930,10 +937,12 @@ export const createStudioPlugin = ({ root }: Readonly<{ root: string }>): Plugin
                 "Drever Studio could not persist the action.",
               );
             }
+            const state = ack.accepted ? await session.read() : undefined;
+            if (state !== undefined) invalidateStateModule();
             client.send({ type: "custom", event: DREVER_STUDIO_ACTION_ACK_EVENT, data: ack });
-            if (!ack.accepted) return;
-            const state = await session.read();
-            value.ws.send({ type: "custom", event: DREVER_STUDIO_STATE_EVENT, data: state });
+            if (state !== undefined) {
+              value.ws.send({ type: "custom", event: DREVER_STUDIO_STATE_EVENT, data: state });
+            }
           })
           .catch((error: unknown) => {
             value.config.logger.error(`Drever could not publish Studio state: ${String(error)}`);
