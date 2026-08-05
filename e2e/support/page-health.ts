@@ -9,12 +9,13 @@ export type PageHealth = Readonly<{
   expectHealthy(): void;
 }>;
 
-const isViteOptimizerCancellation = (request: Request): boolean => {
+const isViteModuleCancellation = (request: Request): boolean => {
   if (request.resourceType() !== "script" || request.failure()?.errorText !== "net::ERR_ABORTED") {
     return false;
   }
 
-  return new URL(request.url()).pathname.startsWith("/.vite/deps/");
+  const pathname = new URL(request.url()).pathname;
+  return pathname.startsWith("/.vite/deps/") || pathname.startsWith("/@fs/");
 };
 
 /** Captures failures that DOM assertions often miss in a client-rendered application. */
@@ -31,9 +32,9 @@ export const monitorPageHealth = (page: Page): PageHealth => {
   });
   page.on("requestfailed", (request) => {
     // Vite may replace its cold dependency graph and reload while the first
-    // page is opening. Chromium reports the superseded script as aborted even
-    // though the replacement graph loads successfully.
-    if (isViteOptimizerCancellation(request)) return;
+    // page is opening. Chromium reports superseded dependency and source
+    // modules as aborted even though the replacement graph loads successfully.
+    if (isViteModuleCancellation(request)) return;
 
     failures.push({
       kind: "request",

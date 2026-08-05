@@ -73,6 +73,7 @@ export const createStoryboardPlanPlugin = ({ root }: Readonly<{ root: string }>)
   const normalizedPlanPath = normalizePath(planPath);
   let updates = Promise.resolve();
   let refreshTimer: ReturnType<typeof setTimeout> | undefined;
+  let cleanup: (() => void) | undefined;
 
   const readState = async (): Promise<StoryboardState> => {
     state = await reader.read();
@@ -126,12 +127,19 @@ export const createStoryboardPlanPlugin = ({ root }: Readonly<{ root: string }>)
             );
           });
       });
-      value.httpServer?.once("close", () => {
+      const release = (): void => {
+        if (cleanup === undefined) return;
+        cleanup = undefined;
         if (refreshTimer !== undefined) clearTimeout(refreshTimer);
         value.watcher.off("add", update);
         value.watcher.off("change", update);
         value.watcher.off("unlink", update);
-      });
+      };
+      cleanup = release;
+      value.httpServer?.once("close", release);
+    },
+    closeBundle() {
+      cleanup?.();
     },
     resolveId(source) {
       if (source === DREVER_STORYBOARD_PLAN_MODULE_ID) return RESOLVED_MODULE_ID;

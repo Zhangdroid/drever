@@ -1,6 +1,9 @@
 import { existsSync } from "node:fs";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { randomBytes } from "node:crypto";
+import { createServer as createHttpServer, type Server as HttpServer } from "node:http";
+import type { AddressInfo, Socket } from "node:net";
+import { networkInterfaces } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { DeckManifest } from "@drever/schema";
@@ -224,6 +227,7 @@ const inlineConfig = (
   appRoot: string,
   plugins: readonly Plugin[] = [],
   serverConfig: DreverConfig["server"] = project.config.server,
+  parentServer?: HttpServer,
 ): InlineConfig => {
   const framework = resolveFrameworkViteConfig();
   const aliases = [...framework.aliases];
@@ -246,6 +250,13 @@ const inlineConfig = (
       },
       warmup: { clientFiles: [...framework.warmup] },
       ...serverConfig,
+      ...(parentServer === undefined
+        ? {}
+        : {
+            middlewareMode: { server: parentServer },
+            open: false,
+            ws: { server: parentServer },
+          }),
     },
   };
 };
@@ -469,6 +480,7 @@ const createConfigReloadPlugin = (
   };
   const watched = new Set(dependencies);
   const missing = new Set(dependencies.filter((path) => !existsSync(path)));
+  let cleanup: (() => void) | undefined;
   const shouldReload = (event: "add" | "change" | "unlink", path: string): boolean => {
     const normalized = normalizePath(path);
     if (event === "unlink" && watched.has(normalized)) missing.add(normalized);
@@ -499,11 +511,18 @@ const createConfigReloadPlugin = (
       server.watcher.on("add", add);
       server.watcher.on("change", change);
       server.watcher.on("unlink", unlink);
-      server.httpServer?.once("close", () => {
+      const release = (): void => {
+        if (cleanup === undefined) return;
+        cleanup = undefined;
         server.watcher.off("add", add);
         server.watcher.off("change", change);
         server.watcher.off("unlink", unlink);
-      });
+      };
+      cleanup = release;
+      server.httpServer?.once("close", release);
+    },
+    closeBundle() {
+      cleanup?.();
     },
   };
 };
@@ -521,6 +540,104 @@ export const openStudioWhenRequested = async (
   return (options.openUrl ?? openLocalUrl)(studioUrl, options.environment);
 };
 
+const DEFAULT_DEVELOPMENT_PORT = 5173;
+
+/** @internal Preserves Vite's loopback default while allowing an explicit network bind. */
+export const resolveDevelopmentServerHost = (
+  host: boolean | string | undefined,
+): string | undefined =>
+  typeof host === "string" ? host : host === true ? undefined : "localhost";
+
+const isLoopbackHost = (host: string): boolean =>
+  host === "localhost" || host === "::1" || host === "[::1]" || /^127(?:\.\d{1,3}){3}$/u.test(host);
+
+const isWildcardHost = (host: string): boolean =>
+  host === "0.0.0.0" || host === "::" || host === "[::]";
+
+const urlHost = (host: string): string => {
+  const normalized = host.replace(/^\[|\]$/gu, "").replace("%", "%25");
+  return normalized.includes(":") ? `[${normalized}]` : normalized;
+};
+
+const serverUrl = (host: string, port: number): string =>
+  new URL(`http://${urlHost(host)}:${String(port)}/`).href;
+
+/** @internal Resolves the stable parent listener URLs exposed by `drever dev`. */
+export const resolveDevelopmentServerUrls = (
+  host: boolean | string | undefined,
+  port: number,
+): ResolvedServerUrls => {
+  const requestedHost = typeof host === "string" ? host : undefined;
+  const exposeNetwork =
+    host === true || (requestedHost !== undefined && isWildcardHost(requestedHost));
+  const local = new Set<string>();
+  const network = new Set<string>();
+
+  if (exposeNetwork) {
+    local.add(serverUrl("localhost", port));
+    for (const addresses of Object.values(networkInterfaces())) {
+      for (const address of addresses ?? []) {
+        if (!address.internal && address.family === "IPv4") {
+          network.add(serverUrl(address.address, port));
+        }
+      }
+    }
+  } else {
+    const resolvedHost = requestedHost ?? "localhost";
+    (isLoopbackHost(resolvedHost) ? local : network).add(serverUrl(resolvedHost, port));
+  }
+
+  return Object.freeze({ local: [...local], network: [...network] });
+};
+
+const listenDevelopmentServer = async (
+  server: HttpServer,
+  config: NonNullable<DreverConfig["server"]>,
+  onPortInUse: (port: number) => void,
+): Promise<number> => {
+  const host = resolveDevelopmentServerHost(config.host);
+  let port = config.port ?? DEFAULT_DEVELOPMENT_PORT;
+  for (;;) {
+    try {
+      await new Promise<void>((resolve, reject) => {
+        const onError = (error: Error): void => {
+          server.off("listening", onListening);
+          reject(error);
+        };
+        const onListening = (): void => {
+          server.off("error", onError);
+          resolve();
+        };
+        server.once("error", onError);
+        server.once("listening", onListening);
+        server.listen({ host, port });
+      });
+      return (server.address() as AddressInfo).port;
+    } catch (cause) {
+      if (
+        (cause as NodeJS.ErrnoException).code !== "EADDRINUSE" ||
+        config.strictPort === true ||
+        port >= 65_535
+      ) {
+        throw cause;
+      }
+      onPortInUse(port);
+      port += 1;
+    }
+  }
+};
+
+const closeHttpServer = (server: HttpServer, sockets: Set<Socket>): Promise<void> =>
+  new Promise<void>((resolve, reject) => {
+    if (!server.listening) {
+      for (const socket of sockets) socket.destroy();
+      resolve();
+      return;
+    }
+    server.close((error) => (error === undefined ? resolve() : reject(error)));
+    for (const socket of sockets) socket.destroy();
+  });
+
 export const serveDreverProject = async (
   project: ResolvedDreverProject,
   options: ServeDreverProjectOptions = {},
@@ -529,12 +646,14 @@ export const serveDreverProject = async (
     project.entry,
     resolvePrivateAppOptions(project.config, project.root),
   );
-  const stableServerConfig = project.config.server;
+  let stableServerConfig = project.config.server ?? {};
   const configDependencies = configDependencyPaths(project.root, options.configDependencies);
   let server: ViteDevServer | undefined;
+  let resolvedUrls: ResolvedServerUrls | undefined;
   let previewProxy: StudioPreviewProxy | undefined;
   let agentProvider: StudioAgentProvider | undefined;
   let closing: Promise<void> | undefined;
+  let parentClosing: Promise<void> | undefined;
   let reloadTimer: ReturnType<typeof setTimeout> | undefined;
   let reloadUpdates = Promise.resolve();
   let restartUpdate = Promise.resolve();
@@ -543,7 +662,40 @@ export const serveDreverProject = async (
   let shuttingDown = false;
   const restartScope = new AsyncLocalStorage<boolean>();
   let closeCurrentServer: (() => Promise<void>) | undefined;
+  const parentSockets = new Set<Socket>();
+  const parentServer = createHttpServer((request, response) => {
+    if (server === undefined) {
+      response.statusCode = 503;
+      response.setHeader("Content-Type", "text/plain; charset=utf-8");
+      response.end("The Drever development server is starting.\n");
+      return;
+    }
+    server.middlewares(request, response, (cause?: unknown) => {
+      if (response.writableEnded) return;
+      response.statusCode = cause === undefined ? 404 : 500;
+      response.setHeader("Content-Type", "text/plain; charset=utf-8");
+      response.end(
+        cause === undefined
+          ? "Not found.\n"
+          : `The Drever development server could not handle this request: ${cause instanceof Error ? cause.message : "Unknown middleware failure."}\n`,
+      );
+    });
+  });
+  parentServer.on("connection", (socket) => {
+    parentSockets.add(socket);
+    socket.once("close", () => parentSockets.delete(socket));
+  });
+  const closeParentServer = (): Promise<void> => {
+    parentClosing ??= closeHttpServer(parentServer, parentSockets);
+    return parentClosing;
+  };
   try {
+    const occupiedPorts: number[] = [];
+    const port = await listenDevelopmentServer(parentServer, stableServerConfig, (occupiedPort) =>
+      occupiedPorts.push(occupiedPort),
+    );
+    stableServerConfig = Object.freeze({ ...stableServerConfig, port });
+    resolvedUrls = resolveDevelopmentServerUrls(stableServerConfig.host, port);
     const studioToken = randomBytes(32).toString("base64url");
     agentProvider =
       options.agent === undefined
@@ -594,13 +746,29 @@ export const serveDreverProject = async (
       app.root,
       developmentPlugins(project, configDependencies),
       stableServerConfig,
+      parentServer,
     );
     server = await createServer(initialInlineConfig);
+    for (const occupiedPort of occupiedPorts) {
+      server.config.logger.info(`Port ${String(occupiedPort)} is in use, trying another one...`);
+    }
 
     const installLifetime = (): void => {
       if (server === undefined) return;
+      const activeServer = server;
       const closeServer = server.close.bind(server);
       closeCurrentServer = closeServer;
+      (activeServer as { httpServer: HttpServer | null }).httpServer = parentServer;
+      activeServer.config.server.open = stableServerConfig.open ?? false;
+      activeServer.resolvedUrls = resolvedUrls ?? null;
+      activeServer.printUrls = () => {
+        for (const url of resolvedUrls?.local ?? []) {
+          activeServer.config.logger.info(`  Local: ${url}`);
+        }
+        for (const url of resolvedUrls?.network ?? []) {
+          activeServer.config.logger.info(`  Network: ${url}`);
+        }
+      };
       server.close = () => {
         if (restartScope.getStore() === true) return closeServer();
         shuttingDown = true;
@@ -611,12 +779,16 @@ export const serveDreverProject = async (
             await closeCurrentServer?.();
           } finally {
             try {
-              await agentProvider?.stop();
+              await closeParentServer();
             } finally {
               try {
-                await previewProxy?.close();
+                await agentProvider?.stop();
               } finally {
-                await app.dispose();
+                try {
+                  await previewProxy?.close();
+                } finally {
+                  await app.dispose();
+                }
               }
             }
           }
@@ -643,6 +815,7 @@ export const serveDreverProject = async (
         nextApp.root,
         developmentPlugins(reloaded.project, nextDependencies),
         stableServerConfig,
+        parentServer,
       );
       const previousInlineConfig = server.config.inlineConfig;
       let adopted = false;
@@ -672,13 +845,15 @@ export const serveDreverProject = async (
     };
 
     installLifetime();
-    await server.listen();
     const audienceUrl = server.resolvedUrls?.local[0];
     if (audienceUrl === undefined) {
       throw new TypeError("Vite did not resolve a local audience URL for Studio.");
     }
     previewProxy = await startStudioPreviewProxy(audienceUrl);
     server.printUrls();
+    if (stableServerConfig.open !== undefined && stableServerConfig.open !== false) {
+      server.openBrowser();
+    }
     const studioUrls = resolveStudioUrls(
       server.resolvedUrls,
       studioToken,
@@ -716,9 +891,13 @@ export const serveDreverProject = async (
   } catch (cause) {
     if (server === undefined) {
       try {
-        await agentProvider?.stop();
+        await closeParentServer().catch(() => undefined);
       } finally {
-        await app.dispose();
+        try {
+          await agentProvider?.stop();
+        } finally {
+          await app.dispose();
+        }
       }
     } else {
       await server.close().catch(() => undefined);

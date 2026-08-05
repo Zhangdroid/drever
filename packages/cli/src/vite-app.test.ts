@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from "vite-plus/test";
 import {
   attachPrivateAppLifetime,
   openStudioWhenRequested,
+  resolveDevelopmentServerHost,
+  resolveDevelopmentServerUrls,
   resolveFrameworkViteConfig,
   resolvePrivateAppOptions,
   resolveServerFsAllow,
@@ -80,6 +82,35 @@ describe("resolveServerFsDeny", () => {
       ".yarnrc.yml",
       "**/.git/**",
     ]);
+  });
+});
+
+describe("resolveDevelopmentServerUrls", () => {
+  it("keeps false and omitted hosts on loopback while true opts into a network bind", () => {
+    expect(resolveDevelopmentServerHost(undefined)).toBe("localhost");
+    expect(resolveDevelopmentServerHost(false)).toBe("localhost");
+    expect(resolveDevelopmentServerHost(true)).toBeUndefined();
+    expect(resolveDevelopmentServerHost("127.0.0.1")).toBe("127.0.0.1");
+  });
+
+  it("keeps loopback and explicitly network-bound listeners in their public URL groups", () => {
+    expect(resolveDevelopmentServerUrls("127.0.0.1", 4317)).toEqual({
+      local: ["http://127.0.0.1:4317/"],
+      network: [],
+    });
+    expect(resolveDevelopmentServerUrls("192.0.2.8", 4318)).toEqual({
+      local: [],
+      network: ["http://192.0.2.8:4318/"],
+    });
+  });
+
+  it("uses localhost plus URL-safe IPv4 addresses for wildcard listeners", () => {
+    const urls = resolveDevelopmentServerUrls(true, 4319);
+
+    expect(urls.local).toEqual(["http://localhost:4319/"]);
+    expect(
+      urls.network.every((url) => /^http:\/\/(?:\d{1,3}\.){3}\d{1,3}:4319\/$/u.test(url)),
+    ).toBe(true);
   });
 });
 

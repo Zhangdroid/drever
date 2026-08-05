@@ -53,6 +53,7 @@ test("drever dev exposes the live audience and speaker position to local agents"
   });
 
   await page.goto("/document");
+  await waitForDreverReady(page);
   await expect
     .poll(async () => {
       const current = await readCurrentPosition();

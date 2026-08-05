@@ -1178,6 +1178,7 @@ export const createStudioPlugin = ({
   let agentExpiryTimer: ReturnType<typeof setTimeout> | undefined;
   let publishQueued = false;
   let publishDirty = false;
+  let cleanup: (() => void) | undefined;
   const studioClients = new Set<WebSocketClient>();
 
   const stopRefreshPollingIfIdle = (): void => {
@@ -1377,7 +1378,9 @@ export const createStudioPlugin = ({
             value.config.logger.error(`Drever could not read Studio state: ${String(error)}`);
           });
       });
-      value.httpServer?.once("close", () => {
+      const release = (): void => {
+        if (cleanup === undefined) return;
+        cleanup = undefined;
         if (refreshTimer !== undefined) clearTimeout(refreshTimer);
         if (refreshInterval !== undefined) clearInterval(refreshInterval);
         if (agentExpiryTimer !== undefined) clearTimeout(agentExpiryTimer);
@@ -1386,7 +1389,12 @@ export const createStudioPlugin = ({
         value.watcher.off("add", update);
         value.watcher.off("change", update);
         value.watcher.off("unlink", update);
-      });
+      };
+      cleanup = release;
+      value.httpServer?.once("close", release);
+    },
+    closeBundle() {
+      cleanup?.();
     },
   };
 };
