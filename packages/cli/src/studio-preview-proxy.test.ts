@@ -1,4 +1,4 @@
-import { createServer } from "node:http";
+import { createServer, request } from "node:http";
 import type { AddressInfo } from "node:net";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 import { startStudioPreviewProxy, type StudioPreviewProxy } from "./studio-preview-proxy.ts";
@@ -6,6 +6,27 @@ import { startStudioPreviewProxy, type StudioPreviewProxy } from "./studio-previ
 const closeServer = (server: ReturnType<typeof createServer>): Promise<void> =>
   new Promise((resolve, reject) => {
     server.close((error) => (error === undefined ? resolve() : reject(error)));
+  });
+
+const requestAbsolutePath = (url: URL, path: string): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const pending = request(
+      {
+        hostname: url.hostname,
+        port: url.port,
+        path,
+      },
+      (response) => {
+        let body = "";
+        response.setEncoding("utf8");
+        response.on("data", (chunk: string) => {
+          body += chunk;
+        });
+        response.once("end", () => resolve(body));
+      },
+    );
+    pending.once("error", reject);
+    pending.end();
   });
 
 describe("isolated Studio preview proxy", () => {
@@ -44,5 +65,30 @@ describe("isolated Studio preview proxy", () => {
     } finally {
       await preview?.close();
     }
+  });
+
+  it("pins every request to the validated loopback target", async () => {
+    const upstream = createServer((_request, response) => response.end("expected upstream"));
+    const other = createServer((_request, response) => response.end("unexpected upstream"));
+    await new Promise<void>((resolve) => upstream.listen(0, "127.0.0.1", resolve));
+    await new Promise<void>((resolve) => other.listen(0, "127.0.0.1", resolve));
+    close.push(
+      () => closeServer(upstream),
+      () => closeServer(other),
+    );
+    const targetPort = (upstream.address() as AddressInfo).port;
+    const otherPort = (other.address() as AddressInfo).port;
+    const preview = await startStudioPreviewProxy(`http://127.0.0.1:${String(targetPort)}/talk/`);
+    close.push(() => preview.close());
+
+    await expect(
+      requestAbsolutePath(
+        new URL(preview.audienceUrl),
+        `http://127.0.0.1:${String(otherPort)}/attempted-override`,
+      ),
+    ).resolves.toBe("expected upstream");
+    await expect(startStudioPreviewProxy("https://example.com/deck/")).rejects.toThrow(
+      "loopback hostname",
+    );
   });
 });
