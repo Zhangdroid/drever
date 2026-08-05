@@ -62,6 +62,7 @@ export type NavigationLike = Readonly<{
 }>;
 
 export type PresentationCommitOptions = Readonly<{
+  preserveControls?: boolean;
   skipViewTransition?: boolean;
 }>;
 
@@ -77,8 +78,9 @@ export type PresentationNavigation = Readonly<{
   navigate(command: DeckCommand, intent?: PresentationNavigationIntent): Promise<void>;
 }>;
 
-/** Validated motion preferences supplied by an in-process navigation source. */
+/** Validated presentation preferences supplied by an in-process navigation source. */
 export type PresentationNavigationIntent = Readonly<{
+  preserveControls?: boolean;
   skipViewTransition?: boolean;
   transitionType?: PresentationTransitionType;
 }>;
@@ -102,6 +104,7 @@ const TRANSITION_TYPES: ReadonlySet<PresentationTransitionType> = new Set(
 
 type NavigationInfo = Readonly<{
   drever: typeof INFO_MARKER;
+  preserveControls?: true;
   skipViewTransition?: true;
   transitionType: PresentationTransitionType;
 }>;
@@ -109,10 +112,12 @@ type NavigationInfo = Readonly<{
 const navigationInfo = (
   transitionType: PresentationTransitionType,
   skipViewTransition: boolean,
+  preserveControls: boolean,
 ): NavigationInfo =>
   Object.freeze({
     drever: INFO_MARKER,
     transitionType,
+    ...(preserveControls ? { preserveControls: true as const } : {}),
     ...(skipViewTransition ? { skipViewTransition: true as const } : {}),
   });
 
@@ -140,6 +145,12 @@ const shouldSkipViewTransition = (value: unknown): boolean =>
   value !== null &&
   (value as Partial<NavigationInfo>).drever === INFO_MARKER &&
   (value as Partial<NavigationInfo>).skipViewTransition === true;
+
+const shouldPreserveControls = (value: unknown): boolean =>
+  typeof value === "object" &&
+  value !== null &&
+  (value as Partial<NavigationInfo>).drever === INFO_MARKER &&
+  (value as Partial<NavigationInfo>).preserveControls === true;
 
 const directionOf = (type: PresentationTransitionType): "backward" | "forward" =>
   type.endsWith("-backward") ? "backward" : "forward";
@@ -171,6 +182,7 @@ const validateIntent = (
     (intent.transitionType !== undefined &&
       (typeof intent.transitionType !== "string" ||
         !TRANSITION_TYPES.has(intent.transitionType as PresentationTransitionType))) ||
+    (intent.preserveControls !== undefined && typeof intent.preserveControls !== "boolean") ||
     (intent.skipViewTransition !== undefined && typeof intent.skipViewTransition !== "boolean")
   ) {
     throw new DreverClientError(
@@ -181,6 +193,10 @@ const validateIntent = (
           transitionType:
             typeof intent === "object" && intent !== null && "transitionType" in intent
               ? String(intent.transitionType)
+              : "missing",
+          preserveControls:
+            typeof intent === "object" && intent !== null && "preserveControls" in intent
+              ? String(intent.preserveControls)
               : "missing",
           skipViewTransition:
             typeof intent === "object" && intent !== null && "skipViewTransition" in intent
@@ -264,6 +280,7 @@ export const createPresentationNavigation = ({
       handler: async () => {
         if (change !== undefined) {
           await commit(change, event.signal, {
+            preserveControls: shouldPreserveControls(event.info),
             skipViewTransition: shouldSkipViewTransition(event.info),
           });
         }
@@ -294,7 +311,11 @@ export const createPresentationNavigation = ({
       const url = route.encodeURL(change.to, route.ownsURL(routeBase) ? routeBase : baseURL);
       const result = navigation.navigate(url.href, {
         history: "push",
-        info: navigationInfo(intendedTransitionType, validatedIntent.skipViewTransition === true),
+        info: navigationInfo(
+          intendedTransitionType,
+          validatedIntent.skipViewTransition === true,
+          validatedIntent.preserveControls === true,
+        ),
         state: cachedState(change.to),
       });
       await result.finished;

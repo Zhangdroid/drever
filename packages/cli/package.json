@@ -43,6 +43,7 @@
     "test": "vp test"
   },
   "dependencies": {
+    "@agentclientprotocol/sdk": "catalog:",
     "@chenglou/pretext": "catalog:",
     "@drever/client": "workspace:*",
     "@drever/compiler": "workspace:*",

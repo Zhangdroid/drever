@@ -1,4 +1,5 @@
 import { existsSync } from "node:fs";
+import { randomBytes } from "node:crypto";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { DeckManifest } from "@drever/schema";
@@ -20,6 +21,14 @@ import { DreverCliError } from "./errors.ts";
 import { createStoryboardPlanPlugin } from "./storyboard-plan-plugin.ts";
 import { createStudioPlugin, resolveStudioUrls } from "./studio-plugin.ts";
 import { writeStaticDeckRoutes } from "./static-routes.ts";
+import { openLocalUrl } from "./open-local-url.ts";
+import type { StudioAgentProvider } from "./studio-agent-provider.ts";
+import {
+  createStudioAgentProvider,
+  STUDIO_AGENT_SUPPORT,
+  type StudioAgentName,
+} from "./studio-agent-registry.ts";
+import { startStudioPreviewProxy, type StudioPreviewProxy } from "./studio-preview-proxy.ts";
 
 const workspaceFallbacks = Object.freeze({
   "drever/runtime": "../src/runtime.ts",
@@ -193,6 +202,21 @@ export const resolveServerFsAllow = (
   ...resolvedAliases.map((replacement) => dirname(replacement)),
 ];
 
+const viteDefaultServerFsDeny = Object.freeze([
+  ".env",
+  ".env.*",
+  "*.{crt,pem,key,p12,pfx,cer,der}",
+  ".npmrc",
+  ".yarnrc.yml",
+  "**/.git/**",
+]);
+
+/** @internal Extends Vite's documented deny list with private Studio session state. */
+export const resolveServerFsDeny = (): readonly string[] => [
+  "**/.drever/studio/**",
+  ...viteDefaultServerFsDeny,
+];
+
 const inlineConfig = (
   project: ResolvedDreverProject,
   appRoot: string,
@@ -215,6 +239,7 @@ const inlineConfig = (
           appRoot,
           aliases.map(({ replacement }) => replacement),
         ),
+        deny: [...resolveServerFsDeny()],
       },
       warmup: { clientFiles: [...framework.warmup] },
       ...project.config.server,
@@ -401,26 +426,98 @@ export const buildDreverInspectionApp = async (
   return built;
 };
 
+export type ServeDreverProjectOptions = Readonly<{
+  agent?: StudioAgentName;
+  environment?: NodeJS.ProcessEnv;
+  open?: "studio";
+  openUrl?: (url: string, environment?: NodeJS.ProcessEnv) => Promise<boolean>;
+}>;
+
+/** @internal Opens only the first exact local Creation room URL after Vite resolves its listener. */
+export const openStudioWhenRequested = async (
+  resolvedUrls: ViteDevServer["resolvedUrls"],
+  token: string,
+  previewUrl: string,
+  options: ServeDreverProjectOptions,
+): Promise<boolean | undefined> => {
+  if (options.open !== "studio") return undefined;
+  const studioUrl = resolveStudioUrls(resolvedUrls, token, previewUrl)[0];
+  if (studioUrl === undefined) return false;
+  return (options.openUrl ?? openLocalUrl)(studioUrl, options.environment);
+};
+
 export const serveDreverProject = async (
   project: ResolvedDreverProject,
+  options: ServeDreverProjectOptions = {},
 ): Promise<ViteDevServer> => {
   const app = await createPrivateDevApp(
     project.entry,
     resolvePrivateAppOptions(project.config, project.root),
   );
+  let server: ViteDevServer | undefined;
+  let previewProxy: StudioPreviewProxy | undefined;
+  let agentProvider: StudioAgentProvider | undefined;
   try {
-    const server = await createServer(
+    const studioToken = randomBytes(32).toString("base64url");
+    agentProvider =
+      options.agent === undefined
+        ? undefined
+        : await createStudioAgentProvider(options.agent, project.root);
+    server = await createServer(
       inlineConfig(project, app.root, [
         createStoryboardPlanPlugin({ root: project.root }),
-        createStudioPlugin({ root: project.root }),
+        createStudioPlugin({
+          root: project.root,
+          token: studioToken,
+          ...(agentProvider === undefined ? {} : { agentProvider }),
+        }),
         createCurrentPositionPlugin({ root: project.root, sourcePath: project.entry }),
       ]),
     );
-    attachPrivateAppLifetime(server, app.dispose);
+    attachPrivateAppLifetime(server, async () => {
+      try {
+        await agentProvider?.stop();
+      } finally {
+        try {
+          await previewProxy?.close();
+        } finally {
+          await app.dispose();
+        }
+      }
+    });
     await server.listen();
+    const audienceUrl = server.resolvedUrls?.local[0];
+    if (audienceUrl === undefined) {
+      throw new TypeError("Vite did not resolve a local audience URL for Studio.");
+    }
+    previewProxy = await startStudioPreviewProxy(audienceUrl);
     server.printUrls();
-    for (const studioUrl of resolveStudioUrls(server.resolvedUrls)) {
+    const studioUrls = resolveStudioUrls(
+      server.resolvedUrls,
+      studioToken,
+      previewProxy.audienceUrl,
+    );
+    for (const studioUrl of studioUrls) {
       server.config.logger.info(`  Creation room: ${studioUrl}`);
+    }
+    if (options.agent !== undefined) {
+      const support = STUDIO_AGENT_SUPPORT[options.agent];
+      server.config.logger.info(
+        `  Studio agent: ${support.label} configured (${support.transport}; connecting)`,
+      );
+    }
+    const opened = await openStudioWhenRequested(
+      server.resolvedUrls,
+      studioToken,
+      previewProxy.audienceUrl,
+      options,
+    );
+    if (opened !== undefined) {
+      server.config.logger.info(
+        opened
+          ? "  Opened the Creation room in your default browser."
+          : "  Browser auto-open is unavailable; use the Creation room URL above.",
+      );
     }
     for (const storyboardUrl of resolveStoryboardUrls(server.resolvedUrls)) {
       server.config.logger.info(`  Storyboard: ${storyboardUrl}`);
@@ -430,7 +527,15 @@ export const serveDreverProject = async (
     }
     return server;
   } catch (cause) {
-    await app.dispose();
+    if (server === undefined) {
+      try {
+        await agentProvider?.stop();
+      } finally {
+        await app.dispose();
+      }
+    } else {
+      await server.close().catch(() => undefined);
+    }
     throw new DreverCliError("DREVER_DEV_SERVER_FAILED", "The Drever development server failed.", {
       cause,
       details: { entry: project.entry },

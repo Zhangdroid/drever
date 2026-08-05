@@ -5,6 +5,31 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+Release impact: **minor** — this batch adds compatible managed-agent sessions and live Studio
+coordination without changing existing deck or provider-neutral journal workflows.
+
+### Added
+
+- Added `drever dev --open studio` so local agent-led creation can open the exact loopback Creation
+  room automatically, while CI and headless environments retain a printed URL fallback.
+- Added a bounded Studio activity timeline so planning, research, drafting, and review can report
+  truthful user-facing milestones without exposing private model reasoning.
+- Added managed Studio adapters for Codex and Claude Code, plus one standards-based ACP adapter for
+  Gemini CLI, GitHub Copilot CLI, Goose, Cursor CLI, OpenCode, OpenHands, and Cline. Existing and
+  unsupported agents can continue to use the provider-neutral action journal.
+
+### Changed
+
+- Clarified that the public bootstrap is a Drever MDX/React project workflow and directs an agent
+  away from unrelated artifact skills before delegating to Drever's version-matched local skill.
+- Made open Studio sessions detect agent-state and plan publications even when the operating-system
+  file watcher misses an atomic replacement, removing the need to refresh the page manually.
+
+### Fixed
+
+- Kept the audience toolbar visible across slide navigation initiated by its previous and next
+  buttons, while keyboard and canvas navigation continue to hide it before transition capture.
+
 ## [0.11.0] - 2026-08-04
 
 Release impact: **minor** — this batch adds a compatible local creation room, rendered-quality

@@ -1,10 +1,15 @@
 import { readFile, realpath } from "node:fs/promises";
 import { isAbsolute, relative, resolve, sep } from "node:path";
-import type { DreverStudioActionRecord, DreverStudioAgentState } from "@drever/schema";
+import type {
+  DreverStudioActionRecord,
+  DreverStudioActivity,
+  DreverStudioAgentState,
+} from "@drever/schema";
 import { DreverCliError } from "./errors.ts";
 import {
   createStudioSession,
   readStudioActionRecords,
+  writeStudioAgentActivity,
   writeStudioAgentHeartbeat,
   writeStudioAgentState,
 } from "./studio-plugin.ts";
@@ -42,6 +47,43 @@ export type RunStudioCommandRequest = Readonly<{
 
 const formatJson = (value: unknown): string => `${JSON.stringify(value, null, 2)}\n`;
 const AGENT_HEARTBEAT_INTERVAL_MS = 30_000;
+
+const receivedActionActivity = (record: DreverStudioActionRecord): DreverStudioActivity => {
+  const shared = { id: `received-${String(record.revision)}`, status: "active" as const };
+  switch (record.action.type) {
+    case "submit-common-brief":
+      return Object.freeze({
+        ...shared,
+        label: "Preparing your questions",
+        detail: "Reading the brief and choosing the few decisions that will change the story.",
+      });
+    case "submit-adaptive-answers":
+    case "skip-remaining-questions":
+      return Object.freeze({
+        ...shared,
+        label: "Shaping the story",
+        detail: "Turning your direction into a reviewable slide plan.",
+      });
+    case "approve-plan":
+      return Object.freeze({
+        ...shared,
+        label: "Building the first preview",
+        detail: "The plan is approved. Drafting the complete presentation now.",
+      });
+    case "respond-agent-approval":
+      return Object.freeze({
+        ...shared,
+        label: "Resuming agent work",
+        detail: "The permission decision was returned to the managed agent.",
+      });
+    case "submit-feedback":
+      return Object.freeze({
+        ...shared,
+        label: "Applying your feedback",
+        detail: "Updating the selected part before the next preview.",
+      });
+  }
+};
 
 const readPublication = async (root: string, file: string): Promise<unknown> => {
   const projectRoot = resolve(root);
@@ -176,6 +218,10 @@ export const runStudioCommand = async ({
       heartbeat,
     );
     await heartbeat();
+    const received = result.actions.at(-1);
+    if (received !== undefined) {
+      await writeStudioAgentActivity(root, receivedActionActivity(received));
+    }
     const latestActionRevision = result.actions.at(-1)?.revision ?? command.after;
     const value = Object.freeze({
       version: 1,

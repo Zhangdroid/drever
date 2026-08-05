@@ -14,6 +14,7 @@ export type CreateStudioOptions = Readonly<{
   container: Element;
   onAction(action: StudioActionInput): Promise<DreverStudioActionAck>;
   onError?: (error: unknown) => void;
+  previewUrl?: string | URL;
   state: DreverStudioState;
 }>;
 
@@ -26,12 +27,24 @@ type StudioHostProps = Readonly<{
   audienceUrl: string;
   onAction(action: StudioActionInput): Promise<void>;
   onMounted(): void;
+  previewUrl?: string;
   state: DreverStudioState;
 }>;
 
-const StudioHost = ({ audienceUrl, onAction, onMounted, state }: StudioHostProps): ReactElement => {
+const StudioHost = ({
+  audienceUrl,
+  onAction,
+  onMounted,
+  previewUrl,
+  state,
+}: StudioHostProps): ReactElement => {
   useLayoutEffect(() => scheduleStableMountNotification(onMounted), [onMounted]);
-  return createElement(Studio, { audienceUrl, onAction, state });
+  return createElement(Studio, {
+    audienceUrl,
+    onAction,
+    ...(previewUrl === undefined ? {} : { previewUrl }),
+    state,
+  });
 };
 
 const rejectedAction = (ack: DreverStudioActionAck): DreverClientError =>
@@ -46,6 +59,7 @@ export const createStudio = async ({
   container,
   onAction,
   onError,
+  previewUrl,
   state: initialState,
 }: CreateStudioOptions): Promise<StudioHandle> => {
   const mounted = Promise.withResolvers<void>();
@@ -89,6 +103,7 @@ export const createStudio = async ({
           audienceUrl: new URL(audienceUrl).href,
           onAction: submit,
           onMounted: mounted.resolve,
+          ...(previewUrl === undefined ? {} : { previewUrl: new URL(previewUrl).href }),
           state: currentState,
         }),
       ),

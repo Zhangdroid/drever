@@ -7,6 +7,7 @@ packages:
 catalogMode: prefer
 
 catalog:
+  "@agentclientprotocol/sdk": 1.3.0
   "@chenglou/pretext": 0.0.8
   "@mdx-js/mdx": 3.1.1
   "@mdx-js/rollup": 3.1.1

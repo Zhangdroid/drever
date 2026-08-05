@@ -219,6 +219,13 @@ describe("agent kit sync", () => {
     expect(studioContract).toMatch(/one mechanical retry/iu);
     expect(studioContract).toMatch(/Do not regenerate the\s+round/iu);
     expect(studioContract).toMatch(/start open-ended debugging/iu);
+    expect(studioContract).toMatch(/short activity\s+timeline/iu);
+    expect(studioContract).toMatch(/never private chain-of-thought/iu);
+    expect(studioContract).toMatch(/concise decision summary/iu);
+    expect(studioContract).toMatch(/rather than “thinking” or another generic status/iu);
+    expect(studioContract).toMatch(
+      /For `submit-common-brief`[^.]*actual question\s+round next[^.]*without a separate progress publication/isu,
+    );
   });
 
   it("installs the preview-first progressive delivery contract", async () => {

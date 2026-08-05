@@ -1,9 +1,11 @@
 import { describe, expect, it, vi } from "vite-plus/test";
 import {
   attachPrivateAppLifetime,
+  openStudioWhenRequested,
   resolveFrameworkViteConfig,
   resolvePrivateAppOptions,
   resolveServerFsAllow,
+  resolveServerFsDeny,
   resolveSpeakerUrls,
   resolveStoryboardUrls,
 } from "./vite-app.ts";
@@ -63,6 +65,20 @@ describe("resolveServerFsAllow", () => {
       "/workspace",
       "/workspace/packages/client",
       "/opt/drever/core",
+    ]);
+  });
+});
+
+describe("resolveServerFsDeny", () => {
+  it("extends Vite's complete default deny list with private Studio state", () => {
+    expect(resolveServerFsDeny()).toEqual([
+      "**/.drever/studio/**",
+      ".env",
+      ".env.*",
+      "*.{crt,pem,key,p12,pfx,cer,der}",
+      ".npmrc",
+      ".yarnrc.yml",
+      "**/.git/**",
     ]);
   });
 });
@@ -163,6 +179,38 @@ describe("resolveStoryboardUrls", () => {
 
   it("returns no URLs before Vite resolves its listeners", () => {
     expect(resolveStoryboardUrls(null)).toEqual([]);
+  });
+});
+
+describe("Creation room browser launch", () => {
+  it("opens the exact local Studio URL only after an explicit request", async () => {
+    const openUrl = vi.fn(async () => true);
+    const resolvedUrls = {
+      local: ["http://127.0.0.1:4317/talk/?slide=2#notes"],
+      network: ["http://192.168.1.8:4317/talk/"],
+    };
+    const environment = { DISPLAY: ":0" };
+
+    await expect(
+      openStudioWhenRequested(resolvedUrls, "studio-capability", "http://127.0.0.1:51999/talk/", {
+        environment,
+        open: "studio",
+        openUrl,
+      }),
+    ).resolves.toBe(true);
+    expect(openUrl).toHaveBeenCalledOnce();
+    expect(openUrl).toHaveBeenCalledWith(
+      "http://127.0.0.1:4317/talk/studio#access=studio-capability&preview=http%3A%2F%2F127.0.0.1%3A51999%2Ftalk%2F",
+      environment,
+    );
+
+    openUrl.mockClear();
+    await expect(
+      openStudioWhenRequested(resolvedUrls, "studio-capability", "http://127.0.0.1:51999/talk/", {
+        openUrl,
+      }),
+    ).resolves.toBeUndefined();
+    expect(openUrl).not.toHaveBeenCalled();
   });
 });
 

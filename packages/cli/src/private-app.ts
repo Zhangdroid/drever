@@ -785,13 +785,34 @@ if (routePath === "studio") {
   if (!import.meta.hot) {
     throw new Error("The Drever creation room is available only from the development server.");
   }
-  const [{ createStudio }, { studioState, studioToken }] = await Promise.all([
+  const [{ createStudio }] = await Promise.all([
     import("@drever/client/studio"),
-    import("virtual:drever/studio-state"),
     import("@drever/client/studio.css"),
   ]);
+  const studioAccess = new URLSearchParams(globalThis.location.hash.slice(1));
+  const studioToken = studioAccess.get("access");
+  const studioPreviewUrl = studioAccess.get("preview");
+  if (
+    studioToken === null ||
+    studioToken.length === 0 ||
+    studioPreviewUrl === null ||
+    studioPreviewUrl.length === 0
+  ) {
+    throw new Error("Open the exact Creation room URL printed by Drever.");
+  }
   const pendingActions = new Map();
-  let currentRevision = studioState.revision;
+  let currentRevision = 0;
+  let latestState;
+  let studio;
+  let resolveInitialState;
+  let rejectInitialState;
+  const initialState = new Promise((resolve, reject) => {
+    resolveInitialState = resolve;
+    rejectInitialState = reject;
+  });
+  const initialStateTimeout = globalThis.setTimeout(() => {
+    rejectInitialState(new Error("The Drever creation room did not receive its initial state."));
+  }, 15000);
   const createAction = (input) => {
     const shared = {
       version: 1,
@@ -801,13 +822,21 @@ if (routePath === "studio") {
     };
     if (input.type === "submit-common-brief") return { ...shared, brief: input.brief };
     if (input.type === "submit-adaptive-answers") return { ...shared, answers: input.answers };
+    if (input.type === "respond-agent-approval") {
+      return {
+        ...shared,
+        approvalId: input.approvalId,
+        decision: input.decision,
+      };
+    }
     if (input.type === "submit-feedback") {
       return {
         ...shared,
         message: input.message,
-        scope: input.slideId === undefined
-          ? { kind: "deck" }
-          : { kind: "slide", slideId: input.slideId },
+        scope:
+          input.slideId === undefined
+            ? { kind: "deck" }
+            : { kind: "slide", slideId: input.slideId },
       };
     }
     return shared;
@@ -815,20 +844,23 @@ if (routePath === "studio") {
   const sendAction = (input) => {
     const action = createAction(input);
     return new Promise((resolve, reject) => {
-    const timeout = globalThis.setTimeout(() => {
-      pendingActions.delete(action.requestId);
-      reject(new Error("The Drever creation room did not acknowledge the action."));
-    }, 15000);
-    pendingActions.set(action.requestId, {
-      requestId: action.requestId,
-      resolve: (ack) => {
-        globalThis.clearTimeout(timeout);
-        resolve(ack);
-      },
-    });
-    import.meta.hot.send("drever:studio-action", { token: studioToken, action });
+      const timeout = globalThis.setTimeout(() => {
+        pendingActions.delete(action.requestId);
+        reject(new Error("The Drever creation room did not acknowledge the action."));
+      }, 15000);
+      pendingActions.set(action.requestId, {
+        requestId: action.requestId,
+        resolve: (ack) => {
+          globalThis.clearTimeout(timeout);
+          resolve(ack);
+        },
+      });
+      import.meta.hot.send("drever:studio-action", { token: studioToken, action });
     }).then((ack) => {
       currentRevision = ack.revision;
+      if (!ack.accepted) {
+        throw new Error(ack.error?.message ?? "Drever Studio rejected the action.");
+      }
       return ack;
     });
   };
@@ -838,22 +870,29 @@ if (routePath === "studio") {
     pendingActions.delete(ack.requestId);
     pending.resolve(ack);
   });
-  const studio = await createStudio({
+  const receiveStudioState = (state) => {
+    currentRevision = state.revision;
+    latestState = state;
+    resolveInitialState(state);
+    studio?.update(state);
+  };
+  import.meta.hot.on("drever:studio-state", receiveStudioState);
+  const requestStudioState = () =>
+    import.meta.hot.send("drever:studio-state-request", { token: studioToken });
+  import.meta.hot.on("vite:ws:connect", requestStudioState);
+  requestStudioState();
+  const studioState = await initialState;
+  globalThis.clearTimeout(initialStateTimeout);
+  studio = await createStudio({
     audienceUrl: baseURL.href,
     container,
-    state: studioState,
+    previewUrl: studioPreviewUrl,
+    state: latestState ?? studioState,
     onAction: sendAction,
     onError: (error) => globalThis.reportError(error),
   });
   loading?.remove();
   container.setAttribute("data-drever-ready", "");
-  const requestStudioState = () => import.meta.hot.send("drever:studio-state-request");
-  import.meta.hot.on("drever:studio-state", (state) => {
-    currentRevision = state.revision;
-    studio.update(state);
-  });
-  import.meta.hot.on("vite:ws:connect", requestStudioState);
-  requestStudioState();
   import.meta.hot.dispose(() => {
     for (const pending of pendingActions.values()) {
       pending.resolve({
@@ -865,7 +904,7 @@ if (routePath === "studio") {
       });
     }
     pendingActions.clear();
-    void studio.destroy().catch(globalThis.reportError);
+    void studio?.destroy().catch(globalThis.reportError);
   });
 } else if (routePath === "storyboard") {
   document.documentElement.dataset.dreverBrowserMissing = "";
