@@ -34,8 +34,8 @@ without changing authored presentation APIs.
 ### Fixed
 
 - Allowed the embedded Live Draft to enter fullscreen, retained its authenticated connection across
-  child HMR, and kept slide-rail navigation in Live Draft instead of unexpectedly returning to
-  Storyboard.
+  child HMR, added a child-ready handshake for slow cold starts, and kept slide-rail navigation in
+  Live Draft instead of unexpectedly returning to Storyboard.
 - Preserved the last available draft when refinement pauses and clarified that intermediate HMR
   layouts may still change while the agent is working.
 - Coalesced duplicate configuration file events into one development-server restart, avoiding

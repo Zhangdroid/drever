@@ -673,6 +673,10 @@ if (
       .catch(reportPresentationError);
   };
   globalThis.addEventListener("message", receiveStudioPreviewMessage);
+  globalThis.parent.postMessage(
+    { type: "drever:studio-preview-ready", version: 1 },
+    "*",
+  );
   const stopPreviewPositionSubscription = presentation.subscribe(publishStudioPreviewState);
   stopStudioPreviewBridge = () => {
     stopPreviewPositionSubscription();

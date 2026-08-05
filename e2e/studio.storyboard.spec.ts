@@ -24,15 +24,17 @@ const availablePort = async (): Promise<number> => {
 
 const stop = async (process: ChildProcess): Promise<void> => {
   if (process.exitCode !== null) return;
-  const exited = new Promise<void>((resolve) => process.once("exit", () => resolve()));
+  const waitForExit = async (): Promise<boolean> => {
+    for (let attempt = 0; attempt < 40; attempt += 1) {
+      if (process.exitCode !== null) return true;
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+    return false;
+  };
   process.kill("SIGTERM");
-  const stopped = await Promise.race([
-    exited.then(() => true),
-    new Promise<false>((resolve) => setTimeout(() => resolve(false), 1_000)),
-  ]);
-  if (stopped) return;
+  if (await waitForExit()) return;
   process.kill("SIGKILL");
-  await Promise.race([exited, new Promise<void>((resolve) => setTimeout(resolve, 1_000))]);
+  await waitForExit();
 };
 
 const waitForStudioUrl = async (
@@ -194,6 +196,7 @@ test("Studio keeps the embedded live draft navigable with real speaker notes", a
     );
     await expect(page.locator(".drever-studio-preview__notes small")).toContainText(
       "Speaker notes · Slide 1",
+      { timeout: 20_000 },
     );
     const rail = page.getByRole("navigation", { name: "Presentation slides" });
     await rail.getByRole("button", { name: /Motion should carry meaning/u }).click();

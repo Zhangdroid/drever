@@ -608,7 +608,11 @@ describe("generated private application", () => {
         context,
       );
 
-      expect(parentWindow.postMessage).not.toHaveBeenCalled();
+      expect(parentWindow.postMessage).toHaveBeenCalledWith(
+        { type: "drever:studio-preview-ready", version: 1 },
+        "*",
+      );
+      parentWindow.postMessage.mockClear();
       expect(publishPosition).toBeTypeOf("function");
 
       const connect = {
@@ -742,7 +746,11 @@ describe("generated private application", () => {
       });
 
       expect(subscribe).toHaveBeenCalledOnce();
-      expect(parentWindow.postMessage).toHaveBeenCalledOnce();
+      expect(parentWindow.postMessage).toHaveBeenCalledTimes(2);
+      expect(parentWindow.postMessage).toHaveBeenCalledWith(
+        { type: "drever:studio-preview-ready", version: 1 },
+        "*",
+      );
       expect(parentWindow.postMessage).toHaveBeenCalledWith(
         expect.objectContaining({
           type: "drever:studio-preview-state",

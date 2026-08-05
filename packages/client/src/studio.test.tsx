@@ -9,6 +9,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vite-plus/test";
 import {
   hydrateStudioAnswerDrafts,
+  isStudioPreviewReady,
   latestStudioNarration,
   nextStudioMode,
   readStudioPreviewState,
@@ -553,6 +554,12 @@ describe("Studio flow helpers", () => {
         },
       }),
     ).toBeUndefined();
+  });
+
+  it("accepts only the versioned child-ready preview handshake", () => {
+    expect(isStudioPreviewReady({ type: "drever:studio-preview-ready", version: 1 })).toBe(true);
+    expect(isStudioPreviewReady({ type: "drever:studio-preview-ready", version: 2 })).toBe(false);
+    expect(isStudioPreviewReady({ type: "drever:studio-preview-state", version: 1 })).toBe(false);
   });
 
   it("sends every supported agent approval decision through the Studio action boundary", async () => {

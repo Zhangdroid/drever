@@ -137,6 +137,8 @@ export type StudioPreviewState = Readonly<{
 
 type StudioPreviewConnection = "connected" | "connecting" | "unavailable";
 
+const studioPreviewConnectAttempts = 16;
+
 type StudioAnswerDraft = Readonly<{
   optionIds: readonly string[];
   text: string;
@@ -1251,6 +1253,14 @@ export const readStudioPreviewState = (value: unknown): StudioPreviewState | und
   return slide?.id === candidate.position.slideId ? (candidate as StudioPreviewState) : undefined;
 };
 
+export const isStudioPreviewReady = (value: unknown): boolean =>
+  typeof value === "object" &&
+  value !== null &&
+  "type" in value &&
+  value.type === "drever:studio-preview-ready" &&
+  "version" in value &&
+  value.version === 1;
+
 const StudioDraftStatus = ({
   onAction,
   state,
@@ -1390,6 +1400,19 @@ const PlanScreen = ({
     const receivePreviewState = (event: MessageEvent): void => {
       if (event.source !== iframeRef.current?.contentWindow || event.origin !== previewOrigin)
         return;
+      if (isStudioPreviewReady(event.data)) {
+        if (previewCapability !== undefined) {
+          iframeRef.current?.contentWindow?.postMessage(
+            {
+              capability: previewCapability,
+              type: "drever:studio-preview-connect",
+              version: 1,
+            },
+            previewOrigin,
+          );
+        }
+        return;
+      }
       const previewState = readStudioPreviewState(event.data);
       if (previewState === undefined) return;
       setPreviewState(previewState);
@@ -1399,7 +1422,7 @@ const PlanScreen = ({
     };
     globalThis.addEventListener("message", receivePreviewState);
     return () => globalThis.removeEventListener("message", receivePreviewState);
-  }, [plan, previewOrigin]);
+  }, [previewCapability, previewOrigin]);
 
   const postPreviewMessage = (message: Readonly<Record<string, unknown>>): void => {
     iframeRef.current?.contentWindow?.postMessage(message, previewOrigin);
@@ -1431,7 +1454,7 @@ const PlanScreen = ({
         previewOrigin,
       );
       attempt += 1;
-      if (attempt >= 8) {
+      if (attempt >= studioPreviewConnectAttempts) {
         setPreviewConnection("unavailable");
         return;
       }

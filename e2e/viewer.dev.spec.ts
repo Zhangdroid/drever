@@ -1038,6 +1038,8 @@ test("document transitions capture the deck while audience controls leave the sn
 
   await page.goto("/");
   await waitForDreverReady(page);
+  await page.waitForTimeout(250);
+  await waitForDreverReady(page);
   const controlsHost = page.locator("[data-drever-audience-controls]");
   const toolbar = page.locator(".drever-audience-controls__bar");
   await expect(controlsHost).not.toHaveAttribute("data-drever-controls-navigation-hidden", "");
