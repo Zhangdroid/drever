@@ -5,6 +5,8 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-08-04
+
 Release impact: **minor** — this batch adds a compatible local creation room, rendered-quality
 diagnostics, and a visual-refinement gate for AI-authored presentations.
 
@@ -535,7 +537,8 @@ capabilities.
 - Added parallel source, unit, package, browser, export, and website checks in CI.
 - Deployed the prerendered public website and per-branch previews through Cloudflare Pages.
 
-[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.11.0...HEAD
+[0.11.0]: https://github.com/Zhangdroid/drever/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/Zhangdroid/drever/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/Zhangdroid/drever/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/Zhangdroid/drever/compare/v0.7.1...v0.8.0
