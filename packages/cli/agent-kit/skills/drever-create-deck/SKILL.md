@@ -44,6 +44,108 @@ project. For an edit, use `drever_get_context` when the project MCP is connected
 `npm exec -- drever context --json`. Do not run context against the untouched starter merely to
 rediscover APIs documented by the installed skills.
 
+## Prefer the local creation room
+
+<!-- drever-studio-question-contract:v1 -->
+
+For a new deck, start the development script before asking questions when the host can keep a local
+server alive. Use the exact **Creation room** URL printed by Drever; open it when browser control is
+available, otherwise give the URL to the user. The creation room is the preferred surface for the
+brief, adaptive questions, plan approval, and later feedback. Do not mirror its questions in chat.
+If the CLI does not report that URL or the user prefers chat, continue with the conversational
+workflow below.
+
+The creation room is a local, provider-neutral action inbox. Keep one action cursor and poll in
+bounded calls:
+
+```bash
+npm exec -- drever studio status --json
+npm exec -- drever studio wait --after <latestActionRevision> --timeout 45 --json
+```
+
+Use `latestActionRevision`, not the UI `revision`, as the next `--after` cursor. Process every
+returned action in order. Publish agent-owned state by writing a small project-local JSON file and
+running `npm exec -- drever studio publish --file <path> --json`.
+
+Treat `submit-common-brief` as a latency-sensitive dispatch. Before doing any other work, use only
+that action's `brief` to choose the highest-value one to three missing decisions and publish the
+question round in one pass. Do not inspect or edit project files, browse or research the topic,
+start another worker, run `context` or `check`, inspect Drever source or schemas, or publish a
+progress-only state first. This round elicits direction; factual research and deck work begin only
+after the answers or skip action. Do not repeat audience, duration, density, language, desired
+change, or motion choices already present in the brief. Prefer a missing desired outcome, then a
+topic-specific scope or evidence fork, then a visual or delivery fork that would materially change
+the story.
+
+Write `.drever-studio-publication.json` and copy this exact structure, replacing the example
+revision and strings with values for the submitted brief:
+
+```json
+{
+  "version": 1,
+  "phase": "adaptive-questions",
+  "handledActionRevision": 7,
+  "adaptiveQuestions": [
+    {
+      "id": "coworker-outcome",
+      "prompt": "What should coworkers be able to do differently after this AI update?",
+      "options": [
+        {
+          "id": "spot-opportunities",
+          "label": "Spot useful opportunities",
+          "description": "Give them a practical filter for identifying worthwhile AI uses at work.",
+          "recommended": true
+        },
+        {
+          "id": "choose-tools",
+          "label": "Choose tools confidently",
+          "description": "Help them compare current tool categories before making an adoption decision."
+        }
+      ]
+    }
+  ]
+}
+```
+
+For this publication, the root keys are exactly `version`, `phase`, `handledActionRevision`, and
+`adaptiveQuestions`; omit progress and messages. The phase is exactly `adaptive-questions`, never
+`questions` or `waiting-for-agent`. `adaptiveQuestions` contains one to three questions. Every
+question has only `id`, `prompt`, `options`, and optional boolean `multiple`; every option has only
+`id`, `label`, `description`, and optional boolean `recommended`. Put `recommended: true` on at most
+one option per question, never on the question. Question and option IDs are unique within their
+scope and match lowercase kebab case such as `evidence-style`; every question has two to four
+options. Do not emit `questions`, a question-level `recommended` ID, numbering, letter labels, null,
+or any extra field. Use the action record's `revision` as `handledActionRevision`.
+
+Run the publish command immediately. If it rejects the file, read that one CLI diagnostic and make
+one mechanical retry: keep only the first question, remove unknown fields, rename `questions` to
+`adaptiveQuestions`, set the phase to `adaptive-questions`, move any recommendation onto one option
+as a boolean, and conform the IDs and option count to the exact example above. Do not regenerate the
+round, inspect repository or package source, search for a schema, or start open-ended debugging. If
+that single retry also fails, publish this exact bounded failure state with the action revision and
+stop so the user receives a concrete result instead of an indefinite wait:
+
+```json
+{
+  "version": 1,
+  "phase": "error",
+  "handledActionRevision": 7,
+  "message": "Drever could not publish the question round. Please resubmit the brief."
+}
+```
+
+Skip question publication only when the same returned action batch contains
+`skip-remaining-questions` after that brief. After answers or a skip, update `brief.md` and
+`drever.plan.json`, publish `plan-review`, and wait for `approve-plan` or feedback. After approval,
+mark the plan approved, publish `drafting`, create the complete Draft 1, then publish `preview`.
+Continue polling while the server is alive so slide- or deck-scoped feedback can be applied through
+the normal authoring and review workflow. Set `handledActionRevision` to the last action actually
+incorporated; never acknowledge work before it has been applied.
+
+Do not put API keys or provider transcripts in creation-room state. The MDX, brief, plan,
+configuration, assets, and Git history remain the source of truth. The room only coordinates the
+existing coding agent and displays the real Drever runtime.
+
 ## Resolve the brief
 
 <!-- drever-briefing-contract:v4 -->
@@ -144,17 +246,19 @@ repeat the same split layout by default. A technical sales slide may require a s
 architecture view, or metric because its evidence contract calls for one; not every presentation
 does. Prefer contextual requirements over universal sentence or screenshot quotas.
 
-Run `npm exec -- drever check --json` and fix every plan error before presenting it. Then start the
-project's development script and use the exact **Storyboard** URL reported by Drever. This
-development-only route reads `drever.plan.json` without importing the deck MDX, Theme, or runtime,
-so it is the first useful visual preview even when `slides.mdx` is absent or incomplete. Never guess
-the URL, and do not author the deck merely to make this checkpoint visible.
+Run `npm exec -- drever check --json` and fix every plan error before presenting it. When the local
+creation room is active, publish the `plan-review` phase and let its visual Storyboard own edits and
+explicit approval. Keep polling until `approve-plan` arrives or feedback changes the plan.
 
-Show the user the complete brief and ordered story, name both paths, share the Storyboard URL,
-invite edits or explicit approval, and stop. Keep the server alive when the host permits it; plan
-edits update that page through HMR. The skip-remaining escape does not bypass this gate. If the user
-changes the plan, update both files, keep them awaiting approval, and present the material changes
-again. After explicit approval, mark both files approved and continue.
+Otherwise start the project's development script and use the exact **Storyboard** URL reported by
+Drever. This development-only fallback reads `drever.plan.json` without importing the deck MDX,
+Theme, or runtime. Show the user the complete brief and ordered story in chat and share the URL.
+Then invite edits or explicit approval, and stop. Never guess the URL or author the deck merely to
+make this checkpoint visible.
+
+The skip-remaining escape does not bypass either approval path. If the user changes the plan, update
+both files, keep them awaiting approval, and present the material changes again. After explicit
+approval, mark both files approved and continue.
 
 ## Create the first useful preview
 
@@ -165,8 +269,8 @@ the story and design contract while authoring. On a single-agent host, author th
 simple Draft 1 before starting design research or refinement. Do not finish a custom visual system
 before exposing the first useful preview.
 
-Reuse the running development server when one is already serving the Storyboard; otherwise start
-one server and keep its URL stable. Build a coherent Draft 1 with every planned
+Reuse the running development server when one is already serving the creation room or Storyboard;
+otherwise start one server and keep its URL stable. Build a coherent Draft 1 with every planned
 slide, real readable copy, evidence, speaker notes, and a deliberately simple subject-led visual
 system. Do not wait for exhaustive inspection, production build, PDF export, or optional third-party
 polish before exposing it. Before sharing the URL, verify only that the entry compiles, the audience

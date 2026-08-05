@@ -131,8 +131,8 @@ test("the built CLI installs an idempotent agent kit without loading project con
     expect(createDeck).toContain("composition recipe");
     expect(createDeck).toMatch(/motion[^.]*single owner/iu);
     expect(createDeck).toContain("invite edits or explicit approval, and stop");
-    expect(createDeck).toContain("exact **Storyboard** URL reported by Drever");
-    expect(createDeck).toMatch(/After explicit approval[^.]*mark\s+both files approved/iu);
+    expect(createDeck).toMatch(/exact \*\*Storyboard\*\* URL reported by\s+Drever/iu);
+    expect(createDeck).toMatch(/After explicit\s+approval[^.]*mark\s+both files approved/iu);
     expect(createDeck).toContain("<!-- drever-preview-contract:v5 -->");
     expect(createDeck).toMatch(/coherent Draft 1 with every\s+planned\s+slide/u);
     expect(createDeck).toMatch(/first and last slides open/iu);

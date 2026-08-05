@@ -33,8 +33,8 @@ function DocsOverview() {
             <span>must achieve.</span>
           </h2>
           <p>
-            One handoff gives Codex or Claude Code the setup instructions and a clear definition of
-            done. The generated project supplies the version-matched contract.
+            One handoff creates the project, then opens a local room for topic-specific questions,
+            visual Storyboard approval, and feedback on the live draft.
           </p>
           <Link className="button button--primary" to="/docs/getting-started/">
             See the one-step workflow <ArrowIcon />
@@ -106,8 +106,8 @@ function DocsOverview() {
           <span>Project-local skills carry the contract.</span>
         </h2>
         <p>
-          Versioned project skills, exact source context, stable JSON diagnostics, and optional
-          read-only MCP keep every change visible in normal files and Git.
+          A provider-neutral local creation room, versioned project skills, exact source context,
+          and stable rendered diagnostics keep every change visible in normal files and Git.
         </p>
         <Link className="text-link" to="/docs/ai/">
           Explore AI workflows <ArrowIcon />

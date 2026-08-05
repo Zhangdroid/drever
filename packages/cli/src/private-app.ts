@@ -774,7 +774,100 @@ const baseURL = new URL(base.content, document.baseURI);
 const relativePath = new URL(document.URL).pathname.slice(baseURL.pathname.length);
 const routePath = relativePath.replace(/\\/+$/u, "");
 
-if (routePath === "storyboard") {
+if (routePath === "studio") {
+  document.documentElement.dataset.dreverBrowserMissing = "";
+  document.documentElement.dataset.dreverBrowserSupport = "supported";
+  const container = document.querySelector("#drever-root");
+  const loading = document.querySelector("[data-drever-loading]");
+  if (!(container instanceof Element)) {
+    throw new Error("Drever could not find its creation-room root.");
+  }
+  if (!import.meta.hot) {
+    throw new Error("The Drever creation room is available only from the development server.");
+  }
+  const [{ createStudio }, { studioState, studioToken }] = await Promise.all([
+    import("@drever/client/studio"),
+    import("virtual:drever/studio-state"),
+    import("@drever/client/studio.css"),
+  ]);
+  const pendingActions = new Map();
+  let currentRevision = studioState.revision;
+  const createAction = (input) => {
+    const shared = {
+      version: 1,
+      requestId: globalThis.crypto.randomUUID(),
+      expectedRevision: currentRevision,
+      type: input.type,
+    };
+    if (input.type === "submit-common-brief") return { ...shared, brief: input.brief };
+    if (input.type === "submit-adaptive-answers") return { ...shared, answers: input.answers };
+    if (input.type === "submit-feedback") {
+      return {
+        ...shared,
+        message: input.message,
+        scope: input.slideId === undefined
+          ? { kind: "deck" }
+          : { kind: "slide", slideId: input.slideId },
+      };
+    }
+    return shared;
+  };
+  const sendAction = (input) => {
+    const action = createAction(input);
+    return new Promise((resolve, reject) => {
+    const timeout = globalThis.setTimeout(() => {
+      pendingActions.delete(action.requestId);
+      reject(new Error("The Drever creation room did not acknowledge the action."));
+    }, 15000);
+    pendingActions.set(action.requestId, {
+      requestId: action.requestId,
+      resolve: (ack) => {
+        globalThis.clearTimeout(timeout);
+        resolve(ack);
+      },
+    });
+    import.meta.hot.send("drever:studio-action", { token: studioToken, action });
+    }).then((ack) => {
+      currentRevision = ack.revision;
+      return ack;
+    });
+  };
+  import.meta.hot.on("drever:studio-action-ack", (ack) => {
+    const pending = pendingActions.get(ack.requestId);
+    if (pending === undefined) return;
+    pendingActions.delete(ack.requestId);
+    pending.resolve(ack);
+  });
+  const studio = await createStudio({
+    audienceUrl: baseURL.href,
+    container,
+    state: studioState,
+    onAction: sendAction,
+    onError: (error) => globalThis.reportError(error),
+  });
+  loading?.remove();
+  container.setAttribute("data-drever-ready", "");
+  const requestStudioState = () => import.meta.hot.send("drever:studio-state-request");
+  import.meta.hot.on("drever:studio-state", (state) => {
+    currentRevision = state.revision;
+    studio.update(state);
+  });
+  import.meta.hot.on("vite:ws:connect", requestStudioState);
+  requestStudioState();
+  import.meta.hot.dispose(() => {
+    for (const pending of pendingActions.values()) {
+      pending.resolve({
+        version: 1,
+        requestId: pending.requestId,
+        accepted: false,
+        revision: 0,
+        error: { code: "DREVER_STUDIO_DISPOSED", message: "The Drever creation room reloaded." },
+      });
+    }
+    pendingActions.clear();
+    void studio.destroy().catch(globalThis.reportError);
+  });
+} else if (routePath === "storyboard") {
   document.documentElement.dataset.dreverBrowserMissing = "";
   document.documentElement.dataset.dreverBrowserSupport = "supported";
   const container = document.querySelector("#drever-root");

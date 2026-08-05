@@ -5,8 +5,8 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
-Release impact: **minor** — this batch adds compatible rendered-quality diagnostics and a
-visual-refinement gate for AI-authored presentations.
+Release impact: **minor** — this batch adds a compatible local creation room, rendered-quality
+diagnostics, and a visual-refinement gate for AI-authored presentations.
 
 ### Added
 
@@ -16,9 +16,23 @@ visual-refinement gate for AI-authored presentations.
 - Added content-led scene recipes and practical typography, spacing, contrast,
   and CJK-aware review baselines to the installed design, authoring, and review
   skills.
+- Added an experimental, development-only local creation room for the common brief, adaptive
+  topic-specific questions, visual Storyboard approval, a real Audience View preview, and deck- or
+  slide-scoped feedback. A provider-neutral local action journal and `drever studio` agent commands
+  coordinate the existing coding agent without placing model credentials or editor code in the
+  production presentation.
 
 ### Changed
 
+- Made the experimental creation room's first brief clearer and more flexible with arbitrary
+  minute durations, plain-language audience-goal copy, readable option descriptions, and compact
+  recommendation badges. It now also distinguishes an active local coding-agent lease from an
+  unconnected room instead of presenting the transport itself as a live agent.
+- Refined the creation room with a smaller navigation surface, calmer form typography, and a
+  truthful animated activity timeline driven by the local agent's published milestones. The
+  bundled creation skill now treats topic-specific questions as a latency-sensitive one-pass task,
+  uses an exact decoder-verified publication template, and bounds schema recovery instead of
+  inspecting project internals or entering open-ended debugging.
 - Taught the bundled design and review skills to reject detached annotations, connector overshoot,
   and implementation details that visually overpower the audience-facing claim.
 - Made every AI release-smoke candidate capture settled slides and adjacent
@@ -39,6 +53,9 @@ visual-refinement gate for AI-authored presentations.
 - Hid the audience toolbar before slide View Transition capture and kept it
   out of the presentation until fresh pointer intent, preventing its rounded
   glass surface from blurring content during navigation.
+- Preserved the submitted creation-room brief across entry-module hot updates by invalidating the
+  virtual startup state after every accepted action, and prevented an older agent publication from
+  moving a durable session back to the first screen.
 
 ## [0.10.0] - 2026-08-03
 

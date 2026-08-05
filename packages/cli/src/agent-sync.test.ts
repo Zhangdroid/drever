@@ -4,6 +4,7 @@ import { dirname, join } from "node:path";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 import { syncAgentKit } from "./agent-sync.ts";
 import { DreverCliError } from "./errors.ts";
+import { decodeStudioAgentState } from "./studio-plugin.ts";
 
 const AGENTS_START = "<!-- drever-agent-kit:start -->";
 const AGENTS_END = "<!-- drever-agent-kit:end -->";
@@ -163,10 +164,10 @@ describe("agent kit sync", () => {
     expect(createDeck).toMatch(/`detailed`[^;]*reader-led/iu);
     expect(createDeck).toContain("<!-- drever-plan-review-contract:v3 -->");
     expect(createDeck).toMatch(/human-readable brief and numbered outline/iu);
-    expect(createDeck).toMatch(/invite edits or explicit\s+approval,\s+and stop/iu);
-    expect(createDeck).toMatch(/exact \*\*Storyboard\*\* URL reported by Drever/iu);
-    expect(createDeck).toMatch(/without importing the deck MDX, Theme, or runtime/iu);
-    expect(createDeck).toMatch(/skip-remaining escape does not bypass this gate/iu);
+    expect(createDeck).toMatch(/invite\s+edits or explicit\s+approval,\s+and stop/iu);
+    expect(createDeck).toMatch(/exact \*\*Storyboard\*\* URL reported by\s+Drever/iu);
+    expect(createDeck).toMatch(/without importing the deck MDX,\s+Theme, or runtime/iu);
+    expect(createDeck).toMatch(/skip-remaining escape does not bypass either approval path/iu);
     expect(createDesign).toMatch(/topic-fingerprint test/iu);
     expect(createDesign).toMatch(
       /claim[^→]*→ focal artifact[^→]*→ initial state[^→]*→ meaningful\s+transformation[^→]*→ settled payoff[^→]*→ static or reduced-motion endpoint/iu,
@@ -175,6 +176,49 @@ describe("agent kit sync", () => {
     expect(createDesign).toMatch(/generic fade or slide entrance alone/iu);
     expect(reviewDeck).toMatch(/what one scene the audience will remember/iu);
     expect(reviewDeck).toMatch(/redesign exactly one high-value beat/iu);
+  });
+
+  it("installs a latency-bounded exact Studio question publication contract", async () => {
+    const root = await temporaryDirectory("drever-agent-project-");
+    await syncAgentKit({ root });
+
+    const createDeck = await read(root, ".agents/skills/drever-create-deck/SKILL.md");
+    const studioContract = createDeck.slice(
+      createDeck.indexOf("<!-- drever-studio-question-contract:v1 -->"),
+      createDeck.indexOf("## Resolve the brief"),
+    );
+    const exampleMatch = studioContract.match(
+      /copy this exact structure[^]*?```json\n([^]*?)\n```/iu,
+    );
+
+    expect(exampleMatch?.[1]).toBeDefined();
+    const example = JSON.parse(exampleMatch?.[1] ?? "null") as Record<string, unknown>;
+    expect(decodeStudioAgentState(example)).toEqual(example);
+    expect(Object.keys(example)).toEqual([
+      "version",
+      "phase",
+      "handledActionRevision",
+      "adaptiveQuestions",
+    ]);
+    expect(example).toMatchObject({
+      phase: "adaptive-questions",
+      adaptiveQuestions: [
+        {
+          options: [{ recommended: true }, {}],
+        },
+      ],
+    });
+    expect(studioContract).toMatch(
+      /Before doing any other work[^.]*use only[^.]*action's `brief`[^.]*publish[^.]*in one pass/isu,
+    );
+    expect(studioContract).toMatch(
+      /Do not inspect or edit project files[^.]*browse or research[^.]*inspect Drever source or schemas/isu,
+    );
+    expect(studioContract).toMatch(/phase is exactly `adaptive-questions`/iu);
+    expect(studioContract).toMatch(/never on the question/iu);
+    expect(studioContract).toMatch(/one mechanical retry/iu);
+    expect(studioContract).toMatch(/Do not regenerate the\s+round/iu);
+    expect(studioContract).toMatch(/start open-ended debugging/iu);
   });
 
   it("installs the preview-first progressive delivery contract", async () => {

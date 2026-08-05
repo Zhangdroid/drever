@@ -55,12 +55,14 @@ From there, ask for the deliverable in natural language:
 > reveal, and deliver the website and PDF.
 
 The agent resolves audience, outcome, duration, and visible slide density before
-authoring. It then writes a complete `brief.md` plus a versioned
+authoring. When the host can keep a local server alive, it opens the experimental
+creation room for the common brief, adaptive questions, visual plan review, and
+later feedback. It then writes a complete `brief.md` plus a versioned
 `drever.plan.json` with stable slide jobs, evidence, focal artifacts,
-composition recipes, density, and motion ownership. It validates both, opens the
-plan-only `/storyboard` page, and stops for approval. This page does not require
-the MDX deck to compile. Once you approve that plan, it creates the live Draft 1 and
-continues refining the same preview.
+composition recipes, density, and motion ownership. It validates both and stops
+for approval in that room. Chat plus the plan-only `/storyboard` page remains the
+fallback. Once you approve the plan, it creates the live Draft 1 and continues
+refining the same preview.
 
 An installed global Drever plugin can handle the same request from an empty
 directory. It invokes the creator once, then delegates to the project-local

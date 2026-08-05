@@ -7,54 +7,55 @@ const journeyStages = [
   {
     id: "brief",
     label: "Brief",
-    title: "Start with the change.",
+    title: "Give the deck a job.",
     description:
-      "One sentence gives the deck a job: help the product team decide whether a simpler setup is ready to launch.",
+      "Start with the topic, the people in the room, and what should change when the talk ends. Choose duration, density, and motion—or delegate what is still open.",
     status: "Brief received",
   },
   {
-    id: "draft",
-    label: "Plan",
-    title: "Review the shape first.",
+    id: "discover",
+    label: "Direction",
+    title: "Answer only what changes the deck.",
     description:
-      "AI turns the answers into a complete brief and page-by-page outline, then stops before authoring.",
+      "Your agent resolves the common choices, then asks a few questions selected from this subject and your earlier answers—not a generic form.",
+    status: "Direction resolved",
+  },
+  {
+    id: "storyboard",
+    label: "Storyboard",
+    title: "Approve the story before the styling.",
+    description:
+      "See the complete page-by-page argument before MDX exists. Select a beat, redirect the emphasis, or approve the plan while change is still cheap.",
     status: "Awaiting approval",
   },
   {
-    id: "iterate",
-    label: "Your review",
-    title: "Direct it before it becomes slides.",
-    description:
-      "Change the emphasis, density, order, or motion intent while the plan is still cheap to reshape.",
-    status: "Plan revised",
-  },
-  {
-    id: "refine",
+    id: "draft",
     label: "First draft",
-    title: "Make the approved story visible.",
+    title: "See the whole draft early.",
     description:
-      "Only after approval does Drever author the complete story, move detail to Notes, and open one live preview.",
+      "The approved story opens atomically in the real presentation runtime with readable copy, Notes, and a stable subject-led composition.",
     status: "Draft live",
   },
   {
-    id: "direction",
-    label: "Art direction + motion",
-    title: "Let the subject direct the motion.",
+    id: "iterate",
+    label: "Your direction",
+    title: "Point to what should change.",
     description:
-      "Three setup paths resolve into one. Palette, layout, and movement now explain simplification instead of decorating it.",
-    status: "Art directed",
+      "Comment on one slide or the whole deck. The same ordinary files and live preview update instead of restarting the work.",
+    status: "Revision in progress",
   },
   {
-    id: "room",
-    label: "The room",
-    title: "Reveal what the room asks for.",
-    description: `The team chooses “${creationStory.choice}.” The next Step reveals ${creationStory.evidence} and preserves the exact ${creationStory.route} moment.`,
-    status: "Live room",
+    id: "review",
+    label: "Rendered review",
+    title: "Check what taste alone can miss.",
+    description:
+      "Every authored Step is tested for clipping, overflow, overlap, contrast, density, and unstable geometry. Visual judgment still belongs to you.",
+    status: "Rendered checks passed",
   },
   {
     id: "delivery",
-    label: "Every surface",
-    title: "Keep the exact moment useful.",
+    label: "The room",
+    title: "Take the same story everywhere.",
     description:
       "Audience, speaker, document, website, and PDF stay connected to the same authored story.",
     status: "Every surface",
@@ -117,11 +118,11 @@ export function CreationJourney() {
       ref={sectionRef}
     >
       <header className="home-journey__intro">
-        <span>One deck · becoming</span>
-        <h2 id="home-journey-title">Watch a presentation earn its final form.</h2>
+        <span>One idea · becoming</span>
+        <h2 id="home-journey-title">Watch one idea become a deck you can trust.</h2>
         <p>
-          The canvas stays put. The thinking gets clearer as you scroll—from raw brief, through a
-          reviewed plan, to a live, shareable room.
+          Review the story before slides exist, direct the live draft, then let rendered checks
+          catch what the eye can miss.
         </p>
       </header>
 
@@ -168,6 +169,8 @@ function JourneyVisual({
   activeStage: JourneyStage;
   status: string;
 }) {
+  const selectedRailIndex = Math.min(Math.max(activeIndex - 2, 0), 3);
+
   return (
     <figure
       aria-hidden="true"
@@ -182,13 +185,13 @@ function JourneyVisual({
       <div className="home-journey__visual-shell">
         <header className="home-journey__visual-header">
           <span>Drever</span>
-          <small>Editable throughout</small>
+          <small>Local creation room · Experimental</small>
         </header>
 
         <div className="home-journey__workbench">
           <div className="home-journey__rail">
             {["Opening", "Friction", "Proof", "Decision"].map((label, index) => (
-              <div data-selected={index === Math.min(activeIndex, 3) ? "" : undefined} key={label}>
+              <div data-selected={index === selectedRailIndex ? "" : undefined} key={label}>
                 <i />
                 <span>{String(index + 1).padStart(2, "0")}</span>
               </div>
@@ -200,23 +203,49 @@ function JourneyVisual({
             <div className="home-journey__deck-grid" />
 
             <div className="home-journey__brief-card">
-              <span>What should change?</span>
+              <span>Topic + shared choices</span>
               <p>{creationStory.brief}</p>
-              <i />
-            </div>
-
-            <div className="home-journey__draft">
-              <small>Brief · awaiting approval</small>
-              <h3>Seven-slide decision story</h3>
-              <p>
-                Open with setup friction, compare three paths, reveal one proof point, and end with
-                a launch decision.
-              </p>
               <ul>
                 <li>8 minutes</li>
                 <li>Concise</li>
-                <li>Full Notes</li>
+                <li>Measured motion</li>
               </ul>
+            </div>
+
+            <div className="home-journey__questions">
+              <header>
+                <span>Question 02</span>
+                <small>Chosen for this topic</small>
+              </header>
+              <strong>What proof would make the launch feel safe?</strong>
+              <div>
+                <span data-selected="">Unaided completion</span>
+                <span>Support volume</span>
+                <span>Time to value</span>
+              </div>
+              <p>Changes the evidence and decision slides.</p>
+            </div>
+
+            <div className="home-journey__storyboard">
+              <header>
+                <small>Storyboard · awaiting approval</small>
+                <span>7 slides</span>
+              </header>
+              <h3>One decision, seven beats.</h3>
+              <ol>
+                {[
+                  ["01", "Opening"],
+                  ["03", "Friction"],
+                  ["05", "Proof"],
+                  ["07", "Decision"],
+                ].map(([index, label]) => (
+                  <li data-selected={label === "Proof" ? "" : undefined} key={label}>
+                    <span>{index}</span>
+                    <i />
+                    <strong>{label}</strong>
+                  </li>
+                ))}
+              </ol>
             </div>
 
             <div className="home-journey__feedback">
@@ -224,16 +253,16 @@ function JourneyVisual({
                 <span>Your direction</span>
                 <small>You</small>
               </header>
-              <strong>Make the decision unmistakable before authoring.</strong>
+              <strong>Let the proof arrive one beat earlier.</strong>
               <ul>
-                <li>Keep one proof point.</li>
-                <li>Move the rest to Notes.</li>
+                <li>Keep this slide concise.</li>
+                <li>Move cohort detail to Notes.</li>
               </ul>
               <i />
             </div>
 
             <div className="home-journey__final-copy">
-              <small>Setup study</small>
+              <small>Setup study · 05 / 07</small>
               <h3>{creationStory.title}</h3>
               <p>{creationStory.question}</p>
             </div>
@@ -245,11 +274,6 @@ function JourneyVisual({
               <b />
             </div>
 
-            <aside className="home-journey__notes">
-              <span>Moved to Notes</span>
-              <p>Define the cohort, sample size, and support-volume caveat before discussion.</p>
-            </aside>
-
             <div className="home-journey__choice">
               <small>The room chooses</small>
               <strong>{creationStory.choice}</strong>
@@ -258,6 +282,19 @@ function JourneyVisual({
             <div className="home-journey__proof">
               <strong>{creationStory.evidence}</strong>
               <span>{creationStory.evidenceDetail}</span>
+            </div>
+
+            <div className="home-journey__quality">
+              <header>
+                <span>Rendered review</span>
+                <strong>Ready</strong>
+              </header>
+              <ul>
+                <li>Safe area</li>
+                <li>Contrast</li>
+                <li>Geometry</li>
+              </ul>
+              <p>7 slides · 11 exact states</p>
             </div>
 
             <div className="home-journey__room-chrome">

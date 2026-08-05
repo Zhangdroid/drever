@@ -10,11 +10,13 @@
   },
   "files": [
     "dist",
+    "studio.css",
     "storyboard.css",
     "styles.css"
   ],
   "type": "module",
   "sideEffects": [
+    "./studio.css",
     "./storyboard.css",
     "./styles.css"
   ],
@@ -39,6 +41,11 @@
       "types": "./dist/storyboard.d.mts",
       "import": "./dist/storyboard.mjs"
     },
+    "./studio": {
+      "types": "./dist/studio.d.mts",
+      "import": "./dist/studio.mjs"
+    },
+    "./studio.css": "./studio.css",
     "./storyboard.css": "./storyboard.css",
     "./styles.css": "./styles.css",
     "./package.json": "./package.json"
@@ -52,6 +59,7 @@
     "test": "vp test"
   },
   "dependencies": {
+    "@drever/brand": "workspace:*",
     "@drever/core": "workspace:*",
     "@drever/schema": "workspace:*"
   },

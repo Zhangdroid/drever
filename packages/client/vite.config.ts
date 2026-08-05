@@ -10,6 +10,7 @@ export default defineConfig({
       document: "src/document.ts",
       index: "src/index.ts",
       speaker: "src/speaker-entry.ts",
+      studio: "src/studio-entry.ts",
       storyboard: "src/storyboard-entry.ts",
     },
     exports: false,

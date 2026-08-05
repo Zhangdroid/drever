@@ -34,10 +34,11 @@ authored deck; preserve its approved plan and do not restart new-deck approval. 
 replacement. When an authored deck exists and the target is ambiguous, ask whether to edit it,
 replace it, or create a named sibling project.
 
-For a new or replacement scope, follow the version-matched creation skill through its adaptive
-interview, reviewable `brief.md` and `drever.plan.json`, plan-only Storyboard preview, explicit plan approval, first useful live
-preview, focused design and authoring phases, rendered review, and requested delivery. For an edit,
-follow the authoring, review, and delivery skills required by the request.
+For new or replacement work, follow the version-matched creation skill through its local creation
+room, or chat plus the plan-only Storyboard when unavailable. Continue through the adaptive
+interview, `brief.md`, `drever.plan.json`, plan approval, first live preview, design and authoring,
+rendered review, and requested delivery.
+For an edit, follow the authoring, review, and delivery skills required by the request.
 
 If an existing project has no local adapter, use its package manager and installed version to run
 the equivalent of `npm exec -- drever agent sync --target codex` or `--target claude`, then read the

@@ -22,20 +22,23 @@ available for CI or manual use.
 
 <h2 id="summary">Command summary</h2>
 
-| Command                                | Purpose                                               |
-| -------------------------------------- | ----------------------------------------------------- |
-| `drever create [directory] [options]`  | Create an AI-ready presentation project.              |
-| `drever dev [entry]`                   | Run the live Storyboard, Audience, and Speaker views. |
-| `drever context [entry] [--json]`      | Resolve the complete authoring contract.              |
-| `drever current [--json]`              | Read the latest connected live presentation position. |
-| `drever mcp [entry]`                   | Serve the read-only Drever MCP over stdio.            |
-| `drever agent sync [options]`          | Install or refresh project-local AI workflows.        |
-| `drever doctor [--json]`               | Inspect local runtime and delivery prerequisites.     |
-| `drever browser install [--with-deps]` | Install Drever's matching Playwright Chromium.        |
-| `drever check [entry] [options]`       | Check authored source and optional rendered states.   |
-| `drever build [entry] [--json]`        | Build the static presentation website.                |
-| `drever export pdf [entry] [options]`  | Export final slides or exact Step states to PDF.      |
-| `drever design import <url> [options]` | Derive a local Pass-0 Theme from rendered evidence.   |
+| Command                                                                | Purpose                                                |
+| ---------------------------------------------------------------------- | ------------------------------------------------------ |
+| `drever create [directory] [options]`                                  | Create an AI-ready presentation project.               |
+| `drever dev [entry]`                                                   | Run the local creation room and presentation surfaces. |
+| `drever studio status [--json]`                                        | Read the local creation-room state for an agent.       |
+| `drever studio wait --after <revision> [--timeout <seconds>] [--json]` | Wait for browser actions after an agent cursor.        |
+| `drever studio publish --file <path> [--json]`                         | Publish validated agent progress to the creation room. |
+| `drever context [entry] [--json]`                                      | Resolve the complete authoring contract.               |
+| `drever current [--json]`                                              | Read the latest connected live presentation position.  |
+| `drever mcp [entry]`                                                   | Serve the read-only Drever MCP over stdio.             |
+| `drever agent sync [options]`                                          | Install or refresh project-local AI workflows.         |
+| `drever doctor [--json]`                                               | Inspect local runtime and delivery prerequisites.      |
+| `drever browser install [--with-deps]`                                 | Install Drever's matching Playwright Chromium.         |
+| `drever check [entry] [options]`                                       | Check authored source and optional rendered states.    |
+| `drever build [entry] [--json]`                                        | Build the static presentation website.                 |
+| `drever export pdf [entry] [options]`                                  | Export final slides or exact Step states to PDF.       |
+| `drever design import <url> [options]`                                 | Derive a local Pass-0 Theme from rendered evidence.    |
 
 <h2 id="global-options">Help and version</h2>
 
@@ -89,8 +92,10 @@ See [Getting started](/docs/getting-started/).
 drever dev [entry]
 ```
 
-The command starts one HMR-enabled local server and prints Storyboard and Speaker
-URLs beside Vite's Audience URL. `/storyboard` reads only `drever.plan.json`, so
+The command starts one HMR-enabled local server and prints Creation room,
+Storyboard, and Speaker URLs beside Vite's Audience URL. The experimental
+`/studio` route coordinates the common brief, adaptive questions, plan approval,
+and later feedback with the active local agent. `/storyboard` reads only `drever.plan.json`, so
 it can open before the configured MDX entry exists or compiles; Audience and
 Speaker still require the deck. Configure `host`, `open`, `port`, and `strictPort` under `server` in
 `drever.config.ts`; `dev` deliberately exposes no raw Vite flags and there is no
@@ -98,6 +103,33 @@ separate `drever preview` command.
 
 See [Configuration](/docs/configuration/) and
 [Presenting](/docs/presenting/).
+
+<h3 id="studio">Coordinate the local creation room (experimental)</h3>
+
+```text
+drever studio status [--json]
+drever studio wait --after <revision> [--timeout <seconds>] [--json]
+drever studio publish --file <path> [--json]
+```
+
+These are agent-facing bridge commands; people normally use the browser room instead of running
+them. `status` creates or reads the local session and reports `latestActionRevision`, which is the
+cursor for the next `wait`. `wait` returns every later action in order, defaults to 45 seconds, and
+accepts at most 300 seconds so an agent can poll in bounded turns.
+
+The room coordinates an agent task that is already running; opening `/studio` alone does not start
+or reconnect a model. If that task stops polling, submitted actions remain safely queued until it
+resumes.
+
+`publish` accepts a project-local JSON file containing only the versioned agent phase, handled
+action revision, optional adaptive questions, progress, and message. It validates the complete
+payload before replacing the visible agent state. The browser can request only the supported brief,
+answer, approval, and deck- or slide-feedback actions; it cannot name or write arbitrary files.
+
+Session files under `.drever/studio` are ephemeral local coordination state. Do not commit them or
+put API keys and provider transcripts in them. The creation room is served only by `drever dev` and
+is absent from production, export, and audience bundles. See
+[AI workflows: local creation room](/docs/ai/#local-creation-room).
 
 <h2 id="inspect-and-connect">Inspect and connect AI tools</h2>
 

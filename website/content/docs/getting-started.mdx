@@ -2,13 +2,12 @@
 
 1. **Prepare** — creates a safe project and installs its version-matched Codex and Claude Code
    workflows.
-2. **Plan** — for a new or explicitly replacement-scoped deck, resolves the brief, writes a complete
-   outline plus a machine-checkable story contract, opens its plan-only Storyboard, and stops for
-   your approval.
-3. **Create** — turns the approved plan into readable MDX, speaker notes, a topic-specific visual system,
-   and intentional motion.
-4. **Preview** — reuses that local server as soon as a coherent end-to-end Draft 1 compiles, then
-   shares the audience URL for content feedback without pausing the work.
+2. **Ask** — opens an experimental local creation room for the topic, common choices, and a few
+   questions chosen from the subject and your earlier answers.
+3. **Storyboard** — writes the complete brief and machine-checkable story contract, renders the
+   page-by-page plan, and stops for your approval.
+4. **Create** — turns the approved plan into readable MDX, speaker notes, subject-led art direction,
+   and intentional motion, then opens one coherent Draft 1 in the real presentation runtime.
 5. **Refine and deliver** — checks every rendered state, improves the same live draft, and only then
    builds the production presentation or requested PDF.
 
@@ -16,27 +15,24 @@ The public [`prompt.md`](/prompt.md) only starts the work. Once the project exis
 instructions and skills take over so the agent always follows the contract for the installed Drever
 version.
 
-When the brief is incomplete, the agent asks a short adaptive interview. It starts with the topic
-when that is missing, then resolves essentials such as the audience outcome, duration, and visible
-slide density before asking subject-specific questions about evidence, scope, story, visuals, or
-delivery. The density choice distinguishes concise presenter-led slides with fuller notes, a
-balanced deck, and more detailed reader-led slides. Every decision offers concrete lettered options,
-explains what each option changes, and still accepts a combined or free-form answer. Reply
-compactly—for example, `1A, 2C`—or use the single escape at the end of any round: **Skip remaining
-questions — surprise me**. The next round responds to your earlier choices instead of repeating a
-fixed questionnaire, and the escape ends the interview immediately.
+When browser control and a persistent local server are available, the agent prefers the local
+creation room. Enter the topic, audience outcome, duration, visible slide density, and motion
+intensity there. The agent then returns one to three subject-specific questions about evidence,
+scope, story, visuals, or delivery. Each option explains what it changes, accepts free-form input,
+and keeps **Skip remaining questions — surprise me** available. A later round can respond to an
+earlier answer instead of repeating a fixed questionnaire.
 
 The agent then writes the resolved direction and numbered outline to `brief.md`, records every
 slide's job, evidence, focal artifact, composition, density, and motion ownership in
-`drever.plan.json`, runs the fast source check, and opens the exact `/storyboard` URL reported by
-the development server before stopping for approval. The Storyboard is a polished, read-only view
-of the plan and does not import the MDX deck, Theme, or presentation runtime. The escape delegates
-unanswered choices but does not bypass this review. Once you approve the plan, the same server and
-contract guide initial design and authoring until the live Draft 1 opens; deeper rendered review then
-improves that same URL while you can already inspect the story.
+`drever.plan.json`, runs the fast source check, and shows the visual Storyboard inside the same room
+before stopping for approval. The escape delegates unanswered choices but does not bypass this
+review. If the room is unavailable or you prefer chat, the agent asks the same decisions in the
+conversation and shares the exact read-only `/storyboard` URL instead.
 
-The work happens in ordinary files on your machine. Setup succeeds when the agent leaves a running
-local preview, a readable `slides.mdx`, and the requested web or PDF outputs ready for review.
+After approval, the agent publishes a complete, valid Draft 1 rather than streaming partial MDX
+into the canvas. The real Audience View appears inside the creation room, where feedback can target
+one slide or the whole deck. The work still happens in ordinary files on your machine: `slides.mdx`,
+`brief.md`, `drever.plan.json`, assets, and Git remain the source of truth.
 
 The first URL is intentionally a progress milestone, not a claim that the deck is finished. Review
 the story, facts, and emphasis immediately while the agent continues checking readability, layout,
@@ -52,6 +48,10 @@ The website button copies text; it does not upload the brief or start a hosted g
 the prompt into the coding agent you already trust. That agent creates a local React and MDX
 project, installs packages from npm, and may use the network for research only when the brief and
 your agent permissions allow it.
+
+The creation room is experimental, development-only, and local to the project. It coordinates the
+coding agent that is already running; it does not call a model itself, store API keys or provider
+transcripts, add an editor to production, or become part of the audience bundle.
 
 Drever does not add telemetry to the generated project. Your chosen AI provider, any remote media,
 and the platform where you later publish the static build each keep their own privacy contract.

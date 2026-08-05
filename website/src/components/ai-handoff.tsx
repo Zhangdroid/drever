@@ -60,7 +60,8 @@ export function AIHandoff({
       </label>
       <footer>
         <p>
-          Copies one short handoff. prompt.md and the generated project keep the workflow current.
+          Copies one short handoff. Your agent creates the project and opens the local creation
+          room; the deck stays in ordinary files.
         </p>
         <div>
           <a href="/prompt.md">Read prompt.md</a>
