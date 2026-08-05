@@ -28,11 +28,12 @@ import {
   createStudioActionPublicationVerifier,
   type StudioActionPublicationVerifier,
 } from "./studio-agent-publication.ts";
-import type {
-  StudioAgentApprovalDecision,
-  StudioAgentApprovalRequest,
-  StudioAgentProvider,
-  StudioAgentProviderSnapshot,
+import {
+  studioActionWorkflowInstructions,
+  type StudioAgentApprovalDecision,
+  type StudioAgentApprovalRequest,
+  type StudioAgentProvider,
+  type StudioAgentProviderSnapshot,
 } from "./studio-agent-provider.ts";
 
 const CLIENT_INFO: Implementation = Object.freeze({
@@ -301,8 +302,11 @@ const promptForAction = (record: DreverStudioActionRecord): string =>
     "Before acting, read the available project contract: AGENTS.md and .agents/skills/drever-create-deck/SKILL.md, or CLAUDE.md and .claude/skills/drever-create-deck/SKILL.md when the Codex files are absent.",
     "Keep the browser informed through concise public progress updates. Never expose private reasoning.",
     "Follow the project-local Drever workflow and publication contract; do not wait for terminal input.",
+    studioActionWorkflowInstructions(record),
     JSON.stringify({ revision: record.revision, action: record.action }),
-  ].join("\n\n");
+  ]
+    .filter((part) => part.length > 0)
+    .join("\n\n");
 
 const boundedText = (value: string, limit = 480): string => value.trim().slice(0, limit);
 

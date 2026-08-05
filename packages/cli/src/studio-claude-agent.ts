@@ -11,7 +11,11 @@ import {
   createStudioActionPublicationVerifier,
   type StudioActionPublicationVerifier,
 } from "./studio-agent-publication.ts";
-import type { StudioAgentProvider, StudioAgentProviderSnapshot } from "./studio-agent-provider.ts";
+import {
+  studioActionWorkflowInstructions,
+  type StudioAgentProvider,
+  type StudioAgentProviderSnapshot,
+} from "./studio-agent-provider.ts";
 
 export type ClaudeCodeProcess = Pick<
   ChildProcessWithoutNullStreams,
@@ -90,9 +94,12 @@ const actionPrompt = (record: DreverStudioActionRecord): string =>
     "Continue the local Drever MDX/React project workflow using the project-local skill. Do not switch to an unrelated presentation artifact workflow.",
     "A structured action arrived from Drever Studio. Treat it as authoritative, publish the required Studio artifacts promptly, and keep public progress summaries concise.",
     "Never expose private chain-of-thought, secrets, raw command arguments, or raw tool output.",
+    studioActionWorkflowInstructions(record),
     `Studio action revision ${String(record.revision)}:`,
     JSON.stringify(record.action),
-  ].join("\n\n");
+  ]
+    .filter((part) => part.length > 0)
+    .join("\n\n");
 
 const inputMessage = (record: DreverStudioActionRecord): string =>
   `${JSON.stringify({

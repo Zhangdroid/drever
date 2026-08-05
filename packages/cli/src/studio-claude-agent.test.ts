@@ -58,29 +58,36 @@ class FakeClaudeProcess extends EventEmitter {
 
 const actionRecord = (
   revision: number,
-  type: "submit-common-brief" | "submit-feedback" = "submit-common-brief",
+  type: "approve-plan" | "submit-common-brief" | "submit-feedback" = "submit-common-brief",
 ): DreverStudioActionRecord =>
   ({
     version: 1,
     revision,
     receivedAt: "2026-08-04T20:00:00.000Z",
     action:
-      type === "submit-common-brief"
+      type === "approve-plan"
         ? {
             version: 1,
-            requestId: `brief-${String(revision)}`,
+            requestId: `approve-${String(revision)}`,
             expectedRevision: revision - 1,
             type,
-            brief: { topic: "A safe streaming adapter" },
           }
-        : {
-            version: 1,
-            requestId: `feedback-${String(revision)}`,
-            expectedRevision: revision - 1,
-            type,
-            scope: { kind: "deck" },
-            message: "Make the opening clearer.",
-          },
+        : type === "submit-common-brief"
+          ? {
+              version: 1,
+              requestId: `brief-${String(revision)}`,
+              expectedRevision: revision - 1,
+              type,
+              brief: { topic: "A safe streaming adapter" },
+            }
+          : {
+              version: 1,
+              requestId: `feedback-${String(revision)}`,
+              expectedRevision: revision - 1,
+              type,
+              scope: { kind: "deck" },
+              message: "Make the opening clearer.",
+            },
   }) as DreverStudioActionRecord;
 
 const createTestClaudeStudioAgent = (options: Parameters<typeof createClaudeStudioAgent>[0]) =>
@@ -90,6 +97,23 @@ const createTestClaudeStudioAgent = (options: Parameters<typeof createClaudeStud
   });
 
 describe("native Claude Code Studio agent", () => {
+  it("delivers the preview-first approve-plan contract to Claude Code", async () => {
+    const child = new FakeClaudeProcess(false, true);
+    const provider = createTestClaudeStudioAgent({
+      root: "/workspace/deck",
+      spawnProcess: () => child as unknown as ClaudeCodeProcess,
+    });
+
+    await provider.handleAction(actionRecord(2, "approve-plan"));
+    const prompt = JSON.stringify(child.inputs[0]);
+    expect(prompt).toContain("bounded, semantic, content-complete Draft 1");
+    expect(prompt).toContain("embedded preview iframe");
+    expect(prompt).toContain("do not start or restart another development server");
+    expect(prompt).toContain("invoke Playwright");
+    expect(prompt).toContain("isolated rendered review only after");
+    await provider.stop();
+  });
+
   it("starts a safe persistent stream-json session and delivers structured actions", async () => {
     const child = new FakeClaudeProcess();
     let args: readonly string[] = [];

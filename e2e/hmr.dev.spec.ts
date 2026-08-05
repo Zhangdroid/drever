@@ -8,6 +8,40 @@ import { monitorPageHealth } from "./support/page-health.ts";
 const cli = fileURLToPath(new URL("../packages/cli/dist/bin.mjs", import.meta.url));
 const url = "http://127.0.0.1:4327";
 
+const themeSource = (canvas: string): string => `export default {
+  kind: "theme",
+  apiVersion: 1,
+  id: "hmr-theme",
+  canvas: { width: 1600, height: 900 },
+  tokens: {
+    color: {
+      canvas: "${canvas}",
+      ink: "#171816",
+      muted: "#62665f",
+      accent: "#65efb5",
+      accentStrong: "#1538a8",
+      accentSoft: "#dce5ff",
+      surface: "#ffffff",
+      border: "#d9dcd4",
+      codeCanvas: "#171a22",
+      codeInk: "#f5f6f8",
+    },
+    typography: {
+      display: "ui-sans-serif, system-ui, sans-serif",
+      body: "ui-sans-serif, system-ui, sans-serif",
+      mono: "ui-monospace, monospace",
+      titleSize: 76,
+      bodySize: 28,
+    },
+    space: { slideX: 112, slideY: 88, rhythm: 24 },
+    shape: { radius: 24, borderWidth: 2 },
+    motion: { duration: 380, easing: "ease" },
+  },
+  styles: [{ specifier: new URL("./theme.css", import.meta.url).href, layer: "theme" }],
+  manifest: { title: "HMR theme", summary: "A local config-reload fixture." },
+};
+`;
+
 const stop = async (child: ChildProcess): Promise<void> => {
   if (child.exitCode !== null) {
     return;
@@ -34,11 +68,11 @@ const stop = async (child: ChildProcess): Promise<void> => {
   ]);
 };
 
-test("drever dev preserves state for content updates and reloads for deck structure changes", async ({
+test("drever dev preserves state for content updates and reloads resolved project config", async ({
   page,
   request,
 }, testInfo) => {
-  test.setTimeout(60_000);
+  test.setTimeout(90_000);
   const root = testInfo.outputPath("project");
   const slides = `${root}/slides.mdx`;
   await mkdir(root, { recursive: true });
@@ -189,6 +223,146 @@ export const Counter = () => {
 
     await expect(page).toHaveTitle("Revised HMR fixture");
     await expect(page).toHaveURL(`${url}/2/4`);
+
+    await mkdir(`${root}/design`, { recursive: true });
+    await Promise.all([
+      writeFile(
+        `${root}/design/theme.css`,
+        `.drever-viewer {
+  --drever-canvas-background: #050914;
+  --drever-stage-background: #050914;
+}
+`,
+      ),
+      writeFile(`${root}/design/theme.ts`, themeSource("#050914")),
+      writeFile(
+        `${root}/StageBackground.tsx`,
+        `export default function StageBackground() {
+  return <div data-testid="hmr-stage-background" style={{ background: "#050914", inset: 0, position: "absolute" }} />;
+}
+`,
+      ),
+    ]);
+
+    await writeFile(
+      `${root}/drever.config.ts`,
+      `import theme from "./design/theme.ts";
+
+export default {
+  server: { host: "127.0.0.1", port: 4327, strictPort: true },
+  stage: { background: "./StageBackground.tsx" },
+  theme,
+};
+`,
+    );
+    await expect
+      .poll(
+        () =>
+          page
+            .locator(".drever-viewer")
+            .evaluate((element) =>
+              getComputedStyle(element).getPropertyValue("--drever-canvas-background").trim(),
+            ),
+        { timeout: 20_000 },
+      )
+      .toBe("#050914");
+    await waitForDreverReady(page);
+    await expect(page).toHaveURL(`${url}/2/4`);
+    await expect(page.getByTestId("hmr-stage-background")).toBeVisible();
+    await expect
+      .poll(() =>
+        page
+          .locator(".drever-canvas")
+          .evaluate((element) =>
+            getComputedStyle(element).getPropertyValue("--drever-theme-token-canvas").trim(),
+          ),
+      )
+      .toBe("#050914");
+    await expect
+      .poll(() => output.join("").match(/Drever configuration reloaded\./gu)?.length)
+      .toBe(1);
+
+    await writeFile(
+      `${root}/design/theme.css`,
+      `.drever-viewer {
+  --drever-canvas-background: #081a2f;
+  --drever-stage-background: #081a2f;
+}
+`,
+    );
+    await expect
+      .poll(() =>
+        page
+          .locator(".drever-viewer")
+          .evaluate((element) =>
+            getComputedStyle(element).getPropertyValue("--drever-canvas-background").trim(),
+          ),
+      )
+      .toBe("#081a2f");
+
+    await writeFile(`${root}/design/theme.ts`, themeSource("#081a2f"));
+    await expect
+      .poll(
+        () =>
+          page
+            .locator(".drever-canvas")
+            .evaluate((element) =>
+              getComputedStyle(element).getPropertyValue("--drever-theme-token-canvas").trim(),
+            ),
+        { timeout: 20_000 },
+      )
+      .toBe("#081a2f");
+    await expect
+      .poll(() => output.join("").match(/Drever configuration reloaded\./gu)?.length)
+      .toBe(2);
+    await waitForDreverReady(page);
+
+    await writeFile(
+      `${root}/StageForeground.tsx`,
+      `export default function StageForeground() {
+  return <div data-testid="hmr-stage-foreground" style={{ inset: 0, pointerEvents: "none", position: "absolute" }} />;
+}
+`,
+    );
+
+    await writeFile(
+      `${root}/drever.config.ts`,
+      `import theme from "./design/theme.ts";
+import { foreground } from "./design/recovered-config.ts";
+
+export default {
+  server: { host: "127.0.0.1", port: 4327, strictPort: true },
+  stage: { background: "./StageBackground.tsx", foreground },
+  theme,
+};
+`,
+    );
+    await expect
+      .poll(() => output.join(""), { timeout: 10_000 })
+      .toContain("Drever kept the current preview because configuration reload failed");
+    await expect.poll(() => request.get(url).then((response) => response.status())).toBe(200);
+    await expect(page.getByTestId("hmr-stage-background")).toBeVisible();
+    await expect
+      .poll(() =>
+        page
+          .locator(".drever-viewer")
+          .evaluate((element) =>
+            getComputedStyle(element).getPropertyValue("--drever-canvas-background").trim(),
+          ),
+      )
+      .toBe("#081a2f");
+
+    await writeFile(
+      `${root}/design/recovered-config.ts`,
+      'export const foreground = "./StageForeground.tsx";\n',
+    );
+    await expect
+      .poll(() => output.join("").match(/Drever configuration reloaded\./gu)?.length, {
+        timeout: 20_000,
+      })
+      .toBe(3);
+    await waitForDreverReady(page);
+    await expect(page.getByTestId("hmr-stage-foreground")).toBeVisible();
     health.expectHealthy();
   } finally {
     await stop(server);

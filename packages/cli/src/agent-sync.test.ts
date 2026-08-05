@@ -229,6 +229,9 @@ describe("agent kit sync", () => {
     expect(studioContract).toMatch(
       /For `submit-common-brief`[^.]*actual question\s+round next[^.]*without a separate progress publication/isu,
     );
+    expect(studioContract).toMatch(/managed handoff is not task completion/iu);
+    expect(studioContract).toMatch(/keep the development command session and parent task alive/iu);
+    expect(studioContract).toMatch(/one-shot or noninteractive host[^.]*do not launch Studio/iu);
   });
 
   it("installs the preview-first progressive delivery contract", async () => {
@@ -238,18 +241,29 @@ describe("agent kit sync", () => {
     const agents = await read(root, "AGENTS.md");
     const createDeck = await read(root, ".agents/skills/drever-create-deck/SKILL.md");
     const createDesign = await read(root, ".agents/skills/drever-create-design/SKILL.md");
+    const authorDeck = await read(root, ".agents/skills/drever-author-deck/SKILL.md");
     const openai = await read(root, ".agents/skills/drever-create-deck/agents/openai.yaml");
 
-    expect(createDeck).toContain("<!-- drever-preview-contract:v5 -->");
-    expect(createDeck).toMatch(/Reuse the running development server/iu);
+    expect(createDeck).toContain("<!-- drever-preview-contract:v6 -->");
+    expect(createDeck).toMatch(/Reuse the development server already serving/iu);
     expect(createDeck).toMatch(/first useful preview/iu);
-    expect(createDeck).toMatch(/Before sharing the URL[^.]*entry compiles/iu);
-    expect(createDeck).toMatch(/Do not wait[^.]*production build[^.]*PDF export/isu);
+    expect(createDeck).toMatch(/bounded semantic pass[^.]*content-complete Draft 1/iu);
+    expect(createDeck).toMatch(/embedded audience\s+iframe[^.]*HMR/iu);
+    expect(createDeck).toMatch(/only pre-preview gate[^.]*drever check --json/iu);
+    expect(createDeck).toMatch(/do not start or restart a second\s+server/iu);
+    expect(createDeck).toMatch(/Before that publication[^.]*do not invoke Playwright/iu);
     expect(createDeck).toMatch(/non-blocking update/iu);
     expect(createDeck).toMatch(/continue in the same turn/iu);
+    expect(createDeck).toMatch(/isolated\s+Playwright rendered review[^.]*final source/iu);
     expect(createDeck).toMatch(/later mutation invalidates[^.]*evidence/iu);
     expect(createDeck).toMatch(/one\s+production build[^.]*requested PDF export/iu);
     expect(createDeck).toMatch(/design worker may prepare[^.]*primary worker owns/iu);
+    expect(authorDeck).toMatch(/Expose an approved Draft 1 without blocking on polish/iu);
+    expect(authorDeck).toMatch(
+      /Keep the active Studio server, URL, and embedded audience iframe/iu,
+    );
+    expect(authorDeck).toMatch(/Run only the source check[^.]*drever check --json/iu);
+    expect(authorDeck).toMatch(/Only after the final\s+authored source is stable/iu);
     expect(agents).toMatch(/expose the coherent[^.]*Draft 1 before design refinement/iu);
     expect(agents).toMatch(
       /do not run production builds or duplicate the full rendered preflight/iu,
@@ -312,7 +326,7 @@ describe("agent kit sync", () => {
     expect(agents).toMatch(/edit to an authored deck[^.]*does not restart that gate/iu);
 
     expect(createDeck).toMatch(
-      /single-agent host[^.]*Draft 1 before starting design research or refinement/iu,
+      /approve-plan` handoff[^.]*bounded semantic pass[^.]*Draft 1 before starting design research or\s+refinement/iu,
     );
     expect(createDeck).toMatch(/load the\s+project-local `drever-create-design`[^.]*refinement/iu);
 

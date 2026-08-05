@@ -1,14 +1,17 @@
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { DreverStudioAgentState } from "@drever/schema";
+import type { DreverStudioActionRecord, DreverStudioAgentState } from "@drever/schema";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 import {
   DREVER_STUDIO_AGENT_STATE_FILE,
   DREVER_STUDIO_DIRECTORY,
   createStudioSession,
 } from "./studio-plugin.ts";
-import type { StudioAgentProviderSnapshot } from "./studio-agent-provider.ts";
+import {
+  studioActionWorkflowInstructions,
+  type StudioAgentProviderSnapshot,
+} from "./studio-agent-provider.ts";
 
 const directories: string[] = [];
 
@@ -28,6 +31,51 @@ const liveSnapshot = (state: DreverStudioAgentState): StudioAgentProviderSnapsho
   connected: true,
   sessionId: "provider-session",
   state,
+});
+
+describe("Studio action workflow instructions", () => {
+  it("makes approve-plan a bounded preview-first handoff", () => {
+    const record = {
+      version: 1,
+      revision: 3,
+      receivedAt: "2026-08-05T08:00:00.000Z",
+      action: {
+        version: 1,
+        type: "approve-plan",
+        requestId: "approve-3",
+        expectedRevision: 2,
+      },
+    } as const satisfies DreverStudioActionRecord;
+
+    const instructions = studioActionWorkflowInstructions(record);
+    expect(instructions).toMatch(
+      /mark brief\.md and drever\.plan\.json approved[^.]*publish the drafting phase/iu,
+    );
+    expect(instructions).toMatch(/bounded, semantic, content-complete Draft 1/iu);
+    expect(instructions).toMatch(/project-local `drever check --json`[^.]*package manager/iu);
+    expect(instructions).toMatch(/active Studio development server[^.]*embedded preview iframe/iu);
+    expect(instructions).toMatch(/HMR reveal the draft/iu);
+    expect(instructions).toMatch(/do not start or restart another development server/iu);
+    expect(instructions).toMatch(/Before preview[^.]*do not[^.]*invoke Playwright/iu);
+    expect(instructions).toMatch(/isolated rendered review only after the final authored source/iu);
+  });
+
+  it("does not burden latency-sensitive question delivery with Draft 1 instructions", () => {
+    const record = {
+      version: 1,
+      revision: 1,
+      receivedAt: "2026-08-05T08:00:00.000Z",
+      action: {
+        version: 1,
+        type: "submit-common-brief",
+        requestId: "brief-1",
+        expectedRevision: 0,
+        brief: { topic: "A clear story" },
+      },
+    } as const satisfies DreverStudioActionRecord;
+
+    expect(studioActionWorkflowInstructions(record)).toBe("");
+  });
 });
 
 describe("Studio live agent seam", () => {

@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, readdir, rm, symlink, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, realpath, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vite-plus/test";
@@ -72,6 +72,7 @@ export default {
     const loaded = await loadDreverConfig({ command: "build", root });
 
     expect(loaded.path).toBe(join(root, "drever.config.ts"));
+    expect(loaded.dependencies).toContain(join(await realpath(root), "drever.config.ts"));
     expect(loaded.config).toEqual({
       build: { outDir: "release", sourcemap: "hidden" },
       canvas: { height: 900, width: 1600 },
@@ -97,6 +98,27 @@ export default {
       server: { port: 4317, strictPort: true },
       stage: { background: "./Background.tsx", foreground: "./Chrome.tsx" },
     });
+  });
+
+  it("reports local config dependencies so development can refresh the resolved plan", async () => {
+    const root = await project();
+    await Promise.all([
+      writeFile(join(root, "settings.ts"), "export const port = 4317;\n"),
+      writeFile(
+        join(root, "drever.config.ts"),
+        'import { port } from "./settings.ts";\nexport default { server: { port } };\n',
+      ),
+    ]);
+
+    const loaded = await loadDreverConfig({ command: "serve", root });
+    const canonicalRoot = await realpath(root);
+
+    expect(loaded.dependencies).toEqual(
+      expect.arrayContaining([
+        join(canonicalRoot, "drever.config.ts"),
+        join(canonicalRoot, "settings.ts"),
+      ]),
+    );
   });
 
   it("loads check config without a temporary bundle and uses production semantics", async () => {

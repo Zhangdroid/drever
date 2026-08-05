@@ -590,6 +590,7 @@ const stateWithoutRevision = async (
   liveSnapshot?: StudioAgentProviderSnapshot,
   liveApprovals?: readonly StudioAgentApprovalRequest[],
   publicApprovalId: (id: string | number) => string = String,
+  draftWasAvailable = false,
 ): Promise<
   Readonly<{
     agentLeaseExpiresAt?: number;
@@ -659,6 +660,11 @@ const stateWithoutRevision = async (
         : liveSnapshot?.connected === true
           ? (livePhase ?? publishedPhase)
           : (publishedPhase ?? livePhase);
+  const draftAvailable =
+    draftWasAvailable ||
+    publishedPhase === "preview" ||
+    publishedPhase === "refining" ||
+    publishedPhase === "ready";
   const phase: DreverStudioPhase =
     agentPhase === "error"
       ? "error"
@@ -684,6 +690,7 @@ const stateWithoutRevision = async (
     state: Object.freeze({
       version: DREVER_STUDIO_PROTOCOL_VERSION,
       phase,
+      ...(draftAvailable ? { draftAvailable: true } : {}),
       agentConnected,
       latestActionRevision,
       pendingActionCount,
@@ -714,6 +721,7 @@ const comparableActionState = (state: DreverStudioState): string => {
     activity: _activity,
     agentConnected: _agentConnected,
     agentApprovals: _agentApprovals,
+    draftAvailable: _draftAvailable,
     message: _message,
     phase: _phase,
     progress: _progress,
@@ -897,6 +905,7 @@ export const createStudioSession = (
       options.agentProvider?.snapshot(),
       options.agentProvider?.approvals?.(),
       publicApprovalId,
+      snapshot?.state.draftAvailable === true,
     );
     const state = Object.freeze({
       ...resolved.state,
@@ -1079,6 +1088,7 @@ export const createStudioSession = (
         options.agentProvider?.snapshot(),
         options.agentProvider?.approvals?.(),
         publicApprovalId,
+        before.state.draftAvailable === true,
       );
       const state = Object.freeze({
         ...resolvedAfter.state,

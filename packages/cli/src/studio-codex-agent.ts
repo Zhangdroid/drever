@@ -19,11 +19,12 @@ import {
   createStudioActionPublicationVerifier,
   type StudioActionPublicationVerifier,
 } from "./studio-agent-publication.ts";
-import type {
-  StudioAgentApprovalDecision,
-  StudioAgentApprovalRequest,
-  StudioAgentProvider,
-  StudioAgentProviderSnapshot,
+import {
+  studioActionWorkflowInstructions,
+  type StudioAgentApprovalDecision,
+  type StudioAgentApprovalRequest,
+  type StudioAgentProvider,
+  type StudioAgentProviderSnapshot,
 } from "./studio-agent-provider.ts";
 
 type JsonRecord = Record<string, unknown>;
@@ -273,9 +274,12 @@ const actionPrompt = (record: DreverStudioActionRecord): string =>
     "$drever-create-deck",
     "A structured action arrived from the local Drever Studio. Continue the deck workflow in this workspace and treat this action as authoritative.",
     "Use concise user-facing progress summaries. Never expose private chain-of-thought.",
+    studioActionWorkflowInstructions(record),
     `Studio action revision ${String(record.revision)}:`,
     JSON.stringify(record.action),
-  ].join("\n\n");
+  ]
+    .filter((part) => part.length > 0)
+    .join("\n\n");
 
 const threadIdFromResponse = (value: unknown): string | undefined => {
   if (!isRecord(value) || !isRecord(value.thread) || typeof value.thread.id !== "string") return;

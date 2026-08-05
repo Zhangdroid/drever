@@ -337,6 +337,44 @@ describe("Studio", () => {
     expect(markup).toContain('href="http://127.0.0.1:4317/"');
     expect(markup).toContain('aria-pressed="true" type="button">Live draft');
   });
+
+  it("keeps a published live draft available while the agent starts another pass", () => {
+    const markup = renderToStaticMarkup(
+      <Studio
+        audienceUrl="http://127.0.0.1:4317/"
+        onAction={vi.fn()}
+        previewUrl="http://127.0.0.1:51999/"
+        state={state({
+          draftAvailable: true,
+          phase: "drafting",
+          commonBrief: { topic: plan.brief.topic },
+          plan: { ...plan, status: "approved" },
+        })}
+      />,
+    );
+
+    expect(markup).toContain('title="Live Drever draft"');
+    expect(markup).toContain('aria-pressed="true" type="button">Live draft');
+    expect(markup).not.toContain('disabled="" type="button">Live draft');
+  });
+
+  it("does not infer a draft from refining telemetry without a durable publication", () => {
+    const markup = renderToStaticMarkup(
+      <Studio
+        audienceUrl="http://127.0.0.1:4317/"
+        onAction={vi.fn()}
+        previewUrl="http://127.0.0.1:51999/"
+        state={state({
+          phase: "refining",
+          commonBrief: { topic: plan.brief.topic },
+          plan: { ...plan, status: "approved" },
+        })}
+      />,
+    );
+
+    expect(markup).not.toContain('title="Live Drever draft"');
+    expect(markup).toContain('disabled="" type="button">Live draft');
+  });
 });
 
 describe("Studio flow helpers", () => {

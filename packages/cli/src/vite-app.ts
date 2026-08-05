@@ -1,4 +1,5 @@
 import { existsSync } from "node:fs";
+import { AsyncLocalStorage } from "node:async_hooks";
 import { randomBytes } from "node:crypto";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -6,6 +7,7 @@ import type { DeckManifest } from "@drever/schema";
 import {
   build,
   createServer,
+  normalizePath,
   searchForWorkspaceRoot,
   type Alias,
   type InlineConfig,
@@ -221,6 +223,7 @@ const inlineConfig = (
   project: ResolvedDreverProject,
   appRoot: string,
   plugins: readonly Plugin[] = [],
+  serverConfig: DreverConfig["server"] = project.config.server,
 ): InlineConfig => {
   const framework = resolveFrameworkViteConfig();
   const aliases = [...framework.aliases];
@@ -242,7 +245,7 @@ const inlineConfig = (
         deny: [...resolveServerFsDeny()],
       },
       warmup: { clientFiles: [...framework.warmup] },
-      ...project.config.server,
+      ...serverConfig,
     },
   };
 };
@@ -428,10 +431,82 @@ export const buildDreverInspectionApp = async (
 
 export type ServeDreverProjectOptions = Readonly<{
   agent?: StudioAgentName;
+  configDependencies?: readonly string[];
   environment?: NodeJS.ProcessEnv;
   open?: "studio";
   openUrl?: (url: string, environment?: NodeJS.ProcessEnv) => Promise<boolean>;
+  reloadProject?: () => Promise<
+    Readonly<{
+      dependencies: readonly string[];
+      project: ResolvedDreverProject;
+    }>
+  >;
 }>;
+
+const configDependencyPaths = (
+  root: string,
+  dependencies: readonly string[] = [],
+): readonly string[] =>
+  Object.freeze(
+    [...new Set([join(root, "drever.config.ts"), ...dependencies].map(normalizePath))].sort(),
+  );
+
+const createConfigReloadPlugin = (
+  root: string,
+  dependencies: readonly string[],
+  isRecovering: () => boolean,
+  requestReload: () => void,
+): Plugin => {
+  const normalizedRoot = normalizePath(root).replace(/\/+$/u, "");
+  const recoveryPrefix = `${normalizedRoot}/`;
+  const ignoredRecoverySegments = new Set([".drever", ".git", "dist", "node_modules"]);
+  const isRecoveryCandidate = (path: string): boolean => {
+    if (!path.startsWith(recoveryPrefix)) return false;
+    return !path
+      .slice(recoveryPrefix.length)
+      .split("/")
+      .some((segment) => ignoredRecoverySegments.has(segment));
+  };
+  const watched = new Set(dependencies);
+  const missing = new Set(dependencies.filter((path) => !existsSync(path)));
+  const shouldReload = (event: "add" | "change" | "unlink", path: string): boolean => {
+    const normalized = normalizePath(path);
+    if (event === "unlink" && watched.has(normalized)) missing.add(normalized);
+    const expectedAdd = event === "add" && missing.delete(normalized);
+    return (
+      (watched.has(normalized) && (event !== "add" || expectedAdd)) ||
+      (isRecovering() && isRecoveryCandidate(normalized))
+    );
+  };
+
+  return {
+    apply: "serve",
+    name: "drever:config-reload",
+    hotUpdate({ file, type }) {
+      const event = type === "create" ? "add" : type === "delete" ? "unlink" : "change";
+      if (!shouldReload(event, file)) return;
+      requestReload();
+      return [];
+    },
+    configureServer(server) {
+      server.watcher.add([root, ...dependencies]);
+      const update = (event: "add" | "change" | "unlink", path: string): void => {
+        if (shouldReload(event, path)) requestReload();
+      };
+      const add = (path: string): void => update("add", path);
+      const change = (path: string): void => update("change", path);
+      const unlink = (path: string): void => update("unlink", path);
+      server.watcher.on("add", add);
+      server.watcher.on("change", change);
+      server.watcher.on("unlink", unlink);
+      server.httpServer?.once("close", () => {
+        server.watcher.off("add", add);
+        server.watcher.off("change", change);
+        server.watcher.off("unlink", unlink);
+      });
+    },
+  };
+};
 
 /** @internal Opens only the first exact local Creation room URL after Vite resolves its listener. */
 export const openStudioWhenRequested = async (
@@ -450,41 +525,153 @@ export const serveDreverProject = async (
   project: ResolvedDreverProject,
   options: ServeDreverProjectOptions = {},
 ): Promise<ViteDevServer> => {
-  const app = await createPrivateDevApp(
+  let app = await createPrivateDevApp(
     project.entry,
     resolvePrivateAppOptions(project.config, project.root),
   );
+  const stableServerConfig = project.config.server;
+  const configDependencies = configDependencyPaths(project.root, options.configDependencies);
   let server: ViteDevServer | undefined;
   let previewProxy: StudioPreviewProxy | undefined;
   let agentProvider: StudioAgentProvider | undefined;
+  let closing: Promise<void> | undefined;
+  let reloadTimer: ReturnType<typeof setTimeout> | undefined;
+  let reloadUpdates = Promise.resolve();
+  let restartUpdate = Promise.resolve();
+  let reloadProject = async (): Promise<void> => undefined;
+  let configReloadFailed = false;
+  let shuttingDown = false;
+  const restartScope = new AsyncLocalStorage<boolean>();
+  let closeCurrentServer: (() => Promise<void>) | undefined;
   try {
     const studioToken = randomBytes(32).toString("base64url");
     agentProvider =
       options.agent === undefined
         ? undefined
         : await createStudioAgentProvider(options.agent, project.root);
-    server = await createServer(
-      inlineConfig(project, app.root, [
-        createStoryboardPlanPlugin({ root: project.root }),
-        createStudioPlugin({
-          root: project.root,
-          token: studioToken,
-          ...(agentProvider === undefined ? {} : { agentProvider }),
-        }),
-        createCurrentPositionPlugin({ root: project.root, sourcePath: project.entry }),
-      ]),
+
+    const requestReload = (): void => {
+      if (options.reloadProject === undefined || shuttingDown) return;
+      if (reloadTimer !== undefined) clearTimeout(reloadTimer);
+      reloadTimer = setTimeout(() => {
+        reloadTimer = undefined;
+        reloadUpdates = reloadUpdates.then(reloadProject).catch((cause: unknown) => {
+          configReloadFailed = true;
+          server?.config.logger.error(
+            `Drever kept the current preview because configuration reload failed: ${cause instanceof Error ? cause.message : String(cause)}`,
+            { timestamp: true },
+          );
+        });
+      }, 80);
+      reloadTimer.unref?.();
+    };
+
+    const developmentPlugins = (
+      activeProject: ResolvedDreverProject,
+      dependencies: readonly string[],
+    ): readonly Plugin[] => [
+      ...(options.reloadProject === undefined
+        ? []
+        : [
+            createConfigReloadPlugin(
+              activeProject.root,
+              dependencies,
+              () => configReloadFailed,
+              requestReload,
+            ),
+          ]),
+      createStoryboardPlanPlugin({ root: activeProject.root }),
+      createStudioPlugin({
+        root: activeProject.root,
+        token: studioToken,
+        ...(agentProvider === undefined ? {} : { agentProvider }),
+      }),
+      createCurrentPositionPlugin({ root: activeProject.root, sourcePath: activeProject.entry }),
+    ];
+
+    const initialInlineConfig = inlineConfig(
+      project,
+      app.root,
+      developmentPlugins(project, configDependencies),
+      stableServerConfig,
     );
-    attachPrivateAppLifetime(server, async () => {
-      try {
-        await agentProvider?.stop();
-      } finally {
-        try {
-          await previewProxy?.close();
-        } finally {
-          await app.dispose();
-        }
+    server = await createServer(initialInlineConfig);
+
+    const installLifetime = (): void => {
+      if (server === undefined) return;
+      const closeServer = server.close.bind(server);
+      closeCurrentServer = closeServer;
+      server.close = () => {
+        if (restartScope.getStore() === true) return closeServer();
+        shuttingDown = true;
+        if (reloadTimer !== undefined) clearTimeout(reloadTimer);
+        closing ??= (async () => {
+          try {
+            await restartUpdate.catch(() => undefined);
+            await closeCurrentServer?.();
+          } finally {
+            try {
+              await agentProvider?.stop();
+            } finally {
+              try {
+                await previewProxy?.close();
+              } finally {
+                await app.dispose();
+              }
+            }
+          }
+        })();
+        return closing;
+      };
+    };
+
+    reloadProject = async (): Promise<void> => {
+      if (server === undefined || options.reloadProject === undefined || shuttingDown) return;
+      const reloaded = await options.reloadProject();
+      if (shuttingDown) return;
+      const nextDependencies = configDependencyPaths(reloaded.project.root, reloaded.dependencies);
+      const nextApp = await createPrivateDevApp(
+        reloaded.project.entry,
+        resolvePrivateAppOptions(reloaded.project.config, reloaded.project.root),
+      );
+      if (shuttingDown) {
+        await nextApp.dispose();
+        return;
       }
-    });
+      const nextInlineConfig = inlineConfig(
+        reloaded.project,
+        nextApp.root,
+        developmentPlugins(reloaded.project, nextDependencies),
+        stableServerConfig,
+      );
+      const previousInlineConfig = server.config.inlineConfig;
+      let adopted = false;
+      try {
+        restartUpdate = (async () => {
+          if (shuttingDown) return;
+          (server.config as { inlineConfig: InlineConfig }).inlineConfig = nextInlineConfig;
+          await restartScope.run(true, () => server?.restart());
+          if (server.config.root !== nextApp.root) {
+            (server.config as { inlineConfig: InlineConfig }).inlineConfig = previousInlineConfig;
+            throw new TypeError("Vite did not accept the refreshed Drever configuration.");
+          }
+          installLifetime();
+          if (shuttingDown) return;
+
+          const previousApp = app;
+          app = nextApp;
+          adopted = true;
+          configReloadFailed = false;
+          await previousApp.dispose();
+          server.config.logger.info("Drever configuration reloaded.", { timestamp: true });
+        })();
+        await restartUpdate;
+      } finally {
+        if (!adopted) await nextApp.dispose();
+      }
+    };
+
+    installLifetime();
     await server.listen();
     const audienceUrl = server.resolvedUrls?.local[0];
     if (audienceUrl === undefined) {

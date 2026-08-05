@@ -43,6 +43,9 @@ describe("public bootstrap prompt", () => {
     expect(prompt).toMatch(/generated project contract is authoritative/iu);
     expect(prompt).toMatch(/do not search the\s+Drever repository/iu);
     expect(prompt).toContain("`node_modules`");
+    expect(prompt).toMatch(/handoff transfers action handling, not process\s+ownership/iu);
+    expect(prompt).toMatch(/keep the development command and parent task alive through delivery/iu);
+    expect(prompt).toMatch(/one-shot host[^.]*chat plus Storyboard/iu);
     expect(prompt).not.toMatch(/drever-(?:briefing|plan-review|preview)-contract/iu);
     expect(prompt).not.toMatch(/topic-fingerprint|usable inner silhouette|MotionGroup/iu);
   });
@@ -91,9 +94,11 @@ describe("public bootstrap prompt", () => {
   });
 
   it("separates first preview, deterministic checks, and human visual judgment", () => {
-    expect(createDeckSkill).toContain("<!-- drever-preview-contract:v5 -->");
-    expect(createDeckSkill).toMatch(/coherent Draft 1 with every planned\s+slide/iu);
-    expect(createDeckSkill).toMatch(/first and last slides open/iu);
+    expect(createDeckSkill).toContain("<!-- drever-preview-contract:v6 -->");
+    expect(createDeckSkill).toMatch(/every approved slide[^.]*real readable copy/iu);
+    expect(createDeckSkill).toMatch(/only pre-preview gate[^.]*drever check --json/iu);
+    expect(createDeckSkill).toMatch(/embedded audience\s+iframe[^.]*HMR/iu);
+    expect(createDeckSkill).toMatch(/Before that publication[^.]*do not invoke Playwright/iu);
     expect(createDeckSkill).toMatch(/continue in the same turn/iu);
     expect(createDeckSkill).toMatch(/later mutation invalidates[^.]*evidence/iu);
     expect(createDeckSkill).toMatch(/never invent or guess a preview address/iu);
@@ -108,7 +113,9 @@ describe("public bootstrap prompt", () => {
       /\*\*Edit:\*\*[^]*use the project-local `drever-author-deck`/iu,
     );
     expect(createDeckSkill).toMatch(/do not require a\s+new-plan approval gate/iu);
-    expect(createDeckSkill).toMatch(/Draft 1 before starting design research or refinement/iu);
+    expect(createDeckSkill).toMatch(
+      /bounded semantic pass[^.]*Draft 1 before starting design research or\s+refinement/iu,
+    );
 
     for (const skill of [createDeckSkill, createDesignSkill, authorDeckSkill, deliverDeckSkill]) {
       expect(skill).not.toContain("drever check --rendered --json");

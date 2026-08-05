@@ -1036,7 +1036,8 @@ const PlanScreen = ({
 }: StudioProps): ReactElement => {
   const plan = state.plan?.status === "awaiting-input" ? undefined : state.plan;
   const [selectedSlideId, setSelectedSlideId] = useState<string | undefined>();
-  const draftAvailable = ["preview", "ready", "refining"].includes(state.phase);
+  const draftAvailable =
+    state.draftAvailable === true || state.phase === "preview" || state.phase === "ready";
   const [mode, setMode] = useState<StudioMode>(draftAvailable ? "draft" : "storyboard");
   const previousDraftAvailable = useRef(draftAvailable);
   const [approving, setApproving] = useState(false);

@@ -97,6 +97,7 @@ export type LoadDreverConfigOptions = Readonly<{
 
 export type LoadedDreverConfig = Readonly<{
   config: DreverConfig;
+  dependencies?: readonly string[];
   path?: string;
 }>;
 
@@ -642,7 +643,11 @@ export const loadDreverConfig = async ({
     const config = validateConfig(loaded.config);
     validateDeliveryMetadata(config, command);
     await validateLocalDeckAssets(root, config.deck);
-    return Object.freeze({ config, path: loaded.path });
+    return Object.freeze({
+      config,
+      dependencies: Object.freeze([...new Set(loaded.dependencies)]),
+      path: loaded.path,
+    });
   } catch (cause) {
     if (cause instanceof DreverCliError) {
       throw cause;

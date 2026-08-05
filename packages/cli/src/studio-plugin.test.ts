@@ -325,12 +325,76 @@ describe("Studio session", () => {
       });
 
       await expect(session.read()).resolves.toMatchObject({
+        draftAvailable: true,
         pendingActionCount: 0,
         phase,
         plan: { status: "approved" },
       });
     },
   );
+
+  it("keeps a published draft available throughout later agent work", async () => {
+    const root = await createRoot();
+    await writeBriefActions(root, 1);
+    await writeFile(
+      join(root, "drever.plan.json"),
+      JSON.stringify({ ...plan, status: "approved" }),
+      "utf8",
+    );
+    await writeStudioAgentState(root, {
+      version: 1,
+      phase: "preview",
+      handledActionRevision: 1,
+    });
+    let phase = "waiting-for-agent" as "drafting" | "refining" | "waiting-for-agent";
+    const session = createStudioSession(root, {
+      agentProvider: {
+        snapshot: () => ({
+          connected: true,
+          state: { version: 1, phase, handledActionRevision: 1 },
+        }),
+      },
+    });
+
+    await expect(session.read()).resolves.toMatchObject({
+      draftAvailable: true,
+      phase: "preview",
+    });
+
+    for (const nextPhase of ["waiting-for-agent", "drafting", "refining"] as const) {
+      await writeStudioAgentState(root, {
+        version: 1,
+        phase: "refining",
+        handledActionRevision: 1,
+      });
+      phase = nextPhase;
+      await expect(session.refresh()).resolves.toMatchObject({
+        state: { draftAvailable: true, phase: nextPhase },
+      });
+    }
+  });
+
+  it("does not infer a live draft from managed-agent telemetry alone", async () => {
+    const root = await createRoot();
+    await writeBriefActions(root, 1);
+    await writeFile(
+      join(root, "drever.plan.json"),
+      JSON.stringify({ ...plan, status: "approved" }),
+      "utf8",
+    );
+    const session = createStudioSession(root, {
+      agentProvider: {
+        snapshot: () => ({
+          connected: true,
+          state: { version: 1, phase: "refining", handledActionRevision: 1 },
+        }),
+      },
+    });
+
+    const state = await session.read();
+    expect(state).not.toHaveProperty("draftAvailable");
+    expect(state.phase).toBe("refining");
+  });
 
   it.each([
     { label: "durable", durableRevision: 4, liveRevision: 0 },

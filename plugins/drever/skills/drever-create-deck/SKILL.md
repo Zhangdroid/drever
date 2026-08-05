@@ -60,8 +60,13 @@ is available. The creation room is the preferred surface for the brief, adaptive
 approval, and later feedback. Do not mirror its questions in chat. If the CLI does not report that
 URL or the user prefers chat, continue with the conversational workflow below.
 
-When a managed adapter reports a live connection, hand off to that session and do not also consume
-the same actions from this parent task. The managed session receives actions and streams concise
+When a managed adapter reports a live connection, hand off action consumption to that session and
+do not also consume the same actions from this parent task. A managed handoff is not task completion:
+keep the development command session and parent task alive while the Studio workflow is active so
+the server, agent transport, and HMR preview remain available. Do not exit, finalize, or stop the
+process merely because Studio now owns the next action. If a one-shot or noninteractive host cannot
+keep a live command session, do not launch Studio; use the chat and Storyboard workflow below or a
+supervised persistent process instead. The managed session receives actions and streams concise
 public progress directly; raw chain-of-thought, commands, tool payloads, paths, and provider output
 must never enter Studio.
 
@@ -317,25 +322,31 @@ approval, mark both files approved and continue.
 
 ## Create the first useful preview
 
-<!-- drever-preview-contract:v5 -->
+<!-- drever-preview-contract:v6 -->
 
 After approval, load the project-local `drever-author-deck` skill and let `drever.plan.json` remain
-the story and design contract while authoring. On a single-agent host, author the deliberately
-simple Draft 1 before starting design research or refinement. Do not finish a custom visual system
-before exposing the first useful preview.
+the story and design contract while authoring. Treat the `approve-plan` handoff as latency-sensitive:
+in one bounded semantic pass, create a content-complete Draft 1 before starting design research or
+refinement. Every approved slide must exist in order with its real readable copy, required evidence,
+simple focal artifact, and speaker notes. Use semantic MDX, a safe readable canvas, and one deliberately
+simple subject-led visual system; do not substitute placeholders, finish bespoke choreography, hunt
+for optional assets, or build a custom design system before exposing the first useful preview.
 
-Reuse the running development server when one is already serving the creation room or Storyboard;
-otherwise start one server and keep its URL stable. Build a coherent Draft 1 with every planned
-slide, real readable copy, evidence, speaker notes, and a deliberately simple subject-led visual
-system. Do not wait for exhaustive inspection, production build, PDF export, or optional third-party
-polish before exposing it. Before sharing the URL, verify only that the entry compiles, the audience
-route responds, and the first and last slides open without a fatal runtime error.
-Share only a URL actually reported by the running server; never invent or guess a preview address.
+Reuse the development server already serving the creation room or Storyboard. Its embedded audience
+iframe is the preview and HMR will update it as source changes; do not start or restart a second
+server, open another browser or audience window, or replace that URL. The only pre-preview gate is
+the source check `npm exec -- drever check --json`; repair blocking source diagnostics, then publish
+`preview` immediately. Before that publication, do not invoke Playwright or other browser automation,
+run rendered review, inspect every route, build, export, or wait for optional third-party polish. When
+Studio is unavailable, start one development server, keep its reported URL stable, run the same
+source-only gate, and share only that real URL—never invent or guess a preview address.
 
 Share a non-blocking update when Draft 1 is ready, then continue in the same turn and load the
-project-local `drever-create-design` skill for refinement. If the host can run parallel workers, a
-design worker may prepare tokens, assets, and signature beats before that milestone while the
-primary worker owns the narrative and MDX; never let two workers edit the same visual source.
+project-local `drever-create-design` skill for refinement against the same live preview. If the host
+can run parallel workers, a design worker may prepare tokens, assets, and signature beats before that
+milestone while the primary worker owns the narrative and MDX; never let two workers edit the same
+visual source. After design and authoring settle, let `drever-review-deck` launch the isolated
+Playwright rendered review for the final source; never duplicate that browser gate during Draft 1.
 
 Every context report, check, browser inspection, build, and export describes only the exact source,
 configuration, and assets that existed when it ran. User feedback or any later mutation invalidates

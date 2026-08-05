@@ -36,6 +36,24 @@ Commands below use npm's project-local runner. In a pnpm, Yarn, or Bun project, 
 8. End public or shared decks with a clear next action. Use visible, same-tab native links with canonical absolute URLs rather than deriving them from the current host, then verify the action in the rendered audience, `/document`, and export surfaces.
 9. Never edit generated files in `dist/` or `.drever/`.
 
+## Expose an approved Draft 1 without blocking on polish
+
+When `drever-create-deck` delegates immediately after a Studio `approve-plan` action, use a bounded
+first-pass mode before the normal refinement workflow. Author every approved slide in one semantic
+end-to-end pass with real readable copy, required evidence, a simple focal artifact, and speaker
+notes. Keep the visual system deliberately simple but safe and coherent. Do not leave placeholder
+slides, and do not begin bespoke design research, optional asset work, or elaborate motion before
+the whole content draft exists.
+
+Keep the active Studio server, URL, and embedded audience iframe. Let HMR update that iframe; do not
+start or restart another development server, open a second browser or audience window, or invoke
+Playwright or other browser automation before preview. Run only the source check
+`npm exec -- drever check --json`, repair blocking source diagnostics, and publish `preview` as soon
+as it passes. Then refine the same live draft with `drever-create-design`. Only after the final
+authored source is stable should `drever-review-deck` own the isolated rendered browser review and
+`drever-deliver-deck` own the production build or export. This fast path applies only to the initial
+approved Draft 1; later edits follow the affected-route and review rules below.
+
 When materially changing the visual direction, use the project-local `drever-create-design` skill and revise the persisted design artifact in place. Derive it again from the subject, audience, purpose, venue, and source material instead of layering on an unrelated style. Treat all eight official Themes as equal design studies, with Basic only as the neutral fallback when the brief offers no stronger cue. If an organization or product has an established identity and research is allowed, use current primary official sources to understand its palette, typography, marks, imagery, rhythm, and motion. Convert those findings into a small original system that uses the studies as references rather than exposing them as the primary choice. Reuse fonts and assets only when their source and license permit it; otherwise use an attributed, licensed substitute or an original abstraction.
 
 Treat active Theme CSS as part of every local scene. Use a scoped, minimal normalization for Theme-owned Markdown margins, maximum widths, line height, text transform, and foreground before applying local roles. Inspect computed descendants instead of assuming that a parent class or later source order overrides a more specific Theme selector; never reset the whole deck globally.

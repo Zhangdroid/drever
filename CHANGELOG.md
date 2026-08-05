@@ -5,6 +5,26 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+Release impact: **patch** — this batch keeps the compatible local Studio workflow responsive and
+coherent across progressive authoring and development-time configuration changes.
+
+### Changed
+
+- Made the approved-plan handoff publish a bounded, content-complete Draft 1 through the existing
+  Studio server before design research, rendered review, production builds, or browser automation,
+  so users can review real content sooner while the agent continues visual refinement.
+- Kept managed agent sessions and their development command alive for the full Studio workflow,
+  while one-shot and non-interactive hosts now use the chat-based Storyboard workflow instead of
+  handing users a Creation room whose local agent process has already exited.
+
+### Fixed
+
+- Kept an already published Studio live draft available while the agent starts later drafting or
+  refinement passes, without forcing the user back to the Storyboard view.
+- Reloaded imported `drever.config.ts` dependencies, local theme modules, and Stage components in
+  the same development listener, preserving the Studio URL and session; an invalid configuration
+  now leaves the last valid preview running and recovers when its missing dependency is created.
+
 ## [0.12.0] - 2026-08-05
 
 Release impact: **minor** — this batch adds compatible managed-agent sessions, durable visual

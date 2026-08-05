@@ -87,6 +87,8 @@ export type DreverStudioState = Readonly<{
   version: typeof DREVER_STUDIO_PROTOCOL_VERSION;
   revision: number;
   phase: DreverStudioPhase;
+  /** True after this Studio session has published its first live draft. */
+  draftAvailable?: boolean;
   agentConnected: boolean;
   commonBrief?: DreverStudioCommonBrief;
   adaptiveQuestions?: readonly DreverStudioQuestion[];

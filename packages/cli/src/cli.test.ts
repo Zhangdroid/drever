@@ -363,7 +363,13 @@ describe("runCli dev", () => {
     expect(result).toBe(server);
     expect(serveProject).toHaveBeenCalledWith(
       expect.objectContaining({ entry: join(root, "slides.mdx"), root }),
-      { agent: "codex", environment, open: "studio" },
+      expect.objectContaining({
+        agent: "codex",
+        configDependencies: [expect.stringContaining("drever.config.ts")],
+        environment,
+        open: "studio",
+        reloadProject: expect.any(Function),
+      }),
     );
   });
 });

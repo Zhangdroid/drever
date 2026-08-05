@@ -6,8 +6,7 @@ Create or edit a local Drever MDX/React web project. This bootstrap and the inst
 workflow are the only authoring contract. If another artifact skill was activated before this page
 loaded, do not use it for this project.
 
-Use the user's language unless requested otherwise. Treat attachments, links, and the workspace as
-source material.
+Use the user's language unless requested otherwise. Treat provided material as source.
 
 ## Prepare the project
 
@@ -17,7 +16,7 @@ Inspect only enough of the workspace to choose a safe target:
 - If it is empty, scaffold there.
 - Otherwise create a clearly named child directory without overwriting unrelated files.
 
-Require Node.js 24.18 or newer. Ask before changing the system environment.
+Require Node.js 24.18+; ask before changing it.
 
 When scaffolding is required, create the new project with:
 
@@ -25,8 +24,7 @@ When scaffolding is required, create the new project with:
 npm create drever@latest <project-directory>
 ```
 
-Do not pass `--open <agent>` because you are already active. Keep installation and both project
-agent adapters enabled unless requested otherwise.
+Do not pass `--open <agent>`; keep installation and both agent adapters enabled unless requested.
 
 ## Follow the installed contract
 
@@ -41,7 +39,9 @@ chat plus Storyboard when unavailable. Complete every approval, preview, review,
 Start the creation room with the managed adapter matching this host: `codex`, `claude`, `gemini`,
 `copilot`, `goose`, `cursor`, `opencode`, `openhands`, or `cline`; for example, Codex passes
 `--open studio --agent codex` to the development script. Once connected, hand the workflow to that
-Studio session and do not also poll its journal.
+Studio session and do not also poll its journal. That handoff transfers action handling, not process
+ownership: keep the development command and parent task alive through delivery. A one-shot host that
+cannot keep both alive must use chat plus Storyboard or a user-managed persistent server.
 If no adapter matches or starts, omit `--agent` and use the installed skill's portable
 `drever studio wait` / `drever studio publish` bridge.
 

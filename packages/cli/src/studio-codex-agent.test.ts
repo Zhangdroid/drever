@@ -96,6 +96,18 @@ const actionRecord = {
   },
 } as const satisfies DreverStudioActionRecord;
 
+const approvePlanRecord = {
+  version: 1,
+  revision: 2,
+  receivedAt: "2026-08-05T08:00:00.000Z",
+  action: {
+    version: 1,
+    requestId: "approve-2",
+    expectedRevision: 1,
+    type: "approve-plan",
+  },
+} as const satisfies DreverStudioActionRecord;
+
 const createTestCodexStudioAgent = (options: Parameters<typeof createCodexStudioAgent>[0]) =>
   createCodexStudioAgent({
     verifyActionHandled: async () => true,
@@ -205,6 +217,25 @@ describe("Codex app-server protocol", () => {
 });
 
 describe("native Codex Studio agent", () => {
+  it("delivers the preview-first approve-plan contract to Codex", async () => {
+    const child = new FakeAppServerProcess(false, true, true);
+    const provider = createTestCodexStudioAgent({
+      root: "/workspace/deck",
+      requestTimeoutMs: 1_000,
+      spawnProcess: () => child as unknown as CodexAppServerProcess,
+    });
+
+    await provider.handleAction(approvePlanRecord);
+    const turnStart = child.messages.find(({ method }) => method === "turn/start");
+    const prompt = JSON.stringify(turnStart);
+    expect(prompt).toContain("bounded, semantic, content-complete Draft 1");
+    expect(prompt).toContain("embedded preview iframe");
+    expect(prompt).toContain("do not start or restart another development server");
+    expect(prompt).toContain("invoke Playwright");
+    expect(prompt).toContain("isolated rendered review only after");
+    await provider.stop();
+  });
+
   it("owns a thread and streams safe live state, lifecycle, plans, diffs, and approvals", async () => {
     const child = new FakeAppServerProcess();
     const provider = createTestCodexStudioAgent({

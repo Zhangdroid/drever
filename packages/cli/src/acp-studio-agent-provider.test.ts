@@ -13,18 +13,29 @@ import type { DreverStudioActionRecord } from "@drever/schema";
 import { describe, expect, it, vi } from "vite-plus/test";
 import { createAcpStudioAgentProvider, type LaunchAcpAgent } from "./acp-studio-agent-provider.ts";
 
-const actionRecord = (revision = 1): DreverStudioActionRecord =>
+const actionRecord = (
+  revision = 1,
+  type: "approve-plan" | "submit-common-brief" = "submit-common-brief",
+): DreverStudioActionRecord =>
   Object.freeze({
     version: 1,
     revision,
     receivedAt: "2026-08-04T12:00:00.000Z",
-    action: Object.freeze({
-      version: 1,
-      type: "submit-common-brief",
-      requestId: `request-${String(revision)}`,
-      expectedRevision: revision - 1,
-      brief: Object.freeze({ topic: "Why black holes are not cosmic vacuum cleaners" }),
-    }),
+    action:
+      type === "approve-plan"
+        ? Object.freeze({
+            version: 1,
+            type,
+            requestId: `approve-${String(revision)}`,
+            expectedRevision: revision - 1,
+          })
+        : Object.freeze({
+            version: 1,
+            type,
+            requestId: `request-${String(revision)}`,
+            expectedRevision: revision - 1,
+            brief: Object.freeze({ topic: "Why black holes are not cosmic vacuum cleaners" }),
+          }),
   });
 
 const waitFor = async (condition: () => boolean): Promise<void> => {
@@ -82,6 +93,37 @@ const createTestAcpStudioAgentProvider = (
   });
 
 describe("ACP Studio agent provider", () => {
+  it("delivers the preview-first approve-plan contract over ACP", async () => {
+    const prompts: PromptRequest[] = [];
+    const launch: LaunchAcpAgent = () =>
+      fakeProcess(() =>
+        agent({ name: "fake-agent" })
+          .onRequest(methods.agent.initialize, () => ({
+            protocolVersion: PROTOCOL_VERSION,
+            agentCapabilities: {},
+          }))
+          .onRequest(methods.agent.session.new, () => ({ sessionId: "session-1" }))
+          .onRequest(methods.agent.session.prompt, (request) => {
+            prompts.push(request.params);
+            return { stopReason: "end_turn" };
+          }),
+      );
+    const provider = createTestAcpStudioAgentProvider({
+      agent: "cline",
+      cwd: "/project",
+      launch,
+    });
+
+    await provider.handleAction(actionRecord(2, "approve-plan"));
+    const prompt = JSON.stringify(prompts[0]);
+    expect(prompt).toContain("bounded, semantic, content-complete Draft 1");
+    expect(prompt).toContain("embedded preview iframe");
+    expect(prompt).toContain("do not start or restart another development server");
+    expect(prompt).toContain("invoke Playwright");
+    expect(prompt).toContain("isolated rendered review only after");
+    await provider.stop();
+  });
+
   it("runs a verified command, streams safe activity, and maps browser approval", async () => {
     const launches: Array<{ command: string; args: readonly string[]; cwd: string }> = [];
     const prompts: PromptRequest[] = [];

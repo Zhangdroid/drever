@@ -1086,7 +1086,19 @@ export const runCli = async (
   const serveProject = options.serveProject ?? serveDreverProject;
   return serveProject(project, {
     ...(command.agent === undefined ? {} : { agent: command.agent }),
+    ...(loaded.dependencies === undefined ? {} : { configDependencies: loaded.dependencies }),
     ...(options.environment === undefined ? {} : { environment: options.environment }),
     ...(command.open === undefined ? {} : { open: command.open }),
+    reloadProject: async () => {
+      const reloaded = await loadDreverConfig({ command: "serve", root });
+      return Object.freeze({
+        dependencies: reloaded.dependencies ?? [],
+        project: await resolveDreverDevelopmentProject({
+          config: reloaded.config,
+          ...(command.entry === undefined ? {} : { entry: command.entry }),
+          root,
+        }),
+      });
+    },
   });
 };
