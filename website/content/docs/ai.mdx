@@ -22,8 +22,10 @@ Drever declarations, framework source, official design implementations, or examp
 public declaration is a last resort for one concrete diagnostic, not a discovery workflow.
 
 The website copies an even smaller handoff—`Fetch and follow https://drever.dev/prompt.md`, plus the
-brief when one was entered. This direct fetch-and-follow instruction avoids activating a competing
-generic presentation workflow before Drever's current contract is loaded. The agent resolves
+brief when one was entered. The fetched bootstrap identifies itself first as a Drever MDX/React
+project workflow and tells an agent not to use an unrelated artifact skill if one was already
+activated. This reduces accidental generic-skill matching, but cannot override Codex's own
+higher-priority implicit skill selection or user configuration. The agent resolves
 audience, outcome, duration, and visible slide density early, then derives topic-specific decisions
 about scope, evidence, story, visual direction, and delivery from the answers already given. Every
 round keeps one **Skip remaining questions — surprise me** escape. The agent matches the user's
@@ -35,23 +37,52 @@ equivalent local runner instead of assuming a global `drever` executable.
 
 <h2 id="local-creation-room">Use the local creation room</h2>
 
-For a new deck, the agent starts the development server and opens its exact `/studio` URL when the
-host supports browser control. This experimental, loopback-only room keeps four interactions in one
-place: the common brief, adaptive topic-specific questions, visual Storyboard approval, and later
-feedback on one slide or the whole deck.
+For a new deck, the agent starts the development server with `--open studio` and, when available,
+the matching managed adapter: `--agent codex`, `--agent claude`, `--agent gemini`,
+`--agent copilot`, `--agent goose`, `--agent cursor`, `--agent opencode`, `--agent openhands`, or
+`--agent cline`. Drever opens the exact loopback-only `/studio` URL in the
+default browser on ordinary local desktops, while CI and headless sessions print the same URL
+without attempting a GUI launch. When direct opening is unavailable but the host supports browser
+control, the agent navigates that browser itself. This room keeps the common brief, adaptive
+topic-specific questions, visual Storyboard approval, live work updates, and later feedback in one
+place.
 
-The room is a provider-neutral bridge to the coding agent that is already running. The browser
-records small local actions; the agent polls them, changes ordinary project files, and publishes
-progress back. The browser never receives an API key, calls a model, stores a provider transcript,
-or gains arbitrary file access. `slides.mdx`, `brief.md`, `drever.plan.json`, assets, configuration,
-and Git remain authoritative. The room exists only during development and is excluded from
-production, export, and audience bundles.
+Managed Codex and Claude Code sessions use their native streaming protocols. Gemini CLI, GitHub
+Copilot CLI, Goose, Cursor CLI, OpenCode, OpenHands, and Cline share one official Agent Client
+Protocol adapter. Studio shows only concise public summaries, plans, and tool lifecycle—not private
+chain-of-thought, raw commands, tool payloads, or provider transcripts. ACP and Codex approvals can
+return through Studio; Claude Code currently keeps permission decisions in its provider policy. The
+selected CLI remains the credential owner, and the browser never receives an API key or arbitrary
+file access.
 
-Opening `/studio` by itself does not launch or wake a model. The coding-agent task that started the
-workflow must remain active and poll the local action journal; otherwise the room keeps the request
-waiting until that task resumes. This boundary keeps Studio provider-neutral and keeps credentials
-out of the browser, but it is not a hosted agent session. The room reports the absence of a recent
-local agent heartbeat instead of presenting the bridge itself as a live connection.
+| Agent                                                                                               | Studio transport      | Approval path                       |
+| --------------------------------------------------------------------------------------------------- | --------------------- | ----------------------------------- |
+| [Codex](https://developers.openai.com/codex/app-server/)                                            | Native App Server     | Studio                              |
+| [Claude Code](https://code.claude.com/docs/en/agent-sdk/streaming-vs-single-mode)                   | Native streaming CLI  | Claude permission policy            |
+| [Gemini CLI](https://geminicli.com/docs/cli/acp-mode/)                                              | ACP v1                | Studio when advertised by the agent |
+| [GitHub Copilot CLI](https://docs.github.com/en/copilot/reference/copilot-cli-reference/acp-server) | ACP v1 public preview | Studio when advertised by the agent |
+| [Goose](https://block.github.io/goose/)                                                             | ACP v1                | Studio when advertised by the agent |
+| [Cursor CLI](https://cursor.com/docs/cli/acp)                                                       | ACP v1                | Studio when advertised by the agent |
+| [OpenCode](https://opencode.ai/docs/acp/)                                                           | ACP v1                | Studio when advertised by the agent |
+| [OpenHands](https://docs.openhands.dev/openhands/usage/cli/command-reference)                       | ACP v1                | Studio when advertised by the agent |
+| [Cline](https://docs.cline.bot/cli/cli-reference)                                                   | ACP v1                | Studio when advertised by the agent |
+
+The explicit adapters keep provider credentials and protocol details on the local server. Drever
+normalizes only bounded public summaries, plan state, and semantic tool lifecycle events before
+sending them to the browser. A missing CLI, unsupported protocol version, or disconnected process
+fails visibly instead of silently pretending that work is still running.
+
+Without `--agent`, the same room remains a provider-neutral bridge to the coding agent that started
+the workflow. It records small local actions; the agent polls them, changes ordinary project files,
+and publishes progress back. This fallback works with Continue CLI, Aider, and other tools that can
+run project commands even when they expose no stable interactive event protocol. `slides.mdx`,
+`brief.md`, `drever.plan.json`, assets, configuration, and Git remain authoritative. The room exists
+only during development and is excluded from production, export, and audience bundles.
+
+Opening `/studio` by itself does not launch or wake a model. A managed adapter starts only when the
+development command includes `--agent`; otherwise the coding-agent task that started the workflow
+must remain active and poll the local action journal. Studio reports the absence of either kind of
+connection instead of presenting its transport as a live agent.
 
 If the host cannot keep the local server alive, cannot open a browser, or the user prefers chat, the
 same installed workflow asks the adaptive questions in the conversation and uses the plan-only

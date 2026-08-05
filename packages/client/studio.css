@@ -26,6 +26,9 @@
     --studio-muted: var(--drever-brand-color-graphite);
     --studio-paper: var(--drever-brand-color-paper);
     --studio-purple: var(--drever-brand-color-continuity);
+    --studio-workspace-approval-offset: 0px;
+    --studio-workspace-live-offset: 0px;
+    --studio-workspace-notice-offset: 0px;
     min-height: 100svh;
     overflow-x: clip;
     color: var(--studio-ink);
@@ -79,10 +82,10 @@
     display: grid;
     grid-template-columns: minmax(190px, 1fr) auto minmax(190px, 1fr);
     align-items: center;
-    width: min(100% - 20px, 1480px);
-    min-height: 44px;
+    width: min(100% - 24px, 1040px);
+    min-height: 42px;
     margin-inline: auto;
-    padding: 5px 7px 5px 10px;
+    padding: 4px 6px 4px 9px;
     border: 1px solid rgb(255 255 255 / 72%);
     border-radius: 15px;
     background: linear-gradient(110deg, rgb(255 255 252 / 86%), rgb(247 247 242 / 72%));
@@ -198,7 +201,7 @@
     justify-self: end;
     align-items: center;
     gap: 7px;
-    min-height: 28px;
+    min-height: 26px;
     padding-inline: 9px;
     border: 1px solid var(--studio-border);
     border-radius: 999px;
@@ -236,6 +239,177 @@
     background: rgb(255 250 239 / 72%);
     box-shadow: inset 0 0 0 1px rgb(255 255 255 / 45%);
     backdrop-filter: blur(16px) saturate(115%);
+  }
+
+  .drever-studio:has(.drever-studio-agent-notice) {
+    --studio-workspace-notice-offset: 64px;
+  }
+
+  .drever-studio-live-update {
+    position: relative;
+    z-index: 3;
+    display: grid;
+    grid-template-columns: 7px auto minmax(0, auto) minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    width: min(100% - 48px, 1160px);
+    min-height: 38px;
+    margin: 17px auto -6px;
+    padding: 8px 12px;
+    border: 1px solid rgb(255 255 255 / 76%);
+    border-radius: 13px;
+    color: #59615c;
+    background: linear-gradient(110deg, rgb(252 251 246 / 78%), rgb(245 244 239 / 66%));
+    box-shadow:
+      0 12px 32px rgb(34 40 36 / 5%),
+      inset 0 0 0 1px rgb(31 39 34 / 3%);
+    backdrop-filter: blur(18px) saturate(120%);
+  }
+
+  .drever-studio:has(.drever-studio-live-update) {
+    --studio-workspace-live-offset: 48px;
+  }
+
+  .drever-studio-agent-approval {
+    position: relative;
+    z-index: 4;
+    display: grid;
+    grid-template-columns: 8px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 11px;
+    width: min(100% - 48px, 1160px);
+    margin: 16px auto -5px;
+    padding: 11px 12px;
+    border: 1px solid rgb(91 69 216 / 17%);
+    border-radius: 15px;
+    color: #424944;
+    background: linear-gradient(110deg, rgb(255 255 252 / 88%), rgb(243 241 255 / 75%));
+    box-shadow:
+      0 14px 36px rgb(35 34 53 / 7%),
+      inset 0 0 0 1px rgb(255 255 255 / 54%);
+    backdrop-filter: blur(20px) saturate(124%);
+  }
+
+  .drever-studio:has(.drever-studio-agent-approval) {
+    --studio-workspace-approval-offset: 62px;
+  }
+
+  .drever-studio-agent-approval > span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--studio-accent);
+    box-shadow: 0 0 0 4px rgb(91 69 216 / 11%);
+  }
+
+  .drever-studio-agent-approval__copy {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 3px 9px;
+    min-width: 0;
+  }
+
+  .drever-studio-agent-approval__copy small {
+    color: var(--studio-accent);
+    font-size: 0.57rem;
+    font-weight: 740;
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .drever-studio-agent-approval__copy strong {
+    overflow: hidden;
+    font-size: 0.72rem;
+    font-weight: 660;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .drever-studio-agent-approval__copy p {
+    grid-column: 2 / 4;
+    overflow: hidden;
+    margin: 0;
+    color: #727a75;
+    font-size: 0.65rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .drever-studio-agent-approval__copy em {
+    grid-column: 3;
+    grid-row: 1;
+    color: #858c88;
+    font-size: 0.6rem;
+    font-style: normal;
+    white-space: nowrap;
+  }
+
+  .drever-studio-agent-approval__actions {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .drever-studio-agent-approval__actions button {
+    min-height: 32px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.65rem;
+    font-weight: 660;
+  }
+
+  .drever-studio-agent-approval__actions button:disabled {
+    cursor: default;
+    opacity: 0.48;
+  }
+
+  .drever-studio-agent-approval__session {
+    border: 1px solid rgb(91 69 216 / 15%);
+    color: #514c71;
+    background: rgb(91 69 216 / 6%);
+  }
+
+  .drever-studio-live-update > span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #8a918d;
+  }
+
+  .drever-studio-live-update[data-active] > span {
+    background: var(--studio-accent);
+    box-shadow: 0 0 0 4px rgb(91 69 216 / 11%);
+    animation: drever-studio-activity-live 1.8s ease-in-out infinite;
+  }
+
+  .drever-studio-live-update small {
+    color: #858c88;
+    font-size: 0.57rem;
+    font-weight: 720;
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .drever-studio-live-update strong {
+    overflow: hidden;
+    color: #3c443f;
+    font-size: 0.69rem;
+    font-weight: 660;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .drever-studio-live-update p {
+    overflow: hidden;
+    margin: 0;
+    color: #7a817d;
+    font-size: 0.65rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .drever-studio-agent-notice > span {
@@ -971,6 +1145,12 @@
     animation: drever-studio-activity-ring 1.8s ease-out infinite;
   }
 
+  .drever-studio-activity li[data-status="error"] .drever-studio-activity__marker {
+    border-color: rgb(166 79 70 / 24%);
+    color: #a64f46;
+    background: rgb(166 79 70 / 8%);
+  }
+
   .drever-studio:not([data-agent-connected])
     .drever-studio-activity
     li[data-status="active"]
@@ -998,6 +1178,14 @@
     color: #7b827e;
     font-size: 0.66rem;
     line-height: 1.45;
+  }
+
+  .drever-studio-activity li > div > small {
+    display: block;
+    margin-top: 5px;
+    color: #756a8b;
+    font-size: 0.58rem;
+    font-variant-numeric: tabular-nums;
   }
 
   .drever-studio-activity progress {
@@ -1118,11 +1306,18 @@
     position: relative;
     z-index: 1;
     display: grid;
-    grid-template-columns: 238px minmax(0, 1fr) 350px;
-    gap: 14px;
-    width: min(100% - 28px, 1540px);
-    height: calc(100svh - 92px);
-    margin: 24px auto 14px;
+    grid-template-columns: 210px minmax(0, 1fr) 312px;
+    gap: 12px;
+    width: min(100% - 28px, 1440px);
+    height: calc(
+      100svh - 84px - var(--studio-workspace-live-offset) -
+        var(--studio-workspace-approval-offset) - var(--studio-workspace-notice-offset)
+    );
+    margin: 18px auto 12px;
+  }
+
+  .drever-studio:has(.drever-studio-live-update) .drever-studio-workspace {
+    margin-top: 12px;
   }
 
   .drever-studio-rail,
@@ -1130,7 +1325,7 @@
   .drever-studio-canvas {
     min-height: 0;
     border: 1px solid rgb(255 255 255 / 74%);
-    border-radius: 22px;
+    border-radius: 19px;
     background: rgb(249 248 243 / 76%);
     box-shadow:
       0 20px 56px rgb(35 41 37 / 7%),
@@ -1259,7 +1454,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    min-height: 50px;
+    min-height: 48px;
     padding: 7px 9px 7px 14px;
     border-bottom: 1px solid var(--studio-border);
     background: rgb(250 249 244 / 76%);
@@ -1283,6 +1478,45 @@
   .drever-studio-canvas > header a:hover {
     color: var(--studio-ink);
     background: rgb(255 255 252 / 72%);
+  }
+
+  .drever-studio-approve {
+    display: inline-flex;
+    min-height: 32px;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 11px 6px 13px;
+    border: 0;
+    border-radius: 9px;
+    color: #f8f7f2;
+    background: var(--studio-ink);
+    box-shadow: 0 7px 18px rgb(31 38 34 / 14%);
+    cursor: pointer;
+    font-size: 0.67rem;
+    font-weight: 660;
+    transition:
+      transform 150ms ease,
+      background 150ms ease,
+      opacity 150ms ease;
+  }
+
+  .drever-studio-approve:hover:not(:disabled) {
+    background: #303a34;
+    transform: translateY(-1px);
+  }
+
+  .drever-studio-approve:disabled {
+    cursor: wait;
+    opacity: 0.58;
+  }
+
+  .drever-studio-approve svg {
+    width: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.5;
   }
 
   .drever-studio-mode-switcher {
@@ -1341,23 +1575,23 @@
   .drever-studio-plan {
     min-height: 0;
     overflow: auto;
-    padding: clamp(20px, 3.4vw, 44px);
+    padding: clamp(18px, 2.7vw, 34px);
     scrollbar-color: rgb(55 66 60 / 18%) transparent;
     scrollbar-width: thin;
   }
 
   .drever-studio-plan > header {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 180px;
+    grid-template-columns: minmax(0, 1fr) minmax(150px, 0.42fr);
     align-items: end;
-    gap: 30px;
-    margin-bottom: 28px;
+    gap: 24px;
+    margin-bottom: 22px;
   }
 
   .drever-studio-plan > header h1 {
     max-width: 16ch;
     margin: 0;
-    font-size: clamp(2rem, 4vw, 4.1rem);
+    font-size: clamp(1.8rem, 3.25vw, 3.45rem);
     font-weight: 555;
     letter-spacing: -0.055em;
     line-height: 0.96;
@@ -1372,16 +1606,21 @@
 
   .drever-studio-plan__cards {
     display: grid;
-    gap: 9px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 11px;
   }
 
   .drever-studio-plan-card {
     display: grid;
-    grid-template-columns: 44px minmax(0, 1fr) minmax(112px, auto);
-    gap: 14px;
+    grid-template-columns: 34px minmax(0, 1fr);
+    grid-template-areas:
+      "number copy"
+      ". meta";
+    gap: 11px 10px;
     width: 100%;
     align-items: start;
-    padding: 20px;
+    min-height: 144px;
+    padding: 17px;
     border: 1px solid rgb(28 36 31 / 10%);
     border-radius: 17px;
     color: var(--studio-ink);
@@ -1408,6 +1647,7 @@
   }
 
   .drever-studio-plan-card__number {
+    grid-area: number;
     padding-top: 3px;
     color: var(--studio-accent);
     font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
@@ -1415,6 +1655,7 @@
   }
 
   .drever-studio-plan-card__copy {
+    grid-area: copy;
     min-width: 0;
   }
 
@@ -1445,9 +1686,10 @@
   }
 
   .drever-studio-plan-card__meta {
+    grid-area: meta;
     display: flex;
     flex-wrap: wrap;
-    justify-content: end;
+    justify-content: start;
     gap: 5px;
     color: #68716c;
     font-size: 0.64rem;
@@ -1461,31 +1703,108 @@
     font-style: normal;
   }
 
-  .drever-studio-plan > footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 24px;
-    margin-top: 18px;
-    padding: 20px;
-    border: 1px solid rgb(91 69 216 / 20%);
-    border-radius: 17px;
-    background: linear-gradient(120deg, rgb(220 232 221 / 80%), rgb(236 234 225 / 64%));
-  }
-
-  .drever-studio-plan > footer div {
+  .drever-studio-draft-status {
     display: grid;
-    gap: 3px;
+    grid-template-columns: 34px minmax(0, 1fr) minmax(84px, 0.28fr);
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 13px 15px;
+    border: 1px solid rgb(91 69 216 / 16%);
+    border-radius: 15px;
+    background: linear-gradient(115deg, rgb(223 233 222 / 82%), rgb(239 236 229 / 72%));
   }
 
-  .drever-studio-plan > footer strong {
-    font-size: 0.85rem;
-    font-weight: 670;
+  .drever-studio-draft-status > span {
+    display: grid;
+    width: 30px;
+    height: 30px;
+    place-items: center;
+    border-radius: 50%;
+    color: #f8f7f2;
+    background: var(--studio-accent);
+    box-shadow: 0 0 0 5px rgb(91 69 216 / 9%);
   }
 
-  .drever-studio-plan > footer span {
-    color: #6d756f;
-    font-size: 0.7rem;
+  .drever-studio-draft-status svg {
+    width: 15px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.5;
+  }
+
+  .drever-studio-draft-status > div {
+    min-width: 0;
+  }
+
+  .drever-studio-draft-status small {
+    display: block;
+    color: #7c718b;
+    font-size: 0.55rem;
+    font-weight: 720;
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+  }
+
+  .drever-studio-draft-status strong {
+    display: block;
+    margin-top: 2px;
+    color: #3c443f;
+    font-size: 0.76rem;
+    font-weight: 660;
+  }
+
+  .drever-studio-draft-status p {
+    display: -webkit-box;
+    min-height: 2.8em;
+    overflow: hidden;
+    margin: 2px 0 0;
+    color: #747c77;
+    font-size: 0.65rem;
+    line-height: 1.4;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .drever-studio-draft-status progress,
+  .drever-studio-draft-status > i {
+    width: 100%;
+    height: 5px;
+    overflow: hidden;
+    border: 0;
+    border-radius: 999px;
+    appearance: none;
+    background: rgb(91 69 216 / 11%);
+  }
+
+  .drever-studio-draft-status > i {
+    position: relative;
+  }
+
+  .drever-studio-draft-status > i::after {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(90deg, transparent, var(--studio-accent), transparent);
+    content: "";
+    animation: drever-studio-draft-progress 1.6s ease-in-out infinite;
+  }
+
+  .drever-studio-draft-status progress::-webkit-progress-bar {
+    border-radius: inherit;
+    background: rgb(91 69 216 / 11%);
+  }
+
+  .drever-studio-draft-status progress::-webkit-progress-value {
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--studio-accent), #8977ef);
+  }
+
+  .drever-studio-draft-status progress::-moz-progress-bar {
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--studio-accent), #8977ef);
   }
 
   .drever-studio-direction {
@@ -1513,6 +1832,88 @@
     font-size: 0.74rem;
     font-weight: 570;
     line-height: 1.5;
+  }
+
+  .drever-studio-direction__activity {
+    padding: 18px 7px 2px;
+    border-bottom: 1px solid var(--studio-border);
+  }
+
+  .drever-studio-direction__activity > header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .drever-studio-direction__activity > header span {
+    color: #545d58;
+    font-size: 0.61rem;
+    font-weight: 720;
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+  }
+
+  .drever-studio-direction__activity > header small {
+    color: #979d99;
+    font-size: 0.55rem;
+  }
+
+  .drever-studio-direction__activity ol {
+    display: grid;
+    gap: 13px;
+    margin: 14px 0 17px;
+    padding: 0;
+    list-style: none;
+  }
+
+  .drever-studio-direction__activity li {
+    display: grid;
+    grid-template-columns: 7px minmax(0, 1fr);
+    gap: 9px;
+  }
+
+  .drever-studio-direction__activity li > i {
+    width: 6px;
+    height: 6px;
+    margin-top: 5px;
+    border-radius: 50%;
+    background: #9ca29e;
+  }
+
+  .drever-studio-direction__activity li[data-status="complete"] > i {
+    background: var(--studio-accent-bright);
+    box-shadow: 0 0 0 3px rgb(199 240 58 / 11%);
+  }
+
+  .drever-studio-direction__activity li[data-status="active"] > i {
+    background: var(--studio-accent);
+    box-shadow: 0 0 0 3px rgb(91 69 216 / 11%);
+    animation: drever-studio-activity-live 1.8s ease-in-out infinite;
+  }
+
+  .drever-studio-direction__activity li[data-status="error"] > i {
+    background: #a64f46;
+  }
+
+  .drever-studio-direction__activity li strong {
+    display: block;
+    color: #59615c;
+    font-size: 0.68rem;
+    font-weight: 620;
+    line-height: 1.35;
+  }
+
+  .drever-studio-direction__activity li p {
+    display: -webkit-box;
+    min-height: 2.9em;
+    overflow: hidden;
+    margin: 3px 0 0;
+    color: #8a918d;
+    font-size: 0.61rem;
+    line-height: 1.45;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
   }
 
   .drever-studio-direction form {
@@ -1622,6 +2023,16 @@
     }
   }
 
+  @keyframes drever-studio-draft-progress {
+    from {
+      transform: translateX(-100%);
+    }
+
+    to {
+      transform: translateX(100%);
+    }
+  }
+
   @media (max-width: 1120px) {
     .drever-studio-header {
       grid-template-columns: 1fr auto;
@@ -1665,6 +2076,37 @@
 
     .drever-studio-agent-status {
       display: none;
+    }
+
+    .drever-studio-live-update {
+      grid-template-columns: 7px auto minmax(0, 1fr);
+      width: calc(100% - 28px);
+    }
+
+    .drever-studio-live-update p {
+      display: none;
+    }
+
+    .drever-studio-agent-approval {
+      grid-template-columns: 8px minmax(0, 1fr);
+      width: calc(100% - 28px);
+    }
+
+    .drever-studio-agent-approval__copy {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .drever-studio-agent-approval__copy p {
+      grid-column: 1 / -1;
+    }
+
+    .drever-studio-agent-approval__copy em {
+      display: none;
+    }
+
+    .drever-studio-agent-approval__actions {
+      grid-column: 2;
+      flex-wrap: wrap;
     }
 
     .drever-studio-agent-notice {
@@ -1715,12 +2157,35 @@
       min-height: calc(100svh - 92px);
     }
 
+    .drever-studio:has(.drever-studio-live-update) .drever-studio-workspace {
+      height: auto;
+      min-height: calc(100svh - 138px);
+    }
+
     .drever-studio-rail {
       display: none;
     }
 
     .drever-studio-canvas {
       min-height: calc(100svh - 104px);
+    }
+
+    .drever-studio-plan__cards {
+      grid-template-columns: 1fr;
+    }
+
+    .drever-studio-plan > header {
+      grid-template-columns: 1fr;
+      gap: 13px;
+    }
+
+    .drever-studio-draft-status {
+      grid-template-columns: 34px minmax(0, 1fr);
+    }
+
+    .drever-studio-draft-status progress,
+    .drever-studio-draft-status > i {
+      grid-column: 1 / -1;
     }
 
     .drever-studio-direction {

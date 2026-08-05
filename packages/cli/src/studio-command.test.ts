@@ -136,6 +136,20 @@ describe("Studio CLI bridge", () => {
       timedOut: false,
       actions: [{ revision: 1, action: { type: "submit-common-brief" } }],
     });
+    expect(
+      JSON.parse(
+        await readFile(join(root, DREVER_STUDIO_DIRECTORY, DREVER_STUDIO_AGENT_STATE_FILE), "utf8"),
+      ),
+    ).toMatchObject({
+      phase: "waiting-for-agent",
+      activity: [
+        {
+          id: "received-1",
+          label: "Preparing your questions",
+          status: "active",
+        },
+      ],
+    });
   });
 
   it("returns a bounded timeout instead of waiting forever", async () => {

@@ -1,12 +1,16 @@
 import type {
   DreverDeckPlanSlide,
+  DreverStudioAgentApprovalDecision,
+  DreverStudioAgentApprovalRequest,
   DreverStudioAnswer,
+  DreverStudioActivity,
   DreverStudioCommonBrief,
   DreverStudioQuestion,
   DreverStudioState,
 } from "@drever/schema";
 import {
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -20,11 +24,17 @@ export type StudioActionInput =
   | Readonly<{ answers: readonly DreverStudioAnswer[]; type: "submit-adaptive-answers" }>
   | Readonly<{ type: "skip-remaining-questions" }>
   | Readonly<{ type: "approve-plan" }>
+  | Readonly<{
+      approvalId: string;
+      decision: DreverStudioAgentApprovalDecision;
+      type: "respond-agent-approval";
+    }>
   | Readonly<{ message: string; slideId?: string; type: "submit-feedback" }>;
 
 export type StudioProps = Readonly<{
   audienceUrl: string;
   onAction(action: StudioActionInput): Promise<void> | void;
+  previewUrl?: string;
   state: DreverStudioState;
 }>;
 
@@ -268,6 +278,157 @@ const StudioProgress = ({ state }: Readonly<{ state: DreverStudioState }>): Reac
   );
 };
 
+const fallbackActivity = (state: DreverStudioState): readonly DreverStudioActivity[] => [
+  {
+    id: "brief-saved",
+    label: "Brief saved",
+    detail: "Your topic and direction are stored in this Studio session.",
+    status: "complete",
+  },
+  {
+    id: "current-work",
+    label: state.agentConnected
+      ? (state.progress?.label ?? "Preparing the next step")
+      : "Waiting for a local agent",
+    detail:
+      state.message ??
+      (state.agentConnected
+        ? "Latest activity published by the agent"
+        : "Resume the coding-agent task to continue"),
+    status: "active",
+  },
+];
+
+const activityFor = (state: DreverStudioState): readonly DreverStudioActivity[] =>
+  state.activity ?? fallbackActivity(state);
+
+const currentActivityFor = (state: DreverStudioState): DreverStudioActivity | undefined =>
+  state.activity?.find(({ status }) => status === "active") ?? state.activity?.at(-1);
+
+const StudioActivityTicker = ({ state }: Readonly<{ state: DreverStudioState }>): ReactElement => {
+  const published = currentActivityFor(state);
+  const label = published?.label ?? state.progress?.label ?? state.message;
+  const detail = published?.detail ?? (published === undefined ? state.message : undefined);
+  const active = published?.status === "active" || state.phase === "drafting";
+
+  return (
+    <aside
+      aria-label="Latest agent activity"
+      aria-live="polite"
+      className="drever-studio-live-update"
+      data-active={active ? "" : undefined}
+    >
+      <span aria-hidden="true" />
+      <small>{active ? "Agent working" : "Latest update"}</small>
+      <strong dir="auto">{label ?? "Studio is up to date"}</strong>
+      {detail === undefined || detail === label ? null : <p dir="auto">{detail}</p>}
+    </aside>
+  );
+};
+
+const approvalKindLabel = (kind: DreverStudioAgentApprovalRequest["kind"]): string => {
+  if (kind === "file-change") return "File change";
+  if (kind === "permissions") return "Permission";
+  return "Command";
+};
+
+export const respondToStudioAgentApproval = async (
+  onAction: StudioProps["onAction"],
+  approvalId: string,
+  decision: DreverStudioAgentApprovalDecision,
+): Promise<void> => {
+  await onAction({ approvalId, decision, type: "respond-agent-approval" });
+};
+
+const StudioAgentApproval = ({
+  approvals,
+  onAction,
+}: Readonly<{
+  approvals: readonly DreverStudioAgentApprovalRequest[];
+  onAction: StudioProps["onAction"];
+}>): ReactElement | null => {
+  const approval = approvals[0];
+  const [responding, setResponding] = useState<DreverStudioAgentApprovalDecision>();
+  const titleId = useId();
+  if (approval === undefined) return null;
+  const decisions = approval.decisions ?? ["accept", "acceptForSession", "decline"];
+
+  const respond = async (decision: DreverStudioAgentApprovalDecision): Promise<void> => {
+    setResponding(decision);
+    try {
+      await respondToStudioAgentApproval(onAction, approval.id, decision);
+    } catch {
+      // Studio owns the visible action error at the shared dispatch boundary.
+    } finally {
+      setResponding(undefined);
+    }
+  };
+  return (
+    <aside
+      aria-labelledby={titleId}
+      aria-live="assertive"
+      className="drever-studio-agent-approval"
+      role="region"
+    >
+      <span aria-hidden="true" />
+      <div className="drever-studio-agent-approval__copy">
+        <small>{approvalKindLabel(approval.kind)} approval</small>
+        <strong dir="auto" id={titleId}>
+          {approval.reason ?? "The local agent needs your approval to continue."}
+        </strong>
+        {approval.detail === undefined ? null : <p dir="auto">{approval.detail}</p>}
+        {approvals.length > 1 ? <em>{approvals.length - 1} more waiting</em> : null}
+      </div>
+      <div
+        aria-label="Respond to agent approval"
+        className="drever-studio-agent-approval__actions"
+        role="group"
+      >
+        {decisions.includes("accept") ? (
+          <button
+            className="drever-studio-button drever-studio-button--primary"
+            disabled={responding !== undefined}
+            onClick={() => void respond("accept")}
+            type="button"
+          >
+            {responding === "accept" ? "Allowing…" : "Allow once"}
+          </button>
+        ) : null}
+        {decisions.includes("acceptForSession") ? (
+          <button
+            className="drever-studio-agent-approval__session"
+            disabled={responding !== undefined}
+            onClick={() => void respond("acceptForSession")}
+            type="button"
+          >
+            {responding === "acceptForSession" ? "Allowing…" : "Allow for session"}
+          </button>
+        ) : null}
+        {decisions.includes("decline") ? (
+          <button
+            className="drever-studio-button drever-studio-button--quiet"
+            disabled={responding !== undefined}
+            onClick={() => void respond("decline")}
+            type="button"
+          >
+            {responding === "decline" ? "Declining…" : "Decline"}
+          </button>
+        ) : null}
+        {decisions.includes("cancel") ? (
+          <button
+            className="drever-studio-button drever-studio-button--quiet"
+            disabled={responding !== undefined}
+            onClick={() => void respond("cancel")}
+            type="button"
+          >
+            {responding === "cancel" ? "Cancelling…" : "Cancel"}
+          </button>
+        ) : null}
+      </div>
+    </aside>
+  );
+};
+
 const BriefScreen = ({
   onAction,
   state,
@@ -454,7 +615,10 @@ const WaitingScreen = ({ state }: Readonly<{ state: DreverStudioState }>): React
     ? (progress?.label ?? "Preparing the next step")
     : "Waiting for a local agent";
   const nextMilestone =
-    state.skippedRemainingQuestions === true ? "Storyboard ready" : "Questions ready";
+    state.skippedRemainingQuestions === true || state.adaptiveAnswers !== undefined
+      ? "Storyboard ready"
+      : "Questions ready";
+  const activity = activityFor(state);
 
   return (
     <main className="drever-studio-waiting">
@@ -468,7 +632,7 @@ const WaitingScreen = ({ state }: Readonly<{ state: DreverStudioState }>): React
         <h1 dir="auto">{state.commonBrief?.topic}</h1>
         <span>
           {state.agentConnected
-            ? "Studio follows the status your agent publishes and advances as soon as the next result is ready."
+            ? "Studio follows the agent live and advances as soon as the next result is ready."
             : "Nothing is running inside Studio itself. Start or resume the coding-agent task to continue."}
         </span>
       </section>
@@ -482,47 +646,49 @@ const WaitingScreen = ({ state }: Readonly<{ state: DreverStudioState }>): React
           </small>
         </header>
         <ol>
-          <li data-status="complete">
-            <span aria-hidden="true" className="drever-studio-activity__marker">
-              <CheckIcon />
-            </span>
-            <div>
-              <strong>Brief saved</strong>
-              <span>Your topic and direction are stored in this Studio session.</span>
-            </div>
-          </li>
-          <li aria-current="step" data-status="active">
-            <span aria-hidden="true" className="drever-studio-activity__marker">
-              <SparkIcon />
-            </span>
-            <div>
-              <strong dir="auto">{currentActivity}</strong>
-              <span>
-                {progressCount ??
-                  (state.agentConnected
-                    ? "Latest published agent status"
-                    : "Resume the coding-agent task to continue")}
+          {activity.map((item) => (
+            <li
+              aria-current={item.status === "active" ? "step" : undefined}
+              data-status={item.status}
+              key={item.id}
+            >
+              <span aria-hidden="true" className="drever-studio-activity__marker">
+                {item.status === "complete" ? <CheckIcon /> : <SparkIcon />}
               </span>
-              {progress?.completed !== undefined && progress.total !== undefined ? (
-                <progress
-                  aria-label={progress.label}
-                  max={progress.total}
-                  value={progress.completed}
-                />
-              ) : null}
-            </div>
-          </li>
+              <div>
+                <strong dir="auto">{item.label}</strong>
+                <span dir="auto">
+                  {item.detail ??
+                    (item.label === currentActivity && progressCount !== undefined
+                      ? progressCount
+                      : "Published by the local agent")}
+                </span>
+                {item.status === "active" && progressCount !== undefined ? (
+                  <small>{progressCount}</small>
+                ) : null}
+                {item.status === "active" &&
+                progress?.completed !== undefined &&
+                progress.total !== undefined ? (
+                  <progress
+                    aria-label={progress.label}
+                    max={progress.total}
+                    value={progress.completed}
+                  />
+                ) : null}
+              </div>
+            </li>
+          ))}
           <li data-status="pending">
             <span aria-hidden="true" className="drever-studio-activity__marker">
-              03
+              {String(activity.length + 1).padStart(2, "0")}
             </span>
             <div>
               <strong>{nextMilestone}</strong>
-              <span>Studio opens it as soon as the agent publishes it.</span>
+              <span>Studio opens it as soon as it is ready.</span>
             </div>
           </li>
         </ol>
-        {state.agentConnected && state.message !== undefined ? (
+        {state.agentConnected && state.message !== undefined && state.activity === undefined ? (
           <aside className="drever-studio-activity__note">
             <SparkIcon aria-hidden="true" />
             <div>
@@ -713,21 +879,27 @@ const QuestionsScreen = ({
 };
 
 const SlideCard = ({
+  cardRef,
   index,
   onSelect,
   selected,
   slide,
 }: Readonly<{
+  cardRef(node: HTMLButtonElement | null): void;
   index: number;
   onSelect(): void;
   selected: boolean;
   slide: DreverDeckPlanSlide;
 }>): ReactElement => (
   <button
+    aria-current={selected ? "true" : undefined}
     aria-pressed={selected}
     className="drever-studio-plan-card"
     data-selected={selected ? "" : undefined}
+    data-studio-slide-id={slide.id}
+    id={`drever-studio-plan-card-${slide.id}`}
     onClick={onSelect}
+    ref={cardRef}
     type="button"
   >
     <span className="drever-studio-plan-card__number">{String(index + 1).padStart(2, "0")}</span>
@@ -799,6 +971,26 @@ const FeedbackComposer = ({
         </div>
       )}
 
+      {state.activity === undefined ? null : (
+        <section aria-label="Recent agent activity" className="drever-studio-direction__activity">
+          <header>
+            <span>Agent activity</span>
+            <small>Live summary</small>
+          </header>
+          <ol aria-live="polite">
+            {state.activity.slice(-4).map((item) => (
+              <li data-status={item.status} key={item.id}>
+                <i aria-hidden="true" />
+                <div>
+                  <strong dir="auto">{item.label}</strong>
+                  {item.detail === undefined ? null : <p dir="auto">{item.detail}</p>}
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+
       <form onSubmit={(event) => void submit(event)}>
         <label>
           <span>
@@ -836,19 +1028,53 @@ const FeedbackComposer = ({
   );
 };
 
-const PlanScreen = ({ audienceUrl, onAction, state }: StudioProps): ReactElement => {
+const PlanScreen = ({
+  audienceUrl,
+  onAction,
+  previewUrl = audienceUrl,
+  state,
+}: StudioProps): ReactElement => {
   const plan = state.plan?.status === "awaiting-input" ? undefined : state.plan;
   const [selectedSlideId, setSelectedSlideId] = useState<string | undefined>();
   const draftAvailable = ["preview", "ready", "refining"].includes(state.phase);
   const [mode, setMode] = useState<StudioMode>(draftAvailable ? "draft" : "storyboard");
   const previousDraftAvailable = useRef(draftAvailable);
   const [approving, setApproving] = useState(false);
+  const planRef = useRef<HTMLDivElement>(null);
+  const slideElements = useRef(new Map<string, HTMLButtonElement>());
+  const pendingScrollSlideId = useRef<string | undefined>(undefined);
   const selectedSlide = plan?.slides.find(({ id }) => id === selectedSlideId);
+  const currentActivity = currentActivityFor(state);
 
   useEffect(() => {
     setMode((current) => nextStudioMode(current, previousDraftAvailable.current, draftAvailable));
     previousDraftAvailable.current = draftAvailable;
   }, [draftAvailable]);
+
+  useEffect(() => {
+    const slideId = pendingScrollSlideId.current;
+    if (mode !== "storyboard" || slideId === undefined) return;
+    const frame = requestAnimationFrame(() => {
+      slideElements.current.get(slideId)?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+      pendingScrollSlideId.current = undefined;
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [mode, selectedSlideId]);
+
+  const selectSlide = (slideId: string): void => {
+    pendingScrollSlideId.current = slideId;
+    setSelectedSlideId(slideId);
+    setMode("storyboard");
+  };
+
+  const selectDeck = (): void => {
+    setSelectedSlideId(undefined);
+    setMode("storyboard");
+    requestAnimationFrame(() => planRef.current?.scrollTo({ behavior: "smooth", top: 0 }));
+  };
 
   const approve = async (): Promise<void> => {
     setApproving(true);
@@ -873,7 +1099,7 @@ const PlanScreen = ({ audienceUrl, onAction, state }: StudioProps): ReactElement
         <button
           className="drever-studio-rail__whole"
           data-selected={selectedSlideId === undefined ? "" : undefined}
-          onClick={() => setSelectedSlideId(undefined)}
+          onClick={selectDeck}
           type="button"
         >
           <SparkIcon />
@@ -883,8 +1109,10 @@ const PlanScreen = ({ audienceUrl, onAction, state }: StudioProps): ReactElement
           {plan.slides.map((slide, index) => (
             <li key={slide.id}>
               <button
+                aria-controls={`drever-studio-plan-card-${slide.id}`}
+                aria-current={slide.id === selectedSlideId ? "true" : undefined}
                 data-selected={slide.id === selectedSlideId ? "" : undefined}
-                onClick={() => setSelectedSlideId(slide.id)}
+                onClick={() => selectSlide(slide.id)}
                 type="button"
               >
                 <span>{String(index + 1).padStart(2, "0")}</span>
@@ -914,7 +1142,21 @@ const PlanScreen = ({ audienceUrl, onAction, state }: StudioProps): ReactElement
               Live draft
             </button>
           </div>
-          {draftAvailable ? (
+          {plan.status === "awaiting-approval" ? (
+            <button
+              className="drever-studio-approve"
+              disabled={approving || state.pendingActionCount > 0}
+              onClick={() => void approve()}
+              type="button"
+            >
+              {approving
+                ? "Approving…"
+                : state.pendingActionCount > 0
+                  ? "Waiting for agent…"
+                  : "Approve story"}
+              <ArrowIcon />
+            </button>
+          ) : draftAvailable ? (
             <a href={audienceUrl} rel="noreferrer" target="_blank">
               Open audience
               <ExternalIcon />
@@ -928,10 +1170,44 @@ const PlanScreen = ({ audienceUrl, onAction, state }: StudioProps): ReactElement
 
         {mode === "draft" && draftAvailable ? (
           <div className="drever-studio-preview">
-            <iframe src={audienceUrl} title="Live Drever draft" />
+            <iframe
+              referrerPolicy="no-referrer"
+              sandbox="allow-same-origin allow-scripts"
+              src={previewUrl}
+              title="Live Drever draft"
+            />
           </div>
         ) : (
-          <div className="drever-studio-plan">
+          <div className="drever-studio-plan" ref={planRef}>
+            {state.phase === "drafting" ? (
+              <section aria-live="polite" className="drever-studio-draft-status">
+                <span aria-hidden="true">
+                  <SparkIcon />
+                </span>
+                <div>
+                  <small>Draft 1 is taking shape</small>
+                  <strong dir="auto">
+                    {currentActivity?.label ??
+                      state.progress?.label ??
+                      "Building the first preview"}
+                  </strong>
+                  <p dir="auto">
+                    {currentActivity?.detail ??
+                      state.message ??
+                      "Studio will switch to the live deck as soon as the first complete preview is ready."}
+                  </p>
+                </div>
+                {state.progress?.completed !== undefined && state.progress.total !== undefined ? (
+                  <progress
+                    aria-label={state.progress.label}
+                    max={state.progress.total}
+                    value={state.progress.completed}
+                  />
+                ) : (
+                  <i aria-hidden="true" />
+                )}
+              </section>
+            ) : null}
             <header>
               <div>
                 <p>Structure preview</p>
@@ -944,6 +1220,10 @@ const PlanScreen = ({ audienceUrl, onAction, state }: StudioProps): ReactElement
             <div className="drever-studio-plan__cards">
               {plan.slides.map((slide, index) => (
                 <SlideCard
+                  cardRef={(node) => {
+                    if (node === null) slideElements.current.delete(slide.id);
+                    else slideElements.current.set(slide.id, node);
+                  }}
                   index={index}
                   key={slide.id}
                   onSelect={() => setSelectedSlideId(slide.id)}
@@ -952,25 +1232,6 @@ const PlanScreen = ({ audienceUrl, onAction, state }: StudioProps): ReactElement
                 />
               ))}
             </div>
-            {plan.status === "awaiting-approval" ? (
-              <footer>
-                <div>
-                  <strong>Does this story earn the room’s attention?</strong>
-                  <span>Approve the structure, or select any slide and leave a note.</span>
-                </div>
-                <button
-                  className="drever-studio-button drever-studio-button--primary"
-                  disabled={approving || state.pendingActionCount > 0}
-                  onClick={() => void approve()}
-                  type="button"
-                >
-                  {approving || state.pendingActionCount > 0
-                    ? "Waiting for the agent…"
-                    : "Approve and create Draft 1"}
-                  <ArrowIcon />
-                </button>
-              </footer>
-            ) : null}
           </div>
         )}
       </section>
@@ -1038,6 +1299,13 @@ export const Studio = (props: StudioProps): ReactElement => {
       {state.agentConnected || screen === "waiting" || screen === "error" ? null : (
         <AgentConnectionNotice />
       )}
+      <StudioAgentApproval approvals={state.agentApprovals ?? []} onAction={dispatch} />
+      {(screen === "questions" || screen === "plan") &&
+      (state.activity !== undefined ||
+        state.progress !== undefined ||
+        state.message !== undefined) ? (
+        <StudioActivityTicker state={state} />
+      ) : null}
       {screen === "brief" ? <BriefScreen onAction={dispatch} state={state} /> : null}
       {screen === "questions" ? <QuestionsScreen onAction={dispatch} state={state} /> : null}
       {screen === "waiting" ? <WaitingScreen state={state} /> : null}

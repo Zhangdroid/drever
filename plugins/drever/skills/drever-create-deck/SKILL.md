@@ -49,14 +49,24 @@ rediscover APIs documented by the installed skills.
 <!-- drever-studio-question-contract:v1 -->
 
 For a new deck, start the development script before asking questions when the host can keep a local
-server alive. Use the exact **Creation room** URL printed by Drever; open it when browser control is
-available, otherwise give the URL to the user. The creation room is the preferred surface for the
-brief, adaptive questions, plan approval, and later feedback. Do not mirror its questions in chat.
-If the CLI does not report that URL or the user prefers chat, continue with the conversational
-workflow below.
+server alive. Pass `--open studio` and the matching managed adapter when one exists—for example,
+Codex runs `npm run dev -- --open studio --agent codex`; Claude Code uses `--agent claude`; Gemini
+CLI, GitHub Copilot CLI, Goose, Cursor CLI, OpenCode, OpenHands, and Cline use `--agent gemini`,
+`--agent copilot`, `--agent goose`, `--agent cursor`, `--agent opencode`, `--agent openhands`, and
+`--agent cline`. Drever opens the exact local **Creation room** URL in the user's default
+browser. If the CLI reports that browser auto-open is unavailable and browser control exists,
+navigate that browser to the printed URL yourself; only ask the user to open it when neither path
+is available. The creation room is the preferred surface for the brief, adaptive questions, plan
+approval, and later feedback. Do not mirror its questions in chat. If the CLI does not report that
+URL or the user prefers chat, continue with the conversational workflow below.
 
-The creation room is a local, provider-neutral action inbox. Keep one action cursor and poll in
-bounded calls:
+When a managed adapter reports a live connection, hand off to that session and do not also consume
+the same actions from this parent task. The managed session receives actions and streams concise
+public progress directly; raw chain-of-thought, commands, tool payloads, paths, and provider output
+must never enter Studio.
+
+Without a matching managed adapter, the creation room is a local, provider-neutral action inbox.
+Keep one action cursor and poll in bounded calls:
 
 ```bash
 npm exec -- drever studio status --json
@@ -133,6 +143,46 @@ stop so the user receives a concrete result instead of an indefinite wait:
   "message": "Drever could not publish the question round. Please resubmit the brief."
 }
 ```
+
+After the question round, keep long work legible in the creation room with a short activity
+timeline. Publish at meaningful boundaries in planning, research, Draft 1, visual refinement, and
+final review—not for every tool call or token. Activity is a user-facing account of observable work,
+never private chain-of-thought, hidden reasoning, raw provider output, or a claim about work that has
+not started. Make each `detail` a concise decision summary when a useful choice has been made—for
+example, “Choosing a contrast-first story because this audience knows the terminology but needs a
+decision”—rather than “thinking” or another generic status. This lets the user understand the
+direction and correct it without exposing private reasoning. Keep at most one item `active`, mark
+earlier items `complete` or `error`, retain at most twelve recent items, and use stable lowercase
+kebab-case IDs:
+
+```json
+{
+  "version": 1,
+  "phase": "drafting",
+  "handledActionRevision": 9,
+  "activity": [
+    {
+      "id": "story-approved",
+      "label": "Story approved",
+      "detail": "The reviewed plan is now the source of truth.",
+      "status": "complete"
+    },
+    {
+      "id": "draft-one",
+      "label": "Building the first preview",
+      "detail": "Using a comparison-led draft because the approved story turns on one misconception.",
+      "status": "active"
+    }
+  ]
+}
+```
+
+The CLI already publishes an immediate receipt milestone when a browser action reaches the agent.
+For `submit-common-brief`, preserve the latency-sensitive rule above: publish the actual question
+round next, without a separate progress publication or preliminary research. For later phases,
+update the active item before a material operation that may take noticeable time and complete it
+when the corresponding artifact exists. `handledActionRevision` still means the action has actually
+been incorporated; visible activity never acknowledges unfinished work.
 
 Skip question publication only when the same returned action batch contains
 `skip-remaining-questions` after that brief. After answers or a skip, update `brief.md` and

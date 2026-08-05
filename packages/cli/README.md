@@ -33,6 +33,8 @@ npm exec -- drever doctor --json
 npm exec -- drever context slides.mdx --json
 npm exec -- drever check slides.mdx --rendered --json
 npm exec -- drever dev slides.mdx
+npm exec -- drever dev slides.mdx --open studio
+npm exec -- drever dev slides.mdx --open studio --agent codex
 npm exec -- drever studio status --json
 npm exec -- drever current --json
 npm exec -- drever mcp slides.mdx
@@ -45,6 +47,19 @@ npm exec -- drever export pdf slides.mdx --slides 2-5,8 --steps --output slides-
 These examples use npm. In projects installed with pnpm, Yarn, or Bun, use
 `pnpm exec drever`, `yarn exec drever`, or `bunx --no-install drever`
 respectively, plus that manager's script runner.
+
+`dev --open studio` opens the exact loopback-only Creation room in the default browser after the
+server chooses its URL. CI, explicitly disabled browser opening, and headless Linux sessions keep
+the server running and print the same URL as a manual fallback.
+
+Add `--agent codex` or `--agent claude` for a native live session. Gemini CLI, GitHub Copilot CLI,
+Goose, Cursor CLI, OpenCode, OpenHands, and Cline use the shared ACP transport through `--agent gemini`,
+`--agent copilot`, `--agent goose`, `--agent cursor`, `--agent opencode`, `--agent openhands`, or
+`--agent cline`. The selected CLI must
+already be installed and authenticated; Drever never
+copies its credentials into the browser. Without `--agent`, the same room keeps using the portable
+`studio wait` / `studio publish` bridge, which remains available to Aider and any agent
+that can run project commands.
 
 All commands default to `slides.mdx`. PDF export writes
 `<entry-basename>-export.pdf` in the project root unless `--output` is provided;
@@ -266,11 +281,16 @@ preview changes. Review owns the exhaustive rendered gate; delivery reuses its
 fresh evidence and runs the one production build plus requested exports. Any
 later source, configuration, or asset mutation invalidates affected evidence.
 
-The provider-neutral bridge uses `drever studio status`, `drever studio wait`,
-and `drever studio publish`. These are agent-facing commands over ephemeral
-`.drever/studio` state, not a hosted API. The browser never receives model
-credentials or arbitrary file access, and the creation room is excluded from
-production and export bundles.
+Managed sessions stream concise public summaries and tool lifecycle events directly into Studio.
+Codex uses its native app-server protocol; Claude Code uses native `stream-json`; Gemini CLI,
+GitHub Copilot CLI, Cursor CLI, OpenCode, and Cline use the official Agent Client Protocol. ACP and Codex permission
+requests can be resolved in Studio. Claude Code keeps permission decisions in its own provider
+policy until its CLI exposes an equivalent interactive client protocol.
+
+The portable bridge uses `drever studio status`, `drever studio wait`, and
+`drever studio publish`. These are agent-facing commands over ephemeral `.drever/studio` state,
+not a hosted API. The browser never receives model credentials or arbitrary file access, and the
+creation room is excluded from production and export bundles.
 
 Run `npm exec -- drever context [entry] --json` before substantial authoring or review. The
 versioned JSON document contains:

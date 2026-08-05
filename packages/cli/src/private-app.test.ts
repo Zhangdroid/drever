@@ -87,8 +87,21 @@ describe("generated private application", () => {
       expect(entry).toContain('routePath === "studio"');
       expect(entry).toContain('import("@drever/client/studio")');
       expect(entry).toContain('import("@drever/client/studio.css")');
-      expect(entry).toContain('import("virtual:drever/studio-state")');
+      expect(entry).not.toContain("virtual:drever/studio-state");
+      expect(entry).toContain("location.hash.slice(1)");
+      expect(entry).toContain('studioAccess.get("access")');
+      expect(entry).toContain('studioAccess.get("preview")');
+      expect(entry).toContain("Open the exact Creation room URL printed by Drever.");
+      expect(entry).toContain(
+        'import.meta.hot.send("drever:studio-state-request", { token: studioToken })',
+      );
+      expect(entry).toContain("previewUrl: studioPreviewUrl");
+      expect(entry).not.toContain("export const studioToken");
       expect(entry).toContain('import.meta.hot.send("drever:studio-action"');
+      expect(entry).toContain('input.type === "respond-agent-approval"');
+      expect(entry).toContain("approvalId: input.approvalId");
+      expect(entry).toContain("if (!ack.accepted)");
+      expect(entry).toContain("Drever Studio rejected the action.");
       expect(entry).toContain('import("@drever/client/storyboard")');
       expect(entry).toContain('import("@drever/client/storyboard.css")');
       expect(entry).toContain('import("virtual:drever/storyboard-plan")');

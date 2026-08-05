@@ -12,6 +12,7 @@ import {
   nextStudioMode,
   resolveStudioAnswers,
   resolveStudioDuration,
+  respondToStudioAgentApproval,
   Studio,
   type StudioProps,
   submitStudioBrief,
@@ -115,6 +116,58 @@ describe("Studio", () => {
     expect(markup).not.toContain("No local agent is active.");
   });
 
+  it("shows the current agent approval without exposing transport internals", () => {
+    const markup = render(
+      state({
+        agentConnected: true,
+        agentApprovals: [
+          {
+            id: "approval-write-storyboard",
+            kind: "file-change",
+            reason: "Write the approved storyboard",
+            detail: "Update the deck source in this project.",
+          },
+          {
+            id: "approval-run-check",
+            kind: "command",
+            reason: "Verify the draft",
+          },
+        ],
+      }),
+    );
+
+    expect(markup).toContain(
+      'aria-label="Respond to agent approval" class="drever-studio-agent-approval__actions" role="group"',
+    );
+    expect(markup).toContain("File change approval");
+    expect(markup).toContain("Write the approved storyboard");
+    expect(markup).toContain("Update the deck source in this project.");
+    expect(markup).toContain("1 more waiting");
+    expect(markup).toContain("Allow once");
+    expect(markup).toContain("Allow for session");
+    expect(markup).toContain("Decline");
+  });
+
+  it("shows only approval choices supported by the current agent request", () => {
+    const markup = render(
+      state({
+        agentConnected: true,
+        agentApprovals: [
+          {
+            decisions: ["accept", "cancel"],
+            id: "approval-run-check",
+            kind: "command",
+          },
+        ],
+      }),
+    );
+
+    expect(markup).toContain("Allow once");
+    expect(markup).toContain("Cancel");
+    expect(markup).not.toContain("Allow for session");
+    expect(markup).not.toContain("Decline");
+  });
+
   it("does not pretend disconnected queued work is already running", () => {
     const markup = render(
       state({
@@ -199,7 +252,9 @@ describe("Studio", () => {
     expect(markup).toContain("Mass shapes the path. Distance sets the danger.");
     expect(markup).toContain("Entire deck");
     expect(markup).toContain("What should change?");
-    expect(markup).toContain("Approve and create Draft 1");
+    expect(markup).toContain("Approve story");
+    expect(markup).toContain('aria-controls="drever-studio-plan-card-closing-model"');
+    expect(markup).toContain('data-studio-slide-id="closing-model"');
     expect(markup).not.toContain("Live Drever draft");
   });
 
@@ -219,7 +274,7 @@ describe("Studio", () => {
     expect(markup).not.toContain("Structure preview");
   });
 
-  it("keeps approval disabled while earlier feedback is waiting for the agent", () => {
+  it("keeps a reviewable plan locked while an earlier request is still being reconciled", () => {
     const markup = render(
       state({
         phase: "plan-review",
@@ -229,25 +284,79 @@ describe("Studio", () => {
       }),
     );
 
-    expect(markup).toContain('disabled=""');
-    expect(markup).toContain("Waiting for the agent…");
+    expect(markup).toContain("Waiting for agent…");
+    expect(markup).toMatch(/<button class="drever-studio-approve" disabled=/u);
   });
 
-  it("opens an already available draft instead of returning to the storyboard", () => {
+  it("shows published activity in the workspace without presenting it as private reasoning", () => {
     const markup = render(
       state({
-        phase: "preview",
+        agentConnected: true,
+        phase: "drafting",
         commonBrief: { topic: plan.brief.topic },
         plan: { ...plan, status: "approved" },
+        activity: [
+          {
+            id: "draft-layout",
+            label: "Laying out the evidence slides",
+            detail: "The opening and comparison are ready; the closing is next.",
+            status: "active",
+          },
+        ],
       }),
     );
 
+    expect(markup).toContain('aria-label="Latest agent activity"');
+    expect(markup).toContain("Agent working");
+    expect(markup).toContain("Laying out the evidence slides");
+    expect(markup).toContain("Draft 1 is taking shape");
+    expect(markup).toContain("Live summary");
+    expect(markup).toContain('aria-label="Recent agent activity"');
+    expect(markup).not.toContain("chain of thought");
+  });
+
+  it("opens an already available draft instead of returning to the storyboard", () => {
+    const markup = renderToStaticMarkup(
+      <Studio
+        audienceUrl="http://127.0.0.1:4317/"
+        onAction={vi.fn()}
+        previewUrl="http://127.0.0.1:51999/"
+        state={state({
+          phase: "preview",
+          commonBrief: { topic: plan.brief.topic },
+          plan: { ...plan, status: "approved" },
+        })}
+      />,
+    );
+
     expect(markup).toContain('title="Live Drever draft"');
+    expect(markup).toContain('src="http://127.0.0.1:51999/"');
+    expect(markup).toContain('sandbox="allow-same-origin allow-scripts"');
+    expect(markup).toContain('referrerPolicy="no-referrer"');
+    expect(markup).not.toContain("allow-top-navigation");
+    expect(markup).toContain('href="http://127.0.0.1:4317/"');
     expect(markup).toContain('aria-pressed="true" type="button">Live draft');
   });
 });
 
 describe("Studio flow helpers", () => {
+  it("sends every supported agent approval decision through the Studio action boundary", async () => {
+    const onAction = vi.fn<StudioProps["onAction"]>();
+    const decisions = ["accept", "acceptForSession", "decline", "cancel"] as const;
+
+    for (const decision of decisions) {
+      await respondToStudioAgentApproval(onAction, "approval-1", decision);
+    }
+
+    expect(onAction.mock.calls.map(([action]) => action)).toEqual(
+      decisions.map((decision) => ({
+        approvalId: "approval-1",
+        decision,
+        type: "respond-agent-approval",
+      })),
+    );
+  });
+
   it("accepts a useful custom duration and rejects invalid values", () => {
     expect(resolveStudioDuration("45")).toBe(45);
     expect(resolveStudioDuration(" 90 ")).toBe(90);

@@ -25,6 +25,23 @@ describe("parseCommand", () => {
       name: "create",
     });
     expect(parseCommand(["dev"])).toEqual({ name: "dev" });
+    expect(parseCommand(["dev", "--open", "studio"])).toEqual({
+      name: "dev",
+      open: "studio",
+    });
+    expect(parseCommand(["dev", "decks/keynote.mdx", "--open", "studio"])).toEqual({
+      entry: "decks/keynote.mdx",
+      name: "dev",
+      open: "studio",
+    });
+    expect(
+      parseCommand(["dev", "decks/keynote.mdx", "--agent", "gemini", "--open", "studio"]),
+    ).toEqual({
+      agent: "gemini",
+      entry: "decks/keynote.mdx",
+      name: "dev",
+      open: "studio",
+    });
     expect(parseCommand(["build", "decks/keynote.mdx"])).toEqual({
       entry: "decks/keynote.mdx",
       json: false,
@@ -261,6 +278,18 @@ describe("parseCommand", () => {
     expect(() => parseCommand(["preview"])).toThrowError(
       expect.objectContaining({ code: "DREVER_COMMAND_UNKNOWN" }),
     );
+    expect(() => parseCommand(["dev", "--open", "audience"])).toThrowError(
+      expect.objectContaining({ code: "DREVER_ARGUMENT_INVALID" }),
+    );
+    expect(() => parseCommand(["dev", "--open", "studio", "--open", "studio"])).toThrowError(
+      expect.objectContaining({ code: "DREVER_ARGUMENT_INVALID" }),
+    );
+    expect(() => parseCommand(["dev", "--agent", "aider"])).toThrowError(
+      expect.objectContaining({ code: "DREVER_ARGUMENT_INVALID" }),
+    );
+    expect(() => parseCommand(["dev", "--agent", "codex", "--agent", "claude"])).toThrowError(
+      expect.objectContaining({ code: "DREVER_ARGUMENT_INVALID" }),
+    );
   });
 });
 
@@ -297,6 +326,30 @@ describe("runCli metadata", () => {
       types: "./dist/runtime.d.mts",
       import: "./dist/runtime.mjs",
     });
+  });
+});
+
+describe("runCli dev", () => {
+  it("passes the explicit Studio-open request to the development server", async () => {
+    const root = await mkdtemp(join(tmpdir(), "drever-dev-cli-test-"));
+    directories.push(root);
+    await writeFile(join(root, "slides.mdx"), "# Local Studio\n");
+    await writeFile(join(root, "drever.config.ts"), 'export default { entry: "slides.mdx" };\n');
+    const server = { close: vi.fn(async () => undefined) };
+    const serveProject = vi.fn(async () => server as never);
+    const environment = { CI: "true" };
+
+    const result = await runCli(["dev", "--open", "studio", "--agent", "codex"], {
+      cwd: root,
+      environment,
+      serveProject,
+    });
+
+    expect(result).toBe(server);
+    expect(serveProject).toHaveBeenCalledWith(
+      expect.objectContaining({ entry: join(root, "slides.mdx"), root }),
+      { agent: "codex", environment, open: "studio" },
+    );
   });
 });
 

@@ -9,7 +9,11 @@ import {
   resolveDreverProject,
   type ResolvedDreverProject,
 } from "./project.ts";
-import { buildDreverProject, serveDreverProject } from "./vite-app.ts";
+import {
+  buildDreverProject,
+  serveDreverProject,
+  type ServeDreverProjectOptions,
+} from "./vite-app.ts";
 import type { CheckDeckRequest, CheckExitCode } from "./check.ts";
 import type { AgentSyncResult, AgentSyncTarget, SyncAgentKitOptions } from "./agent-sync.ts";
 import {
@@ -32,6 +36,11 @@ import type {
   ImportWebsiteDesignOptions,
 } from "./design-import.ts";
 import type { RunStudioCommandRequest, StudioCommand } from "./studio-command.ts";
+import {
+  isStudioAgentName,
+  STUDIO_AGENT_NAMES,
+  type StudioAgentName,
+} from "./studio-agent-registry.ts";
 
 export type AgentCommand = Readonly<{
   action: "sync";
@@ -52,8 +61,10 @@ export type BrowserCommand = Readonly<{
 }>;
 
 type DevCommand = Readonly<{
+  agent?: StudioAgentName;
   entry?: string;
   name: "dev";
+  open?: "studio";
 }>;
 
 export type CheckCommand = Readonly<{
@@ -138,6 +149,7 @@ const BUILD_USAGE = "Usage: drever build [entry] [--json]";
 const CHECK_USAGE = "Usage: drever check [entry] [--rendered] [--json]";
 const CONTEXT_USAGE = "Usage: drever context [entry] [--json]";
 const CURRENT_USAGE = "Usage: drever current [--json]";
+const DEV_USAGE = `Usage: drever dev [entry] [--open studio] [--agent <${STUDIO_AGENT_NAMES.join("|")}>]`;
 const DOCTOR_USAGE = "Usage: drever doctor [--json]";
 const MCP_USAGE = "Usage: drever mcp [entry]";
 const AGENT_SYNC_USAGE = "Usage: drever agent sync [--target <all|auto|codex|claude>]";
@@ -648,11 +660,48 @@ const parseStudio = (arguments_: readonly string[]): StudioCommand => {
   return Object.freeze({ action: "publish", file: publicationFile, json, name: "studio" });
 };
 
+const parseDev = (arguments_: readonly string[]): DevCommand => {
+  let agent: StudioAgentName | undefined;
+  let entry: string | undefined;
+  let open: "studio" | undefined;
+  for (let index = 0; index < arguments_.length; index += 1) {
+    const argument = arguments_[index] as string;
+    if (argument === "--agent") {
+      if (agent !== undefined) invalidArgument("--agent can be specified only once.", DEV_USAGE);
+      const value =
+        arguments_[index + 1] ??
+        invalidArgument(`--agent requires one of: ${STUDIO_AGENT_NAMES.join(", ")}.`, DEV_USAGE);
+      agent = isStudioAgentName(value)
+        ? value
+        : invalidArgument(`--agent requires one of: ${STUDIO_AGENT_NAMES.join(", ")}.`, DEV_USAGE);
+      index += 1;
+      continue;
+    }
+    if (argument === "--open") {
+      if (open !== undefined) invalidArgument("--open can be specified only once.", DEV_USAGE);
+      const target = arguments_[index + 1];
+      if (target !== "studio") invalidArgument("--open requires studio.", DEV_USAGE);
+      open = "studio";
+      index += 1;
+      continue;
+    }
+    if (argument.startsWith("-")) invalidArgument(`Unknown dev flag: ${argument}`, DEV_USAGE);
+    if (entry !== undefined) invalidArgument("dev accepts at most one deck entry path.", DEV_USAGE);
+    entry = argument;
+  }
+  return Object.freeze({
+    name: "dev",
+    ...(agent === undefined ? {} : { agent }),
+    ...(entry === undefined ? {} : { entry }),
+    ...(open === undefined ? {} : { open }),
+  });
+};
+
 export const HELP = `Drever — AI-first MDX presentations
 
 Usage:
   drever create [directory] [options]
-  drever dev [entry]
+  drever dev [entry] [--open studio] [--agent <codex|claude|gemini|copilot|goose|cursor|opencode|openhands|cline>]
   drever build [entry] [--json]
   drever check [entry] [--rendered] [--json]
   drever context [entry] [--json]
@@ -726,17 +775,7 @@ export const parseCommand = (arguments_: readonly string[]): DreverCommand | "he
       hint: "Run drever --help to see the available commands.",
     });
   }
-  if (rest.length > 1 || rest[0]?.startsWith("-") === true) {
-    throw new DreverCliError(
-      "DREVER_ARGUMENT_INVALID",
-      `${command} accepts at most one deck entry path.`,
-      { hint: `Usage: drever ${command} [entry]` },
-    );
-  }
-  return Object.freeze({
-    name: command,
-    ...(rest[0] === undefined ? {} : { entry: rest[0] }),
-  });
+  return parseDev(rest);
 };
 
 export type RunCliOptions = Readonly<{
@@ -755,6 +794,10 @@ export type RunCliOptions = Readonly<{
   stdout?: Pick<NodeJS.WriteStream, "write">;
   writeAuthoringContext?: (request: WriteAuthoringContextRequest) => Promise<unknown>;
   writeCurrentPosition?: (request: WriteCurrentPositionRequest) => Promise<unknown>;
+  serveProject?: (
+    project: ResolvedDreverProject,
+    options: ServeDreverProjectOptions,
+  ) => Promise<ViteDevServer>;
 }>;
 
 export type RunCliResult = CheckExitCode | void | ViteDevServer;
@@ -1011,5 +1054,10 @@ export const runCli = async (
     }
     return;
   }
-  return serveDreverProject(project);
+  const serveProject = options.serveProject ?? serveDreverProject;
+  return serveProject(project, {
+    ...(command.agent === undefined ? {} : { agent: command.agent }),
+    ...(options.environment === undefined ? {} : { environment: options.environment }),
+    ...(command.open === undefined ? {} : { open: command.open }),
+  });
 };

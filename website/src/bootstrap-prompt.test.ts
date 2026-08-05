@@ -29,6 +29,12 @@ describe("public bootstrap prompt", () => {
   it("delegates quickly to the installed version-matched workflow", () => {
     expect(wordCount(prompt)).toBeLessThan(450);
     expect(prompt).toMatch(/Follow these instructions now[^.]*do not merely summarize/iu);
+    expect(prompt).toMatch(/MDX\/React web project/iu);
+    expect(prompt).toMatch(/only authoring contract/iu);
+    expect(prompt).toMatch(/another artifact skill[^.]*do not use it/iu);
+    expect(prompt.split("## Follow the installed contract")[0]).not.toMatch(
+      /presentation|slide deck|powerpoint|pptx/iu,
+    );
     expect(prompt).toMatch(/project-local\s+`drever-create-deck` skill/iu);
     expect(prompt).toMatch(/Use `drever-author-deck` for an edit/iu);
     expect(prompt).toMatch(/Never infer\s+replacement/iu);
@@ -72,6 +78,8 @@ describe("public bootstrap prompt", () => {
     expect(createDeckSkill).toMatch(/check --json[^.]*before presenting/iu);
     expect(createDeckSkill).toMatch(/invite\s+edits or explicit\s+approval,\s+and stop/iu);
     expect(createDeckSkill).toMatch(/Prefer the local creation room/iu);
+    expect(createDeckSkill).toContain("npm run dev -- --open studio");
+    expect(createDeckSkill).toMatch(/browser auto-open is unavailable[^.]*browser control/iu);
     expect(createDeckSkill).toContain("drever studio status --json");
     expect(createDeckSkill).toContain("drever studio wait --after <latestActionRevision>");
     expect(createDeckSkill).toContain("drever studio publish --file <path> --json");

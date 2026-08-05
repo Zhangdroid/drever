@@ -45,6 +45,33 @@ export type DreverStudioProgress = Readonly<{
   total?: number;
 }>;
 
+export type DreverStudioActivityStatus = "active" | "complete" | "error";
+
+export type DreverStudioAgentApprovalKind = "command" | "file-change" | "permissions";
+
+export type DreverStudioAgentApprovalDecision =
+  | "accept"
+  | "acceptForSession"
+  | "decline"
+  | "cancel";
+
+/** A concise, user-facing approval request. Never include private model reasoning. */
+export type DreverStudioAgentApprovalRequest = Readonly<{
+  decisions?: readonly DreverStudioAgentApprovalDecision[];
+  id: string;
+  kind: DreverStudioAgentApprovalKind;
+  reason?: string;
+  detail?: string;
+}>;
+
+/** A concise, user-facing milestone. It must not contain private model reasoning. */
+export type DreverStudioActivity = Readonly<{
+  id: string;
+  label: string;
+  detail?: string;
+  status: DreverStudioActivityStatus;
+}>;
+
 export type DreverStudioPhase =
   | "briefing"
   | "waiting-for-agent"
@@ -66,6 +93,8 @@ export type DreverStudioState = Readonly<{
   adaptiveAnswers?: readonly DreverStudioAnswer[];
   skippedRemainingQuestions?: boolean;
   plan?: DreverDeckPlan;
+  activity?: readonly DreverStudioActivity[];
+  agentApprovals?: readonly DreverStudioAgentApprovalRequest[];
   progress?: DreverStudioProgress;
   message?: string;
   latestActionRevision: number;
@@ -85,6 +114,12 @@ export type DreverStudioAction =
       Readonly<{ type: "submit-adaptive-answers"; answers: readonly DreverStudioAnswer[] }>)
   | (DreverStudioActionBase & Readonly<{ type: "skip-remaining-questions" }>)
   | (DreverStudioActionBase & Readonly<{ type: "approve-plan" }>)
+  | (DreverStudioActionBase &
+      Readonly<{
+        type: "respond-agent-approval";
+        approvalId: string;
+        decision: DreverStudioAgentApprovalDecision;
+      }>)
   | (DreverStudioActionBase &
       Readonly<{ type: "submit-feedback"; scope: DreverStudioFeedbackScope; message: string }>);
 
@@ -112,6 +147,7 @@ export type DreverStudioAgentState = Readonly<{
   phase: DreverStudioPhase;
   handledActionRevision?: number;
   adaptiveQuestions?: readonly DreverStudioQuestion[];
+  activity?: readonly DreverStudioActivity[];
   progress?: DreverStudioProgress;
   message?: string;
 }>;
