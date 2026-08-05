@@ -49,11 +49,12 @@ place.
 
 Managed Codex and Claude Code sessions use their native streaming protocols. Gemini CLI, GitHub
 Copilot CLI, Goose, Cursor CLI, OpenCode, OpenHands, and Cline share one official Agent Client
-Protocol adapter. Studio shows only concise public summaries, plans, and tool lifecycle—not private
-chain-of-thought, raw commands, tool payloads, or provider transcripts. ACP and Codex approvals can
-return through Studio; Claude Code currently keeps permission decisions in its provider policy. The
-selected CLI remains the credential owner, and the browser never receives an API key or arbitrary
-file access.
+Protocol adapter. Studio keeps the latest specific public work summary visible and places completed
+milestones in expandable history. It does not expose private chain-of-thought, raw commands, tool
+payloads, or provider transcripts. ACP and Codex approvals can return through a prominent Studio
+action prompt; Claude Code currently keeps permission decisions in its provider policy. The selected
+CLI remains the credential owner, and the browser never receives an API key or arbitrary file
+access.
 
 | Agent                                                                                               | Studio transport      | Approval path                       |
 | --------------------------------------------------------------------------------------------------- | --------------------- | ----------------------------------- |

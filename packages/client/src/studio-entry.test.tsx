@@ -24,6 +24,7 @@ const initialState = {
 type HostProps = Readonly<{
   onAction(action: StudioActionInput): Promise<void>;
   onMounted(): void;
+  previewCapability?: string;
   state: DreverStudioState;
 }>;
 
@@ -67,10 +68,12 @@ describe("createStudio", () => {
       audienceUrl: "http://127.0.0.1:4317/",
       container: {} as Element,
       onAction,
+      previewCapability: "studio-preview-capability",
       state: initialState,
     });
     const submit = roots[0]?.onAction;
     if (submit === undefined) throw new Error("Studio action bridge was not rendered.");
+    expect(roots[0]?.previewCapability).toBe("studio-preview-capability");
 
     await Promise.all([
       submit({ brief: { topic: "A useful topic" }, type: "submit-common-brief" }),

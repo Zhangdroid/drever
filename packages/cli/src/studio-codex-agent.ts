@@ -20,6 +20,7 @@ import {
   type StudioActionPublicationVerifier,
 } from "./studio-agent-publication.ts";
 import {
+  phaseForStudioAction,
   studioActionWorkflowInstructions,
   type StudioAgentApprovalDecision,
   type StudioAgentApprovalRequest,
@@ -76,6 +77,8 @@ const isRecord = (value: unknown): value is JsonRecord =>
 
 const bounded = (value: string, limit: number): string => value.slice(0, limit);
 
+const boundedTail = (value: string, limit: number): string => value.slice(-limit);
+
 const activityId = (kind: string, id: string): string =>
   bounded(
     `codex-${kind}-${id}`
@@ -93,6 +96,7 @@ const createProjection = (changed: () => void): Projection => {
   let handledActionRevision = 0;
   let message: string | undefined;
   let phase: DreverStudioPhase = "waiting-for-agent";
+  let workingPhase: DreverStudioPhase = "waiting-for-agent";
   let progress: DreverStudioProgress | undefined;
 
   const publishMessage = (value: string): void => {
@@ -125,7 +129,7 @@ const createProjection = (changed: () => void): Projection => {
   };
 
   const appendDelta = (store: Map<string, string>, itemId: string, delta: string): void => {
-    const next = bounded(`${store.get(itemId) ?? ""}${delta}`, MAX_LONG_TEXT);
+    const next = boundedTail(`${store.get(itemId) ?? ""}${delta}`, MAX_LONG_TEXT);
     store.set(itemId, next);
     publishMessage(next);
   };
@@ -133,7 +137,7 @@ const createProjection = (changed: () => void): Projection => {
   return Object.freeze({
     apply(event) {
       if (event.type === "turn-started") {
-        phase = "drafting";
+        phase = workingPhase;
         progress = undefined;
         reasoning.clear();
         messages.clear();
@@ -207,7 +211,7 @@ const createProjection = (changed: () => void): Projection => {
           ),
         );
       } else if (event.type === "error") {
-        phase = event.willRetry ? "drafting" : "error";
+        phase = event.willRetry ? workingPhase : "error";
         publishMessage(
           event.willRetry
             ? "Codex is retrying after an error."
@@ -218,7 +222,8 @@ const createProjection = (changed: () => void): Projection => {
       changed();
     },
     beginAction(record) {
-      phase = record.action.type === "submit-feedback" ? "refining" : "drafting";
+      workingPhase = phaseForStudioAction(record);
+      phase = workingPhase;
       progress = undefined;
       publishMessage("Codex received the latest Studio action.");
       updateActivity(
@@ -240,6 +245,7 @@ const createProjection = (changed: () => void): Projection => {
       changed();
     },
     ready() {
+      workingPhase = "waiting-for-agent";
       phase = "waiting-for-agent";
       message = undefined;
       changed();

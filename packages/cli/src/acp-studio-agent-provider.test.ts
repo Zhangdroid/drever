@@ -241,6 +241,7 @@ describe("ACP Studio agent provider", () => {
     const activeActivities = provider
       .snapshot()
       .state?.activity?.filter(({ status }) => status === "active");
+    expect(provider.snapshot().state?.phase).toBe("waiting-for-agent");
     expect(activeActivities).toHaveLength(1);
     expect(JSON.stringify(provider.snapshot())).not.toContain("Polish the deck");
     await provider.respondToApproval(provider.approvals()[0]!.id, "acceptForSession");

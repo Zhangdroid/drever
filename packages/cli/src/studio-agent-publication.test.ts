@@ -1,7 +1,7 @@
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { DREVER_STUDIO_PROTOCOL_VERSION } from "@drever/schema";
+import { DREVER_STUDIO_PROTOCOL_VERSION, type DreverStudioActionRecord } from "@drever/schema";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 import {
   createStudioActionPublicationVerifier,
@@ -48,6 +48,52 @@ const writeActions = async (root: string, count: number): Promise<void> => {
           },
         }),
       );
+    }),
+  );
+};
+
+const writeActionRecords = async (
+  root: string,
+  records: DreverStudioActionRecord[],
+): Promise<void> => {
+  const directory = join(root, DREVER_STUDIO_DIRECTORY, DREVER_STUDIO_ACTIONS_DIRECTORY);
+  await mkdir(directory, { recursive: true });
+  await Promise.all(
+    records.map((record) =>
+      writeFile(
+        join(directory, `${String(record.revision).padStart(8, "0")}.json`),
+        JSON.stringify(record),
+      ),
+    ),
+  );
+};
+
+const writePlan = async (root: string, status: "approved" | "awaiting-approval"): Promise<void> => {
+  await writeFile(
+    join(root, "drever.plan.json"),
+    JSON.stringify({
+      version: 1,
+      status,
+      brief: {
+        topic: "Why black holes are not cosmic vacuum cleaners",
+        audience: "Curious adults",
+        desiredChange: "Replace a common misconception with a useful mental model",
+        durationMinutes: 12,
+        language: "en",
+        density: "concise",
+      },
+      slides: [
+        {
+          id: "opening",
+          job: "opening",
+          title: "A black hole is not a vacuum cleaner",
+          purpose: "Name the misconception.",
+          evidence: ["Gravity still depends on distance and mass."],
+          focalArtifact: "A stable orbit diagram",
+          composition: { recipe: "comparison" },
+          density: "concise",
+        },
+      ],
     }),
   );
 };
@@ -109,6 +155,7 @@ describe("Studio action publication verifier", () => {
   it("creates a record-aware verifier for provider adapters", async () => {
     const root = await createRoot();
     await writeActions(root, 3);
+    await writePlan(root, "approved");
     await writeState(root, {
       version: DREVER_STUDIO_PROTOCOL_VERSION,
       phase: "ready",
@@ -131,5 +178,177 @@ describe("Studio action publication verifier", () => {
         },
       }),
     ).resolves.toBe(true);
+  });
+
+  it("requires the concrete question-round outcome for a submitted brief", async () => {
+    const root = await createRoot();
+    await writeActions(root, 1);
+    const verify = createStudioActionPublicationVerifier(root);
+    const record = {
+      version: 1,
+      revision: 1,
+      receivedAt: "2026-08-04T20:00:00.000Z",
+      action: {
+        version: 1,
+        requestId: "brief-1",
+        expectedRevision: 0,
+        type: "submit-common-brief",
+        brief: { topic: "Why black holes are not cosmic vacuum cleaners" },
+      },
+    } as const;
+
+    await writeState(root, {
+      version: DREVER_STUDIO_PROTOCOL_VERSION,
+      phase: "waiting-for-agent",
+      handledActionRevision: 1,
+    });
+    await expect(verify(record)).resolves.toBe(false);
+
+    await writeState(root, {
+      version: DREVER_STUDIO_PROTOCOL_VERSION,
+      phase: "adaptive-questions",
+      handledActionRevision: 1,
+      adaptiveQuestions: [
+        {
+          id: "evidence",
+          prompt: "Which evidence should lead?",
+          options: [
+            { id: "orbit", label: "Stable orbit", description: "Lead with orbital motion." },
+            { id: "scale", label: "Gravity scale", description: "Compare distances and mass." },
+          ],
+        },
+      ],
+    });
+    await expect(verify(record)).resolves.toBe(true);
+  });
+
+  it("accepts a reviewable plan that covers a consecutive skip after the submitted brief", async () => {
+    const root = await createRoot();
+    const brief = {
+      version: DREVER_STUDIO_PROTOCOL_VERSION,
+      revision: 1,
+      receivedAt: "2026-08-04T20:00:00.000Z",
+      action: {
+        version: DREVER_STUDIO_PROTOCOL_VERSION,
+        requestId: "brief-1",
+        expectedRevision: 0,
+        type: "submit-common-brief",
+        brief: { topic: "Why black holes are not cosmic vacuum cleaners" },
+      },
+    } as const satisfies DreverStudioActionRecord;
+    const skip = {
+      version: DREVER_STUDIO_PROTOCOL_VERSION,
+      revision: 2,
+      receivedAt: "2026-08-04T20:00:01.000Z",
+      action: {
+        version: DREVER_STUDIO_PROTOCOL_VERSION,
+        requestId: "skip-2",
+        expectedRevision: 1,
+        type: "skip-remaining-questions",
+      },
+    } as const satisfies DreverStudioActionRecord;
+    await writeActionRecords(root, [brief, skip]);
+    const verify = createStudioActionPublicationVerifier(root);
+
+    await writeState(root, {
+      version: DREVER_STUDIO_PROTOCOL_VERSION,
+      phase: "plan-review",
+      handledActionRevision: 2,
+    });
+    await expect(verify(brief)).resolves.toBe(false);
+
+    await writePlan(root, "awaiting-approval");
+    await expect(verify(brief)).resolves.toBe(true);
+  });
+
+  it("does not treat an unrelated later action as a skipped question round", async () => {
+    const root = await createRoot();
+    const brief = {
+      version: DREVER_STUDIO_PROTOCOL_VERSION,
+      revision: 1,
+      receivedAt: "2026-08-04T20:00:00.000Z",
+      action: {
+        version: DREVER_STUDIO_PROTOCOL_VERSION,
+        requestId: "brief-1",
+        expectedRevision: 0,
+        type: "submit-common-brief",
+        brief: { topic: "Why black holes are not cosmic vacuum cleaners" },
+      },
+    } as const satisfies DreverStudioActionRecord;
+    const nextBrief = {
+      ...brief,
+      revision: 2,
+      action: {
+        ...brief.action,
+        requestId: "brief-2",
+        expectedRevision: 1,
+      },
+    } as const satisfies DreverStudioActionRecord;
+    await writeActionRecords(root, [brief, nextBrief]);
+    await writePlan(root, "awaiting-approval");
+    await writeState(root, {
+      version: DREVER_STUDIO_PROTOCOL_VERSION,
+      phase: "plan-review",
+      handledActionRevision: 2,
+    });
+
+    await expect(createStudioActionPublicationVerifier(root)(brief)).resolves.toBe(false);
+  });
+
+  it("requires a reviewable plan after skipping questions", async () => {
+    const root = await createRoot();
+    await writeActions(root, 1);
+    const verify = createStudioActionPublicationVerifier(root);
+    const record = {
+      version: 1,
+      revision: 1,
+      receivedAt: "2026-08-04T20:00:00.000Z",
+      action: {
+        version: 1,
+        requestId: "skip-1",
+        expectedRevision: 0,
+        type: "skip-remaining-questions",
+      },
+    } as const;
+    await writeState(root, {
+      version: DREVER_STUDIO_PROTOCOL_VERSION,
+      phase: "plan-review",
+      handledActionRevision: 1,
+    });
+    await expect(verify(record)).resolves.toBe(false);
+
+    await writePlan(root, "awaiting-approval");
+    await expect(verify(record)).resolves.toBe(true);
+  });
+
+  it("allows progressive preview but requires ready output when approval finishes", async () => {
+    const root = await createRoot();
+    await writeActions(root, 1);
+    await writePlan(root, "approved");
+    const verify = createStudioActionPublicationVerifier(root);
+    const record = {
+      version: 1,
+      revision: 1,
+      receivedAt: "2026-08-04T20:00:00.000Z",
+      action: {
+        version: 1,
+        requestId: "approve-1",
+        expectedRevision: 0,
+        type: "approve-plan",
+      },
+    } as const;
+    await writeState(root, {
+      version: DREVER_STUDIO_PROTOCOL_VERSION,
+      phase: "preview",
+      handledActionRevision: 1,
+    });
+    await expect(verify(record)).resolves.toBe(false);
+
+    await writeState(root, {
+      version: DREVER_STUDIO_PROTOCOL_VERSION,
+      phase: "ready",
+      handledActionRevision: 1,
+    });
+    await expect(verify(record)).resolves.toBe(true);
   });
 });

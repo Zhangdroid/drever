@@ -12,6 +12,7 @@ import {
   type StudioActionPublicationVerifier,
 } from "./studio-agent-publication.ts";
 import {
+  phaseForStudioAction,
   studioActionWorkflowInstructions,
   type StudioAgentProvider,
   type StudioAgentProviderSnapshot,
@@ -68,6 +69,8 @@ type QueuedAction = Readonly<{
 }>;
 
 const bounded = (value: string, limit: number): string => value.slice(0, limit);
+
+const boundedTail = (value: string, limit: number): string => value.slice(-limit);
 
 const defaultSpawn = (root: string, args: readonly string[]): ClaudeCodeProcess =>
   spawn("claude", [...args], {
@@ -326,7 +329,7 @@ export const createClaudeStudioAgent = (options: ClaudeStudioAgentOptions): Stud
     if (signal.kind === "session-start") {
       sessionId = signal.sessionId;
     } else if (signal.kind === "text-delta") {
-      publicText = bounded(`${publicText}${signal.text}`, MAX_LONG_TEXT);
+      publicText = boundedTail(`${publicText}${signal.text}`, MAX_LONG_TEXT);
       publishMessage(publicText);
     } else if (signal.kind === "tool-start") {
       updateActivity(
@@ -416,7 +419,7 @@ export const createClaudeStudioAgent = (options: ClaudeStudioAgentOptions): Stud
     blockedByUnsupportedApproval = false;
     activeTurn = true;
     publicText = "";
-    phase = queued.record.action.type === "submit-feedback" ? "refining" : "drafting";
+    phase = phaseForStudioAction(queued.record);
     publishMessage("Claude Code received the latest Studio action.");
     updateActivity(
       Object.freeze({

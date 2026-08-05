@@ -308,15 +308,20 @@ test("focus tools preserve marks across Steps and clear them across slides", asy
 
   const controls = page.getByRole("navigation", { name: "Presentation controls" });
   const focusLauncher = controls.getByRole("button", { name: "Open focus tools" });
+  const focusToolbar = controls.getByRole("toolbar", { name: "Focus tools" });
   const launcherBounds = await focusLauncher.boundingBox();
   expect(launcherBounds).not.toBeNull();
   if (launcherBounds === null) return;
   const openFocusTools = async (): Promise<void> => {
+    const currentBounds = await focusLauncher.boundingBox();
+    expect(currentBounds).not.toBeNull();
+    if (currentBounds === null) return;
     await page.mouse.move(
-      launcherBounds.x + launcherBounds.width / 2,
-      launcherBounds.y + launcherBounds.height / 2,
+      currentBounds.x + currentBounds.width / 2,
+      currentBounds.y + currentBounds.height / 2,
     );
     await focusLauncher.click();
+    await expect(focusToolbar).toBeVisible();
   };
 
   await openFocusTools();
@@ -336,7 +341,7 @@ test("focus tools preserve marks across Steps and clear them across slides", asy
     (laserBounds.y + laserBounds.height + launcherBounds.y) / 2,
     { steps: 8 },
   );
-  await expect(controls.getByRole("toolbar", { name: "Focus tools" })).toBeVisible();
+  await expect(focusToolbar).toBeVisible();
   await page.mouse.move(
     laserBounds.x + laserBounds.width / 2,
     laserBounds.y + laserBounds.height / 2,

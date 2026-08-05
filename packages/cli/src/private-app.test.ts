@@ -27,6 +27,15 @@ const browserSupportBootstrapSource = (html: string): string => {
   return source;
 };
 
+const studioPreviewBridgeSource = (source: string): string => {
+  const start = source.indexOf("let stopStudioPreviewBridge;");
+  const end = source.indexOf("\nif (import.meta.hot)", start);
+  if (start < 0 || end < 0) {
+    throw new TypeError("The generated viewer is missing its Studio preview bridge.");
+  }
+  return source.slice(start, end);
+};
+
 const runBrowserSupportBootstrap = (
   source: string,
   {
@@ -76,7 +85,9 @@ const runBrowserSupportBootstrap = (
 
 describe("generated private application", () => {
   it("keeps the storyboard bootstrap independent from the authored presentation graph", async () => {
-    const app = await createPrivateDevApp("/project/broken-slides.mdx");
+    const app = await createPrivateDevApp("/project/broken-slides.mdx", {
+      previewCapability: "studio-capability",
+    });
     try {
       const [entry, presentation] = await Promise.all([
         readFile(join(app.root, "entry.js"), "utf8"),
@@ -96,6 +107,9 @@ describe("generated private application", () => {
         'import.meta.hot.send("drever:studio-state-request", { token: studioToken })',
       );
       expect(entry).toContain("previewUrl: studioPreviewUrl");
+      expect(entry).toContain('const studioPreviewCapability = "studio-capability";');
+      expect(entry).toContain("previewCapability: studioPreviewCapability");
+      expect(entry).not.toContain("previewCapability: studioToken");
       expect(entry).not.toContain("export const studioToken");
       expect(entry).toContain('import.meta.hot.send("drever:studio-action"');
       expect(entry).toContain('input.type === "respond-agent-approval"');
@@ -110,6 +124,14 @@ describe("generated private application", () => {
       expect(entry).not.toContain("virtual:drever/runtime");
       expect(presentation).toContain('from "/project/broken-slides.mdx"');
       expect(presentation).toContain("virtual:drever/runtime");
+      expect(presentation).toContain('"drever:studio-preview-connect"');
+      expect(presentation).toContain('type: "drever:studio-preview-state"');
+      expect(presentation).toContain('"drever:studio-preview-navigate"');
+      expect(presentation).toContain('const studioPreviewCapability = "studio-capability";');
+      expect(presentation).toContain(
+        'import.meta.hot &&\n  typeof studioPreviewCapability === "string" &&\n  globalThis.parent !== globalThis',
+      );
+      expect(presentation).toContain("studioParentOrigin,");
     } finally {
       await app.dispose();
     }
@@ -244,7 +266,9 @@ describe("generated private application", () => {
         throw new TypeError("The generated entry is missing its HMR block.");
       }
 
-      const hotProgram = source.slice(hotStart).replaceAll("import.meta.hot", "hot");
+      const hotProgram = `let stopStudioPreviewBridge;\n${source
+        .slice(hotStart)
+        .replaceAll("import.meta.hot", "hot")}`;
       let position = { slideId: "slide-2", slideIndex: 1, step: 3 };
       let publish: (() => void) | undefined;
       let dispose: (() => void) | undefined;
@@ -519,6 +543,288 @@ describe("generated private application", () => {
     }
   });
 
+  it("bridges an embedded audience preview to one origin-bound Studio parent", async () => {
+    const app = await createPrivateApp("/project/slides.mdx", {
+      previewCapability: "studio-capability",
+    });
+    try {
+      const source = await readFile(join(app.root, "entry.js"), "utf8");
+      const bridge = studioPreviewBridgeSource(source).replaceAll("import.meta.hot", "hot");
+      const deckManifest = {
+        version: 2,
+        slides: [
+          {
+            id: "opening",
+            index: 0,
+            speakerNotes: [
+              { format: "markdown", plainText: "Open with the evidence.", value: "Open." },
+            ],
+            stepStops: [],
+            title: "Opening",
+          },
+          {
+            id: "decision",
+            index: 1,
+            speakerNotes: [
+              { format: "markdown", plainText: "Ask for the decision.", value: "Ask." },
+            ],
+            stepStops: [2],
+            title: "Decision",
+          },
+        ],
+      };
+      let position = { slideId: "opening", slideIndex: 0, step: 0 };
+      let receiveMessage:
+        | ((event: Readonly<{ data: unknown; origin: string; source: unknown }>) => void)
+        | undefined;
+      let publishPosition: (() => void) | undefined;
+      const parentWindow = { postMessage: vi.fn() };
+      const navigate = vi.fn(() => Promise.resolve());
+      const unsubscribe = vi.fn();
+      const removeEventListener = vi.fn();
+      const context = {
+        URL,
+        deckManifest,
+        hot: { data: {} as Record<string, unknown> },
+        parent: parentWindow,
+        routePath: "",
+        presentation: {
+          getPosition: () => position,
+          navigate,
+          subscribe(callback: () => void) {
+            publishPosition = callback;
+            return unsubscribe;
+          },
+        },
+        reportPresentationError: vi.fn(),
+        addEventListener(type: string, callback: typeof receiveMessage) {
+          expect(type).toBe("message");
+          receiveMessage = callback;
+        },
+        removeEventListener,
+      };
+      runInNewContext(
+        `${bridge}\nglobalThis.disposeStudioPreviewBridge = () => stopStudioPreviewBridge?.();`,
+        context,
+      );
+
+      expect(parentWindow.postMessage).not.toHaveBeenCalled();
+      expect(publishPosition).toBeTypeOf("function");
+
+      const connect = {
+        capability: "studio-capability",
+        type: "drever:studio-preview-connect",
+        version: 1,
+      };
+      receiveMessage?.({
+        data: { ...connect, capability: "wrong-capability" },
+        origin: "http://127.0.0.1:4317",
+        source: parentWindow,
+      });
+      receiveMessage?.({ data: connect, origin: "null", source: parentWindow });
+      receiveMessage?.({ data: connect, origin: "http://127.0.0.1:4317", source: {} });
+      receiveMessage?.({
+        data: { ...connect, version: 2 },
+        origin: "http://127.0.0.1:4317",
+        source: parentWindow,
+      });
+      expect(parentWindow.postMessage).not.toHaveBeenCalled();
+
+      receiveMessage?.({
+        data: connect,
+        origin: "http://127.0.0.1:4317",
+        source: parentWindow,
+      });
+      expect(parentWindow.postMessage).toHaveBeenLastCalledWith(
+        {
+          type: "drever:studio-preview-state",
+          version: 1,
+          manifest: deckManifest,
+          position: { slideId: "opening", slideIndex: 0, step: 0 },
+        },
+        "http://127.0.0.1:4317",
+      );
+      expect(context.hot.data.dreverStudioPreviewParentOrigin).toBe("http://127.0.0.1:4317");
+      const callsAfterConnect = parentWindow.postMessage.mock.calls.length;
+      receiveMessage?.({
+        data: connect,
+        origin: "http://127.0.0.1:4318",
+        source: parentWindow,
+      });
+      expect(parentWindow.postMessage).toHaveBeenCalledTimes(callsAfterConnect);
+
+      position = { slideId: "decision", slideIndex: 1, step: 2 };
+      publishPosition?.();
+      expect(parentWindow.postMessage).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          type: "drever:studio-preview-state",
+          manifest: deckManifest,
+          position: { slideId: "decision", slideIndex: 1, step: 2 },
+        }),
+        "http://127.0.0.1:4317",
+      );
+
+      const navigateToDecision = {
+        capability: "studio-capability",
+        type: "drever:studio-preview-navigate",
+        version: 1,
+        slideIndex: 1,
+      };
+      receiveMessage?.({
+        data: { ...navigateToDecision, capability: "wrong-capability" },
+        origin: "http://127.0.0.1:4317",
+        source: parentWindow,
+      });
+      receiveMessage?.({
+        data: navigateToDecision,
+        origin: "http://127.0.0.1:4318",
+        source: parentWindow,
+      });
+      receiveMessage?.({
+        data: { ...navigateToDecision, slideIndex: 1.5 },
+        origin: "http://127.0.0.1:4317",
+        source: parentWindow,
+      });
+      receiveMessage?.({
+        data: { ...navigateToDecision, slideIndex: 12 },
+        origin: "http://127.0.0.1:4317",
+        source: parentWindow,
+      });
+      expect(navigate).not.toHaveBeenCalled();
+
+      receiveMessage?.({
+        data: navigateToDecision,
+        origin: "http://127.0.0.1:4317",
+        source: parentWindow,
+      });
+      expect(navigate).toHaveBeenCalledWith({ type: "goTo", slideId: "decision", step: 0 });
+
+      (
+        context as typeof context & Readonly<{ disposeStudioPreviewBridge(): void }>
+      ).disposeStudioPreviewBridge();
+      expect(unsubscribe).toHaveBeenCalledOnce();
+      expect(removeEventListener).toHaveBeenCalledWith("message", receiveMessage);
+    } finally {
+      await app.dispose();
+    }
+  });
+
+  it("restores the authenticated Studio parent after a viewer HMR replacement", async () => {
+    const app = await createPrivateApp("/project/slides.mdx", {
+      previewCapability: "studio-capability",
+    });
+    try {
+      const source = await readFile(join(app.root, "entry.js"), "utf8");
+      const bridge = studioPreviewBridgeSource(source).replaceAll("import.meta.hot", "hot");
+      const parentWindow = { postMessage: vi.fn() };
+      const subscribe = vi.fn(() => vi.fn());
+      const hotData = {
+        dreverStudioPreviewParentOrigin: "http://127.0.0.1:4317",
+      };
+
+      runInNewContext(bridge, {
+        URL,
+        addEventListener: vi.fn(),
+        deckManifest: {
+          version: 2,
+          slides: [{ id: "opening", index: 0, speakerNotes: [], stepStops: [] }],
+        },
+        hot: { data: hotData },
+        parent: parentWindow,
+        presentation: {
+          getPosition: () => ({ slideId: "opening", slideIndex: 0, step: 0 }),
+          navigate: vi.fn(),
+          subscribe,
+        },
+        removeEventListener: vi.fn(),
+        reportPresentationError: vi.fn(),
+        routePath: "",
+      });
+
+      expect(subscribe).toHaveBeenCalledOnce();
+      expect(parentWindow.postMessage).toHaveBeenCalledOnce();
+      expect(parentWindow.postMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "drever:studio-preview-state",
+          position: { slideId: "opening", slideIndex: 0, step: 0 },
+        }),
+        "http://127.0.0.1:4317",
+      );
+    } finally {
+      await app.dispose();
+    }
+  });
+
+  it("does not open the Studio preview channel outside an embedded development audience", async () => {
+    const app = await createPrivateApp("/project/slides.mdx", {
+      previewCapability: "studio-capability",
+    });
+    try {
+      const source = await readFile(join(app.root, "entry.js"), "utf8");
+      const bridge = studioPreviewBridgeSource(source).replaceAll("import.meta.hot", "hot");
+      const addEventListener = vi.fn();
+      const subscribe = vi.fn();
+      const shared = {
+        URL,
+        deckManifest: { version: 2, slides: [] },
+        presentation: {
+          getPosition: vi.fn(),
+          navigate: vi.fn(),
+          subscribe,
+        },
+        routePath: "",
+        reportPresentationError: vi.fn(),
+        addEventListener,
+      };
+      runInNewContext(`globalThis.parent = globalThis;\n${bridge}`, {
+        ...shared,
+        hot: { data: {} },
+      });
+      runInNewContext(bridge, {
+        ...shared,
+        hot: undefined,
+        parent: { postMessage: vi.fn() },
+      });
+
+      expect(addEventListener).not.toHaveBeenCalled();
+      expect(subscribe).not.toHaveBeenCalled();
+    } finally {
+      await app.dispose();
+    }
+  });
+
+  it("does not embed or activate a Studio capability in a production viewer", async () => {
+    const app = await createPrivateApp("/project/slides.mdx");
+    try {
+      const source = await readFile(join(app.root, "entry.js"), "utf8");
+      const bridge = studioPreviewBridgeSource(source).replaceAll("import.meta.hot", "hot");
+      const addEventListener = vi.fn();
+      const subscribe = vi.fn();
+
+      expect(source).toContain("const studioPreviewCapability = undefined;");
+      runInNewContext(bridge, {
+        URL,
+        addEventListener,
+        deckManifest: { version: 2, slides: [] },
+        hot: { data: {} },
+        parent: { postMessage: vi.fn() },
+        presentation: {
+          getPosition: vi.fn(),
+          navigate: vi.fn(),
+          subscribe,
+        },
+        removeEventListener: vi.fn(),
+        reportPresentationError: vi.fn(),
+        routePath: "",
+      });
+
+      expect(addEventListener).not.toHaveBeenCalled();
+      expect(subscribe).not.toHaveBeenCalled();
+    } finally {
+      await app.dispose();
+    }
+  });
+
   it("routes an asynchronous HMR cleanup failure through the presentation reporter", async () => {
     const app = await createPrivateApp("/project/slides.mdx");
     try {
@@ -544,7 +850,9 @@ describe("generated private application", () => {
       if (hotStart < 0) {
         throw new TypeError("The generated entry is missing its HMR disposal block.");
       }
-      const hotProgram = source.slice(hotStart).replaceAll("import.meta.hot", "hot");
+      const hotProgram = `let stopStudioPreviewBridge;\n${source
+        .slice(hotStart)
+        .replaceAll("import.meta.hot", "hot")}`;
       const failure = new Error("cleanup failed");
       const destroy = vi.fn(() => Promise.reject(failure));
       const reported = Promise.withResolvers<unknown>();

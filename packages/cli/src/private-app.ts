@@ -13,6 +13,7 @@ export type PrivateAppOptions = Readonly<{
   canvas?: Readonly<{ height: number; width: number }>;
   deck?: DreverDeckConfig;
   focusTools?: DreverFocusToolsConfig;
+  previewCapability?: string;
   rehearsal?: Readonly<{ targetDurationMs?: number }>;
   stage?: Readonly<{
     background?: string;
@@ -527,7 +528,7 @@ const stageModuleSource = (
 
 const viewerModuleSource = (
   entry: string,
-  { canvas, deck, focusTools, rehearsal, stage }: PrivateAppOptions,
+  { canvas, deck, focusTools, previewCapability, rehearsal, stage }: PrivateAppOptions,
 ): string => {
   const stageSource = stageModuleSource(stage);
   const speakerOptions =
@@ -600,6 +601,85 @@ try {
   loading?.remove();
 }
 container.setAttribute("data-drever-ready", "");
+
+let stopStudioPreviewBridge;
+const studioPreviewCapability = ${JSON.stringify(previewCapability)};
+if (
+  import.meta.hot &&
+  typeof studioPreviewCapability === "string" &&
+  globalThis.parent !== globalThis &&
+  routePath !== "document" &&
+  routePath !== "speaker" &&
+  !routePath.startsWith("speaker/") &&
+  typeof presentation.getPosition === "function" &&
+  typeof presentation.navigate === "function" &&
+  typeof presentation.subscribe === "function"
+) {
+  let studioParentOrigin;
+  const readMessage = (value) =>
+    typeof value === "object" && value !== null ? value : undefined;
+  const readParentOrigin = (value) => {
+    try {
+      const url = new URL(value);
+      return (url.protocol === "http:" || url.protocol === "https:") && url.origin === value
+        ? url.origin
+        : undefined;
+    } catch {
+      return undefined;
+    }
+  };
+  studioParentOrigin = readParentOrigin(import.meta.hot.data.dreverStudioPreviewParentOrigin);
+  const publishStudioPreviewState = () => {
+    if (studioParentOrigin === undefined) return;
+    globalThis.parent.postMessage(
+      {
+        type: "drever:studio-preview-state",
+        version: 1,
+        manifest: deckManifest,
+        position: presentation.getPosition(),
+      },
+      studioParentOrigin,
+    );
+  };
+  const receiveStudioPreviewMessage = (event) => {
+    if (event.source !== globalThis.parent) return;
+    const message = readMessage(event.data);
+    if (message?.version !== 1 || message.capability !== studioPreviewCapability) return;
+    if (message.type === "drever:studio-preview-connect") {
+      const origin = readParentOrigin(event.origin);
+      if (
+        origin === undefined ||
+        (studioParentOrigin !== undefined && studioParentOrigin !== origin)
+      ) {
+        return;
+      }
+      studioParentOrigin = origin;
+      import.meta.hot.data.dreverStudioPreviewParentOrigin = origin;
+      publishStudioPreviewState();
+      return;
+    }
+    if (
+      message.type !== "drever:studio-preview-navigate" ||
+      studioParentOrigin === undefined ||
+      event.origin !== studioParentOrigin ||
+      !Number.isSafeInteger(message.slideIndex)
+    ) {
+      return;
+    }
+    const slide = deckManifest.slides[message.slideIndex];
+    if (slide === undefined) return;
+    void presentation
+      .navigate({ type: "goTo", slideId: slide.id, step: 0 })
+      .catch(reportPresentationError);
+  };
+  globalThis.addEventListener("message", receiveStudioPreviewMessage);
+  const stopPreviewPositionSubscription = presentation.subscribe(publishStudioPreviewState);
+  stopStudioPreviewBridge = () => {
+    stopPreviewPositionSubscription();
+    globalThis.removeEventListener("message", receiveStudioPreviewMessage);
+  };
+  publishStudioPreviewState();
+}
 
 if (import.meta.hot) {
   const runExperimentalTextLayoutAudit = async () => {
@@ -759,6 +839,7 @@ if (import.meta.hot) {
     if (globalThis.__dreverExperimentalTextLayout === runExperimentalTextLayoutAudit) {
       delete globalThis.__dreverExperimentalTextLayout;
     }
+    stopStudioPreviewBridge?.();
     stopPublishingCurrentPosition?.();
     void presentation.destroy().catch(reportPresentationError);
   });
@@ -766,7 +847,8 @@ if (import.meta.hot) {
 `;
 };
 
-const devDispatcherModuleSource = `const base = document.querySelector('meta[name="drever-base"]');
+const devDispatcherModuleSource = (previewCapability: string | undefined): string =>
+  `const base = document.querySelector('meta[name="drever-base"]');
 if (!(base instanceof HTMLMetaElement)) {
   throw new Error("Drever could not find its route base.");
 }
@@ -792,11 +874,14 @@ if (routePath === "studio") {
   const studioAccess = new URLSearchParams(globalThis.location.hash.slice(1));
   const studioToken = studioAccess.get("access");
   const studioPreviewUrl = studioAccess.get("preview");
+  const studioPreviewCapability = ${JSON.stringify(previewCapability)};
   if (
     studioToken === null ||
     studioToken.length === 0 ||
     studioPreviewUrl === null ||
-    studioPreviewUrl.length === 0
+    studioPreviewUrl.length === 0 ||
+    typeof studioPreviewCapability !== "string" ||
+    studioPreviewCapability.length === 0
   ) {
     throw new Error("Open the exact Creation room URL printed by Drever.");
   }
@@ -886,6 +971,7 @@ if (routePath === "studio") {
   studio = await createStudio({
     audienceUrl: baseURL.href,
     container,
+    previewCapability: studioPreviewCapability,
     previewUrl: studioPreviewUrl,
     state: latestState ?? studioState,
     onAction: sendAction,
@@ -1028,7 +1114,7 @@ export const createPrivateDevApp = async (
   createGeneratedFilesApp(
     "drever-dev-app-",
     {
-      "entry.js": devDispatcherModuleSource,
+      "entry.js": devDispatcherModuleSource(options.previewCapability),
       "index.html": applicationHtml(options.deck === undefined ? {} : { deck: options.deck }),
       "presentation.js": viewerModuleSource(entry, options),
     },

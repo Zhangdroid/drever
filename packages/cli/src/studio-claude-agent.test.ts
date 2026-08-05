@@ -148,7 +148,7 @@ describe("native Claude Code Studio agent", () => {
     expect(JSON.stringify(child.inputs[0])).toContain("A safe streaming adapter");
     expect(provider.snapshot().state).toMatchObject({
       handledActionRevision: 0,
-      phase: "drafting",
+      phase: "waiting-for-agent",
     });
     child.send({
       type: "result",
@@ -249,6 +249,39 @@ describe("native Claude Code Studio agent", () => {
     expect(JSON.stringify(provider.snapshot())).not.toContain("SECRET_TOOL_RESULT");
     child.send({ type: "result", subtype: "success", session_id: "claude-session-1" });
     await delivery;
+  });
+
+  it("keeps late public text visible after the bounded history fills", async () => {
+    const child = new FakeClaudeProcess();
+    const provider = createTestClaudeStudioAgent({
+      root: "/workspace/deck",
+      spawnProcess: () => child as unknown as ClaudeCodeProcess,
+    });
+    const delivery = provider.handleAction(actionRecord(1));
+    await vi.waitFor(() => expect(child.inputs).toHaveLength(1));
+    child.send({
+      type: "stream_event",
+      session_id: "claude-session-1",
+      event: {
+        type: "content_block_delta",
+        delta: { type: "text_delta", text: "a".repeat(4_000) },
+      },
+    });
+    child.send({
+      type: "stream_event",
+      session_id: "claude-session-1",
+      event: {
+        type: "content_block_delta",
+        delta: { type: "text_delta", text: "LATEST_PUBLIC_UPDATE" },
+      },
+    });
+
+    await vi.waitFor(() =>
+      expect(provider.snapshot().state?.message).toContain("LATEST_PUBLIC_UPDATE"),
+    );
+    child.send({ type: "result", subtype: "success", session_id: "claude-session-1" });
+    await delivery;
+    await provider.stop();
   });
 
   it("queues the next action until the current result completes", async () => {

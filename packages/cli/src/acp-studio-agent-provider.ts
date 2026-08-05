@@ -29,6 +29,7 @@ import {
   type StudioActionPublicationVerifier,
 } from "./studio-agent-publication.ts";
 import {
+  phaseForStudioAction,
   studioActionWorkflowInstructions,
   type StudioAgentApprovalDecision,
   type StudioAgentApprovalRequest,
@@ -265,17 +266,6 @@ const toolPresentation = (
         activityLabel: "Working on the presentation",
         approvalReason: "Allow the agent to use this capability?",
       };
-  }
-};
-
-const phaseForAction = (record: DreverStudioActionRecord): DreverStudioPhase => {
-  switch (record.action.type) {
-    case "approve-plan":
-      return "drafting";
-    case "submit-feedback":
-      return "refining";
-    default:
-      return "waiting-for-agent";
   }
 };
 
@@ -618,7 +608,7 @@ class AcpStudioAgentProviderImplementation implements AcpStudioAgentProvider {
     }
     this.#messages.clear();
     this.#message = undefined;
-    this.#phase = phaseForAction(record);
+    this.#phase = phaseForStudioAction(record);
     this.#setActivity(activityForAction(record));
     this.#turnActive = true;
     try {

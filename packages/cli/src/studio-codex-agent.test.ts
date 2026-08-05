@@ -361,7 +361,7 @@ describe("native Codex Studio agent", () => {
 
     await vi.waitFor(() =>
       expect(provider.snapshot().state).toMatchObject({
-        phase: "drafting",
+        phase: "waiting-for-agent",
         handledActionRevision: 0,
         progress: { label: "Build the draft", completed: 1, total: 2 },
         activity: [expect.objectContaining({ label: "Approval needed", status: "active" })],
@@ -411,6 +411,56 @@ describe("native Codex Studio agent", () => {
     await provider.stop();
     expect(child.killed).toBe(true);
     expect(provider.snapshot().connected).toBe(false);
+  });
+
+  it("keeps late public summary deltas visible after the bounded history fills", async () => {
+    const child = new FakeAppServerProcess();
+    const provider = createTestCodexStudioAgent({
+      root: "/workspace/deck",
+      requestTimeoutMs: 1_000,
+      spawnProcess: () => child as unknown as CodexAppServerProcess,
+    });
+    const delivery = provider.handleAction(actionRecord);
+    await vi.waitFor(() =>
+      expect(child.messages.some(({ method }) => method === "turn/start")).toBe(true),
+    );
+    child.send({
+      method: "turn/started",
+      params: { threadId: "thread-1", turn: { id: "turn-1", status: "inProgress" } },
+    });
+    child.send({
+      method: "item/reasoning/summaryTextDelta",
+      params: {
+        threadId: "thread-1",
+        turnId: "turn-1",
+        itemId: "reasoning-1",
+        delta: "a".repeat(4_000),
+        summaryIndex: 0,
+      },
+    });
+    child.send({
+      method: "item/reasoning/summaryTextDelta",
+      params: {
+        threadId: "thread-1",
+        turnId: "turn-1",
+        itemId: "reasoning-1",
+        delta: "LATEST_PUBLIC_UPDATE",
+        summaryIndex: 0,
+      },
+    });
+
+    await vi.waitFor(() =>
+      expect(provider.snapshot().state?.message).toContain("LATEST_PUBLIC_UPDATE"),
+    );
+    child.send({
+      method: "turn/completed",
+      params: {
+        threadId: "thread-1",
+        turn: { id: "turn-1", status: "completed", error: null },
+      },
+    });
+    await delivery;
+    await provider.stop();
   });
 
   it("keeps an interrupted action unhandled and can replay it after reconnecting", async () => {

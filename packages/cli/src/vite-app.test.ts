@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vite-plus/test";
 import {
   attachPrivateAppLifetime,
+  createStudioCapabilities,
   openStudioWhenRequested,
   resolveDevelopmentServerHost,
   resolveDevelopmentServerUrls,
@@ -11,6 +12,18 @@ import {
   resolveSpeakerUrls,
   resolveStoryboardUrls,
 } from "./vite-app.ts";
+
+describe("createStudioCapabilities", () => {
+  it("creates separate unguessable capabilities for actions and embedded previews", () => {
+    const first = createStudioCapabilities();
+    const second = createStudioCapabilities();
+
+    expect(first.action).toMatch(/^[\w-]{43}$/u);
+    expect(first.preview).toMatch(/^[\w-]{43}$/u);
+    expect(first.preview).not.toBe(first.action);
+    expect(second).not.toEqual(first);
+  });
+});
 
 describe("resolveFrameworkViteConfig", () => {
   it("eagerly optimizes Drever and keeps every React import on one module identity", () => {

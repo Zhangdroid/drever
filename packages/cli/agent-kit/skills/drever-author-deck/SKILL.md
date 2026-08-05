@@ -54,6 +54,14 @@ authored source is stable should `drever-review-deck` own the isolated rendered 
 `drever-deliver-deck` own the production build or export. This fast path applies only to the initial
 approved Draft 1; later edits follow the affected-route and review rules below.
 
+Treat each coherent live preview as the last-known-good visual checkpoint. Refine one concern at a
+time and preserve its established slide bounds, content insets, grid, spacing tokens, and readable
+line wraps while adding motion. A motion pass must not replace or reset a working layout merely to
+make an entrance easier: animate the smallest child inside the stable geometry, publish complete
+edits atomically, and compare the affected routes with the checkpoint before moving on. If a motion
+change degrades layout, restore the known-good geometry first and redesign the motion around it
+instead of asking a later cleanup pass to recover the composition.
+
 When materially changing the visual direction, use the project-local `drever-create-design` skill and revise the persisted design artifact in place. Derive it again from the subject, audience, purpose, venue, and source material instead of layering on an unrelated style. Treat all eight official Themes as equal design studies, with Basic only as the neutral fallback when the brief offers no stronger cue. If an organization or product has an established identity and research is allowed, use current primary official sources to understand its palette, typography, marks, imagery, rhythm, and motion. Convert those findings into a small original system that uses the studies as references rather than exposing them as the primary choice. Reuse fonts and assets only when their source and license permit it; otherwise use an attributed, licensed substitute or an original abstraction.
 
 Treat active Theme CSS as part of every local scene. Use a scoped, minimal normalization for Theme-owned Markdown margins, maximum widths, line height, text transform, and foreground before applying local roles. Inspect computed descendants instead of assuming that a parent class or later source order overrides a more specific Theme selector; never reset the whole deck globally.

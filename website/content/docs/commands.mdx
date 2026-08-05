@@ -101,9 +101,12 @@ already-installed and authenticated agent CLI: Codex and Claude Code use native 
 Gemini CLI, GitHub Copilot CLI, Goose, Cursor CLI, OpenCode, OpenHands, and Cline use ACP.
 Omitting it keeps the portable journal bridge.
 
-The `/studio` route coordinates the common brief, adaptive questions, plan approval, live public
-activity, tool approvals where supported, and later feedback. `/storyboard` reads only `drever.plan.json`, so
-it can open before the configured MDX entry exists or compiles; Audience and
+The `/studio` route coordinates the common brief, adaptive questions, plan approval, a navigable
+Live Draft with speaker notes, public agent activity, tool approvals where supported, and later
+feedback. Its compact status surface follows the current public work summary while keeping earlier
+milestones in an expandable history. It distinguishes an editable first preview, active refinement,
+review readiness, and a paused refinement without hiding the last available draft.
+`/storyboard` reads only `drever.plan.json`, so it can open before the configured MDX entry exists or compiles; Audience and
 Speaker still require the deck. Configure `host`, `open`, `port`, and `strictPort` under `server` in
 `drever.config.ts`; `dev` deliberately exposes no raw Vite flags and there is no
 separate `drever preview` command.
@@ -111,7 +114,7 @@ separate `drever preview` command.
 See [Configuration](/docs/configuration/) and
 [Presenting](/docs/presenting/).
 
-<h3 id="studio">Coordinate the local creation room (experimental)</h3>
+<h3 id="studio">Coordinate the local creation room</h3>
 
 ```text
 drever studio status [--json]

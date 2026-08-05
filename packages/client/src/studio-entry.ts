@@ -14,6 +14,7 @@ export type CreateStudioOptions = Readonly<{
   container: Element;
   onAction(action: StudioActionInput): Promise<DreverStudioActionAck>;
   onError?: (error: unknown) => void;
+  previewCapability?: string;
   previewUrl?: string | URL;
   state: DreverStudioState;
 }>;
@@ -27,6 +28,7 @@ type StudioHostProps = Readonly<{
   audienceUrl: string;
   onAction(action: StudioActionInput): Promise<void>;
   onMounted(): void;
+  previewCapability?: string;
   previewUrl?: string;
   state: DreverStudioState;
 }>;
@@ -35,6 +37,7 @@ const StudioHost = ({
   audienceUrl,
   onAction,
   onMounted,
+  previewCapability,
   previewUrl,
   state,
 }: StudioHostProps): ReactElement => {
@@ -42,6 +45,7 @@ const StudioHost = ({
   return createElement(Studio, {
     audienceUrl,
     onAction,
+    ...(previewCapability === undefined ? {} : { previewCapability }),
     ...(previewUrl === undefined ? {} : { previewUrl }),
     state,
   });
@@ -59,6 +63,7 @@ export const createStudio = async ({
   container,
   onAction,
   onError,
+  previewCapability,
   previewUrl,
   state: initialState,
 }: CreateStudioOptions): Promise<StudioHandle> => {
@@ -103,6 +108,7 @@ export const createStudio = async ({
           audienceUrl: new URL(audienceUrl).href,
           onAction: submit,
           onMounted: mounted.resolve,
+          ...(previewCapability === undefined ? {} : { previewCapability }),
           ...(previewUrl === undefined ? {} : { previewUrl: new URL(previewUrl).href }),
           state: currentState,
         }),

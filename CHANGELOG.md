@@ -5,6 +5,42 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-08-05
+
+Release impact: **minor** — this batch adds a more legible and inspectable local Studio workflow
+without changing authored presentation APIs.
+
+### Added
+
+- Added an authenticated, HMR-stable Live Draft bridge for manifest-backed slide navigation and real
+  speaker notes inside Studio, with a dedicated low-privilege preview capability isolated from both
+  arbitrary parent messages and Studio's action token.
+
+### Changed
+
+- Derived Studio progress from durable brief, question, plan, and draft artifacts so transient agent
+  telemetry cannot mark Storyboard complete before it exists.
+- Reduced agent activity to the current specific public summary by default, with completed history
+  available on demand, and made active refinement, review readiness, recoverable errors, and required
+  approvals visually explicit.
+- Kept stale approved storyboards out of a new Direction pass, switched the Live Draft rail to the
+  currently rendered manifest, mapped its positions back to storyboard feedback, and added truthful
+  retry or resume actions when agent work pauses.
+- Kept the latest bounded tail of managed-agent public summaries visible during long operations
+  without exposing private reasoning or raw provider output.
+- Accepted one reviewable storyboard publication for the common “submit brief, then skip the
+  remaining questions” path while retaining strict action-order and artifact postconditions.
+
+### Fixed
+
+- Allowed the embedded Live Draft to enter fullscreen, retained its authenticated connection across
+  child HMR, and kept slide-rail navigation in Live Draft instead of unexpectedly returning to
+  Storyboard.
+- Preserved the last available draft when refinement pauses and clarified that intermediate HMR
+  layouts may still change while the agent is working.
+- Coalesced duplicate configuration file events into one development-server restart, avoiding
+  transient outdated dependency requests during local theme and Stage reloads.
+
 ## [0.12.1] - 2026-08-05
 
 Release impact: **patch** — this batch keeps the compatible local Studio workflow responsive and
@@ -605,7 +641,8 @@ capabilities.
 - Added parallel source, unit, package, browser, export, and website checks in CI.
 - Deployed the prerendered public website and per-branch previews through Cloudflare Pages.
 
-[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.12.1...HEAD
+[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.13.0...HEAD
+[0.13.0]: https://github.com/Zhangdroid/drever/compare/v0.12.1...v0.13.0
 [0.12.1]: https://github.com/Zhangdroid/drever/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/Zhangdroid/drever/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/Zhangdroid/drever/compare/v0.10.0...v0.11.0

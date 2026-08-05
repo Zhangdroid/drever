@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, statSync } from "node:fs";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { randomBytes } from "node:crypto";
 import { createServer as createHttpServer, type Server as HttpServer } from "node:http";
@@ -454,6 +454,17 @@ export type ServeDreverProjectOptions = Readonly<{
   >;
 }>;
 
+/** @internal Keeps Studio mutations separate from the embedded preview channel. */
+export const createStudioCapabilities = (): Readonly<{
+  action: string;
+  preview: string;
+}> => {
+  const action = randomBytes(32).toString("base64url");
+  let preview = randomBytes(32).toString("base64url");
+  while (preview === action) preview = randomBytes(32).toString("base64url");
+  return Object.freeze({ action, preview });
+};
+
 const configDependencyPaths = (
   root: string,
   dependencies: readonly string[] = [],
@@ -466,7 +477,7 @@ const createConfigReloadPlugin = (
   root: string,
   dependencies: readonly string[],
   isRecovering: () => boolean,
-  requestReload: () => void,
+  requestReload: (event: "add" | "change" | "unlink", path: string) => void,
 ): Plugin => {
   const normalizedRoot = normalizePath(root).replace(/\/+$/u, "");
   const recoveryPrefix = `${normalizedRoot}/`;
@@ -480,7 +491,6 @@ const createConfigReloadPlugin = (
   };
   const watched = new Set(dependencies);
   const missing = new Set(dependencies.filter((path) => !existsSync(path)));
-  let cleanup: (() => void) | undefined;
   const shouldReload = (event: "add" | "change" | "unlink", path: string): boolean => {
     const normalized = normalizePath(path);
     if (event === "unlink" && watched.has(normalized)) missing.add(normalized);
@@ -497,32 +507,11 @@ const createConfigReloadPlugin = (
     hotUpdate({ file, type }) {
       const event = type === "create" ? "add" : type === "delete" ? "unlink" : "change";
       if (!shouldReload(event, file)) return;
-      requestReload();
+      requestReload(event, file);
       return [];
     },
     configureServer(server) {
       server.watcher.add([root, ...dependencies]);
-      const update = (event: "add" | "change" | "unlink", path: string): void => {
-        if (shouldReload(event, path)) requestReload();
-      };
-      const add = (path: string): void => update("add", path);
-      const change = (path: string): void => update("change", path);
-      const unlink = (path: string): void => update("unlink", path);
-      server.watcher.on("add", add);
-      server.watcher.on("change", change);
-      server.watcher.on("unlink", unlink);
-      const release = (): void => {
-        if (cleanup === undefined) return;
-        cleanup = undefined;
-        server.watcher.off("add", add);
-        server.watcher.off("change", change);
-        server.watcher.off("unlink", unlink);
-      };
-      cleanup = release;
-      server.httpServer?.once("close", release);
-    },
-    closeBundle() {
-      cleanup?.();
     },
   };
 };
@@ -642,12 +631,23 @@ export const serveDreverProject = async (
   project: ResolvedDreverProject,
   options: ServeDreverProjectOptions = {},
 ): Promise<ViteDevServer> => {
-  let app = await createPrivateDevApp(
-    project.entry,
-    resolvePrivateAppOptions(project.config, project.root),
-  );
+  const studioCapabilities = createStudioCapabilities();
+  let app = await createPrivateDevApp(project.entry, {
+    ...resolvePrivateAppOptions(project.config, project.root),
+    previewCapability: studioCapabilities.preview,
+  });
   let stableServerConfig = project.config.server ?? {};
   const configDependencies = configDependencyPaths(project.root, options.configDependencies);
+  const appliedConfigRevisions = new Map<string, string>();
+  const fileRevision = (path: string): string => {
+    if (!existsSync(path)) return "missing";
+    const stats = statSync(path, { bigint: true });
+    return `${String(stats.dev)}:${String(stats.ino)}:${String(stats.size)}:${String(stats.mtimeNs)}`;
+  };
+  const rememberConfigRevisions = (dependencies: readonly string[]): void => {
+    for (const path of dependencies) appliedConfigRevisions.set(path, fileRevision(path));
+  };
+  rememberConfigRevisions(configDependencies);
   let server: ViteDevServer | undefined;
   let resolvedUrls: ResolvedServerUrls | undefined;
   let previewProxy: StudioPreviewProxy | undefined;
@@ -708,14 +708,17 @@ export const serveDreverProject = async (
     );
     stableServerConfig = Object.freeze({ ...stableServerConfig, port });
     resolvedUrls = resolveDevelopmentServerUrls(stableServerConfig.host, port);
-    const studioToken = randomBytes(32).toString("base64url");
     agentProvider =
       options.agent === undefined
         ? undefined
         : await createStudioAgentProvider(options.agent, project.root);
 
-    const requestReload = (): void => {
+    const requestReload = (_event: "add" | "change" | "unlink", changedPath: string): void => {
       if (options.reloadProject === undefined || shuttingDown) return;
+      const normalizedPath = normalizePath(changedPath);
+      const revision = fileRevision(normalizedPath);
+      if (appliedConfigRevisions.get(normalizedPath) === revision) return;
+      appliedConfigRevisions.set(normalizedPath, revision);
       reloadRevision += 1;
       const requestedRevision = reloadRevision;
       if (reloadBarrier === undefined) {
@@ -762,7 +765,7 @@ export const serveDreverProject = async (
       createStoryboardPlanPlugin({ root: activeProject.root }),
       createStudioPlugin({
         root: activeProject.root,
-        token: studioToken,
+        token: studioCapabilities.action,
         ...(agentProvider === undefined ? {} : { agentProvider }),
       }),
       createCurrentPositionPlugin({ root: activeProject.root, sourcePath: activeProject.entry }),
@@ -832,10 +835,11 @@ export const serveDreverProject = async (
       const reloaded = await options.reloadProject();
       if (shuttingDown) return;
       const nextDependencies = configDependencyPaths(reloaded.project.root, reloaded.dependencies);
-      const nextApp = await createPrivateDevApp(
-        reloaded.project.entry,
-        resolvePrivateAppOptions(reloaded.project.config, reloaded.project.root),
-      );
+      rememberConfigRevisions(nextDependencies);
+      const nextApp = await createPrivateDevApp(reloaded.project.entry, {
+        ...resolvePrivateAppOptions(reloaded.project.config, reloaded.project.root),
+        previewCapability: studioCapabilities.preview,
+      });
       if (shuttingDown) {
         await nextApp.dispose();
         return;
@@ -886,7 +890,7 @@ export const serveDreverProject = async (
     }
     const studioUrls = resolveStudioUrls(
       server.resolvedUrls,
-      studioToken,
+      studioCapabilities.action,
       previewProxy.audienceUrl,
     );
     for (const studioUrl of studioUrls) {
@@ -900,7 +904,7 @@ export const serveDreverProject = async (
     }
     const opened = await openStudioWhenRequested(
       server.resolvedUrls,
-      studioToken,
+      studioCapabilities.action,
       previewProxy.audienceUrl,
       options,
     );

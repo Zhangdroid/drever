@@ -1,12 +1,14 @@
-import type {
-  DreverDeckPlanSlide,
-  DreverStudioAgentApprovalDecision,
-  DreverStudioAgentApprovalRequest,
-  DreverStudioAnswer,
-  DreverStudioActivity,
-  DreverStudioCommonBrief,
-  DreverStudioQuestion,
-  DreverStudioState,
+import {
+  DECK_MANIFEST_VERSION,
+  type DeckManifest,
+  type DreverDeckPlanSlide,
+  type DreverStudioAgentApprovalDecision,
+  type DreverStudioAgentApprovalRequest,
+  type DreverStudioAnswer,
+  type DreverStudioActivity,
+  type DreverStudioCommonBrief,
+  type DreverStudioQuestion,
+  type DreverStudioState,
 } from "@drever/schema";
 import {
   useEffect,
@@ -34,6 +36,7 @@ export type StudioActionInput =
 export type StudioProps = Readonly<{
   audienceUrl: string;
   onAction(action: StudioActionInput): Promise<void> | void;
+  previewCapability?: string;
   previewUrl?: string;
   state: DreverStudioState;
 }>;
@@ -118,6 +121,21 @@ const durationOptions = [5, 10, 20, 30] as const;
 type DensityChoice = NonNullable<DreverStudioCommonBrief["density"]>;
 type MotionChoice = "agent-choice" | NonNullable<DreverStudioCommonBrief["motionIntensity"]>;
 type StudioMode = "draft" | "storyboard";
+type StudioProgressStatus = "complete" | "current" | "error" | "pending";
+
+export type StudioProgressStage = Readonly<{
+  label: "Brief" | "Direction" | "Storyboard" | "Draft";
+  status: StudioProgressStatus;
+}>;
+
+export type StudioPreviewState = Readonly<{
+  manifest: DeckManifest;
+  position: Readonly<{ slideId: string; slideIndex: number; step: number }>;
+  type: "drever:studio-preview-state";
+  version: 1;
+}>;
+
+type StudioPreviewConnection = "connected" | "connecting" | "unavailable";
 
 type StudioAnswerDraft = Readonly<{
   optionIds: readonly string[];
@@ -251,27 +269,59 @@ const StudioIdentity = (): ReactElement => (
   </div>
 );
 
-const phaseIndex = (state: DreverStudioState): number => {
-  if (state.phase === "error") return -1;
-  if (state.phase === "briefing") return 0;
-  if (state.phase === "waiting-for-agent" || state.phase === "adaptive-questions") return 1;
-  if (state.phase === "plan-review") return 2;
-  return 3;
+const progressLabels = ["Brief", "Direction", "Storyboard", "Draft"] as const;
+
+const directionIsPending = (state: DreverStudioState): boolean =>
+  state.pendingActionCount > 0 &&
+  (state.phase === "waiting-for-agent" || state.phase === "adaptive-questions");
+
+export const resolveStudioProgress = (state: DreverStudioState): readonly StudioProgressStage[] => {
+  const hasBrief = state.phase !== "briefing" && (state.commonBrief?.topic.trim() ?? "") !== "";
+  const directionInFlight = directionIsPending(state);
+  const directionSubmitted =
+    !directionInFlight &&
+    (state.skippedRemainingQuestions === true ||
+      state.adaptiveAnswers !== undefined ||
+      state.plan !== undefined);
+  const storyboardApproved = !directionInFlight && state.plan?.status === "approved";
+  const draftComplete = state.phase === "ready";
+  const complete = [hasBrief, directionSubmitted, storyboardApproved, draftComplete];
+  let current = complete.findIndex((value) => !value);
+  if (current === -1) current = progressLabels.length - 1;
+
+  return progressLabels.map((label, index) => ({
+    label,
+    status:
+      state.phase === "error" && index === current
+        ? "error"
+        : complete[index] === true
+          ? "complete"
+          : index === current
+            ? "current"
+            : "pending",
+  }));
 };
 
 const StudioProgress = ({ state }: Readonly<{ state: DreverStudioState }>): ReactElement => {
-  const current = phaseIndex(state);
-  const stages = ["Brief", "Direction", "Storyboard", "Draft"] as const;
+  const stages = resolveStudioProgress(state);
   return (
     <ol aria-label="Creation progress" className="drever-studio-progress">
       {stages.map((stage, index) => (
         <li
-          aria-current={current === index ? "step" : undefined}
-          data-complete={index < current ? "" : undefined}
-          key={stage}
+          aria-current={stage.status === "current" ? "step" : undefined}
+          data-status={stage.status}
+          key={stage.label}
         >
-          <span>{index < current ? <CheckIcon /> : String(index + 1).padStart(2, "0")}</span>
-          {stage}
+          <span>
+            {stage.status === "complete" ? (
+              <CheckIcon />
+            ) : stage.status === "error" ? (
+              "!"
+            ) : (
+              String(index + 1).padStart(2, "0")
+            )}
+          </span>
+          {stage.label}
         </li>
       ))}
     </ol>
@@ -302,26 +352,78 @@ const fallbackActivity = (state: DreverStudioState): readonly DreverStudioActivi
 const activityFor = (state: DreverStudioState): readonly DreverStudioActivity[] =>
   state.activity ?? fallbackActivity(state);
 
-const currentActivityFor = (state: DreverStudioState): DreverStudioActivity | undefined =>
-  state.activity?.find(({ status }) => status === "active") ?? state.activity?.at(-1);
+export const latestStudioNarration = (value: string | undefined): string | undefined => {
+  const normalized = value?.trim();
+  if (normalized === undefined || normalized === "") return undefined;
+  const latestParagraph = normalized.split(/\n+/u).filter(Boolean).at(-1) ?? normalized;
+  if (latestParagraph.length <= 220) return latestParagraph;
+  const tail = latestParagraph.slice(-219);
+  const firstSpace = tail.search(/\s/u);
+  return `…${(firstSpace === -1 ? tail : tail.slice(firstSpace + 1)).trimStart()}`;
+};
+
+type StudioActivitySnapshot = Readonly<{
+  active: boolean;
+  current?: DreverStudioActivity;
+  detail?: string;
+  history: readonly DreverStudioActivity[];
+}>;
+
+export const resolveStudioActivity = (state: DreverStudioState): StudioActivitySnapshot => {
+  const activity = activityFor(state);
+  const current = activity.findLast(({ status }) => status === "active") ?? activity.at(-1);
+  const detail = latestStudioNarration(state.message) ?? current?.detail;
+  return {
+    active: current?.status === "active" && state.agentConnected,
+    ...(current === undefined ? {} : { current }),
+    ...(detail === undefined ? {} : { detail }),
+    history: current === undefined ? activity : activity.filter(({ id }) => id !== current.id),
+  };
+};
+
+const StudioActivityHistory = ({
+  activity,
+}: Readonly<{ activity: readonly DreverStudioActivity[] }>): ReactElement | null => {
+  if (activity.length === 0) return null;
+  return (
+    <details className="drever-studio-activity-history">
+      <summary>
+        View history <span>{activity.length}</span>
+      </summary>
+      <ol>
+        {activity.map((item) => (
+          <li data-status={item.status} key={item.id}>
+            <i aria-hidden="true" />
+            <div>
+              <strong dir="auto">{item.label}</strong>
+              {item.detail === undefined ? null : <p dir="auto">{item.detail}</p>}
+            </div>
+          </li>
+        ))}
+      </ol>
+    </details>
+  );
+};
 
 const StudioActivityTicker = ({ state }: Readonly<{ state: DreverStudioState }>): ReactElement => {
-  const published = currentActivityFor(state);
-  const label = published?.label ?? state.progress?.label ?? state.message;
-  const detail = published?.detail ?? (published === undefined ? state.message : undefined);
-  const active = published?.status === "active" || state.phase === "drafting";
+  const activity = resolveStudioActivity(state);
+  const label = activity.current?.label ?? state.progress?.label;
 
   return (
     <aside
       aria-label="Latest agent activity"
-      aria-live="polite"
       className="drever-studio-live-update"
-      data-active={active ? "" : undefined}
+      data-active={activity.active ? "" : undefined}
     >
       <span aria-hidden="true" />
-      <small>{active ? "Agent working" : "Latest update"}</small>
-      <strong dir="auto">{label ?? "Studio is up to date"}</strong>
-      {detail === undefined || detail === label ? null : <p dir="auto">{detail}</p>}
+      <small>{activity.active ? "Agent working" : "Latest update"}</small>
+      <div aria-atomic="true" aria-live="polite" className="drever-studio-live-update__current">
+        <strong dir="auto">{label ?? "Studio is up to date"}</strong>
+        {activity.detail === undefined || activity.detail === label ? null : (
+          <p dir="auto">{activity.detail}</p>
+        )}
+      </div>
+      <StudioActivityHistory activity={activity.history} />
     </aside>
   );
 };
@@ -349,7 +451,21 @@ const StudioAgentApproval = ({
 }>): ReactElement | null => {
   const approval = approvals[0];
   const [responding, setResponding] = useState<DreverStudioAgentApprovalDecision>();
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const previousFocus = useRef<HTMLElement | null>(null);
   const titleId = useId();
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (approval === undefined || dialog === null) return;
+    previousFocus.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    if (typeof dialog.showModal === "function") dialog.showModal();
+    else dialog.setAttribute("open", "");
+    return () => {
+      if (dialog.open && typeof dialog.close === "function") dialog.close();
+      previousFocus.current?.focus();
+    };
+  }, [approval?.id]);
   if (approval === undefined) return null;
   const decisions = approval.decisions ?? ["accept", "acceptForSession", "decline"];
 
@@ -363,12 +479,24 @@ const StudioAgentApproval = ({
       setResponding(undefined);
     }
   };
+  const dismissDecision = decisions.includes("cancel")
+    ? "cancel"
+    : decisions.includes("decline")
+      ? "decline"
+      : undefined;
   return (
-    <aside
+    <dialog
       aria-labelledby={titleId}
-      aria-live="assertive"
+      aria-modal="true"
       className="drever-studio-agent-approval"
-      role="region"
+      onCancel={(event) => {
+        event.preventDefault();
+        if (dismissDecision !== undefined && responding === undefined) {
+          void respond(dismissDecision);
+        }
+      }}
+      ref={dialogRef}
+      role="alertdialog"
     >
       <span aria-hidden="true" />
       <div className="drever-studio-agent-approval__copy">
@@ -386,6 +514,7 @@ const StudioAgentApproval = ({
       >
         {decisions.includes("accept") ? (
           <button
+            autoFocus
             className="drever-studio-button drever-studio-button--primary"
             disabled={responding !== undefined}
             onClick={() => void respond("accept")}
@@ -425,7 +554,7 @@ const StudioAgentApproval = ({
           </button>
         ) : null}
       </div>
-    </aside>
+    </dialog>
   );
 };
 
@@ -611,14 +740,16 @@ const WaitingScreen = ({ state }: Readonly<{ state: DreverStudioState }>): React
       : progress.total === undefined
         ? `${progress.completed} complete`
         : `${progress.completed} of ${progress.total}`;
-  const currentActivity = state.agentConnected
-    ? (progress?.label ?? "Preparing the next step")
-    : "Waiting for a local agent";
   const nextMilestone =
     state.skippedRemainingQuestions === true || state.adaptiveAnswers !== undefined
       ? "Storyboard ready"
       : "Questions ready";
-  const activity = activityFor(state);
+  const activity = resolveStudioActivity(state);
+  const currentLabel =
+    activity.current?.label ??
+    (state.agentConnected
+      ? (progress?.label ?? "Preparing the next step")
+      : "Waiting for a local agent");
 
   return (
     <main className="drever-studio-waiting">
@@ -637,7 +768,7 @@ const WaitingScreen = ({ state }: Readonly<{ state: DreverStudioState }>): React
         </span>
       </section>
 
-      <section aria-label="Agent activity" aria-live="polite" className="drever-studio-activity">
+      <section aria-label="Agent activity" className="drever-studio-activity">
         <header>
           <span>Session activity</span>
           <small data-active={state.agentConnected ? "" : undefined}>
@@ -645,75 +776,88 @@ const WaitingScreen = ({ state }: Readonly<{ state: DreverStudioState }>): React
             {state.agentConnected ? "Live" : "Paused"}
           </small>
         </header>
-        <ol>
-          {activity.map((item) => (
-            <li
-              aria-current={item.status === "active" ? "step" : undefined}
-              data-status={item.status}
-              key={item.id}
-            >
-              <span aria-hidden="true" className="drever-studio-activity__marker">
-                {item.status === "complete" ? <CheckIcon /> : <SparkIcon />}
-              </span>
-              <div>
-                <strong dir="auto">{item.label}</strong>
-                <span dir="auto">
-                  {item.detail ??
-                    (item.label === currentActivity && progressCount !== undefined
-                      ? progressCount
-                      : "Published by the local agent")}
-                </span>
-                {item.status === "active" && progressCount !== undefined ? (
-                  <small>{progressCount}</small>
-                ) : null}
-                {item.status === "active" &&
-                progress?.completed !== undefined &&
-                progress.total !== undefined ? (
-                  <progress
-                    aria-label={progress.label}
-                    max={progress.total}
-                    value={progress.completed}
-                  />
-                ) : null}
-              </div>
-            </li>
-          ))}
-          <li data-status="pending">
-            <span aria-hidden="true" className="drever-studio-activity__marker">
-              {String(activity.length + 1).padStart(2, "0")}
-            </span>
-            <div>
-              <strong>{nextMilestone}</strong>
-              <span>Studio opens it as soon as it is ready.</span>
-            </div>
-          </li>
-        </ol>
-        {state.agentConnected && state.message !== undefined && state.activity === undefined ? (
-          <aside className="drever-studio-activity__note">
-            <SparkIcon aria-hidden="true" />
-            <div>
-              <small>Agent update</small>
-              <p dir="auto">{state.message}</p>
-            </div>
-          </aside>
-        ) : null}
+        <div
+          aria-atomic="true"
+          aria-current={activity.active ? "step" : undefined}
+          aria-live="polite"
+          className="drever-studio-activity__current"
+          data-status={activity.current?.status ?? "active"}
+        >
+          <span aria-hidden="true" className="drever-studio-activity__marker">
+            {activity.current?.status === "complete" ? <CheckIcon /> : <SparkIcon />}
+          </span>
+          <div>
+            <strong dir="auto">{currentLabel}</strong>
+            <p dir="auto">
+              {activity.detail ??
+                (state.agentConnected
+                  ? "The agent will publish another update as the work advances."
+                  : "Resume the coding-agent task to continue.")}
+            </p>
+            {progressCount === undefined ? null : <small>{progressCount}</small>}
+            {progress?.completed !== undefined && progress.total !== undefined ? (
+              <progress
+                aria-label={progress.label}
+                max={progress.total}
+                value={progress.completed}
+              />
+            ) : null}
+          </div>
+        </div>
+        <footer className="drever-studio-activity__next">
+          <span>Next</span>
+          <strong>{nextMilestone}</strong>
+        </footer>
+        <StudioActivityHistory activity={activity.history} />
       </section>
     </main>
   );
 };
 
-const ErrorScreen = ({ state }: Readonly<{ state: DreverStudioState }>): ReactElement => (
-  <main
-    aria-labelledby="drever-studio-error-title"
-    className="drever-studio-waiting drever-studio-waiting--error"
-  >
-    <p>Agent needs attention</p>
-    <h1 id="drever-studio-error-title">The draft paused.</h1>
-    <span aria-live="assertive" role="alert">
-      {state.message ?? "Resolve the reported agent error, then continue from this Studio session."}
-    </span>
-  </main>
-);
+const ErrorScreen = ({
+  onAction,
+  state,
+}: Readonly<{
+  onAction: StudioProps["onAction"];
+  state: DreverStudioState;
+}>): ReactElement => {
+  const [retrying, setRetrying] = useState(false);
+  const retry = async (): Promise<void> => {
+    if (state.commonBrief === undefined) return;
+    setRetrying(true);
+    try {
+      await onAction({ brief: state.commonBrief, type: "submit-common-brief" });
+    } catch {
+      // Studio owns the visible action error at the shared dispatch boundary.
+    } finally {
+      setRetrying(false);
+    }
+  };
+  return (
+    <main
+      aria-labelledby="drever-studio-error-title"
+      className="drever-studio-waiting drever-studio-waiting--error"
+    >
+      <p>Agent needs attention</p>
+      <h1 id="drever-studio-error-title">The draft paused.</h1>
+      <span aria-live="assertive" role="alert">
+        {state.message ??
+          "Resolve the reported agent error, then continue from this Studio session."}
+      </span>
+      {state.commonBrief === undefined ? null : (
+        <button
+          className="drever-studio-button drever-studio-button--primary"
+          disabled={retrying}
+          onClick={() => void retry()}
+          type="button"
+        >
+          {retrying ? "Retrying…" : "Retry from this brief"}
+          <ArrowIcon />
+        </button>
+      )}
+    </main>
+  );
+};
 
 const AgentConnectionNotice = (): ReactElement => (
   <aside aria-live="polite" className="drever-studio-agent-notice">
@@ -892,6 +1036,7 @@ const SlideCard = ({
   slide: DreverDeckPlanSlide;
 }>): ReactElement => (
   <button
+    aria-description={`${slide.composition.recipe}${slide.motion === undefined ? "" : `, ${sentenceCase(slide.motion.intent)} motion`}`}
     aria-current={selected ? "true" : undefined}
     aria-pressed={selected}
     className="drever-studio-plan-card"
@@ -911,7 +1056,7 @@ const SlideCard = ({
       </span>
     </span>
     <span className="drever-studio-plan-card__meta">
-      {slide.composition.recipe}
+      <span>{slide.composition.recipe}</span>
       {slide.motion === undefined ? null : <i>{sentenceCase(slide.motion.intent)}</i>}
     </span>
   </button>
@@ -955,41 +1100,24 @@ const FeedbackComposer = ({
         <p>Direction</p>
         <span>{scope}</span>
       </header>
-      {selectedSlide === undefined ? (
-        <div className="drever-studio-direction__summary">
-          <span>Audience</span>
-          <strong dir="auto">{state.commonBrief?.audience ?? "Agent chooses"}</strong>
-          <span>After the presentation</span>
-          <strong dir="auto">{state.commonBrief?.desiredChange ?? "Agent proposes"}</strong>
-        </div>
-      ) : (
-        <div className="drever-studio-direction__summary">
-          <span>Focal artifact</span>
-          <strong dir="auto">{selectedSlide.focalArtifact}</strong>
-          <span>Evidence</span>
-          <strong dir="auto">{selectedSlide.evidence.join(" · ")}</strong>
-        </div>
-      )}
-
-      {state.activity === undefined ? null : (
-        <section aria-label="Recent agent activity" className="drever-studio-direction__activity">
-          <header>
-            <span>Agent activity</span>
-            <small>Live summary</small>
-          </header>
-          <ol aria-live="polite">
-            {state.activity.slice(-4).map((item) => (
-              <li data-status={item.status} key={item.id}>
-                <i aria-hidden="true" />
-                <div>
-                  <strong dir="auto">{item.label}</strong>
-                  {item.detail === undefined ? null : <p dir="auto">{item.detail}</p>}
-                </div>
-              </li>
-            ))}
-          </ol>
-        </section>
-      )}
+      <details className="drever-studio-direction__context">
+        <summary>{selectedSlide === undefined ? "Story context" : "Slide context"}</summary>
+        {selectedSlide === undefined ? (
+          <div className="drever-studio-direction__summary">
+            <span>Audience</span>
+            <strong dir="auto">{state.commonBrief?.audience ?? "Agent chooses"}</strong>
+            <span>After the presentation</span>
+            <strong dir="auto">{state.commonBrief?.desiredChange ?? "Agent proposes"}</strong>
+          </div>
+        ) : (
+          <div className="drever-studio-direction__summary">
+            <span>Focal artifact</span>
+            <strong dir="auto">{selectedSlide.focalArtifact}</strong>
+            <span>Evidence</span>
+            <strong dir="auto">{selectedSlide.evidence.join(" · ")}</strong>
+          </div>
+        )}
+      </details>
 
       <form onSubmit={(event) => void submit(event)}>
         <label>
@@ -1028,24 +1156,217 @@ const FeedbackComposer = ({
   );
 };
 
+type StudioDraftLifecycle = Readonly<{
+  detail: string;
+  status: "error" | "ready" | "working";
+  title: string;
+}>;
+
+export const resolveStudioDraftLifecycle = (
+  state: DreverStudioState,
+): StudioDraftLifecycle | undefined => {
+  const detail = latestStudioNarration(state.message);
+  if (state.phase === "error") {
+    return {
+      detail:
+        detail ??
+        (state.draftAvailable === true
+          ? "The last published draft remains available. Resume the agent or send new direction when you are ready."
+          : "Resolve the reported agent error, then resume this Studio session."),
+      status: "error",
+      title: state.draftAvailable === true ? "Refinement paused" : "The agent paused",
+    };
+  }
+  if (state.phase === "drafting" || state.phase === "refining") {
+    return {
+      detail:
+        detail ??
+        (state.draftAvailable === true
+          ? "This is a live work in progress. Layout and motion may change until this pass is ready."
+          : "Studio will open the first reviewable preview as soon as it is published."),
+      status: "working",
+      title:
+        state.draftAvailable === true
+          ? "The agent is still refining this draft"
+          : "Draft 1 is taking shape",
+    };
+  }
+  if (state.phase === "preview") {
+    return {
+      detail: detail ?? "Review the live deck and send the agent any changes you want.",
+      status: "ready",
+      title: "Draft 1 is ready to review",
+    };
+  }
+  if (state.phase === "ready") {
+    return {
+      detail: detail ?? "This pass is complete. Review it or send another direction.",
+      status: "ready",
+      title: "This pass is ready for your feedback",
+    };
+  }
+  return undefined;
+};
+
+export const readStudioPreviewState = (value: unknown): StudioPreviewState | undefined => {
+  if (typeof value !== "object" || value === null) return undefined;
+  const candidate = value as Partial<StudioPreviewState>;
+  if (
+    candidate.type !== "drever:studio-preview-state" ||
+    candidate.version !== 1 ||
+    typeof candidate.manifest !== "object" ||
+    candidate.manifest === null ||
+    candidate.manifest.version !== DECK_MANIFEST_VERSION ||
+    !Array.isArray(candidate.manifest.slides) ||
+    !candidate.manifest.slides.every(
+      (slide) =>
+        typeof slide === "object" &&
+        slide !== null &&
+        typeof slide.id === "string" &&
+        Number.isSafeInteger(slide.index) &&
+        Array.isArray(slide.stepStops) &&
+        slide.stepStops.every(Number.isSafeInteger) &&
+        Array.isArray(slide.speakerNotes) &&
+        slide.speakerNotes.every(
+          (note: unknown) =>
+            typeof note === "object" &&
+            note !== null &&
+            "format" in note &&
+            note.format === "markdown" &&
+            "plainText" in note &&
+            typeof note.plainText === "string" &&
+            "value" in note &&
+            typeof note.value === "string",
+        ),
+    ) ||
+    typeof candidate.position !== "object" ||
+    candidate.position === null ||
+    !Number.isSafeInteger(candidate.position.slideIndex) ||
+    !Number.isSafeInteger(candidate.position.step) ||
+    typeof candidate.position.slideId !== "string"
+  ) {
+    return undefined;
+  }
+  const slide = candidate.manifest.slides[candidate.position.slideIndex];
+  return slide?.id === candidate.position.slideId ? (candidate as StudioPreviewState) : undefined;
+};
+
+const StudioDraftStatus = ({
+  onAction,
+  state,
+}: Readonly<{
+  onAction: StudioProps["onAction"];
+  state: DreverStudioState;
+}>): ReactElement | null => {
+  const lifecycle = resolveStudioDraftLifecycle(state);
+  const [resuming, setResuming] = useState(false);
+  if (lifecycle === undefined) return null;
+  const canResumeDraft = state.draftAvailable === true;
+  const activity = resolveStudioActivity(state);
+  const progressLabel =
+    lifecycle.status === "working" ? (activity.current?.label ?? state.progress?.label) : undefined;
+  const resume = async (): Promise<void> => {
+    setResuming(true);
+    try {
+      await onAction({
+        message: canResumeDraft
+          ? "Resume from the last published draft. Preserve its working layout and fix the reported failure before making further changes."
+          : "Retry Draft 1 from the approved storyboard. Reuse the accepted story and report the concrete failure if authoring pauses again.",
+        type: "submit-feedback",
+      });
+    } catch {
+      // Studio owns the visible action error at the shared dispatch boundary.
+    } finally {
+      setResuming(false);
+    }
+  };
+  return (
+    <section className="drever-studio-draft-status" data-status={lifecycle.status}>
+      <span aria-hidden="true">
+        <SparkIcon />
+      </span>
+      <div
+        aria-atomic="true"
+        aria-live={lifecycle.status === "error" ? "assertive" : "polite"}
+        role={lifecycle.status === "error" ? "alert" : "status"}
+      >
+        <small>
+          {lifecycle.status === "working"
+            ? "Live work in progress"
+            : lifecycle.status === "error"
+              ? "Action needed"
+              : "Review point"}
+        </small>
+        <strong dir="auto">{lifecycle.title}</strong>
+        <p dir="auto">
+          {progressLabel === undefined
+            ? lifecycle.detail
+            : `${progressLabel} · ${lifecycle.detail}`}
+        </p>
+      </div>
+      {lifecycle.status === "working" ? (
+        state.progress?.completed !== undefined && state.progress.total !== undefined ? (
+          <progress
+            aria-label={state.progress.label}
+            max={state.progress.total}
+            value={state.progress.completed}
+          />
+        ) : (
+          <i aria-hidden="true" />
+        )
+      ) : null}
+      {lifecycle.status === "error" ? (
+        <button
+          className="drever-studio-draft-status__resume"
+          disabled={resuming}
+          onClick={() => void resume()}
+          type="button"
+        >
+          {resuming
+            ? canResumeDraft
+              ? "Resuming…"
+              : "Retrying…"
+            : canResumeDraft
+              ? "Resume from last draft"
+              : "Retry Draft 1"}
+        </button>
+      ) : null}
+      {lifecycle.status === "working" ? (
+        <StudioActivityHistory activity={activity.history} />
+      ) : null}
+    </section>
+  );
+};
+
 const PlanScreen = ({
   audienceUrl,
   onAction,
+  previewCapability,
   previewUrl = audienceUrl,
   state,
 }: StudioProps): ReactElement => {
   const plan = state.plan?.status === "awaiting-input" ? undefined : state.plan;
   const [selectedSlideId, setSelectedSlideId] = useState<string | undefined>();
+  const [selectedSlideIndex, setSelectedSlideIndex] = useState<number | undefined>();
   const draftAvailable =
     state.draftAvailable === true || state.phase === "preview" || state.phase === "ready";
   const [mode, setMode] = useState<StudioMode>(draftAvailable ? "draft" : "storyboard");
   const previousDraftAvailable = useRef(draftAvailable);
   const [approving, setApproving] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [previewState, setPreviewState] = useState<StudioPreviewState>();
+  const [previewLoaded, setPreviewLoaded] = useState(false);
+  const [previewConnection, setPreviewConnection] = useState<StudioPreviewConnection>("connecting");
   const planRef = useRef<HTMLDivElement>(null);
   const slideElements = useRef(new Map<string, HTMLButtonElement>());
   const pendingScrollSlideId = useRef<string | undefined>(undefined);
-  const selectedSlide = plan?.slides.find(({ id }) => id === selectedSlideId);
-  const currentActivity = currentActivityFor(state);
+  const selectedSlide =
+    selectedSlideIndex === undefined ? undefined : plan?.slides[selectedSlideIndex];
+  const previewOrigin = useMemo(
+    () => new URL(previewUrl, audienceUrl).origin,
+    [audienceUrl, previewUrl],
+  );
+  const lifecycle = resolveStudioDraftLifecycle(state);
 
   useEffect(() => {
     setMode((current) => nextStudioMode(current, previousDraftAvailable.current, draftAvailable));
@@ -1065,16 +1386,84 @@ const PlanScreen = ({
     return () => cancelAnimationFrame(frame);
   }, [mode, selectedSlideId]);
 
-  const selectSlide = (slideId: string): void => {
-    pendingScrollSlideId.current = slideId;
+  useEffect(() => {
+    const receivePreviewState = (event: MessageEvent): void => {
+      if (event.source !== iframeRef.current?.contentWindow || event.origin !== previewOrigin)
+        return;
+      const previewState = readStudioPreviewState(event.data);
+      if (previewState === undefined) return;
+      setPreviewState(previewState);
+      setPreviewConnection("connected");
+      setSelectedSlideId(previewState.position.slideId);
+      setSelectedSlideIndex(previewState.position.slideIndex);
+    };
+    globalThis.addEventListener("message", receivePreviewState);
+    return () => globalThis.removeEventListener("message", receivePreviewState);
+  }, [plan, previewOrigin]);
+
+  const postPreviewMessage = (message: Readonly<Record<string, unknown>>): void => {
+    iframeRef.current?.contentWindow?.postMessage(message, previewOrigin);
+  };
+
+  useEffect(() => {
+    setPreviewState(undefined);
+    setPreviewLoaded(false);
+    setPreviewConnection("connecting");
+  }, [previewOrigin]);
+
+  useEffect(() => {
+    if (mode !== "draft" || !draftAvailable || !previewLoaded || previewState !== undefined) return;
+    if (previewCapability === undefined) {
+      setPreviewConnection("unavailable");
+      return;
+    }
+    let attempt = 0;
+    let timeout: number | undefined;
+    const connect = (): void => {
+      const frame = iframeRef.current;
+      if (frame === null) return;
+      frame.contentWindow?.postMessage(
+        {
+          capability: previewCapability,
+          type: "drever:studio-preview-connect",
+          version: 1,
+        },
+        previewOrigin,
+      );
+      attempt += 1;
+      if (attempt >= 8) {
+        setPreviewConnection("unavailable");
+        return;
+      }
+      timeout = globalThis.setTimeout(connect, Math.min(200 * 2 ** (attempt - 1), 1_200));
+    };
+    connect();
+    return () => {
+      if (timeout !== undefined) globalThis.clearTimeout(timeout);
+    };
+  }, [draftAvailable, mode, previewCapability, previewLoaded, previewOrigin, previewState]);
+
+  const selectSlide = (slideId: string, slideIndex: number): void => {
     setSelectedSlideId(slideId);
-    setMode("storyboard");
+    setSelectedSlideIndex(slideIndex);
+    if (mode === "draft" && draftAvailable) {
+      postPreviewMessage({
+        capability: previewCapability,
+        slideIndex,
+        type: "drever:studio-preview-navigate",
+        version: 1,
+      });
+      return;
+    }
+    pendingScrollSlideId.current = slideId;
   };
 
   const selectDeck = (): void => {
     setSelectedSlideId(undefined);
-    setMode("storyboard");
-    requestAnimationFrame(() => planRef.current?.scrollTo({ behavior: "smooth", top: 0 }));
+    setSelectedSlideIndex(undefined);
+    if (mode === "storyboard") {
+      requestAnimationFrame(() => planRef.current?.scrollTo({ behavior: "smooth", top: 0 }));
+    }
   };
 
   const approve = async (): Promise<void> => {
@@ -1089,31 +1478,53 @@ const PlanScreen = ({
   };
 
   if (plan === undefined) return <WaitingScreen state={state} />;
+  const railSlides =
+    mode === "draft" && previewState !== undefined
+      ? previewState.manifest.slides.map((slide) => ({
+          id: slide.id,
+          title: slide.title ?? `Slide ${String(slide.index + 1)}`,
+        }))
+      : plan.slides;
+  const previewSlide = previewState?.manifest.slides[previewState.position.slideIndex];
+  const previewNotes =
+    previewSlide?.speakerNotes
+      .map(({ plainText }) => plainText)
+      .filter(Boolean)
+      .join("\n\n") ||
+    (previewSlide === undefined
+      ? "Connecting to speaker notes…"
+      : "No speaker notes for this slide yet.");
 
   return (
     <main className="drever-studio-workspace">
-      <nav aria-label="Storyboard slides" className="drever-studio-rail">
+      <nav aria-label="Presentation slides" className="drever-studio-rail" data-mode={mode}>
         <header>
-          <p>Story</p>
-          <span>{plan.slides.length} slides</span>
+          <p>{mode === "draft" ? "Live draft" : "Story"}</p>
+          <span>{railSlides.length} slides</span>
         </header>
-        <button
-          className="drever-studio-rail__whole"
-          data-selected={selectedSlideId === undefined ? "" : undefined}
-          onClick={selectDeck}
-          type="button"
-        >
-          <SparkIcon />
-          Entire deck
-        </button>
+        {mode === "storyboard" ? (
+          <button
+            className="drever-studio-rail__whole"
+            data-selected={selectedSlideId === undefined ? "" : undefined}
+            onClick={selectDeck}
+            type="button"
+          >
+            <SparkIcon />
+            Entire deck
+          </button>
+        ) : null}
         <ol>
-          {plan.slides.map((slide, index) => (
+          {railSlides.map((slide, index) => (
             <li key={slide.id}>
               <button
-                aria-controls={`drever-studio-plan-card-${slide.id}`}
+                aria-controls={
+                  mode === "draft"
+                    ? "drever-studio-live-draft"
+                    : `drever-studio-plan-card-${slide.id}`
+                }
                 aria-current={slide.id === selectedSlideId ? "true" : undefined}
                 data-selected={slide.id === selectedSlideId ? "" : undefined}
-                onClick={() => selectSlide(slide.id)}
+                onClick={() => selectSlide(slide.id, index)}
                 type="button"
               >
                 <span>{String(index + 1).padStart(2, "0")}</span>
@@ -1170,45 +1581,44 @@ const PlanScreen = ({
         </header>
 
         {mode === "draft" && draftAvailable ? (
-          <div className="drever-studio-preview">
-            <iframe
-              referrerPolicy="no-referrer"
-              sandbox="allow-same-origin allow-scripts"
-              src={previewUrl}
-              title="Live Drever draft"
-            />
+          <div
+            aria-busy={lifecycle?.status === "working"}
+            className="drever-studio-preview"
+            id="drever-studio-live-draft"
+          >
+            <StudioDraftStatus onAction={onAction} state={state} />
+            <div className="drever-studio-preview__frame">
+              <iframe
+                allow="fullscreen"
+                allowFullScreen
+                onLoad={() => {
+                  setPreviewState(undefined);
+                  setPreviewConnection("connecting");
+                  setPreviewLoaded(true);
+                }}
+                ref={iframeRef}
+                referrerPolicy="no-referrer"
+                sandbox="allow-same-origin allow-scripts"
+                src={previewUrl}
+                title="Live Drever draft"
+              />
+            </div>
+            <aside aria-live="polite" className="drever-studio-preview__notes">
+              <small>
+                Speaker notes
+                {previewState === undefined
+                  ? null
+                  : ` · Slide ${previewState.position.slideIndex + 1}`}
+              </small>
+              <p dir="auto">{previewNotes}</p>
+              {previewConnection === "unavailable" ? (
+                <em>The live slide connection paused. Reload this preview to reconnect.</em>
+              ) : null}
+            </aside>
           </div>
         ) : (
           <div className="drever-studio-plan" ref={planRef}>
-            {state.phase === "drafting" ? (
-              <section aria-live="polite" className="drever-studio-draft-status">
-                <span aria-hidden="true">
-                  <SparkIcon />
-                </span>
-                <div>
-                  <small>Draft 1 is taking shape</small>
-                  <strong dir="auto">
-                    {currentActivity?.label ??
-                      state.progress?.label ??
-                      "Building the first preview"}
-                  </strong>
-                  <p dir="auto">
-                    {currentActivity?.detail ??
-                      state.message ??
-                      "Studio will switch to the live deck as soon as the first complete preview is ready."}
-                  </p>
-                </div>
-                {state.progress?.completed !== undefined && state.progress.total !== undefined ? (
-                  <progress
-                    aria-label={state.progress.label}
-                    max={state.progress.total}
-                    value={state.progress.completed}
-                  />
-                ) : (
-                  <i aria-hidden="true" />
-                )}
-              </section>
-            ) : null}
+            <StudioDraftStatus onAction={onAction} state={state} />
             <header>
               <div>
                 <p>Structure preview</p>
@@ -1227,7 +1637,10 @@ const PlanScreen = ({
                   }}
                   index={index}
                   key={slide.id}
-                  onSelect={() => setSelectedSlideId(slide.id)}
+                  onSelect={() => {
+                    setSelectedSlideId(slide.id);
+                    setSelectedSlideIndex(index);
+                  }}
                   selected={slide.id === selectedSlideId}
                   slide={slide}
                 />
@@ -1252,9 +1665,10 @@ export const Studio = (props: StudioProps): ReactElement => {
   const [actionError, setActionError] = useState<string | undefined>();
   const commonBriefDone = (state.commonBrief?.topic.trim() ?? "") !== "";
   const hasQuestions = (state.adaptiveQuestions?.length ?? 0) > 0;
-  const plan = state.plan?.status === "awaiting-input" ? undefined : state.plan;
+  const plan =
+    state.plan?.status === "awaiting-input" || directionIsPending(state) ? undefined : state.plan;
   const screen = useMemo(() => {
-    if (state.phase === "error") return "error";
+    if (state.phase === "error" && plan === undefined) return "error";
     if (!commonBriefDone || state.phase === "briefing") return "brief";
     if (state.phase === "adaptive-questions" && hasQuestions) return "questions";
     if (plan !== undefined) return "plan";
@@ -1301,7 +1715,7 @@ export const Studio = (props: StudioProps): ReactElement => {
         <AgentConnectionNotice />
       )}
       <StudioAgentApproval approvals={state.agentApprovals ?? []} onAction={dispatch} />
-      {(screen === "questions" || screen === "plan") &&
+      {screen === "questions" &&
       (state.activity !== undefined ||
         state.progress !== undefined ||
         state.message !== undefined) ? (
@@ -1311,7 +1725,7 @@ export const Studio = (props: StudioProps): ReactElement => {
       {screen === "questions" ? <QuestionsScreen onAction={dispatch} state={state} /> : null}
       {screen === "waiting" ? <WaitingScreen state={state} /> : null}
       {screen === "plan" ? <PlanScreen {...props} onAction={dispatch} /> : null}
-      {screen === "error" ? <ErrorScreen state={state} /> : null}
+      {screen === "error" ? <ErrorScreen onAction={dispatch} state={state} /> : null}
       {actionError === undefined ? null : (
         <div aria-live="assertive" className="drever-studio-error" role="alert">
           {actionError}

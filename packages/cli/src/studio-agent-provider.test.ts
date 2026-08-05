@@ -9,6 +9,7 @@ import {
   createStudioSession,
 } from "./studio-plugin.ts";
 import {
+  phaseForStudioAction,
   studioActionWorkflowInstructions,
   type StudioAgentProviderSnapshot,
 } from "./studio-agent-provider.ts";
@@ -75,6 +76,86 @@ describe("Studio action workflow instructions", () => {
     } as const satisfies DreverStudioActionRecord;
 
     expect(studioActionWorkflowInstructions(record)).toBe("");
+  });
+});
+
+describe("Studio action lifecycle", () => {
+  const record = (action: DreverStudioActionRecord["action"]): DreverStudioActionRecord => ({
+    version: 1,
+    revision: 1,
+    receivedAt: "2026-08-05T08:00:00.000Z",
+    action,
+  });
+
+  it.each([
+    {
+      type: "submit-common-brief",
+      action: record({
+        version: 1,
+        type: "submit-common-brief",
+        requestId: "brief-1",
+        expectedRevision: 0,
+        brief: { topic: "A clear story" },
+      }),
+      phase: "waiting-for-agent",
+    },
+    {
+      type: "submit-adaptive-answers",
+      action: record({
+        version: 1,
+        type: "submit-adaptive-answers",
+        requestId: "answers-1",
+        expectedRevision: 0,
+        answers: [{ questionId: "proof", optionIds: ["demo"] }],
+      }),
+      phase: "waiting-for-agent",
+    },
+    {
+      type: "skip-remaining-questions",
+      action: record({
+        version: 1,
+        type: "skip-remaining-questions",
+        requestId: "skip-1",
+        expectedRevision: 0,
+      }),
+      phase: "waiting-for-agent",
+    },
+    {
+      type: "respond-agent-approval",
+      action: record({
+        version: 1,
+        type: "respond-agent-approval",
+        requestId: "approval-1",
+        expectedRevision: 0,
+        approvalId: "approval-1",
+        decision: "accept",
+      }),
+      phase: "waiting-for-agent",
+    },
+    {
+      type: "approve-plan",
+      action: record({
+        version: 1,
+        type: "approve-plan",
+        requestId: "approve-1",
+        expectedRevision: 0,
+      }),
+      phase: "drafting",
+    },
+    {
+      type: "submit-feedback",
+      action: record({
+        version: 1,
+        type: "submit-feedback",
+        requestId: "feedback-1",
+        expectedRevision: 0,
+        scope: { kind: "deck" },
+        message: "Clarify the opening.",
+      }),
+      phase: "refining",
+    },
+  ] as const)("maps $type to $phase", ({ action, phase }) => {
+    expect(phaseForStudioAction(action)).toBe(phase);
   });
 });
 

@@ -9,9 +9,13 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vite-plus/test";
 import {
   hydrateStudioAnswerDrafts,
+  latestStudioNarration,
   nextStudioMode,
+  readStudioPreviewState,
   resolveStudioAnswers,
+  resolveStudioDraftLifecycle,
   resolveStudioDuration,
+  resolveStudioProgress,
   respondToStudioAgentApproval,
   Studio,
   type StudioProps,
@@ -139,6 +143,8 @@ describe("Studio", () => {
     expect(markup).toContain(
       'aria-label="Respond to agent approval" class="drever-studio-agent-approval__actions" role="group"',
     );
+    expect(markup).toContain('aria-modal="true"');
+    expect(markup).toContain('role="alertdialog"');
     expect(markup).toContain("File change approval");
     expect(markup).toContain("Write the approved storyboard");
     expect(markup).toContain("Update the deck source in this project.");
@@ -202,9 +208,11 @@ describe("Studio", () => {
     expect(markup).toContain("Reviewing the submitted brief");
     expect(markup).toContain("1 of 3");
     expect(markup).toContain('aria-label="Reviewing the submitted brief" max="3" value="1"');
-    expect(markup).toContain("Agent update");
     expect(markup).toContain("Selecting the decisions that materially change the deck.");
-    expect(markup).toContain('aria-current="step" data-status="active"');
+    expect(markup).toContain('aria-current="step"');
+    expect(markup).toContain('class="drever-studio-activity__current"');
+    expect(markup).toContain('<details class="drever-studio-activity-history">');
+    expect(markup).not.toContain('<details class="drever-studio-activity-history" open="">');
   });
 
   it("hydrates an arbitrary duration in the custom minutes field", () => {
@@ -258,20 +266,53 @@ describe("Studio", () => {
     expect(markup).not.toContain("Live Drever draft");
   });
 
-  it("renders agent errors instead of leaving a green waiting surface", () => {
+  it("renders an error surface when no reviewable artifact exists", () => {
     const markup = render(
       state({
         phase: "error",
         commonBrief: { topic: plan.brief.topic },
         message: "The agent could not validate Draft 1.",
-        plan,
       }),
     );
 
     expect(markup).toContain("Agent needs attention");
     expect(markup).toContain("The draft paused.");
     expect(markup).toContain("The agent could not validate Draft 1.");
-    expect(markup).not.toContain("Structure preview");
+    expect(markup).toContain("Retry from this brief");
+    expect(markup).not.toContain("Live Drever draft");
+  });
+
+  it("keeps the last published draft visible when refinement fails", () => {
+    const markup = render(
+      state({
+        draftAvailable: true,
+        phase: "error",
+        commonBrief: { topic: plan.brief.topic },
+        message: "The motion pass stopped before verification.",
+        plan: { ...plan, status: "approved" },
+      }),
+    );
+
+    expect(markup).toContain('title="Live Drever draft"');
+    expect(markup).toContain("Refinement paused");
+    expect(markup).toContain("The motion pass stopped before verification.");
+    expect(markup).toContain("Resume from last draft");
+    expect(markup).not.toContain("The draft paused.");
+  });
+
+  it("retries the first draft without claiming that an unpublished draft exists", () => {
+    const markup = render(
+      state({
+        phase: "error",
+        commonBrief: { topic: plan.brief.topic },
+        message: "Draft 1 stopped before its first preview.",
+        plan: { ...plan, status: "approved" },
+      }),
+    );
+
+    expect(markup).toContain("Draft 1 stopped before its first preview.");
+    expect(markup).toContain("Retry Draft 1");
+    expect(markup).not.toContain("Resume from last draft");
   });
 
   it("keeps a reviewable plan locked while an earlier request is still being reconciled", () => {
@@ -286,6 +327,23 @@ describe("Studio", () => {
 
     expect(markup).toContain("Waiting for agent…");
     expect(markup).toMatch(/<button class="drever-studio-approve" disabled=/u);
+  });
+
+  it("keeps an older storyboard out of view while new direction is being handled", () => {
+    const markup = render(
+      state({
+        adaptiveAnswers: [{ questionId: "starting-model", optionIds: ["vacuum"] }],
+        agentConnected: true,
+        commonBrief: { topic: plan.brief.topic },
+        pendingActionCount: 1,
+        phase: "waiting-for-agent",
+        plan: { ...plan, status: "approved" },
+      }),
+    );
+
+    expect(markup).toContain("Agent activity");
+    expect(markup).not.toContain("Live Drever draft");
+    expect(markup).not.toContain("What should change?");
   });
 
   it("shows published activity in the workspace without presenting it as private reasoning", () => {
@@ -306,12 +364,10 @@ describe("Studio", () => {
       }),
     );
 
-    expect(markup).toContain('aria-label="Latest agent activity"');
-    expect(markup).toContain("Agent working");
+    expect(markup).toContain("Live work in progress");
     expect(markup).toContain("Laying out the evidence slides");
     expect(markup).toContain("Draft 1 is taking shape");
-    expect(markup).toContain("Live summary");
-    expect(markup).toContain('aria-label="Recent agent activity"');
+    expect(markup).not.toContain('aria-label="Recent agent activity"');
     expect(markup).not.toContain("chain of thought");
   });
 
@@ -333,6 +389,9 @@ describe("Studio", () => {
     expect(markup).toContain('src="http://127.0.0.1:51999/"');
     expect(markup).toContain('sandbox="allow-same-origin allow-scripts"');
     expect(markup).toContain('referrerPolicy="no-referrer"');
+    expect(markup).toContain('allow="fullscreen"');
+    expect(markup).toContain('allowFullScreen=""');
+    expect(markup).toContain("Connecting to speaker notes…");
     expect(markup).not.toContain("allow-top-navigation");
     expect(markup).toContain('href="http://127.0.0.1:4317/"');
     expect(markup).toContain('aria-pressed="true" type="button">Live draft');
@@ -378,6 +437,124 @@ describe("Studio", () => {
 });
 
 describe("Studio flow helpers", () => {
+  it("marks Storyboard current until a real plan has been approved", () => {
+    const progress = resolveStudioProgress(
+      state({
+        adaptiveAnswers: [],
+        commonBrief: { topic: "A useful topic" },
+        phase: "waiting-for-agent",
+      }),
+    );
+
+    expect(progress).toEqual([
+      { label: "Brief", status: "complete" },
+      { label: "Direction", status: "complete" },
+      { label: "Storyboard", status: "current" },
+      { label: "Draft", status: "pending" },
+    ]);
+  });
+
+  it("does not reuse an older approved storyboard while new direction is pending", () => {
+    const progress = resolveStudioProgress(
+      state({
+        adaptiveAnswers: [{ questionId: "starting-model", optionIds: ["vacuum"] }],
+        commonBrief: { topic: "A useful topic" },
+        pendingActionCount: 1,
+        phase: "waiting-for-agent",
+        plan: { ...plan, status: "approved" },
+      }),
+    );
+
+    expect(progress).toEqual([
+      { label: "Brief", status: "complete" },
+      { label: "Direction", status: "current" },
+      { label: "Storyboard", status: "pending" },
+      { label: "Draft", status: "pending" },
+    ]);
+  });
+
+  it("marks the last durable stage as failed without erasing completed work", () => {
+    const progress = resolveStudioProgress(
+      state({
+        commonBrief: { topic: plan.brief.topic },
+        draftAvailable: true,
+        phase: "error",
+        plan: { ...plan, status: "approved" },
+      }),
+    );
+
+    expect(progress.map(({ status }) => status)).toEqual([
+      "complete",
+      "complete",
+      "complete",
+      "error",
+    ]);
+  });
+
+  it("shows the newest safe agent narration instead of the start of an accumulated stream", () => {
+    expect(latestStudioNarration("Reading the brief.\nChoosing the strongest visual proof.")).toBe(
+      "Choosing the strongest visual proof.",
+    );
+  });
+
+  it("describes working, reviewable, ready, and failed draft states explicitly", () => {
+    expect(resolveStudioDraftLifecycle(state({ phase: "drafting" }))?.title).toBe(
+      "Draft 1 is taking shape",
+    );
+    expect(resolveStudioDraftLifecycle(state({ phase: "preview" }))?.title).toBe(
+      "Draft 1 is ready to review",
+    );
+    expect(resolveStudioDraftLifecycle(state({ phase: "ready" }))?.title).toBe(
+      "This pass is ready for your feedback",
+    );
+    expect(
+      resolveStudioDraftLifecycle(state({ draftAvailable: true, phase: "error" }))?.title,
+    ).toBe("Refinement paused");
+  });
+
+  it("accepts only self-consistent preview bridge state", () => {
+    const previewState = {
+      type: "drever:studio-preview-state",
+      version: 1,
+      manifest: {
+        version: 2,
+        slides: [{ id: "intro", index: 0, speakerNotes: [], stepStops: [] }],
+      },
+      position: { slideId: "intro", slideIndex: 0, step: 0 },
+    } as const;
+
+    expect(readStudioPreviewState(previewState)).toEqual(previewState);
+    expect(
+      readStudioPreviewState({
+        ...previewState,
+        position: { slideId: "missing", slideIndex: 0, step: 0 },
+      }),
+    ).toBeUndefined();
+    expect(
+      readStudioPreviewState({
+        ...previewState,
+        manifest: {
+          ...previewState.manifest,
+          version: 1,
+        },
+      }),
+    ).toBeUndefined();
+    expect(
+      readStudioPreviewState({
+        ...previewState,
+        manifest: {
+          ...previewState.manifest,
+          slides: [
+            {
+              ...previewState.manifest.slides[0],
+              speakerNotes: [{ format: "markdown", plainText: 42, value: "Broken" }],
+            },
+          ],
+        },
+      }),
+    ).toBeUndefined();
+  });
+
   it("sends every supported agent approval decision through the Studio action boundary", async () => {
     const onAction = vi.fn<StudioProps["onAction"]>();
     const decisions = ["accept", "acceptForSession", "decline", "cancel"] as const;

@@ -3,6 +3,7 @@ import type {
   DreverStudioAgentApprovalDecision,
   DreverStudioAgentApprovalKind,
   DreverStudioAgentState,
+  DreverStudioPhase,
 } from "@drever/schema";
 
 export type StudioAgentApprovalDecision = DreverStudioAgentApprovalDecision;
@@ -21,6 +22,18 @@ export type StudioAgentProviderSnapshot = Readonly<{
   sessionId?: string;
   state?: DreverStudioAgentState;
 }>;
+
+/** @internal Maps browser actions to their in-flight Studio surface. */
+export const phaseForStudioAction = (record: DreverStudioActionRecord): DreverStudioPhase => {
+  switch (record.action.type) {
+    case "approve-plan":
+      return "drafting";
+    case "submit-feedback":
+      return "refining";
+    default:
+      return "waiting-for-agent";
+  }
+};
 
 /** @internal Keeps the latency-sensitive Studio handoff identical across agent transports. */
 export const studioActionWorkflowInstructions = (record: DreverStudioActionRecord): string =>
