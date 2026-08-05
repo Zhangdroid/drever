@@ -1,5 +1,5 @@
 import type { MDXContent } from "@drever/core";
-import { DECK_MANIFEST_VERSION, type DeckManifest } from "@drever/schema";
+import { DECK_MANIFEST_VERSION, type DeckManifest, type PlannedTheme } from "@drever/schema";
 import { isValidElement, StrictMode, type ReactNode } from "react";
 import type { Root } from "react-dom/client";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
@@ -23,6 +23,11 @@ const manifest = {
 } as const satisfies DeckManifest;
 
 const Content: MDXContent = () => null;
+const runtimeTheme = {
+  id: "local.dark",
+  tokens: { color: { canvas: "#08111f", ink: "#f4f7ff" } },
+  manifest: { summary: "A local dark Theme.", title: "Dark" },
+} satisfies PlannedTheme;
 
 const hostPropsFrom = (node: ReactNode): DocumentHostProps => {
   if (!isValidElement<{ children: ReactNode }>(node) || node.type !== StrictMode) {
@@ -64,6 +69,7 @@ describe("createDocument", () => {
       Content,
       container,
       manifest,
+      runtime: { theme: runtimeTheme },
     });
 
     expect(hostProps).toMatchObject({
@@ -71,6 +77,7 @@ describe("createDocument", () => {
       Content,
       documentURL: "https://slides.test/talk/document?theme=dark#details",
       manifest,
+      theme: runtimeTheme,
     });
     expect(scrollIntoView).toHaveBeenCalledWith({ block: "start", inline: "nearest" });
     await Promise.all([handle.destroy(), handle.destroy()]);

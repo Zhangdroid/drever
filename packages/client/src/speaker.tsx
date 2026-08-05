@@ -1,5 +1,5 @@
 import type { DreverRenderMode, MDXComponents, MDXContent } from "@drever/core";
-import type { CanvasDefinition, DeckManifest, SlideManifest } from "@drever/schema";
+import type { CanvasDefinition, DeckManifest, PlannedTheme, SlideManifest } from "@drever/schema";
 import {
   useCallback,
   useEffect,
@@ -60,6 +60,7 @@ export type SpeakerProps = Readonly<{
   registry?: MDXComponents;
   stage?: StageComponents;
   store: PresentationStore;
+  theme?: PlannedTheme;
 }>;
 
 export const formatSpeakerElapsedTime = (milliseconds: number): string => {
@@ -354,6 +355,7 @@ const Preview = ({
   renderMode,
   stage,
   testId,
+  theme,
 }: Readonly<{
   Content: MDXContent;
   canvas?: CanvasDefinition;
@@ -368,6 +370,7 @@ const Preview = ({
   renderMode: DreverRenderMode;
   stage?: StageComponents;
   testId: string;
+  theme?: PlannedTheme;
 }>): ReactElement => {
   const resolvedCanvas = canvas ?? DEFAULT_CANVAS;
   return (
@@ -390,6 +393,7 @@ const Preview = ({
           {...(registry === undefined ? {} : { registry })}
           renderMode={renderMode}
           {...(stage === undefined ? {} : { stage })}
+          {...(theme === undefined ? {} : { theme })}
         />
       </div>
       {focus === undefined || onFocus === undefined ? null : (
@@ -420,6 +424,7 @@ export const Speaker = ({
   registry,
   stage,
   store,
+  theme,
 }: SpeakerProps): ReactElement => {
   const position = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
   const focusState = useSyncExternalStore(focus.subscribe, focus.getSnapshot, focus.getSnapshot);
@@ -558,6 +563,7 @@ export const Speaker = ({
           renderMode="speaker-current"
           {...(stage === undefined ? {} : { stage })}
           testId="speaker-current"
+          {...(theme === undefined ? {} : { theme })}
         />
         {nextPosition === undefined ? (
           <section
@@ -582,6 +588,7 @@ export const Speaker = ({
             renderMode="speaker-next"
             {...(stage === undefined ? {} : { stage })}
             testId="speaker-next"
+            {...(theme === undefined ? {} : { theme })}
           />
         )}
 

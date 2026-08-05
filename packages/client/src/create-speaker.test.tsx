@@ -1,5 +1,5 @@
 import type { MDXContent } from "@drever/core";
-import { DECK_MANIFEST_VERSION, type DeckManifest } from "@drever/schema";
+import { DECK_MANIFEST_VERSION, type DeckManifest, type PlannedTheme } from "@drever/schema";
 import { isValidElement, StrictMode, type ReactNode } from "react";
 import type { Root } from "react-dom/client";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
@@ -56,6 +56,11 @@ const manifest = {
 } as const satisfies DeckManifest;
 
 const Content: MDXContent = () => null;
+const runtimeTheme = {
+  id: "local.dark",
+  tokens: { color: { canvas: "#08111f", ink: "#f4f7ff" } },
+  manifest: { summary: "A local dark Theme.", title: "Dark" },
+} satisfies PlannedTheme;
 
 const flushMicrotasks = async (): Promise<void> => {
   for (let index = 0; index < 8; index += 1) {
@@ -259,9 +264,12 @@ describe("createSpeaker", () => {
     const harness = createHarness();
     const focusTools = { laser: { color: "#ff4567" } } as const;
 
-    const speaker = await createSpeaker(harness.options({ focusTools }));
+    const speaker = await createSpeaker(
+      harness.options({ focusTools, runtime: { theme: runtimeTheme } }),
+    );
 
     expect(harness.hostProps.focusTools).toBe(focusTools);
+    expect(harness.hostProps.theme).toBe(runtimeTheme);
     await speaker.destroy();
   });
 

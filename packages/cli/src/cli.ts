@@ -69,6 +69,7 @@ type DevCommand = Readonly<{
 
 export type CheckCommand = Readonly<{
   entry?: string;
+  evidence?: string;
   json: boolean;
   name: "check";
   rendered: boolean;
@@ -146,7 +147,7 @@ export type PdfExportRequest = Readonly<{
 const EXPORT_PDF_USAGE =
   "Usage: drever export pdf [entry] [--steps] [--slides <range>] [-o|--output <path>] [--json]";
 const BUILD_USAGE = "Usage: drever build [entry] [--json]";
-const CHECK_USAGE = "Usage: drever check [entry] [--rendered] [--json]";
+const CHECK_USAGE = "Usage: drever check [entry] [--rendered] [--evidence <directory>] [--json]";
 const CONTEXT_USAGE = "Usage: drever context [entry] [--json]";
 const CURRENT_USAGE = "Usage: drever current [--json]";
 const DEV_USAGE = `Usage: drever dev [entry] [--open studio] [--agent <${STUDIO_AGENT_NAMES.join("|")}>]`;
@@ -317,10 +318,12 @@ const parseBuild = (arguments_: readonly string[]): BuildCommand => {
 
 const parseCheck = (arguments_: readonly string[]): CheckCommand => {
   let entry: string | undefined;
+  let evidence: string | undefined;
   let json = false;
   let rendered = false;
 
-  for (const argument of arguments_) {
+  for (let index = 0; index < arguments_.length; index += 1) {
+    const argument = arguments_[index] as string;
     if (argument === "--json") {
       if (json) {
         invalidArgument("--json can be specified only once.", CHECK_USAGE);
@@ -335,6 +338,18 @@ const parseCheck = (arguments_: readonly string[]): CheckCommand => {
       rendered = true;
       continue;
     }
+    if (argument === "--evidence") {
+      if (evidence !== undefined) {
+        invalidArgument("--evidence can be specified only once.", CHECK_USAGE);
+      }
+      const value = arguments_[index + 1];
+      if (value === undefined || value.length === 0 || value.startsWith("-")) {
+        invalidArgument("--evidence requires an output directory.", CHECK_USAGE);
+      }
+      evidence = value;
+      index += 1;
+      continue;
+    }
     if (argument.startsWith("-")) {
       invalidArgument(`Unknown check flag: ${argument}`, CHECK_USAGE);
     }
@@ -344,11 +359,16 @@ const parseCheck = (arguments_: readonly string[]): CheckCommand => {
     entry = argument;
   }
 
+  if (evidence !== undefined && !rendered) {
+    invalidArgument("--evidence requires --rendered.", CHECK_USAGE);
+  }
+
   return Object.freeze({
     json,
     name: "check",
     rendered,
     ...(entry === undefined ? {} : { entry }),
+    ...(evidence === undefined ? {} : { evidence }),
   });
 };
 
@@ -703,7 +723,7 @@ Usage:
   drever create [directory] [options]
   drever dev [entry] [--open studio] [--agent <codex|claude|gemini|copilot|goose|cursor|opencode|openhands|cline>]
   drever build [entry] [--json]
-  drever check [entry] [--rendered] [--json]
+  drever check [entry] [--rendered] [--evidence <directory>] [--json]
   drever context [entry] [--json]
   drever current [--json]
   drever studio status [--json]
@@ -843,6 +863,14 @@ export const runCli = async (
   }
 
   const root = options.cwd ?? process.cwd();
+  const evidenceDirectory =
+    command.name === "check" && command.evidence !== undefined
+      ? resolve(root, command.evidence)
+      : undefined;
+  if (evidenceDirectory !== undefined) {
+    const evidence = await import("./rendered-evidence.ts");
+    await evidence.invalidateRenderedEvidence(evidenceDirectory);
+  }
   if (command.name === "create") {
     await runCreateCommand(command, {
       ...(options.createProject === undefined ? {} : { createProject: options.createProject }),
@@ -870,7 +898,7 @@ export const runCli = async (
       });
     await installBrowser({ withDeps: command.withDeps });
     output.write(
-      "Playwright Chromium is ready for Drever PDF export, rendered preflight, and design import.\n",
+      "Playwright Chromium is ready for Drever rendered review, PDF export, and design import.\n",
     );
     return;
   }
@@ -967,6 +995,7 @@ export const runCli = async (
       });
     return checkDeck({
       entry,
+      ...(evidenceDirectory === undefined ? {} : { evidenceDirectory }),
       json: command.json,
       ...(project === undefined ? {} : { project }),
       root,

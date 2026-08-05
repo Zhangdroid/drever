@@ -40,13 +40,14 @@ optional rendered diagnostics without introducing a second diagnostic
 vocabulary. When `drever check --rendered` runs, its receipt records
 `RENDERED_PREFLIGHT_VERSION`, `RENDERED_PREFLIGHT_RULESET_VERSION`, the
 configured canvas, `chromium` engine, optional browser version, captured state
-count, status, and any explicit source-skip, browser, or runtime failure reason.
+count, status, optional evidence-manifest and inspection-build fingerprint, and any explicit
+source-skip, browser, or runtime failure reason.
 
 `DeckPreflightReportV1` models the legacy source-only artifact, while
 `DeckPreflightReport` is the safe V1-or-V2 union. Consumers should narrow on the
 root `version` before reading `rendered`; a V1 report never proves rendered
-inspection. Receipt wire version 1 accepts rendered rulesets 1 and 2 so stored
-ruleset-1 evidence remains representable; compare `rulesetVersion` with
+inspection. Receipt wire version 1 accepts rendered rulesets 1 through 4 so stored evidence
+remains representable; compare `rulesetVersion` with
 `RENDERED_PREFLIGHT_RULESET_VERSION` before treating old evidence as current.
 
 ## Deck plan contract

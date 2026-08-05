@@ -244,6 +244,7 @@ export const createSpeaker = async (options: CreateSpeakerOptions): Promise<Spea
           {...(options.registry === undefined ? {} : { registry: options.registry })}
           {...(options.stage === undefined ? {} : { stage: options.stage })}
           store={store}
+          {...(options.runtime?.theme === undefined ? {} : { theme: options.runtime.theme })}
         />
       </StrictMode>,
     );

@@ -60,6 +60,9 @@ describe("Drever environment inspection", () => {
       { id: "project.entry", status: "pass" },
       { id: "export.chromium", status: "pass" },
     ]);
+    expect(report.checks.at(-1)?.message).toBe(
+      "Playwright Chromium is ready for rendered review, PDF export, and design import.",
+    );
   });
 
   it("keeps optional tooling as warnings while failing required capabilities", async () => {

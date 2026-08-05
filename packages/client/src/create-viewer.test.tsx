@@ -283,6 +283,15 @@ describe("createViewer lifecycle", () => {
     await viewer.destroy();
   });
 
+  it("forwards runtime Theme tokens to the rendered canvas", async () => {
+    const harness = createHarness();
+
+    const viewer = await createViewer(harness.options({ runtime: { theme: runtimeTheme } }));
+
+    expect(harness.hostProps.theme).toBe(runtimeTheme);
+    await viewer.destroy();
+  });
+
   it("waits for the stable StrictMode mount before acquiring browser listeners", async () => {
     const harness = createHarness({ autoMount: false });
     const runSetup = vi.fn(() => undefined);

@@ -5,8 +5,8 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
-Release impact: **minor** — this batch adds compatible managed-agent sessions and live Studio
-coordination without changing existing deck or provider-neutral journal workflows.
+Release impact: **minor** — this batch adds compatible managed-agent sessions, durable visual
+evidence, and stronger rendered-quality checks without changing existing deck workflows.
 
 ### Added
 
@@ -17,6 +17,12 @@ coordination without changing existing deck or provider-neutral journal workflow
 - Added managed Studio adapters for Codex and Claude Code, plus one standards-based ACP adapter for
   Gemini CLI, GitHub Copilot CLI, Goose, Cursor CLI, OpenCode, OpenHands, and Cline. Existing and
   unsupported agents can continue to use the provider-neutral action journal.
+- Added a blocking rendered diagnostic for recurring full-canvas slide paint that would move under
+  the default document View Transition instead of remaining on the stationary Stage.
+- Added opt-in Playwright visual evidence to `drever check --rendered`, with every exact settled
+  state, forward and reverse transition samples, contact sheets, integrity hashes, and a versioned
+  manifest. The manifest is published atomically and shares an inspection-build fingerprint with
+  the JSON receipt, so a failed or stale refresh cannot be mistaken for current evidence.
 
 ### Changed
 
@@ -24,9 +30,19 @@ coordination without changing existing deck or provider-neutral journal workflow
   away from unrelated artifact skills before delegating to Drever's version-matched local skill.
 - Made open Studio sessions detect agent-state and plan publications even when the operating-system
   file watcher misses an atomic replacement, removing the need to refresh the page manually.
+- Derived audience, speaker, document, and export canvas fallbacks from semantic Theme canvas and
+  ink tokens, and made AI design and review require a sequence-level visual story plus source-backed
+  implementation receipts for signature moments.
+- Distinguished content-complete Draft 1, active visual refinement, and a reviewed ready state in
+  the local creation room instead of presenting the first tidy preview as finished work.
+- Consolidated required deck review on Drever's isolated Playwright Chromium instead of requiring
+  Chrome DevTools MCP or a second agent browser.
 
 ### Fixed
 
+- Evaluated full-canvas background ownership independently in both transition directions and made
+  rendered review reject console errors and failed subresources instead of trusting incomplete
+  pixels.
 - Kept the audience toolbar visible across slide navigation initiated by its previous and next
   buttons, while keyboard and canvas navigation continue to hide it before transition capture.
 
@@ -37,17 +53,17 @@ diagnostics, and a visual-refinement gate for AI-authored presentations.
 
 ### Added
 
+- Added an experimental, development-only local creation room for the common brief, adaptive
+  topic-specific questions, visual Storyboard approval, a real Audience View preview, and deck- or
+  slide-scoped feedback. A provider-neutral local action journal and `drever studio` agent commands
+  coordinate the existing coding agent without placing model credentials or editor code in the
+  production presentation.
 - Added rendered text safe-area diagnostics for required copy that hugs the
   canvas edge, including source evidence and a matching hard release-smoke
   browser gate.
 - Added content-led scene recipes and practical typography, spacing, contrast,
   and CJK-aware review baselines to the installed design, authoring, and review
   skills.
-- Added an experimental, development-only local creation room for the common brief, adaptive
-  topic-specific questions, visual Storyboard approval, a real Audience View preview, and deck- or
-  slide-scoped feedback. A provider-neutral local action journal and `drever studio` agent commands
-  coordinate the existing coding agent without placing model credentials or editor code in the
-  production presentation.
 
 ### Changed
 

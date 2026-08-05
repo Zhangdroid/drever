@@ -30,6 +30,10 @@ Decks built with Drever may use any language.
 - Use focused unit tests for state, compilation, planning, and diagnostics.
 - Give E2E tests priority for public CLI flows, clean URLs, browser APIs,
   presentation state, speaker synchronization, and production output.
+- Keep browser contracts on private fixtures under `e2e/fixtures`. Public
+  examples and showcases may change their story, layout, and motion without
+  becoming permanent E2E APIs; validate those surfaces with source checks and
+  production builds instead.
 - Reproduce a bug before fixing it when a focused regression test is practical.
 
 Run targeted checks while iterating. Before committing, run the complete gate:

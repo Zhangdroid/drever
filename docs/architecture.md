@@ -256,7 +256,7 @@ build-time tools such as MDX, Shiki, Tailwind, and KaTeX are allowed because
 their implementations are not Drever's product advantage.
 
 Playwright Core is a CLI-only dependency for deterministic Chromium PDF
-capture, rendered preflight, and website design evidence. It is loaded only by
+capture, rendered preflight and visual evidence, and website design evidence. It is loaded only by
 those explicit commands and the browser-readiness check in `doctor`; `drever
 browser install` explicitly installs the Chromium revision declared by that
 exact dependency. Browser automation, PDF tagging, page sizing, computed-style
@@ -296,26 +296,29 @@ preflight report rather than defining a second diagnostic vocabulary.
 - Pure unit tests cover Deck IR, state transitions, ordering, and diagnostics.
 - Compiler fixtures assert semantic IR rather than large generated-JavaScript snapshots.
 - Plugin and theme contract tests run against shared fixtures.
-- Real-browser tests cover audience, document, and speaker path routing,
+- Real-browser tests use a private, deliberately plain fixture deck to cover
+  audience, document, and speaker path routing,
   document View Transitions with named deck capture, rapid navigation,
   cross-window synchronization, static deep links, document landmarks and final
   Step visibility, and visual states.
   Export E2E runs the public command and verifies
   final and sparse-Step page counts, tags, dimensions, build isolation, and
   rejecting-plugin cleanup.
-- A serverless Playwright project runs the built `drever check` CLI against a
-  clean example and temporary failing source, asserting report schema, exit
+- A serverless Playwright project runs the built `drever check` CLI against the
+  private core fixture and temporary failing source, asserting report schema, exit
   semantics, stable codes, exact locations, and rendered-state evidence without
   substituting test-only compiler calls.
 - Design-import E2E serves a controlled website, runs the built public command,
   and compiles the generated Theme instead of testing only string templates.
 - CLI tests exercise agent-kit ownership conflicts and plugin-aware context
   compilation. Serverless end-to-end tests verify the packaged skills,
-  idempotent sync, and the real example's authoring-context JSON.
-- Built-in layouts, themes, and motion intents are consumed by small showcase
-  decks with Chromium assertions for geometry, state, accessibility, and
-  overflow. Pixel baselines are reserved for visual contracts stable enough to
-  make image diffs meaningful.
+  idempotent sync, and the core fixture's authoring-context JSON.
+- Stable layout, Stage, Step, React-state, and motion contracts live in
+  `e2e/fixtures/core-deck`; browser assertions depend on semantic attributes and
+  explicit test geometry rather than marketing copy or showcase choreography.
+  Public examples are source-checked and production-built, but their page count,
+  DOM, styling, and motion remain free to evolve. Pixel baselines are reserved
+  for visual contracts stable enough to make image diffs meaningful.
 
 Tests use controllable clocks and explicit readiness signals. They do not wait
 for animation with arbitrary sleeps.

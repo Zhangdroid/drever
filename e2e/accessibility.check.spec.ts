@@ -1,12 +1,12 @@
 import { execFile } from "node:child_process";
-import { mkdtemp, realpath, readdir, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, realpath, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import { expect, test } from "@playwright/test";
 
 const execute = promisify(execFile);
-const projectRoot = join(import.meta.dirname, "..", "examples", "basic");
+const projectRoot = join(import.meta.dirname, "fixtures", "core-deck");
 const cli = join(import.meta.dirname, "..", "packages", "cli", "dist", "bin.mjs");
 const environment = { ...process.env };
 delete environment.FORCE_COLOR;
@@ -58,7 +58,7 @@ test("the built CLI emits an empty JSON accessibility report for a clean deck", 
   expect(report).toEqual({
     version: 2,
     sourcePath: join(projectRoot, "slides.mdx"),
-    slideCount: 5,
+    slideCount: 7,
     summary: { errors: 0, warnings: 0, info: 0 },
     diagnostics: [],
   });
@@ -237,7 +237,7 @@ test("rendered check catches high-confidence visual failures without writing a p
       expect.objectContaining({
         browserVersion: expect.any(String),
         engine: "chromium",
-        rulesetVersion: 3,
+        rulesetVersion: 4,
         stateCount: 5,
         status: "failed",
         version: 1,
@@ -262,6 +262,192 @@ test("rendered check catches high-confidence visual failures without writing a p
     ).toContain("painted-content-behind-text");
     expect(diagnosticsByCode.get("DREVER_RENDER_GEOMETRY_UNSTABLE")).toBeDefined();
     expect(await readdir(root)).not.toContain("dist");
+  } finally {
+    await rm(root, { force: true, recursive: true });
+  }
+});
+
+test("rendered check writes a complete Playwright visual-evidence set on explicit request", async () => {
+  test.setTimeout(120_000);
+  const root = await realpath(await mkdtemp(join(tmpdir(), "drever-render-evidence-e2e-")));
+  const output = join(root, ".drever", "review");
+  try {
+    await writeFile(
+      join(root, "drever.config.ts"),
+      "export default { canvas: { width: 1600, height: 900 } };\n",
+    );
+    await writeFile(
+      join(root, "slides.mdx"),
+      `import { Step } from "drever";
+
+# First decision
+
+<Step at={3}>The evidence arrives.</Step>
+
+---
+
+# Final decision
+`,
+    );
+
+    const { stdout } = await runCheck(root, "--rendered", "--evidence", ".drever/review", "--json");
+    const report = parseReport(stdout) as CheckReport &
+      Readonly<{
+        rendered: Readonly<{
+          evidence: Readonly<{ inputSha256: string; manifest: string; schemaVersion: number }>;
+          stateCount: number;
+          status: string;
+        }>;
+      }>;
+    expect(report.rendered).toMatchObject({ stateCount: 3, status: "passed" });
+
+    const manifest = JSON.parse(await readFile(join(output, "manifest.json"), "utf8")) as {
+      canvas: Readonly<{ height: number; width: number }>;
+      input: Readonly<{ algorithm: string; sha256: string; source: string }>;
+      reviewImages: readonly string[];
+      schemaVersion: number;
+      states: readonly Readonly<{ path: string; route: string; slide: number; step: number }>[];
+      transitions: readonly Readonly<{
+        direction: string;
+        from: Readonly<{ route: string; slide: number; step: number }>;
+        path: string;
+        to: Readonly<{ route: string; slide: number; step: number }>;
+      }>[];
+    };
+    expect(manifest).toMatchObject({
+      canvas: { height: 900, width: 1600 },
+      input: {
+        algorithm: "sha256",
+        sha256: expect.stringMatching(/^[0-9a-f]{64}$/u),
+        source: "inspection-build",
+      },
+      schemaVersion: 1,
+      states: [
+        { route: "/", slide: 1, step: 0 },
+        { route: "/1/3", slide: 1, step: 3 },
+        { route: "/2", slide: 2, step: 0 },
+      ],
+    });
+    expect(manifest.transitions).toHaveLength(4);
+    expect(
+      manifest.transitions.map(({ direction, from, to }) => ({ direction, from, to })),
+    ).toEqual([
+      {
+        direction: "forward",
+        from: { route: "/", slide: 1, step: 0 },
+        to: { route: "/1/3", slide: 1, step: 3 },
+      },
+      {
+        direction: "reverse",
+        from: { route: "/1/3", slide: 1, step: 3 },
+        to: { route: "/", slide: 1, step: 0 },
+      },
+      {
+        direction: "forward",
+        from: { route: "/1/3", slide: 1, step: 3 },
+        to: { route: "/2", slide: 2, step: 0 },
+      },
+      {
+        direction: "reverse",
+        from: { route: "/2", slide: 2, step: 0 },
+        to: { route: "/1/3", slide: 1, step: 3 },
+      },
+    ]);
+    expect(manifest.reviewImages).toHaveLength(9);
+    expect(report.rendered.evidence).toEqual({
+      inputSha256: manifest.input.sha256,
+      manifest: "manifest.json",
+      schemaVersion: manifest.schemaVersion,
+    });
+    await Promise.all(manifest.reviewImages.map((path) => readFile(join(output, path))));
+
+    const firstPng = await readFile(join(output, manifest.states[0]?.path ?? ""));
+    expect(firstPng.subarray(0, 8)).toEqual(
+      Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    );
+    expect(firstPng.readUInt32BE(16)).toBe(1600);
+    expect(firstPng.readUInt32BE(20)).toBe(900);
+    expect(await readdir(root)).not.toContain("dist");
+
+    await writeFile(join(root, "slides.mdx"), "# Broken\n\n<Component");
+    await runFailingCheck(root, "--rendered", "--evidence", ".drever/review", "--json");
+    await expect(readFile(join(output, "manifest.json"))).rejects.toMatchObject({ code: "ENOENT" });
+  } finally {
+    await rm(root, { force: true, recursive: true });
+  }
+});
+
+test("rendered check blocks repeated full-canvas direct and pseudo background paint", async () => {
+  test.setTimeout(120_000);
+  const root = await realpath(await mkdtemp(join(tmpdir(), "drever-background-check-e2e-")));
+  try {
+    await writeFile(
+      join(root, "slides.mdx"),
+      `<style>{\`
+  :root { --drever-motion-slide-offset: 2.5%; }
+  .drever-canvas { --drever-canvas-background: #08111f; }
+  :where([data-drever-slide]) { background: #08111f; color: #f4f7ff; }
+  .moving-background {
+    position: absolute;
+    inset: 0;
+    padding: 96px;
+    background: radial-gradient(circle at 80% 18%, #315880 0, transparent 32%), #08111f;
+  }
+  .moving-pseudo {
+    position: absolute;
+    isolation: isolate;
+    inset: 0;
+    padding: 96px;
+    background: #08111f;
+  }
+  .moving-pseudo::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background: radial-gradient(circle at 18% 80%, #275743 0, transparent 34%);
+    content: "";
+  }
+\`}</style>
+
+<section className="moving-background">
+  # Direct background one
+</section>
+
+---
+
+<section className="moving-background">
+  # Direct background two
+</section>
+
+---
+
+<section className="moving-pseudo">
+  # Pseudo background one
+</section>
+
+---
+
+<section className="moving-pseudo">
+  # Pseudo background two
+</section>
+`,
+    );
+
+    const failure = await runFailingCheck(root, "--rendered", "--json");
+    const report = parseReport(failure.stdout) as CheckReport &
+      Readonly<{ rendered: Readonly<{ rulesetVersion: number; stateCount: number }> }>;
+    const backgroundDiagnostics = report.diagnostics.filter(
+      ({ code }) => code === "DREVER_RENDER_BACKGROUND_TRANSITIONED",
+    );
+
+    expect(report.rendered).toMatchObject({ rulesetVersion: 4, stateCount: 4 });
+    expect(backgroundDiagnostics).toHaveLength(2);
+    expect(backgroundDiagnostics.map(({ details }) => details?.background)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ tag: "section" }),
+        expect.objectContaining({ tag: "section::before" }),
+      ]),
+    );
   } finally {
     await rm(root, { force: true, recursive: true });
   }

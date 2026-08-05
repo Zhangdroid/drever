@@ -1,0 +1,11 @@
+{
+  "name": "@drever/e2e-core-deck",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "@types/react": "catalog:",
+    "drever": "workspace:*",
+    "react": "catalog:"
+  }
+}

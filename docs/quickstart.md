@@ -15,7 +15,7 @@ application, and export a portable PDF.
 - Node.js 24.18 or newer.
 - A current desktop browser with Navigation API and `NavigateEvent.signal`,
   `Document.startViewTransition`, `BroadcastChannel`, and `ResizeObserver`.
-- Playwright Chromium for PDF export, rendered preflight, and website design
+- Playwright Chromium for PDF export, rendered preflight and visual evidence, and website design
   import. Install it once with
   `npm exec -- drever browser install`. Linux environments that also need
   operating-system packages can use
@@ -226,6 +226,7 @@ Add the rendered phase for deterministic layout evidence:
 ```bash
 npm exec -- drever check --rendered
 npm exec -- drever check talks/keynote.mdx --rendered --json
+npm exec -- drever check talks/keynote.mdx --rendered --evidence .drever/review --json
 ```
 
 Drever builds an isolated inspection app and visits Step 0 plus every exact
@@ -235,25 +236,27 @@ authored Step at the configured canvas. Stable diagnostics report:
 - visible content outside the canvas or directly overflowing its own box;
 - high-confidence sibling text or opaque-content overlap;
 - resolved solid-color text contrast below the WCAG threshold;
+- recurring full-canvas slide paint that would move with a spatial deck transition;
 - persistent geometry that unexpectedly moves or resizes between Steps;
 - suspicious density supported by multiple rendered signals;
 - complex gradient, image, blended, or translucent paint that cannot be proven automatically.
 
-Clipping, overflow, overlap, and resolved contrast failures are errors. Geometry,
-density, and indeterminate paint are warnings because a
+Clipping, overflow, overlap, resolved contrast, and moving-background failures
+are errors. Geometry, density, and indeterminate paint are warnings because a
 deliberate reflow or information-rich slide can be valid. A missing browser or
 runtime failure is an error rather than a silent skip.
 
 JSON mode emits the current typed report V2 with `sourcePath`, `slideCount`,
 `summary`, `diagnostics`, and a `rendered` receipt. That receipt records its
 schema and ruleset versions, canvas, `chromium` engine, optional browser
-version, captured `stateCount`, and `status`. Source errors produce a `skipped`
+version, captured `stateCount`, optional evidence fingerprint, and `status`. Source errors produce a `skipped`
 receipt with reason `source-errors`; browser and runtime failures produce
 `failed` receipts with their corresponding reason. The schema package also
 models the legacy source-only V1 shape for stored artifacts. The report is
 machine evidence, not an aesthetic score. Review complex-paint contrast,
 hierarchy, reading order, transitions, and the presentation's visual fit in the
-real browser.
+real browser. When `--evidence` is present, the receipt and manifest share the exact inspection
+build's SHA-256 fingerprint; a failed refresh cannot leave an older manifest looking current.
 
 Start the viewer and create a production build:
 
@@ -397,8 +400,8 @@ export default defineConfig({
 });
 ```
 
-Then run `npm exec -- drever check --rendered` and inspect the result in the
-actual browser.
+Then run `npm exec -- drever check --rendered --evidence .drever/review --json`
+and inspect the generated contact sheets plus any relevant full-size state image.
 
 ## Configure the project
 

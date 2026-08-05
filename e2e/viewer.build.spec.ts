@@ -11,7 +11,7 @@ test("the production build is standalone and keeps the viewer contract", async (
   expect(html).toMatch(/<script[^>]+data-drever-src="\.\/assets\/.+\.js"/u);
 
   await page.goto("/");
-  await expect(page.locator("[data-drever-slide]")).toHaveCount(5);
+  await expect(page.locator("[data-drever-slide]")).toHaveCount(7);
   await expect(page.locator('[data-drever-slide][data-slide-state="active"]')).toHaveAttribute(
     "id",
     "slide-1",
@@ -25,10 +25,6 @@ test("the production build is standalone and keeps the viewer contract", async (
   expect(bounds?.height).toBeCloseTo(810, 0);
   expect(bounds?.x).toBeCloseTo(0, 0);
   expect(bounds?.y).toBeCloseTo(45, 0);
-
-  const cover = page.locator('[data-drever-layout="cover"]').first();
-  await expect(cover).toHaveCSS("background-color", "rgb(40, 85, 231)");
-  await expect(cover.locator("h1")).toHaveCSS("font-size", "88px");
 
   await page.keyboard.press("ArrowRight");
   await page.keyboard.press("ArrowRight");
@@ -160,7 +156,7 @@ test("the production document route exposes every fully revealed slide as a land
   expect(await response.text()).toContain('<meta name="drever-base" content="./" />');
   await expect(page.locator("[data-drever-document]")).toBeVisible();
   const slides = page.locator("[data-drever-document] [data-drever-slide]");
-  await expect(slides).toHaveCount(5);
+  await expect(slides).toHaveCount(7);
   await expect(
     page.locator("[data-drever-document] [data-drever-slide][aria-current]"),
   ).toHaveCount(0);
@@ -172,7 +168,7 @@ test("the production document route exposes every fully revealed slide as a land
   await expect(slides.nth(1).getByTestId("step-5")).toHaveAttribute("data-step-state", "active");
 
   const links = page.getByRole("navigation", { name: "Slides" }).getByRole("link");
-  await expect(links).toHaveCount(5);
+  await expect(links).toHaveCount(7);
   await expect(links.nth(0)).toHaveAttribute("href", "http://127.0.0.1:4318/document#slide-1");
   const firstBounds = await slides.nth(0).boundingBox();
   const secondBounds = await slides.nth(1).boundingBox();

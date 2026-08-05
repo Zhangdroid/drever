@@ -257,7 +257,8 @@ workspace tools so permissions, diffs, checks, and Git rollback remain visible.
 3. Review the validated visual Storyboard, then approve or revise it.
 4. Inspect the complete Draft 1 and direct one slide or the whole deck while the agent refines it.
 5. Inspect `npm exec -- drever context --json` and fix `npm run check -- --json` diagnostics.
-6. Run `npm run check -- --rendered --json` and fix proven layout defects.
+6. Run `npm run check -- --rendered --evidence .drever/review --json`, fix proven layout defects,
+   and inspect the captured review evidence.
 7. Review every changed Step, Document View, and Speaker View where relevant.
 8. Build and deliver the static website or PDF from the same verified project.
 

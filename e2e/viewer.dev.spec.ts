@@ -40,7 +40,7 @@ test("the public dev command runs the complete interactive presentation workflow
   const health = monitorPageHealth(page);
   await page.goto("/");
 
-  await expect(page.locator("[data-drever-slide]")).toHaveCount(5);
+  await expect(page.locator("[data-drever-slide]")).toHaveCount(7);
   await expect(page.locator(activeSlide)).toHaveAttribute("id", "slide-1");
   await expect(page.locator(activeSlide)).toContainText("Slides can stay useful.");
   await expect(page.getByText("Pause at step 2", { exact: false })).toHaveCount(0);
@@ -248,7 +248,7 @@ test("the document route accepts a trailing directory slash in development", asy
   expect(response?.ok()).toBe(true);
   await expect(page).toHaveURL(/\/document\/$/u);
   await expect(page.locator("[data-drever-document]")).toBeVisible();
-  await expect(page.locator("[data-drever-document] [data-drever-slide]")).toHaveCount(5);
+  await expect(page.locator("[data-drever-document] [data-drever-slide]")).toHaveCount(7);
   health.expectHealthy();
 });
 
@@ -262,7 +262,7 @@ test("audience controls navigate exact states with a pointer", async ({ page }) 
   const position = controls.getByRole("button", { name: "Open slide navigator" });
 
   await expect(controls).toBeVisible();
-  await expect(position).toContainText("Slide 1 of 5");
+  await expect(position).toContainText("Slide 1 of 7");
   await expect(previous).toBeDisabled();
 
   await next.hover();
@@ -583,7 +583,7 @@ test("audience shortcuts skip Steps, search slides, and jump by number", async (
   await page.keyboard.press("o");
   const navigator = page.getByRole("dialog", { name: "Slide navigator" });
   await expect(navigator).toBeVisible();
-  await expect(navigator.locator("[data-drever-slide-preview]")).toHaveCount(5);
+  await expect(navigator.locator("[data-drever-slide-preview]")).toHaveCount(7);
   await expect(
     navigator.locator(
       '.drever-audience-slide-card[data-slide-index="1"] [data-drever-stage][data-drever-render-mode="export"]',
@@ -593,11 +593,11 @@ test("audience shortcuts skip Steps, search slides, and jump by number", async (
     navigator.locator('.drever-audience-slide-card[data-slide-index="1"] [data-drever-stage]'),
   ).toHaveAttribute("data-drever-reduced-motion", "");
   const lastPreview = navigator.locator(
-    '.drever-audience-slide-card[data-slide-index="4"] [data-drever-stage]',
+    '.drever-audience-slide-card[data-slide-index="6"] [data-drever-stage]',
   );
   await expect(lastPreview).toHaveCount(0);
   await navigator
-    .locator('.drever-audience-slide-card[data-slide-index="4"]')
+    .locator('.drever-audience-slide-card[data-slide-index="6"]')
     .scrollIntoViewIfNeeded();
   await expect(lastPreview).toHaveCount(1);
   await navigator.getByRole("searchbox", { name: "Find a slide" }).fill("static output");
@@ -610,9 +610,9 @@ test("audience shortcuts skip Steps, search slides, and jump by number", async (
 
   await page.keyboard.press("g");
   await expect(navigator).toBeVisible();
-  await navigator.getByRole("searchbox", { name: "Find a slide" }).fill("5");
+  await navigator.getByRole("searchbox", { name: "Find a slide" }).fill("7");
   await navigator.getByRole("button", { name: /Ship the story/u }).click();
-  await expect(page).toHaveURL(/\/5$/u);
+  await expect(page).toHaveURL(/\/7$/u);
 
   await page.keyboard.press("4");
   const goto = page.getByRole("status");

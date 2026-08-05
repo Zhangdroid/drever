@@ -111,6 +111,7 @@ export const createDocument = async (options: CreateDocumentOptions): Promise<Do
           onMounted={mounted.resolve}
           {...(options.registry === undefined ? {} : { registry: options.registry })}
           {...(options.stage === undefined ? {} : { stage: options.stage })}
+          {...(options.runtime?.theme === undefined ? {} : { theme: options.runtime.theme })}
         />
       </StrictMode>,
     );

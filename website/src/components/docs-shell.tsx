@@ -194,7 +194,10 @@ export function ManualSetup() {
         <ul>
           <li>Node.js 24.18 or newer.</li>
           <li>A current Safari or Chromium-family browser.</li>
-          <li>Playwright Chromium only for rendered checks, design import, or PDF export.</li>
+          <li>
+            One Playwright Chromium for rendered checks and visual evidence, design import, and PDF
+            export.
+          </li>
         </ul>
         <p>
           There is no legacy router or animation fallback. Drever respects{" "}

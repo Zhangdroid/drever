@@ -33,8 +33,8 @@
     transform: translate(-50%, -50%) scale(var(--drever-canvas-scale));
     transform-origin: center;
     contain: layout paint style;
-    background: var(--drever-canvas-background, #fff);
-    color: var(--drever-canvas-color, #15171a);
+    background: var(--drever-canvas-background, var(--drever-theme-token-canvas, #fff));
+    color: var(--drever-canvas-color, var(--drever-theme-token-ink, #15171a));
     color-scheme: var(--drever-canvas-color-scheme, light);
   }
 
@@ -2513,7 +2513,7 @@
     margin: 0;
     overflow: hidden;
     break-after: page;
-    background: var(--drever-canvas-background, #fff);
+    background: var(--drever-canvas-background, var(--drever-theme-token-canvas, #fff));
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -2678,7 +2678,7 @@
     overflow: clip;
     width: calc(var(--drever-canvas-width) * 1px);
     height: calc(var(--drever-canvas-height) * 1px);
-    background: var(--drever-canvas-background, #fff);
+    background: var(--drever-canvas-background, var(--drever-theme-token-canvas, #fff));
     box-shadow: 0 24px 72px rgb(0 0 0 / 28%);
   }
 

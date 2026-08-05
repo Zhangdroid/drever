@@ -188,9 +188,14 @@ Skip question publication only when the same returned action batch contains
 `skip-remaining-questions` after that brief. After answers or a skip, update `brief.md` and
 `drever.plan.json`, publish `plan-review`, and wait for `approve-plan` or feedback. After approval,
 mark the plan approved, publish `drafting`, create the complete Draft 1, then publish `preview`.
-Continue polling while the server is alive so slide- or deck-scoped feedback can be applied through
-the normal authoring and review workflow. Set `handledActionRevision` to the last action actually
-incorporated; never acknowledge work before it has been applied.
+Treat `preview` as a content-complete first draft, not a terminal success state. Publish `refining`
+before loading the design skill, and publish `ready` only after the subject-led design pass,
+implementation receipt, fresh rendered preflight and evidence, and visual review all pass for the
+current source. Continue polling while the server is alive so slide- or deck-scoped feedback can be
+applied through the normal authoring and review workflow; feedback received during `preview`,
+`refining`, or `ready` returns the publication to `refining` until fresh evidence passes. Set
+`handledActionRevision` to the last action actually incorporated; never acknowledge work before it
+has been applied.
 
 Do not put API keys or provider transcripts in creation-room state. The MDX, brief, plan,
 configuration, assets, and Git history remain the source of truth. The room only coordinates the

@@ -1,0 +1,180 @@
+import { Counter } from "./Counter.tsx";
+import fixtureMedia from "./assets/media.svg";
+import "./fixture.css";
+
+<Cover
+  eyebrow="Drever / core E2E fixture"
+  title="Slides can stay useful."
+  supporting="This private deck exercises stable runtime contracts, not showcase design."
+  footer="Audience · Speaker · Document · Export"
+  tone="accent"
+/>
+
+---
+
+## Motion should carry meaning.
+
+A presentation is a sequence of intentional states—not a pile of pages.
+
+<MotionGroup className="fixture-state-path" flow="block" intent="focus">
+  <Step at={2} data-testid="step-2">
+    <article>
+      <code>/2/2</code>
+      <strong>Reveal the decision</strong>
+      <span>Only when the audience is ready.</span>
+    </article>
+  </Step>
+  <Step at={5} data-testid="step-5">
+    <article>
+      <code>/2/5</code>
+      <strong>Keep the exact moment</strong>
+      <span>The URL can reopen it later.</span>
+    </article>
+  </Step>
+</MotionGroup>
+
+<Note>
+  Pause at step 2, then jump to step 5. The sparse stops are intentional and should round-trip
+  through browser history.
+</Note>
+
+---
+
+<TwoColumn
+  aria-label="Static output and living interface"
+  primary={
+    <section className="fixture-artifact">
+      <strong>One finished frame</strong>
+      <span>PDF · portable · complete</span>
+    </section>
+  }
+  secondary={
+    <section className="fixture-artifact fixture-artifact--active">
+      <strong>One exact state</strong>
+      <span>Web · interactive · shareable</span>
+    </section>
+  }
+/>
+
+---
+
+## Interfaces remember.
+
+<div className="fixture-interaction">
+  <Counter />
+  <div>
+    <blockquote>Try the number. Leave this slide. Then come back.</blockquote>
+    <p>The interaction stays with the story while this slide is inactive.</p>
+  </div>
+</div>
+
+<Note>
+  Increment the counter, move to another slide, then navigate back. Its value demonstrates state
+  preservation across inactive slides.
+</Note>
+
+---
+
+<section className="fixture-contract fixture-contract--source" aria-label="Continuity source">
+  <header>
+    <span>Core motion contract</span>
+    <h2>Stable identities begin with explicit geometry.</h2>
+  </header>
+  <div className="fixture-contract__stage">
+    <MotionGroup
+      className="fixture-shell"
+      data-testid="shared-shell"
+      intent="continuity"
+      name="stable-shell"
+    >
+      <div className="fixture-shell__bar" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+      </div>
+      <div className="fixture-shell__body" data-testid="shell-copy">
+        fixed shell
+      </div>
+    </MotionGroup>
+    <MotionGroup
+      className="fixture-copy"
+      data-testid="shared-text"
+      intent="continuity"
+      name="stable-text"
+    >
+      <p data-testid="persistent-copy">Motion preserves context across a changing frame.</p>
+    </MotionGroup>
+    <MotionGroup
+      className="fixture-media"
+      data-testid="shared-media"
+      intent="continuity"
+      name="stable-media"
+    >
+      <img
+        alt="Abstract mountains under a pale moon"
+        data-testid="stable-media-image"
+        height="900"
+        src={fixtureMedia}
+        width="1600"
+      />
+    </MotionGroup>
+  </div>
+</section>
+
+---
+
+<section className="fixture-contract fixture-contract--target" aria-label="Continuity target">
+  <header>
+    <span>Core motion contract</span>
+    <h2>Position may change without changing identity.</h2>
+  </header>
+  <div className="fixture-contract__stage">
+    <MotionGroup
+      className="fixture-shell"
+      data-testid="shared-shell"
+      intent="continuity"
+      name="stable-shell"
+    >
+      <div className="fixture-shell__bar" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+      </div>
+      <div className="fixture-shell__body" data-testid="shell-copy">
+        fixed shell
+      </div>
+    </MotionGroup>
+    <MotionGroup
+      className="fixture-copy"
+      data-testid="shared-text"
+      intent="continuity"
+      name="stable-text"
+    >
+      <p data-testid="persistent-copy">Motion preserves context across a changing frame.</p>
+    </MotionGroup>
+    <MotionGroup
+      className="fixture-media"
+      data-testid="shared-media"
+      intent="continuity"
+      name="stable-media"
+    >
+      <img
+        alt="Abstract mountains under a pale moon"
+        data-testid="stable-media-image"
+        height="900"
+        src={fixtureMedia}
+        width="1600"
+      />
+    </MotionGroup>
+  </div>
+</section>
+
+---
+
+<Cover
+  eyebrow="Core fixture complete"
+  title="Ship the story."
+  supporting="Stable product behavior is tested here; public examples remain free to evolve."
+  footer="End of the private test contract"
+  tone="dark"
+/>

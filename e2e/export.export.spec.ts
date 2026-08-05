@@ -7,7 +7,7 @@ import { promisify } from "node:util";
 import { expect, test } from "@playwright/test";
 
 const execute = promisify(execFile);
-const projectRoot = join(import.meta.dirname, "..", "examples", "basic");
+const projectRoot = join(import.meta.dirname, "fixtures", "core-deck");
 const cli = join(import.meta.dirname, "..", "packages", "cli", "dist", "bin.mjs");
 
 const hasCode = (error: unknown, code: string): boolean =>
@@ -75,9 +75,9 @@ test("the public export command creates deterministic PDFs without touching the 
     expect(await exportPdf(defaultOutput)).toContain(`Exported ${join(projectRoot, "slides.mdx")}`);
     const defaultPdf = await readFile(defaultOutput);
     expect(defaultPdf.subarray(0, 5).toString()).toBe("%PDF-");
-    expect(pdfPageCount(defaultPdf)).toBe(5);
+    expect(pdfPageCount(defaultPdf)).toBe(7);
     const defaultSource = defaultPdf.toString("latin1");
-    expect(defaultSource).toContain("/Title (Slides can stay useful.)");
+    expect(defaultSource).toContain("/Title (Drever core E2E fixture)");
     expect(defaultSource).toContain("/Lang (en)");
 
     expect(await exportPdf(stepsOutput, { steps: true })).toContain(
@@ -85,7 +85,7 @@ test("the public export command creates deterministic PDFs without touching the 
     );
     const stepsPdf = await readFile(stepsOutput);
     const source = stepsPdf.toString("latin1");
-    expect(pdfPageCount(stepsPdf)).toBe(7);
+    expect(pdfPageCount(stepsPdf)).toBe(9);
     expect(source).toContain("/StructTreeRoot");
     expect(source).toContain("/MarkInfo");
     expect(source).toContain("/Outlines");

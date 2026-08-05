@@ -2,6 +2,7 @@ import { describe, expect, it } from "vite-plus/test";
 import type { SourceRange } from "@drever/schema";
 import { analyzeRenderedCheckFrames } from "./rendered-check-analysis.ts";
 import type {
+  RenderedCheckBackground,
   RenderedCheckElement,
   RenderedCheckFrame,
   RenderedCheckSource,
@@ -35,10 +36,12 @@ const frame = (
   step: number,
   options: Readonly<{
     density?: RenderedCheckFrame["density"];
+    background?: RenderedCheckBackground;
     elements?: readonly RenderedCheckElement[];
     issues?: RenderedCheckFrame["issues"];
   }> = {},
 ): RenderedCheckFrame => ({
+  ...(options.background === undefined ? {} : { background: options.background }),
   density: options.density ?? {
     characterCount: 30,
     lineFragmentCount: 2,
@@ -50,6 +53,46 @@ const frame = (
   route: step === 0 ? "/" : `/1/${String(step)}`,
   slide: { id: "intro", index: 0, rect: rect(0, 0, 1600, 900), step },
 });
+
+const background = (
+  options: Readonly<{
+    canvasColor?: string;
+    localFromNext?: boolean;
+    localFromPrevious?: boolean;
+    image?: string;
+    local?: boolean;
+    offset?: string;
+    stage?: boolean;
+  }> = {},
+): RenderedCheckBackground => {
+  const color = "rgb(8 17 31)";
+  const image = options.image ?? "linear-gradient(rgb(8 17 31), rgb(8 17 31))";
+  return {
+    canvas: { color: options.canvasColor ?? "rgb(255, 255, 255)", image: "none" },
+    covers:
+      options.stage === true
+        ? []
+        : [
+            {
+              color,
+              image,
+              key: "section:0",
+              rect: rect(0, 0, 1600, 900),
+              signature: `${color}|${image}`,
+              source: { precision: "exact", range: sourceRange },
+              tag: "section",
+            },
+          ],
+    stageBasePresent: options.stage ?? false,
+    transition: {
+      entryAnimation: "drever-slide-cover",
+      fromNext: options.local === true || options.localFromNext === true ? "local" : "document",
+      fromPrevious:
+        options.local === true || options.localFromPrevious === true ? "local" : "document",
+      slideOffset: options.offset ?? "2.5%",
+    },
+  };
+};
 
 describe("rendered check analysis", () => {
   it("aggregates repeated clipping evidence across exact Step states", () => {
@@ -421,5 +464,131 @@ describe("rendered check analysis", () => {
     };
 
     expect(analyzeRenderedCheckFrames([first, second])).toEqual([]);
+  });
+
+  it("blocks a repeated full-canvas background owned by spatial deck transitions", () => {
+    const first = frame(0, { background: background() });
+    const second = {
+      ...frame(0, { background: background() }),
+      route: "/2",
+      slide: { ...first.slide, id: "second", index: 1 },
+    };
+
+    expect(analyzeRenderedCheckFrames([first, second])).toMatchObject([
+      {
+        code: "DREVER_RENDER_BACKGROUND_TRANSITIONED",
+        severity: "error",
+        source: sourceRange,
+        details: {
+          edges: [
+            {
+              directions: ["forward", "reverse"],
+              from: { route: "/", step: 0 },
+              to: { route: "/2", step: 0 },
+            },
+          ],
+        },
+      },
+    ]);
+  });
+
+  it("accepts a Stage-owned, local, or visually stable canvas background", () => {
+    const pair = (nextBackground: RenderedCheckBackground) => {
+      const first = frame(0, { background: nextBackground });
+      const second = {
+        ...frame(0, { background: nextBackground }),
+        route: "/2",
+        slide: { ...first.slide, id: "second", index: 1 },
+      };
+      return analyzeRenderedCheckFrames([first, second]);
+    };
+
+    expect(pair(background({ stage: true }))).toEqual([]);
+    expect(pair(background({ local: true }))).toEqual([]);
+    expect(pair(background({ image: "none", canvasColor: "rgb(8 17 31)" }))).toEqual([]);
+  });
+
+  it("evaluates asymmetric local transitions independently in both directions", () => {
+    const diagnostics = (
+      firstBackground: RenderedCheckBackground,
+      secondBackground: RenderedCheckBackground,
+    ) => {
+      const first = frame(0, { background: firstBackground });
+      const second = {
+        ...frame(0, { background: secondBackground }),
+        route: "/2",
+        slide: { ...first.slide, id: "second", index: 1 },
+      };
+      return analyzeRenderedCheckFrames([first, second]);
+    };
+
+    expect(diagnostics(background(), background({ localFromPrevious: true }))).toMatchObject([
+      {
+        code: "DREVER_RENDER_BACKGROUND_TRANSITIONED",
+        details: { edges: [{ directions: ["reverse"] }] },
+      },
+    ]);
+    expect(diagnostics(background({ localFromNext: true }), background())).toMatchObject([
+      {
+        code: "DREVER_RENDER_BACKGROUND_TRANSITIONED",
+        details: { edges: [{ directions: ["forward"] }] },
+      },
+    ]);
+    expect(
+      diagnostics(background({ localFromNext: true }), background({ localFromPrevious: true })),
+    ).toEqual([]);
+
+    expect(
+      diagnostics(
+        background({ image: "none" }),
+        background({ canvasColor: "rgb(8 17 31)", image: "none" }),
+      ),
+    ).toMatchObject([
+      {
+        code: "DREVER_RENDER_BACKGROUND_TRANSITIONED",
+        details: { edges: [{ directions: ["reverse"] }] },
+      },
+    ]);
+  });
+
+  it("still blocks moving slide paint above an unrelated stationary Stage base", () => {
+    const movingOverStage = { ...background(), stageBasePresent: true };
+    const first = frame(0, { background: movingOverStage });
+    const second = {
+      ...frame(0, { background: movingOverStage }),
+      route: "/2",
+      slide: { ...first.slide, id: "second", index: 1 },
+    };
+
+    expect(analyzeRenderedCheckFrames([first, second])).toMatchObject([
+      { code: "DREVER_RENDER_BACKGROUND_TRANSITIONED", severity: "error" },
+    ]);
+  });
+
+  it("points to repeated image paint before a source-less flat root", () => {
+    const gradient = background().covers[0] as RenderedCheckBackground["covers"][number];
+    const flat: RenderedCheckBackground["covers"][number] = {
+      color: gradient.color,
+      image: "none",
+      key: "",
+      rect: gradient.rect,
+      signature: `${gradient.color}|none`,
+      tag: gradient.tag,
+    };
+    const layered = { ...background(), covers: [flat, gradient] };
+    const first = frame(0, { background: layered });
+    const second = {
+      ...frame(0, { background: layered }),
+      route: "/2",
+      slide: { ...first.slide, id: "second", index: 1 },
+    };
+
+    expect(analyzeRenderedCheckFrames([first, second])).toMatchObject([
+      {
+        code: "DREVER_RENDER_BACKGROUND_TRANSITIONED",
+        details: { background: { image: gradient.image, key: gradient.key } },
+        source: sourceRange,
+      },
+    ]);
   });
 });

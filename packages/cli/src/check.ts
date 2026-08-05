@@ -16,11 +16,13 @@ import { loadDreverDeckPlan } from "./deck-plan.ts";
 import { DreverCliError } from "./errors.ts";
 import type { ResolvedDreverProject } from "./project.ts";
 import { checkRenderedProject } from "./rendered-check.ts";
+import { invalidateRenderedEvidence } from "./rendered-evidence.ts";
 
 export type CheckExitCode = 0 | 1;
 
 export type CheckDeckRequest = Readonly<{
   entry: string;
+  evidenceDirectory?: string;
   json: boolean;
   project?: ResolvedDreverProject;
   root?: string;
@@ -123,11 +125,15 @@ const skippedRenderedReceipt = (project: ResolvedDreverProject): RenderedPreflig
 const withRenderedPreflight = async (
   source: DeckPreflightReportV2,
   project: ResolvedDreverProject,
+  evidenceDirectory?: string,
 ): Promise<DeckPreflightReportV2> => {
   if (source.summary.errors > 0) {
     return { ...source, rendered: skippedRenderedReceipt(project) };
   }
-  const rendered = await checkRenderedProject(project);
+  const rendered = await checkRenderedProject(
+    project,
+    evidenceDirectory === undefined ? {} : { evidenceDirectory },
+  );
   const diagnostics = [...source.diagnostics, ...rendered.diagnostics];
   return {
     ...source,
@@ -137,16 +143,21 @@ const withRenderedPreflight = async (
   };
 };
 
-/** Runs a read-only deck preflight and reports source diagnostics as data. */
+/** Runs deck preflight; only an explicit evidence directory writes generated review artifacts. */
 export const checkDeck = async ({
   entry,
+  evidenceDirectory,
   json,
   project,
   root,
   stdout,
 }: CheckDeckRequest): Promise<CheckExitCode> => {
+  if (evidenceDirectory !== undefined) await invalidateRenderedEvidence(evidenceDirectory);
   const source = await createCheckReport(entry, root);
-  const report = project === undefined ? source : await withRenderedPreflight(source, project);
+  const report =
+    project === undefined
+      ? source
+      : await withRenderedPreflight(source, project, evidenceDirectory);
   stdout.write(json ? formatCheckJson(report) : formatCheckHuman(report));
   return report.summary.errors === 0 ? 0 : 1;
 };

@@ -1,4 +1,4 @@
-import type { CanvasDefinition } from "@drever/schema";
+import type { CanvasDefinition, PlannedTheme } from "@drever/schema";
 import {
   useLayoutEffect,
   useRef,
@@ -54,6 +54,8 @@ type CanvasStyle = CSSProperties &
     "--drever-canvas-height": number;
     "--drever-canvas-scale": number;
     "--drever-canvas-width": number;
+    "--drever-theme-token-canvas"?: string;
+    "--drever-theme-token-ink"?: string;
   }>;
 
 export type CanvasViewportProps = PropsWithChildren<
@@ -61,14 +63,41 @@ export type CanvasViewportProps = PropsWithChildren<
     canvas?: CanvasDefinition;
     canvasRef?: Ref<HTMLDivElement>;
     padding?: number;
+    theme?: PlannedTheme;
   }>
 >;
+
+const themeColor = (
+  theme: PlannedTheme | undefined,
+  name: "canvas" | "ink",
+): string | undefined => {
+  const color = theme?.tokens.color;
+  if (color === null || typeof color !== "object" || Array.isArray(color)) return;
+  const value = (color as Readonly<Record<string, unknown>>)[name];
+  return typeof value === "string" && value.trim().length > 0 ? value : undefined;
+};
+
+/** @internal Resolves token colors as a fallback without overriding authored Theme CSS variables. */
+export const resolveCanvasThemeStyle = (
+  theme?: PlannedTheme,
+): Readonly<{
+  "--drever-theme-token-canvas"?: string;
+  "--drever-theme-token-ink"?: string;
+}> => {
+  const canvas = themeColor(theme, "canvas");
+  const ink = themeColor(theme, "ink");
+  return {
+    ...(canvas === undefined ? {} : { "--drever-theme-token-canvas": canvas }),
+    ...(ink === undefined ? {} : { "--drever-theme-token-ink": ink }),
+  };
+};
 
 export const CanvasViewport = ({
   canvas = DEFAULT_CANVAS,
   canvasRef,
   children,
   padding = 0,
+  theme,
 }: CanvasViewportProps): ReactElement => {
   const viewportRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
@@ -101,6 +130,7 @@ export const CanvasViewport = ({
     "--drever-canvas-height": canvas.height,
     "--drever-canvas-scale": scale,
     "--drever-canvas-width": canvas.width,
+    ...resolveCanvasThemeStyle(theme),
   };
 
   return (

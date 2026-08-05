@@ -70,4 +70,37 @@ describe("rendered check capture", () => {
       vi.useRealTimers();
     }
   });
+
+  it("rejects console and subresource failures after a route becomes ready", async () => {
+    const listeners = new Map<string, (value: never) => void>();
+    const page = {
+      addStyleTag: vi.fn(async () => undefined),
+      evaluate: vi.fn(async (_callback: unknown, route?: string) =>
+        route === undefined ? undefined : frame(0),
+      ),
+      goto: vi.fn(async () => {
+        listeners.get("console")?.({
+          text: () => "Image failed to load",
+          type: () => "error",
+        } as never);
+        listeners.get("response")?.({
+          status: () => 404,
+          url: () => "http://127.0.0.1:4173/missing.png",
+        } as never);
+        return { ok: () => true };
+      }),
+      locator: vi.fn(() => ({ waitFor: vi.fn(async () => undefined) })),
+      on: vi.fn((event: string, listener: (value: never) => void) => {
+        listeners.set(event, listener);
+      }),
+    } as unknown as Page;
+
+    await expect(
+      captureRenderedStates(page, "http://127.0.0.1:4173/", [
+        { route: "/", slideId: "intro", slideIndex: 0, step: 0 },
+      ]),
+    ).rejects.toThrow(
+      "Rendered route / reported a browser error: Image failed to load | 404 http://127.0.0.1:4173/missing.png",
+    );
+  });
 });

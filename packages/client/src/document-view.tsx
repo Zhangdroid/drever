@@ -7,9 +7,9 @@ import {
   type ResolvedSlideState,
   type SlideIdentity,
 } from "@drever/core";
-import type { CanvasDefinition, DeckManifest, SlideManifest } from "@drever/schema";
+import type { CanvasDefinition, DeckManifest, PlannedTheme, SlideManifest } from "@drever/schema";
 import { useLayoutEffect, type CSSProperties, type ReactElement } from "react";
-import { DEFAULT_CANVAS } from "./canvas.tsx";
+import { DEFAULT_CANVAS, resolveCanvasThemeStyle } from "./canvas.tsx";
 import type { DeckPosition } from "./presentation-state.ts";
 import { PresentationStage, type StageComponents } from "./stage.tsx";
 import { scheduleStableMountNotification } from "./viewer-lifecycle.ts";
@@ -18,6 +18,8 @@ type DocumentStyle = CSSProperties &
   Readonly<{
     "--drever-canvas-height": number;
     "--drever-canvas-width": number;
+    "--drever-theme-token-canvas"?: string;
+    "--drever-theme-token-ink"?: string;
   }>;
 
 export type DeckDocumentProps = Readonly<{
@@ -28,6 +30,7 @@ export type DeckDocumentProps = Readonly<{
   manifest: DeckManifest;
   registry?: MDXComponents;
   stage?: StageComponents;
+  theme?: PlannedTheme;
 }>;
 
 const finalStep = (slide: SlideManifest): number => slide.stepStops.at(-1) ?? 0;
@@ -108,10 +111,12 @@ export const DeckDocument = ({
   manifest,
   registry,
   stage,
+  theme,
 }: DeckDocumentProps): ReactElement => {
   const style: DocumentStyle = {
     "--drever-canvas-height": canvas.height,
     "--drever-canvas-width": canvas.width,
+    ...resolveCanvasThemeStyle(theme),
   };
 
   return (

@@ -29,6 +29,7 @@ Add `--rendered` when a production candidate needs deterministic browser evidenc
 ```bash
 npm run check -- --rendered
 npm run check -- --rendered --json
+npm run check -- --rendered --evidence .drever/review --json
 ```
 
 Drever builds an isolated inspection app and visits Step 0 plus every exact authored Step at the
@@ -56,6 +57,13 @@ build. The schema also models a legacy source-only V1 report for stored artifact
 count as rendered evidence. This is stable machine evidence for CI and agents, not an aesthetic
 score. Continue to inspect contrast, hierarchy, reading order, motion, and the presentation's
 visual fit in the actual browser.
+
+`--evidence <directory>` keeps that final inspection on the same browser stack.
+It writes a versioned manifest, full-size settled states, and contact sheets for
+settled layouts plus forward and reverse 80 ms transition samples. Read the
+manifest allowlist instead of treating unrelated files in the directory as
+current evidence. No Chrome extension, Chrome MCP server, or second agent
+browser is required.
 
 <h2 id="static-build">Build a static website</h2>
 

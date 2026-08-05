@@ -1,0 +1,285 @@
+.fixture-stage-background {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #315bea 0 8px, transparent 8px), #f7f5ee;
+}
+
+.fixture-stage-foreground {
+  position: absolute;
+  right: 36px;
+  bottom: 26px;
+  color: #315bea;
+  font:
+    700 14px/1 ui-sans-serif,
+    system-ui,
+    sans-serif;
+  pointer-events: none;
+}
+
+.fixture-state-path {
+  display: grid;
+  margin-top: 34px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.fixture-state-path > [data-drever-step] {
+  display: grid;
+}
+
+.fixture-state-path article {
+  display: grid;
+  min-height: 164px;
+  box-sizing: border-box;
+  padding: 24px 28px;
+  border: 2px solid var(--drever-theme-border);
+  border-radius: 22px;
+  align-content: space-between;
+  background: var(--drever-theme-surface);
+  gap: 8px;
+}
+
+.fixture-state-path [data-step-state="active"] article {
+  border-color: var(--drever-theme-accent);
+  background: var(--drever-theme-accent-soft);
+}
+
+.fixture-state-path code {
+  justify-self: start;
+  color: var(--drever-theme-accent-strong);
+  font-size: 18px;
+  font-weight: 760;
+}
+
+.fixture-state-path strong {
+  font-size: 28px;
+}
+
+.fixture-state-path article > span {
+  color: var(--drever-theme-muted);
+  font-size: 19px;
+}
+
+.fixture-artifact {
+  display: grid;
+  min-height: 300px;
+  padding: 36px;
+  border: 2px solid var(--drever-theme-border);
+  border-radius: 24px;
+  align-content: end;
+  background: var(--drever-theme-surface);
+  gap: 10px;
+}
+
+.fixture-artifact--active {
+  border-color: var(--drever-theme-accent);
+  background: var(--drever-theme-accent-soft);
+}
+
+.fixture-artifact strong {
+  font-size: 30px;
+}
+
+.fixture-artifact span {
+  color: var(--drever-theme-muted);
+  font-size: 17px;
+}
+
+.fixture-interaction {
+  display: grid;
+  margin-top: 36px;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  align-items: center;
+  gap: 58px;
+}
+
+.fixture-interaction > div:last-child {
+  display: grid;
+  gap: 24px;
+}
+
+.fixture-counter {
+  display: grid;
+  min-height: 360px;
+  padding: 42px;
+  border: 2px solid var(--drever-theme-border);
+  border-radius: 28px;
+  place-content: center;
+  place-items: center;
+  background: var(--drever-theme-surface);
+  gap: 24px;
+}
+
+.fixture-counter > span {
+  color: var(--drever-theme-muted);
+  font-size: 17px;
+  font-weight: 760;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.fixture-counter output {
+  color: var(--drever-theme-accent-strong);
+  font-size: 104px;
+  font-weight: 800;
+  line-height: 0.9;
+}
+
+.fixture-counter button {
+  padding: 14px 26px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--drever-theme-accent);
+  color: white;
+  cursor: pointer;
+  font: inherit;
+  font-size: 20px;
+  font-weight: 740;
+}
+
+.fixture-contract {
+  position: relative;
+  width: 100%;
+  height: 560px;
+}
+
+.fixture-contract > header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  width: 620px;
+}
+
+.fixture-contract > header > span {
+  color: var(--drever-theme-accent-strong);
+  font-size: 14px;
+  font-weight: 780;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.fixture-contract > header h2 {
+  max-width: 18ch;
+  margin-top: 12px;
+  font-size: 40px;
+  line-height: 1.08;
+}
+
+.fixture-contract__stage {
+  position: absolute;
+  inset: 0;
+}
+
+.fixture-shell,
+.fixture-copy,
+.fixture-media {
+  position: absolute;
+  box-sizing: border-box;
+}
+
+.fixture-shell {
+  overflow: clip;
+  width: 420px;
+  height: 230px;
+  border: 2px solid #cad1df;
+  border-radius: 22px;
+  background: white;
+  box-shadow: 0 20px 46px rgb(26 36 66 / 16%);
+}
+
+.fixture-contract--source .fixture-shell {
+  top: 10px;
+  right: 30px;
+}
+
+.fixture-contract--target .fixture-shell {
+  top: 286px;
+  left: 30px;
+}
+
+.fixture-shell__bar {
+  display: flex;
+  height: 38px;
+  padding: 0 16px;
+  border-bottom: 1px solid #e2e5ec;
+  align-items: center;
+  gap: 7px;
+}
+
+.fixture-shell__bar i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #b7becd;
+}
+
+.fixture-shell__bar i:first-child {
+  background: #315bea;
+}
+
+.fixture-shell__body {
+  display: grid;
+  height: 192px;
+  place-items: center;
+  color: #20263a;
+  font:
+    760 22px/1 ui-sans-serif,
+    system-ui,
+    sans-serif;
+}
+
+.fixture-copy {
+  width: 440px;
+  height: 100px;
+}
+
+.fixture-copy p {
+  width: 440px;
+  height: 100px;
+  margin: 0;
+  color: #20263a;
+  font:
+    720 32px/44px ui-sans-serif,
+    system-ui,
+    sans-serif;
+  letter-spacing: 0;
+}
+
+.fixture-contract--source .fixture-copy {
+  bottom: 8px;
+  left: 24px;
+}
+
+.fixture-contract--target .fixture-copy {
+  top: 104px;
+  right: 36px;
+}
+
+.fixture-media {
+  overflow: clip;
+  border-radius: 20px;
+  background: #243c8f;
+}
+
+.fixture-contract--source .fixture-media {
+  right: 42px;
+  bottom: 4px;
+  width: 400px;
+  height: 225px;
+}
+
+.fixture-contract--target .fixture-media {
+  right: 92px;
+  bottom: 24px;
+  width: 320px;
+  height: 180px;
+}
+
+.fixture-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 48%;
+}

@@ -27,6 +27,28 @@ export type RenderedCheckElement = Readonly<{
   textual: boolean;
 }>;
 
+export type RenderedCheckBackgroundPaint = Readonly<{
+  color: string;
+  image: string;
+  key: string;
+  rect: RenderedCheckRect;
+  signature: string;
+  source?: RenderedCheckSource;
+  tag: string;
+}>;
+
+export type RenderedCheckBackground = Readonly<{
+  canvas: Readonly<{ color: string; image: string }>;
+  covers: readonly RenderedCheckBackgroundPaint[];
+  stageBasePresent: boolean;
+  transition: Readonly<{
+    entryAnimation: string;
+    fromNext: "document" | "local";
+    fromPrevious: "document" | "local";
+    slideOffset: string;
+  }>;
+}>;
+
 export type RenderedCheckIssue =
   | Readonly<{
       actual: number;
@@ -67,6 +89,7 @@ export type RenderedCheckIssue =
     }>;
 
 export type RenderedCheckFrame = Readonly<{
+  background?: RenderedCheckBackground;
   density: Readonly<{
     characterCount: number;
     lineFragmentCount: number;
@@ -753,8 +776,142 @@ export const captureRenderedCheckFrame = (route: string): RenderedCheckFrame => 
     }
   }
   const slideArea = Math.max(1, slideBounds.width * slideBounds.height);
+  const coversOwner = (
+    candidate: DOMRect | DOMRectReadOnly,
+    owner: DOMRect | DOMRectReadOnly,
+  ): boolean =>
+    Math.abs(candidate.left - owner.left) <= 2 &&
+    Math.abs(candidate.right - owner.right) <= 2 &&
+    Math.abs(candidate.top - owner.top) <= 2 &&
+    Math.abs(candidate.bottom - owner.bottom) <= 2 &&
+    candidate.width >= owner.width * 0.985 &&
+    candidate.height >= owner.height * 0.985;
+  const isPaintVisible = (element: Element): boolean => {
+    if (element.getClientRects().length === 0 || effectiveOpacity(element) <= 0.01) return false;
+    const style = getComputedStyle(element);
+    return (
+      style.display !== "none" && style.visibility !== "hidden" && style.visibility !== "collapse"
+    );
+  };
+  const pseudoCoversOwner = (
+    element: Element,
+    owner: DOMRect | DOMRectReadOnly,
+    pseudo: "::after" | "::before",
+  ): boolean => {
+    const style = getComputedStyle(element, pseudo);
+    if (
+      style.content === "none" ||
+      style.content === "normal" ||
+      style.display === "none" ||
+      style.visibility === "hidden" ||
+      style.visibility === "collapse"
+    ) {
+      return false;
+    }
+    const inset = [style.top, style.right, style.bottom, style.left].map(Number.parseFloat);
+    const fullInset = inset.every((value) => Number.isFinite(value) && Math.abs(value) <= 2);
+    const width = Number.parseFloat(style.width);
+    const height = Number.parseFloat(style.height);
+    const fullSize =
+      Number.isFinite(width) &&
+      Number.isFinite(height) &&
+      Math.abs(width - owner.width) <= 2 &&
+      Math.abs(height - owner.height) <= 2;
+    return fullInset || fullSize;
+  };
+  const backgroundPaint = (
+    element: Element,
+    owner: DOMRect | DOMRectReadOnly,
+    pseudo?: "::after" | "::before",
+  ): RenderedCheckBackgroundPaint | undefined => {
+    // Stage layers are intentionally aria-hidden because they are decorative,
+    // but their visual paint still determines transition continuity.
+    if (!isPaintVisible(element)) return;
+    const bounds = element.getBoundingClientRect();
+    if (
+      !coversOwner(bounds, owner) ||
+      (pseudo !== undefined && !pseudoCoversOwner(element, owner, pseudo))
+    ) {
+      return;
+    }
+    const style = getComputedStyle(element, pseudo);
+    const color = parseColor(style.backgroundColor);
+    const image = style.backgroundImage;
+    const pseudoOpacity = Number.parseFloat(style.opacity);
+    if (
+      color === undefined ||
+      (image === "none" && color.alpha < 0.98) ||
+      effectiveOpacity(element) * pseudoOpacity < 0.98 ||
+      style.filter !== "none" ||
+      style.mixBlendMode !== "normal" ||
+      style.clipPath !== "none" ||
+      style.maskImage !== "none"
+    ) {
+      return;
+    }
+    const source = sourceFor(element);
+    const colorValue = colorText(color);
+    const suffix = pseudo ?? "";
+    return {
+      color: colorValue,
+      image,
+      key: `${keyFor(element, source)}${suffix}`,
+      rect: rectangle(bounds),
+      signature: `${colorValue}|${image}`,
+      ...(source === undefined ? {} : { source }),
+      tag: `${element.localName}${suffix}`,
+    };
+  };
+  const coverPaints = (
+    root: Element,
+    owner: DOMRect | DOMRectReadOnly,
+  ): readonly RenderedCheckBackgroundPaint[] =>
+    [root, ...root.querySelectorAll("*")].flatMap((element) =>
+      [
+        backgroundPaint(element, owner),
+        backgroundPaint(element, owner, "::before"),
+        backgroundPaint(element, owner, "::after"),
+      ].filter((paint): paint is RenderedCheckBackgroundPaint => paint !== undefined),
+    );
+  const canvas = slide.closest<HTMLElement>("[data-drever-canvas]");
+  const canvasStyle = canvas === null ? undefined : getComputedStyle(canvas);
+  const canvasColor =
+    canvasStyle === undefined ? undefined : parseColor(canvasStyle.backgroundColor);
+  const stageBackground = slide
+    .closest<HTMLElement>("[data-drever-stage]")
+    ?.querySelector<HTMLElement>('[data-drever-stage-layer="background"]');
+  const rootStyle = getComputedStyle(document.documentElement);
+  const property = (name: string, fallback: string): string =>
+    rootStyle.getPropertyValue(name).trim() || fallback;
+  const background: RenderedCheckBackground = {
+    canvas: {
+      color:
+        canvasColor === undefined
+          ? (canvasStyle?.backgroundColor ?? "rgba(0, 0, 0, 0)")
+          : colorText(canvasColor),
+      image: canvasStyle?.backgroundImage ?? "none",
+    },
+    covers: coverPaints(slide, slideBounds),
+    stageBasePresent:
+      stageBackground !== undefined &&
+      stageBackground !== null &&
+      coverPaints(stageBackground, stageBackground.getBoundingClientRect()).length > 0,
+    transition: {
+      entryAnimation: property("--drever-motion-slide-enter-animation", "drever-slide-cover"),
+      fromNext:
+        slide.getAttribute("data-drever-slide-transition-from-next") === "local"
+          ? "local"
+          : "document",
+      fromPrevious:
+        slide.getAttribute("data-drever-slide-transition-from-previous") === "local"
+          ? "local"
+          : "document",
+      slideOffset: property("--drever-motion-slide-offset", "2.5%"),
+    },
+  };
 
   return {
+    background,
     density: {
       characterCount,
       lineFragmentCount,

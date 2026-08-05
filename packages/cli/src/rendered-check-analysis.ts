@@ -4,6 +4,7 @@ import {
   type JsonObject,
 } from "@drever/schema";
 import type {
+  RenderedCheckBackgroundPaint,
   RenderedCheckElement,
   RenderedCheckFrame,
   RenderedCheckIssue,
@@ -462,6 +463,164 @@ const analyzeDensity = (frames: readonly RenderedCheckFrame[]): Diagnostic[] => 
   });
 };
 
+const zeroLength = (value: string): boolean => /^0(?:\.0+)?(?:%|px)?$/u.test(value.trim());
+
+const backgroundPaintDetails = (paint: RenderedCheckBackgroundPaint): JsonObject => ({
+  color: paint.color,
+  image: paint.image,
+  key: paint.key,
+  rect: paint.rect,
+  tag: paint.tag,
+  ...(paint.source === undefined
+    ? {}
+    : {
+        sourceMapping: {
+          precision: paint.source.precision,
+          range: paint.source.range,
+        },
+      }),
+});
+
+type BackgroundTransitionDirection = "forward" | "reverse";
+type BackgroundTransitionFinding = Readonly<{
+  direction: BackgroundTransitionDirection;
+  frame: RenderedCheckFrame;
+  paint: RenderedCheckBackgroundPaint;
+}>;
+
+const backgroundMovesWithDeck = (
+  background: NonNullable<RenderedCheckFrame["background"]>,
+  origin: "fromNext" | "fromPrevious",
+): boolean =>
+  background.transition[origin] === "document" &&
+  background.transition.entryAnimation === "drever-slide-cover" &&
+  !zeroLength(background.transition.slideOffset);
+
+const repeatedBackgroundPaint = (
+  source: NonNullable<RenderedCheckFrame["background"]>,
+  destination: NonNullable<RenderedCheckFrame["background"]>,
+): RenderedCheckBackgroundPaint | undefined => {
+  const sourceBySignature = new Set(source.covers.map(({ signature }) => signature));
+  const repeated = destination.covers.filter((candidate) => {
+    if (!sourceBySignature.has(candidate.signature)) return false;
+    return (
+      candidate.image !== "none" ||
+      destination.canvas.color !== candidate.color ||
+      destination.canvas.image !== candidate.image
+    );
+  });
+  return repeated.find(({ image }) => image !== "none") ?? repeated[0];
+};
+
+const backgroundTransitionFinding = (
+  direction: BackgroundTransitionDirection,
+  frame: RenderedCheckFrame,
+  source: NonNullable<RenderedCheckFrame["background"]>,
+  destination: NonNullable<RenderedCheckFrame["background"]>,
+  origin: "fromNext" | "fromPrevious",
+): BackgroundTransitionFinding | undefined => {
+  if (!backgroundMovesWithDeck(destination, origin)) return;
+  const paint = repeatedBackgroundPaint(source, destination);
+  return paint === undefined ? undefined : { direction, frame, paint };
+};
+
+const analyzeBackgroundOwnership = (frames: readonly RenderedCheckFrame[]): Diagnostic[] => {
+  const slides = frames
+    .filter(({ slide }) => slide.step === 0)
+    .toSorted((left, right) => left.slide.index - right.slide.index);
+  const grouped = new Map<
+    string,
+    {
+      after: RenderedCheckFrame;
+      before: RenderedCheckFrame;
+      edges: {
+        directions: BackgroundTransitionDirection[];
+        from: FindingState;
+        to: FindingState;
+      }[];
+      frame: RenderedCheckFrame;
+      paint: RenderedCheckBackgroundPaint;
+    }
+  >();
+
+  for (let index = 1; index < slides.length; index += 1) {
+    const before = slides[index - 1] as RenderedCheckFrame;
+    const after = slides[index] as RenderedCheckFrame;
+    const beforeBackground = before.background;
+    const afterBackground = after.background;
+    if (
+      after.slide.index !== before.slide.index + 1 ||
+      beforeBackground === undefined ||
+      afterBackground === undefined
+    ) {
+      continue;
+    }
+
+    const edge = {
+      from: { route: before.route, step: before.slide.step },
+      to: { route: after.route, step: after.slide.step },
+    };
+    const findings = [
+      backgroundTransitionFinding(
+        "forward",
+        after,
+        beforeBackground,
+        afterBackground,
+        "fromPrevious",
+      ),
+      backgroundTransitionFinding("reverse", before, afterBackground, beforeBackground, "fromNext"),
+    ].filter((finding): finding is BackgroundTransitionFinding => finding !== undefined);
+
+    for (const { direction, frame, paint } of findings) {
+      const existing = grouped.get(paint.signature);
+      if (existing === undefined) {
+        grouped.set(paint.signature, {
+          after,
+          before,
+          edges: [{ ...edge, directions: [direction] }],
+          frame,
+          paint,
+        });
+        continue;
+      }
+      const existingEdge = existing.edges.find(
+        ({ from, to }) => from.route === edge.from.route && to.route === edge.to.route,
+      );
+      if (existingEdge === undefined) {
+        existing.edges.push({ ...edge, directions: [direction] });
+      } else {
+        existingEdge.directions.push(direction);
+      }
+    }
+  }
+
+  return [...grouped.values()].map(({ after, before, edges, frame, paint }) => {
+    const firstDirections = edges[0]?.directions ?? [];
+    const direction =
+      firstDirections.length === 2
+        ? "in both directions"
+        : `in the ${firstDirections[0] ?? "document"} direction`;
+    const result = diagnostic(
+      "DREVER_RENDER_BACKGROUND_TRANSITIONED",
+      "error",
+      edges.length === 1
+        ? `A repeated full-canvas background moves with the deck ${direction} between slides ${before.slide.index + 1} and ${after.slide.index + 1}.`
+        : `A repeated full-canvas background moves with the deck across ${edges.length} adjacent slide transitions.`,
+      frame,
+      {
+        details: {
+          background: backgroundPaintDetails(paint),
+          canvas: frame.background?.canvas ?? {},
+          edges,
+          transition: frame.background?.transition ?? {},
+        },
+        hint: "Move recurring canvas paint to stage.background and keep the Stage root stationary. Animate only meaningful inner paint; use a local or direct edge for an intentional whole-scene change.",
+      },
+    );
+    return paint.source?.precision === "exact" ? { ...result, source: paint.source.range } : result;
+  });
+};
+
 const compareDiagnostics = (left: Diagnostic, right: Diagnostic): number => {
   const slide = (left.details?.slideIndex as number) - (right.details?.slideIndex as number);
   if (Number.isFinite(slide) && slide !== 0) return slide;
@@ -483,4 +642,5 @@ export const analyzeRenderedCheckFrames = (
     ...analyzeTextSafeArea(frames),
     ...analyzeGeometry(frames),
     ...analyzeDensity(frames),
+    ...analyzeBackgroundOwnership(frames),
   ].toSorted(compareDiagnostics);

@@ -12,6 +12,13 @@ import { createPrivateApp } from "./private-app.ts";
 import type { ResolvedDreverProject } from "./project.ts";
 import { analyzeRenderedCheckFrames } from "./rendered-check-analysis.ts";
 import { captureRenderedCheckFrame, type RenderedCheckFrame } from "./rendered-check-browser.ts";
+import {
+  hashRenderedEvidenceInput,
+  invalidateRenderedEvidence,
+  writeRenderedEvidence,
+  type RenderedEvidenceState,
+  type RenderedSettledCapture,
+} from "./rendered-evidence.ts";
 import { buildDreverInspectionApp, resolvePrivateAppOptions } from "./vite-app.ts";
 
 const CHECK_TIMEOUT = 30_000;
@@ -23,14 +30,7 @@ export type RenderedCheckResult = Readonly<{
   receipt: RenderedPreflightReceipt;
 }>;
 
-type RenderedState = Readonly<{
-  route: string;
-  slideId: string;
-  slideIndex: number;
-  step: number;
-}>;
-
-const renderedStates = (project: ResolvedDreverProject): readonly RenderedState[] => {
+const renderedStates = (project: ResolvedDreverProject): readonly RenderedEvidenceState[] => {
   const manifest = project.getDeckManifest();
   if (manifest === undefined) {
     return [];
@@ -105,6 +105,9 @@ export const settleRenderedPage = async (page: Page): Promise<void> => {
   caret-color: transparent !important;
   transition-delay: 0s !important;
   transition-duration: 0s !important;
+}
+[data-drever-audience-controls] {
+  display: none !important;
 }`,
   });
   await withTimeout(
@@ -152,6 +155,7 @@ const receipt = (
   project: ResolvedDreverProject,
   options: Readonly<{
     browserVersion?: string;
+    evidence?: RenderedPreflightReceipt["evidence"];
     reason?: RenderedPreflightReceipt["reason"];
     stateCount: number;
     status: RenderedPreflightReceipt["status"];
@@ -162,6 +166,7 @@ const receipt = (
   canvas: project.config.canvas ?? project.plan.theme.canvas ?? DEFAULT_CANVAS,
   engine: "chromium",
   ...(options.browserVersion === undefined ? {} : { browserVersion: options.browserVersion }),
+  ...(options.evidence === undefined ? {} : { evidence: options.evidence }),
   stateCount: options.stateCount,
   status: options.status,
   ...(options.reason === undefined ? {} : { reason: options.reason }),
@@ -171,13 +176,14 @@ const receipt = (
 export const captureRenderedStates = async (
   page: Page,
   origin: string,
-  states: readonly RenderedState[],
-  onCaptured: (frame: RenderedCheckFrame) => void = () => undefined,
+  states: readonly RenderedEvidenceState[],
+  onCaptured: (
+    frame: RenderedCheckFrame,
+    state: RenderedEvidenceState,
+  ) => void | Promise<void> = () => undefined,
 ): Promise<readonly RenderedCheckFrame[]> => {
   const runtimeErrors: string[] = [];
-  const pageErrors: string[] = [];
   page.on("pageerror", (error) => {
-    pageErrors.push(error.message);
     runtimeErrors.push(error.message);
   });
   page.on("console", (message) => {
@@ -190,7 +196,7 @@ export const captureRenderedStates = async (
   });
   const frames: RenderedCheckFrame[] = [];
   for (const state of states) {
-    const pageErrorOffset = pageErrors.length;
+    const runtimeErrorOffset = runtimeErrors.length;
     const target = new URL(
       state.route === "/" ? "" : `${state.route.slice(1).replace(/\/+$/u, "")}/`,
       origin,
@@ -209,7 +215,7 @@ export const captureRenderedStates = async (
         { cause },
       );
     }
-    const routeErrors = pageErrors.slice(pageErrorOffset);
+    const routeErrors = runtimeErrors.slice(runtimeErrorOffset);
     if (routeErrors.length > 0) {
       throw new TypeError(
         `Rendered route ${state.route} reported a browser error: ${routeErrors.join(" | ")}`,
@@ -226,7 +232,7 @@ export const captureRenderedStates = async (
       );
     }
     frames.push(frame);
-    onCaptured(frame);
+    await onCaptured(frame, state);
   }
   return frames;
 };
@@ -234,7 +240,11 @@ export const captureRenderedStates = async (
 /** Runs a temporary production rendering and returns deterministic layout evidence. */
 export const checkRenderedProject = async (
   project: ResolvedDreverProject,
+  options: Readonly<{ evidenceDirectory?: string }> = {},
 ): Promise<RenderedCheckResult> => {
+  if (options.evidenceDirectory !== undefined) {
+    await invalidateRenderedEvidence(options.evidenceDirectory);
+  }
   const app = await createPrivateApp(
     project.entry,
     resolvePrivateAppOptions(project.config, project.root),
@@ -243,8 +253,13 @@ export const checkRenderedProject = async (
   let browserVersion: string | undefined;
   let server: PreviewServer | undefined;
   let capturedStates = 0;
+  let capturedDiagnostics: readonly Diagnostic[] = [];
   try {
     const build = await buildDreverInspectionApp(project, app.root);
+    const inputSha256 =
+      options.evidenceDirectory === undefined
+        ? undefined
+        : await hashRenderedEvidenceInput(build.outDir);
     const states = renderedStates(project);
     if (states.length === 0 || build.manifest.slides.length === 0) {
       throw new TypeError("The rendered check did not receive a compiled deck manifest.");
@@ -254,6 +269,7 @@ export const checkRenderedProject = async (
     browserVersion = browser.version();
     const canvas = project.config.canvas ?? project.plan.theme.canvas ?? DEFAULT_CANVAS;
     const locale = browserLocale(project.config.deck?.lang);
+    const origin = previewUrl(server);
     const context = await browser.newContext({
       deviceScaleFactor: 1,
       ...(locale === undefined ? {} : { locale }),
@@ -263,23 +279,56 @@ export const checkRenderedProject = async (
       viewport: { height: canvas.height, width: canvas.width },
     });
     const page = await context.newPage();
-    const frames = await captureRenderedStates(page, previewUrl(server), states, () => {
+    const settledCaptures: RenderedSettledCapture[] = [];
+    const frames = await captureRenderedStates(page, origin, states, async (_frame, state) => {
       capturedStates += 1;
+      if (options.evidenceDirectory !== undefined) {
+        settledCaptures.push({
+          content: await page.screenshot({ caret: "hide", type: "png" }),
+          state,
+        });
+      }
     });
     await context.close();
-    const diagnostics = analyzeRenderedCheckFrames(frames);
+    capturedDiagnostics = analyzeRenderedCheckFrames(frames);
+    const evidence =
+      options.evidenceDirectory === undefined || inputSha256 === undefined
+        ? undefined
+        : await writeRenderedEvidence({
+            browser,
+            browserVersion,
+            canvas,
+            inputSha256,
+            ...(locale === undefined ? {} : { locale }),
+            origin,
+            output: options.evidenceDirectory,
+            settledCaptures,
+            states,
+          });
     return {
-      diagnostics,
+      diagnostics: capturedDiagnostics,
       receipt: receipt(project, {
         ...(browserVersion === undefined ? {} : { browserVersion }),
+        ...(evidence === undefined
+          ? {}
+          : {
+              evidence: {
+                inputSha256: evidence.input.sha256,
+                manifest: "manifest.json",
+                schemaVersion: evidence.schemaVersion,
+              },
+            }),
         stateCount: capturedStates,
-        status: diagnostics.some(({ severity }) => severity === "error") ? "failed" : "passed",
+        status: capturedDiagnostics.some(({ severity }) => severity === "error")
+          ? "failed"
+          : "passed",
       }),
     };
   } catch (cause) {
     const missing = isMissingExecutable(cause);
     return {
       diagnostics: [
+        ...capturedDiagnostics,
         missing
           ? runtimeDiagnostic(
               "Drever rendered preflight requires Playwright Chromium.",

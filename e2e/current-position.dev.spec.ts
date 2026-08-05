@@ -6,7 +6,7 @@ import type { DreverCurrentPosition } from "@drever/schema";
 import { waitForDreverReady } from "./support/drever-ready.ts";
 import { monitorPageHealth } from "./support/page-health.ts";
 
-const demoRoot = fileURLToPath(new URL("../examples/basic/", import.meta.url));
+const demoRoot = fileURLToPath(new URL("./fixtures/core-deck/", import.meta.url));
 const cli = fileURLToPath(new URL("../packages/cli/dist/bin.mjs", import.meta.url));
 const execute = promisify(execFile);
 

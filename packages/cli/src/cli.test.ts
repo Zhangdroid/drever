@@ -168,6 +168,15 @@ describe("parseCommand", () => {
       name: "check",
       rendered: true,
     });
+    expect(
+      parseCommand(["check", "--evidence", ".drever/review", "slides.mdx", "--rendered"]),
+    ).toEqual({
+      entry: "slides.mdx",
+      evidence: ".drever/review",
+      json: false,
+      name: "check",
+      rendered: true,
+    });
   });
 
   it.each([
@@ -176,6 +185,12 @@ describe("parseCommand", () => {
     [["build", "one.mdx", "two.mdx"], "build accepts at most one deck entry path."],
     [["check", "--json", "--json"], "--json can be specified only once."],
     [["check", "--rendered", "--rendered"], "--rendered can be specified only once."],
+    [["check", "--evidence"], "--evidence requires an output directory."],
+    [
+      ["check", "--rendered", "--evidence", "one", "--evidence", "two"],
+      "--evidence can be specified only once.",
+    ],
+    [["check", "--evidence", ".drever/review"], "--evidence requires --rendered."],
     [["check", "--fix"], "Unknown check flag: --fix"],
     [["check", "one.mdx", "two.mdx"], "check accepts at most one deck entry path."],
   ])("rejects invalid check arguments: %j", (arguments_, message) => {
@@ -451,7 +466,7 @@ describe("runCli browser", () => {
 
     expect(installBrowser).toHaveBeenCalledWith({ withDeps: true });
     expect(output).toBe(
-      "Playwright Chromium is ready for Drever PDF export, rendered preflight, and design import.\n",
+      "Playwright Chromium is ready for Drever rendered review, PDF export, and design import.\n",
     );
   });
 });
@@ -639,6 +654,27 @@ export default ({ command, mode }: Environment) => ({
     expect(outcome).toBe(0);
     expect(checkDeck).toHaveBeenCalledWith(
       expect.objectContaining({ entry: join(root, "keynote.mdx"), json: false }),
+    );
+  });
+
+  it("resolves rendered evidence against the project root", async () => {
+    const root = await mkdtemp(join(tmpdir(), "drever-check-cli-test-"));
+    directories.push(root);
+    await writeFile(join(root, "slides.mdx"), "# Ready\n");
+    const checkDeck = vi.fn(async () => 0 as const);
+
+    await runCli(["check", "--rendered", "--evidence", ".drever/review"], {
+      checkDeck,
+      cwd: root,
+      stdout: { write: () => true },
+    });
+
+    expect(checkDeck).toHaveBeenCalledWith(
+      expect.objectContaining({
+        entry: join(root, "slides.mdx"),
+        evidenceDirectory: join(root, ".drever/review"),
+        project: expect.objectContaining({ root }),
+      }),
     );
   });
 

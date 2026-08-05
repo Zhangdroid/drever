@@ -10,7 +10,7 @@ import {
   type ResolvedSlideState,
   type SlideIdentity,
 } from "@drever/core";
-import type { CanvasDefinition, DeckManifest } from "@drever/schema";
+import type { CanvasDefinition, DeckManifest, PlannedTheme } from "@drever/schema";
 import { useCallback, useLayoutEffect, useRef, type ReactElement, type RefObject } from "react";
 import { CanvasViewport, DEFAULT_CANVAS } from "./canvas.tsx";
 import type { DeckPosition } from "./presentation-state.ts";
@@ -27,6 +27,7 @@ export type ViewerProps = Readonly<{
   registry?: MDXComponents;
   renderMode?: DreverRenderMode;
   stage?: StageComponents;
+  theme?: PlannedTheme;
 }>;
 
 export const resolveSlideState = (
@@ -65,6 +66,7 @@ export const ViewerSurface = ({
   registry,
   renderMode = "audience",
   stage,
+  theme,
 }: ViewerSurfaceProps): ReactElement => {
   const localDeckRef = useRef<HTMLDivElement>(null);
   const deckRef = providedDeckRef ?? localDeckRef;
@@ -107,7 +109,11 @@ export const ViewerSurface = ({
   }, [onPositionCommitted, position]);
 
   return (
-    <CanvasViewport canvas={resolvedCanvas} {...(canvasRef === undefined ? {} : { canvasRef })}>
+    <CanvasViewport
+      canvas={resolvedCanvas}
+      {...(canvasRef === undefined ? {} : { canvasRef })}
+      {...(theme === undefined ? {} : { theme })}
+    >
       <DreverRenderModeProvider mode={renderMode} {...(idPrefix === undefined ? {} : { idPrefix })}>
         <PresentationStage
           canvas={resolvedCanvas}

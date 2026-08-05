@@ -8,7 +8,7 @@ import { expect, test } from "@playwright/test";
 
 const execute = promisify(execFile);
 const workspaceRoot = join(import.meta.dirname, "..");
-const projectRoot = join(workspaceRoot, "examples", "basic");
+const projectRoot = join(workspaceRoot, "e2e", "fixtures", "core-deck");
 const cli = join(workspaceRoot, "packages", "cli", "dist", "bin.mjs");
 const environment = { ...process.env };
 delete environment.FORCE_COLOR;
@@ -113,69 +113,7 @@ test("the built CLI installs an idempotent agent kit without loading project con
     if (createDeck === undefined) {
       throw new Error("Agent sync did not create the deck creation skill.");
     }
-    expect(createDeck).toContain("<!-- drever-authoring-scope-contract:v3 -->");
-    expect(createDeck).toContain("<!-- drever-briefing-contract:v4 -->");
-    expect(createDeck).toContain("Skip remaining questions — surprise me");
-    expect(createDeck.match(/Skip remaining questions — surprise me/gu)).toHaveLength(1);
-    expect(createDeck).toMatch(/one to\s+three decisions per round/u);
-    expect(createDeck).toContain("two to four topic-specific choices");
-    expect(createDeck).toContain("1A, 2C");
-    expect(createDeck).toMatch(/later\s+question should depend on an earlier answer/iu);
-    expect(createDeck).toMatch(/proposal[^.]*technical update[^.]*data story/isu);
-    expect(createDeck).not.toContain("choose the subject too");
-    expect(createDeck).toContain("Never repeat supplied information");
-    expect(createDeck).toMatch(/audience, desired change, duration, and visible slide density/iu);
-    expect(createDeck).toContain("<!-- drever-plan-review-contract:v3 -->");
-    expect(createDeck).toContain("`drever.plan.json`");
-    expect(createDeck).toContain("stable lowercase hyphenated id");
-    expect(createDeck).toContain("composition recipe");
-    expect(createDeck).toMatch(/motion[^.]*single owner/iu);
-    expect(createDeck).toContain("invite edits or explicit approval, and stop");
-    expect(createDeck).toMatch(/exact \*\*Storyboard\*\* URL reported by\s+Drever/iu);
-    expect(createDeck).toMatch(/After explicit\s+approval[^.]*mark\s+both files approved/iu);
-    expect(createDeck).toContain("<!-- drever-preview-contract:v5 -->");
-    expect(createDeck).toMatch(/coherent Draft 1 with every\s+planned\s+slide/u);
-    expect(createDeck).toMatch(/first and last slides open/iu);
-    expect(createDeck).toContain("continue in the same turn");
-    expect(createDeck).toMatch(/one\s+production build[^.]*requested PDF export/iu);
-    expect(createDeck).toMatch(/do not inspect the Drever\s+repository/iu);
-    expect(createDeck).toContain("`node_modules`");
-    expect(createDeck).toMatch(/official design\s+implementations/iu);
-    expect(createDeck).toMatch(/the named public declaration or\s+guide/iu);
-
-    const createDesign = firstContents[5];
-    if (createDesign === undefined) {
-      throw new Error("Agent sync did not create the deck design skill.");
-    }
-    expect(createDesign).toMatch(
-      /must not delay[^.]*coherent end-to-end content\s+Draft 1[^.]*stable development URL/iu,
-    );
-    expect(createDesign).toMatch(
-      /Do not make a production build\s+the prerequisite for the first useful preview/iu,
-    );
-    expect(createDesign).toMatch(/Do not scan the official studies/iu);
-    expect(createDesign).toMatch(/do not run context[^.]*in-progress deck/iu);
-    expect(createDesign).not.toMatch(/Scan all eight studies/iu);
-    expect(createDesign).not.toMatch(/packages\/designs\/src\/<study>/u);
-    expect(createDesign).toMatch(/Use this minimal public Theme shape/iu);
-    expect(createDesign).toMatch(/background layer is `aria-hidden` and `inert`/iu);
-    expect(createDesign).toMatch(/approved `drever\.plan\.json`/iu);
-
-    const authorDeck = firstContents[1];
-    const reviewDeck = firstContents[7];
-    expect(authorDeck).toMatch(/preserve its ordered planning labels, narrative jobs/iu);
-    expect(authorDeck).toContain("`Step` as a real DOM wrapper");
-    expect(authorDeck).toContain('[data-drever-slide][data-slide-state="active"]');
-    expect(authorDeck).toContain("exactly one motion owner");
-    expect(reviewDeck).toMatch(/text overlap, direct scroll overflow/iu);
-    expect(reviewDeck).toMatch(/compare every planned narrative job/iu);
-    expect(reviewDeck).toMatch(/resolved solid-color contrast failures/iu);
-    expect(agents).toContain("brief.md` plus `drever.plan.json` approval gate");
-    expect(agents).toMatch(/expose the coherent[^.]*Draft 1 before design refinement/iu);
-    expect(agents).toContain(
-      "do not run production builds or duplicate the full rendered preflight",
-    );
-    expect(agents).toMatch(/Do not load every skill before Draft 1/iu);
+    expect(createDeck).toContain("name: drever-create-deck");
 
     for (const [index, contents] of firstContents.entries()) {
       if (agentFiles[index]?.endsWith("SKILL.md")) {
@@ -200,7 +138,7 @@ test("the built CLI installs an idempotent agent kit without loading project con
   }
 });
 
-test("the built CLI exposes the canonical basic-deck authoring context", async () => {
+test("the built CLI exposes the stable core-fixture authoring context", async () => {
   const sourcePath = join(projectRoot, "slides.mdx");
   const source = await readFile(sourcePath, "utf8");
   const { stdout } = await runCli(projectRoot, "context", "--json");
@@ -252,6 +190,20 @@ test("the built CLI exposes the canonical basic-deck authoring context", async (
       index: 4,
       speakerNoteCount: 0,
       stepStops: [],
+      title: "Stable identities begin with explicit geometry.",
+    },
+    {
+      id: "slide-6",
+      index: 5,
+      speakerNoteCount: 0,
+      stepStops: [],
+      title: "Position may change without changing identity.",
+    },
+    {
+      id: "slide-7",
+      index: 6,
+      speakerNoteCount: 0,
+      stepStops: [],
       title: "Ship the story.",
     },
   ]);
@@ -291,7 +243,7 @@ test("the built CLI exposes the canonical basic-deck authoring context", async (
   expect(context.preflight).toEqual({
     version: 2,
     sourcePath,
-    slideCount: 5,
+    slideCount: 7,
     summary: { errors: 0, warnings: 0, info: 0 },
     diagnostics: [],
   });

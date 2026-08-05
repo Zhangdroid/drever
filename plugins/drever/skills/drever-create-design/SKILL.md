@@ -143,6 +143,17 @@ Import that value into `drever.config.ts` and assign it to `theme`. Add layouts,
 canvas defaults, and richer JSON-safe tokens only when the deck uses them. MDX may import local
 TypeScript, React, and CSS directly; do not create a probe deck to confirm that capability.
 
+Theme tokens are metadata, not CSS paint. Map `tokens.color.canvas` and `tokens.color.ink` to
+`--drever-canvas-background`, `--drever-stage-background`, `--drever-canvas-color`, and
+`--drever-stage-color` in Theme CSS, and set the matching color scheme. Keep recurring full-canvas
+paint in `stage.background`; if the same opaque color, gradient, image, or atmosphere appears on
+two adjacent slides, Stage ownership is mandatory and the Slide plus full-canvas scene root must
+stay transparent. The runtime starts a document-level deck transition even when no `MotionGroup`
+exists, so a repeated Slide-owned background will move as a bitmap and may expose the canvas.
+Default a generated custom Theme's root slide offset to `0%` or its root enter animation to `none`
+until an intentional whole-scene handoff has been authored. Use a local/direct edge for that
+exception instead of restoring spatial movement on every slide.
+
 When Stage is useful, default-export a component that accepts `StageLayerProps` from `drever`.
 `position` contains `slideId`, `slideIndex`, and `step`; the remaining props are `canvas`,
 `manifest`, `reducedMotion`, and `renderMode`. The exact render modes are `audience`, `document`,
@@ -155,6 +166,29 @@ Record each in `art-direction.md` as **claim → focal artifact → initial stat
 transformation → settled payoff → static or reduced-motion endpoint**. Put at least one in the
 opening third. Its transformation must clarify causality, comparison, reveal, or role change; a
 generic fade or slide entrance alone is not a signature moment.
+
+Choose one primary **visual-story pattern** for the deck and record its ID, rationale, beat-to-slide
+mapping, recurring focal artifact, and final static payoff in `art-direction.md`. A palette, Theme,
+or repeated layout is not a visual-story pattern. Use one of these proven arcs, or declare `custom`
+with the same fields:
+
+- `artifact-lifecycle`: establish one object → reveal evidence through it → recontextualize it →
+  retire or resolve it;
+- `establish-close-intervene-return`: show the whole scene → isolate the problem → make one
+  intervention → return to prove the outcome;
+- `observe-isolate-synthesize-act`: observe context → anchor observations → isolate decisive
+  evidence → synthesize → test or decide;
+- `route-constraint-gate-decision`: establish one route or system → expose its constraint → reveal
+  causal order → attach observable gates → decide;
+- `before-invariant-counterfactual-rule`: show the familiar model → hold one invariant → change one
+  variable → show the counterfactual → land a memorable rule;
+- `input-transform-surfaces`: establish the input → show the transformation → expose inspectable
+  proof → carry the same result into meaningful contexts → resolve the payoff.
+
+A beat may be a settled slide, Step, interaction, direct cut, or transition. Motion earns no credit
+by itself, and every beat must remain understandable in its settled reduced-motion frame. Use the
+content-to-scene recipes below to implement individual beats; do not let nine individually tidy
+slides replace one coherent visual arc.
 
 Apply the topic-fingerprint test: with the title and branding hidden, the focal artifact and its
 relationship should still plausibly belong to this subject. A recolored card grid, generic
@@ -371,11 +405,18 @@ the content preview is stable or after the primary worker explicitly transfers o
    alternative.
 4. Check `/document`, reduced motion, and relevant speaker and export surfaces. Verify fonts and localized assets load without network-dependent generation.
 5. Review the result against `art-direction.md`: remove any prominent choice that cannot be justified as subject-led or clearly acknowledged as fallback.
-6. Once the applied design is stable, use the project-local `drever-review-deck` skill as the single
+6. Append an **implementation receipt** to `art-direction.md` before review. Give every planned
+   signature moment one row with its claim, exact slide route and Step, visual-story pattern role,
+   focal source component or selector, implemented transformation or static reveal, settled payoff,
+   and reduced-motion endpoint. Inspect each cited route. A static card grid, ordinary text layout,
+   or generic entrance does not satisfy a planned signature moment merely because the prose calls
+   it one. Redesign any missing beat; do not hand off fewer than two implemented signature moments
+   for a multi-slide custom deck.
+7. Once the applied design is stable, use the project-local `drever-review-deck` skill as the single
    rendered completion gate. Reinspect the whole deck after changing shared tokens, layouts, Stage
    layers, or components; source review and successful generation commands do not count as rendered
    refinement.
-7. Let the delivery workflow run the one final production build after review evidence is fresh for
+8. Let the delivery workflow run the one final production build after review evidence is fresh for
    the final authored state.
 
 Every context report, check, browser inspection, build, and export is valid only for the exact

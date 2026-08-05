@@ -227,7 +227,7 @@ See [PDF export](/docs/delivery/#pdf-export).
 <h3 id="check">Check source and rendered states</h3>
 
 ```text
-drever check [entry] [--rendered] [--json]
+drever check [entry] [--rendered] [--evidence <directory>] [--json]
 ```
 
 The default fast check reports source diagnostics. `--rendered` additionally
@@ -235,6 +235,12 @@ builds an isolated inspection app and captures Step 0 plus every exact authored
 Step. It requires Playwright Chromium. `--json` emits the versioned report used
 by agents and CI. The process exits nonzero when errors remain; warnings stay
 visible without blocking delivery.
+
+With `--rendered`, `--evidence <directory>` also writes settled-state screenshots, forward and
+reverse transition samples, contact sheets, integrity hashes, and a versioned manifest for visual
+review. The manifest and JSON receipt share the exact inspection build's SHA-256 fingerprint; a
+failed refresh cannot leave an older manifest looking current. It never creates or mutates the
+production build.
 
 See [Source and rendered checks](/docs/delivery/#check).
 

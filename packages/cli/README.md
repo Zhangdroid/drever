@@ -31,7 +31,7 @@ Run it with:
 npm exec -- drever agent sync --target all
 npm exec -- drever doctor --json
 npm exec -- drever context slides.mdx --json
-npm exec -- drever check slides.mdx --rendered --json
+npm exec -- drever check slides.mdx --rendered --evidence .drever/review --json
 npm exec -- drever dev slides.mdx
 npm exec -- drever dev slides.mdx --open studio
 npm exec -- drever dev slides.mdx --open studio --agent codex
@@ -88,6 +88,7 @@ candidate needs browser evidence:
 ```sh
 npm exec -- drever check slides.mdx --rendered
 npm exec -- drever check slides.mdx --rendered --json
+npm exec -- drever check slides.mdx --rendered --evidence .drever/review --json
 ```
 
 The rendered phase builds an isolated inspection app and visits Step 0 plus
@@ -100,18 +101,25 @@ paint that cannot be resolved through gradients, images, blending, or
 translucency remain warnings that require review. Runtime or missing-browser
 failures are also explicit errors.
 
+`--evidence <directory>` writes settled-state screenshots, forward and reverse transition samples,
+contact sheets, integrity hashes, and a versioned manifest for the final visual review. It is
+available only with `--rendered` and never writes a production build. The manifest and JSON receipt
+share a SHA-256 fingerprint of the exact inspection build. A new run invalidates the old manifest
+before capture and publishes its replacement atomically, so a failed refresh cannot masquerade as
+current evidence.
+
 JSON mode emits the current typed `DeckPreflightReportV2`. Its `rendered`
 receipt records the receipt and ruleset versions, canvas, `chromium` engine,
-optional browser version, captured `stateCount`, and `status`. When source
+optional browser version, captured `stateCount`, optional evidence fingerprint, and `status`. When source
 errors make rendering unsafe, the receipt is `skipped` with reason
 `source-errors`; browser and runtime failures report `failed` with their
 matching reason. `@drever/schema` also exposes the legacy source-only V1 shape
-and a safe report union for stored artifacts. Receipt version 1 accepts both
-ruleset 1 and the current ruleset 2; compare the recorded ruleset with
-`RENDERED_PREFLIGHT_RULESET_VERSION` before reusing stored evidence. This evidence is deterministic
-and useful to CI or an agent, but it cannot judge hierarchy, motion quality,
-aesthetic fit, or contrast through complex paint. Keep a real visual review in
-the delivery loop.
+and a safe report union for stored artifacts. Receipt version 1 accepts rulesets
+1 through the current `RENDERED_PREFLIGHT_RULESET_VERSION`; compare the recorded
+ruleset with that constant before reusing stored evidence. This evidence is
+deterministic and useful to CI or an agent, but it cannot judge hierarchy,
+motion quality, aesthetic fit, or contrast through complex paint. Keep a real
+visual review in the delivery loop.
 
 ## Import a design reference
 

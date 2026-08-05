@@ -115,8 +115,10 @@ describe("agent kit sync", () => {
     }
 
     const createDeck = await read(root, ".agents/skills/drever-create-deck/SKILL.md");
-    expect(createDeck).not.toMatch(/drever check --rendered --json/iu);
-    expect(installed.get("drever-review-deck")).toMatch(/drever check --rendered --json/iu);
+    expect(createDeck).not.toMatch(/drever check --rendered/iu);
+    expect(installed.get("drever-review-deck")).toContain(
+      "drever check --rendered --evidence .drever/review --json",
+    );
     expect(createDeck).toMatch(/`drever-review-deck`[^.]*single owner/iu);
     expect(installed.get("drever-create-design")).toMatch(
       /every affected slide at Step 0 and every affected exact Step state/iu,
@@ -174,8 +176,9 @@ describe("agent kit sync", () => {
     );
     expect(createDesign).toMatch(/Record each in `art-direction\.md`/iu);
     expect(createDesign).toMatch(/generic fade or slide entrance alone/iu);
-    expect(reviewDeck).toMatch(/what one scene the audience will remember/iu);
-    expect(reviewDeck).toMatch(/redesign exactly one high-value beat/iu);
+    expect(createDesign).toMatch(/implementation receipt/iu);
+    expect(reviewDeck).toMatch(/coherent visual-story arc/iu);
+    expect(reviewDeck).toMatch(/passing implementation gate for every planned signature moment/iu);
   });
 
   it("installs a latency-bounded exact Studio question publication contract", async () => {
@@ -314,9 +317,9 @@ describe("agent kit sync", () => {
     expect(createDeck).toMatch(/load the\s+project-local `drever-create-design`[^.]*refinement/iu);
 
     for (const contents of [createDeck, createDesign, authorDeck, deliverDeck]) {
-      expect(contents).not.toContain("drever check --rendered --json");
+      expect(contents).not.toContain("drever check --rendered");
     }
-    expect(reviewDeck).toContain("drever check --rendered --json");
+    expect(reviewDeck).toContain("drever check --rendered --evidence .drever/review --json");
     expect(reviewDeck).toMatch(/single owner[^.]*exhaustive rendered completion gate/iu);
     expect(deliverDeck).toMatch(/Reuse review evidence[^.]*when no source/iu);
     expect(deliverDeck).toMatch(
@@ -404,27 +407,29 @@ describe("agent kit sync", () => {
     );
   });
 
-  it("installs the browser-first review gate and advisory typography probe", async () => {
+  it("installs the Drever-managed Playwright evidence gate and advisory typography probe", async () => {
     const root = await temporaryDirectory("drever-agent-project-");
     await syncAgentKit({ root });
 
     const reviewDeck = await read(root, ".agents/skills/drever-review-deck/SKILL.md");
 
-    expect(reviewDeck).toMatch(/Prefer a connected Chrome DevTools MCP server/iu);
-    for (const tool of [
-      "list_pages",
-      "evaluate_script",
-      "take_snapshot",
-      "take_screenshot",
-      "list_console_messages",
-      "list_network_requests",
-    ]) {
-      expect(reviewDeck).toContain(`\`${tool}\``);
-    }
-    expect(reviewDeck).toContain("globalThis.__dreverExperimentalTextLayout()");
-    expect(reviewDeck).toMatch(/uses Pretext[^.]*predicted and rendered line layout/iu);
-    expect(reviewDeck).toMatch(/Treat its report as advisory/iu);
-    expect(reviewDeck).toMatch(/Rendered DOM and pixels remain authoritative|browser layout/iu);
+    expect(reviewDeck).toContain(
+      "npm exec -- drever check --rendered --evidence .drever/review --json",
+    );
+    expect(reviewDeck).toContain(".drever/review/manifest.json");
+    expect(reviewDeck).toMatch(/both labeled contact sheets/iu);
+    expect(reviewDeck).toMatch(/targeted full-resolution state images/iu);
+    expect(reviewDeck).toMatch(/deterministic 80 ms sample/iu);
+    expect(reviewDeck).toMatch(/forward and reverse directions/iu);
+    expect(reviewDeck).toMatch(/isolated Playwright Chromium context/iu);
+    expect(reviewDeck).not.toMatch(/Chrome DevTools MCP|Agent Browser/iu);
+    expect(reviewDeck).not.toMatch(
+      /`(?:list_pages|evaluate_script|take_snapshot|take_screenshot|list_console_messages|list_network_requests)`/iu,
+    );
+    expect(reviewDeck).toContain("Pretext typography probe");
+    expect(reviewDeck).toMatch(/predicted and rendered line layout/iu);
+    expect(reviewDeck).toMatch(/optional advisory evidence/iu);
+    expect(reviewDeck).toMatch(/not part of the required evidence command/iu);
   });
 
   it("installs the complete kit and reports a stable idempotent result", async () => {

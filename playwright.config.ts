@@ -1,13 +1,13 @@
 import { defineConfig } from "@playwright/test";
 import { fileURLToPath } from "node:url";
 
-const demoRoot = fileURLToPath(new URL("./examples/basic", import.meta.url));
-const architectureDemoRoot = fileURLToPath(new URL("./examples/architecture", import.meta.url));
-const brandDemoRoot = fileURLToPath(new URL("./examples/brand", import.meta.url));
-const motionContractsRoot = fileURLToPath(new URL("./examples/motion-contracts", import.meta.url));
-const productTourRoot = fileURLToPath(new URL("./examples/product-tour", import.meta.url));
-const roomScenesRoot = fileURLToPath(new URL("./examples/room-scenes", import.meta.url));
-const workspaceCli = "node ../../packages/cli/dist/bin.mjs";
+const coreFixtureRoot = fileURLToPath(new URL("./e2e/fixtures/core-deck", import.meta.url));
+const workspaceCli = `${JSON.stringify(process.execPath)} ${JSON.stringify(
+  fileURLToPath(new URL("./packages/cli/dist/bin.mjs", import.meta.url)),
+)}`;
+const staticServer = `${JSON.stringify(process.execPath)} ${JSON.stringify(
+  fileURLToPath(new URL("./e2e/support/static-server.mjs", import.meta.url)),
+)}`;
 const ci = process.env.CI !== undefined;
 
 function readProjectFilters(args: readonly string[]): string[] {
@@ -47,14 +47,14 @@ function matchesProject(name: string, filter: string): boolean {
 const projectDefinitions = [
   {
     name: "dev-chromium",
-    testMatch: "**/*.dev.spec.ts",
+    testMatch: /(?:\.dev|\.motion-contracts)\.spec\.ts$/u,
     use: {
       baseURL: "http://127.0.0.1:4317",
       contextOptions: { reducedMotion: "no-preference" },
     },
     webServer: {
       command: `${workspaceCli} dev`,
-      cwd: demoRoot,
+      cwd: coreFixtureRoot,
       reuseExistingServer: false,
       timeout: 60_000,
       url: "http://127.0.0.1:4317",
@@ -68,86 +68,11 @@ const projectDefinitions = [
       contextOptions: { reducedMotion: "reduce" },
     },
     webServer: {
-      command: `${workspaceCli} build && node ../../e2e/support/static-server.mjs dist 4318 /talk`,
-      cwd: demoRoot,
+      command: `${workspaceCli} build && ${staticServer} dist 4318 /talk`,
+      cwd: coreFixtureRoot,
       reuseExistingServer: false,
       timeout: 60_000,
       url: "http://127.0.0.1:4318",
-    },
-  },
-  {
-    name: "product-tour-chromium",
-    testMatch: "**/*.product-tour.spec.ts",
-    use: {
-      baseURL: "http://127.0.0.1:4320",
-      contextOptions: { reducedMotion: "no-preference" },
-    },
-    webServer: {
-      command: `${workspaceCli} dev`,
-      cwd: productTourRoot,
-      reuseExistingServer: false,
-      timeout: 60_000,
-      url: "http://127.0.0.1:4320",
-    },
-  },
-  {
-    name: "architecture-chromium",
-    testMatch: "**/*.architecture.spec.ts",
-    use: {
-      baseURL: "http://127.0.0.1:4321",
-      contextOptions: { reducedMotion: "no-preference" },
-    },
-    webServer: {
-      command: `${workspaceCli} build && node ../../e2e/support/static-server.mjs dist 4321`,
-      cwd: architectureDemoRoot,
-      reuseExistingServer: false,
-      timeout: 60_000,
-      url: "http://127.0.0.1:4321",
-    },
-  },
-  {
-    name: "motion-contracts-chromium",
-    testMatch: "**/*.motion-contracts.spec.ts",
-    use: {
-      baseURL: "http://127.0.0.1:4328",
-      contextOptions: { reducedMotion: "no-preference" },
-    },
-    webServer: {
-      command: `${workspaceCli} dev`,
-      cwd: motionContractsRoot,
-      reuseExistingServer: false,
-      timeout: 60_000,
-      url: "http://127.0.0.1:4328",
-    },
-  },
-  {
-    name: "brand-chromium",
-    testMatch: "**/*.brand.spec.ts",
-    use: {
-      baseURL: "http://127.0.0.1:4323",
-      contextOptions: { reducedMotion: "no-preference" },
-    },
-    webServer: {
-      command: "vp dev --host 127.0.0.1 --port 4323",
-      cwd: brandDemoRoot,
-      reuseExistingServer: false,
-      timeout: 60_000,
-      url: "http://127.0.0.1:4323",
-    },
-  },
-  {
-    name: "room-scenes-chromium",
-    testMatch: "**/*.room-scenes.spec.ts",
-    use: {
-      baseURL: "http://127.0.0.1:4335",
-      contextOptions: { reducedMotion: "no-preference" },
-    },
-    webServer: {
-      command: `${workspaceCli} build && node ../../e2e/support/static-server.mjs dist 4335`,
-      cwd: roomScenesRoot,
-      reuseExistingServer: false,
-      timeout: 60_000,
-      url: "http://127.0.0.1:4335",
     },
   },
   {

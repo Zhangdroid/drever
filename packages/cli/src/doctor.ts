@@ -129,7 +129,11 @@ const inspectChromium = async (
   try {
     const path = await chromiumPath();
     return (await fileExists(path))
-      ? check("export.chromium", "pass", "Playwright Chromium is ready for PDF export.")
+      ? check(
+          "export.chromium",
+          "pass",
+          "Playwright Chromium is ready for rendered review, PDF export, and design import.",
+        )
       : check("export.chromium", "warning", "Playwright Chromium is not installed.", CHROMIUM_HINT);
   } catch {
     return check(

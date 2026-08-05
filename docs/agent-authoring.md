@@ -10,8 +10,8 @@ projects. The contract has seven surfaces:
   a stable, machine-readable form.
 - `npm exec -- drever design import <url>` creates a local Pass-0 Theme from
   deterministic website evidence.
-- `npm exec -- drever check [entry] --rendered --json` turns every exact Step
-  into stable machine-checkable layout evidence.
+- `npm exec -- drever check [entry] --rendered --evidence .drever/review --json` turns every exact
+  Step into stable machine-checkable layout and review evidence.
 - `npm exec -- drever current --json` identifies the state currently visible in a local
   audience or speaker window.
 - `npm exec -- drever mcp [entry]` exposes those read-only contracts to MCP-capable agents.
@@ -306,51 +306,58 @@ review and successful commands do not count as rendered refinement.
 
 ### Rendered review tooling
 
-Run the product-level rendered preflight before relying on manual inspection:
+Run the product-level rendered preflight and capture its visual evidence before
+relying on manual inspection:
 
 ```bash
-npm exec -- drever check --rendered --json
+npm exec -- drever check --rendered --evidence .drever/review --json
 ```
 
 It builds an isolated inspection app, visits Step 0 and every exact authored
 Step at the configured canvas, and emits stable diagnostics for line-fragment
 clipping, canvas and direct scroll overflow, high-confidence sibling overlap,
 resolved solid-color contrast, persistent geometry changes, suspicious density,
-and indeterminate complex paint. The CLI
+repeated full-canvas paint owned by spatial deck transitions, and indeterminate
+complex paint. The CLI
 emits the current typed report V2. Its rendered receipt records receipt and
 ruleset versions, canvas, `chromium` engine, optional browser version, captured
-state count, status, and any skip or failure reason. A stored legacy V1 report
+state count, optional evidence fingerprint, status, and any skip or failure reason. A stored legacy V1 report
 is source-only and cannot satisfy the rendered gate. This gives an agent
 reproducible evidence connected to slide, Step, and authored source when
-available. Proven clipping, overflow, overlap, and contrast errors block
-delivery; geometry, density, and indeterminate-paint warnings require judgment.
+available. Proven clipping, overflow, overlap, contrast, and moving-background
+errors block delivery; geometry, density, and indeterminate-paint warnings
+require judgment. The evidence directory contains a versioned `manifest.json`,
+two labeled contact sheets, and full-resolution state and transition images for
+the captured route inventory. The receipt and manifest share a SHA-256 fingerprint of the exact
+inspection build. Drever invalidates the old manifest before a refresh and atomically publishes the
+new trust root only after every manifest-owned artifact succeeds.
 
 Rendered preflight deliberately does not claim to judge contrast through images,
 gradients, blends, or translucency, nor hierarchy, motion quality, or aesthetic
-fit. It complements rather than replaces the separate browser review below.
+fit. It complements rather than replaces visual judgment from the captured
+pixels.
 
-The project-local review skill prefers
-[Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp)
-when it is connected. It uses the real development preview for exact-route
-screenshots, interactions, computed geometry, animation state, console output,
-and failed network requests. Another browser automation surface may provide the
-same evidence; Chrome inspection alone is not cross-browser proof.
+Drever captures the final review in its own isolated Playwright Chromium
+context; it does not attach to a person's open browser or require a separate
+MCP-controlled or agent-specific browser. Read `manifest.json` first, then both
+contact sheets. The settled sheet covers every final slide state. The transition
+sheet records the deterministic 80 ms sample for every adjacent slide or Step
+edge in both forward and reverse directions. Open targeted full-resolution
+state images whenever a sheet reveals a possible problem. The JSON preflight
+report remains the authority for runtime diagnostics. Chromium evidence alone
+does not prove another browser.
 
-Development previews also expose an experimental, version-matched typography
-probe:
-
-```js
-await globalThis.__dreverExperimentalTextLayout();
-```
-
-The probe uses [Pretext](https://github.com/chenglou/pretext) to compare
+An HMR development preview separately exposes the experimental,
+version-matched typography probe. It uses
+[Pretext](https://github.com/chenglou/pretext) to compare
 predicted and rendered line layout for supported visible plain-text blocks. Its
-output is advisory and deliberately skips CSS and content it cannot model
+output is optional advisory evidence, not part of the required screenshot
+command, and deliberately skips CSS and content it cannot model
 reliably, including rich inline markup, non-default wrapping or indentation,
 automatic hyphenation, columns, transforms, generic system fonts, and
 non-default word spacing or font shaping settings. Confirm every finding in the
-rendered DOM and screenshot. The probe is removed from production and export
-bundles and never changes authored layout or copy.
+rendered pixels. The probe is removed from production and export bundles and
+never changes authored layout or copy.
 
 ## Follow the live presentation
 

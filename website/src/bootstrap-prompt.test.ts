@@ -98,7 +98,7 @@ describe("public bootstrap prompt", () => {
     expect(createDeckSkill).toMatch(/later mutation invalidates[^.]*evidence/iu);
     expect(createDeckSkill).toMatch(/never invent or guess a preview address/iu);
     expect(createDeckSkill).not.toContain("drever check --rendered --json");
-    expect(reviewDeckSkill).toContain("drever check --rendered --json");
+    expect(reviewDeckSkill).toContain("drever check --rendered --evidence .drever/review --json");
     expect(createDeckSkill).toMatch(/single owner[^.]*exhaustive\s+rendered completion gate/iu);
     expect(createDeckSkill).toMatch(/one\s+production build[^.]*requested PDF export/iu);
   });

@@ -1,5 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import type { ElementBounds } from "./support/element-bounds.ts";
+import { expectStableBounds, readElementBounds } from "./support/element-bounds.ts";
 import { monitorPageHealth } from "./support/page-health.ts";
 import { waitForDreverReady } from "./support/drever-ready.ts";
 import {
@@ -10,8 +11,6 @@ import {
 } from "./support/view-transitions.ts";
 
 const activeSlide = '[data-drever-slide][data-slide-state="active"]';
-
-type Direction = "ArrowLeft" | "ArrowRight";
 
 const readLayoutBounds = (locator: Locator): Promise<ElementBounds> =>
   locator.evaluate((element) => {
@@ -40,38 +39,7 @@ const transitionPseudos = (page: Page): Promise<readonly string[]> =>
     }),
   );
 
-type SnapshotStyle = Readonly<{
-  objectFit: string;
-  objectPosition: string;
-}>;
-
-const readSnapshotStyle = (page: Page, name: string): Promise<SnapshotStyle> =>
-  page.evaluate((transitionName) => {
-    const style = getComputedStyle(
-      document.documentElement,
-      `::view-transition-new(drever-${transitionName})`,
-    );
-    return { objectFit: style.objectFit, objectPosition: style.objectPosition };
-  }, name);
-
-const moveWithSharedGroup = async (
-  page: Page,
-  direction: Direction,
-  expectedPath: RegExp,
-  name: string,
-  snapshot: SnapshotStyle,
-): Promise<void> => {
-  const transition = await captureNextViewTransition(page, () => page.keyboard.press(direction));
-  await waitForViewTransition(page, transition, "ready");
-  await expect(page).toHaveURL(expectedPath);
-  expect(await transitionPseudos(page)).toContain(`::view-transition-group(drever-${name})`);
-  expect(await readSnapshotStyle(page, name)).toEqual(snapshot);
-  await waitForViewTransition(page, transition, "finished");
-};
-
-test("plain Steps preserve absolute geometry while MotionGroup keeps directional motion", async ({
-  page,
-}) => {
+test("plain Steps preserve geometry while MotionGroup keeps directional flow", async ({ page }) => {
   const health = monitorPageHealth(page);
   await page.goto("/");
   await waitForDreverReady(page);
@@ -81,7 +49,6 @@ test("plain Steps preserve absolute geometry while MotionGroup keeps directional
     if (!(slide instanceof HTMLElement)) throw new Error("Expected an active slide.");
 
     const host = document.createElement("div");
-    host.dataset.testid = "absolute-step-host";
     host.style.cssText = "position:relative;width:400px;height:400px";
 
     const step = document.createElement("div");
@@ -97,20 +64,7 @@ test("plain Steps preserve absolute geometry while MotionGroup keeps directional
     point.style.cssText = "position:absolute;top:25%;right:25%;width:20px;height:20px";
     step.append(point);
     host.append(step);
-
-    const motionGroup = document.createElement("div");
-    motionGroup.dataset.dreverMotionGroup = "";
-    motionGroup.dataset.motionFlow = "inline";
-    motionGroup.style.setProperty("--drever-recipe-step-inline-from-translate", "12px 0");
-
-    const directionalStep = document.createElement("div");
-    directionalStep.dataset.dreverStep = "1";
-    directionalStep.dataset.stepState = "pending";
-    directionalStep.dataset.testid = "directional-step";
-    directionalStep.style.visibility = "hidden";
-    motionGroup.append(directionalStep);
-
-    slide.append(host, motionGroup);
+    slide.append(host);
   }, activeSlide);
 
   const step = page.getByTestId("absolute-step");
@@ -118,13 +72,6 @@ test("plain Steps preserve absolute geometry while MotionGroup keeps directional
   const before = await readLayoutBounds(point);
 
   await expect(step).toHaveCSS("translate", "none");
-  expect(
-    await page.getByTestId("directional-step").evaluate((element) => {
-      const [x = "0", y = "0"] = getComputedStyle(element).translate.split(" ");
-      return [Number.parseFloat(x), Number.parseFloat(y)];
-    }),
-  ).toEqual([12, 0]);
-
   await step.evaluate((element) => {
     if (!(element instanceof HTMLElement)) throw new Error("Expected a Step element.");
     element.dataset.stepState = "active";
@@ -133,25 +80,131 @@ test("plain Steps preserve absolute geometry while MotionGroup keeps directional
     element.style.removeProperty("visibility");
   });
 
-  await expect(step).toHaveCSS("opacity", "1");
   const after = await readLayoutBounds(point);
   expectClose(after.x, before.x, "absolute child x rebased");
   expectClose(after.y, before.y, "absolute child y rebased");
   expectBoundsSize(after, before);
 
-  await step.evaluate((element) => {
-    if (!(element instanceof HTMLElement)) throw new Error("Expected a Step element.");
-    element.dataset.stepState = "pending";
-    element.ariaHidden = "true";
-    element.inert = true;
-    element.style.visibility = "hidden";
-  });
+  await page.goto("/2");
+  await waitForDreverReady(page);
+  const directionalStep = page.getByTestId("step-2");
+  const readDirectionalTranslate = () =>
+    directionalStep.evaluate((element) => {
+      const [x = "0", y = "0"] = getComputedStyle(element).translate.split(" ");
+      return {
+        x: Number.parseFloat(x) || 0,
+        y: Number.parseFloat(y) || 0,
+      };
+    });
+  await expect(directionalStep).toHaveAttribute("data-step-state", "pending");
+  expect(
+    await directionalStep.evaluate((element) =>
+      element.closest("[data-drever-motion-group]")?.getAttribute("data-motion-flow"),
+    ),
+  ).toBe("block");
+  await expect.poll(async () => (await readDirectionalTranslate()).x).toBeCloseTo(0, 5);
+  await expect
+    .poll(async () => Math.abs((await readDirectionalTranslate()).y))
+    .toBeGreaterThan(0.5);
 
-  await expect(step).toHaveCSS("opacity", "0");
-  const reversed = await readLayoutBounds(point);
-  expectClose(reversed.x, before.x, "reverse absolute child x rebased");
-  expectClose(reversed.y, before.y, "reverse absolute child y rebased");
-  expectBoundsSize(reversed, before);
+  await page.keyboard.press("ArrowRight");
+  await expect(page).toHaveURL(/\/2\/2$/u);
+  await expect(directionalStep).toHaveAttribute("data-step-state", "active");
+  await expect(directionalStep).toHaveCSS("translate", "none");
+
+  await page.keyboard.press("ArrowLeft");
+  await expect(page).toHaveURL(/\/2$/u);
+  await expect(directionalStep).toHaveAttribute("data-step-state", "pending");
+  await expect
+    .poll(async () => Math.abs((await readDirectionalTranslate()).y))
+    .toBeGreaterThan(0.5);
+  health.expectHealthy();
+});
+
+test("one persistent Stage survives Steps and slides on every presentation surface", async ({
+  page,
+}) => {
+  const health = monitorPageHealth(page);
+  await monitorViewTransitions(page);
+  await page.goto("/2");
+  await waitForDreverReady(page);
+
+  const stage = page.locator("[data-drever-stage]");
+  const pageNumber = page.getByTestId("e2e-stage-page-number");
+  const initialBounds = await readElementBounds(stage);
+  await expect(stage).toHaveCount(1);
+  await expect(pageNumber).toHaveText("02 / 07");
+
+  await page.evaluate(() => {
+    Reflect.set(globalThis, "__dreverCoreFixtureStage", {
+      background: document.querySelector('[data-testid="e2e-stage-background"]'),
+      foreground: document.querySelector('[data-testid="e2e-stage-foreground"]'),
+      stage: document.querySelector("[data-drever-stage]"),
+    });
+  });
+  const identity = () =>
+    page.evaluate(() => {
+      const remembered = Reflect.get(globalThis, "__dreverCoreFixtureStage") as
+        | Readonly<Record<string, Element>>
+        | undefined;
+      if (remembered === undefined) throw new Error("Stage identity was not recorded.");
+      return {
+        background:
+          remembered.background === document.querySelector('[data-testid="e2e-stage-background"]'),
+        foreground:
+          remembered.foreground === document.querySelector('[data-testid="e2e-stage-foreground"]'),
+        stage: remembered.stage === document.querySelector("[data-drever-stage]"),
+      };
+    });
+
+  await page.keyboard.press("ArrowRight");
+  await expect(page).toHaveURL(/\/2\/2$/u);
+  expect(await identity()).toEqual({ background: true, foreground: true, stage: true });
+  expect(await readViewTransitionCalls(page)).toEqual([]);
+
+  const transition = await captureNextViewTransition(page, () => page.keyboard.press("ArrowDown"));
+  await waitForViewTransition(page, transition, "ready");
+  await expect(page).toHaveURL(/\/3$/u);
+  expect(await identity()).toEqual({ background: true, foreground: true, stage: true });
+  expectStableBounds(await readElementBounds(stage), initialBounds);
+  await expect(pageNumber).toHaveText("03 / 07");
+  await waitForViewTransition(page, transition, "finished");
+
+  await page.goto("/speaker/5");
+  await expect(
+    page.getByTestId("speaker-current").getByTestId("e2e-stage-foreground"),
+  ).toHaveAttribute("data-render-mode", "speaker-current");
+  await expect(
+    page.getByTestId("speaker-next").getByTestId("e2e-stage-foreground"),
+  ).toHaveAttribute("data-render-mode", "speaker-next");
+  for (const testId of ["shared-shell", "shared-text", "shared-media"]) {
+    await expect(
+      page.getByTestId("speaker-current").locator(activeSlide).getByTestId(testId),
+    ).toHaveCSS("view-transition-name", "none");
+    await expect(
+      page.getByTestId("speaker-next").locator(activeSlide).getByTestId(testId),
+    ).toHaveCSS("view-transition-name", "none");
+  }
+
+  await page.goto("/document");
+  const documentStages = page.locator(
+    '[data-drever-document-page] [data-testid="e2e-stage-foreground"]',
+  );
+  const documentBackgrounds = page.locator(
+    '[data-drever-document-page] [data-testid="e2e-stage-background"]',
+  );
+  await expect(documentStages).toHaveCount(7);
+  await expect(documentBackgrounds).toHaveCount(7);
+  await expect(documentStages.first()).toHaveAttribute("data-render-mode", "document");
+  await expect(documentBackgrounds.first()).toHaveAttribute("data-render-mode", "document");
+  for (const name of ["stable-shell", "stable-text", "stable-media"]) {
+    const groups = page.locator(`[data-drever-document] [data-motion-name="${name}"]`);
+    await expect(groups).toHaveCount(2);
+    for (const group of await groups.all()) {
+      await expect(group).toHaveCSS("view-transition-name", "none");
+    }
+  }
+  expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
   health.expectHealthy();
 });
 
@@ -181,8 +234,8 @@ const readTextContract = (locator: Locator): Promise<TextContract> =>
 
     return {
       bounds: {
-        height: bounds.height,
-        width: bounds.width,
+        height: (element as HTMLElement).offsetHeight,
+        width: (element as HTMLElement).offsetWidth,
         x: bounds.x,
         y: bounds.y,
       },
@@ -208,72 +261,15 @@ const expectSameTextContract = (actual: TextContract, expected: TextContract): v
   expect(actual.lines.length).toBeGreaterThan(1);
   for (const [index, line] of actual.lines.entries()) {
     const expectedLine = expected.lines[index];
-    if (expectedLine === undefined) throw new Error(`Missing expected line ${index}.`);
-    expectClose(line.width, expectedLine.width, `line ${index} width changed`);
-    expectClose(line.height, expectedLine.height, `line ${index} height changed`);
-    expectClose(line.x, expectedLine.x, `line ${index} inline position changed`);
-    expectClose(line.y, expectedLine.y, `line ${index} block position changed`);
+    if (expectedLine === undefined) throw new Error(`Missing expected line ${String(index)}.`);
+    expectClose(line.width, expectedLine.width, `line ${String(index)} width changed`);
+    expectClose(line.height, expectedLine.height, `line ${String(index)} height changed`);
+    expectClose(line.x, expectedLine.x, `line ${String(index)} inline position changed`);
+    expectClose(line.y, expectedLine.y, `line ${String(index)} block position changed`);
   }
 };
 
-test("the fixed shell keeps one raster contract in both directions", async ({ page }) => {
-  const health = monitorPageHealth(page);
-  await monitorViewTransitions(page);
-  await page.goto("/2");
-  await waitForDreverReady(page);
-
-  const shell = page.locator(`${activeSlide} [data-testid="shared-shell"]`);
-  const shellCopy = page.locator(`${activeSlide} [data-testid="shell-copy"]`);
-  const source = await readLayoutBounds(shell);
-  expectBoundsSize(source, { height: 270, width: 440 });
-  await expect(shell).toHaveCSS("position", "absolute");
-  await expect(shellCopy).toContainText("440 × 270");
-
-  const snapshot = { objectFit: "none", objectPosition: "50% 50%" };
-  await moveWithSharedGroup(page, "ArrowRight", /\/3$/u, "stable-shell", snapshot);
-  const result = await readLayoutBounds(shell);
-  expectBoundsSize(result, { height: 270, width: 440 });
-  expect(Math.abs(result.x - source.x)).toBeGreaterThan(300);
-  await expect(shellCopy).toContainText("new copy outside");
-
-  await moveWithSharedGroup(page, "ArrowLeft", /\/2$/u, "stable-shell", snapshot);
-  const reversed = await readLayoutBounds(shell);
-  expectClose(reversed.x, source.x, "reverse endpoint x changed");
-  expectClose(reversed.y, source.y, "reverse endpoint y changed");
-  expectBoundsSize(reversed, source);
-
-  health.expectHealthy();
-});
-
-test("persistent text preserves its metrics and wrapping in both directions", async ({ page }) => {
-  const health = monitorPageHealth(page);
-  await monitorViewTransitions(page);
-  await page.goto("/4");
-
-  const group = page.locator(`${activeSlide} [data-testid="shared-text"]`);
-  const copy = page.locator(`${activeSlide} [data-testid="persistent-copy"]`);
-  const source = await readTextContract(copy);
-  expectBoundsSize(await readLayoutBounds(group), { height: 124, width: 600 });
-  expect(source.fontSize).toBe("43px");
-  expect(source.lineHeight).toBe("56px");
-
-  const snapshot = { objectFit: "none", objectPosition: "50% 50%" };
-  await moveWithSharedGroup(page, "ArrowRight", /\/5$/u, "stable-text", snapshot);
-  const result = await readTextContract(copy);
-  expectSameTextContract(result, source);
-  expect(Math.abs(result.bounds.x - source.bounds.x)).toBeGreaterThan(300);
-
-  await moveWithSharedGroup(page, "ArrowLeft", /\/4$/u, "stable-text", snapshot);
-  const reversed = await readTextContract(copy);
-  expectSameTextContract(reversed, source);
-  expectClose(reversed.bounds.x, source.bounds.x, "reverse text x changed");
-  expectClose(reversed.bounds.y, source.bounds.y, "reverse text y changed");
-
-  health.expectHealthy();
-});
-
 type MediaContract = Readonly<{
-  content: Readonly<{ height: number; width: number }>;
   frame: ElementBounds;
   image: ElementBounds;
   objectFit: string;
@@ -281,71 +277,109 @@ type MediaContract = Readonly<{
 }>;
 
 const readMediaContract = async (frame: Locator, image: Locator): Promise<MediaContract> => {
-  const [frameBounds, content, imageBounds, styles] = await Promise.all([
+  const [frameBounds, imageBounds, styles] = await Promise.all([
     readLayoutBounds(frame),
-    frame.evaluate((element) => {
-      if (!(element instanceof HTMLElement)) throw new Error("Expected an HTML element.");
-      return { height: element.clientHeight, width: element.clientWidth };
-    }),
     readLayoutBounds(image),
     image.evaluate((element) => {
       const style = getComputedStyle(element);
       return { objectFit: style.objectFit, objectPosition: style.objectPosition };
     }),
   ]);
-  return { content, frame: frameBounds, image: imageBounds, ...styles };
+  return { frame: frameBounds, image: imageBounds, ...styles };
 };
 
-const expectMediaContract = (
-  contract: MediaContract,
-  expected: Readonly<{ height: number; width: number }>,
-): void => {
-  expectBoundsSize(contract.frame, expected);
-  expectBoundsSize(contract.image, contract.content);
-  expectClose(contract.frame.width / contract.frame.height, 16 / 9, "frame ratio changed");
-  expect(contract.objectFit).toBe("cover");
-  expect(contract.objectPosition).toBe("50% 48%");
-};
-
-test("media keeps an explicit crop contract while resizing in both directions", async ({
+test("continuity preserves stable shell, text, and media contracts in both directions", async ({
   page,
 }) => {
   const health = monitorPageHealth(page);
   await monitorViewTransitions(page);
-  await page.goto("/6");
+  await page.goto("/5");
+  await waitForDreverReady(page);
 
-  const frame = page.locator(`${activeSlide} [data-testid="shared-media"]`);
+  const shell = page.locator(`${activeSlide} [data-testid="shared-shell"]`);
+  const shellBody = page.locator(`${activeSlide} [data-testid="shell-copy"]`);
+  const text = page.locator(`${activeSlide} [data-testid="persistent-copy"]`);
+  const media = page.locator(`${activeSlide} [data-testid="shared-media"]`);
   const image = page.locator(`${activeSlide} [data-testid="stable-media-image"]`);
-  const source = await readMediaContract(frame, image);
-  expectMediaContract(source, { height: 360, width: 640 });
+  const sourceShell = await readLayoutBounds(shell);
+  const sourceText = await readTextContract(text);
+  const sourceMedia = await readMediaContract(media, image);
+  const sourcePaint = await shellBody.evaluate((element) => {
+    const style = getComputedStyle(element.parentElement ?? element);
+    return { backgroundColor: style.backgroundColor, borderColor: style.borderColor };
+  });
+  expectBoundsSize(sourceShell, { height: 230, width: 420 });
+  expectBoundsSize(sourceText.bounds, { height: 100, width: 440 });
+  expectBoundsSize(sourceMedia.frame, { height: 225, width: 400 });
 
-  const snapshot = { objectFit: "cover", objectPosition: "50% 48%" };
-  await moveWithSharedGroup(page, "ArrowRight", /\/7$/u, "stable-media", snapshot);
-  const result = await readMediaContract(frame, image);
-  expectMediaContract(result, { height: 270, width: 480 });
+  const forward = await captureNextViewTransition(page, () => page.keyboard.press("ArrowRight"));
+  await waitForViewTransition(page, forward, "ready");
+  await expect(page).toHaveURL(/\/6$/u);
+  expect(await transitionPseudos(page)).toEqual(
+    expect.arrayContaining([
+      "::view-transition-group(drever-stable-shell)",
+      "::view-transition-group(drever-stable-text)",
+      "::view-transition-group(drever-stable-media)",
+    ]),
+  );
+  await waitForViewTransition(page, forward, "finished");
 
-  await moveWithSharedGroup(page, "ArrowLeft", /\/6$/u, "stable-media", snapshot);
-  const reversed = await readMediaContract(frame, image);
-  expectMediaContract(reversed, { height: 360, width: 640 });
-  expectClose(reversed.frame.x, source.frame.x, "reverse media x changed");
-  expectClose(reversed.frame.y, source.frame.y, "reverse media y changed");
+  const targetShell = await readLayoutBounds(shell);
+  const targetText = await readTextContract(text);
+  const targetMedia = await readMediaContract(media, image);
+  expectBoundsSize(targetShell, sourceShell);
+  expect(Math.abs(targetShell.x - sourceShell.x)).toBeGreaterThan(200);
+  expectSameTextContract(targetText, sourceText);
+  expect(Math.abs(targetText.bounds.y - sourceText.bounds.y)).toBeGreaterThan(100);
+  expectBoundsSize(targetMedia.frame, { height: 180, width: 320 });
+  expectBoundsSize(targetMedia.image, targetMedia.frame);
+  expect(targetMedia.objectFit).toBe("cover");
+  expect(targetMedia.objectPosition).toBe("50% 48%");
+  await expect
+    .poll(() =>
+      shellBody.evaluate((element) => {
+        const style = getComputedStyle(element.parentElement ?? element);
+        return { backgroundColor: style.backgroundColor, borderColor: style.borderColor };
+      }),
+    )
+    .toEqual(sourcePaint);
 
+  const reverse = await captureNextViewTransition(page, () => page.keyboard.press("ArrowLeft"));
+  await waitForViewTransition(page, reverse, "finished");
+  await expect(page).toHaveURL(/\/5$/u);
+  expectStableBounds(await readLayoutBounds(shell), sourceShell);
+  expectSameTextContract(await readTextContract(text), sourceText);
+  const returnedMedia = await readMediaContract(media, image);
+  expectBoundsSize(returnedMedia.frame, sourceMedia.frame);
+  expect(await readViewTransitionCalls(page)).toEqual([
+    { kind: "document", target: "document", types: ["drever-slide-forward"] },
+    { kind: "document", target: "document", types: ["drever-slide-backward"] },
+  ]);
   health.expectHealthy();
 });
 
-test("reduced motion commits every recipe without capturing a transition", async ({ page }) => {
+test("reduced motion commits Steps and continuity endpoints without captured motion", async ({
+  page,
+}) => {
   const health = monitorPageHealth(page);
   await monitorViewTransitions(page);
   await page.emulateMedia({ reducedMotion: "reduce" });
+
   await page.goto("/2");
   await waitForDreverReady(page);
+  await page.keyboard.press("ArrowRight");
+  await expect(page).toHaveURL(/\/2\/2$/u);
 
-  for (const destination of [3, 4, 5, 6, 7]) {
-    await page.keyboard.press("ArrowRight");
-    await expect(page).toHaveURL(new RegExp(`/${destination}$`, "u"));
-  }
-  await page.keyboard.press("ArrowLeft");
+  await page.goto("/5");
+  await waitForDreverReady(page);
+  await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/\/6$/u);
+  await expect(page.locator(`${activeSlide} [data-testid="shared-shell"]`)).toHaveCSS(
+    "view-transition-name",
+    "none",
+  );
+  await page.keyboard.press("ArrowLeft");
+  await expect(page).toHaveURL(/\/5$/u);
 
   expect(await readViewTransitionCalls(page)).toEqual([]);
   expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
