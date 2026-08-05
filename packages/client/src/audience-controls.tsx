@@ -15,6 +15,7 @@ import {
 import { DreverClientError } from "./client-error.ts";
 import { createFullscreenSession } from "./fullscreen-session.ts";
 import { acceptsPresentationShortcut } from "./keyboard.ts";
+import type { PresentationNavigationIntent } from "./navigation.ts";
 import {
   CloseIcon,
   DocumentIcon,
@@ -52,7 +53,7 @@ export type AudienceControlsProps = Readonly<{
   manifest: DeckManifest;
   onCopyShareURL(position: DeckPosition): Promise<void>;
   onError(error: unknown): void;
-  onNavigate(command: DeckCommand): void | Promise<void>;
+  onNavigate(command: DeckCommand, intent?: PresentationNavigationIntent): void | Promise<void>;
   onOpenDocument(): void;
   onOpenSpeaker(): void;
   onPointerIntent(): void;
@@ -78,6 +79,16 @@ export type SlideNavigationItem = Readonly<{
 const compactText = (value: string | null | undefined): string | undefined => {
   const compact = value?.replace(/\s+/gu, " ").trim();
   return compact === undefined || compact.length === 0 ? undefined : compact;
+};
+
+const containsClientPoint = (element: Element, event: MouseEvent): boolean => {
+  const bounds = element.getBoundingClientRect();
+  return (
+    event.clientX >= bounds.left &&
+    event.clientX <= bounds.right &&
+    event.clientY >= bounds.top &&
+    event.clientY <= bounds.bottom
+  );
 };
 
 const releasePointerFocus = (
@@ -360,7 +371,9 @@ export const AudienceControls = ({
   const hostRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const nextButtonRef = useRef<HTMLButtonElement>(null);
   const overviewRef = useRef<HTMLDivElement>(null);
+  const previousButtonRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const [fullscreen, setFullscreen] = useState(false);
   const [focusInteracting, setFocusInteracting] = useState(false);
@@ -437,9 +450,56 @@ export const AudienceControls = ({
   );
 
   const navigate = useCallback(
-    (command: DeckCommand): void => run(() => onNavigate(command)),
+    (command: DeckCommand, intent?: PresentationNavigationIntent): void =>
+      run(() => onNavigate(command, intent)),
     [onNavigate, run],
   );
+
+  useEffect(() => {
+    const document = hostRef.current?.ownerDocument;
+    if (document === undefined) {
+      return;
+    }
+
+    const targets = [
+      { button: previousButtonRef, command: { type: "previous" } },
+      { button: nextButtonRef, command: { type: "next" } },
+    ] as const;
+    // A named View Transition snapshot can temporarily replace the live toolbar in hit testing.
+    // Route a click on that stable snapshot to the matching navigation button.
+    const proxyToolbarSnapshotClick = (event: MouseEvent): void => {
+      if (
+        event.button !== 0 ||
+        !document.documentElement.matches(":active-view-transition") ||
+        hostRef.current?.hasAttribute("data-drever-controls-navigation-hidden") === true
+      ) {
+        return;
+      }
+
+      const path = event.composedPath();
+      const target = targets.find(({ button }) => {
+        const element = button.current;
+        return (
+          element !== null &&
+          !element.disabled &&
+          !path.includes(element) &&
+          containsClientPoint(element, event)
+        );
+      });
+      const button = target?.button.current;
+      if (target === undefined || button === null || button === undefined) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      button.blur();
+      navigate(target.command, { preserveControls: true });
+    };
+
+    document.addEventListener("click", proxyToolbarSnapshotClick, true);
+    return () => document.removeEventListener("click", proxyToolbarSnapshotClick, true);
+  }, [navigate]);
 
   useEffect(() => {
     const document = hostRef.current?.ownerDocument;
@@ -649,8 +709,9 @@ export const AudienceControls = ({
             disabled={!progress.canGoPrevious}
             onClick={(event) => {
               releasePointerFocus(event);
-              navigate({ type: "previous" });
+              navigate({ type: "previous" }, { preserveControls: true });
             }}
+            ref={previousButtonRef}
             type="button"
           >
             <PreviousIcon />
@@ -677,8 +738,9 @@ export const AudienceControls = ({
             disabled={!progress.canGoNext}
             onClick={(event) => {
               releasePointerFocus(event);
-              navigate({ type: "next" });
+              navigate({ type: "next" }, { preserveControls: true });
             }}
+            ref={nextButtonRef}
             type="button"
           >
             <NextIcon />

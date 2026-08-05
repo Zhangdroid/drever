@@ -25,6 +25,11 @@ coordination without changing existing deck or provider-neutral journal workflow
 - Made open Studio sessions detect agent-state and plan publications even when the operating-system
   file watcher misses an atomic replacement, removing the need to refresh the page manually.
 
+### Fixed
+
+- Kept the audience toolbar visible across slide navigation initiated by its previous and next
+  buttons, while keyboard and canvas navigation continue to hide it before transition capture.
+
 ## [0.11.0] - 2026-08-04
 
 Release impact: **minor** — this batch adds a compatible local creation room, rendered-quality

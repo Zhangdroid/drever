@@ -578,13 +578,6 @@
     view-transition-name: none;
   }
 
-  :root:is(
-      :active-view-transition-type(drever-slide-forward),
-      :active-view-transition-type(drever-slide-backward),
-      :active-view-transition-type(drever-jump-forward),
-      :active-view-transition-type(drever-jump-backward)
-    )
-    .drever-audience-controls__bar,
   .drever-audience-controls[data-drever-controls-navigation-hidden] .drever-audience-controls__bar {
     visibility: hidden;
     opacity: 0;
@@ -1234,13 +1227,6 @@
       transform: translateY(8px);
     }
 
-    :root:is(
-        :active-view-transition-type(drever-slide-forward),
-        :active-view-transition-type(drever-slide-backward),
-        :active-view-transition-type(drever-jump-forward),
-        :active-view-transition-type(drever-jump-backward)
-      )
-      .drever-audience-controls__bar,
     .drever-audience-controls[data-drever-controls-navigation-hidden]
       .drever-audience-controls__bar {
       transform: translateY(8px);

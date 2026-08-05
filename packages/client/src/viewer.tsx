@@ -161,7 +161,7 @@ export const ViewerHost = ({
 
         const changesSlide = change.from.slideIndex !== change.to.slideIndex;
         const deck = deckRef.current;
-        if (changesSlide) {
+        if (changesSlide && options?.preserveControls !== true) {
           flushSync(() => setControlsHiddenForNavigation(true));
         }
         if (reducedMotion || !changesSlide || options?.skipViewTransition === true) {

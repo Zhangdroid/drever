@@ -255,9 +255,31 @@ describe("presentation Navigation API adapter", () => {
         transitionType: "drever-step-forward",
       }),
       expect.any(AbortSignal),
-      { skipViewTransition: true },
+      { preserveControls: false, skipViewTransition: true },
     );
     expect(store.getSnapshot()).toEqual({ slideId: "intro", slideIndex: 0, step: 2 });
+  });
+
+  it("preserves visible controls only when an in-process navigation requests it", async () => {
+    const { commit, controller, platform } = createRuntime();
+
+    await controller.navigate(
+      { type: "goTo", slideId: "details", step: 0 },
+      { preserveControls: true },
+    );
+
+    expect(platform.navigateCalls[0]?.options.info).toEqual({
+      drever: "drever-navigation-v1",
+      preserveControls: true,
+      transitionType: "drever-jump-forward",
+    });
+    expect(commit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: { slideId: "details", slideIndex: 1, step: 0 },
+      }),
+      expect.any(AbortSignal),
+      { preserveControls: true, skipViewTransition: false },
+    );
   });
 
   it("rejects an invalid in-process transition intent before creating history", async () => {
@@ -316,7 +338,7 @@ describe("presentation Navigation API adapter", () => {
         transitionType: "drever-slide-forward",
       }),
       harness.event.signal,
-      { skipViewTransition: false },
+      { preserveControls: false, skipViewTransition: false },
     );
   });
 

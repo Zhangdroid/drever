@@ -268,7 +268,7 @@ test("audience controls navigate exact states with a pointer", async ({ page }) 
   await next.hover();
   await next.click();
   await expect(page).toHaveURL(/\/2$/u);
-  await expect(controls).not.toBeVisible();
+  await expect(controls).toBeVisible();
   await expect.poll(() => page.evaluate(() => document.activeElement?.tagName)).not.toBe("BUTTON");
 
   await page.keyboard.press("ArrowRight");
@@ -1194,6 +1194,43 @@ test("a second slide navigation supersedes an in-flight transition cleanly", asy
   await expect(page).toHaveURL(/\/4$/u);
   await waitForViewTransition(page, first, "finished");
 
+  expect(await readViewTransitionCalls(page)).toEqual([
+    { kind: "document", target: "document", types: ["drever-slide-forward"] },
+    { kind: "document", target: "document", types: ["drever-slide-forward"] },
+  ]);
+  health.expectHealthy();
+});
+
+test("audience toolbar stays visible and accepts another click during its transition", async ({
+  page,
+}) => {
+  const health = monitorPageHealth(page);
+  await monitorViewTransitions(page);
+  await page.goto("/2/5");
+
+  const controlsHost = page.locator("[data-drever-audience-controls]");
+  const toolbar = page.locator(".drever-audience-controls__bar");
+  const next = page.getByRole("button", { name: "Next presentation state" });
+  const bounds = await next.boundingBox();
+  if (bounds === null) {
+    throw new Error("Expected the next toolbar button to be visible.");
+  }
+  const point = {
+    x: bounds.x + bounds.width / 2,
+    y: bounds.y + bounds.height / 2,
+  };
+
+  const first = await captureNextViewTransition(page, () => page.mouse.click(point.x, point.y));
+  await waitForViewTransition(page, first, "ready");
+  await expect(page).toHaveURL(/\/3$/u);
+  await expect(controlsHost).not.toHaveAttribute("data-drever-controls-navigation-hidden", "");
+  await expect(toolbar).toHaveCSS("visibility", "visible");
+
+  const second = await captureNextViewTransition(page, () => page.mouse.click(point.x, point.y));
+  await waitForViewTransition(page, second, "finished");
+  await expect(page).toHaveURL(/\/4$/u);
+  await expect(next).not.toBeFocused();
+  await waitForViewTransition(page, first, "finished");
   expect(await readViewTransitionCalls(page)).toEqual([
     { kind: "document", target: "document", types: ["drever-slide-forward"] },
     { kind: "document", target: "document", types: ["drever-slide-forward"] },
