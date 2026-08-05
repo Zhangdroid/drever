@@ -255,29 +255,18 @@ export default {
 };
 `,
     );
-    await expect
-      .poll(
-        () =>
-          page
-            .locator(".drever-viewer")
-            .evaluate((element) =>
-              getComputedStyle(element).getPropertyValue("--drever-canvas-background").trim(),
-            ),
-        { timeout: 20_000 },
-      )
-      .toBe("#050914");
+    await expect(page.locator(".drever-viewer")).toHaveCSS(
+      "--drever-canvas-background",
+      "#050914",
+      { timeout: 20_000 },
+    );
     await waitForDreverReady(page);
     await expect(page).toHaveURL(`${url}/2/4`);
     await expect(page.getByTestId("hmr-stage-background")).toBeVisible();
-    await expect
-      .poll(() =>
-        page
-          .locator(".drever-canvas")
-          .evaluate((element) =>
-            getComputedStyle(element).getPropertyValue("--drever-theme-token-canvas").trim(),
-          ),
-      )
-      .toBe("#050914");
+    await expect(page.locator(".drever-canvas")).toHaveCSS(
+      "--drever-theme-token-canvas",
+      "#050914",
+    );
     await expect
       .poll(() => output.join("").match(/Drever configuration reloaded\./gu)?.length)
       .toBe(1);
@@ -290,28 +279,14 @@ export default {
 }
 `,
     );
-    await expect
-      .poll(() =>
-        page
-          .locator(".drever-viewer")
-          .evaluate((element) =>
-            getComputedStyle(element).getPropertyValue("--drever-canvas-background").trim(),
-          ),
-      )
-      .toBe("#081a2f");
+    await expect(page.locator(".drever-viewer")).toHaveCSS("--drever-canvas-background", "#081a2f");
 
     await writeFile(`${root}/design/theme.ts`, themeSource("#081a2f"));
-    await expect
-      .poll(
-        () =>
-          page
-            .locator(".drever-canvas")
-            .evaluate((element) =>
-              getComputedStyle(element).getPropertyValue("--drever-theme-token-canvas").trim(),
-            ),
-        { timeout: 20_000 },
-      )
-      .toBe("#081a2f");
+    await expect(page.locator(".drever-canvas")).toHaveCSS(
+      "--drever-theme-token-canvas",
+      "#081a2f",
+      { timeout: 20_000 },
+    );
     await expect
       .poll(() => output.join("").match(/Drever configuration reloaded\./gu)?.length)
       .toBe(2);
@@ -342,15 +317,7 @@ export default {
       .toContain("Drever kept the current preview because configuration reload failed");
     await expect.poll(() => request.get(url).then((response) => response.status())).toBe(200);
     await expect(page.getByTestId("hmr-stage-background")).toBeVisible();
-    await expect
-      .poll(() =>
-        page
-          .locator(".drever-viewer")
-          .evaluate((element) =>
-            getComputedStyle(element).getPropertyValue("--drever-canvas-background").trim(),
-          ),
-      )
-      .toBe("#081a2f");
+    await expect(page.locator(".drever-viewer")).toHaveCSS("--drever-canvas-background", "#081a2f");
 
     await writeFile(
       `${root}/design/recovered-config.ts`,

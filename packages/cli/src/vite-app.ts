@@ -657,7 +657,9 @@ export const serveDreverProject = async (
   let reloadTimer: ReturnType<typeof setTimeout> | undefined;
   let reloadUpdates = Promise.resolve();
   let restartUpdate = Promise.resolve();
-  let restartBarrier: Promise<void> | undefined;
+  let reloadBarrier: Promise<void> | undefined;
+  let releaseReloadBarrier: (() => void) | undefined;
+  let reloadRevision = 0;
   let reloadProject = async (): Promise<void> => undefined;
   let configReloadFailed = false;
   let shuttingDown = false;
@@ -667,9 +669,9 @@ export const serveDreverProject = async (
   const parentServer = createHttpServer((request, response) => {
     const dispatch = (): void => {
       if (response.destroyed || response.writableEnded) return;
-      const pendingRestart = restartBarrier;
-      if (pendingRestart !== undefined) {
-        void pendingRestart.then(dispatch);
+      const pendingReload = reloadBarrier;
+      if (pendingReload !== undefined) {
+        void pendingReload.then(dispatch);
         return;
       }
       if (server === undefined) {
@@ -714,16 +716,31 @@ export const serveDreverProject = async (
 
     const requestReload = (): void => {
       if (options.reloadProject === undefined || shuttingDown) return;
+      reloadRevision += 1;
+      const requestedRevision = reloadRevision;
+      if (reloadBarrier === undefined) {
+        reloadBarrier = new Promise<void>((resolve) => {
+          releaseReloadBarrier = resolve;
+        });
+      }
       if (reloadTimer !== undefined) clearTimeout(reloadTimer);
       reloadTimer = setTimeout(() => {
         reloadTimer = undefined;
-        reloadUpdates = reloadUpdates.then(reloadProject).catch((cause: unknown) => {
-          configReloadFailed = true;
-          server?.config.logger.error(
-            `Drever kept the current preview because configuration reload failed: ${cause instanceof Error ? cause.message : String(cause)}`,
-            { timestamp: true },
-          );
-        });
+        reloadUpdates = reloadUpdates
+          .then(reloadProject)
+          .catch((cause: unknown) => {
+            configReloadFailed = true;
+            server?.config.logger.error(
+              `Drever kept the current preview because configuration reload failed: ${cause instanceof Error ? cause.message : String(cause)}`,
+              { timestamp: true },
+            );
+          })
+          .finally(() => {
+            if (reloadRevision !== requestedRevision || reloadTimer !== undefined) return;
+            releaseReloadBarrier?.();
+            releaseReloadBarrier = undefined;
+            reloadBarrier = undefined;
+          });
       }, 80);
       reloadTimer.unref?.();
     };
@@ -783,6 +800,9 @@ export const serveDreverProject = async (
         if (restartScope.getStore() === true) return closeServer();
         shuttingDown = true;
         if (reloadTimer !== undefined) clearTimeout(reloadTimer);
+        releaseReloadBarrier?.();
+        releaseReloadBarrier = undefined;
+        reloadBarrier = undefined;
         closing ??= (async () => {
           try {
             await restartUpdate.catch(() => undefined);
@@ -829,10 +849,6 @@ export const serveDreverProject = async (
       );
       const previousInlineConfig = server.config.inlineConfig;
       let adopted = false;
-      let finishRestart: (() => void) | undefined;
-      restartBarrier = new Promise<void>((resolve) => {
-        finishRestart = resolve;
-      });
       try {
         restartUpdate = (async () => {
           if (shuttingDown) return;
@@ -854,8 +870,6 @@ export const serveDreverProject = async (
         })();
         await restartUpdate;
       } finally {
-        finishRestart?.();
-        restartBarrier = undefined;
         if (!adopted) await nextApp.dispose();
       }
     };
