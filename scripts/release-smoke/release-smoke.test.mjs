@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
+import { createHash } from "node:crypto";
 import { chmod, mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -17,6 +18,7 @@ import {
 } from "./build-isolation.mjs";
 import { resolveAnthropicProxyTarget } from "./anthropic-proxy.mjs";
 import {
+  assertReleaseSmokeSourceReceipt,
   assertReleaseSmokeCheck,
   assertReleaseSmokeBrief,
   assertReleaseSmokeContext,
@@ -25,6 +27,7 @@ import {
   collectReleaseSmokeSource,
   copyReleaseSmokeArtifactSeed,
   copyReleaseSmokeHandoff,
+  copyReleaseSmokeVisualEvidence,
   createClaudePrintArguments,
   createCodexExecArguments,
   mergeReleaseSmokeManifest,
@@ -32,6 +35,7 @@ import {
   parseCodexJsonl,
   redactStructuredPaths,
   readFirstExistingFile,
+  readReleaseSmokeVisualEvidence,
   RELEASE_SMOKE_ARTIFACT_SEED_PATHS,
   RELEASE_SMOKE_HANDOFF_PATHS,
   MAX_SLIDES,
@@ -39,6 +43,8 @@ import {
   RELEASE_SMOKE_MUTABLE_HANDOFF_PATHS,
   RELEASE_SMOKE_PRIVATE_PATHS,
   RELEASE_SMOKE_RUN_SCHEMA_VERSION,
+  RELEASE_SMOKE_VISUAL_EVIDENCE_PATH,
+  RELEASE_SMOKE_VISUAL_REVIEW_RECEIPT,
   releaseSmokeHandoffPaths,
   relativeMountedPathname,
   releaseSmokeDeckMount,
@@ -59,6 +65,7 @@ import {
 import {
   releaseSmokeAudienceStates,
   releaseSmokeStatePath,
+  releaseSmokeTextSafeAreaIssues,
   releaseSmokeTransitionIssues,
 } from "./browser-audit.mjs";
 import { immutableDirectUploadOrigin } from "./deploy-pages.mjs";
@@ -101,6 +108,62 @@ const write = async (root, path, content) => {
   await mkdir(dirname(destination), { recursive: true });
   await writeFile(destination, content, "utf8");
 };
+const testPng = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+  "base64",
+);
+const visualEvidenceEntry = (path) => ({
+  bytes: testPng.length,
+  path,
+  sha256: createHash("sha256").update(testPng).digest("hex"),
+});
+const writeVisualEvidenceFixture = async (root, sourceSha256 = "c".repeat(64)) => {
+  const settledPath = "settled-contact-sheet.png";
+  const transitionPath = "transition-contact-sheet.png";
+  const slides = Array.from({ length: 10 }, (_, index) => ({
+    ...visualEvidenceEntry(`states/slide-${String(index + 1).padStart(2, "0")}.png`),
+    slide: index + 1,
+    step: 0,
+  }));
+  const transitions = Array.from({ length: 9 }, (_, index) => ({
+    from: index === 0 ? "/release-smoke/test/" : `/release-smoke/test/${String(index + 1)}`,
+    sampledAtMilliseconds: 80,
+    to: `/release-smoke/test/${String(index + 2)}`,
+  }));
+  const manifest = {
+    schemaVersion: 1,
+    sourceSha256,
+    viewport: { height: 900, width: 1600 },
+    contactSheets: {
+      settled: visualEvidenceEntry(settledPath),
+      transitions: visualEvidenceEntry(transitionPath),
+    },
+    transitions,
+    slides,
+    attachments: [settledPath, transitionPath],
+    reviewImages: [settledPath, transitionPath, ...slides.map(({ path }) => path)],
+  };
+  await Promise.all(
+    [settledPath, transitionPath, ...slides.map(({ path }) => path)].map(async (path) => {
+      const destination = join(root, path);
+      await mkdir(dirname(destination), { recursive: true });
+      await writeFile(destination, testPng);
+    }),
+  );
+  await write(root, "manifest.json", `${JSON.stringify(manifest)}\n`);
+  return manifest;
+};
+const validationContractStub = `import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+export const readReleaseSmokeVisualEvidence = async (root, { required = false } = {}) => {
+  try {
+    return { manifest: JSON.parse(await readFile(join(root, "manifest.json"), "utf8")) };
+  } catch (error) {
+    if (!required && error?.code === "ENOENT") return undefined;
+    throw error;
+  }
+};
+`;
 const deckPlan = (status) =>
   `${JSON.stringify(
     {
@@ -361,6 +424,7 @@ test("publishes only Claude's final result and retains its session id and usage"
 test("keeps permission flags before resume and leaves model selection optional", () => {
   const initial = createCodexExecArguments({ turn: "Start" });
   const resumed = createCodexExecArguments({
+    images: ["/evidence/settled.png", "/evidence/transitions.png"],
     model: "model-test",
     threadId: "thread-1",
     turn: "Continue",
@@ -380,11 +444,49 @@ test("keeps permission flags before resume and leaves model selection optional",
   assert.equal(initial.includes('model_reasoning_effort="high"'), false);
   assert.equal(initial.includes("-m"), false);
   assert.ok(resumed.indexOf("--json") < resumed.indexOf("resume"));
-  assert.deepEqual(resumed.slice(-3), ["resume", "thread-1", "Continue"]);
+  assert.deepEqual(resumed.slice(-7), [
+    "resume",
+    "--image",
+    "/evidence/settled.png",
+    "--image",
+    "/evidence/transitions.png",
+    "thread-1",
+    "Continue",
+  ]);
   assert.deepEqual(resumed.slice(resumed.indexOf("-m"), resumed.indexOf("-m") + 2), [
     "-m",
     "model-test",
   ]);
+});
+
+test("copies only integrity-checked settled and transition visual evidence", async () => {
+  const root = await mkdtemp(join(tmpdir(), "drever-release-smoke-evidence-"));
+  temporaryRoots.push(root);
+  const source = join(root, "source");
+  const project = join(root, "project");
+  const manifest = await writeVisualEvidenceFixture(source);
+
+  const evidence = await readReleaseSmokeVisualEvidence(source, { required: true });
+  assert.deepEqual(evidence.manifest.attachments, [
+    "settled-contact-sheet.png",
+    "transition-contact-sheet.png",
+  ]);
+  assert.equal(evidence.manifest.transitions.length, 9);
+
+  const copied = await copyReleaseSmokeVisualEvidence(source, project);
+  assert.deepEqual(copied.manifest, manifest);
+  assert.equal(
+    (await readFile(join(project, RELEASE_SMOKE_VISUAL_EVIDENCE_PATH, "manifest.json"), "utf8"))
+      .trim()
+      .startsWith("{"),
+    true,
+  );
+
+  await writeFile(join(source, "settled-contact-sheet.png"), Buffer.concat([testPng, testPng]));
+  await assert.rejects(
+    readReleaseSmokeVisualEvidence(source, { required: true }),
+    /not a matching regular file/u,
+  );
 });
 
 test("keeps Claude headless, resumed, and limited to direct file-authoring tools", () => {
@@ -722,6 +824,57 @@ test("reports a large Step layout rebase without rejecting ordinary entrance mot
   ]);
 });
 
+test("rejects required text at a conservative canvas edge without flagging decoration", () => {
+  const base = {
+    issues: [],
+    slide: { id: "slide-1", index: 0, rect: { x: 0, y: 0, width: 1600, height: 900 } },
+  };
+  const frame = {
+    ...base,
+    textElements: [
+      {
+        decorative: false,
+        key: "div:0/h1:0",
+        label: "Required title",
+        rect: { x: 8, y: 120, width: 360, height: 80 },
+        tag: "h1",
+      },
+      {
+        decorative: false,
+        key: "div:0/p:1",
+        label: "Settled copy",
+        rect: { x: 24, y: 18, width: 360, height: 80 },
+        tag: "p",
+      },
+      {
+        decorative: true,
+        key: "div:0/p:2",
+        label: "Decorative folio",
+        rect: { x: 0, y: 0, width: 120, height: 30 },
+        tag: "p",
+      },
+    ],
+  };
+
+  assert.deepEqual(releaseSmokeTextSafeAreaIssues(frame), [
+    {
+      type: "text-safe-area",
+      clearance: {
+        "block-end": 700,
+        "block-start": 120,
+        "inline-end": 1232,
+        "inline-start": 8,
+      },
+      key: "div:0/h1:0",
+      label: "Required title",
+      rect: { x: 8, y: 120, width: 360, height: 80 },
+      sides: ["inline-start"],
+      tag: "h1",
+      threshold: { block: 18, inline: 24 },
+    },
+  ]);
+});
+
 test("keeps transient clipping evidence and refuses to compare different slides", () => {
   const clipping = {
     type: "clipped-visible-element",
@@ -773,6 +926,10 @@ test("copies only bounded authoring source and rejects remote assets", async () 
 
   const receipt = await collectReleaseSmokeSource(project, output);
 
+  assert.match(receipt.sha256, /^[0-9a-f]{64}$/u);
+  assert.doesNotThrow(() =>
+    assertReleaseSmokeSourceReceipt(receipt, receipt, "Release smoke test"),
+  );
   assert.deepEqual(receipt.files, [
     "Scene.tsx",
     "brief.md",
@@ -784,6 +941,17 @@ test("copies only bounded authoring source and rejects remote assets", async () 
   await assert.rejects(readFile(join(output, "AGENTS.md"), "utf8"), { code: "ENOENT" });
   await assert.rejects(readFile(join(output, "README.md"), "utf8"), { code: "ENOENT" });
   await assert.rejects(readFile(join(output, "package.json"), "utf8"), { code: "ENOENT" });
+
+  await write(project, "slides.mdx", "# A tampered deck\n");
+  const changedReceipt = await collectReleaseSmokeSource(
+    project,
+    join(root, "changed-artifact", "source"),
+  );
+  assert.throws(
+    () => assertReleaseSmokeSourceReceipt(receipt, changedReceipt, "Release smoke test"),
+    /does not match its allowlisted source files/u,
+  );
+  await write(project, "slides.mdx", "# A useful deck\n");
 
   await write(
     project,
@@ -1310,24 +1478,25 @@ test("waits for transient Pages TLS and deployment propagation", async () => {
   assert.deepEqual(delays, [1_000, 2_000]);
 });
 
-test("approves once, runs four AI journeys in parallel, and repairs only failed cases", async () => {
-  const workflow = await readFile(
-    new URL("../../.github/workflows/release-smoke.yml", import.meta.url),
-    "utf8",
-  );
+test("approves once, runs four AI journeys in parallel, and visually reviews every case", async () => {
+  const [workflow, buildCase, validateCase] = await Promise.all([
+    readFile(new URL("../../.github/workflows/release-smoke.yml", import.meta.url), "utf8"),
+    readFile(new URL("./build-case.mjs", import.meta.url), "utf8"),
+    readFile(new URL("./validate-case.mjs", import.meta.url), "utf8"),
+  ]);
   assert.doesNotMatch(
     workflow,
     /\$\{\{\s*runner\.temp\s*\}\}/u,
     "runner context is unavailable in job-level env declarations",
   );
   assert.match(workflow, /openai\/codex-action@52fe01ec70a42f454c9d2ebd47598f9fd6893d56/u);
-  assert.equal(workflow.match(/codex-version: \$\{\{ env\.CODEX_CLI_VERSION \}\}/gu)?.length, 2);
+  assert.equal(workflow.match(/codex-version: \$\{\{ env\.CODEX_CLI_VERSION \}\}/gu)?.length, 3);
   assert.equal(workflow.match(/environment: ai-release-smoke/gu)?.length, 1);
   assert.doesNotMatch(workflow, /workflow_call:/u);
   assert.match(workflow, /source_commit:\s+description:[^\n]+\s+required: true/u);
   assert.doesNotMatch(workflow, /inputs\.source_commit \|\| github\.sha/u);
-  assert.equal(workflow.match(/runs-on: ubuntu-24\.04/gu)?.length, 9);
-  assert.equal(workflow.match(/ref: \$\{\{ github\.sha \}\}/gu)?.length, 7);
+  assert.equal(workflow.match(/runs-on: ubuntu-24\.04/gu)?.length, 11);
+  assert.equal(workflow.match(/ref: \$\{\{ github\.sha \}\}/gu)?.length, 9);
   assert.doesNotMatch(workflow, /ref: main/u);
   assert.doesNotMatch(
     workflow,
@@ -1394,8 +1563,8 @@ test("approves once, runs four AI journeys in parallel, and repairs only failed 
   assert.match(generateJob, /if: matrix\.provider == 'codex'/u);
   assert.match(generateJob, /if: matrix\.provider == 'claude'/u);
   assert.doesNotMatch(generateJob, /\n    concurrency:/u);
-  assert.equal(workflow.match(/secrets\.OPENAI_API_KEY/gu)?.length, 2);
-  assert.equal(workflow.match(/secrets\.CLAUDE_API_KEY/gu)?.length, 2);
+  assert.equal(workflow.match(/secrets\.OPENAI_API_KEY/gu)?.length, 3);
+  assert.equal(workflow.match(/secrets\.CLAUDE_API_KEY/gu)?.length, 3);
   assert.doesNotMatch(workflow, /secrets\.ANTHROPIC_API_KEY/u);
   const codexCredentialStep = generateJob.slice(
     generateJob.indexOf("      - name: Start the protected Codex proxy"),
@@ -1424,7 +1593,7 @@ test("approves once, runs four AI journeys in parallel, and repairs only failed 
   );
   const repairJob = workflow.slice(
     workflow.indexOf("\n  repair:"),
-    workflow.indexOf("\n  final_build:"),
+    workflow.indexOf("\n  review_validate:"),
   );
   assert.match(repairJob, /needs:\s+- authorize\s+- resolve_agents\s+- validate/u);
   assert.doesNotMatch(repairJob, /environment:/u);
@@ -1434,27 +1603,48 @@ test("approves once, runs four AI journeys in parallel, and repairs only failed 
     repairJob.match(/node "\$AUTOMATION_ROOT\/scripts\/release-smoke\/run-session\.mjs"/gu)?.length,
     2,
   );
-  assert.match(
-    repairJob,
-    /if: steps\.validation\.outputs\.status == 'repairable-failure' && matrix\.provider == 'codex'/u,
-  );
-  assert.match(
-    repairJob,
-    /if: steps\.validation\.outputs\.status == 'repairable-failure' && matrix\.provider == 'claude'/u,
-  );
+  assert.doesNotMatch(repairJob, /steps\.validation\.outputs\.status|repairable-failure/u);
+  assert.match(repairJob, /if: matrix\.provider == 'codex'/u);
+  assert.match(repairJob, /if: matrix\.provider == 'claude'/u);
   assert.match(repairJob, /openai-api-key: \$\{\{ secrets\.OPENAI_API_KEY \}\}/u);
   assert.match(repairJob, /CLAUDE_API_KEY: \$\{\{ secrets\.CLAUDE_API_KEY \}\}/u);
+  const reviewValidateJob = workflow.slice(
+    workflow.indexOf("\n  review_validate:"),
+    workflow.indexOf("\n  visual_review:"),
+  );
+  assert.match(reviewValidateJob, /needs: repair/u);
+  assert.match(reviewValidateJob, /validate-case\.mjs/u);
+  assert.match(reviewValidateJob, /read-review-stage\.mjs/u);
+  assert.doesNotMatch(reviewValidateJob, /status" != "review-required"/u);
+  assert.doesNotMatch(reviewValidateJob, /OPENAI_API_KEY|CLAUDE_API_KEY|ANTHROPIC_API_KEY/u);
+  const visualReviewJob = workflow.slice(
+    workflow.indexOf("\n  visual_review:"),
+    workflow.indexOf("\n  final_build:"),
+  );
+  assert.match(
+    visualReviewJob,
+    /needs:\s+- authorize\s+- repair\s+- resolve_agents\s+- review_validate/u,
+  );
+  assert.match(visualReviewJob, /read-review-stage\.mjs/u);
+  assert.match(visualReviewJob, /steps\.stage\.outputs\.stage == 'required'/u);
+  assert.match(visualReviewJob, /steps\.stage\.outputs\.stage == 'complete'/u);
+  assert.match(visualReviewJob, /openai-api-key: \$\{\{ secrets\.OPENAI_API_KEY \}\}/u);
+  assert.match(visualReviewJob, /CLAUDE_API_KEY: \$\{\{ secrets\.CLAUDE_API_KEY \}\}/u);
   const finalBuildJob = workflow.slice(
     workflow.indexOf("\n  final_build:"),
     workflow.indexOf("\n  publish:"),
   );
-  assert.match(finalBuildJob, /needs: repair/u);
-  assert.match(finalBuildJob, /Reuse the already verified build/u);
-  assert.match(finalBuildJob, /Recheck and rebuild repaired source without a model secret/u);
+  assert.match(finalBuildJob, /needs: visual_review/u);
+  assert.doesNotMatch(finalBuildJob, /Reuse the already verified build/u);
+  assert.match(
+    finalBuildJob,
+    /Recheck and rebuild visually reviewed source without a model secret/u,
+  );
   assert.match(finalBuildJob, /build-case\.mjs/u);
+  assert.doesNotMatch(finalBuildJob, /RELEASE_SMOKE_CAPTURE_VISUAL_EVIDENCE/u);
   assert.doesNotMatch(finalBuildJob, /OPENAI_API_KEY|CLAUDE_API_KEY|ANTHROPIC_API_KEY/u);
   assert.match(workflow.slice(workflow.indexOf("\n  publish:")), /needs: final_build/u);
-  assert.equal(workflow.match(/overwrite: true/gu)?.length, 6);
+  assert.equal(workflow.match(/overwrite: true/gu)?.length, 9);
   assert.doesNotMatch(workflow, /run_attempt/u);
   assert.match(
     workflow,
@@ -1470,11 +1660,19 @@ test("approves once, runs four AI journeys in parallel, and repairs only failed 
   );
   assert.match(
     workflow,
+    /name: release-smoke-review-validation-\$\{\{ matrix\.provider \}\}-\$\{\{ matrix\.case \}\}-\$\{\{ github\.run_id \}\}/u,
+  );
+  assert.match(
+    workflow,
+    /name: release-smoke-reviewed-\$\{\{ matrix\.provider \}\}-\$\{\{ matrix\.case \}\}-\$\{\{ github\.run_id \}\}/u,
+  );
+  assert.match(
+    workflow,
     /name: release-smoke-built-\$\{\{ matrix\.provider \}\}-\$\{\{ matrix\.case \}\}-\$\{\{ github\.run_id \}\}/u,
   );
   assert.equal(
     workflow.match(/\n        provider:\n          - codex\n          - claude/gu)?.length,
-    5,
+    7,
   );
   assert.doesNotMatch(workflow, /checks: read/u);
   assert.equal(workflow.match(/contents: write/gu)?.length, 1);
@@ -1492,7 +1690,13 @@ test("approves once, runs four AI journeys in parallel, and repairs only failed 
   assert.match(workflow, /record-release-link\.mjs/u);
   assert.doesNotMatch(workflow, /git (?:add|commit|push|switch)|RESULT_BRANCH: automation-/u);
   assert.doesNotMatch(workflow, /pull-requests: write|gh pr (?:create|edit)/u);
-  assert.doesNotMatch(workflow, /screenshot|export pdf/iu);
+  assert.match(workflow, /capture visual evidence/iu);
+  assert.match(buildCase, /page\.screenshot\(\{ type: "png" \}\)/u);
+  assert.match(buildCase, /settled-contact-sheet\.png/u);
+  assert.match(buildCase, /transition-contact-sheet\.png/u);
+  assert.match(buildCase, /waitForTimeout\(80\)/u);
+  assert.match(validateCase, /RELEASE_SMOKE_CAPTURE_VISUAL_EVIDENCE:\s*"1"/u);
+  assert.doesNotMatch(workflow, /export pdf/iu);
 });
 
 test("runs the costly AI smoke only when the publishing policy opts in", async () => {
@@ -1638,10 +1842,12 @@ test("records bounded sanitized release-smoke validation output without hiding f
   const project = join(root, "generated");
   const output = join(root, "built");
   const sourceCommit = "a".repeat(40);
+  const sourceSha256 = "c".repeat(64);
   await Promise.all([
     readFile(new URL("./validate-case.mjs", import.meta.url), "utf8").then((source) =>
       writeFile(wrapper, source, "utf8"),
     ),
+    write(root, "contract.mjs", validationContractStub),
     write(
       root,
       "build-case.mjs",
@@ -1650,6 +1856,17 @@ process.stderr.write('drever-release-smoke-repairable:{"message":"authoring fail
 process.stderr.write("output: " + process.argv.at(-1) + "\\n");
 process.exitCode = 1;
 `,
+    ),
+    write(
+      project,
+      "generation.json",
+      `${JSON.stringify({
+        schemaVersion: 1,
+        version: "0.9.0",
+        provider: { id: "claude" },
+        scenarioId: "guided",
+        source: { sha256: sourceSha256 },
+      })}\n`,
     ),
   ]);
 
@@ -1705,6 +1922,7 @@ process.exitCode = 1;
       scenarioId: receipt.scenarioId,
       runId: receipt.runId,
       sourceCommit: receipt.sourceCommit,
+      sourceSha256: receipt.sourceSha256,
     },
     {
       version: "0.9.0",
@@ -1712,7 +1930,86 @@ process.exitCode = 1;
       scenarioId: "guided",
       runId: "123",
       sourceCommit,
+      sourceSha256,
     },
+  );
+});
+
+test("routes a mechanically passing deck through visual review with two contact sheets", async () => {
+  const root = await mkdtemp(join(tmpdir(), "drever-release-smoke-review-required-"));
+  temporaryRoots.push(root);
+  const wrapper = join(root, "validate-case.mjs");
+  const project = join(root, "generated");
+  const output = join(root, "built");
+  const sourceSha256 = "c".repeat(64);
+  const manifest = await writeVisualEvidenceFixture(join(output, "visual-evidence"), sourceSha256);
+  await Promise.all([
+    readFile(new URL("./validate-case.mjs", import.meta.url), "utf8").then((source) =>
+      writeFile(wrapper, source, "utf8"),
+    ),
+    write(root, "contract.mjs", validationContractStub),
+    write(
+      root,
+      "build-case.mjs",
+      `if (process.env.RELEASE_SMOKE_CAPTURE_VISUAL_EVIDENCE !== "1") process.exitCode = 2;\n`,
+    ),
+    write(
+      project,
+      "generation.json",
+      `${JSON.stringify({
+        schemaVersion: 1,
+        version: "0.9.0",
+        provider: { id: "codex" },
+        scenarioId: "guided",
+        source: { sha256: sourceSha256 },
+      })}\n`,
+    ),
+  ]);
+
+  const result = await execute(process.execPath, [
+    wrapper,
+    "0.9.0",
+    "codex",
+    "guided",
+    "123",
+    "a".repeat(40),
+    project,
+    output,
+  ]);
+  const receipt = JSON.parse(await readFile(join(output, "validation.json"), "utf8"));
+
+  assert.match(result.stdout, /Release smoke validation: review-required/u);
+  assert.equal(receipt.status, "review-required");
+  assert.equal(receipt.sourceSha256, sourceSha256);
+  assert.deepEqual(receipt.diagnostics, []);
+  assert.deepEqual(receipt.visualEvidence.attachments, manifest.attachments);
+  assert.deepEqual(receipt.visualEvidence.contactSheets, manifest.contactSheets);
+  assert.equal(receipt.visualEvidence.slides, 10);
+  assert.equal(receipt.visualEvidence.transitions, 9);
+
+  await write(
+    project,
+    "generation.json",
+    `${JSON.stringify({
+      schemaVersion: 1,
+      version: "0.9.0",
+      provider: { id: "codex" },
+      scenarioId: "guided",
+      source: { sha256: "f".repeat(64) },
+    })}\n`,
+  );
+  await assert.rejects(
+    execute(process.execPath, [
+      wrapper,
+      "0.9.0",
+      "codex",
+      "guided",
+      "123",
+      "a".repeat(40),
+      project,
+      output,
+    ]),
+    /visual evidence does not match the validated source/u,
   );
 });
 
@@ -1725,6 +2022,7 @@ test("hard-fails release-smoke validation misuse before invoking the build", asy
     readFile(new URL("./validate-case.mjs", import.meta.url), "utf8").then((source) =>
       writeFile(wrapper, source, "utf8"),
     ),
+    write(root, "contract.mjs", validationContractStub),
     write(
       root,
       "build-case.mjs",
@@ -1748,6 +2046,7 @@ test("does not spend a repair turn on an unclassified validation failure", async
     readFile(new URL("./validate-case.mjs", import.meta.url), "utf8").then((source) =>
       writeFile(wrapper, source, "utf8"),
     ),
+    write(root, "contract.mjs", validationContractStub),
     write(
       root,
       "build-case.mjs",
@@ -1779,6 +2078,7 @@ test("hard-fails release-smoke validation when the isolated build is terminated"
     readFile(new URL("./validate-case.mjs", import.meta.url), "utf8").then((source) =>
       writeFile(wrapper, source, "utf8"),
     ),
+    write(root, "contract.mjs", validationContractStub),
     write(root, "build-case.mjs", 'process.kill(process.pid, "SIGTERM");\n'),
   ]);
 
@@ -1797,7 +2097,7 @@ test("hard-fails release-smoke validation when the isolated build is terminated"
   );
 });
 
-test("accepts only passed or repairable release-smoke validation decisions", async () => {
+test("accepts only visual-review or repairable release-smoke validation decisions", async () => {
   const root = await mkdtemp(join(tmpdir(), "drever-release-smoke-validation-status-"));
   temporaryRoots.push(root);
   const script = new URL("./read-validation-status.mjs", import.meta.url);
@@ -1808,6 +2108,7 @@ test("accepts only passed or repairable release-smoke validation decisions", asy
     scenarioId: "guided",
     runId: "123",
     sourceCommit: "a".repeat(40),
+    sourceSha256: "c".repeat(64),
   };
   const arguments_ = [
     script.pathname,
@@ -1824,11 +2125,18 @@ test("accepts only passed or repairable release-smoke validation decisions", asy
     `${JSON.stringify({
       schemaVersion: 1,
       ...binding,
-      status: "passed",
+      status: "review-required",
       diagnostics: [],
+      visualEvidence: {
+        attachments: ["settled-contact-sheet.png", "transition-contact-sheet.png"],
+        contactSheets: {
+          settled: { sha256: "a".repeat(64) },
+          transitions: { sha256: "b".repeat(64) },
+        },
+      },
     })}\n`,
   );
-  assert.equal((await execute(process.execPath, arguments_)).stdout, "passed");
+  assert.equal((await execute(process.execPath, arguments_)).stdout, "review-required");
 
   await writeFile(
     validation,
@@ -1837,6 +2145,7 @@ test("accepts only passed or repairable release-smoke validation decisions", asy
       ...binding,
       status: "repairable-failure",
       diagnostics: [{ message: "Duplicate title." }],
+      visualEvidence: null,
     })}\n`,
   );
   assert.equal((await execute(process.execPath, arguments_)).stdout, "repairable-failure");
@@ -1846,8 +2155,15 @@ test("accepts only passed or repairable release-smoke validation decisions", asy
     `${JSON.stringify({
       schemaVersion: 1,
       ...binding,
-      status: "passed",
+      status: "review-required",
       diagnostics: [{ message: "Contradictory." }],
+      visualEvidence: {
+        attachments: ["settled-contact-sheet.png", "transition-contact-sheet.png"],
+        contactSheets: {
+          settled: { sha256: "a".repeat(64) },
+          transitions: { sha256: "b".repeat(64) },
+        },
+      },
     })}\n`,
   );
   await assert.rejects(execute(process.execPath, arguments_), /invalid status contract/u);
@@ -1858,11 +2174,154 @@ test("accepts only passed or repairable release-smoke validation decisions", asy
       schemaVersion: 1,
       ...binding,
       runId: "999",
-      status: "passed",
+      status: "review-required",
       diagnostics: [],
+      visualEvidence: {
+        attachments: ["settled-contact-sheet.png", "transition-contact-sheet.png"],
+        contactSheets: {
+          settled: { sha256: "a".repeat(64) },
+          transitions: { sha256: "b".repeat(64) },
+        },
+      },
     })}\n`,
   );
   await assert.rejects(execute(process.execPath, arguments_), /invalid status contract/u);
+});
+
+test("binds visual-review stages to rendered and output source digests", async () => {
+  const root = await mkdtemp(join(tmpdir(), "drever-release-smoke-review-stage-"));
+  temporaryRoots.push(root);
+  const script = new URL("./read-review-stage.mjs", import.meta.url);
+  const generationPath = join(root, "generation.json");
+  const validationPath = join(root, "validation.json");
+  const sourceSha256 = "c".repeat(64);
+  const binding = {
+    version: "0.9.0",
+    providerId: "codex",
+    scenarioId: "guided",
+    runId: "123",
+    sourceCommit: "a".repeat(40),
+  };
+  const visualEvidence = {
+    attachments: ["settled-contact-sheet.png", "transition-contact-sheet.png"],
+    contactSheets: {
+      settled: { sha256: "d".repeat(64) },
+      transitions: { sha256: "e".repeat(64) },
+    },
+  };
+  const runStage = () =>
+    execute(process.execPath, [
+      script.pathname,
+      generationPath,
+      validationPath,
+      binding.version,
+      binding.providerId,
+      binding.scenarioId,
+      binding.runId,
+      binding.sourceCommit,
+    ]);
+  const mechanicalGeneration = {
+    schemaVersion: 1,
+    version: binding.version,
+    provider: { id: binding.providerId },
+    scenarioId: binding.scenarioId,
+    source: { sha256: sourceSha256 },
+    repair: {
+      kind: "mechanical-repair",
+      inputSourceSha256: "b".repeat(64),
+      outputSourceSha256: sourceSha256,
+      visualEvidence: null,
+    },
+  };
+  const cleanValidation = {
+    schemaVersion: 1,
+    ...binding,
+    sourceSha256,
+    status: "review-required",
+    diagnostics: [],
+    visualEvidence,
+  };
+
+  await Promise.all([
+    writeFile(generationPath, `${JSON.stringify(mechanicalGeneration)}\n`),
+    writeFile(validationPath, `${JSON.stringify(cleanValidation)}\n`),
+  ]);
+  assert.equal((await runStage()).stdout, "required");
+
+  await writeFile(
+    validationPath,
+    `${JSON.stringify({
+      ...cleanValidation,
+      status: "repairable-failure",
+      diagnostics: [{ message: "Text crosses the safe area." }],
+    })}\n`,
+  );
+  assert.equal((await runStage()).stdout, "required");
+
+  await writeFile(
+    validationPath,
+    `${JSON.stringify({ ...cleanValidation, visualEvidence: null })}\n`,
+  );
+  await assert.rejects(runStage(), /invalid binding or validation receipt/u);
+
+  const visualGeneration = {
+    ...mechanicalGeneration,
+    visualReview: {
+      kind: "visual-review",
+      evidenceSourceSha256: sourceSha256,
+      outputSourceSha256: sourceSha256,
+      visualEvidence: {
+        attachments: 2,
+        settledContactSheetSha256: "d".repeat(64),
+        transitionContactSheetSha256: "e".repeat(64),
+      },
+    },
+  };
+  await Promise.all([
+    writeFile(generationPath, `${JSON.stringify(visualGeneration)}\n`),
+    writeFile(validationPath, `${JSON.stringify(cleanValidation)}\n`),
+  ]);
+  assert.equal((await runStage()).stdout, "complete");
+
+  await writeFile(
+    validationPath,
+    `${JSON.stringify({
+      ...cleanValidation,
+      sourceSha256: "f".repeat(64),
+    })}\n`,
+  );
+  await assert.rejects(runStage(), /invalid binding or validation receipt/u);
+
+  await Promise.all([
+    writeFile(
+      generationPath,
+      `${JSON.stringify({
+        ...visualGeneration,
+        visualReview: {
+          ...visualGeneration.visualReview,
+          visualEvidence: {
+            ...visualGeneration.visualReview.visualEvidence,
+            settledContactSheetSha256: undefined,
+          },
+        },
+      })}\n`,
+    ),
+    writeFile(validationPath, `${JSON.stringify(cleanValidation)}\n`),
+  ]);
+  await assert.rejects(runStage(), /invalid refinement history/u);
+
+  await Promise.all([
+    writeFile(generationPath, `${JSON.stringify(visualGeneration)}\n`),
+    writeFile(
+      validationPath,
+      `${JSON.stringify({
+        ...cleanValidation,
+        status: "repairable-failure",
+        diagnostics: [{ message: "Still broken." }],
+      })}\n`,
+    ),
+  ]);
+  await assert.rejects(runStage(), /invalid refinement history/u);
 });
 
 test("rebuilds the secret-runner handoff from an exact regular-file allowlist", async () => {
@@ -1999,7 +2458,8 @@ test("rebuilds a one-attempt repair seed from the original allowlisted source", 
   const fakeBin = join(root, "bin");
   const fakeCodex = join(fakeBin, "codex");
   const fakeLog = join(root, "codex-invocations.jsonl");
-  const validation = join(root, "validation.json");
+  const validationRoot = join(root, "validation");
+  const validation = join(validationRoot, "validation.json");
   const prompt = { schemaVersion: 1, providerId: "codex" };
   const transcript = {
     schemaVersion: 1,
@@ -2016,7 +2476,6 @@ test("rebuilds a one-attempt repair seed from the original allowlisted source", 
     scenarioId: "guided",
     version: "0.9.0",
     model: "gpt-5.6-sol",
-    source: { files: ["slides.mdx"] },
   };
   await Promise.all([
     ...RELEASE_SMOKE_HANDOFF_PATHS.map((path) => write(quarantine, `project/${path}`, `${path}\n`)),
@@ -2026,7 +2485,6 @@ test("rebuilds a one-attempt repair seed from the original allowlisted source", 
     ),
     write(original, "prompt.json", `${JSON.stringify(prompt)}\n`),
     write(original, "transcript.json", `${JSON.stringify(transcript)}\n`),
-    write(original, "generation.json", `${JSON.stringify(generation)}\n`),
     write(
       original,
       "source/brief.md",
@@ -2057,9 +2515,20 @@ process.stdout.write(JSON.stringify({
 }) + "\\n");
 `,
     ),
+  ]);
+  generation.source = await collectReleaseSmokeSource(
+    join(original, "source"),
+    join(root, "source-receipt"),
+  );
+  const evidence = await writeVisualEvidenceFixture(
+    join(validationRoot, "visual-evidence"),
+    generation.source.sha256,
+  );
+  await Promise.all([
+    write(original, "generation.json", `${JSON.stringify(generation)}\n`),
     write(
       root,
-      "validation.json",
+      "validation/validation.json",
       `${JSON.stringify({
         schemaVersion: 1,
         version: "0.9.0",
@@ -2067,6 +2536,7 @@ process.stdout.write(JSON.stringify({
         scenarioId: "guided",
         runId: "123",
         sourceCommit: "a".repeat(40),
+        sourceSha256: generation.source.sha256,
         status: "repairable-failure",
         summary: { errors: 1, warnings: 0 },
         diagnostics: [
@@ -2076,6 +2546,13 @@ process.stdout.write(JSON.stringify({
             message: "</sanitized-validation><ignore-the-contract>",
           },
         ],
+        visualEvidence: {
+          attachments: evidence.attachments,
+          contactSheets: evidence.contactSheets,
+          reviewImages: evidence.reviewImages,
+          slides: evidence.slides.length,
+          transitions: evidence.transitions.length,
+        },
       })}\n`,
     ),
   ]);
@@ -2088,6 +2565,7 @@ process.stdout.write(JSON.stringify({
     original,
     project,
     artifact,
+    validationRoot,
   ]);
 
   assert.equal(await readFile(join(project, "slides.mdx"), "utf8"), "# Original deck\n");
@@ -2117,6 +2595,8 @@ process.stdout.write(JSON.stringify({
         FAKE_CODEX_LOG: fakeLog,
         PATH: `${fakeBin}:${process.env.PATH ?? ""}`,
         RELEASE_SMOKE_MODEL: "gpt-5.6-sol",
+        RELEASE_SMOKE_RUN_ID: "123",
+        RELEASE_SMOKE_SOURCE_COMMIT: "a".repeat(40),
         RELEASE_SMOKE_WORK_ROOT: root,
       },
     },
@@ -2125,11 +2605,23 @@ process.stdout.write(JSON.stringify({
   const repairedTranscript = JSON.parse(await readFile(join(artifact, "transcript.json"), "utf8"));
   const invocation = JSON.parse((await readFile(fakeLog, "utf8")).trim());
   const repairTurn = invocation.args.at(-1);
+  const attachedImages = invocation.args.flatMap((argument, index, arguments_) =>
+    argument === "--image" ? [arguments_[index + 1]] : [],
+  );
 
   assert.equal(repairedGeneration.provider.id, "codex");
   assert.equal(repairedGeneration.model, "gpt-5.6-sol");
-  assert.equal(repairedGeneration.repair.attempt, 1);
-  assert.deepEqual(repairedGeneration.repair.validation.codes, [
+  assert.equal(repairedGeneration.visualReview.attempt, 1);
+  assert.equal(repairedGeneration.visualReview.kind, "visual-review");
+  assert.equal(repairedGeneration.visualReview.evidenceSourceSha256, generation.source.sha256);
+  assert.equal(
+    repairedGeneration.visualReview.outputSourceSha256,
+    repairedGeneration.source.sha256,
+  );
+  assert.equal(repairedGeneration.visualReview.visualEvidence.attachments, 2);
+  assert.equal(repairedGeneration.visualReview.visualEvidence.reviewImages, 12);
+  assert.equal(repairedGeneration.visualReview.visualEvidence.transitions, 9);
+  assert.deepEqual(repairedGeneration.visualReview.validation.codes, [
     "DREVER_A11Y_SLIDE_TITLE_DUPLICATE",
   ]);
   assert.deepEqual(repairedTranscript.messages.slice(0, 1), transcript.messages);
@@ -2149,6 +2641,12 @@ process.stdout.write(JSON.stringify({
     /authoring artifacts\s+brief\.md and drever\.plan\.json, when present, are editable/iu,
   );
   assert.match(repairTurn, /do not edit the project\s+instructions or release-smoke harness/iu);
+  assert.match(repairTurn, /both labeled contact\s+sheets/iu);
+  assert.match(repairTurn, /whole-canvas backgrounds that move/iu);
+  assert.deepEqual(attachedImages, [
+    join(project, RELEASE_SMOKE_VISUAL_EVIDENCE_PATH, "settled-contact-sheet.png"),
+    join(project, RELEASE_SMOKE_VISUAL_EVIDENCE_PATH, "transition-contact-sheet.png"),
+  ]);
 
   await writeFile(
     join(original, "generation.json"),
@@ -2162,6 +2660,7 @@ process.stdout.write(JSON.stringify({
       original,
       join(root, "second-project"),
       join(root, "second-artifact"),
+      validationRoot,
     ]),
     /does not describe one original generation/u,
   );
@@ -2223,16 +2722,85 @@ test("browser smoke uses the final deep deck mount for every live surface", asyn
   const source = await readFile(new URL("./build-case.mjs", import.meta.url), "utf8");
   const auditSource = await readFile(new URL("./browser-audit.mjs", import.meta.url), "utf8");
   assert.match(source, /releaseSmokeDeckMount\(runId, caseId\)/u);
-  assert.match(source, /runBrowserSmoke\(websitePath, context, deckMount\)/u);
+  assert.match(source, /runBrowserSmoke\(\s*websitePath,\s*context,\s*deckMount,/u);
   assert.match(source, /chromium\.launch\(\{ channel: "chromium", headless: true \}\)/u);
   assert.match(source, /url\.origin === server\.origin/u);
   assert.match(source, /const documentPath = `\$\{mountPath\}\/document\/`/u);
   assert.match(source, /const speakerPath = `\$\{mountPath\}\/speaker\/`/u);
   assert.match(source, /releaseSmokeAudienceStates\(context\.deck\.slides\)/u);
+  assert.match(source, /releaseSmokeTextSafeAreaIssues\(settledFrame\)/u);
   assert.match(source, /window\.location\.pathname === expectedPath/u);
   assert.match(
     auditSource,
     /\.flatMap\(\(step\) => \[step, \.\.\.step\.querySelectorAll\("\*"\)\]\)[\s\S]*?instanceof HTMLElement/u,
+  );
+});
+
+test("rejects a final candidate whose source bytes do not match its review receipt", async () => {
+  const root = await mkdtemp(join(tmpdir(), "drever-release-smoke-final-source-"));
+  temporaryRoots.push(root);
+  const generated = join(root, "generated");
+  const sourceRoot = join(generated, "source");
+  const output = join(root, "output");
+  await Promise.all([
+    write(
+      sourceRoot,
+      "brief.md",
+      "# Brief\n\n**Status:** Approved\n\n- **Visible slide density:** Concise\n\n## Slide outline\n\n1. Opening — establish the question.\n",
+    ),
+    write(sourceRoot, "drever.plan.json", deckPlan("approved")),
+    write(sourceRoot, "slides.mdx", "# Original deck\n"),
+  ]);
+  const source = await collectReleaseSmokeSource(sourceRoot, join(root, "receipt-source"));
+  const generation = {
+    schemaVersion: 1,
+    version: "0.9.0",
+    provider: { id: "codex" },
+    scenarioId: "guided",
+    model: "gpt-5.6-sol",
+    executionBoundary: {
+      credential: "protected-provider-proxy",
+      publication: "allowlisted-source-only",
+      shell: "tool-surface-deny-configured",
+    },
+    source,
+    visualReview: {
+      kind: "visual-review",
+      evidenceSourceSha256: "b".repeat(64),
+      outputSourceSha256: source.sha256,
+      visualEvidence: {
+        attachments: 2,
+        settledContactSheetSha256: "c".repeat(64),
+        transitionContactSheetSha256: "d".repeat(64),
+      },
+    },
+  };
+  await Promise.all([
+    write(generated, "generation.json", `${JSON.stringify(generation)}\n`),
+    write(
+      generated,
+      "transcript.json",
+      `${JSON.stringify({
+        schemaVersion: 1,
+        providerId: "codex",
+        scenarioId: "guided",
+      })}\n`,
+    ),
+    write(sourceRoot, "slides.mdx", "# Tampered after review\n"),
+  ]);
+
+  await assert.rejects(
+    execute(process.execPath, [
+      new URL("./build-case.mjs", import.meta.url).pathname,
+      "0.9.0",
+      "codex",
+      "guided",
+      "123",
+      "a".repeat(40),
+      generated,
+      output,
+    ]),
+    /source receipt does not match its allowlisted source files/u,
   );
 });
 
@@ -2244,11 +2812,18 @@ test("publisher assembles route data and directly previewable deck directories",
   const body = join(root, "pr.md");
   const releaseCommit = "a".repeat(40);
   const harnessCommit = "b".repeat(40);
+  const visualReview = {
+    evidenceSourceSha256: "c".repeat(64),
+    outputSourceSha256: "d".repeat(64),
+    settledContactSheetSha256: "e".repeat(64),
+    transitionContactSheetSha256: "f".repeat(64),
+  };
   const baseCase = {
     schemaVersion: RELEASE_SMOKE_RUN_SCHEMA_VERSION,
     status: "passed",
     durationSeconds: 12,
-    checks: ["Drever check passed"],
+    checks: ["Drever check passed", RELEASE_SMOKE_VISUAL_REVIEW_RECEIPT],
+    visualReview,
     messages: [
       { role: "user", content: "Create a deck." },
       { role: "assistant", content: "Created it." },
@@ -2269,6 +2844,27 @@ test("publisher assembles route data and directly previewable deck directories",
           `<!doctype html><html><head></head><body><h1>${provider.label} · ${scenario.label}</h1></body></html>\n`,
         ),
         write(caseRoot, "source/slides.mdx", `# ${provider.label} · ${scenario.label}\n`),
+        write(
+          caseRoot,
+          "generation.json",
+          JSON.stringify({
+            schemaVersion: 1,
+            version: "0.1.1",
+            provider: { id: provider.id },
+            scenarioId: scenario.id,
+            source: { sha256: visualReview.outputSourceSha256 },
+            visualReview: {
+              kind: "visual-review",
+              evidenceSourceSha256: visualReview.evidenceSourceSha256,
+              outputSourceSha256: visualReview.outputSourceSha256,
+              visualEvidence: {
+                attachments: 2,
+                settledContactSheetSha256: visualReview.settledContactSheetSha256,
+                transitionContactSheetSha256: visualReview.transitionContactSheetSha256,
+              },
+            },
+          }),
+        ),
         write(
           caseRoot,
           "case.json",
@@ -2347,6 +2943,10 @@ test("publisher assembles route data and directly previewable deck directories",
     ],
   );
   assert.equal(run.kind, "preview");
+  assert.match(
+    run.cases[0].checks.join("\n"),
+    /pre-refinement source was supplied to the provider/u,
+  );
   assert.equal(run.release.commit, releaseCommit);
   assert.equal(run.harness.commit, harnessCommit);
   assert.equal(
@@ -2374,6 +2974,7 @@ test("publisher assembles route data and directly previewable deck directories",
   assert.ok(prBody.includes(`release commit \`${releaseCommit}\``));
   assert.match(prBody, /separate local\s+validation process/u);
   assert.match(prBody, /https:\/\/run-123\.drever-release-smoke\.pages\.dev/u);
+  assert.match(prBody, /contact sheets[\s\S]+not copied\s+to Pages or the public report/iu);
   assert.match(prBody, /No generated smoke evidence is committed/u);
   assert.match(prBody, /Immutable harness source/u);
   assert.equal(prBody.includes(String.fromCodePoint(0x1b)), false);
@@ -2446,4 +3047,33 @@ test("publisher assembles route data and directly previewable deck directories",
   assert.equal(releaseRun.kind, "release");
   assert.match(releasePrBody, /AI release smoke/u);
   assert.doesNotMatch(releasePrBody, /owner-authorized pull request proof/u);
+
+  const invalidCasePath = join(results, "codex-guided", "case.json");
+  const invalidCase = JSON.parse(await readFile(invalidCasePath, "utf8"));
+  await writeFile(
+    invalidCasePath,
+    JSON.stringify({
+      ...invalidCase,
+      visualReview: {
+        ...invalidCase.visualReview,
+        outputSourceSha256: "0".repeat(64),
+      },
+    }),
+  );
+  await assert.rejects(
+    execute(process.execPath, [
+      script.pathname,
+      "0.1.1",
+      "123",
+      releaseCommit,
+      "Zhangdroid/drever",
+      results,
+      website,
+      "run-123",
+      "preview",
+      harnessCommit,
+      join(root, "invalid-pr.md"),
+    ]),
+    /Built result does not match release smoke case/u,
+  );
 });

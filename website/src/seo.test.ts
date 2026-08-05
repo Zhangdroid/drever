@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vite-plus/test";
 
-import { canonicalSiteURL, publicPresentationMounts, siteRoutes } from "../site-manifest";
+import { canonicalSiteURL, publicPresentationMounts, publicSiteRoutes } from "../site-manifest";
 import { pageHead } from "./seo";
 
 const sitemap = await readFile(new URL("../public/sitemap.xml", import.meta.url), "utf8");
@@ -33,7 +33,7 @@ describe("website metadata", () => {
   it("keeps the sitemap aligned with every public route", () => {
     const actualLocations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/gu)].map((match) => match[1]);
     const expectedLocations = [
-      ...siteRoutes.map(canonicalSiteURL),
+      ...publicSiteRoutes.map(canonicalSiteURL),
       ...publicPresentationMounts.map(({ slug }) => canonicalSiteURL(`/showcase/${slug}`)),
     ];
 

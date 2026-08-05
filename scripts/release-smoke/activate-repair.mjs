@@ -1,10 +1,12 @@
 import { lstat, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve, sep } from "node:path";
 import {
+  assertReleaseSmokeSourceReceipt,
   collectReleaseSmokeSource,
   copyReleaseSmokeArtifactSeed,
   copyReleaseSmokeHandoff,
   copyReleaseSmokeSource,
+  copyReleaseSmokeVisualEvidence,
   json,
 } from "./contract.mjs";
 import { getReleaseSmokeProvider } from "./providers.mjs";
@@ -15,16 +17,18 @@ const [
   originalGeneratedArgument,
   projectArgument,
   artifactArgument,
+  validationArgument,
 ] = process.argv.slice(2);
 if (
   providerId === undefined ||
   quarantineArgument === undefined ||
   originalGeneratedArgument === undefined ||
   projectArgument === undefined ||
-  artifactArgument === undefined
+  artifactArgument === undefined ||
+  validationArgument === undefined
 ) {
   throw new Error(
-    "Usage: node scripts/release-smoke/activate-repair.mjs <provider> <prepared-quarantine> <original-generated> <project> <artifact>",
+    "Usage: node scripts/release-smoke/activate-repair.mjs <provider> <prepared-quarantine> <original-generated> <project> <artifact> <validation>",
   );
 }
 
@@ -33,11 +37,12 @@ const quarantineRoot = resolve(quarantineArgument);
 const originalGeneratedRoot = resolve(originalGeneratedArgument);
 const projectRoot = resolve(projectArgument);
 const artifactRoot = resolve(artifactArgument);
+const validationRoot = resolve(validationArgument);
 const validatedSourceRoot = resolve(
   dirname(projectRoot),
   `.validated-repair-source-${provider.id}`,
 );
-const roots = [quarantineRoot, originalGeneratedRoot, projectRoot, artifactRoot];
+const roots = [quarantineRoot, originalGeneratedRoot, projectRoot, artifactRoot, validationRoot];
 for (const [index, root] of roots.entries()) {
   if (
     roots.some(
@@ -80,7 +85,8 @@ if (
   generation.version === "" ||
   typeof generation.model !== "string" ||
   generation.model === "" ||
-  generation.repair !== undefined
+  generation.visualReview !== undefined ||
+  (generation.repair !== undefined && generation.repair?.kind !== "mechanical-repair")
 ) {
   throw new Error("Release smoke repair metadata does not describe one original generation.");
 }
@@ -94,7 +100,16 @@ try {
     copyReleaseSmokeArtifactSeed(join(quarantineRoot, "artifact"), artifactRoot),
     rm(validatedSourceRoot, { force: true, recursive: true }),
   ]);
-  await collectReleaseSmokeSource(join(originalGeneratedRoot, "source"), validatedSourceRoot);
+  await copyReleaseSmokeVisualEvidence(join(validationRoot, "visual-evidence"), projectRoot);
+  const collectedSource = await collectReleaseSmokeSource(
+    join(originalGeneratedRoot, "source"),
+    validatedSourceRoot,
+  );
+  assertReleaseSmokeSourceReceipt(
+    generation.source,
+    collectedSource,
+    "Release smoke refinement seed",
+  );
   await copyReleaseSmokeSource(validatedSourceRoot, projectRoot);
   await Promise.all([
     writeFile(join(artifactRoot, "prompt.json"), json(prompt), "utf8"),

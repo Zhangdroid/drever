@@ -3,10 +3,10 @@ import type { CanvasDefinition } from "./extension.ts";
 
 export const DECK_PREFLIGHT_VERSION = 2 as const;
 export const RENDERED_PREFLIGHT_VERSION = 1 as const;
-export const RENDERED_PREFLIGHT_RULESET_VERSION = 2 as const;
+export const RENDERED_PREFLIGHT_RULESET_VERSION = 3 as const;
 
 /** Every rendered ruleset accepted by the current receipt wire format. */
-export type RenderedPreflightRulesetVersion = 1 | typeof RENDERED_PREFLIGHT_RULESET_VERSION;
+export type RenderedPreflightRulesetVersion = 1 | 2 | typeof RENDERED_PREFLIGHT_RULESET_VERSION;
 
 export type DeckPreflightSummary = Readonly<{
   errors: number;

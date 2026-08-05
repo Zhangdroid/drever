@@ -23,13 +23,9 @@ export const documentationRoutes = [
   "/docs/credits",
 ] as const;
 
-export const siteRoutes = [
-  "/",
-  "/changelog",
-  ...documentationRoutes,
-  "/showcase",
-  "/release-smoke",
-] as const;
+export const publicSiteRoutes = ["/", "/changelog", ...documentationRoutes, "/showcase"] as const;
+
+export const siteRoutes = [...publicSiteRoutes, "/release-smoke"] as const;
 
 export const demoMounts = [
   {

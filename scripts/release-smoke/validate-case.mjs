@@ -1,7 +1,8 @@
 import { spawn } from "node:child_process";
-import { mkdir, writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { lstat, mkdir, readFile, writeFile } from "node:fs/promises";
+import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readReleaseSmokeVisualEvidence } from "./contract.mjs";
 
 const MAX_CAPTURE_BYTES = 12 * 1024;
 const MAX_DIAGNOSTIC_BYTES = 8 * 1024;
@@ -93,7 +94,10 @@ const runBuildCase = () =>
         projectRoot,
         outputRoot,
       ],
-      { stdio: ["ignore", "pipe", "pipe"] },
+      {
+        env: { ...process.env, RELEASE_SMOKE_CAPTURE_VISUAL_EVIDENCE: "1" },
+        stdio: ["ignore", "pipe", "pipe"],
+      },
     );
     child.stdout.on("data", (chunk) => stdout.append(chunk));
     child.stderr.on("data", (chunk) => stderr.append(chunk));
@@ -110,6 +114,25 @@ const sanitize = (value) => {
     .replaceAll(repairableFailurePattern, "");
   for (const pattern of secretPatterns) sanitized = sanitized.replaceAll(pattern, "[redacted]");
   return sanitized;
+};
+
+const readGenerationSourceSha256 = async () => {
+  const path = join(projectRoot, "generation.json");
+  const metadata = await lstat(path);
+  if (!metadata.isFile() || metadata.size === 0 || metadata.size > 1_000_000) {
+    throw new Error("Release smoke generation metadata is invalid.");
+  }
+  const generation = JSON.parse(await readFile(path, "utf8"));
+  if (
+    generation?.schemaVersion !== 1 ||
+    generation.version !== version ||
+    generation.provider?.id !== providerId ||
+    generation.scenarioId !== scenarioId ||
+    !/^[0-9a-f]{64}$/u.test(generation.source?.sha256 ?? "")
+  ) {
+    throw new Error("Release smoke generation source receipt is invalid.");
+  }
+  return generation.source.sha256;
 };
 
 const boundedDiagnostic = (stdout, stderr) => {
@@ -143,6 +166,14 @@ if (!passed && !repairable) {
   if (stderr !== "") process.stderr.write(`${stderr}\n`);
   process.exitCode = result.exitCode;
 } else {
+  const sourceSha256 = await readGenerationSourceSha256();
+  const visualEvidence = await readReleaseSmokeVisualEvidence(
+    resolve(outputRoot, "visual-evidence"),
+    { required: passed },
+  );
+  if (visualEvidence !== undefined && visualEvidence.manifest.sourceSha256 !== sourceSha256) {
+    throw new Error("Release smoke visual evidence does not match the validated source.");
+  }
   const receipt = {
     schemaVersion: 1,
     version,
@@ -150,7 +181,8 @@ if (!passed && !repairable) {
     scenarioId,
     runId,
     sourceCommit,
-    status: passed ? "passed" : "repairable-failure",
+    sourceSha256,
+    status: passed ? "review-required" : "repairable-failure",
     exitCode: result.exitCode,
     signal: result.signal,
     summary: {
@@ -166,6 +198,16 @@ if (!passed && !repairable) {
             message: boundedDiagnostic(stdout, stderr),
           },
         ],
+    visualEvidence:
+      visualEvidence === undefined
+        ? null
+        : {
+            attachments: visualEvidence.manifest.attachments,
+            contactSheets: visualEvidence.manifest.contactSheets,
+            reviewImages: visualEvidence.manifest.reviewImages,
+            slides: visualEvidence.manifest.slides.length,
+            transitions: visualEvidence.manifest.transitions.length,
+          },
     stdout,
     stderr,
   };

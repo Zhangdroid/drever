@@ -208,6 +208,14 @@ test("rendered check catches high-confidence visual failures without writing a p
   <span style={{ position: "relative", zIndex: 2 }}>The first line has a solid background.<br />The second line crosses painted content.</span>
   <div aria-hidden="true" style={{ position: "absolute", zIndex: 1, inset: "44px 0 auto 0", height: 32, backgroundColor: "#111111" }} />
 </div>
+
+---
+
+# Required copy needs breathing room
+
+<p style={{ position: "absolute", inset: "300px auto auto 0", margin: 0 }}>This readable line hugs the canvas edge.</p>
+
+<p data-drever-visual-role="decoration" style={{ position: "absolute", inset: "520px 0 auto auto", margin: 0 }}>Decorative edge label</p>
 `,
     );
 
@@ -229,8 +237,8 @@ test("rendered check catches high-confidence visual failures without writing a p
       expect.objectContaining({
         browserVersion: expect.any(String),
         engine: "chromium",
-        rulesetVersion: 2,
-        stateCount: 4,
+        rulesetVersion: 3,
+        stateCount: 5,
         status: "failed",
         version: 1,
       }),
@@ -246,6 +254,7 @@ test("rendered check catches high-confidence visual failures without writing a p
     expect(diagnosticsByCode.get("DREVER_RENDER_CONTENT_OVERLAP")).toHaveLength(1);
     expect(diagnosticsByCode.get("DREVER_RENDER_TEXT_CONTRAST_LOW")).toHaveLength(2);
     expect(diagnosticsByCode.get("DREVER_RENDER_TEXT_CONTRAST_INDETERMINATE")).toBeDefined();
+    expect(diagnosticsByCode.get("DREVER_RENDER_TEXT_SAFE_AREA")).toHaveLength(1);
     expect(
       diagnosticsByCode
         .get("DREVER_RENDER_TEXT_CONTRAST_INDETERMINATE")

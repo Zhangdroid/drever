@@ -164,8 +164,11 @@ After it passes, all four provider-and-briefing journeys generate independently
 in parallel; neither Claude case opens another approval. Each Claude journey
 has a 35-minute scenario deadline, allows an individual turn up to 20 minutes,
 and carries its own cumulative $15 CLI budget plus agent-turn and proxy request
-limits. A failed validation may spend at most one additional repair turn with a
-$3 Claude cap. Cost is further controlled by running this expensive evidence
+limits. Every renderable candidate receives at most one bounded visual-review
+turn, with a $3 Claude cap, before final keyless validation. A candidate that
+fails before visual evidence can be captured may first spend one separate $3
+mechanical-repair turn, followed by keyless revalidation and the single visual
+review. Cost is further controlled by running this expensive evidence
 once for stable releases by default.
 The Codex half may qualify for OpenAI's complimentary
 shared-traffic allowance only when project data sharing is enabled, the
@@ -219,22 +222,40 @@ no-network container, and loads the audience, document, and speaker routes in
 Chromium. The browser audit traverses every exact audience slide and Step route,
 checks the active state identity, samples each adjacent transition and settled
 frame, and rejects material clipping or a large Step layout rebase before the
-result can be published. The guided journey must also produce speaker notes.
+result can be published. It also captures a deterministic 1600 × 900 final
+state for every slide and an 80 ms sample of every adjacent slide or Step edge.
+Those frames become two labeled contact sheets: one for settled composition and
+one for transition continuity. The guided journey must also produce speaker
+notes.
 
-When this validation reports an authored or rendered defect, the workflow
-returns its bounded, sanitized diagnostics to the same provider for exactly one
-narrow repair turn. That turn can read and edit only the allowlisted source,
-cannot run commands or network tools, and is explicitly forbidden from
-weakening or bypassing a check. Cases that already passed make no second model
-call and reuse their verified build. A second keyless build validates repaired
-source; any remaining failure stops publication rather than starting another
-repair loop. Unclassified runner, container, browser-infrastructure, artifact,
-or provenance failures stop immediately and never spend a repair call. The
-original conversation remains intact, with the repair turn and validation
-summary appended to its public provenance.
+When validation fails before producing complete screenshots, the workflow may
+first return only the bounded sanitized diagnostics and allowlisted source for
+one narrow mechanical repair. It then revalidates without a model secret and
+must produce both contact sheets before continuing. A remaining rendered
+geometry diagnostic is allowed through with that evidence so the visual review
+can fix it; an unrenderable candidate stops.
+
+The workflow returns the two contact sheets, any remaining bounded diagnostics,
+and the allowlisted source to the same provider for exactly one visual-review
+turn. Codex receives only the two sheets as image attachments; Claude is
+instructed to read both from the immutable review context. Full-size final-slide
+images remain available for targeted zoom. The turn cannot run commands or
+network tools and is explicitly forbidden from weakening or bypassing a check.
+The refinement receipt records the pre-refinement evidence source digest, the exact contact-sheet
+hashes, and the resulting output source digest separately. This proves which
+source produced the supplied evidence without claiming that the provider saw
+the final pixels. A final keyless build recomputes and validates the resulting
+source; any remaining failure stops
+publication rather than starting another review loop. Unclassified runner,
+container, browser-infrastructure, artifact, or provenance failures stop
+immediately. The original conversation remains intact, with each bounded
+refinement and validation summary appended to its public provenance.
 
 Successful runs retain both sanitized conversations, source allowlists, build
-receipts, and real interactive static decks—never screenshots. A final job
+receipts, and real interactive static decks. Screenshots and PDFs are not
+published. The bounded contact sheets and final-state PNGs exist only as
+temporary internal evidence in 30-day workflow artifacts; they are not copied
+to Pages or the public report. A final job
 with no model secret assembles those generated files in its disposable Actions
 workspace and uploads them to the dedicated `drever-release-smoke` Cloudflare
 Pages Direct Upload project. It first publishes a run-specific deck deployment,
@@ -274,7 +295,9 @@ Create a protected GitHub environment named `ai-release-smoke`, limit it to
 the `main` branch, and add a required reviewer. Only the single authorization
 job enters that environment. Drever reuses the repository's existing
 `OPENAI_API_KEY` and `CLAUDE_API_KEY`; each secret is referenced only by its
-matching initial-generation step and its conditional one-repair step.
+matching initial-generation step, first bounded refinement step, and the
+conditional visual-review step needed only after an evidence-free mechanical
+repair.
 Preparation, other-provider work, validation, final build, and publishing
 cannot read it. Do not expose either key at job scope. The result publisher
 uses a Markdown summary file rather than raw terminal output so ANSI control

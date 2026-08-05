@@ -7,6 +7,7 @@ import {
   demoMounts,
   documentationRoutes,
   publicPresentationMounts,
+  publicSiteRoutes,
   siteOrigin,
   siteRoutes,
 } from "../website/site-manifest.ts";
@@ -215,7 +216,7 @@ const verifyOutput = async () => {
   for (const route of siteRoutes) {
     const path = routeOutput(route);
     const html = await readFile(join(websiteOutput, path), "utf8");
-    if (html.includes("noindex")) {
+    if (publicSiteRoutes.includes(route) && html.includes("noindex")) {
       throw new Error(`Production page must be indexable: ${path}`);
     }
     if (
@@ -321,7 +322,7 @@ const verifyOutput = async () => {
     [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/gu)].map((match) => match[1]),
   );
   const expectedLocations = new Set([
-    ...siteRoutes.map(canonicalSiteURL),
+    ...publicSiteRoutes.map(canonicalSiteURL),
     ...publicPresentationMounts.map(({ slug }) => presentationURL(slug)),
   ]);
   if (

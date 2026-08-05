@@ -1,4 +1,5 @@
 import { execFile } from "node:child_process";
+import { createHash } from "node:crypto";
 import { createServer } from "node:http";
 import { cp, mkdir, readFile, realpath, rm, stat, writeFile } from "node:fs/promises";
 import { extname, join, resolve, sep } from "node:path";
@@ -12,20 +13,25 @@ import {
   runReleaseSmokeBuildInContainer,
 } from "./build-isolation.mjs";
 import {
+  assertReleaseSmokeSourceReceipt,
   assertReleaseSmokeCheck,
   assertReleaseSmokeContext,
+  collectReleaseSmokeSource,
   copyReleaseSmokeSource,
   json,
   redactStructuredPaths,
   relativeMountedPathname,
   releaseSmokeDeckMount,
+  releaseSmokeVisualReviewProvenance,
   RELEASE_SMOKE_RUN_SCHEMA_VERSION,
   RELEASE_SMOKE_SCHEMA_VERSION,
+  RELEASE_SMOKE_VISUAL_REVIEW_RECEIPT,
 } from "./contract.mjs";
 import {
   captureReleaseSmokeFrame,
   releaseSmokeAudienceStates,
   releaseSmokeStatePath,
+  releaseSmokeTextSafeAreaIssues,
   releaseSmokeTransitionIssues,
 } from "./browser-audit.mjs";
 import { getReleaseSmokeScenario } from "./scenarios.mjs";
@@ -58,11 +64,13 @@ if (!/^[0-9a-f]{40}$/u.test(sourceCommit)) {
 
 const generationRoot = resolve(generationArgument);
 const outputRoot = resolve(outputArgument);
+const captureVisualEvidence = process.env.RELEASE_SMOKE_CAPTURE_VISUAL_EVIDENCE === "1";
 const workspaceRoot = resolve(
   process.env.RUNNER_TEMP ?? join(outputRoot, ".workspace"),
   `drever-release-smoke-build-${caseId}`,
 );
 const projectRoot = join(workspaceRoot, "deck");
+const validatedSourceRoot = join(workspaceRoot, "validated-source");
 const npmCache = join(workspaceRoot, "npm-cache");
 const caseRoot = join(outputRoot, caseId);
 const receiptsRoot = join(caseRoot, "receipts");
@@ -97,6 +105,98 @@ const run = async (command, arguments_, cwd = projectRoot, timeout = 300_000) =>
     }
     throw error;
   }
+};
+
+const visualEvidenceEntry = (path, content, details = {}) => ({
+  ...details,
+  bytes: content.length,
+  path,
+  sha256: createHash("sha256").update(content).digest("hex"),
+});
+
+const renderContactSheet = async (browser, captures, { columns, describe }) => {
+  const sheet = await browser.newPage({ viewport: { height: 900, width: 1600 } });
+  try {
+    const figures = captures
+      .map(
+        (capture) => `<figure>
+  <img alt="${describe(capture)}" src="data:image/png;base64,${capture.content.toString("base64")}" />
+  <figcaption>${describe(capture)}</figcaption>
+</figure>`,
+      )
+      .join("\n");
+    await sheet.setContent(`<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      * { box-sizing: border-box; }
+      html, body { margin: 0; background: #101014; color: #f4f2ed; }
+      body { font: 600 18px/1.3 ui-sans-serif, system-ui, sans-serif; padding: 32px; }
+      main { display: grid; grid-template-columns: repeat(${String(columns)}, minmax(0, 1fr)); gap: 28px 24px; }
+      figure { margin: 0; min-width: 0; }
+      img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: contain; background: #050507; border: 1px solid #393941; }
+      figcaption { padding-top: 10px; color: #cbc8d2; letter-spacing: 0.01em; }
+    </style>
+  </head>
+  <body><main>${figures}</main></body>
+</html>`);
+    await sheet.waitForFunction(() => [...document.images].every((image) => image.complete));
+    return await sheet.screenshot({ fullPage: true, type: "png" });
+  } finally {
+    await sheet.close();
+  }
+};
+
+const writeVisualEvidence = async (
+  browser,
+  settledCaptures,
+  transitionCaptures,
+  evidenceRoot,
+  sourceSha256,
+) => {
+  const [settledContactSheet, transitionContactSheet] = await Promise.all([
+    renderContactSheet(browser, settledCaptures, {
+      columns: 2,
+      describe: ({ slide, step }) => `Slide ${String(slide)} · final settled Step ${String(step)}`,
+    }),
+    renderContactSheet(browser, transitionCaptures, {
+      columns: 3,
+      describe: ({ from, to }) => `80 ms transition · ${from} → ${to}`,
+    }),
+  ]);
+  const settledContactSheetPath = "settled-contact-sheet.png";
+  const transitionContactSheetPath = "transition-contact-sheet.png";
+  await Promise.all([
+    writeFile(join(evidenceRoot, settledContactSheetPath), settledContactSheet),
+    writeFile(join(evidenceRoot, transitionContactSheetPath), transitionContactSheet),
+  ]);
+  const slides = settledCaptures.map(({ content, path, slide, step }) =>
+    visualEvidenceEntry(path, content, { slide, step }),
+  );
+  const manifest = {
+    schemaVersion: 1,
+    sourceSha256,
+    viewport: { height: 900, width: 1600 },
+    contactSheets: {
+      settled: visualEvidenceEntry(settledContactSheetPath, settledContactSheet),
+      transitions: visualEvidenceEntry(transitionContactSheetPath, transitionContactSheet),
+    },
+    transitions: transitionCaptures.map(({ from, to }) => ({
+      from,
+      sampledAtMilliseconds: 80,
+      to,
+    })),
+    slides,
+    attachments: [settledContactSheetPath, transitionContactSheetPath],
+    reviewImages: [
+      settledContactSheetPath,
+      transitionContactSheetPath,
+      ...slides.map(({ path }) => path),
+    ],
+  };
+  await writeFile(join(evidenceRoot, "manifest.json"), json(manifest), "utf8");
+  return manifest;
 };
 
 const contentTypes = Object.freeze({
@@ -170,7 +270,7 @@ const startStaticServer = async (directory, mountPath) => {
   };
 };
 
-const runBrowserSmoke = async (distRoot, context, mountPath) => {
+const runBrowserSmoke = async (distRoot, context, mountPath, evidenceRoot, sourceSha256) => {
   const { chromium } = await import("@playwright/test");
   const server = await startStaticServer(distRoot, mountPath);
   const browser = await chromium.launch({ channel: "chromium", headless: true });
@@ -198,6 +298,8 @@ const runBrowserSmoke = async (distRoot, context, mountPath) => {
     const states = releaseSmokeAudienceStates(context.deck.slides);
     const stateReceipts = [];
     const transitionReceipts = [];
+    const finalStateCaptures = [];
+    const transitionCaptures = [];
     const audienceResponse = await page.goto(`${server.origin}${mountPath}/`, {
       waitUntil: "networkidle",
     });
@@ -218,7 +320,7 @@ const runBrowserSmoke = async (distRoot, context, mountPath) => {
       const path = releaseSmokeStatePath(mountPath, state);
       await page.waitForFunction((expectedPath) => window.location.pathname === expectedPath, path);
       settledFrame ??= await page.evaluate(captureReleaseSmokeFrame);
-      const stateIssues = [...settledFrame.issues];
+      const stateIssues = [...settledFrame.issues, ...releaseSmokeTextSafeAreaIssues(settledFrame)];
       if (settledFrame.slide.index !== state.slideIndex || settledFrame.slide.step !== state.step) {
         stateIssues.push({
           type: "audience-state-mismatch",
@@ -241,6 +343,12 @@ const runBrowserSmoke = async (distRoot, context, mountPath) => {
       });
 
       const next = states[index + 1];
+      if (captureVisualEvidence && (next === undefined || next.slideIndex !== state.slideIndex)) {
+        const path = `states/slide-${String(state.slideNumber).padStart(2, "0")}.png`;
+        const content = await page.screenshot({ type: "png" });
+        await writeFile(join(evidenceRoot, path), content);
+        finalStateCaptures.push({ content, path, slide: state.slideNumber, step: state.step });
+      }
       if (next === undefined) continue;
       const nextPath = releaseSmokeStatePath(mountPath, next);
       const navigation = page.waitForFunction(
@@ -250,6 +358,10 @@ const runBrowserSmoke = async (distRoot, context, mountPath) => {
       await page.keyboard.press("ArrowRight");
       await navigation;
       await page.waitForTimeout(80);
+      if (captureVisualEvidence) {
+        const transitionContent = await page.screenshot({ type: "png" });
+        transitionCaptures.push({ content: transitionContent, from: path, to: nextPath });
+      }
       const transition = await page.evaluate(captureReleaseSmokeFrame);
       await page.waitForTimeout(settleMilliseconds);
       const transitionSettled = await page.evaluate(captureReleaseSmokeFrame);
@@ -276,6 +388,15 @@ const runBrowserSmoke = async (distRoot, context, mountPath) => {
       settledFrame = transitionSettled;
     }
     const navigationPath = new URL(page.url()).pathname;
+    const visualEvidence = captureVisualEvidence
+      ? await writeVisualEvidence(
+          browser,
+          finalStateCaptures,
+          transitionCaptures,
+          evidenceRoot,
+          sourceSha256,
+        )
+      : undefined;
 
     const documentPath = `${mountPath}/document/`;
     const documentResponse = await page.goto(`${server.origin}${documentPath}`, {
@@ -329,6 +450,15 @@ const runBrowserSmoke = async (distRoot, context, mountPath) => {
       document: { path: documentPath, slideCount: documentSlides, status: "passed" },
       speaker: { path: speakerPath, status: "passed" },
       externalRequests: 0,
+      ...(visualEvidence === undefined
+        ? {}
+        : {
+            visualEvidence: {
+              contactSheets: visualEvidence.contactSheets,
+              slides: visualEvidence.slides.length,
+              transitions: visualEvidence.transitions.length,
+            },
+          }),
     };
   } finally {
     await page.close();
@@ -340,8 +470,16 @@ const runBrowserSmoke = async (distRoot, context, mountPath) => {
 await Promise.all([
   rm(workspaceRoot, { force: true, recursive: true }),
   rm(caseRoot, { force: true, recursive: true }),
+  ...(captureVisualEvidence
+    ? [rm(join(outputRoot, "visual-evidence"), { force: true, recursive: true })]
+    : []),
 ]);
-await mkdir(workspaceRoot, { recursive: true });
+await Promise.all([
+  mkdir(workspaceRoot, { recursive: true }),
+  ...(captureVisualEvidence
+    ? [mkdir(join(outputRoot, "visual-evidence", "states"), { recursive: true })]
+    : []),
+]);
 
 const [generation, transcript] = await Promise.all([
   readFile(join(generationRoot, "generation.json"), "utf8").then(JSON.parse),
@@ -365,6 +503,15 @@ if (
 ) {
   throw new Error("Generation artifact does not declare the required non-executable boundary.");
 }
+const visualReviewProvenance = captureVisualEvidence
+  ? undefined
+  : releaseSmokeVisualReviewProvenance(generation);
+
+const collectedSource = await collectReleaseSmokeSource(
+  join(generationRoot, "source"),
+  validatedSourceRoot,
+);
+assertReleaseSmokeSourceReceipt(generation.source, collectedSource, "Release smoke generation");
 
 const scaffoldResult = await run(
   "npm",
@@ -397,7 +544,7 @@ if (
 
 let sourceFiles;
 try {
-  sourceFiles = await copyReleaseSmokeSource(join(generationRoot, "source"), projectRoot);
+  sourceFiles = await copyReleaseSmokeSource(validatedSourceRoot, projectRoot);
 } catch (error) {
   markRepairableFailure(error);
   throw error;
@@ -435,7 +582,13 @@ const buildOutput = await assertSafeReleaseSmokeBuildOutput(websitePath);
 const deckMount = releaseSmokeDeckMount(runId, caseId);
 let browser;
 try {
-  browser = await runBrowserSmoke(websitePath, context, deckMount);
+  browser = await runBrowserSmoke(
+    websitePath,
+    context,
+    deckMount,
+    captureVisualEvidence ? join(outputRoot, "visual-evidence") : undefined,
+    generation.source.sha256,
+  );
 } catch (error) {
   if (
     error instanceof Error &&
@@ -488,6 +641,7 @@ await writeFile(
     title: scenario.label,
     brief: scenario.brief,
     durationSeconds: transcript.durationSeconds,
+    visualReview: visualReviewProvenance,
     deck: {
       audience: `${basePath}/deck/`,
       document: `${basePath}/deck/document/`,
@@ -500,6 +654,7 @@ await writeFile(
       "Drever check passed without errors",
       `Production website build completed with ${buildOutput.files} bounded output files`,
       `${browser.audience.stateCount} exact audience slide and Step states plus ${browser.audience.transitions.length} adjacent transition samples passed geometry and runtime audit`,
+      ...(visualReviewProvenance === undefined ? [] : [RELEASE_SMOKE_VISUAL_REVIEW_RECEIPT]),
       "Document and speaker browser smoke passed",
       "Generated source executed as a non-root user in a no-network container without the repository or runner environment",
       "Secret-bearing generation used a protected provider proxy and non-executable authoring tools; only allowlisted source was retained",

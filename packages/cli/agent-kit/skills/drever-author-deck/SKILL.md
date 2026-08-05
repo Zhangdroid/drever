@@ -20,6 +20,13 @@ Commands below use npm's project-local runner. In a pnpm, Yarn, or Bun project, 
 5. Use `Step` for an intentional change in audience understanding, not decoration. Preserve meaningful sparse stops. Author each Step directly as static MDX JSX in the slide body; do not hide it inside a JavaScript expression, component implementation, or JSX-valued layout prop. Keep persistent accessible names limited to the premise visible at Step 0, and place outcome-specific names or descriptions inside the Step that reveals them. When presentation navigation owns a reveal, use a Step instead of an inline control; keep direct manipulation only when it is itself the lesson.
    Treat `Step` as a real DOM wrapper, not a transparent fragment. A `transform` or individual `translate` can establish the containing block for absolute descendants, then rebase them when that property changes. Keep their coordinate system invariant across pending, active, and complete states: make the Step a stable positioned, explicitly sized or inset owner, or put absolute children in their own stable positioned wrapper and animate a smaller child. Never use an otherwise unpositioned Step as a full-canvas positioning context.
 6. Express motion with the `MotionGroup` intents `focus`, `replace`, `compare`, `stagger`, and `continuity`. Motion must explain a narrative state change, follow the content flow, and use the theme's visual voice. A sparse, content-specific draw, signal travel, or Stage shift may add quiet delight; repeated generic entrances may not.
+   Map the dominant content form before choosing an effect. Lists and ordered cards may use one
+   reading-order stagger; dense claims should be edited and emphasize only their decisive phrase;
+   comparisons keep a stable grid and reveal the changed measure; processes advance a signal or
+   milestone in one coordinate system; charts animate only the series or value that changed; code,
+   interfaces, and media keep a stable frame while the relevant state changes. A catalog may become
+   deterministic kinetic rows, a tag field, or a card wall only when breadth or flow is the claim
+   and every required label remains readable. Otherwise, use a quiet cut or settled composition.
    Establish a concrete claim, evidence, and decision before adding choreography. Motion cannot rescue abstract copy.
    Give the theme a coherent transition vocabulary, not one mandatory whole-slide effect. Some edges may cut, some may dissolve, and a short artifact-led sequence may use continuity when those choices express different narrative jobs. Directional travel is appropriate only when spatial progression matters.
    Budget one primary motion per moment across native transitions, Steps, kinetic type, video, 3D, and third-party animation. Add at most one quieter supporting cue in the same causal chain. Serialize multiple techniques around one focal object instead of running competing cues. If a headline or core object already changes, keep Stage decoration and neighboring cards still; recurring decoration does not earn motion merely by recurring. Ask: What single object should the audience follow? If the answer names two, remove or sequence one.
@@ -34,6 +41,11 @@ When materially changing the visual direction, use the project-local `drever-cre
 Treat active Theme CSS as part of every local scene. Use a scoped, minimal normalization for Theme-owned Markdown margins, maximum widths, line height, text transform, and foreground before applying local roles. Inspect computed descendants instead of assuming that a parent class or later source order overrides a more specific Theme selector; never reset the whole deck globally.
 
 Use `stage.background` for persistent canvas decoration and `stage.foreground` for fixed branding or page information. Each path names a default-exporting React component that receives `StageLayerProps` from `drever`; nested components may call `useStage()`. Keep the Stage shell stationary and animate only a sub-element whose visual state actually changes. Never wrap a full-canvas background in a continuity `MotionGroup`: its extracted snapshot can leave the slide stacking context and paint above the content. Keep the background in the persistent Stage and transition live inner lines, glows, or signals instead. A recurring line or band retains its position, thickness, opacity, paint, orientation, and cross-axis alignment across adjacent slides. Move it only when a meaningful chapter, comparison, or state change requires the shift; make that exception visually legible and hold the new position long enough to read as intentional. Translate it along its logical axis or reveal its length through an inner mask instead of resizing its container or scaling both axes.
+
+When a chapter or closing payoff needs a palette change, keep that same Stage root stationary and alive and
+transition its inner paint before or with the destination content. Do not animate the black, white,
+or colored canvas as a slide-sized snapshot, and do not move the background on every edge. The
+change should mark a real narrative boundary and settle into a contrast-safe endpoint.
 
 Keep persistent titles, layout anchors, Stage shells, backgrounds, page numbers, branding, dialogs, and audience controls outside slide motion. Move the smallest meaningful child. Treat cards, panels, and media frames as complete painted surfaces: never hard-clip a required shadow, glow, outline, or filter. Clip an inner content wrapper or use opacity with translate or scale, and interpolate matching shadow lists from transparent colors instead of switching from `none`. Never dim a whole completed Step or another text-containing container with opacity; mark the active Step with a contrast-safe rule, outline, or surface so nested text, links, and controls retain their authored contrast.
 
@@ -72,6 +84,12 @@ change exists end to end, pause authoring and make a separate refinement pass fr
 evidence. Preserve successful neighboring work, routes, Steps, and design decisions; fix only
 material narrative, visual, motion, interaction, or surface regressions. Do not broaden the edit or
 add novelty merely to prove that a second pass happened.
+
+During that refinement pass, compare the rendered scene with the content form that motivated it.
+Replace generic motion, insufficient safe area, edge-hugging text, cramped panel padding, awkward
+line measure, or an overactive background before polishing secondary decoration. Inspect every
+affected Step state because a pending or complete wrapper can change geometry even when Step 0 is
+correct.
 
 During authoring, run the fast source and affected-route loop: regenerate
 `npm exec -- drever context --json`, run `npm exec -- drever check --json`, and inspect every affected

@@ -3,7 +3,7 @@ import lockupHref from "@drever/brand/assets/drever-lockup.svg";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 
-import { githubURL, primaryNavigation, realAIRunsLabel } from "../site-data";
+import { githubURL, primaryNavigation } from "../site-data";
 import { CopyAIHandoff } from "./ai-handoff";
 import { ArrowUpRightIcon, GithubIcon } from "./icons";
 
@@ -163,9 +163,6 @@ export function SiteFooter() {
             <span>Project</span>
             <Link activeOptions={{ exact: true }} to="/changelog/">
               Changelog
-            </Link>
-            <Link activeOptions={{ exact: true }} to="/release-smoke/">
-              {realAIRunsLabel}
             </Link>
             <a href={githubURL} rel="noreferrer" target="_blank">
               GitHub <ArrowUpRightIcon />
