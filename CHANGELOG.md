@@ -17,6 +17,8 @@ legacy plan files and strengthening the live Draft 1 handoff.
   evidence surfaces and no premature layout or motion labels.
 - Kept the parent creation task observing a managed Studio session across the human approval gate,
   so a browser approval can start the next managed turn without a separate chat message.
+- Added explicit whole-deck and current-slide feedback targets to Live Draft without coupling the
+  chosen feedback scope to preview navigation.
 
 ### Fixed
 

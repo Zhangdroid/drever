@@ -127,6 +127,7 @@ const durationOptions = [5, 10, 20, 30] as const;
 type DensityChoice = NonNullable<DreverStudioCommonBrief["density"]>;
 type MotionChoice = "agent-choice" | NonNullable<DreverStudioCommonBrief["motionIntensity"]>;
 type StudioMode = "draft" | "storyboard";
+type StudioFeedbackTarget = "deck" | "slide";
 type StudioProgressStatus = "complete" | "current" | "error" | "pending";
 
 export type StudioProgressStage = Readonly<{
@@ -1144,11 +1145,15 @@ const SlideCard = ({
 );
 
 const FeedbackComposer = ({
+  feedbackTarget,
   onAction,
+  onFeedbackTargetChange,
   selectedSlide,
   state,
 }: Readonly<{
+  feedbackTarget: StudioFeedbackTarget;
   onAction: StudioProps["onAction"];
+  onFeedbackTargetChange(target: StudioFeedbackTarget): void;
   selectedSlide?: DreverDeckPlanSlide;
   state: DreverStudioState;
 }>): ReactElement => {
@@ -1156,7 +1161,10 @@ const FeedbackComposer = ({
   const [submitting, setSubmitting] = useState(false);
   const [contextOpen, setContextOpen] = useState(false);
   const contextId = useId();
-  const scope = selectedSlide === undefined ? "Entire deck" : `Slide · ${selectedSlide.title}`;
+  const headingId = useId();
+  const targetDescriptionId = useId();
+  const feedbackSlide = feedbackTarget === "slide" ? selectedSlide : undefined;
+  const effectiveTarget = feedbackSlide === undefined ? "deck" : "slide";
 
   const submit = async (event: FormEvent): Promise<void> => {
     event.preventDefault();
@@ -1166,7 +1174,7 @@ const FeedbackComposer = ({
     try {
       await onAction({
         message: next,
-        ...(selectedSlide === undefined ? {} : { slideId: selectedSlide.id }),
+        ...(feedbackSlide === undefined ? {} : { slideId: feedbackSlide.id }),
         type: "submit-feedback",
       });
       setMessage("");
@@ -1178,11 +1186,39 @@ const FeedbackComposer = ({
   };
 
   return (
-    <aside className="drever-studio-direction">
+    <aside aria-labelledby={headingId} className="drever-studio-direction">
       <header>
-        <p>Direction</p>
-        <span>{scope}</span>
+        <h2 id={headingId}>Direction</h2>
+        <div aria-label="Feedback scope" className="drever-studio-direction__scope" role="group">
+          <button
+            aria-pressed={effectiveTarget === "deck"}
+            onClick={() => onFeedbackTargetChange("deck")}
+            type="button"
+          >
+            Entire deck
+          </button>
+          <button
+            aria-disabled={selectedSlide === undefined}
+            aria-label={
+              selectedSlide === undefined
+                ? "This slide is still connecting"
+                : `This slide: ${selectedSlide.title}`
+            }
+            aria-pressed={effectiveTarget === "slide"}
+            onClick={() => {
+              if (selectedSlide !== undefined) onFeedbackTargetChange("slide");
+            }}
+            type="button"
+          >
+            This slide
+          </button>
+        </div>
       </header>
+      <p aria-live="polite" className="drever-studio-direction__target" id={targetDescriptionId}>
+        {feedbackSlide === undefined
+          ? "Feedback applies to the entire deck."
+          : `Feedback applies to “${feedbackSlide.title}”`}
+      </p>
       <section
         className="drever-studio-direction__context"
         data-open={contextOpen ? "" : undefined}
@@ -1193,7 +1229,7 @@ const FeedbackComposer = ({
           onClick={() => setContextOpen((current) => !current)}
           type="button"
         >
-          {selectedSlide === undefined ? "Story context" : "Slide context"}
+          {feedbackSlide === undefined ? "Story context" : "Slide context"}
           <ChevronIcon />
         </button>
         <div
@@ -1202,7 +1238,7 @@ const FeedbackComposer = ({
           id={contextId}
         >
           <div>
-            {selectedSlide === undefined ? (
+            {feedbackSlide === undefined ? (
               <div className="drever-studio-direction__summary">
                 <span>Audience</span>
                 <strong dir="auto">{state.commonBrief?.audience ?? "Agent chooses"}</strong>
@@ -1212,9 +1248,9 @@ const FeedbackComposer = ({
             ) : (
               <div className="drever-studio-direction__summary">
                 <span>Anchor evidence</span>
-                <strong dir="auto">{selectedSlide.focalArtifact}</strong>
+                <strong dir="auto">{feedbackSlide.focalArtifact}</strong>
                 <span>Evidence</span>
-                <strong dir="auto">{selectedSlide.evidence.join(" · ")}</strong>
+                <strong dir="auto">{feedbackSlide.evidence.join(" · ")}</strong>
               </div>
             )}
           </div>
@@ -1228,9 +1264,10 @@ const FeedbackComposer = ({
             What should change?
           </span>
           <textarea
+            aria-describedby={targetDescriptionId}
             onChange={(event) => setMessage(event.currentTarget.value)}
             placeholder={
-              selectedSlide === undefined
+              feedbackSlide === undefined
                 ? "Make the story more concrete and reduce repeated claims…"
                 : "Keep the idea, but make the visual evidence easier to understand…"
             }
@@ -1249,7 +1286,7 @@ const FeedbackComposer = ({
       </form>
 
       {state.pendingActionCount === 0 ? null : (
-        <p className="drever-studio-direction__pending">
+        <p aria-live="polite" className="drever-studio-direction__pending" role="status">
           {state.pendingActionCount} {state.pendingActionCount === 1 ? "request" : "requests"}
           waiting for the agent
         </p>
@@ -1500,6 +1537,9 @@ const PlanScreen = ({
   const draftAvailable =
     state.draftAvailable === true || state.phase === "preview" || state.phase === "ready";
   const [mode, setMode] = useState<StudioMode>(draftAvailable ? "draft" : "storyboard");
+  const [feedbackScope, setFeedbackScope] = useState<StudioFeedbackTarget>(
+    draftAvailable ? "slide" : "deck",
+  );
   const previousDraftAvailable = useRef(draftAvailable);
   const [approving, setApproving] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -1521,6 +1561,7 @@ const PlanScreen = ({
   const lifecycle = resolveStudioDraftLifecycle(state);
 
   useEffect(() => {
+    if (!previousDraftAvailable.current && draftAvailable) setFeedbackScope("slide");
     setMode((current) => nextStudioMode(current, previousDraftAvailable.current, draftAvailable));
     previousDraftAvailable.current = draftAvailable;
   }, [draftAvailable]);
@@ -1625,6 +1666,7 @@ const PlanScreen = ({
   };
 
   const selectSlide = (slideId: string, slideIndex: number): void => {
+    setFeedbackScope("slide");
     if (mode === "draft" && draftAvailable) {
       setSelectedSlideId(resolveStudioPlanSlideId(plan?.slides, slideIndex));
       if (previewConnection !== "connected") {
@@ -1645,8 +1687,9 @@ const PlanScreen = ({
   };
 
   const selectDeck = (): void => {
-    setSelectedSlideId(undefined);
+    setFeedbackScope("deck");
     if (mode === "storyboard") {
+      setSelectedSlideId(undefined);
       requestAnimationFrame(() => planRef.current?.scrollTo({ behavior: "smooth", top: 0 }));
     }
   };
@@ -1679,7 +1722,6 @@ const PlanScreen = ({
     (previewSlide === undefined
       ? "Connecting to speaker notes…"
       : "No speaker notes for this slide yet.");
-
   return (
     <main className="drever-studio-workspace" data-studio-screen="plan">
       <nav aria-label="Presentation slides" className="drever-studio-rail" data-mode={mode}>
@@ -1689,8 +1731,9 @@ const PlanScreen = ({
         </header>
         {mode === "storyboard" ? (
           <button
+            aria-pressed={feedbackScope === "deck"}
             className="drever-studio-rail__whole"
-            data-selected={selectedSlideId === undefined ? "" : undefined}
+            data-selected={feedbackScope === "deck" ? "" : undefined}
             onClick={selectDeck}
             type="button"
           >
@@ -1699,32 +1742,29 @@ const PlanScreen = ({
           </button>
         ) : null}
         <ol>
-          {railSlides.map((slide, index) => (
-            <li key={slide.id}>
-              <button
-                aria-controls={
-                  mode === "draft"
-                    ? "drever-studio-live-draft"
-                    : `drever-studio-plan-card-${slide.id}`
-                }
-                aria-current={
-                  (mode === "draft" ? index === selectedSlideIndex : slide.id === selectedSlideId)
-                    ? "true"
-                    : undefined
-                }
-                data-selected={
-                  (mode === "draft" ? index === selectedSlideIndex : slide.id === selectedSlideId)
-                    ? ""
-                    : undefined
-                }
-                onClick={() => selectSlide(slide.id, index)}
-                type="button"
-              >
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <strong dir="auto">{slide.title}</strong>
-              </button>
-            </li>
-          ))}
+          {railSlides.map((slide, index) => {
+            const current =
+              mode === "draft" ? index === selectedSlideIndex : slide.id === selectedSlideId;
+            const selected = mode === "draft" ? current : feedbackScope === "slide" && current;
+            return (
+              <li key={slide.id}>
+                <button
+                  aria-controls={
+                    mode === "draft"
+                      ? "drever-studio-live-draft"
+                      : `drever-studio-plan-card-${slide.id}`
+                  }
+                  aria-current={current ? (mode === "draft" ? "page" : "true") : undefined}
+                  data-selected={selected ? "" : undefined}
+                  onClick={() => selectSlide(slide.id, index)}
+                  type="button"
+                >
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <strong dir="auto">{slide.title}</strong>
+                </button>
+              </li>
+            );
+          })}
         </ol>
       </nav>
 
@@ -1735,7 +1775,8 @@ const PlanScreen = ({
               aria-pressed={mode === "storyboard"}
               onClick={() => {
                 setMode("storyboard");
-                if (selectedSlideId !== undefined) scrollStoryboardSlide(selectedSlideId);
+                if (feedbackScope === "deck") selectDeck();
+                else if (selectedSlideId !== undefined) scrollStoryboardSlide(selectedSlideId);
               }}
               type="button"
             >
@@ -1744,7 +1785,10 @@ const PlanScreen = ({
             <button
               aria-pressed={mode === "draft"}
               disabled={!draftAvailable}
-              onClick={() => setMode("draft")}
+              onClick={() => {
+                setMode("draft");
+                setFeedbackScope("slide");
+              }}
               type="button"
             >
               Live draft
@@ -1876,6 +1920,7 @@ const PlanScreen = ({
                   index={index}
                   key={slide.id}
                   onSelect={() => {
+                    setFeedbackScope("slide");
                     setSelectedSlideId(slide.id);
                   }}
                   selected={slide.id === selectedSlideId}
@@ -1888,7 +1933,12 @@ const PlanScreen = ({
       </section>
 
       <FeedbackComposer
+        feedbackTarget={feedbackScope}
         onAction={onAction}
+        onFeedbackTargetChange={(target) => {
+          setFeedbackScope(target);
+          if (target === "deck" && mode === "storyboard") setSelectedSlideId(undefined);
+        }}
         {...(selectedSlide === undefined ? {} : { selectedSlide })}
         state={state}
       />

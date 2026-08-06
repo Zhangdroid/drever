@@ -310,12 +310,41 @@ test("Studio keeps the embedded live draft navigable with real speaker notes", a
     await directionPanel.getByRole("button", { name: "Slide context" }).click();
     await expect(directionPanel).toContainText("Anchor evidence");
 
+    const deckFeedback = directionPanel.getByRole("button", { name: "Entire deck" });
+    const slideFeedback = directionPanel.getByRole("button", {
+      name: /This slide: Motion should carry meaning/u,
+    });
+    await deckFeedback.click();
+    await expect(deckFeedback).toHaveAttribute("aria-pressed", "true");
+    await expect(slideFeedback).toHaveAttribute("aria-pressed", "false");
+    await expect(directionPanel).toContainText("Feedback applies to the entire deck.");
+    await expect(
+      rail.getByRole("button", { name: /Motion should carry meaning/u }),
+    ).toHaveAttribute("aria-current", "page");
+    await expect.poll(async () => new URL((await currentDraft()).url()).pathname).toBe("/2");
+    await directionPanel
+      .getByRole("textbox", { name: "What should change?" })
+      .fill("Make the whole deck more concise without changing its conclusion.");
+    await directionPanel.getByRole("button", { name: /Send to agent/u }).click();
+    await expect
+      .poll(async () => {
+        try {
+          const action = JSON.parse(
+            await readFile(join(root, ".drever", "studio", "actions", "00000002.json"), "utf8"),
+          ) as { action?: { scope?: { kind?: string }; type?: string } };
+          return `${action.action?.type ?? ""}:${action.action?.scope?.kind ?? ""}`;
+        } catch {
+          return "";
+        }
+      })
+      .toBe("submit-feedback:deck");
+
     await writeFile(
       join(root, ".drever", "studio", "state.json"),
       JSON.stringify({
         version: 1,
         phase: "waiting-for-agent",
-        handledActionRevision: 1,
+        handledActionRevision: 2,
         activity: [
           {
             id: "draft-ready",

@@ -508,6 +508,9 @@ describe("Studio", () => {
     expect(markup).not.toContain("allow-top-navigation");
     expect(markup).toContain('href="http://127.0.0.1:4317/"');
     expect(markup).toContain('aria-pressed="true" type="button">Live draft');
+    expect(markup).toContain('aria-label="Feedback scope"');
+    expect(markup).toContain("Entire deck");
+    expect(markup).toContain("This slide");
   });
 
   it("keeps a published live draft available while the agent starts another pass", () => {
