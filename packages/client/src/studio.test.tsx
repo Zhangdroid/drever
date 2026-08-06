@@ -493,6 +493,7 @@ describe("Studio", () => {
         state={state({
           phase: "preview",
           commonBrief: { topic: plan.brief.topic },
+          pendingActionCount: 1,
           plan: { ...plan, status: "approved" },
         })}
       />,
@@ -511,6 +512,7 @@ describe("Studio", () => {
     expect(markup).toContain('aria-label="Feedback scope"');
     expect(markup).toContain("Entire deck");
     expect(markup).toContain("This slide");
+    expect(markup).toContain("1 request waiting for the agent");
   });
 
   it("keeps a published live draft available while the agent starts another pass", () => {

@@ -1287,8 +1287,9 @@ const FeedbackComposer = ({
 
       {state.pendingActionCount === 0 ? null : (
         <p aria-live="polite" className="drever-studio-direction__pending" role="status">
-          {state.pendingActionCount} {state.pendingActionCount === 1 ? "request" : "requests"}
-          waiting for the agent
+          {`${String(state.pendingActionCount)} ${
+            state.pendingActionCount === 1 ? "request" : "requests"
+          } waiting for the agent`}
         </p>
       )}
     </aside>
