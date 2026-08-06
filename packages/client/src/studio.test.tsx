@@ -237,6 +237,7 @@ describe("Studio", () => {
     expect(markup).toMatch(
       /<div aria-hidden="true" class="drever-studio-activity-history__reveal" id="[^"]+">/u,
     );
+    expect(markup).toContain('data-presentation="inline"');
     expect(markup).not.toContain("<details");
   });
 
@@ -491,6 +492,7 @@ describe("Studio", () => {
         onAction={vi.fn()}
         previewUrl="http://127.0.0.1:51999/"
         state={state({
+          activity: [{ id: "draft-ready", label: "Draft 1 published", status: "complete" }],
           phase: "preview",
           commonBrief: { topic: plan.brief.topic },
           pendingActionCount: 1,
@@ -510,6 +512,7 @@ describe("Studio", () => {
     expect(markup).toContain('href="http://127.0.0.1:4317/"');
     expect(markup).toContain('aria-pressed="true" type="button">Live draft');
     expect(markup).toContain('aria-label="Feedback scope"');
+    expect(markup).toContain('data-presentation="popover-start"');
     expect(markup).toContain("Entire deck");
     expect(markup).toContain("This slide");
     expect(markup).toContain("1 request waiting for the agent");

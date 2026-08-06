@@ -522,47 +522,6 @@
     background: rgb(255 255 252 / 72%);
   }
 
-  .drever-studio-live-update .drever-studio-activity-history__reveal {
-    position: absolute;
-    z-index: 10;
-    top: calc(100% + 10px);
-    right: 0;
-    width: min(360px, calc(100vw - 36px));
-    visibility: hidden;
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(-5px) scale(0.985);
-    transform-origin: top right;
-    transition:
-      visibility 0s linear var(--studio-motion-quick),
-      opacity var(--studio-motion-quick) var(--studio-motion-ease),
-      transform var(--studio-motion-quick) var(--studio-motion-emphasized);
-  }
-
-  .drever-studio-live-update
-    .drever-studio-activity-history[data-open]
-    > .drever-studio-activity-history__reveal {
-    visibility: visible;
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateY(0) scale(1);
-    transition-delay: 0s;
-  }
-
-  .drever-studio-live-update .drever-studio-activity-history__reveal ol {
-    gap: 10px;
-    max-height: min(440px, calc(100svh - 150px));
-    margin: 0;
-    padding: 14px;
-    border: 1px solid rgb(255 255 255 / 82%);
-    border-radius: 14px;
-    background: rgb(250 249 244 / 96%);
-    box-shadow: 0 18px 48px rgb(33 39 35 / 14%);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    backdrop-filter: blur(18px);
-  }
-
   .drever-studio-agent-notice > span {
     width: 7px;
     height: 7px;
@@ -1382,7 +1341,8 @@
     font-size: 0.55rem;
   }
 
-  .drever-studio-activity-history__reveal {
+  .drever-studio-activity-history[data-presentation="inline"]
+    > .drever-studio-activity-history__reveal {
     display: grid;
     grid-template-rows: 0fr;
     visibility: hidden;
@@ -1395,17 +1355,91 @@
       transform var(--studio-motion-standard) var(--studio-motion-emphasized);
   }
 
-  .drever-studio-activity-history__reveal > div {
+  .drever-studio-activity-history[data-presentation="inline"]
+    > .drever-studio-activity-history__reveal
+    > div {
     min-height: 0;
     overflow: hidden;
   }
 
-  .drever-studio-activity-history[data-open] > .drever-studio-activity-history__reveal {
+  .drever-studio-activity-history[data-presentation="inline"][data-open]
+    > .drever-studio-activity-history__reveal {
     grid-template-rows: 1fr;
     visibility: visible;
     opacity: 1;
     transform: translateY(0);
     transition-delay: 0s;
+  }
+
+  .drever-studio-activity-history[data-presentation^="popover"] {
+    position: relative;
+  }
+
+  .drever-studio-activity-history[data-presentation^="popover"]
+    > .drever-studio-activity-history__reveal {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + 7px);
+    display: block;
+    width: min(360px, calc(100vw - 48px));
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-5px) scale(0.985);
+    transition:
+      visibility 0s linear var(--studio-motion-quick),
+      opacity var(--studio-motion-quick) var(--studio-motion-ease),
+      transform var(--studio-motion-quick) var(--studio-motion-emphasized);
+  }
+
+  .drever-studio-activity-history[data-presentation="popover-start"]
+    > .drever-studio-activity-history__reveal {
+    left: 0;
+    transform-origin: top left;
+  }
+
+  .drever-studio-activity-history[data-presentation="popover-end"]
+    > .drever-studio-activity-history__reveal {
+    top: calc(100% + 10px);
+    right: 0;
+    transform-origin: top right;
+  }
+
+  .drever-studio-activity-history[data-presentation^="popover"]
+    > .drever-studio-activity-history__reveal
+    > div {
+    overflow: visible;
+  }
+
+  .drever-studio-activity-history[data-presentation^="popover"][data-open]
+    > .drever-studio-activity-history__reveal {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+    transition-delay: 0s;
+  }
+
+  .drever-studio-activity-history[data-presentation^="popover"]
+    .drever-studio-activity-history__reveal
+    ol {
+    gap: 10px;
+    max-height: min(340px, calc(100svh - 210px));
+    margin: 0;
+    padding: 14px;
+    border: 1px solid rgb(255 255 255 / 82%);
+    border-radius: 14px;
+    background: rgb(250 249 244 / 96%);
+    box-shadow: 0 18px 48px rgb(33 39 35 / 14%);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    backdrop-filter: blur(18px);
+  }
+
+  .drever-studio-activity-history[data-presentation="popover-end"]
+    .drever-studio-activity-history__reveal
+    ol {
+    max-height: min(440px, calc(100svh - 150px));
   }
 
   .drever-studio-activity-history ol {
@@ -2266,57 +2300,6 @@
 
   .drever-studio-draft-status .drever-studio-activity-history__toggle svg {
     width: 11px;
-  }
-
-  .drever-studio-draft-status
-    > .drever-studio-activity-history
-    > .drever-studio-activity-history__reveal {
-    position: absolute;
-    z-index: 20;
-    top: calc(100% + 7px);
-    left: 0;
-    display: block;
-    width: min(360px, calc(100vw - 48px));
-    visibility: hidden;
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(-5px) scale(0.985);
-    transform-origin: top left;
-    transition:
-      visibility 0s linear var(--studio-motion-quick),
-      opacity var(--studio-motion-quick) var(--studio-motion-ease),
-      transform var(--studio-motion-quick) var(--studio-motion-emphasized);
-  }
-
-  .drever-studio-draft-status
-    > .drever-studio-activity-history
-    > .drever-studio-activity-history__reveal
-    > div {
-    overflow: visible;
-  }
-
-  .drever-studio-draft-status
-    > .drever-studio-activity-history[data-open]
-    > .drever-studio-activity-history__reveal {
-    visibility: visible;
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateY(0) scale(1);
-    transition-delay: 0s;
-  }
-
-  .drever-studio-draft-status .drever-studio-activity-history__reveal ol {
-    gap: 10px;
-    max-height: min(340px, calc(100svh - 210px));
-    margin: 0;
-    padding: 14px;
-    border: 1px solid rgb(255 255 255 / 82%);
-    border-radius: 14px;
-    background: rgb(250 249 244 / 96%);
-    box-shadow: 0 18px 48px rgb(33 39 35 / 14%);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    backdrop-filter: blur(18px);
   }
 
   .drever-studio-direction {

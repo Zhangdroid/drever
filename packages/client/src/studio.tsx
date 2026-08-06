@@ -423,12 +423,20 @@ export const resolveStudioActivity = (state: DreverStudioState): StudioActivityS
 
 const StudioActivityHistory = ({
   activity,
-}: Readonly<{ activity: readonly DreverStudioActivity[] }>): ReactElement | null => {
+  presentation = "inline",
+}: Readonly<{
+  activity: readonly DreverStudioActivity[];
+  presentation?: "inline" | "popover-end" | "popover-start";
+}>): ReactElement | null => {
   const [open, setOpen] = useState(false);
   const panelId = useId();
   if (activity.length === 0) return null;
   return (
-    <section className="drever-studio-activity-history" data-open={open ? "" : undefined}>
+    <section
+      className="drever-studio-activity-history"
+      data-open={open ? "" : undefined}
+      data-presentation={presentation}
+    >
       <button
         aria-controls={panelId}
         aria-expanded={open}
@@ -482,7 +490,7 @@ const StudioActivityTicker = ({ state }: Readonly<{ state: DreverStudioState }>)
           <p dir="auto">{activity.detail}</p>
         )}
       </div>
-      <StudioActivityHistory activity={activity.history} />
+      <StudioActivityHistory activity={activity.history} presentation="popover-end" />
     </aside>
   );
 };
@@ -1521,7 +1529,7 @@ const StudioDraftStatus = ({
               : "Retry Draft 1"}
         </button>
       ) : null}
-      <StudioActivityHistory activity={activityHistory} />
+      <StudioActivityHistory activity={activityHistory} presentation="popover-start" />
     </section>
   );
 };

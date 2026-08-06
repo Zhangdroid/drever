@@ -153,6 +153,12 @@ const prepareFixture = async (root: string, port: number): Promise<void> => {
           detail: "The presentation source and speaker notes are being assembled.",
           status: "complete",
         },
+        ...Array.from({ length: 9 }, (_, index) => ({
+          id: `draft-pass-${String(index + 1)}`,
+          label: `Draft refinement ${String(index + 1)}`,
+          detail: "A bounded refinement was published without changing the approved story.",
+          status: "complete" as const,
+        })),
         {
           id: "draft-ready",
           label: "Draft 1 published",
@@ -276,6 +282,8 @@ test("Studio keeps the embedded live draft navigable with real speaker notes", a
           page.locator(".drever-studio-preview"),
           page.locator(".drever-studio-direction"),
           draftStatus,
+          page.locator(".drever-studio-preview__frame"),
+          page.locator(".drever-studio-preview iframe"),
         ].map(async (locator) => {
           const box = await locator.boundingBox();
           if (box === null) throw new TypeError("Studio geometry was unavailable.");
@@ -285,6 +293,13 @@ test("Studio keeps the embedded live draft navigable with real speaker notes", a
     const beforeHistory = await geometry();
     await draftStatus.getByRole("button", { name: /View history/u }).click();
     await expect(draftStatus.locator(".drever-studio-activity-history__reveal")).toBeVisible();
+    await expect
+      .poll(() =>
+        draftStatus
+          .locator(".drever-studio-activity-history__reveal ol")
+          .evaluate((element) => element.scrollHeight > element.clientHeight),
+      )
+      .toBe(true);
     const afterHistory = await geometry();
     for (const [index, before] of beforeHistory.entries()) {
       const after = afterHistory[index];
@@ -294,6 +309,15 @@ test("Studio keeps the embedded live draft navigable with real speaker notes", a
       }
     }
     await draftStatus.getByRole("button", { name: /View history/u }).click();
+    await expect(draftStatus.locator(".drever-studio-activity-history__reveal")).toBeHidden();
+    const afterHistoryClose = await geometry();
+    for (const [index, before] of beforeHistory.entries()) {
+      const after = afterHistoryClose[index];
+      if (after === undefined) throw new TypeError("Studio geometry changed shape after closing.");
+      for (const dimension of ["x", "y", "width", "height"] as const) {
+        expect(Math.abs(after[dimension] - before[dimension])).toBeLessThan(1);
+      }
+    }
     const rail = page.getByRole("navigation", { name: "Presentation slides" });
     await rail.getByRole("button", { name: /Motion should carry meaning/u }).click();
 
