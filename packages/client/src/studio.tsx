@@ -376,14 +376,63 @@ const fallbackActivity = (state: DreverStudioState): readonly DreverStudioActivi
 const activityFor = (state: DreverStudioState): readonly DreverStudioActivity[] =>
   state.activity ?? fallbackActivity(state);
 
+const replaceMarkdownReferences = (
+  value: string,
+  prefix: "![" | "[",
+  allowEmptyLabel: boolean,
+): string => {
+  let cursor = 0;
+  const plainText: string[] = [];
+
+  while (cursor < value.length) {
+    const referenceStart = value.indexOf(prefix, cursor);
+    if (referenceStart === -1) {
+      plainText.push(value.slice(cursor));
+      break;
+    }
+
+    plainText.push(value.slice(cursor, referenceStart));
+    const labelStart = referenceStart + prefix.length;
+    const labelEnd = value.indexOf("]", labelStart);
+    if (labelEnd === -1) {
+      plainText.push(value.slice(referenceStart));
+      break;
+    }
+
+    if (!allowEmptyLabel && labelEnd === labelStart) {
+      plainText.push(prefix);
+      cursor = labelStart;
+      continue;
+    }
+
+    if (value[labelEnd + 1] !== "(") {
+      plainText.push(value.slice(referenceStart, labelEnd + 1));
+      cursor = labelEnd + 1;
+      continue;
+    }
+
+    const destinationEnd = value.indexOf(")", labelEnd + 2);
+    if (destinationEnd === -1) {
+      plainText.push(value.slice(referenceStart));
+      break;
+    }
+
+    plainText.push(value.slice(labelStart, labelEnd));
+    cursor = destinationEnd + 1;
+  }
+
+  return plainText.join("");
+};
+
+const stripMarkdownLinks = (value: string): string =>
+  replaceMarkdownReferences(replaceMarkdownReferences(value, "![", true), "[", false);
+
 const plainStudioNarration = (value: string): string =>
-  value
+  stripMarkdownLinks(value)
     .replace(/^\s*```(?:[\w-]+)?\s*$/u, "")
     .replace(/^\s*(?:>\s*)+/u, "")
     .replace(/^#{1,6}\s+/u, "")
     .replace(/^\s*(?:[-+*]|\d+[.)])\s+/u, "")
-    .replace(/!\[([^\]]*)\]\([^)]*\)/gu, "$1")
-    .replace(/\[([^\]]+)\]\([^)]*\)/gu, "$1")
     .replace(/`{1,3}([^`\n]+)`{1,3}/gu, "$1")
     .replace(/~~(\S(?:.*?\S)?)~~/gu, "$1")
     .replace(/(\*\*|__)(\S(?:.*?\S)?)\1/gu, "$2")

@@ -646,6 +646,26 @@ describe("Studio flow helpers", () => {
     expect(latestStudioNarration("```text\n```")).toBeUndefined();
   });
 
+  it("strips Markdown links without backtracking over malformed agent output", () => {
+    expect(
+      latestStudioNarration(
+        "Review the ![rendered deck](https://example.com/deck.png) and [source](https://example.com).",
+      ),
+    ).toBe("Review the rendered deck and source.");
+    expect(latestStudioNarration("![](image.png) [](https://example.com)")).toBe(
+      "[](https://example.com)",
+    );
+    expect(latestStudioNarration("[![diagram](diagram.png)](https://example.com/details)")).toBe(
+      "diagram",
+    );
+
+    for (const malformed of [`Start ${"![\\".repeat(20_000)}`, "![](destination".repeat(20_000)]) {
+      const narration = latestStudioNarration(malformed);
+      expect(narration?.length).toBeLessThanOrEqual(220);
+      expect(narration).toBeTruthy();
+    }
+  });
+
   it("describes working, reviewable, ready, and failed draft states explicitly", () => {
     expect(
       resolveStudioDraftLifecycle(state({ agentConnected: true, phase: "drafting" }))?.title,
