@@ -63,12 +63,10 @@ const planSlide = (
   purpose: `Keep the stable core fixture contract visible on slide ${String(index)}.`,
   evidence: [`Core fixture evidence ${String(index)}`],
   focalArtifact: `Core fixture artifact ${String(index)}`,
-  composition: { recipe: "single-artifact" },
-  density: "concise",
 });
 
 const approvedPlan = {
-  version: 1,
+  version: 2,
   status: "approved",
   brief: {
     topic: "Stable Drever browser contracts",
@@ -143,6 +141,24 @@ const prepareFixture = async (root: string, port: number): Promise<void> => {
       phase: "preview",
       handledActionRevision: 1,
       activity: [
+        {
+          id: "story-approved",
+          label: "Story approved",
+          detail: "The stable core fixture is ready for authoring.",
+          status: "complete",
+        },
+        {
+          id: "draft-started",
+          label: "Draft 1 started",
+          detail: "The presentation source and speaker notes are being assembled.",
+          status: "complete",
+        },
+        ...Array.from({ length: 9 }, (_, index) => ({
+          id: `draft-pass-${String(index + 1)}`,
+          label: `Draft refinement ${String(index + 1)}`,
+          detail: "A bounded refinement was published without changing the approved story.",
+          status: "complete" as const,
+        })),
         {
           id: "draft-ready",
           label: "Draft 1 published",
@@ -258,6 +274,50 @@ test("Studio keeps the embedded live draft navigable with real speaker notes", a
       "Speaker notes · Slide 1",
       { timeout: 20_000 },
     );
+    const draftStatus = page.locator(".drever-studio-draft-status");
+    const geometry = async () =>
+      Promise.all(
+        [
+          page.locator(".drever-studio-workspace"),
+          page.locator(".drever-studio-preview"),
+          page.locator(".drever-studio-direction"),
+          draftStatus,
+          page.locator(".drever-studio-preview__frame"),
+          page.locator(".drever-studio-preview iframe"),
+        ].map(async (locator) => {
+          const box = await locator.boundingBox();
+          if (box === null) throw new TypeError("Studio geometry was unavailable.");
+          return box;
+        }),
+      );
+    const beforeHistory = await geometry();
+    await draftStatus.getByRole("button", { name: /View history/u }).click();
+    await expect(draftStatus.locator(".drever-studio-activity-history__reveal")).toBeVisible();
+    await expect
+      .poll(() =>
+        draftStatus
+          .locator(".drever-studio-activity-history__reveal ol")
+          .evaluate((element) => element.scrollHeight > element.clientHeight),
+      )
+      .toBe(true);
+    const afterHistory = await geometry();
+    for (const [index, before] of beforeHistory.entries()) {
+      const after = afterHistory[index];
+      if (after === undefined) throw new TypeError("Studio geometry changed shape.");
+      for (const dimension of ["x", "y", "width", "height"] as const) {
+        expect(Math.abs(after[dimension] - before[dimension])).toBeLessThan(1);
+      }
+    }
+    await draftStatus.getByRole("button", { name: /View history/u }).click();
+    await expect(draftStatus.locator(".drever-studio-activity-history__reveal")).toBeHidden();
+    const afterHistoryClose = await geometry();
+    for (const [index, before] of beforeHistory.entries()) {
+      const after = afterHistoryClose[index];
+      if (after === undefined) throw new TypeError("Studio geometry changed shape after closing.");
+      for (const dimension of ["x", "y", "width", "height"] as const) {
+        expect(Math.abs(after[dimension] - before[dimension])).toBeLessThan(1);
+      }
+    }
     const rail = page.getByRole("navigation", { name: "Presentation slides" });
     await rail.getByRole("button", { name: /Motion should carry meaning/u }).click();
 
@@ -269,14 +329,46 @@ test("Studio keeps the embedded live draft navigable with real speaker notes", a
     await expect(page.locator(".drever-studio-preview__notes")).toContainText(
       "Pause at step 2, then jump to step 5.",
     );
-    await expect(page.locator(".drever-studio-direction")).toContainText("Core fixture artifact 2");
+    const directionPanel = page.locator(".drever-studio-direction");
+    await expect(directionPanel).toContainText("Core fixture artifact 2");
+    await directionPanel.getByRole("button", { name: "Slide context" }).click();
+    await expect(directionPanel).toContainText("Anchor evidence");
+
+    const deckFeedback = directionPanel.getByRole("button", { name: "Entire deck" });
+    const slideFeedback = directionPanel.getByRole("button", {
+      name: /This slide: Motion should carry meaning/u,
+    });
+    await deckFeedback.click();
+    await expect(deckFeedback).toHaveAttribute("aria-pressed", "true");
+    await expect(slideFeedback).toHaveAttribute("aria-pressed", "false");
+    await expect(directionPanel).toContainText("Feedback applies to the entire deck.");
+    await expect(
+      rail.getByRole("button", { name: /Motion should carry meaning/u }),
+    ).toHaveAttribute("aria-current", "page");
+    await expect.poll(async () => new URL((await currentDraft()).url()).pathname).toBe("/2");
+    await directionPanel
+      .getByRole("textbox", { name: "What should change?" })
+      .fill("Make the whole deck more concise without changing its conclusion.");
+    await directionPanel.getByRole("button", { name: /Send to agent/u }).click();
+    await expect
+      .poll(async () => {
+        try {
+          const action = JSON.parse(
+            await readFile(join(root, ".drever", "studio", "actions", "00000002.json"), "utf8"),
+          ) as { action?: { scope?: { kind?: string }; type?: string } };
+          return `${action.action?.type ?? ""}:${action.action?.scope?.kind ?? ""}`;
+        } catch {
+          return "";
+        }
+      })
+      .toBe("submit-feedback:deck");
 
     await writeFile(
       join(root, ".drever", "studio", "state.json"),
       JSON.stringify({
         version: 1,
         phase: "waiting-for-agent",
-        handledActionRevision: 1,
+        handledActionRevision: 2,
         activity: [
           {
             id: "draft-ready",

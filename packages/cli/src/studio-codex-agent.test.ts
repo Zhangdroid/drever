@@ -250,6 +250,7 @@ describe("native Codex Studio agent", () => {
     expect(prompt).toContain("user-owned session resources");
     expect(prompt).toContain("never use broad process cleanup");
     expect(prompt).toContain("isolated ephemeral loopback preview");
+    expect(prompt).toContain("Never use data:, blob:, or javascript: URLs as CSS @import");
     await provider.stop();
   });
 
@@ -266,8 +267,10 @@ describe("native Codex Studio agent", () => {
     const prompt = JSON.stringify(turnStart);
     expect(prompt).toContain("Storyboard handoff as latency-sensitive");
     expect(prompt).toContain("publish plan-review immediately");
+    expect(prompt).toContain("version-2 drever.plan.json");
+    expect(prompt).toContain("Storyboard is a content contract");
     expect(prompt).toContain("do not browse, research facts or assets");
-    expect(prompt).toContain("End this turn at the human approval gate");
+    expect(prompt).toContain("return this managed child turn at the human approval gate");
     expect(prompt).not.toContain("content-complete Draft 1");
     await provider.stop();
   });

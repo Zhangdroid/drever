@@ -87,7 +87,7 @@ whether to edit, replace, or create a named sibling project. The story-plan
 approval gate applies to new and replacement scopes, not ordinary edits.
 
 When the development server reports a local creation-room URL, that experimental surface owns the
-common brief, adaptive questions, visual Storyboard approval, and deck- or slide-scoped feedback.
+common brief, adaptive questions, content Storyboard approval, and deck- or slide-scoped feedback.
 The active coding agent polls its provider-neutral action journal and publishes progress; the
 browser does not call a model or write arbitrary project files. If the room is unavailable or the
 user prefers chat, the same contract runs conversationally and uses `/storyboard` for plan review.
@@ -117,8 +117,10 @@ For a new or explicitly replacement-scoped deck, before authoring the agent
 replaces the starter `brief.md` with the complete
 human-readable plan and writes the versioned `drever.plan.json` contract. The
 latter gives every slide a stable ID and narrative job plus its purpose,
-evidence, focal artifact, composition recipe, density, and any explicit motion
-owner. These IDs remain stable within the ordered planning and review contract;
+evidence, and anchor artifact. The Storyboard deliberately omits per-slide
+density, layout, and motion so approval stays focused on content and sequence;
+the approved deck-wide density and global visual direction remain in `brief.md` for the design pass.
+These IDs remain stable within the ordered planning and review contract;
 the compiler still identifies rendered slides positionally. `drever check`
 validates the plan shape and approved slide count before the agent presents it and
 stops for approval. The skip-remaining escape delegates choices but does not
@@ -450,13 +452,17 @@ For a new project:
 1. Run `npm create drever@latest <directory>` or let the global plugin invoke it.
 2. Start the development server and prefer its exact local creation-room URL for the common brief
    and adaptive questions. Complete and validate `brief.md` plus the versioned `drever.plan.json`,
-   publish the visual Storyboard there, and stop for its explicit approval action without authoring
-   the configured MDX entry. When the room is unavailable, share the exact `/storyboard` URL and
+   publish the content-first Storyboard there, and stop that managed child turn for its explicit
+   approval action without authoring the configured MDX entry. Keep the parent task and server alive;
+   browser approval starts the next managed turn without a chat message. When the room is
+   unavailable, share the exact `/storyboard` URL and
    collect approval in the conversation instead.
    Build this first Storyboard in one bounded semantic pass from the submitted brief and direction.
    Do not delay it for browsing, open-ended research, asset collection, broad source inspection,
    production builds, or browser automation. Record uncertain facts as evidence requirements and
    begin research only after approval; never mutate the Storyboard while its reviewer is reading it.
+   Keep slide-specific density, layout, and motion out of this checkpoint; retain the deck-wide
+   density, global visual foundation, and preferences in `brief.md` for the later design pass.
 3. After approval, create the full narrative with a deliberately simple,
    stable, readable base composition, then write the configured MDX entry. Do
    not scan official design source before authoring.

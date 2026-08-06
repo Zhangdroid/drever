@@ -43,13 +43,6 @@ const plan = {
       purpose: "Surface the misconception before correcting it.",
       evidence: ["The orbit depends on mass and distance."],
       focalArtifact: "Two equal orbital paths around different central objects.",
-      composition: { recipe: "split-proof", variant: "orbit" },
-      density: "concise",
-      motion: {
-        intent: "compare",
-        purpose: "Keep the orbit fixed while the central object changes.",
-        owner: "orbit-model",
-      },
     },
     {
       id: "closing-model",
@@ -58,8 +51,6 @@ const plan = {
       purpose: "Leave the room with a reusable model.",
       evidence: ["Gravity does not become a vacuum cleaner."],
       focalArtifact: "One sentence beside a restrained gravity well.",
-      composition: { recipe: "statement" },
-      density: "concise",
     },
   ],
 } as const satisfies DreverDeckPlan;
@@ -246,6 +237,7 @@ describe("Studio", () => {
     expect(markup).toMatch(
       /<div aria-hidden="true" class="drever-studio-activity-history__reveal" id="[^"]+">/u,
     );
+    expect(markup).toContain('data-presentation="inline"');
     expect(markup).not.toContain("<details");
   });
 
@@ -312,12 +304,9 @@ describe("Studio", () => {
     expect(markup).toContain("Approve story");
     expect(markup).toContain('aria-controls="drever-studio-plan-card-closing-model"');
     expect(markup).toContain('data-studio-slide-id="closing-model"');
-    expect(markup).toContain("Layout · Split Proof");
-    expect(markup).toContain("Motion · Compare");
-    expect(markup).toContain('title="Keep the orbit fixed while the central object changes."');
-    expect(markup).toContain(
-      'aria-description="Layout: split-proof. Motion: Compare. Keep the orbit fixed while the central object changes."',
-    );
+    expect(markup).not.toContain("Layout · Split Proof");
+    expect(markup).not.toContain("Motion · Compare");
+    expect(markup).not.toContain("aria-description=");
     expect(markup).not.toContain("Live Drever draft");
   });
 
@@ -503,8 +492,10 @@ describe("Studio", () => {
         onAction={vi.fn()}
         previewUrl="http://127.0.0.1:51999/"
         state={state({
+          activity: [{ id: "draft-ready", label: "Draft 1 published", status: "complete" }],
           phase: "preview",
           commonBrief: { topic: plan.brief.topic },
+          pendingActionCount: 1,
           plan: { ...plan, status: "approved" },
         })}
       />,
@@ -520,6 +511,11 @@ describe("Studio", () => {
     expect(markup).not.toContain("allow-top-navigation");
     expect(markup).toContain('href="http://127.0.0.1:4317/"');
     expect(markup).toContain('aria-pressed="true" type="button">Live draft');
+    expect(markup).toContain('aria-label="Feedback scope"');
+    expect(markup).toContain('data-presentation="popover-start"');
+    expect(markup).toContain("Entire deck");
+    expect(markup).toContain("This slide");
+    expect(markup).toContain("1 request waiting for the agent");
   });
 
   it("keeps a published live draft available while the agent starts another pass", () => {

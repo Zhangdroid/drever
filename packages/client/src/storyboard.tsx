@@ -90,10 +90,6 @@ const SlideCard = ({
   slide: DreverDeckPlanSlide;
 }>): ReactElement => {
   const style: StoryboardCardStyle = { "--drever-storyboard-card-index": index };
-  const composition = [slide.composition.recipe, slide.composition.variant]
-    .filter((value) => value !== undefined)
-    .join(" · ");
-
   return (
     <li className="drever-storyboard-card" data-storyboard-slide={slide.id} style={style}>
       <article aria-labelledby={`drever-storyboard-${slide.id}-title`}>
@@ -129,40 +125,12 @@ const SlideCard = ({
             </ul>
           </section>
           <section className="drever-storyboard-card__artifact">
-            <h3>Focal artifact</h3>
+            <h3>Anchor evidence</h3>
             <p dir="auto" lang={language}>
               {slide.focalArtifact}
             </p>
           </section>
         </div>
-
-        <dl className="drever-storyboard-card__specification">
-          <div>
-            <dt>Composition</dt>
-            <dd dir="auto" lang={language}>
-              {composition}
-            </dd>
-          </div>
-          <div>
-            <dt>Density</dt>
-            <dd>{sentenceCase(slide.density)}</dd>
-          </div>
-          {slide.motion === undefined ? (
-            <div>
-              <dt>Motion</dt>
-              <dd>None planned</dd>
-            </div>
-          ) : (
-            <div className="drever-storyboard-card__motion">
-              <dt>
-                Motion · {sentenceCase(slide.motion.intent)} · owner {slide.motion.owner}
-              </dt>
-              <dd dir="auto" lang={language}>
-                {slide.motion.purpose}
-              </dd>
-            </div>
-          )}
-        </dl>
       </article>
     </li>
   );
@@ -291,8 +259,8 @@ export const Storyboard = ({ state }: StoryboardProps): ReactElement => {
             </h1>
           </div>
           <p className="drever-storyboard__lede">
-            Read the sequence, evidence, and intended transformation. Approval happens in your AI
-            conversation; this surface stays deliberately read-only.
+            Read the sequence, claims, evidence, and intended transformation. Layout and motion come
+            after the story is approved.
           </p>
         </section>
 

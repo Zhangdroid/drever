@@ -167,7 +167,7 @@ export const readReleaseSmokeVisualEvidence = async (root, { required = false } 
 const deckPlan = (status) =>
   `${JSON.stringify(
     {
-      version: 1,
+      version: 2,
       status,
       brief: {
         topic: "Why black holes are not cosmic vacuum cleaners",
@@ -185,14 +185,22 @@ const deckPlan = (status) =>
           purpose: "Expose the vacuum-cleaner misconception.",
           evidence: ["Same mass and distance imply the same gravitational pull."],
           focalArtifact: "A stable orbit around equal masses",
-          composition: { recipe: "orbit-comparison" },
-          density: "concise",
         },
       ],
     },
     null,
     2,
   )}\n`;
+
+const legacyDeckPlan = (status) => {
+  const value = JSON.parse(deckPlan(status));
+  value.version = 1;
+  for (const slide of value.slides) {
+    slide.composition = { recipe: "orbit-comparison" };
+    slide.density = "concise";
+  }
+  return `${JSON.stringify(value, null, 2)}\n`;
+};
 
 afterEach(async () => {
   await Promise.all(
@@ -1025,7 +1033,7 @@ test("stops on a complete plan before authoring release-smoke presentation sourc
   );
 });
 
-test("uses the canonical V1 validator at the release-smoke plan gate", async () => {
+test("uses the canonical V2 content-only validator at the release-smoke plan gate", async () => {
   const root = await mkdtemp(join(tmpdir(), "drever-release-smoke-invalid-plan-"));
   temporaryRoots.push(root);
   const project = join(root, "project");
@@ -1045,9 +1053,16 @@ test("uses the canonical V1 validator at the release-smoke plan gate", async () 
     },
     {
       code: "DREVER_PLAN_FIELD_UNKNOWN",
-      field: "slides[0].composition.unknown",
+      field: "slides[0].composition",
       mutate: (value) => {
-        value.slides[0].composition.unknown = true;
+        value.slides[0].composition = { recipe: "orbit-comparison" };
+      },
+    },
+    {
+      code: "DREVER_PLAN_FIELD_UNKNOWN",
+      field: "slides[0].density",
+      mutate: (value) => {
+        value.slides[0].density = "concise";
       },
     },
     {
@@ -1065,12 +1080,13 @@ test("uses the canonical V1 validator at the release-smoke plan gate", async () 
       },
     },
     {
-      code: "DREVER_PLAN_FIELD_REQUIRED",
-      field: "slides[0].motion.owner",
+      code: "DREVER_PLAN_FIELD_UNKNOWN",
+      field: "slides[0].motion",
       mutate: (value) => {
         value.slides[0].motion = {
           intent: "focus",
           purpose: "Reveal the comparison.",
+          owner: "orbit-comparison",
         };
       },
     },
@@ -1088,6 +1104,40 @@ test("uses the canonical V1 validator at the release-smoke plan gate", async () 
       ),
     );
   }
+});
+
+test("requires V2 for new release smoke runs while preserving legacy V1 artifacts", async () => {
+  const root = await mkdtemp(join(tmpdir(), "drever-release-smoke-plan-version-"));
+  temporaryRoots.push(root);
+  const project = join(root, "project");
+  const output = join(root, "historical-source");
+  await Promise.all([
+    write(project, "slides.mdx", "# A historical deck\n"),
+    write(
+      project,
+      "brief.md",
+      "# Brief\n\n**Status:** Approved\n\n- **Visible slide density:** Concise\n\n## Slide outline\n\n1. Opening — establish the decision.\n",
+    ),
+    write(project, "drever.plan.json", legacyDeckPlan("approved")),
+  ]);
+
+  await assert.doesNotReject(collectReleaseSmokeSource(project, output));
+  await assert.rejects(
+    collectReleaseSmokeSource(project, join(root, "new-run-source"), { requireDeckPlan: true }),
+    /must use the current content-only version 2 contract/u,
+  );
+
+  await write(
+    project,
+    "brief.md",
+    "# Brief\n\n**Status:** Awaiting approval\n\n- **Visible slide density:** Concise\n\n## Slide outline\n\n1. Opening — establish the decision.\n",
+  );
+  await rm(join(project, "slides.mdx"));
+  await write(project, "drever.plan.json", legacyDeckPlan("awaiting-approval"));
+  await assert.rejects(
+    assertReleaseSmokePlanReview(project),
+    /must use the current content-only version 2 contract/u,
+  );
 });
 
 test("keeps the legacy brief and outline flow when the scaffold has no deck plan", async () => {

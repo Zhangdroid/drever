@@ -56,10 +56,11 @@ From there, ask for the deliverable in natural language:
 
 The agent resolves audience, outcome, duration, and visible slide density before
 authoring. When the host can keep a local server alive, it opens the experimental
-creation room for the common brief, adaptive questions, visual plan review, and
+creation room for the common brief, adaptive questions, content plan review, and
 later feedback. It then writes a complete `brief.md` plus a versioned
-`drever.plan.json` with stable slide jobs, evidence, focal artifacts,
-composition recipes, density, and motion ownership. It validates both and stops
+`drever.plan.json` with stable slide jobs, evidence, and anchor artifacts. The brief retains the
+deck-wide density, while the plan keeps per-slide density, layout, and motion out of this content
+review. It validates both files and stops
 for approval in that room. Chat plus the plan-only `/storyboard` page remains the
 fallback. Once you approve the plan, it creates the live Draft 1 and continues
 refining the same preview.

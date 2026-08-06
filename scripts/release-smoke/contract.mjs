@@ -1,7 +1,10 @@
 import { cp, lstat, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { dirname, extname, join, relative, resolve, sep } from "node:path";
-import { validateDreverDeckPlanValue } from "../../packages/schema/src/deck-plan.ts";
+import {
+  DREVER_DECK_PLAN_VERSION,
+  validateDreverDeckPlanValue,
+} from "../../packages/schema/src/deck-plan.ts";
 import { RELEASE_SMOKE_CLAUDE_BUDGET_USD, RELEASE_SMOKE_CLAUDE_MAX_TURNS } from "./limits.mjs";
 import { getReleaseSmokeProvider } from "./providers.mjs";
 
@@ -678,7 +681,7 @@ const assertReleaseSmokeBriefShape = (source, status) => {
 
 export const assertReleaseSmokeBrief = (source) => assertReleaseSmokeBriefShape(source, "Approved");
 
-const assertReleaseSmokePlan = (source, status) => {
+const assertReleaseSmokePlan = (source, status, { requireCurrentVersion = false } = {}) => {
   let plan;
   try {
     plan = JSON.parse(source);
@@ -690,10 +693,15 @@ const assertReleaseSmokePlan = (source, status) => {
     const details = validation.issues
       .map(({ code, field, message }) => `${code} at ${field}: ${message}`)
       .join(" ");
-    throw new Error(`Generated drever.plan.json does not satisfy the V1 contract. ${details}`);
+    throw new Error(`Generated drever.plan.json does not satisfy a supported contract. ${details}`);
+  }
+  if (requireCurrentVersion && validation.value.version !== DREVER_DECK_PLAN_VERSION) {
+    throw new Error(
+      `Generated drever.plan.json must use the current content-only version ${String(DREVER_DECK_PLAN_VERSION)} contract.`,
+    );
   }
   if (validation.value.status !== status) {
-    throw new Error(`Generated drever.plan.json must be a version-1 ${status} plan.`);
+    throw new Error(`Generated drever.plan.json must be a ${status} plan.`);
   }
 };
 
@@ -723,6 +731,7 @@ export const assertReleaseSmokePlanReview = async (
     assertReleaseSmokePlan(
       await readFile(join(root, "drever.plan.json"), "utf8"),
       "awaiting-approval",
+      { requireCurrentVersion: true },
     );
   }
 };
@@ -779,7 +788,9 @@ export const collectReleaseSmokeSource = async (
   }
   assertReleaseSmokeBrief(contents.find(({ path }) => path === "brief.md")?.content);
   const deckPlan = contents.find(({ path }) => path === "drever.plan.json")?.content;
-  if (deckPlan !== undefined) assertReleaseSmokePlan(deckPlan, "approved");
+  if (deckPlan !== undefined) {
+    assertReleaseSmokePlan(deckPlan, "approved", { requireCurrentVersion: requireDeckPlan });
+  }
 
   const sourceHash = createHash("sha256");
   for (const { content, path } of contents) {

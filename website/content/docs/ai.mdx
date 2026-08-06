@@ -44,7 +44,7 @@ the matching managed adapter: `--agent codex`, `--agent claude`, `--agent gemini
 default browser on ordinary local desktops, while CI and headless sessions print the same URL
 without attempting a GUI launch. When direct opening is unavailable but the host supports browser
 control, the agent navigates that browser itself. This room keeps the common brief, adaptive
-topic-specific questions, visual Storyboard approval, live work updates, and later feedback in one
+topic-specific questions, content Storyboard approval, live work updates, and later feedback in one
 place.
 
 Managed Codex and Claude Code sessions use their native streaming protocols. Gemini CLI, GitHub
@@ -98,11 +98,12 @@ moments, and a numbered slide outline. It locks one visual foundation there: the
 configured canvas, safe area, default content inset, and owner of the Theme, Stage background, and
 recurring accents. Motion and design passes must preserve that foundation and the last-known-good
 layout checkpoint. The agent also writes the versioned `drever.plan.json` contract: stable slide IDs
-and jobs, purposes, evidence,
-focal artifacts, composition recipes, density, and explicit motion ownership. `drever check`
-validates that structure before the agent publishes the complete visual Storyboard to the local
-creation room and stops for explicit approval. The standalone `/storyboard` route renders the same
-persisted plan without importing MDX and remains the read-only fallback.
+and jobs, purposes, evidence, and anchor artifacts. It deliberately omits per-slide density, layout,
+and motion so this checkpoint reviews content and sequence; the deck-wide density and global visual
+direction remain in `brief.md` for the design pass.
+`drever check` validates that structure before the agent publishes the complete Storyboard to the
+local creation room and stops for explicit approval. The standalone `/storyboard` route renders the
+same persisted plan without importing MDX and remains the read-only fallback.
 
 That first Storyboard is intentionally a fast semantic pass over the submitted brief and direction.
 The agent records uncertain claims as evidence requirements instead of delaying review for broad
@@ -267,7 +268,7 @@ workspace tools so permissions, diffs, checks, and Git rollback remain visible.
 
 1. Describe the topic and common choices in the local creation room, or in chat when it is unavailable.
 2. Answer the useful subject-specific questions or delegate the remaining choices.
-3. Review the validated visual Storyboard, then approve or revise it.
+3. Review the validated content Storyboard, then approve or revise it.
 4. Inspect the complete Draft 1 and direct one slide or the whole deck while the agent refines it.
 5. Inspect `npm exec -- drever context --json` and fix `npm run check -- --json` diagnostics.
 6. Run `npm run check -- --rendered --evidence .drever/review --json`, fix proven layout defects,

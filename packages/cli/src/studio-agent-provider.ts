@@ -110,16 +110,18 @@ export const studioActionWorkflowInstructions = (record: DreverStudioActionRecor
     record.action.type === "skip-remaining-questions"
       ? [
           "Treat this Storyboard handoff as latency-sensitive.",
-          "In one bounded semantic pass, use only the submitted brief and direction to update brief.md and write a coherent, valid drever.plan.json with status awaiting-approval, then publish plan-review immediately.",
+          "In one bounded semantic pass, use only the submitted brief and direction to update brief.md and write a coherent, valid version-2 drever.plan.json with status awaiting-approval, then publish plan-review immediately.",
+          "The Storyboard is a content contract: each slide records its job, working title, purpose, evidence, and anchor evidence. Do not choose or emit per-slide density, composition, layout, or motion before approval; keep the deck-wide density, global canvas, safe area, content inset, surface ownership, and the user's visual and motion preferences in brief.md for the later design pass.",
           "Before that first reviewable Storyboard, do not browse, research facts or assets, inspect broad project or package source, start another worker, build, export, or run browser automation.",
           "Express uncertain facts as explicit evidence requirements instead of inventing them.",
-          "End this turn at the human approval gate; do not mutate the Storyboard behind the reviewer. Continue factual research and visual refinement after approve-plan while building the same live Draft 1.",
+          "Publish plan-review and return this managed child turn at the human approval gate; do not mutate the Storyboard behind the reviewer. The owning Studio server and parent task remain active and must keep observing the session until ready, error, cancellation, or new user input. Continue factual research and visual refinement after approve-plan while building the same live Draft 1.",
         ].join(" ")
       : record.action.type === "approve-plan"
         ? [
             "Treat this approve-plan handoff as latency-sensitive.",
             "First mark brief.md and drever.plan.json approved and publish the drafting phase for this action, then write one bounded, semantic, content-complete Draft 1: every approved slide has its real readable copy, evidence, focal artifact, and speaker notes, using only a deliberately simple visual system.",
             "Before Draft 1, preserve the exact approved or configured canvas and choose one explicit safe-area or content-inset policy; do not substitute another familiar resolution. Treat those bounds as locked.",
+            "Write CSS in project-local files. Never use data:, blob:, or javascript: URLs as CSS @import sources, and never turn inline CSS into an import specifier.",
             "Before publishing preview, run only the project-local `drever check --json` through the detected package manager and repair blocking source diagnostics.",
             "Reuse the active Studio development server and its embedded preview iframe; let HMR reveal the draft in that same surface.",
             "Before preview, do not start or restart another development server, open another browser, invoke Playwright or any browser automation, run rendered review, build, export, or begin design research.",

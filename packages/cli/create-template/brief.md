@@ -45,14 +45,12 @@ authoring the presentation.
 - Surface owner: active Theme, Stage background, and any persistent rail or accent
 - Last-known-good layout checkpoint:
 
-## Signature moments
-
-1.
-2.
-
 ## Slide outline
 
-1. Working title — purpose, evidence or focal visual, and any material Notes, Steps, interaction, or motion.
+Keep this approval outline content-only. Record per-slide layout, focal visuals, Steps,
+interaction, and motion later in `design/art-direction.md`, after the story is approved.
+
+1. Working title — narrative job, purpose, required evidence, and intended audience takeaway.
 
 ## Assumptions and open risks
 

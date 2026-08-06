@@ -1,6 +1,7 @@
 import type { MotionIntent } from "./extension.ts";
 
-export const DREVER_DECK_PLAN_VERSION = 1 as const;
+export const DREVER_DECK_PLAN_LEGACY_VERSION = 1 as const;
+export const DREVER_DECK_PLAN_VERSION = 2 as const;
 
 export type DreverDeckPlanStatus = "awaiting-input" | "awaiting-approval" | "approved";
 
@@ -28,11 +29,13 @@ export type DreverDeckPlanBrief = Readonly<{
   density: DreverDeckPlanDensity;
 }>;
 
+/** @deprecated V1 stored composition in the Storyboard. V2 defers it until design authoring. */
 export type DreverDeckPlanComposition = Readonly<{
   recipe: string;
   variant?: string;
 }>;
 
+/** @deprecated V1 stored motion in the Storyboard. V2 defers it until design authoring. */
 export type DreverDeckPlanMotion = Readonly<{
   intent: MotionIntent;
   purpose: string;
@@ -46,23 +49,39 @@ export type DreverDeckPlanSlide = Readonly<{
   purpose: string;
   evidence: readonly string[];
   focalArtifact: string;
-  composition: DreverDeckPlanComposition;
-  density: DreverDeckPlanDensity;
-  motion?: DreverDeckPlanMotion;
 }>;
 
-/** Serializable, ordered design intent written before presentation authoring. */
-export type DreverDeckPlan =
-  | Readonly<{
-      version: typeof DREVER_DECK_PLAN_VERSION;
-      status: "awaiting-input";
-    }>
-  | Readonly<{
-      version: typeof DREVER_DECK_PLAN_VERSION;
-      status: Exclude<DreverDeckPlanStatus, "awaiting-input">;
-      brief: DreverDeckPlanBrief;
-      slides: readonly DreverDeckPlanSlide[];
-    }>;
+/** @deprecated Read-only compatibility shape for version 1 deck plans. */
+export type DreverDeckPlanSlideV1 = DreverDeckPlanSlide &
+  Readonly<{
+    density: DreverDeckPlanDensity;
+    composition: DreverDeckPlanComposition;
+    motion?: DreverDeckPlanMotion;
+  }>;
+
+type DreverDeckPlanAwaitingInput<Version extends number> = Readonly<{
+  version: Version;
+  status: "awaiting-input";
+}>;
+
+type DreverDeckPlanReviewable<Version extends number, Slide> = Readonly<{
+  version: Version;
+  status: Exclude<DreverDeckPlanStatus, "awaiting-input">;
+  brief: DreverDeckPlanBrief;
+  slides: readonly Slide[];
+}>;
+
+/** @deprecated Version 1 is accepted for existing projects but is no longer authored. */
+export type DreverDeckPlanV1 =
+  | DreverDeckPlanAwaitingInput<typeof DREVER_DECK_PLAN_LEGACY_VERSION>
+  | DreverDeckPlanReviewable<typeof DREVER_DECK_PLAN_LEGACY_VERSION, DreverDeckPlanSlideV1>;
+
+export type DreverDeckPlanV2 =
+  | DreverDeckPlanAwaitingInput<typeof DREVER_DECK_PLAN_VERSION>
+  | DreverDeckPlanReviewable<typeof DREVER_DECK_PLAN_VERSION, DreverDeckPlanSlide>;
+
+/** Serializable, ordered story intent written before presentation authoring. */
+export type DreverDeckPlan = DreverDeckPlanV1 | DreverDeckPlanV2;
 
 export type DreverDeckPlanValidationIssue = Readonly<{
   code: string;
@@ -105,7 +124,7 @@ const MISSING = Symbol("missing deck-plan field");
 const isRecord = (value: unknown): value is JsonRecord =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
-/** Validates an untrusted value against the complete dependency-free V1 deck-plan contract. */
+/** Validates an untrusted value against the current or supported legacy deck-plan contract. */
 export const validateDreverDeckPlanValue = (value: unknown): DreverDeckPlanValidationResult => {
   const issues: DreverDeckPlanValidationIssue[] = [];
   const report = (code: string, field: string, message: string): void => {
@@ -154,13 +173,16 @@ export const validateDreverDeckPlanValue = (value: unknown): DreverDeckPlanValid
   }
   const root = value;
   const version = required(root, "version");
-  if (version !== MISSING && version !== DREVER_DECK_PLAN_VERSION) {
+  const supportedVersion =
+    version === DREVER_DECK_PLAN_VERSION || version === DREVER_DECK_PLAN_LEGACY_VERSION;
+  if (version !== MISSING && !supportedVersion) {
     report(
       "DREVER_PLAN_VERSION_UNSUPPORTED",
       "version",
-      `drever.plan.json must use version ${String(DREVER_DECK_PLAN_VERSION)}.`,
+      `drever.plan.json must use version ${String(DREVER_DECK_PLAN_VERSION)} or supported legacy version ${String(DREVER_DECK_PLAN_LEGACY_VERSION)}.`,
     );
   }
+  const legacy = version === DREVER_DECK_PLAN_LEGACY_VERSION;
   const status = choice(required(root, "status"), "status", STATUSES);
   exactKeys(
     root,
@@ -214,17 +236,16 @@ export const validateDreverDeckPlanValue = (value: unknown): DreverDeckPlanValid
     const field = `slides[${String(index)}]`;
     const slide = object(candidate, field);
     if (slide === undefined) continue;
-    exactKeys(slide, field, [
+    const slideKeys = [
       "id",
       "job",
       "title",
       "purpose",
       "evidence",
       "focalArtifact",
-      "composition",
-      "density",
-      "motion",
-    ]);
+      ...(legacy ? ["density", "composition", "motion"] : []),
+    ];
+    exactKeys(slide, field, slideKeys);
     const id = text(required(slide, "id", field), `${field}.id`);
     if (id !== undefined) {
       ids.push(id);
@@ -242,16 +263,21 @@ export const validateDreverDeckPlanValue = (value: unknown): DreverDeckPlanValid
       evidence.forEach((item, itemIndex) => text(item, `${field}.evidence[${String(itemIndex)}]`));
     }
     text(required(slide, "focalArtifact", field), `${field}.focalArtifact`);
-    const composition = object(required(slide, "composition", field), `${field}.composition`);
-    if (composition !== undefined) {
-      exactKeys(composition, `${field}.composition`, ["recipe", "variant"]);
-      text(required(composition, "recipe", `${field}.composition`), `${field}.composition.recipe`);
-      if (Object.hasOwn(composition, "variant")) {
-        text(composition.variant, `${field}.composition.variant`);
+    if (legacy) {
+      const composition = object(required(slide, "composition", field), `${field}.composition`);
+      if (composition !== undefined) {
+        exactKeys(composition, `${field}.composition`, ["recipe", "variant"]);
+        text(
+          required(composition, "recipe", `${field}.composition`),
+          `${field}.composition.recipe`,
+        );
+        if (Object.hasOwn(composition, "variant")) {
+          text(composition.variant, `${field}.composition.variant`);
+        }
       }
     }
-    choice(required(slide, "density", field), `${field}.density`, DENSITIES);
-    if (Object.hasOwn(slide, "motion")) {
+    if (legacy) choice(required(slide, "density", field), `${field}.density`, DENSITIES);
+    if (legacy && Object.hasOwn(slide, "motion")) {
       const motion = object(slide.motion, `${field}.motion`);
       if (motion !== undefined) {
         exactKeys(motion, `${field}.motion`, ["intent", "purpose", "owner"]);

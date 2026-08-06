@@ -110,6 +110,7 @@ describe("Studio action workflow instructions", () => {
     expect(instructions).toMatch(/isolated rendered review only after the final authored source/iu);
     expect(instructions).toMatch(/preserve the last-known-good canvas[^.]*safe area/iu);
     expect(instructions).toMatch(/restore the baseline[^.]*redesign the enhancement/iu);
+    expect(instructions).toMatch(/Never use data:, blob:, or javascript: URLs as CSS @import/iu);
   });
 
   it("keeps question delivery free of Draft 1 work while preserving the Studio host", () => {
@@ -188,11 +189,19 @@ describe("Studio action workflow instructions", () => {
     expect(instructions).toMatch(/one bounded semantic pass[^.]*submitted brief and direction/iu);
     expect(instructions).toMatch(/drever\.plan\.json[^.]*awaiting-approval/iu);
     expect(instructions).toMatch(/publish plan-review immediately/iu);
+    expect(instructions).toMatch(/version-2 drever\.plan\.json/iu);
+    expect(instructions).toMatch(/Storyboard is a content contract/iu);
+    expect(instructions).toMatch(
+      /Do not choose or emit per-slide density, composition, layout, or motion/iu,
+    );
+    expect(instructions).toMatch(/keep the deck-wide density/iu);
+    expect(instructions).toMatch(/global canvas[^.]*safe area[^.]*content inset/iu);
     expect(instructions).toMatch(
       /Before that first reviewable Storyboard[^.]*do not browse[^.]*research facts or assets/iu,
     );
     expect(instructions).toMatch(/uncertain facts[^.]*explicit evidence requirements/iu);
-    expect(instructions).toMatch(/End this turn at the human approval gate/iu);
+    expect(instructions).toMatch(/return this managed child turn at the human approval gate/iu);
+    expect(instructions).toMatch(/parent task remain active[^.]*ready, error, cancellation/iu);
     expect(instructions).toMatch(/Continue factual research[^.]*after approve-plan/iu);
     expect(instructions).not.toMatch(/content-complete Draft 1/iu);
   });

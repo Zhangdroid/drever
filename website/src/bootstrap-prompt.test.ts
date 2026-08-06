@@ -72,14 +72,16 @@ describe("public bootstrap prompt", () => {
   });
 
   it("requires a machine-checkable story contract before authoring", () => {
-    expect(createDeckSkill).toContain("<!-- drever-plan-review-contract:v3 -->");
+    expect(createDeckSkill).toContain("<!-- drever-plan-review-contract:v4 -->");
     expect(createDeckSkill).toContain("`brief.md`");
     expect(createDeckSkill).toContain("`drever.plan.json`");
     expect(createDeckSkill).toMatch(/stable lowercase hyphenated id/iu);
     expect(createDeckSkill).toMatch(/narrative job/iu);
     expect(createDeckSkill).toMatch(/evidence and one focal artifact/iu);
-    expect(createDeckSkill).toMatch(/composition recipe/iu);
-    expect(createDeckSkill).toMatch(/motion[^.]*named intent, purpose, and single owner/iu);
+    expect(createDeckSkill).toMatch(
+      /Do not put per-slide density, layout, composition[^.]*motion[^.]*signature\s+moment/iu,
+    );
+    expect(createDeckSkill).toMatch(/global\s+direction retained in `brief\.md`/iu);
     expect(createDeckSkill).toMatch(/check --json[^.]*before presenting/iu);
     expect(createDeckSkill).toMatch(/invite\s+edits or explicit\s+approval,\s+and stop/iu);
     expect(createDeckSkill).toMatch(/Prefer the local creation room/iu);
@@ -157,9 +159,12 @@ describe("public bootstrap prompt", () => {
   it("carries the approved plan through design, authoring, and review", () => {
     expect(createDesignSkill).toMatch(/approved `drever\.plan\.json`/iu);
     expect(createDesignSkill).toMatch(
-      /planned focal\s+artifact, composition recipe, density choice, and motion owner/iu,
+      /planned focal\s+artifact[^.]*derive the per-slide density, composition, and motion/iu,
     );
-    expect(authorDeckSkill).toMatch(/preserve its ordered planning labels, narrative jobs/iu);
+    expect(authorDeckSkill).toMatch(/Preserve the plan's ordered labels, narrative jobs/iu);
+    expect(authorDeckSkill).toMatch(
+      /Version-2 plans intentionally leave per-slide density, layout, and motion/iu,
+    );
     expect(authorDeckSkill).toMatch(/compiled slide identity remains positional/iu);
     expect(reviewDeckSkill).toMatch(/text overlap, direct scroll overflow/iu);
     expect(reviewDeckSkill).toMatch(/compare every planned narrative job/iu);

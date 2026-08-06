@@ -35,10 +35,12 @@ Treat a Drever Theme as a deterministic internal contract, not the primary user 
 3. State material assumptions. Ask only when a missing choice would substantially change the result.
 
 Use the approved plan as a constraint, not inspiration to reinterpret. Give every planned focal
-artifact, composition recipe, density choice, and motion owner a concrete implementation or record
-the deliberate replacement in `art-direction.md`. Keep the plan's stable labels and order aligned
-with the deck so review can compare intent with rendered evidence; runtime slide identity remains
-positional. If the plan is missing or not approved during new
+artifact a concrete implementation, then derive the per-slide density, composition, and motion from
+each accepted narrative job plus the deck-wide density and global direction in `brief.md`; record
+those choices in `art-direction.md`. A legacy version-1 plan may already contain per-slide density,
+composition, and motion constraints, which remain authoritative unless the user revises them. Keep the plan's stable labels and order
+aligned with the deck so review can compare intent with rendered evidence; runtime slide identity
+remains positional. If the plan is missing or not approved during new
 deck creation, return to the creation skill instead of designing an unreviewed story.
 
 ## Research before styling
