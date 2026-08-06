@@ -144,6 +144,93 @@
     margin: 0;
   }
 
+  [data-drever-theme-id="drever:neutral"] [data-drever-slide] {
+    position: relative;
+    display: grid;
+    align-content: center;
+    padding: 88px 112px;
+    overflow: clip;
+    background: transparent;
+    color: inherit;
+    isolation: isolate;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    text-rendering: optimizeLegibility;
+  }
+
+  [data-drever-theme-id="drever:neutral"]
+    [data-drever-slide]
+    :where(h1, h2, h3, h4, h5, h6, p, ul, ol, blockquote, pre, table) {
+    margin-block: 0;
+  }
+
+  [data-drever-theme-id="drever:neutral"] [data-drever-slide] :where(h1, h2, h3, h4, h5, h6) {
+    max-width: 18ch;
+    color: inherit;
+    font-weight: 720;
+    letter-spacing: -0.04em;
+    text-wrap: balance;
+  }
+
+  [data-drever-theme-id="drever:neutral"] [data-drever-slide] h1 {
+    max-width: 14ch;
+    font-size: 72px;
+    line-height: 1;
+  }
+
+  [data-drever-theme-id="drever:neutral"] [data-drever-slide] h2 {
+    font-size: 52px;
+    line-height: 1.04;
+  }
+
+  [data-drever-theme-id="drever:neutral"] [data-drever-slide] h3 {
+    font-size: 36px;
+    line-height: 1.1;
+  }
+
+  [data-drever-theme-id="drever:neutral"] [data-drever-slide] :where(h4, h5, h6) {
+    font-size: 28px;
+    line-height: 1.16;
+  }
+
+  [data-drever-theme-id="drever:neutral"] [data-drever-slide] :where(p, li) {
+    font-size: 28px;
+    line-height: 1.46;
+    letter-spacing: -0.014em;
+    text-wrap: pretty;
+  }
+
+  [data-drever-theme-id="drever:neutral"] [data-drever-slide] p {
+    max-width: 46ch;
+  }
+
+  [data-drever-theme-id="drever:neutral"] [data-drever-slide] > small {
+    color: color-mix(in srgb, currentcolor, transparent 34%);
+    font-size: 17px;
+    font-weight: 680;
+    letter-spacing: 0.1em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  [data-drever-theme-id="drever:neutral"] [data-drever-slide] > footer {
+    max-width: 58ch;
+    margin-top: 44px;
+    color: color-mix(in srgb, currentcolor, transparent 38%);
+    font-size: 18px;
+    line-height: 1.45;
+  }
+
+  [data-drever-theme-id="drever:neutral"] [data-drever-slide] > small + h1 {
+    margin-top: 20px;
+  }
+
+  [data-drever-theme-id="drever:neutral"]
+    [data-drever-slide]
+    > :where(h1, h2, h3)
+    + :where(p, ul, ol, blockquote, pre, table) {
+    margin-top: 32px;
+  }
+
   [data-drever-slide][hidden] {
     display: none !important;
   }
@@ -2708,5 +2795,69 @@
     .drever-document__deck {
       gap: 36px;
     }
+  }
+}
+
+@layer drever.utility {
+  .drever-render-failure {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    box-sizing: border-box;
+    display: grid;
+    align-content: center;
+    justify-items: start;
+    gap: 14px;
+    padding: clamp(52px, 8%, 128px);
+    color: #f5f3ed;
+    background:
+      radial-gradient(circle at 82% 18%, rgb(130 104 255 / 16%), transparent 30%),
+      linear-gradient(145deg, #171823, #101116);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    text-align: left;
+  }
+
+  .drever-render-failure > span {
+    color: #c7f03a;
+    font-size: clamp(13px, 1.15cqw, 18px);
+    font-weight: 720;
+    letter-spacing: 0.1em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .drever-render-failure > strong {
+    max-width: 18ch;
+    color: inherit;
+    font-size: clamp(36px, 4.6cqw, 72px);
+    font-weight: 620;
+    letter-spacing: -0.04em;
+    line-height: 0.98;
+    text-wrap: balance;
+  }
+
+  .drever-render-failure > p {
+    max-width: 60ch;
+    margin: 0;
+    color: rgb(245 243 237 / 70%);
+    font-size: clamp(16px, 1.45cqw, 23px);
+    line-height: 1.45;
+  }
+
+  .drever-render-failure > pre {
+    box-sizing: border-box;
+    overflow: auto;
+    width: min(100%, 880px);
+    max-height: 8.5em;
+    margin: 8px 0 0;
+    padding: 16px 18px;
+    border: 1px solid rgb(255 255 255 / 10%);
+    border-radius: 12px;
+    color: rgb(245 243 237 / 76%);
+    background: rgb(0 0 0 / 22%);
+    font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+    font-size: clamp(12px, 0.95cqw, 15px);
+    line-height: 1.45;
+    white-space: pre-wrap;
   }
 }

@@ -31,6 +31,8 @@ import {
 } from "./studio-agent-publication.ts";
 import {
   phaseForStudioAction,
+  signalStudioAgentProcess,
+  studioAgentProcessOptions,
   studioActionWorkflowInstructions,
   type StudioAgentApprovalDecision,
   type StudioAgentApprovalRequest,
@@ -134,7 +136,7 @@ const settleWithin = async (operation: Promise<unknown>, timeoutMs: number): Pro
 
 const launchNativeAcpAgent: LaunchAcpAgent = (command, cwd) => {
   const child = spawn(command.command, [...command.args], {
-    cwd,
+    ...studioAgentProcessOptions(cwd),
     stdio: ["pipe", "pipe", "pipe"],
   });
   child.stderr.on("data", (chunk: Buffer | string) => {
@@ -152,9 +154,9 @@ const launchNativeAcpAgent: LaunchAcpAgent = (command, cwd) => {
     closed,
     async stop() {
       child.stdin.end();
-      if (!child.killed) child.kill("SIGTERM");
+      if (!child.killed) signalStudioAgentProcess(child, "SIGTERM");
       if (await settleWithin(closed, DEFAULT_SHUTDOWN_TIMEOUT_MS)) return;
-      child.kill("SIGKILL");
+      signalStudioAgentProcess(child, "SIGKILL");
       await settleWithin(closed, DEFAULT_SHUTDOWN_TIMEOUT_MS);
     },
   });

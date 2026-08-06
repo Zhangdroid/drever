@@ -653,15 +653,20 @@ const stateWithoutRevision = async (
     publishedPhase === "preview" || publishedPhase === "ready" ? publishedPhase : undefined;
   const publishedArtifactIsCurrent =
     pendingActionCount === 0 && publishedArtifactPhase !== undefined;
-  const agentPhase = publishedArtifactIsCurrent
-    ? publishedArtifactPhase
-    : livePhase === "error"
-      ? livePhase
-      : liveSnapshot?.connected === true
-        ? (livePhase ?? publishedPhase)
-        : (publishedPhase ?? livePhase);
+  const publishedPlanReviewIsCurrent =
+    pendingActionCount === 0 && plan?.status === "awaiting-approval";
+  const durableCheckpointIsCurrent = publishedArtifactIsCurrent || publishedPlanReviewIsCurrent;
+  const agentPhase = publishedPlanReviewIsCurrent
+    ? "plan-review"
+    : publishedArtifactIsCurrent
+      ? publishedArtifactPhase
+      : livePhase === "error"
+        ? livePhase
+        : liveSnapshot?.connected === true
+          ? (livePhase ?? publishedPhase)
+          : (publishedPhase ?? livePhase);
   const telemetryAgent =
-    publishedArtifactIsCurrent || liveSnapshot === undefined ? fileAgent : liveAgent;
+    durableCheckpointIsCurrent || liveSnapshot === undefined ? fileAgent : liveAgent;
   const draftAvailable =
     draftWasAvailable ||
     publishedPhase === "preview" ||
@@ -693,6 +698,7 @@ const stateWithoutRevision = async (
       version: DREVER_STUDIO_PROTOCOL_VERSION,
       phase,
       ...(draftAvailable ? { draftAvailable: true } : {}),
+      ...(liveSnapshot === undefined ? {} : { agentConfigured: true }),
       agentConnected,
       latestActionRevision,
       pendingActionCount,
@@ -721,6 +727,7 @@ const comparableState = (state: DreverStudioState): string => {
 const comparableActionState = (state: DreverStudioState): string => {
   const {
     activity: _activity,
+    agentConfigured: _agentConfigured,
     agentConnected: _agentConnected,
     agentApprovals: _agentApprovals,
     draftAvailable: _draftAvailable,

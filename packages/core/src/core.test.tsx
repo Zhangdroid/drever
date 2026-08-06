@@ -1,5 +1,5 @@
 import { DREVER_INTERNAL_SLIDE_COMPONENT, DREVER_INTERNAL_STEP_COMPONENT } from "@drever/schema";
-import { createElement, type ComponentType } from "react";
+import { createElement, type ComponentType, type PropsWithChildren } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vite-plus/test";
 import {
@@ -11,6 +11,7 @@ import {
   MotionGroup,
   Note,
   Slide,
+  SlideRenderBoundaryProvider,
   SlideStateProvider,
   SlideTransition,
   Step,
@@ -365,6 +366,34 @@ describe("core primitives", () => {
     expect(markup).toContain('data-slide-state="active"');
     expect(markup).toContain('data-current-step="2"');
     expect(markup).toContain('data-step-state="active"');
+  });
+
+  it("lets an interactive surface wrap authored content inside the owned Slide", () => {
+    const Boundary = ({ children, id, index }: PropsWithChildren<SlideIdentity>) =>
+      createElement(
+        "div",
+        {
+          "data-boundary-slide-id": id,
+          "data-boundary-slide-index": index,
+        },
+        children,
+      );
+    const markup = renderToStaticMarkup(
+      createElement(
+        SlideRenderBoundaryProvider,
+        { boundary: Boundary },
+        createElement(
+          Slide,
+          { id: "details", index: 3 },
+          createElement("p", null, "Authored content"),
+        ),
+      ),
+    );
+
+    expect(markup).toContain('data-drever-slide=""');
+    expect(markup).toContain('data-boundary-slide-id="details"');
+    expect(markup).toContain('data-boundary-slide-index="3"');
+    expect(markup).toContain("<p>Authored content</p>");
   });
 
   it("resolves active and currentStep independently with explicit values taking precedence", () => {

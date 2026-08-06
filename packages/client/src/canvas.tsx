@@ -138,6 +138,7 @@ export const CanvasViewport = ({
       <div
         className="drever-canvas"
         data-drever-canvas=""
+        data-drever-theme-id={theme?.id}
         data-scale={scale}
         ref={canvasRef}
         style={style}

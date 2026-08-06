@@ -331,6 +331,69 @@ export default {
     await waitForDreverReady(page);
     await expect(page.getByTestId("hmr-stage-foreground")).toBeVisible();
     health.expectHealthy();
+
+    await page.evaluate(() => {
+      Reflect.set(globalThis, "__dreverHmrFailure", true);
+    });
+    await writeFile(
+      `${root}/Counter.tsx`,
+      `import { useState } from "react";
+
+export const Counter = () => {
+  if (Reflect.get(globalThis, "__dreverHmrFailure") === true) {
+    throw new TypeError("The edited draft failed during HMR.");
+  }
+  const [count, setCount] = useState(0);
+  return <button data-testid="hmr-counter" onClick={() => setCount((value) => value + 1)}>{count}</button>;
+};
+`,
+    );
+    await expect(page.locator("[data-drever-render-failure]")).toContainText(
+      "Draft slide 2 could not render",
+    );
+    await expect(page.locator("[data-drever-audience-controls]")).toBeAttached();
+
+    await writeFile(
+      `${root}/Counter.tsx`,
+      `import { useState } from "react";
+
+export const Counter = () => {
+  const [count, setCount] = useState(0);
+  return <button data-testid="hmr-counter" onClick={() => setCount((value) => value + 1)}>{count}</button>;
+};
+`,
+    );
+    await expect(page.getByRole("heading", { name: "Stable title" })).toBeVisible();
+    await expect(page.getByTestId("hmr-counter")).toBeVisible();
+    await expect(page.locator("[data-drever-render-failure]")).toHaveCount(0);
+
+    await page.evaluate(() => {
+      Reflect.set(globalThis, "__dreverHmrStageFailure", true);
+    });
+    await writeFile(
+      `${root}/StageBackground.tsx`,
+      `export default function StageBackground() {
+  if (Reflect.get(globalThis, "__dreverHmrStageFailure") === true) {
+    throw new TypeError("The edited Stage failed during HMR.");
+  }
+  return <div data-testid="hmr-stage-background" style={{ background: "#050914", inset: 0, position: "absolute" }} />;
+}
+`,
+    );
+    await expect(page.locator("[data-drever-render-failure]")).toContainText(
+      "Draft slide 2 could not render",
+    );
+    await expect(page.locator("[data-drever-audience-controls]")).toBeAttached();
+
+    await writeFile(
+      `${root}/StageBackground.tsx`,
+      `export default function StageBackground() {
+  return <div data-testid="hmr-stage-background" style={{ background: "#050914", inset: 0, position: "absolute" }} />;
+}
+`,
+    );
+    await expect(page.getByTestId("hmr-stage-background")).toBeVisible();
+    await expect(page.locator("[data-drever-render-failure]")).toHaveCount(0);
   } finally {
     await stop(server);
   }

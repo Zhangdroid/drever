@@ -44,8 +44,10 @@ describe("public bootstrap prompt", () => {
     expect(prompt).toMatch(/do not search the\s+Drever repository/iu);
     expect(prompt).toContain("`node_modules`");
     expect(prompt).toMatch(/handoff transfers action handling, not process\s+ownership/iu);
-    expect(prompt).toMatch(/keep the development command and parent task alive through delivery/iu);
-    expect(prompt).toMatch(/one-shot host[^.]*chat plus Storyboard/iu);
+    expect(prompt).toMatch(
+      /keep\s+the development command and parent task alive through delivery/iu,
+    );
+    expect(prompt).toMatch(/one-shot host[^.]*chat plus\s+Storyboard/iu);
     expect(prompt).not.toMatch(/drever-(?:briefing|plan-review|preview)-contract/iu);
     expect(prompt).not.toMatch(/topic-fingerprint|usable inner silhouette|MotionGroup/iu);
   });
@@ -134,6 +136,22 @@ describe("public bootstrap prompt", () => {
       expect(skill).toMatch(/mutation invalidates[^.]*evidence/iu);
       expect(skill).toMatch(/Never (?:hand off or )?cite\s+stale\s+evidence/iu);
     }
+  });
+
+  it("preserves the approved visual foundation across generation and refinement", () => {
+    expect(prompt).toMatch(/official designs[^.]*reference studies[^.]*never automatic presets/iu);
+    expect(prompt).toMatch(/custom direction[^.]*replaces\s+starter paint/iu);
+    expect(prompt).toMatch(/configured canvas and safe area/iu);
+    expect(prompt).toMatch(/stable preview before\s+research or browser automation/iu);
+    expect(prompt).toMatch(/not generic browser control/iu);
+
+    expect(createDeckSkill).toContain("<!-- drever-visual-foundation-contract:v1 -->");
+    expect(createDesignSkill).toContain("<!-- drever-visual-foundation-contract:v1 -->");
+    expect(createDeckSkill).toMatch(/never substitute\s+1920 × 1080/iu);
+    expect(createDesignSkill).toMatch(/custom[^.]*owns the complete presentation surface/iu);
+    expect(createDesignSkill).toMatch(/inherited\s+blue rail/iu);
+    expect(authorDeckSkill).toMatch(/last-known-good visual checkpoint/iu);
+    expect(reviewDeckSkill).toMatch(/blocking contract drift/iu);
   });
 
   it("carries the approved plan through design, authoring, and review", () => {

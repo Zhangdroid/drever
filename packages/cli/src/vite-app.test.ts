@@ -31,7 +31,7 @@ describe("resolveFrameworkViteConfig", () => {
 
     expect(config.dedupe).toEqual(["react", "react-dom"]);
     expect(config.exclude).toEqual(["@chenglou/pretext"]);
-    expect(config.warmup).toEqual(["./entry.js"]);
+    expect(config.warmup).toEqual(["./entry.js", "./presentation.js"]);
     expect(config.optimize).toEqual([
       "drever",
       "@drever/client",

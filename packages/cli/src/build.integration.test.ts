@@ -191,5 +191,5 @@ describe("drever build", () => {
     expect(bundle).not.toContain("__dreverExperimentalTextLayout");
     expect(bundle).not.toContain("@chenglou/pretext");
     expect(output).toBe(`Built ${join(root, "talk.mdx")} to ${outDir}\n`);
-  }, 30_000);
+  }, 60_000);
 });

@@ -1,3 +1,4 @@
+import basicTheme from "@drever/designs/basic";
 import { defineConfig } from "drever";
 
 export default defineConfig({
@@ -18,4 +19,5 @@ export default defineConfig({
     background: "./stage-background.tsx",
     foreground: "./stage-foreground.tsx",
   },
+  theme: basicTheme,
 });

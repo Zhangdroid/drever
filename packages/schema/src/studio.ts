@@ -89,6 +89,8 @@ export type DreverStudioState = Readonly<{
   phase: DreverStudioPhase;
   /** True after this Studio session has published its first live draft. */
   draftAvailable?: boolean;
+  /** True when the development server owns a managed agent that can resume on the next action. */
+  agentConfigured?: boolean;
   agentConnected: boolean;
   commonBrief?: DreverStudioCommonBrief;
   adaptiveQuestions?: readonly DreverStudioQuestion[];

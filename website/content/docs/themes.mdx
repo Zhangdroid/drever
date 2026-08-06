@@ -67,10 +67,12 @@ inspect both contact sheets and any relevant full-size state image.
 
 <h2 id="design-studies">Learn from the official design studies</h2>
 
-Drever ships eight studies in one `@drever/designs` package as few-shot references, quality
-benchmarks, and reliable fallbacks:
+Drever ships eight studies in one `@drever/designs` package as few-shot references and quality
+benchmarks. None is selected automatically. When `theme` is omitted, the runtime uses an internal
+neutral baseline with safe insets and readable semantic Markdown, but no decorative paint or named
+layout components:
 
-- **Basic** — the neutral fallback when the brief does not justify a stronger direction, with
+- **Basic** — a restrained neutral study with
   `Cover` and `TwoColumn`.
 - **Editorial** — typographic storytelling, with `Masthead` and `Feature`.
 - **Studio** — a restrained technical canvas, with `Statement` and `Workbench`.
@@ -87,7 +89,7 @@ something specific.
 
 <h2 id="manual-package">Use a packaged study directly</h2>
 
-The manual fallback remains one package install. That single dependency includes every official
+The manual option remains one package install. That single dependency includes every official
 study, while explicit subpaths keep the selected direction clear:
 
 Install the design collection:

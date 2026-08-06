@@ -36,14 +36,10 @@ target is ambiguous, ask whether to edit, replace, or create a named sibling.
 For new or replacement work, follow the version-matched skill through its local creation room, or
 chat plus Storyboard when unavailable. Complete every approval, preview, review, and delivery gate.
 
-Start the creation room with the managed adapter matching this host: `codex`, `claude`, `gemini`,
-`copilot`, `goose`, `cursor`, `opencode`, `openhands`, or `cline`; for example, Codex passes
-`--open studio --agent codex` to the development script. Once connected, hand the workflow to that
-Studio session and do not also poll its journal. That handoff transfers action handling, not process
-ownership: keep the development command and parent task alive through delivery. A one-shot host that
-cannot keep both alive must use chat plus Storyboard or a user-managed persistent server.
-If no adapter matches or starts, omit `--agent` and use the installed skill's portable
-`drever studio wait` / `drever studio publish` bridge.
+Start the creation room with the matching managed adapter; for example, Codex passes
+`--open studio --agent codex`. The handoff transfers action handling, not process ownership;
+keep the development command and parent task alive through delivery. A one-shot host must use chat plus
+Storyboard or a user-managed server. Without an adapter, use the installed portable Studio bridge.
 
 If an existing project has no local adapter, use its installed version to run
 `drever agent sync --target codex` or `--target claude`, then read the generated files.
@@ -51,6 +47,10 @@ If an existing project has no local adapter, use its installed version to run
 The generated project contract is authoritative. Do not search the Drever repository,
 `node_modules`, schemas, package source, internals, official designs, or examples during ordinary
 creation. After a diagnostic, inspect only its named public declaration or guide.
+
+Official designs are reference studies, never automatic presets. A custom direction replaces
+starter paint. Preserve the configured canvas and safe area. Publish a stable preview before
+research or browser automation; use Drever review, not generic browser control.
 
 Do not replace the installed version after scaffolding. Use the detected package manager and local
 executable for every command.

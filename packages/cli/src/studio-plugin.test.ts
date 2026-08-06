@@ -280,10 +280,60 @@ describe("Studio session", () => {
     });
 
     await expect(session.read()).resolves.toMatchObject({
+      agentConfigured: true,
       agentConnected: false,
       message: "The managed agent stopped.",
       phase: "error",
     });
+  });
+
+  it("keeps a current durable Storyboard above a late idle transport error", async () => {
+    const root = await createRoot();
+    await writeBriefActions(root, 1);
+    await writeFile(join(root, "drever.plan.json"), JSON.stringify(plan), "utf8");
+    await writeStudioAgentState(root, {
+      version: 1,
+      phase: "plan-review",
+      handledActionRevision: 1,
+      message: "The Storyboard is ready for review.",
+    });
+    const session = createStudioSession(root, {
+      agentProvider: {
+        snapshot: () => ({
+          connected: false,
+          state: {
+            version: 1,
+            phase: "error",
+            handledActionRevision: 1,
+            message: "The idle transport closed.",
+          },
+        }),
+      },
+    });
+
+    await expect(session.read()).resolves.toMatchObject({
+      agentConfigured: true,
+      agentConnected: false,
+      message: "The Storyboard is ready for review.",
+      pendingActionCount: 0,
+      phase: "plan-review",
+      plan: { status: "awaiting-approval" },
+    });
+  });
+
+  it("distinguishes a configured idle agent from an unmanaged Studio session", async () => {
+    const root = await createRoot();
+    const managed = createStudioSession(root, {
+      agentProvider: { snapshot: () => ({ connected: false }) },
+    });
+
+    await expect(managed.read()).resolves.toMatchObject({
+      agentConfigured: true,
+      agentConnected: false,
+    });
+    await expect(createStudioSession(await createRoot()).read()).resolves.not.toHaveProperty(
+      "agentConfigured",
+    );
   });
 
   it("does not treat plan approval alone as proof that a live draft exists", async () => {
@@ -510,6 +560,7 @@ describe("Studio session", () => {
       version: 1,
       revision: 0,
       phase: "briefing",
+      agentConfigured: true,
       agentConnected: true,
       latestActionRevision: 0,
       pendingActionCount: 0,

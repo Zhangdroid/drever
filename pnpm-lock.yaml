@@ -308,6 +308,9 @@ importers:
 
   e2e/fixtures/core-deck:
     devDependencies:
+      '@drever/designs':
+        specifier: workspace:*
+        version: link:../../../packages/designs
       '@types/react':
         specifier: 'catalog:'
         version: 19.2.17
@@ -341,6 +344,9 @@ importers:
 
   examples/basic:
     devDependencies:
+      '@drever/designs':
+        specifier: workspace:*
+        version: link:../../packages/designs
       '@types/react':
         specifier: 'catalog:'
         version: 19.2.17

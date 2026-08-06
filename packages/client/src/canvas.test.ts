@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vite-plus/test";
 import type { PlannedTheme } from "@drever/schema";
-import { computeCanvasScale, DEFAULT_CANVAS, resolveCanvasThemeStyle } from "./canvas.tsx";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import {
+  CanvasViewport,
+  computeCanvasScale,
+  DEFAULT_CANVAS,
+  resolveCanvasThemeStyle,
+} from "./canvas.tsx";
 
 describe("canvas scaling", () => {
   it("contains a logical canvas inside landscape and portrait viewports", () => {
@@ -47,5 +54,20 @@ describe("canvas Theme fallback", () => {
     } satisfies PlannedTheme;
 
     expect(resolveCanvasThemeStyle(theme)).toEqual({});
+  });
+
+  it("marks the canvas with the exact Theme id so neutral typography stays scoped", () => {
+    const customTheme = {
+      id: "local.custom",
+      tokens: {},
+      manifest: { summary: "A deliberately incomplete custom Theme.", title: "Custom" },
+    } satisfies PlannedTheme;
+
+    const markup = renderToStaticMarkup(
+      createElement(CanvasViewport, { theme: customTheme }, createElement("span", null, "Slide")),
+    );
+
+    expect(markup).toContain('data-drever-theme-id="local.custom"');
+    expect(markup).not.toContain('data-drever-theme-id="drever:neutral"');
   });
 });

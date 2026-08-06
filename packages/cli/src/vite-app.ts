@@ -172,7 +172,7 @@ export const resolveFrameworkViteConfig = (): Readonly<{
     dedupe: Object.freeze(["react", "react-dom"]),
     exclude: unoptimizedFrameworkDependencies,
     optimize: optimizedFrameworkDependencies,
-    warmup: Object.freeze(["./entry.js"]),
+    warmup: Object.freeze(["./entry.js", "./presentation.js"]),
   });
 
 const projectModuleResolver = (root: string): Plugin => {
@@ -491,6 +491,7 @@ const createConfigReloadPlugin = (
   };
   const watched = new Set(dependencies);
   const missing = new Set(dependencies.filter((path) => !existsSync(path)));
+  let initialScan = true;
   const shouldReload = (event: "add" | "change" | "unlink", path: string): boolean => {
     const normalized = normalizePath(path);
     if (event === "unlink" && watched.has(normalized)) missing.add(normalized);
@@ -506,12 +507,25 @@ const createConfigReloadPlugin = (
     name: "drever:config-reload",
     hotUpdate({ file, type }) {
       const event = type === "create" ? "add" : type === "delete" ? "unlink" : "change";
+      const normalized = normalizePath(file);
+      if (
+        initialScan &&
+        event === "add" &&
+        (normalized === normalizedRoot || normalized.startsWith(recoveryPrefix))
+      ) {
+        return [];
+      }
       if (!shouldReload(event, file)) return;
       requestReload(event, file);
       return [];
     },
     configureServer(server) {
+      const finishInitialScan = (): void => {
+        initialScan = false;
+      };
+      server.watcher.once("ready", finishInitialScan);
       server.watcher.add([root, ...dependencies]);
+      server.httpServer?.once("close", () => server.watcher.off("ready", finishInitialScan));
     },
   };
 };

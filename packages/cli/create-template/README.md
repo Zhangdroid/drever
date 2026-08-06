@@ -10,8 +10,8 @@ In Claude Code, use `/drever-create-deck` instead of `$drever-create-deck`.
 The editable presentation lives in `slides.mdx`.
 The agent keeps the approved story structure in `drever.plan.json` so authoring and rendered review
 can compare the intended job of each slide with the result.
-The typed `drever.config.ts` starts with an explicit English language contract. The agent
-will update its language, direction, title, and sharing metadata to match the
+The typed `drever.config.ts` starts with an explicit 1600 × 900 canvas and English language
+contract. The agent will update its language, direction, title, and sharing metadata to match the
 presentation it authors.
 
 ## Manual commands

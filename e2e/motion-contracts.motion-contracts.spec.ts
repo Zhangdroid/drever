@@ -33,11 +33,20 @@ const expectBoundsSize = (
 
 const transitionPseudos = (page: Page): Promise<readonly string[]> =>
   page.evaluate(() =>
-    document.documentElement.getAnimations({ subtree: true }).flatMap((animation) => {
+    document.getAnimations().flatMap((animation) => {
       const pseudo = Reflect.get(animation.effect ?? {}, "pseudoElement");
       return typeof pseudo === "string" ? [pseudo] : [];
     }),
   );
+
+const expectTransitionPseudos = async (page: Page, expected: readonly string[]): Promise<void> => {
+  await expect
+    .poll(() => transitionPseudos(page), {
+      message: "View Transition pseudo animations were not registered after ready resolved.",
+      timeout: 2_000,
+    })
+    .toEqual(expect.arrayContaining([...expected]));
+};
 
 test("plain Steps preserve geometry while MotionGroup keeps directional flow", async ({ page }) => {
   const health = monitorPageHealth(page);
@@ -315,13 +324,11 @@ test("continuity preserves stable shell, text, and media contracts in both direc
   const forward = await captureNextViewTransition(page, () => page.keyboard.press("ArrowRight"));
   await waitForViewTransition(page, forward, "ready");
   await expect(page).toHaveURL(/\/6$/u);
-  expect(await transitionPseudos(page)).toEqual(
-    expect.arrayContaining([
-      "::view-transition-group(drever-stable-shell)",
-      "::view-transition-group(drever-stable-text)",
-      "::view-transition-group(drever-stable-media)",
-    ]),
-  );
+  await expectTransitionPseudos(page, [
+    "::view-transition-group(drever-stable-shell)",
+    "::view-transition-group(drever-stable-text)",
+    "::view-transition-group(drever-stable-media)",
+  ]);
   await waitForViewTransition(page, forward, "finished");
 
   const targetShell = await readLayoutBounds(shell);

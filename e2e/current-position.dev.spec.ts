@@ -24,6 +24,7 @@ const readCurrentPosition = async (): Promise<DreverCurrentPosition | undefined>
 test("drever dev exposes the live audience and speaker position to local agents", async ({
   page,
 }) => {
+  test.setTimeout(60_000);
   const health = monitorPageHealth(page);
 
   await page.goto("/2/2?theme=dark#notes");

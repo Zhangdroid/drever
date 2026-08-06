@@ -1024,7 +1024,52 @@ if (routePath === "studio") {
     import.meta.hot.dispose(() => void storyboard.destroy().catch(globalThis.reportError));
   }
 } else {
-  await import("./presentation.js");
+  const loadingStatus = document.querySelector("[data-drever-loading] p");
+  const reloadKey = "drever:presentation-reload";
+  const isModuleFetchFailure = (error) =>
+    error instanceof TypeError &&
+    /(?:Failed to fetch dynamically imported module|Importing a module script failed|error loading dynamically imported module|Load failed)/iu.test(error.message);
+  const waitForPresentation = async () => {
+    const transientStatuses = new Set([404, 502, 503, 504]);
+    for (let attempt = 1; attempt <= 20; attempt += 1) {
+      const presentationURL = new URL("./presentation.js", import.meta.url);
+      presentationURL.searchParams.set("drever-probe", String(attempt));
+      try {
+        const response = await fetch(presentationURL, { cache: "no-store" });
+        await response.body?.cancel();
+        if (response.ok) return true;
+        if (!transientStatuses.has(response.status)) return false;
+      } catch {}
+      const delay = Math.min(250 * 2 ** Math.min(attempt - 1, 3), 2000);
+      await new Promise((resolve) => globalThis.setTimeout(resolve, delay));
+    }
+    return false;
+  };
+  try {
+    await import("./presentation.js");
+    globalThis.sessionStorage.removeItem(reloadKey);
+  } catch (error) {
+    if (
+      !import.meta.hot ||
+      !isModuleFetchFailure(error) ||
+      globalThis.sessionStorage.getItem(reloadKey) === "1"
+    ) {
+      if (loadingStatus instanceof HTMLParagraphElement) {
+        loadingStatus.textContent = "The draft needs repair";
+      }
+      throw error;
+    }
+    if (loadingStatus instanceof HTMLParagraphElement) {
+      loadingStatus.textContent = "Rebuilding the draft";
+    }
+    if (!(await waitForPresentation())) {
+      loadingStatus && (loadingStatus.textContent = "The draft needs repair");
+      throw error;
+    }
+    globalThis.sessionStorage.setItem(reloadKey, "1");
+    globalThis.location.reload();
+    await new Promise(() => undefined);
+  }
 }
 `;
 

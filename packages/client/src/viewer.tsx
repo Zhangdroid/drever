@@ -300,6 +300,7 @@ export const ViewerHost = ({
         canvasRef={canvasRef}
         deckRef={deckRef}
         manifest={machine.manifest}
+        onRenderError={onError}
         onPositionCommitted={completeCommit}
         position={position}
       />
@@ -324,6 +325,7 @@ export const ViewerHost = ({
             idPrefix={`drever-overview-slide-${slide.index + 1}`}
             manageFocus={false}
             manifest={machine.manifest}
+            onRenderError={onError}
             position={resolveSlidePreviewPosition(slide)}
             reducedMotion={true}
             renderMode="export"

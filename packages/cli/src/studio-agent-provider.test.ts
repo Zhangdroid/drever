@@ -1,8 +1,8 @@
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import type { DreverStudioActionRecord, DreverStudioAgentState } from "@drever/schema";
-import { afterEach, describe, expect, it } from "vite-plus/test";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import {
   DREVER_STUDIO_AGENT_STATE_FILE,
   DREVER_STUDIO_DIRECTORY,
@@ -10,6 +10,10 @@ import {
 } from "./studio-plugin.ts";
 import {
   phaseForStudioAction,
+  managedStudioHostRoot,
+  signalStudioAgentProcess,
+  studioAgentProcessEnvironment,
+  studioAgentProcessOptions,
   studioActionWorkflowInstructions,
   type StudioAgentProviderSnapshot,
 } from "./studio-agent-provider.ts";
@@ -35,6 +39,48 @@ const liveSnapshot = (state: DreverStudioAgentState): StudioAgentProviderSnapsho
 });
 
 describe("Studio action workflow instructions", () => {
+  it("marks managed-agent commands as children of the user-owned Studio host", () => {
+    const environment = studioAgentProcessEnvironment("./deck", { PATH: "/usr/bin" });
+
+    expect(environment).toEqual({
+      DREVER_STUDIO_HOST_ROOT: resolve("./deck"),
+      PATH: "/usr/bin",
+    });
+    expect(managedStudioHostRoot(environment)).toBe(resolve("./deck"));
+    expect(managedStudioHostRoot({})).toBeUndefined();
+    expect(studioAgentProcessOptions("./deck", { PATH: "/usr/bin" })).toEqual({
+      cwd: "./deck",
+      detached: process.platform !== "win32",
+      env: environment,
+    });
+  });
+
+  it("signals an owned detached process group instead of leaving agent children behind", () => {
+    const directKill = vi.fn(() => true);
+    const groupKill = vi.fn(() => true);
+
+    expect(signalStudioAgentProcess({ pid: 420, kill: directKill }, "SIGTERM", groupKill)).toBe(
+      true,
+    );
+    expect(groupKill).toHaveBeenCalledWith(-420, "SIGTERM");
+    expect(directKill).not.toHaveBeenCalled();
+
+    expect(signalStudioAgentProcess({ kill: directKill }, "SIGKILL", groupKill)).toBe(true);
+    expect(directKill).toHaveBeenCalledWith("SIGKILL");
+  });
+
+  it("treats an already-exited process group as stopped", () => {
+    const directKill = vi.fn(() => true);
+    const missingGroup = vi.fn(() => {
+      throw Object.assign(new Error("No such process"), { code: "ESRCH" });
+    });
+
+    expect(signalStudioAgentProcess({ pid: 420, kill: directKill }, "SIGTERM", missingGroup)).toBe(
+      false,
+    );
+    expect(directKill).not.toHaveBeenCalled();
+  });
+
   it("makes approve-plan a bounded preview-first handoff", () => {
     const record = {
       version: 1,
@@ -53,15 +99,20 @@ describe("Studio action workflow instructions", () => {
       /mark brief\.md and drever\.plan\.json approved[^.]*publish the drafting phase/iu,
     );
     expect(instructions).toMatch(/bounded, semantic, content-complete Draft 1/iu);
+    expect(instructions).toMatch(/preserve the exact approved or configured canvas/iu);
+    expect(instructions).toMatch(/safe-area or content-inset policy/iu);
+    expect(instructions).toMatch(/Treat those bounds as locked/iu);
     expect(instructions).toMatch(/project-local `drever check --json`[^.]*package manager/iu);
     expect(instructions).toMatch(/active Studio development server[^.]*embedded preview iframe/iu);
     expect(instructions).toMatch(/HMR reveal the draft/iu);
     expect(instructions).toMatch(/do not start or restart another development server/iu);
     expect(instructions).toMatch(/Before preview[^.]*do not[^.]*invoke Playwright/iu);
     expect(instructions).toMatch(/isolated rendered review only after the final authored source/iu);
+    expect(instructions).toMatch(/preserve the last-known-good canvas[^.]*safe area/iu);
+    expect(instructions).toMatch(/restore the baseline[^.]*redesign the enhancement/iu);
   });
 
-  it("does not burden latency-sensitive question delivery with Draft 1 instructions", () => {
+  it("keeps question delivery free of Draft 1 work while preserving the Studio host", () => {
     const record = {
       version: 1,
       revision: 1,
@@ -75,7 +126,75 @@ describe("Studio action workflow instructions", () => {
       },
     } as const satisfies DreverStudioActionRecord;
 
-    expect(studioActionWorkflowInstructions(record)).toBe("");
+    const instructions = studioActionWorkflowInstructions(record);
+    expect(instructions).not.toMatch(/content-complete Draft 1/iu);
+    expect(instructions).toMatch(/user-owned session resources/iu);
+    expect(instructions).toMatch(/never stop, restart, replace, or clean them up/iu);
+  });
+
+  it("keeps temporary rendered review isolated from the Studio host", () => {
+    const record = {
+      version: 1,
+      revision: 4,
+      receivedAt: "2026-08-05T08:00:00.000Z",
+      action: {
+        version: 1,
+        type: "submit-feedback",
+        requestId: "feedback-4",
+        expectedRevision: 3,
+        scope: { kind: "deck" },
+        message: "Tighten the conclusion.",
+      },
+    } as const satisfies DreverStudioActionRecord;
+
+    const instructions = studioActionWorkflowInstructions(record);
+    expect(instructions).toMatch(/Do not launch another `drever dev` or Vite server/iu);
+    expect(instructions).toMatch(/never use broad process cleanup[^.]*`pkill`[^.]*`killall`/iu);
+    expect(instructions).toMatch(
+      /drever check --rendered --evidence \.drever\/review --json[^.]*isolated ephemeral loopback preview/iu,
+    );
+  });
+
+  it.each([
+    {
+      type: "submit-adaptive-answers",
+      action: {
+        version: 1,
+        type: "submit-adaptive-answers",
+        requestId: "answers-2",
+        expectedRevision: 1,
+        answers: [{ questionId: "proof", optionIds: ["demo"] }],
+      },
+    },
+    {
+      type: "skip-remaining-questions",
+      action: {
+        version: 1,
+        type: "skip-remaining-questions",
+        requestId: "skip-2",
+        expectedRevision: 1,
+      },
+    },
+  ] as const)("makes $type a bounded Storyboard-first handoff", ({ action }) => {
+    const record = {
+      version: 1,
+      revision: 2,
+      receivedAt: "2026-08-05T08:00:00.000Z",
+      action,
+    } as const satisfies DreverStudioActionRecord;
+
+    const instructions = studioActionWorkflowInstructions(record);
+    expect(instructions).toMatch(/Storyboard handoff[^.]*latency-sensitive/iu);
+    expect(instructions).toMatch(/one bounded semantic pass[^.]*submitted brief and direction/iu);
+    expect(instructions).toMatch(/drever\.plan\.json[^.]*awaiting-approval/iu);
+    expect(instructions).toMatch(/publish plan-review immediately/iu);
+    expect(instructions).toMatch(
+      /Before that first reviewable Storyboard[^.]*do not browse[^.]*research facts or assets/iu,
+    );
+    expect(instructions).toMatch(/uncertain facts[^.]*explicit evidence requirements/iu);
+    expect(instructions).toMatch(/End this turn at the human approval gate/iu);
+    expect(instructions).toMatch(/Continue factual research[^.]*after approve-plan/iu);
+    expect(instructions).not.toMatch(/content-complete Draft 1/iu);
   });
 });
 
@@ -199,8 +318,10 @@ describe("Studio live agent seam", () => {
     });
   });
 
-  it("keeps plan review structural while a provider reports transient drafting", async () => {
+  it("keeps a published plan review above transient provider drafting", async () => {
     const root = await createRoot();
+    const directory = join(root, DREVER_STUDIO_DIRECTORY);
+    await mkdir(directory, { recursive: true });
     await writeFile(
       join(root, "drever.plan.json"),
       JSON.stringify({
@@ -229,13 +350,23 @@ describe("Studio live agent seam", () => {
       }),
       "utf8",
     );
+    await writeFile(
+      join(directory, DREVER_STUDIO_AGENT_STATE_FILE),
+      JSON.stringify({
+        version: 1,
+        phase: "plan-review",
+        message: "The Storyboard is ready for review.",
+      }),
+      "utf8",
+    );
     const snapshot = liveSnapshot({ version: 1, phase: "drafting", message: "Still working." });
     const session = createStudioSession(root, { agentProvider: { snapshot: () => snapshot } });
 
     await expect(session.read()).resolves.toMatchObject({
       phase: "plan-review",
+      agentConfigured: true,
       agentConnected: true,
-      message: "Still working.",
+      message: "The Storyboard is ready for review.",
       plan: { status: "awaiting-approval" },
     });
   });

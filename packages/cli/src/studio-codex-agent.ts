@@ -22,6 +22,8 @@ import {
 } from "./studio-agent-publication.ts";
 import {
   phaseForStudioAction,
+  signalStudioAgentProcess,
+  studioAgentProcessOptions,
   studioActionWorkflowInstructions,
   type StudioAgentApprovalDecision,
   type StudioAgentApprovalRequest,
@@ -166,12 +168,9 @@ const createProjection = (changed: () => void): Projection => {
         updateActivity(itemActivity(event.item, status));
         if (event.item.message !== undefined) publishMessage(event.item.message);
       } else if (event.type === "plan-updated") {
-        const completed = event.steps.filter((step) => step.status === "completed").length;
         const active = event.steps.find((step) => step.status === "inProgress");
         progress = Object.freeze({
           label: active?.step ?? "Plan updated",
-          completed,
-          total: Math.max(event.steps.length, 1),
         });
         if (active !== undefined) {
           updateActivity(
@@ -270,7 +269,7 @@ const createProjection = (changed: () => void): Projection => {
 
 const defaultSpawn = (root: string): CodexAppServerProcess =>
   spawn("codex", ["app-server", "--stdio"], {
-    cwd: root,
+    ...studioAgentProcessOptions(root),
     stdio: ["pipe", "pipe", "pipe"],
   });
 
@@ -368,7 +367,7 @@ export const createCodexStudioAgent = (options: CodexStudioAgentOptions): Studio
     closed: Promise<void> | undefined,
   ): Promise<void> => {
     try {
-      child.kill("SIGTERM");
+      signalStudioAgentProcess(child, "SIGTERM");
     } catch {
       return;
     }
@@ -377,7 +376,7 @@ export const createCodexStudioAgent = (options: CodexStudioAgentOptions): Studio
       !(await waitFor(closed, options.shutdownTimeoutMs ?? DEFAULT_SHUTDOWN_TIMEOUT_MS))
     ) {
       try {
-        child.kill("SIGKILL");
+        signalStudioAgentProcess(child, "SIGKILL");
       } catch {
         return;
       }
@@ -403,6 +402,8 @@ export const createCodexStudioAgent = (options: CodexStudioAgentOptions): Studio
 
   const disconnect = (child: CodexAppServerProcess, error: Error, terminate = false): void => {
     if (stopping || process !== child) return;
+    const hadOutstandingWork =
+      currentAction !== undefined || settlingAction !== undefined || actionQueue.length > 0;
     const closed = processClosed;
     connected = false;
     stateAvailable = true;
@@ -413,8 +414,12 @@ export const createCodexStudioAgent = (options: CodexStudioAgentOptions): Studio
     threadId = undefined;
     startPromise = undefined;
     pendingApprovals.clear();
-    rejectOutstanding(error);
-    projection.fail("Codex disconnected before finishing the Studio action.");
+    if (hadOutstandingWork) {
+      rejectOutstanding(error);
+      projection.fail("Codex disconnected before finishing the Studio action.");
+    } else {
+      projection.ready();
+    }
     if (terminate) void terminateProcess(child, closed);
   };
 

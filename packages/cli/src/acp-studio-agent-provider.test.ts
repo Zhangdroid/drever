@@ -117,10 +117,14 @@ describe("ACP Studio agent provider", () => {
     await provider.handleAction(actionRecord(2, "approve-plan"));
     const prompt = JSON.stringify(prompts[0]);
     expect(prompt).toContain("bounded, semantic, content-complete Draft 1");
+    expect(prompt).toContain("preserve the exact approved or configured canvas");
     expect(prompt).toContain("embedded preview iframe");
     expect(prompt).toContain("do not start or restart another development server");
     expect(prompt).toContain("invoke Playwright");
     expect(prompt).toContain("isolated rendered review only after");
+    expect(prompt).toContain("user-owned session resources");
+    expect(prompt).toContain("never use broad process cleanup");
+    expect(prompt).toContain("isolated ephemeral loopback preview");
     await provider.stop();
   });
 

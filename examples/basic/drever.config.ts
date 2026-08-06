@@ -1,3 +1,4 @@
+import basicTheme from "@drever/designs/basic";
 import { defineConfig } from "drever";
 
 export default defineConfig({
@@ -14,4 +15,5 @@ export default defineConfig({
     port: 4317,
     strictPort: true,
   },
+  theme: basicTheme,
 });

@@ -1,8 +1,8 @@
 import { createCompilePlan } from "@drever/compiler";
+import basicTheme from "@drever/designs/basic";
 import gfmPlugin from "@drever/plugin-gfm";
 import shikiPlugin from "@drever/plugin-shiki";
 import tailwindCssPlugin, { tailwindCss } from "@drever/plugin-tailwindcss";
-import basicTheme from "@drever/designs/basic";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -12,6 +12,7 @@ import {
   resolveDreverProject,
   resolvePluginRegistrations,
 } from "./project.ts";
+import { neutralTheme } from "./neutral-theme.ts";
 
 const directories: string[] = [];
 
@@ -32,7 +33,7 @@ describe("default plugin registrations", () => {
 
   it("lets config disable or configure a default without registering it twice", () => {
     const result = createCompilePlan({
-      theme: basicTheme,
+      theme: neutralTheme,
       plugins: resolvePluginRegistrations([
         { plugin: shikiPlugin, enabled: false },
         tailwindCss({ optimize: false }),
@@ -60,7 +61,7 @@ describe("default plugin registrations", () => {
 
   it("keeps a second override visible to the compiler's duplicate diagnostic", () => {
     const result = createCompilePlan({
-      theme: basicTheme,
+      theme: neutralTheme,
       plugins: resolvePluginRegistrations([shikiPlugin, shikiPlugin]),
     });
 
@@ -78,6 +79,38 @@ describe("default plugin registrations", () => {
 });
 
 describe("development project resolution", () => {
+  it("uses an undecorated internal theme when the project has not selected one", async () => {
+    const root = await mkdtemp(join(tmpdir(), "drever-neutral-project-"));
+    directories.push(root);
+
+    const project = await resolveDreverDevelopmentProject({ config: {}, root });
+
+    expect(project.plan.theme).toMatchObject({
+      canvas: { height: 900, width: 1_600 },
+      id: "drever:neutral",
+      manifest: { title: "Drever Neutral" },
+    });
+    expect(project.plan.runtime.layouts).toEqual([]);
+    expect(project.plan.runtime.styles.filter(({ owner }) => owner.kind === "theme")).toEqual([]);
+    expect(JSON.stringify(project.plan)).not.toContain("@drever/designs");
+  });
+
+  it("still resolves Basic and its layouts after an explicit project choice", async () => {
+    const root = await mkdtemp(join(tmpdir(), "drever-basic-project-"));
+    directories.push(root);
+
+    const project = await resolveDreverDevelopmentProject({
+      config: { theme: basicTheme },
+      root,
+    });
+
+    expect(project.plan.theme.id).toBe("@drever/designs/basic");
+    expect(project.plan.runtime.layouts.map(({ name }) => name)).toEqual(["Cover", "TwoColumn"]);
+    expect(
+      project.plan.runtime.styles.some(({ owner }) => owner.id === "@drever/designs/basic"),
+    ).toBe(true);
+  });
+
   it("can start the plan-only surface before slides.mdx exists", async () => {
     const root = await mkdtemp(join(tmpdir(), "drever-storyboard-project-"));
     directories.push(root);

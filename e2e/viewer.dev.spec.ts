@@ -30,8 +30,28 @@ test("the generated shell explains a cold first load before React is ready", asy
   }
 
   await page.waitForLoadState("load");
+  await waitForDreverReady(page);
   await expect(page.locator("[data-drever-loading]")).toHaveCount(0);
   await expect(page.locator(activeSlide)).toBeVisible();
+});
+
+test("one authored slide failure keeps the viewer and navigation alive", async ({ page }) => {
+  await page.goto("/7?broken-draft=1");
+
+  const failure = page.locator("[data-drever-render-failure]");
+  await expect(failure).toContainText("Draft slide 7 could not render");
+  await expect(failure).toContainText("agent can continue repairing this draft");
+  await expect(failure.locator("xpath=ancestor::*[@data-drever-slide]")).toHaveAttribute(
+    "data-slide-state",
+    "active",
+  );
+  await expect(page.locator("[data-drever-audience-controls]")).toBeAttached();
+
+  await page.keyboard.press("ArrowLeft");
+  await expect(page).toHaveURL(/\/6\?broken-draft=1$/u);
+  await expect(page.locator('[data-drever-slide][data-slide-state="active"]')).toContainText(
+    "Position may change without changing identity.",
+  );
 });
 
 test("the public dev command runs the complete interactive presentation workflow", async ({
@@ -427,6 +447,9 @@ test("focus tools preserve marks across Steps and clear them across slides", asy
   await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/\/2\/2$/u);
   await expect(page.locator("[data-drever-focus-stroke]")).toHaveCount(2);
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.matches(":active-view-transition")))
+    .toBe(false);
 
   await openFocusTools();
   await controls.getByRole("button", { name: "Clear focus marks" }).click();

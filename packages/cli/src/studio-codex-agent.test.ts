@@ -108,6 +108,19 @@ const approvePlanRecord = {
   },
 } as const satisfies DreverStudioActionRecord;
 
+const directionRecord = {
+  version: 1,
+  revision: 2,
+  receivedAt: "2026-08-05T08:00:00.000Z",
+  action: {
+    version: 1,
+    requestId: "answers-2",
+    expectedRevision: 1,
+    type: "submit-adaptive-answers",
+    answers: [{ questionId: "proof", optionIds: ["demo"] }],
+  },
+} as const satisfies DreverStudioActionRecord;
+
 const createTestCodexStudioAgent = (options: Parameters<typeof createCodexStudioAgent>[0]) =>
   createCodexStudioAgent({
     verifyActionHandled: async () => true,
@@ -229,10 +242,33 @@ describe("native Codex Studio agent", () => {
     const turnStart = child.messages.find(({ method }) => method === "turn/start");
     const prompt = JSON.stringify(turnStart);
     expect(prompt).toContain("bounded, semantic, content-complete Draft 1");
+    expect(prompt).toContain("preserve the exact approved or configured canvas");
     expect(prompt).toContain("embedded preview iframe");
     expect(prompt).toContain("do not start or restart another development server");
     expect(prompt).toContain("invoke Playwright");
     expect(prompt).toContain("isolated rendered review only after");
+    expect(prompt).toContain("user-owned session resources");
+    expect(prompt).toContain("never use broad process cleanup");
+    expect(prompt).toContain("isolated ephemeral loopback preview");
+    await provider.stop();
+  });
+
+  it("delivers the Storyboard-first direction contract to Codex", async () => {
+    const child = new FakeAppServerProcess(false, true, true);
+    const provider = createTestCodexStudioAgent({
+      root: "/workspace/deck",
+      requestTimeoutMs: 1_000,
+      spawnProcess: () => child as unknown as CodexAppServerProcess,
+    });
+
+    await provider.handleAction(directionRecord);
+    const turnStart = child.messages.find(({ method }) => method === "turn/start");
+    const prompt = JSON.stringify(turnStart);
+    expect(prompt).toContain("Storyboard handoff as latency-sensitive");
+    expect(prompt).toContain("publish plan-review immediately");
+    expect(prompt).toContain("do not browse, research facts or assets");
+    expect(prompt).toContain("End this turn at the human approval gate");
+    expect(prompt).not.toContain("content-complete Draft 1");
     await provider.stop();
   });
 
@@ -363,11 +399,13 @@ describe("native Codex Studio agent", () => {
       expect(provider.snapshot().state).toMatchObject({
         phase: "waiting-for-agent",
         handledActionRevision: 0,
-        progress: { label: "Build the draft", completed: 1, total: 2 },
+        progress: { label: "Build the draft" },
         activity: [expect.objectContaining({ label: "Approval needed", status: "active" })],
         message: "Allow the verification command",
       }),
     );
+    expect(provider.snapshot().state?.progress).not.toHaveProperty("completed");
+    expect(provider.snapshot().state?.progress).not.toHaveProperty("total");
     expect(JSON.stringify(provider.snapshot())).not.toContain("SECRET_RAW_REASONING");
     expect(provider.approvals()).toEqual([
       expect.objectContaining({
@@ -411,6 +449,55 @@ describe("native Codex Studio agent", () => {
     await provider.stop();
     expect(child.killed).toBe(true);
     expect(provider.snapshot().connected).toBe(false);
+  });
+
+  it("treats an idle app-server exit as resumable and reconnects for the next action", async () => {
+    const first = new FakeAppServerProcess();
+    const second = new FakeAppServerProcess();
+    const children = [first, second];
+    const provider = createTestCodexStudioAgent({
+      root: "/workspace/deck",
+      requestTimeoutMs: 1_000,
+      spawnProcess: () => children.shift() as unknown as CodexAppServerProcess,
+    });
+
+    const firstDelivery = provider.handleAction(actionRecord);
+    await vi.waitFor(() =>
+      expect(first.messages.some(({ method }) => method === "turn/start")).toBe(true),
+    );
+    first.send({
+      method: "turn/completed",
+      params: {
+        threadId: "thread-1",
+        turn: { id: "turn-1", status: "completed", error: null },
+      },
+    });
+    await firstDelivery;
+
+    first.emit("exit", 0, null);
+    expect(provider.snapshot()).toMatchObject({
+      connected: false,
+      state: { handledActionRevision: 1, phase: "waiting-for-agent" },
+    });
+    expect(provider.snapshot().state?.message).toBeUndefined();
+
+    const secondDelivery = provider.handleAction(approvePlanRecord);
+    await vi.waitFor(() =>
+      expect(second.messages.some(({ method }) => method === "turn/start")).toBe(true),
+    );
+    second.send({
+      method: "turn/completed",
+      params: {
+        threadId: "thread-1",
+        turn: { id: "turn-1", status: "completed", error: null },
+      },
+    });
+    await secondDelivery;
+    expect(provider.snapshot()).toMatchObject({
+      connected: true,
+      state: { handledActionRevision: 2, phase: "waiting-for-agent" },
+    });
+    await provider.stop();
   });
 
   it("keeps late public summary deltas visible after the bounded history fills", async () => {

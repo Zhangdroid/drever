@@ -1,4 +1,3 @@
-import basicTheme from "@drever/designs/basic";
 import gfmPlugin from "@drever/plugin-gfm";
 import shikiPlugin from "@drever/plugin-shiki";
 import tailwindCssPlugin from "@drever/plugin-tailwindcss";
@@ -16,6 +15,7 @@ import type { PluginOption } from "vite";
 import type { DreverConfig, DreverPluginUse } from "./config.ts";
 import { resolveConfigPath } from "./config.ts";
 import { DreverCliError } from "./errors.ts";
+import { neutralTheme } from "./neutral-theme.ts";
 
 export type ResolvedDreverPlan = Readonly<{
   config: DreverConfig;
@@ -179,7 +179,7 @@ const createResolvedPlan = (
   root: string,
 ): ResolvedDreverPlan => {
   const planResult = createCompilePlan({
-    theme: config.theme ?? basicTheme,
+    theme: config.theme ?? neutralTheme,
     plugins: resolvePluginRegistrations(config.plugins),
   });
   if (!planResult.ok) {

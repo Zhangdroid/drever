@@ -26,7 +26,10 @@ The agent then writes the resolved direction and numbered outline to `brief.md`,
 slide's job, evidence, focal artifact, composition, density, and motion ownership in
 `drever.plan.json`, runs the fast source check, and shows the visual Storyboard inside the same room
 before stopping for approval. The escape delegates unanswered choices but does not bypass this
-review. If the room is unavailable or you prefer chat, the agent asks the same decisions in the
+review. The brief also locks the exact configured canvas, safe area, content inset, and surface
+owner before Draft 1. Official Drever designs remain reference studies unless you explicitly choose
+one; a custom direction replaces conflicting starter paint rather than layering over it. If the room
+is unavailable or you prefer chat, the agent asks the same decisions in the
 conversation and shares the exact read-only `/storyboard` URL instead.
 
 After approval, the agent publishes a complete, valid Draft 1 rather than streaming partial MDX
@@ -40,7 +43,8 @@ motion, Steps, and browser behavior. Feedback can arrive during that pass; the a
 same live preview, discards stale checks, and delays the production build until the refined preview
 is stable. Authoring and design use source-only and affected-route checks during iteration; review
 owns the exhaustive rendered gate, and delivery reuses fresh review evidence for the final build or
-requested export.
+requested export. Every enhancement preserves the last-known-good canvas, safe area, grid, padding,
+and readable line wraps; a motion or polish pass that breaks them is redesigned before publication.
 
 <h2 id="local-workflow">Know what runs where</h2>
 

@@ -68,13 +68,14 @@ Classify every major choice:
 
 Prefer subject-led decisions. Fallback beauty is valid; invented thematic meaning is not.
 
-## Treat official designs as optional vocabulary
+## Treat official designs as reference studies
 
 Derive the design directly from the brief. Do not scan the official studies, compare their source,
-or choose one merely because creation has started. The concise descriptions below are optional
-vocabulary when the brief leaves a material choice unresolved:
+or choose one merely because creation has started. The concise descriptions below are few-shot
+reference vocabulary when the brief leaves a material choice unresolved; they are not presets for
+automatic selection:
 
-- Basic — neutral hierarchy and spacing; use only as the context-insufficient fallback.
+- Basic — neutral hierarchy and spacing for a context-insufficient fallback study.
 - Editorial — publication rhythm, warm narrative, and evidence-led typography.
 - Studio — dark technical surfaces, code, interfaces, and restrained signal color.
 - Fieldnote — coherent handwriting, annotation, reflection, and quiet paper.
@@ -83,11 +84,37 @@ vocabulary when the brief leaves a material choice unresolved:
 - Cinema — title cards, stable media frames, captions, and editorial pacing.
 - Construct — teaching, facilitation, explicit parts, and meaningful assembly.
 
-Use a study only when the project already selects it or one description clearly resolves a real
-design decision. Read its public guide only when that choice requires a documented layout or
-component; never inspect its implementation, CSS, declaration files, or example deck during normal
-creation. Do not announce a catalog choice as the art direction. Convert any useful principle into
-an original subject-led system and skip this list entirely when the brief already supports one.
+Never import, install, assign, or expose an official design merely because its description resembles
+the brief. Apply one only when the user explicitly names it or the existing project already selects
+it. Otherwise convert any useful principle into an original local subject-led system without using
+the package. Read a study's public guide only after that explicit choice requires a documented layout
+or component; never inspect its implementation, CSS, declaration files, or example deck during
+normal creation. Do not announce a catalog choice as the art direction, and skip this list entirely
+when the brief already supports one.
+
+<!-- drever-visual-foundation-contract:v1 -->
+
+## Lock the visual foundation
+
+Before changing visual source, read the approved **Visual foundation** in `brief.md` and compare it
+with the resolved canvas in context or `drever.config.ts`. The explicit approved value wins; without
+one, preserve the existing configured value exactly. Record the same width, height, aspect ratio,
+safe-area insets, default content padding, and surface ownership in `art-direction.md`. Do not change
+1600 × 900 to 1920 × 1080, or substitute any other familiar resolution, to simplify composition.
+Changing this foundation requires an explicit user request and an updated reviewable brief before
+design continues.
+
+When the direction is custom, it owns the complete presentation surface: Theme canvas paint, root
+slide surface, typography, semantic Markdown, Stage background, recurring rail or accent geometry,
+content surfaces, and motion tokens. Replace or neutralize incompatible starter and official-design
+paint and remove unused Theme or Stage imports. Never put a custom black surface beneath an inherited
+blue rail, or stack two independent background and accent systems. Every recurring visual role has
+one named owner.
+
+Prepare replacement Theme CSS, Theme modules, and Stage modules while they are still unreferenced.
+After that complete minimal surface exists, switch `drever.config.ts` to it once and only then publish
+matching custom slide source. This order keeps HMR from exposing a half-migrated frame with two
+visual systems, even during Draft 1.
 
 ## Produce one local design artifact
 
@@ -140,7 +167,8 @@ export default defineTheme({
 ```
 
 Import that value into `drever.config.ts` and assign it to `theme`. Add layouts, elements, motion,
-canvas defaults, and richer JSON-safe tokens only when the deck uses them. MDX may import local
+and richer JSON-safe tokens only when the deck uses them. Do not add or rewrite canvas defaults
+unless the user explicitly approved that foundation change. MDX may import local
 TypeScript, React, and CSS directly; do not create a probe deck to confirm that capability.
 
 Theme tokens are metadata, not CSS paint. Map `tokens.color.canvas` and `tokens.color.ink` to
@@ -255,7 +283,13 @@ Implement `theme.ts` with `defineTheme`, `baseURL: import.meta.url`, a stable lo
 
 Use local components for recurring presentation semantics, not one-off decoration. Use Stage only for persistent canvas layers. Create or update `drever.config.ts` when the design needs a generated theme or Stage modules, and import each module there once. If a generated design already exists, revise it in place and preserve intentional authored changes; never silently replace it.
 
-Treat the active Theme CSS as an input, not a blank slate. At each bespoke scene boundary, add only the scoped normalization needed for Theme-owned Markdown margins, maximum widths, line height, text transform, and foreground, then apply the local semantic roles. Verify computed descendant styles; a parent class and later source order do not prove that a more specific Theme rule was neutralized. Never reset the whole deck globally.
+For an existing design, treat its active Theme CSS as an input, not a blank slate. For a new custom
+direction, replace the starter Theme rather than using it as a visual base. At each bespoke scene
+boundary, add only the scoped normalization needed for Theme-owned Markdown margins, maximum widths,
+line height, text transform, and foreground, then apply the local semantic roles. Verify computed
+descendant styles; a parent class and later source order do not prove that a more specific Theme rule
+was neutralized. Never reset the whole deck globally or leave an inherited rail, background, or
+accent with no job in the new system.
 
 Do not optimize meaningful local visual code for line count. Hundreds of lines of focused CSS, SVG,
 canvas, or React can be appropriate when the result materially improves explanation or atmosphere.
@@ -377,6 +411,12 @@ and subject-led choices that work. Correct evidence-backed problems in hierarchy
 rhythm, readability, background emphasis, motion, and consistency; do not restyle the deck
 wholesale or add decoration merely to make the second pass look different.
 
+Use the coherent Draft 1 as a last-known-good layout checkpoint. Before each enhancement, retain its
+exact canvas, safe area, root and panel padding, grid tracks, readable line wraps, and largest required
+painted footprint. Add motion inside stable geometry rather than rewriting a working layout. Compare
+the affected routes after the change; if any foundation or spacing regresses, restore the checkpoint
+and redesign the enhancement before continuing. A later cleanup pass is not a valid recovery plan.
+
 When this skill is part of new-deck creation, it must not delay the coherent end-to-end content
 Draft 1 or its stable development URL. Resume the design work against that same live preview without
 waiting for approval. Do not make a production build the prerequisite for the first useful preview,
@@ -384,6 +424,11 @@ and do not run repeated production builds during visual iteration. If the host c
 parallel with narrative authoring, start early but own only the art-direction and asset plan until
 the first preview; never edit the same MDX or styles from two workers. Apply the visual system after
 the content preview is stable or after the primary worker explicitly transfers ownership.
+
+Keep the active Studio server, Creation room, embedded preview, and managed transport alive. Never
+start a competing development server, attach generic browser control before preview, or use broad
+process or port cleanup. The review skill's rendered command owns its own short-lived isolated
+loopback server and Playwright browser.
 
 1. Add tests only for meaningful contracts or component behavior; do not add snapshots that merely preserve CSS text.
 2. After the Draft 1 preview is live, run the fast design loop: regenerate

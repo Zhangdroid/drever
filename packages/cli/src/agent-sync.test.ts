@@ -229,6 +229,19 @@ describe("agent kit sync", () => {
     expect(studioContract).toMatch(
       /For `submit-common-brief`[^.]*actual question\s+round next[^.]*without a separate progress publication/isu,
     );
+    expect(studioContract).toMatch(
+      /submit-adaptive-answers` and `skip-remaining-questions`[^.]*latency-sensitive/iu,
+    );
+    expect(studioContract).toMatch(
+      /one bounded semantic pass[\s\S]*?submitted brief and direction[\s\S]*?drever\.plan\.json[\s\S]*?awaiting-approval/iu,
+    );
+    expect(studioContract).toMatch(/publish\s+`plan-review`/iu);
+    expect(studioContract).toMatch(
+      /Before that first reviewable Storyboard[^.]*do not browse[^.]*research facts or assets/iu,
+    );
+    expect(studioContract).toMatch(/uncertain facts[^.]*explicit evidence requirements/iu);
+    expect(studioContract).toMatch(/Stop at the approval gate[^.]*do not mutate the Storyboard/iu);
+    expect(studioContract).toMatch(/Continue factual\s+research[^.]*after `approve-plan`/iu);
     expect(studioContract).toMatch(/managed handoff is not task completion/iu);
     expect(studioContract).toMatch(/keep the development command session and parent task alive/iu);
     expect(studioContract).toMatch(/one-shot or noninteractive host[^.]*do not launch Studio/iu);
@@ -303,6 +316,48 @@ describe("agent kit sync", () => {
     expect(createDesign).toMatch(/do not run context[^.]*in-progress deck/iu);
     expect(createDesign).not.toMatch(/Scan all eight studies/iu);
     expect(createDesign).not.toMatch(/packages\/designs\/src\/<study>/u);
+  });
+
+  it("locks one visual foundation and keeps official designs reference-only", async () => {
+    const root = await temporaryDirectory("drever-agent-project-");
+    await syncAgentKit({ root });
+
+    const agents = await read(root, "AGENTS.md");
+    const createDeck = await read(root, ".agents/skills/drever-create-deck/SKILL.md");
+    const createDesign = await read(root, ".agents/skills/drever-create-design/SKILL.md");
+    const authorDeck = await read(root, ".agents/skills/drever-author-deck/SKILL.md");
+    const reviewDeck = await read(root, ".agents/skills/drever-review-deck/SKILL.md");
+
+    expect(createDeck).toContain("<!-- drever-visual-foundation-contract:v1 -->");
+    expect(createDesign).toContain("<!-- drever-visual-foundation-contract:v1 -->");
+    expect(createDeck).toMatch(/exact[^.]*configured canvas[^.]*safe-area/iu);
+    expect(createDeck).toMatch(/never substitute\s+1920 × 1080/iu);
+    expect(createDesign).toMatch(/Do not change\s+1600 × 900 to 1920 × 1080/iu);
+    expect(reviewDeck).toMatch(/resolved canvas[^.]*exact width and height/iu);
+
+    for (const contents of [agents, createDesign, authorDeck]) {
+      expect(contents).toMatch(
+        /(?:`@drever\/designs`|official designs|official Themes)[^.]*reference studies/iu,
+      );
+      expect(contents).toMatch(/only when the user explicitly (?:names|chooses)/iu);
+    }
+    expect(createDesign).toMatch(/custom[^.]*owns the complete presentation surface/iu);
+    expect(createDesign).toMatch(/Never put a custom black surface[^.]*inherited\s+blue rail/iu);
+    expect(createDesign).toMatch(
+      /Prepare replacement Theme CSS[^.]*while they are still unreferenced/iu,
+    );
+    expect(createDeck).toMatch(/Do not\s+publish a hybrid frame/iu);
+    expect(reviewDeck).toMatch(
+      /conflicting starter rail\/background[^.]*blocking contract drift/iu,
+    );
+
+    for (const contents of [agents, createDeck, createDesign, authorDeck, reviewDeck]) {
+      expect(contents).toMatch(/last-known-good/iu);
+      expect(contents).toMatch(/safe area|safe-area/iu);
+      expect(contents).toMatch(/panel padding|content-inset|content inset/iu);
+    }
+    expect(createDeck).toMatch(/generic\s+browser-control[^.]*before preview/iu);
+    expect(reviewDeck).toMatch(/isolated Playwright browser/iu);
   });
 
   it("routes new, replacement, and edit scopes through one validation pipeline", async () => {
@@ -409,7 +464,7 @@ describe("agent kit sync", () => {
       expect(contents).toMatch(/exactly one motion owner/iu);
       expect(contents).toMatch(/full-canvas scene[^.]*stable positioned slide-relative root/iu);
       expect(contents).toMatch(/line height,\s+margin,\s+padding,\s+gap,\s+and foreground/iu);
-      expect(contents).toMatch(/Theme-owned Markdown margins/iu);
+      expect(contents).toMatch(/Theme-owned Markdown\s+margins/iu);
     }
 
     expect(reviewDeck).toMatch(/Step as a real DOM wrapper/iu);

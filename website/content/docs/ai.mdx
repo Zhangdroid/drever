@@ -92,14 +92,22 @@ same installed workflow asks the adaptive questions in the conversation and uses
 <h2 id="plan-review">Approve the plan before the first draft</h2>
 
 For a new or explicitly replacement-scoped deck, when the interview is complete, the agent writes
-`brief.md` with the audience outcome, duration,
-planned slide count, language, visible density, notes strategy, narrative and visual direction,
-motion intensity, evidence, assumptions, signature moments, and a numbered slide outline. It also
-writes the versioned `drever.plan.json` contract: stable slide IDs and jobs, purposes, evidence,
+`brief.md` with the audience outcome, duration, planned slide count, language, visible density,
+notes strategy, narrative and visual direction, motion intensity, evidence, assumptions, signature
+moments, and a numbered slide outline. It locks one visual foundation there: the exact approved or
+configured canvas, safe area, default content inset, and owner of the Theme, Stage background, and
+recurring accents. Motion and design passes must preserve that foundation and the last-known-good
+layout checkpoint. The agent also writes the versioned `drever.plan.json` contract: stable slide IDs
+and jobs, purposes, evidence,
 focal artifacts, composition recipes, density, and explicit motion ownership. `drever check`
 validates that structure before the agent publishes the complete visual Storyboard to the local
 creation room and stops for explicit approval. The standalone `/storyboard` route renders the same
 persisted plan without importing MDX and remains the read-only fallback.
+
+That first Storyboard is intentionally a fast semantic pass over the submitted brief and direction.
+The agent records uncertain claims as evidence requirements instead of delaying review for broad
+research. It begins factual and asset research only after approval, while turning the accepted story
+into the live draft; the Storyboard does not change silently while you are reviewing it.
 
 The skip-remaining escape lets the agent make unresolved choices; it does not skip this checkpoint.
 You can edit the plan or approve it as written. A request to create immediately does not bypass the
@@ -140,8 +148,13 @@ New projects contain five local workflows for Codex and Claude Code:
 The design workflow derives its direction from the subject, audience, venue, source material, and
 purpose. When research is allowed, it can use current primary official sources as evidence for
 palette, typography, imagery, and motion while respecting asset and font licenses. The eight
-official designs are optional vocabulary rather than a required scan or imitation step; Basic is
-the neutral fallback. The resulting subject-led system stays local so every build is deterministic.
+official designs are reference studies rather than presets: the agent assigns one only when you
+explicitly name it or the existing project already uses it. Otherwise it converts useful principles
+into a local subject-led system. That custom direction owns the complete Theme and Stage surface,
+replacing conflicting starter backgrounds, rails, accents, typography, and motion. The resulting
+system stays local so every build is deterministic. Drever asks the agent to prepare that minimal
+replacement surface before referencing it, then switch the configuration once so the live preview
+never exposes a half-starter, half-custom frame.
 
 When a real website is the relevant brand reference, `drever design import <url>` can create a local
 Pass-0 Theme from deterministic rendered evidence. It does not copy or hotlink source code, fonts,
@@ -203,11 +216,10 @@ paint findings remain warnings that need judgment. Solid colors can be checked d
 image, gradient, blended, or translucent backgrounds still require visual review, as do hierarchy,
 motion quality, and aesthetic fit.
 
-The project-local review skill prefers
-[Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp) when it is connected. It
-uses the real development preview for exact-route screenshots, interaction, computed geometry,
-animation state, console output, and failed network requests. Another connected browser can provide
-the same evidence; a Chromium pass alone is not cross-browser proof.
+The project-local review skill uses Drever's isolated Playwright Chromium context and the evidence
+directory produced by the rendered command. It does not attach to your open browser, require Chrome
+DevTools MCP, or load a generic browser-control workflow. Chromium evidence alone is not
+cross-browser proof.
 
 Development previews also expose a version-matched experimental typography probe:
 

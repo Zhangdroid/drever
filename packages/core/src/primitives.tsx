@@ -9,6 +9,7 @@ import {
   isValidElement,
   useContext,
   type CSSProperties,
+  type ComponentType,
   type ComponentPropsWithoutRef,
   type ElementType,
   type PropsWithChildren,
@@ -73,6 +74,24 @@ export type SlideStateResolver = (slide: SlideIdentity) => ResolvedSlideState;
 
 const SlideStateResolverContext = createContext<SlideStateResolver | undefined>(undefined);
 const SlideStatePruningContext = createContext(false);
+
+export type SlideRenderBoundaryProps = PropsWithChildren<SlideIdentity>;
+export type SlideRenderBoundary = ComponentType<SlideRenderBoundaryProps>;
+
+const SlideRenderBoundaryContext = createContext<SlideRenderBoundary | undefined>(undefined);
+
+export type SlideRenderBoundaryProviderProps = PropsWithChildren<
+  Readonly<{
+    boundary: SlideRenderBoundary;
+  }>
+>;
+
+/** @internal Lets an interactive surface isolate authored failures inside one Slide. */
+export const SlideRenderBoundaryProvider = ({
+  boundary,
+  children,
+}: SlideRenderBoundaryProviderProps): ReactElement =>
+  createElement(SlideRenderBoundaryContext.Provider, { value: boundary }, children);
 
 export type SlideStateProviderProps = PropsWithChildren<
   Readonly<{
@@ -168,6 +187,7 @@ export const Slide = ({
   const idPrefix = useContext(DreverRenderIdPrefixContext);
   const resolver = useContext(SlideStateResolverContext);
   const pruneInactive = useContext(SlideStatePruningContext);
+  const RenderBoundary = useContext(SlideRenderBoundaryContext);
   const needsResolvedState = explicitActive === undefined || explicitStep === undefined;
   const resolvedState =
     needsResolvedState && resolver !== undefined
@@ -212,6 +232,17 @@ export const Slide = ({
     { value: Object.freeze({ active, currentStep }) },
     slideChildren,
   );
+  const protectedContent =
+    RenderBoundary === undefined
+      ? content
+      : createElement(
+          RenderBoundary,
+          {
+            ...(id === undefined ? {} : { id }),
+            ...(index === undefined ? {} : { index }),
+          },
+          content,
+        );
   const section = createElement(
     "section",
     {
@@ -241,7 +272,10 @@ export const Slide = ({
       inert: active ? undefined : true,
       hidden: active ? undefined : true,
     },
-    createElement(Activity, { mode: active ? "visible" : "hidden", children: content }),
+    createElement(Activity, {
+      mode: active ? "visible" : "hidden",
+      children: protectedContent,
+    }),
   );
 
   return section;

@@ -30,7 +30,10 @@ Translate the requested outcome into Drever's deterministic checks, build, and e
    installs the Chromium revision required by the project-local Drever CLI. Use `--with-deps` only
    when the Linux host also needs Playwright's operating-system packages. Do not claim that rendered
    review or PDF export succeeded before the retry does.
-7. Stop temporary servers unless the user asked to keep a preview running.
+7. Stop only an ephemeral server that this delivery action started and owns. Never stop, restart,
+   replace, or clean up the active Studio server, Creation room, embedded Live Draft, managed-agent
+   transport, or another user-owned preview. Drever's rendered check and export commands clean up
+   their own isolated browser and loopback server internally.
 
 Every context report, check, browser inspection, build, and export is valid only for the exact
 source, configuration, and assets that existed when it ran. Any later mutation invalidates affected

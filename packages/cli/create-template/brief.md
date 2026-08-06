@@ -38,6 +38,13 @@ authoring the presentation.
 - Interaction intent:
 - Visual, motion, or interaction references:
 
+## Visual foundation
+
+- Canvas: 1600 × 900 from `drever.config.ts`; change only before Draft 1 with explicit approval
+- Safe area and default content inset:
+- Surface owner: active Theme, Stage background, and any persistent rail or accent
+- Last-known-good layout checkpoint:
+
 ## Signature moments
 
 1.

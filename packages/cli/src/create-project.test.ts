@@ -152,10 +152,12 @@ describe("project creation", () => {
         2,
       )}\n`,
     );
-    await expect(readFile(join(root, "slides.mdx"), "utf8")).resolves.toContain(
-      "What will you make clear?",
-    );
+    const generatedSlides = await readFile(join(root, "slides.mdx"), "utf8");
+    expect(generatedSlides).toContain("# What will you make clear?");
+    expect(generatedSlides).not.toContain("<Cover");
     const generatedConfig = await readFile(join(root, "drever.config.ts"), "utf8");
+    expect(generatedConfig).toContain("width: 1600");
+    expect(generatedConfig).toContain("height: 900");
     expect(generatedConfig).toContain('lang: "en"');
     expect(generatedConfig).not.toContain("title:");
     expect(generatedConfig).not.toContain("description:");
@@ -164,6 +166,10 @@ describe("project creation", () => {
     expect(generatedBrief).toContain("Planned slide count or range");
     expect(generatedBrief).toContain("Visible slide density");
     expect(generatedBrief).toContain("Speaker-note strategy");
+    expect(generatedBrief).toContain("## Visual foundation");
+    expect(generatedBrief).toContain("Canvas: 1600 × 900");
+    expect(generatedBrief).toContain("Safe area and default content inset");
+    expect(generatedBrief).toContain("Surface owner");
     expect(generatedBrief).toContain("## Slide outline");
     await expect(readFile(join(root, "drever.plan.json"), "utf8")).resolves.toBe(
       `${JSON.stringify({ version: 1, status: "awaiting-input" }, null, 2)}\n`,

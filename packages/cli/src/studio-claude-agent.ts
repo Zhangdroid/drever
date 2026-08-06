@@ -14,6 +14,8 @@ import {
 } from "./studio-agent-publication.ts";
 import {
   phaseForStudioAction,
+  signalStudioAgentProcess,
+  studioAgentProcessOptions,
   studioActionWorkflowInstructions,
   type StudioAgentProvider,
   type StudioAgentProviderSnapshot,
@@ -75,7 +77,7 @@ const boundedTail = (value: string, limit: number): string => value.slice(-limit
 
 const defaultSpawn = (root: string, args: readonly string[]): ClaudeCodeProcess =>
   spawn("claude", [...args], {
-    cwd: root,
+    ...studioAgentProcessOptions(root),
     stdio: ["pipe", "pipe", "pipe"],
   });
 
@@ -179,7 +181,7 @@ export const createClaudeStudioAgent = (options: ClaudeStudioAgentOptions): Stud
     closed: Promise<void> | undefined,
   ): Promise<void> => {
     try {
-      child.kill("SIGTERM");
+      signalStudioAgentProcess(child, "SIGTERM");
     } catch {
       return;
     }
@@ -188,7 +190,7 @@ export const createClaudeStudioAgent = (options: ClaudeStudioAgentOptions): Stud
       !(await waitFor(closed, options.shutdownTimeoutMs ?? DEFAULT_SHUTDOWN_TIMEOUT_MS))
     ) {
       try {
-        child.kill("SIGKILL");
+        signalStudioAgentProcess(child, "SIGKILL");
       } catch {
         return;
       }

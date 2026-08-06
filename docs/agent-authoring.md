@@ -69,9 +69,11 @@ making focused source changes, reviewing presentation readiness, and delivering
 verified web or PDF artifacts. They instruct an agent to use semantic MDX,
 persist the generated visual system as a deterministic Theme contract, preserve
 exact Step routes, and verify the affected audience, document, speaker, and
-export states. The eight official designs are optional studies and quality
-references, not a required source scan; Basic is only the neutral fallback when
-the brief does not justify a stronger direction.
+export states. The eight official designs are reference studies, not presets to
+apply automatically; one is assigned only after an explicit user choice or when
+the existing project already selects it. A custom direction owns the complete
+Theme and Stage surface instead of inheriting an unrelated starter background,
+rail, accent, or motion system.
 
 The `SKILL.md` content is canonical across hosts. Codex-specific UI metadata is
 additive and is omitted from Claude's adapter. Teams should commit both adapters
@@ -451,9 +453,16 @@ For a new project:
    publish the visual Storyboard there, and stop for its explicit approval action without authoring
    the configured MDX entry. When the room is unavailable, share the exact `/storyboard` URL and
    collect approval in the conversation instead.
+   Build this first Storyboard in one bounded semantic pass from the submitted brief and direction.
+   Do not delay it for browsing, open-ended research, asset collection, broad source inspection,
+   production builds, or browser automation. Record uncertain facts as evidence requirements and
+   begin research only after approval; never mutate the Storyboard while its reviewer is reading it.
 3. After approval, create the full narrative with a deliberately simple,
    stable, readable base composition, then write the configured MDX entry. Do
    not scan official design source before authoring.
+   Before the first authored mutation, lock the exact approved or configured
+   canvas, safe area, default content inset, and surface owner recorded in
+   `brief.md`. Never substitute another resolution for convenience.
 4. Reuse the running development server as soon as that coherent end-to-end
    Draft 1 compiles. Verify the audience route plus the first and last slides,
    share the stable audience URL as a non-blocking progress update, and keep
@@ -461,6 +470,10 @@ For a new project:
 5. During authoring and design, run `npm exec -- drever context --json`, the
    source-only `npm exec -- drever check --json`, and affected-route inspection
    in the existing preview.
+   Treat each coherent preview as a last-known-good layout checkpoint. Motion
+   and polish must preserve its canvas, safe area, grid, slide and panel
+   padding, readable line wraps, and painted footprint. Restore that checkpoint
+   and redesign an enhancement that regresses it.
 6. Continue the design workflow, then use the review skill as the single owner
    of the exhaustive rendered gate. It inspects every required Step and surface,
    fixes evidence-backed material issues, and reruns affected review passes.
@@ -469,6 +482,13 @@ For a new project:
    latest state.
 8. For motion edits, verify forward and backward movement, persistent geometry,
    reduced motion, and the affected continuity boundary in a real browser.
+
+The active Studio server, Creation room, embedded preview, and managed agent
+transport belong to the user session and remain alive through Storyboard review,
+Draft 1, refinement, and feedback. Do not start a competing development server
+or clean up processes by name or port. The final `drever check --rendered
+--evidence .drever/review --json` command owns its own short-lived loopback
+server and isolated Playwright browser.
 
 The pre-approval creation room or standalone Storyboard URL is a collaboration milestone, not
 delivery. It must reflect the complete validated plan and may exist before MDX. The later

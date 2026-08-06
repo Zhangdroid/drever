@@ -5,6 +5,74 @@ import type {
   DreverStudioAgentState,
   DreverStudioPhase,
 } from "@drever/schema";
+import { resolve } from "node:path";
+
+/** @internal Marks commands started inside a managed Studio agent session. */
+export const DREVER_STUDIO_HOST_ROOT = "DREVER_STUDIO_HOST_ROOT";
+
+/** @internal Lets nested Drever commands recognize the user-owned Studio host. */
+export const studioAgentProcessEnvironment = (
+  root: string,
+  environment: NodeJS.ProcessEnv = process.env,
+): NodeJS.ProcessEnv => Object.freeze({ ...environment, [DREVER_STUDIO_HOST_ROOT]: resolve(root) });
+
+/** @internal Isolates agent-owned command cleanup from the Studio host process group. */
+export const studioAgentProcessOptions = (
+  root: string,
+  environment: NodeJS.ProcessEnv = process.env,
+): Readonly<{ cwd: string; detached: boolean; env: NodeJS.ProcessEnv }> =>
+  Object.freeze({
+    cwd: root,
+    detached: process.platform !== "win32",
+    env: studioAgentProcessEnvironment(root, environment),
+  });
+
+/** @internal Detects a development command that would compete with its owning Studio session. */
+export const managedStudioHostRoot = (
+  environment: NodeJS.ProcessEnv = process.env,
+): string | undefined => {
+  const root = environment[DREVER_STUDIO_HOST_ROOT];
+  return typeof root === "string" && root.length > 0 ? root : undefined;
+};
+
+type StudioAgentChildProcess = Readonly<{
+  pid?: number | undefined;
+  kill(signal?: NodeJS.Signals | number): boolean;
+}>;
+
+/** @internal Signals the complete detached agent process group when POSIX can identify it. */
+export const signalStudioAgentProcess = (
+  child: StudioAgentChildProcess,
+  signal: NodeJS.Signals,
+  signalProcessGroup:
+    | ((pid: number, signal: NodeJS.Signals) => boolean)
+    | undefined = process.platform === "win32"
+    ? undefined
+    : (pid, ownedSignal) => process.kill(pid, ownedSignal),
+): boolean => {
+  const pid = child.pid;
+  if (
+    signalProcessGroup !== undefined &&
+    typeof pid === "number" &&
+    Number.isSafeInteger(pid) &&
+    pid > 0
+  ) {
+    try {
+      return signalProcessGroup(-pid, signal);
+    } catch (error) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        error.code === "ESRCH"
+      ) {
+        return false;
+      }
+      throw error;
+    }
+  }
+  return child.kill(signal);
+};
 
 export type StudioAgentApprovalDecision = DreverStudioAgentApprovalDecision;
 
@@ -37,16 +105,34 @@ export const phaseForStudioAction = (record: DreverStudioActionRecord): DreverSt
 
 /** @internal Keeps the latency-sensitive Studio handoff identical across agent transports. */
 export const studioActionWorkflowInstructions = (record: DreverStudioActionRecord): string =>
-  record.action.type === "approve-plan"
-    ? [
-        "Treat this approve-plan handoff as latency-sensitive.",
-        "First mark brief.md and drever.plan.json approved and publish the drafting phase for this action, then write one bounded, semantic, content-complete Draft 1: every approved slide has its real readable copy, evidence, focal artifact, and speaker notes, using only a deliberately simple visual system.",
-        "Before publishing preview, run only the project-local `drever check --json` through the detected package manager and repair blocking source diagnostics.",
-        "Reuse the active Studio development server and its embedded preview iframe; let HMR reveal the draft in that same surface.",
-        "Before preview, do not start or restart another development server, open another browser, invoke Playwright or any browser automation, run rendered review, build, export, or begin design research.",
-        "Publish preview as soon as the source check passes. Then refine the same live draft with the design skill, and run the isolated rendered review only after the final authored source is stable.",
-      ].join(" ")
-    : "";
+  [
+    record.action.type === "submit-adaptive-answers" ||
+    record.action.type === "skip-remaining-questions"
+      ? [
+          "Treat this Storyboard handoff as latency-sensitive.",
+          "In one bounded semantic pass, use only the submitted brief and direction to update brief.md and write a coherent, valid drever.plan.json with status awaiting-approval, then publish plan-review immediately.",
+          "Before that first reviewable Storyboard, do not browse, research facts or assets, inspect broad project or package source, start another worker, build, export, or run browser automation.",
+          "Express uncertain facts as explicit evidence requirements instead of inventing them.",
+          "End this turn at the human approval gate; do not mutate the Storyboard behind the reviewer. Continue factual research and visual refinement after approve-plan while building the same live Draft 1.",
+        ].join(" ")
+      : record.action.type === "approve-plan"
+        ? [
+            "Treat this approve-plan handoff as latency-sensitive.",
+            "First mark brief.md and drever.plan.json approved and publish the drafting phase for this action, then write one bounded, semantic, content-complete Draft 1: every approved slide has its real readable copy, evidence, focal artifact, and speaker notes, using only a deliberately simple visual system.",
+            "Before Draft 1, preserve the exact approved or configured canvas and choose one explicit safe-area or content-inset policy; do not substitute another familiar resolution. Treat those bounds as locked.",
+            "Before publishing preview, run only the project-local `drever check --json` through the detected package manager and repair blocking source diagnostics.",
+            "Reuse the active Studio development server and its embedded preview iframe; let HMR reveal the draft in that same surface.",
+            "Before preview, do not start or restart another development server, open another browser, invoke Playwright or any browser automation, run rendered review, build, export, or begin design research.",
+            "Publish preview as soon as the source check passes. Then refine the same live draft with the design skill, and run the isolated rendered review only after the final authored source is stable.",
+            "During later design or motion refinement, preserve the last-known-good canvas, safe area, slide and panel padding, grid, and readable line wraps. If an enhancement regresses them, restore the baseline and redesign the enhancement before publishing.",
+          ].join(" ")
+        : "",
+    "The active Studio development server, Creation room URL, embedded preview, and managed-agent transport are user-owned session resources. Keep them alive through Storyboard review, Draft 1, refinement, and user feedback; never stop, restart, replace, or clean them up as temporary review infrastructure.",
+    "Do not launch another `drever dev` or Vite server, and never use broad process cleanup such as `pkill`, `killall`, killing a process by port, or terminating an unowned browser or server.",
+    "For final rendered evidence use the project-local `drever check --rendered --evidence .drever/review --json`; Drever owns its isolated ephemeral loopback preview and Playwright browser and closes only those resources.",
+  ]
+    .filter((part) => part.length > 0)
+    .join(" ");
 
 /** @internal Live agent boundary used by the local Studio server. */
 export type StudioAgentProvider = Readonly<{

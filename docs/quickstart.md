@@ -512,8 +512,26 @@ Keep stable decoration stable. If a background scene changes, animate only the
 glow, shape, number, or other sub-element that actually changed; do not put the
 complete background or foreground into the slide transition.
 
-The Basic theme is the automatic fallback when `theme` is omitted. It styles
-ordinary Markdown and registers the semantic `Cover` and `TwoColumn` layouts:
+When `theme` is omitted, Drever uses an internal neutral baseline. It gives
+ordinary semantic Markdown safe canvas insets and readable typography, but no
+decorative paint and no named layout components. This keeps an unfinished deck
+usable without silently choosing one of the official design studies.
+
+Choose Basic explicitly when its art direction and semantic `Cover` and
+`TwoColumn` layouts fit the presentation:
+
+```bash
+npm install --save-dev @drever/designs
+```
+
+```ts
+import basicTheme from "@drever/designs/basic";
+import { defineConfig } from "drever";
+
+export default defineConfig({
+  theme: basicTheme,
+});
+```
 
 ```mdx
 <Cover

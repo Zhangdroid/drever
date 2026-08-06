@@ -26,6 +26,7 @@ import {
 import type { WriteAuthoringContextRequest } from "./context.ts";
 import type { WriteCurrentPositionRequest } from "./current-position.ts";
 import type { RunMcpServerRequest } from "./mcp-server.ts";
+import { managedStudioHostRoot } from "./studio-agent-provider.ts";
 import { createArtifactReceipt, writeArtifactReceipt } from "./artifact-receipt.ts";
 import { DREVER_VERSION } from "./package-version.ts";
 import type { RunDoctorRequest } from "./doctor.ts";
@@ -863,6 +864,16 @@ export const runCli = async (
   }
 
   const root = options.cwd ?? process.cwd();
+  const environment = options.environment ?? process.env;
+  if (command.name === "dev" && managedStudioHostRoot(environment) !== undefined) {
+    throw new DreverCliError(
+      "DREVER_STUDIO_SERVER_ACTIVE",
+      "The managed Studio session already owns this development preview.",
+      {
+        hint: "Reuse Studio's embedded Live Draft. For isolated final evidence, run drever check --rendered instead of starting another development server.",
+      },
+    );
+  }
   const evidenceDirectory =
     command.name === "check" && command.evidence !== undefined
       ? resolve(root, command.evidence)

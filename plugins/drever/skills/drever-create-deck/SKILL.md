@@ -189,6 +189,15 @@ update the active item before a material operation that may take noticeable time
 when the corresponding artifact exists. `handledActionRevision` still means the action has actually
 been incorporated; visible activity never acknowledges unfinished work.
 
+Treat `submit-adaptive-answers` and `skip-remaining-questions` as a second latency-sensitive
+dispatch. In one bounded semantic pass, use only the submitted brief and direction to update
+`brief.md`, write a coherent valid `drever.plan.json` with status `awaiting-approval`, and publish
+`plan-review`. Before that first reviewable Storyboard, do not browse, research facts or assets,
+inspect broad project or package source, start another worker, build, export, or run browser
+automation. Put uncertain facts into explicit evidence requirements instead of inventing them.
+Stop at the approval gate and do not mutate the Storyboard behind its reviewer. Continue factual
+research and visual refinement after `approve-plan` while creating the same live Draft 1.
+
 Skip question publication only when the same returned action batch contains
 `skip-remaining-questions` after that brief. After answers or a skip, update `brief.md` and
 `drever.plan.json`, publish `plan-review`, and wait for `approve-plan` or feedback. After approval,
@@ -288,7 +297,12 @@ Motion intents are `focus`, `replace`, `compare`, `stagger`, or `continuity`.
 
 Mark both as awaiting approval. Record the topic, audience, desired change, duration, language,
 visible density, evidence and assets, narrative direction, visual direction, motion intensity,
-interaction intent, assumptions, and risks in `brief.md`. In `drever.plan.json`, give every slide:
+interaction intent, assumptions, and risks in `brief.md`. Add a **Visual foundation** section that
+records the exact explicitly requested or existing configured canvas, one concrete safe-area and
+default content-inset policy, and the intended Theme, Stage background, and persistent accent owner.
+If the user did not request a canvas change, preserve `drever.config.ts` exactly; never substitute
+1920 × 1080 or another familiar resolution for the configured value. These values become locked
+when the Storyboard is approved. In `drever.plan.json`, give every slide:
 
 - a stable lowercase hyphenated id and one narrative job;
 - a working title and one concrete purpose;
@@ -324,13 +338,22 @@ approval, mark both files approved and continue.
 
 <!-- drever-preview-contract:v6 -->
 
+<!-- drever-visual-foundation-contract:v1 -->
+
 After approval, load the project-local `drever-author-deck` skill and let `drever.plan.json` remain
 the story and design contract while authoring. Treat the `approve-plan` handoff as latency-sensitive:
 in one bounded semantic pass, create a content-complete Draft 1 before starting design research or
 refinement. Every approved slide must exist in order with its real readable copy, required evidence,
-simple focal artifact, and speaker notes. Use semantic MDX, a safe readable canvas, and one deliberately
-simple subject-led visual system; do not substitute placeholders, finish bespoke choreography, hunt
-for optional assets, or build a custom design system before exposing the first useful preview.
+simple focal artifact, and speaker notes. Use semantic MDX, the locked canvas and safe-area policy,
+and one deliberately simple subject-led visual system; do not substitute placeholders, change the
+approved resolution, finish bespoke choreography, hunt for optional assets, or build a custom design
+system before exposing the first useful preview.
+
+When that subject-led system replaces the starter design, prepare its minimal local Theme CSS,
+Theme module, and any required Stage module before referencing them. Then switch `drever.config.ts`
+to that complete surface and author the matching MDX/CSS in the same bounded Draft 1 pass. Do not
+publish a hybrid frame where custom dark content is still painted over the starter Theme's rail,
+background, typography, or motion.
 
 Reuse the development server already serving the creation room or Storyboard. Its embedded audience
 iframe is the preview and HMR will update it as source changes; do not start or restart a second
@@ -341,12 +364,25 @@ run rendered review, inspect every route, build, export, or wait for optional th
 Studio is unavailable, start one development server, keep its reported URL stable, run the same
 source-only gate, and share only that real URL—never invent or guess a preview address.
 
+Treat this coherent Draft 1 as the first last-known-good layout checkpoint. Later design and motion
+passes must preserve its canvas, safe area, slide and panel padding, grid, readable line wraps, and
+stable geometry unless user feedback explicitly changes the composition. Publish complete edits
+atomically. If an enhancement regresses the checkpoint, restore the stable layout and redesign the
+enhancement around it before publishing another preview; never rely on a later cleanup pass.
+
 Share a non-blocking update when Draft 1 is ready, then continue in the same turn and load the
 project-local `drever-create-design` skill for refinement against the same live preview. If the host
 can run parallel workers, a design worker may prepare tokens, assets, and signature beats before that
 milestone while the primary worker owns the narrative and MDX; never let two workers edit the same
 visual source. After design and authoring settle, let `drever-review-deck` launch the isolated
 Playwright rendered review for the final source; never duplicate that browser gate during Draft 1.
+
+The active Studio development server, Creation room, embedded preview iframe, and managed agent
+transport belong to the user's session. Keep them alive through Storyboard review, Draft 1,
+refinement, and feedback. Never start a competing Drever or Vite development server, attach a generic
+browser-control workflow before preview, or use `pkill`, `killall`, kill-by-port, or another broad
+cleanup against processes the workflow did not start. The review skill's rendered command owns its
+own short-lived isolated loopback server and Playwright browser.
 
 Every context report, check, browser inspection, build, and export describes only the exact source,
 configuration, and assets that existed when it ran. User feedback or any later mutation invalidates

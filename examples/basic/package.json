@@ -10,6 +10,7 @@
     "export": "drever export pdf"
   },
   "devDependencies": {
+    "@drever/designs": "workspace:*",
     "@types/react": "catalog:",
     "drever": "workspace:*",
     "react": "catalog:"

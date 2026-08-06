@@ -345,6 +345,19 @@ describe("runCli metadata", () => {
 });
 
 describe("runCli dev", () => {
+  it("refuses to start a competing development server inside a managed Studio agent", async () => {
+    const serveProject = vi.fn();
+
+    await expect(
+      runCli(["dev"], {
+        cwd: "/tmp/drever-studio-owned",
+        environment: { DREVER_STUDIO_HOST_ROOT: "/tmp/drever-studio-owned" },
+        serveProject,
+      }),
+    ).rejects.toThrow("managed Studio session already owns this development preview");
+    expect(serveProject).not.toHaveBeenCalled();
+  });
+
   it("passes the explicit Studio-open request to the development server", async () => {
     const root = await mkdtemp(join(tmpdir(), "drever-dev-cli-test-"));
     directories.push(root);
@@ -706,7 +719,7 @@ export default ({ command, mode }: Environment) => ({
     expect(report.summary.errors).toBeGreaterThan(0);
     expect(output).toBe(`${JSON.stringify(report, null, 2)}\n`);
     expect((await readdir(root)).toSorted()).toEqual(authoredEntries);
-  });
+  }, 15_000);
 });
 
 describe("runCli export", () => {

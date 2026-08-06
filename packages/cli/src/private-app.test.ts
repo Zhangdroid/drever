@@ -120,6 +120,13 @@ describe("generated private application", () => {
       expect(entry).toContain('import("@drever/client/storyboard.css")');
       expect(entry).toContain('import("virtual:drever/storyboard-plan")');
       expect(entry).toContain('import("./presentation.js")');
+      expect(entry).toContain('const reloadKey = "drever:presentation-reload"');
+      expect(entry).toContain('presentationURL.searchParams.set("drever-probe", String(attempt))');
+      expect(entry).toContain("const transientStatuses = new Set([404, 502, 503, 504])");
+      expect(entry).toContain('loadingStatus.textContent = "Rebuilding the draft"');
+      expect(entry).toContain('globalThis.sessionStorage.setItem(reloadKey, "1")');
+      expect(entry).toContain("globalThis.location.reload()");
+      expect(entry).not.toContain("drever-retry");
       expect(entry).not.toContain("broken-slides.mdx");
       expect(entry).not.toContain("virtual:drever/runtime");
       expect(presentation).toContain('from "/project/broken-slides.mdx"');

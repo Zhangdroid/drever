@@ -161,6 +161,7 @@ const prepareFixture = async (root: string, port: number): Promise<void> => {
 };
 
 test("Studio keeps the embedded live draft navigable with real speaker notes", async ({ page }) => {
+  test.setTimeout(90_000);
   const root = await mkdtemp(join(workspaceRoot, ".drever-studio-e2e-"));
   let server: ChildProcess | undefined;
   let output = "";
@@ -175,19 +176,78 @@ test("Studio keeps the embedded live draft navigable with real speaker notes", a
     });
     server.stdout?.on("data", (chunk: Buffer) => (output += chunk.toString()));
     server.stderr?.on("data", (chunk: Buffer) => (output += chunk.toString()));
-    const health = monitorPageHealth(page);
     const studioUrl = await waitForStudioUrl(server, () => output);
+    let presentationRequests = 0;
+    await page.route(/\/presentation\.js(?:\?|$)/u, async (route) => {
+      presentationRequests += 1;
+      if (presentationRequests === 1) {
+        await route.abort("failed");
+        return;
+      }
+      await route.continue();
+    });
     await page.goto(studioUrl);
 
     const iframe = page.locator('iframe[title="Live Drever draft"]');
     await expect(iframe).toBeVisible();
-    const iframeHandle = await iframe.elementHandle();
-    const draft = await iframeHandle?.contentFrame();
-    if (draft === undefined || draft === null) {
-      throw new TypeError("Studio did not attach the live draft frame.");
-    }
+    await expect(
+      page
+        .frameLocator('iframe[title="Live Drever draft"]')
+        .getByRole("navigation", { name: "Presentation controls" }),
+    ).toBeVisible({ timeout: 60_000 });
+    expect(presentationRequests).toBeGreaterThan(1);
+    const currentDraft = async () => {
+      const iframeHandle = await iframe.elementHandle();
+      const draft = await iframeHandle?.contentFrame();
+      if (draft === undefined || draft === null) {
+        throw new TypeError("Studio did not attach the live draft frame.");
+      }
+      await draft.waitForLoadState("domcontentloaded");
+      return draft;
+    };
 
-    await expect.poll(() => draft.evaluate(() => document.fullscreenEnabled)).toBe(true);
+    const draft = await currentDraft();
+    expect(await draft.evaluate(() => document.fullscreenEnabled)).toBe(true);
+    await draft.evaluate(() => {
+      const state = globalThis as typeof globalThis & { __dreverStudioFullscreen: boolean };
+      state.__dreverStudioFullscreen = false;
+      Object.defineProperty(document, "fullscreenElement", {
+        configurable: true,
+        get: () => (state.__dreverStudioFullscreen ? document.documentElement : null),
+      });
+      Object.defineProperty(document.documentElement, "requestFullscreen", {
+        configurable: true,
+        value: async () => {
+          state.__dreverStudioFullscreen = true;
+          document.dispatchEvent(new Event("fullscreenchange"));
+        },
+      });
+      Object.defineProperty(document, "exitFullscreen", {
+        configurable: true,
+        value: async () => {
+          state.__dreverStudioFullscreen = false;
+          document.dispatchEvent(new Event("fullscreenchange"));
+        },
+      });
+      Object.defineProperty(navigator, "wakeLock", {
+        configurable: true,
+        value: {
+          async request() {
+            return {
+              addEventListener() {},
+              async release() {},
+              removeEventListener() {},
+            };
+          },
+        },
+      });
+    });
+    const controls = draft.getByRole("navigation", { name: "Presentation controls" });
+    await controls.getByRole("button", { name: "Enter fullscreen" }).click();
+    await expect(controls.getByRole("button", { name: "Exit fullscreen" })).toBeVisible();
+    await controls.getByRole("button", { name: "Exit fullscreen" }).click();
+    await expect(controls.getByRole("button", { name: "Enter fullscreen" })).toBeVisible();
+    const health = monitorPageHealth(page);
 
     const mode = page.locator(".drever-studio-mode-switcher");
     await expect(mode.getByRole("button", { name: "Live draft" })).toHaveAttribute(
@@ -205,7 +265,7 @@ test("Studio keeps the embedded live draft navigable with real speaker notes", a
       "aria-pressed",
       "true",
     );
-    await expect.poll(() => new URL(draft.url()).pathname).toBe("/2");
+    await expect.poll(async () => new URL((await currentDraft()).url()).pathname).toBe("/2");
     await expect(page.locator(".drever-studio-preview__notes")).toContainText(
       "Pause at step 2, then jump to step 5.",
     );

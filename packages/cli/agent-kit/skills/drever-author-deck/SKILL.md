@@ -9,7 +9,7 @@ description: Author or edit an existing Drever presentation. Use when asked to r
 
 Commands below use npm's project-local runner. In a pnpm, Yarn, or Bun project, use `pnpm exec drever`, `yarn exec drever`, or `bunx --no-install drever` and the matching script runner instead.
 
-1. When Drever MCP tools are available, use `drever_get_current` for “this slide,” `drever_get_slide` for its exact source, and `drever_get_context` for the design contract. Otherwise run `npm exec -- drever current --json` while `npm run dev` and an audience or speaker window are active, then run `npm exec -- drever context --json`. When the user identifies one visible element, use the exact `selection` produced by Option/Alt-click instead of guessing from the whole slide. Use source ranges, exact Step stops, theme guidance, layouts, and component manifests as the authoring contract. For a newly approved deck, also read `drever.plan.json` and preserve its ordered planning labels, narrative jobs, evidence, focal artifacts, composition recipes, density, and explicit motion ownership; compiled slide identity remains positional. Change that contract only when user feedback changes the story, and update the plan together with the source.
+1. When Drever MCP tools are available, use `drever_get_current` for “this slide,” `drever_get_slide` for its exact source, and `drever_get_context` for the design contract. Otherwise run `npm exec -- drever current --json` while `npm run dev` and an audience or speaker window are active, then run `npm exec -- drever context --json`. When the user identifies one visible element, use the exact `selection` produced by Option/Alt-click instead of guessing from the whole slide. Use source ranges, exact Step stops, theme guidance, layouts, and component manifests as the authoring contract. For a newly approved deck, also read `brief.md` and `drever.plan.json`; preserve the brief's locked canvas, safe area, content inset, and surface owner. Preserve its ordered planning labels, narrative jobs, evidence, focal artifacts, composition recipes, density, and explicit motion ownership. Compiled slide identity remains positional. Change those contracts only when user feedback changes them, and update the plan or brief together with the source.
 2. Read the complete affected MDX plus imported local components, configured Stage modules, and styles. Preserve unrelated work.
 3. Treat slide boundaries and Step stops as public navigation state. Do not renumber them casually; an exact route may be shared.
 4. Keep one dominant idea, clear hierarchy, and a unique title on every slide. Prefer semantic Markdown and theme layouts over one-off containers.
@@ -41,7 +41,8 @@ Commands below use npm's project-local runner. In a pnpm, Yarn, or Bun project, 
 When `drever-create-deck` delegates immediately after a Studio `approve-plan` action, use a bounded
 first-pass mode before the normal refinement workflow. Author every approved slide in one semantic
 end-to-end pass with real readable copy, required evidence, a simple focal artifact, and speaker
-notes. Keep the visual system deliberately simple but safe and coherent. Do not leave placeholder
+notes. Keep the visual system deliberately simple but safe and coherent on the exact approved or
+configured canvas and safe-area policy. Do not leave placeholder
 slides, and do not begin bespoke design research, optional asset work, or elaborate motion before
 the whole content draft exists.
 
@@ -54,6 +55,12 @@ authored source is stable should `drever-review-deck` own the isolated rendered 
 `drever-deliver-deck` own the production build or export. This fast path applies only to the initial
 approved Draft 1; later edits follow the affected-route and review rules below.
 
+The active Studio server, Creation room, embedded preview, and managed transport are user-owned
+session state. Keep them alive through Draft 1, refinement, and feedback. Never start a competing
+Drever or Vite development server, attach generic browser control before preview, or use `pkill`, `killall`,
+kill-by-port, or broad cleanup against a process the workflow did not start. The final review command
+owns its own short-lived isolated loopback server and Playwright browser.
+
 Treat each coherent live preview as the last-known-good visual checkpoint. Refine one concern at a
 time and preserve its established slide bounds, content insets, grid, spacing tokens, and readable
 line wraps while adding motion. A motion pass must not replace or reset a working layout merely to
@@ -62,9 +69,19 @@ edits atomically, and compare the affected routes with the checkpoint before mov
 change degrades layout, restore the known-good geometry first and redesign the motion around it
 instead of asking a later cleanup pass to recover the composition.
 
-When materially changing the visual direction, use the project-local `drever-create-design` skill and revise the persisted design artifact in place. Derive it again from the subject, audience, purpose, venue, and source material instead of layering on an unrelated style. Treat all eight official Themes as equal design studies, with Basic only as the neutral fallback when the brief offers no stronger cue. If an organization or product has an established identity and research is allowed, use current primary official sources to understand its palette, typography, marks, imagery, rhythm, and motion. Convert those findings into a small original system that uses the studies as references rather than exposing them as the primary choice. Reuse fonts and assets only when their source and license permit it; otherwise use an attributed, licensed substitute or an original abstraction.
+When materially changing the visual direction, use the project-local `drever-create-design` skill and revise the persisted design artifact in place. Derive it again from the subject, audience, purpose, venue, and source material instead of layering on an unrelated style. Treat all eight official Themes as reference studies, never automatic presets. Import or assign one only when the user explicitly names it or the existing project already selects it. Otherwise convert useful principles into a small original local system without using the package. If an organization or product has an established identity and research is allowed, use current primary official sources to understand its palette, typography, marks, imagery, rhythm, and motion. Reuse fonts and assets only when their source and license permit it; otherwise use an attributed, licensed substitute or an original abstraction.
 
-Treat active Theme CSS as part of every local scene. Use a scoped, minimal normalization for Theme-owned Markdown margins, maximum widths, line height, text transform, and foreground before applying local roles. Inspect computed descendants instead of assuming that a parent class or later source order overrides a more specific Theme selector; never reset the whole deck globally.
+For an existing direction, treat active Theme CSS as part of every local scene. A new custom direction
+owns the complete Theme and Stage surface and replaces conflicting starter backgrounds, rails,
+accents, typography, and motion; it must not layer a black custom canvas under an inherited blue rail
+or leave two background owners active. Use a scoped, minimal normalization for Theme-owned Markdown
+margins, maximum widths, line height, text transform, and foreground before applying local roles.
+Inspect computed descendants instead of assuming that a parent class or later source order overrides
+a more specific Theme selector; never reset the whole deck globally.
+
+For a replacement direction, prepare the complete minimal local Theme and Stage modules before
+referencing them, then switch the configuration once before publishing matching custom MDX or CSS.
+Never expose a half-migrated preview with both the starter and replacement systems visible.
 
 Use `stage.background` for persistent canvas decoration and `stage.foreground` for fixed branding or page information. Each path names a default-exporting React component that receives `StageLayerProps` from `drever`; nested components may call `useStage()`. Keep the Stage shell stationary and animate only a sub-element whose visual state actually changes. Never wrap a full-canvas background in a continuity `MotionGroup`: its extracted snapshot can leave the slide stacking context and paint above the content. Keep the background in the persistent Stage and transition live inner lines, glows, or signals instead. A recurring line or band retains its position, thickness, opacity, paint, orientation, and cross-axis alignment across adjacent slides. Move it only when a meaningful chapter, comparison, or state change requires the shift; make that exception visually legible and hold the new position long enough to read as intentional. Translate it along its logical axis or reveal its length through an inner mask instead of resizing its container or scaling both axes.
 

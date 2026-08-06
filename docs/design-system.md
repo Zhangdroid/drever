@@ -462,17 +462,30 @@ contract.
 ### Official design studies and theme contracts
 
 A presentation theme remains a complete, standalone, deterministic art
-direction. It owns its
-Markdown styling, layouts, canvas scale, semantic `--drever-theme-*` variables,
-and motion profile.
+direction. It owns its canvas paint, root slide surface, Markdown styling,
+layouts, typography, recurring rails and accents, semantic
+`--drever-theme-*` variables, Stage relationship, and motion profile. A custom
+direction replaces conflicting starter surfaces; it must not layer a dark
+custom canvas under an inherited blue rail or keep two background owners.
+Prepare a replacement Theme and Stage while unreferenced, then switch the
+configuration once before publishing matching custom slide source so HMR never
+exposes a half-migrated visual system.
 
-The eight studies in `@drever/designs` are few-shot references and
-fallbacks—not a preset-first product workflow. Basic is the neutral fallback
-when a brief does not justify a stronger direction. Editorial, Studio,
+The eight studies in `@drever/designs` are few-shot references—not a
+preset-first product workflow. An agent may assign one only when the user
+explicitly names it or an existing project already selects it. A theme-less
+project uses a separate internal neutral baseline with safe insets and readable
+semantic Markdown, not Basic. Editorial, Studio,
 Fieldnote, Atlas, Ledger, Cinema, and Construct may reuse a font or selected
 primitive without adopting the brand palette or product type scale. Themes must not
 extend one another, import another theme's CSS, or place product UI rules
 inside a slide stylesheet.
+
+Before Draft 1, the approved brief records one exact canvas, safe area, default
+content inset, and surface owner. Those values are design inputs, not styling
+suggestions. A design pass must not replace 1600 × 900 with 1920 × 1080 merely
+because the latter is familiar, and a motion pass must preserve the last-known-good
+grid, padding, readable line wraps, and required painted footprint.
 
 The studies must also remain structurally distinct. Their reference decks should
 not all converge on one page count, left-copy/right-artifact skeleton,

@@ -17,6 +17,7 @@ import {
   resolveStudioDraftLifecycle,
   resolveStudioDuration,
   resolveStudioProgress,
+  resolveStudioPlanSlideId,
   respondToStudioAgentApproval,
   Studio,
   type StudioProps,
@@ -121,6 +122,33 @@ describe("Studio", () => {
     expect(markup).not.toContain("No local agent is active.");
   });
 
+  it("explains that a configured idle agent can resume the preserved session", () => {
+    const markup = render(state({ agentConfigured: true }));
+
+    expect(markup).toContain("Agent ready to resume");
+    expect(markup).toContain("The managed agent is ready to resume.");
+    expect(markup).toContain(
+      "Your session is preserved. The next Studio action reconnects the managed agent automatically.",
+    );
+    expect(markup).not.toContain("No local agent is active.");
+  });
+
+  it("treats an idle configured agent at the storyboard as a resumable review gate", () => {
+    const markup = render(
+      state({
+        agentConfigured: true,
+        commonBrief: { topic: plan.brief.topic },
+        phase: "plan-review",
+        plan,
+      }),
+    );
+
+    expect(markup).toContain("Waiting for your review");
+    expect(markup).toContain("The agent is resting at the review gate.");
+    expect(markup).toContain("Approve story");
+    expect(markup).not.toContain("No agent connected");
+  });
+
   it("shows the current agent approval without exposing transport internals", () => {
     const markup = render(
       state({
@@ -212,8 +240,28 @@ describe("Studio", () => {
     expect(markup).toContain("Selecting the decisions that materially change the deck.");
     expect(markup).toContain('aria-current="step"');
     expect(markup).toContain('class="drever-studio-activity__current"');
-    expect(markup).toContain('<details class="drever-studio-activity-history">');
-    expect(markup).not.toContain('<details class="drever-studio-activity-history" open="">');
+    expect(markup).toMatch(
+      /<button aria-controls="[^"]+" aria-expanded="false" class="drever-studio-activity-history__toggle"/u,
+    );
+    expect(markup).toMatch(
+      /<div aria-hidden="true" class="drever-studio-activity-history__reveal" id="[^"]+">/u,
+    );
+    expect(markup).not.toContain("<details");
+  });
+
+  it("does not present an unstarted estimate as measurable progress", () => {
+    const markup = render(
+      state({
+        agentConnected: true,
+        commonBrief: { topic: "A deliberate subject" },
+        phase: "waiting-for-agent",
+        progress: { completed: 0, label: "Preparing topic-specific questions", total: 5 },
+      }),
+    );
+
+    expect(markup).toContain("Preparing topic-specific questions");
+    expect(markup).not.toContain("0 of 5");
+    expect(markup).not.toContain("<progress");
   });
 
   it("hydrates an arbitrary duration in the custom minutes field", () => {
@@ -264,6 +312,12 @@ describe("Studio", () => {
     expect(markup).toContain("Approve story");
     expect(markup).toContain('aria-controls="drever-studio-plan-card-closing-model"');
     expect(markup).toContain('data-studio-slide-id="closing-model"');
+    expect(markup).toContain("Layout · Split Proof");
+    expect(markup).toContain("Motion · Compare");
+    expect(markup).toContain('title="Keep the orbit fixed while the central object changes."');
+    expect(markup).toContain(
+      'aria-description="Layout: split-proof. Motion: Compare. Keep the orbit fixed while the central object changes."',
+    );
     expect(markup).not.toContain("Live Drever draft");
   });
 
@@ -299,6 +353,26 @@ describe("Studio", () => {
     expect(markup).toContain("The motion pass stopped before verification.");
     expect(markup).toContain("Resume from last draft");
     expect(markup).not.toContain("The draft paused.");
+  });
+
+  it("keeps completed agent activity available after the draft reaches a review point", () => {
+    const markup = render(
+      state({
+        draftAvailable: true,
+        phase: "ready",
+        commonBrief: { topic: plan.brief.topic },
+        plan: { ...plan, status: "approved" },
+        activity: [
+          { id: "draft-layout", label: "Layout completed", status: "complete" },
+          { id: "draft-check", label: "Rendered review completed", status: "complete" },
+        ],
+      }),
+    );
+
+    expect(markup).toContain("This pass is ready for your feedback");
+    expect(markup).toContain("View history");
+    expect(markup).toContain("Layout completed");
+    expect(markup).toContain("Rendered review completed");
   });
 
   it("retries the first draft without claiming that an unpublished draft exists", () => {
@@ -577,9 +651,9 @@ describe("Studio flow helpers", () => {
   });
 
   it("describes working, reviewable, ready, and failed draft states explicitly", () => {
-    expect(resolveStudioDraftLifecycle(state({ phase: "drafting" }))?.title).toBe(
-      "Draft 1 is taking shape",
-    );
+    expect(
+      resolveStudioDraftLifecycle(state({ agentConnected: true, phase: "drafting" }))?.title,
+    ).toBe("Draft 1 is taking shape");
     expect(
       resolveStudioDraftLifecycle(
         state({
@@ -603,6 +677,21 @@ describe("Studio flow helpers", () => {
       resolveStudioDraftLifecycle(state({ draftAvailable: true, phase: "waiting-for-agent" }))
         ?.title,
     ).toBe("Last published draft is available");
+  });
+
+  it("marks disconnected draft work as paused instead of showing indefinite live activity", () => {
+    expect(resolveStudioDraftLifecycle(state({ phase: "drafting" }))).toMatchObject({
+      status: "error",
+      title: "The agent paused",
+    });
+    expect(
+      resolveStudioDraftLifecycle(state({ draftAvailable: true, phase: "refining" })),
+    ).toMatchObject({
+      detail:
+        "The last published draft remains available. Resume the managed agent before making further changes.",
+      status: "error",
+      title: "Refinement paused",
+    });
   });
 
   it("accepts only self-consistent preview bridge state", () => {
@@ -652,6 +741,11 @@ describe("Studio flow helpers", () => {
     expect(isStudioPreviewReady({ type: "drever:studio-preview-ready", version: 1 })).toBe(true);
     expect(isStudioPreviewReady({ type: "drever:studio-preview-ready", version: 2 })).toBe(false);
     expect(isStudioPreviewReady({ type: "drever:studio-preview-state", version: 1 })).toBe(false);
+  });
+
+  it("bridges positional runtime slides to semantic plan ids", () => {
+    expect(resolveStudioPlanSlideId(plan.slides, 1)).toBe("closing-model");
+    expect(resolveStudioPlanSlideId(plan.slides, 2)).toBeUndefined();
   });
 
   it("sends every supported agent approval decision through the Studio action boundary", async () => {

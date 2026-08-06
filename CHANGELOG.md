@@ -5,6 +5,56 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-08-05
+
+Release impact: **minor** — this batch makes Studio creation more resilient and deliberate, adds
+recoverable audience rendering, and deliberately stops treating the Basic design study as an
+implicit default. Existing decks that rely on Basic layouts must select Basic explicitly.
+
+### Changed
+
+- Made Direction publish a first reviewable Storyboard from the submitted brief before browsing or
+  open-ended research, with uncertain facts carried forward as evidence requirements and deeper
+  research deferred until the approved live draft.
+- Added restrained transitions for Studio screens, semantic status copy, disclosures, plan-card
+  metadata, controls, notices, dialogs, and feedback so state changes remain legible without
+  animating streaming text or the live presentation canvas.
+- Reframed Storyboard card metadata as explicit Layout and Motion information with an accessible
+  motion purpose, and aligned Studio controls with Drever's shared design tokens.
+- Locked the approved canvas, safe area, surface ownership, and last-known-good layout across the
+  generated authoring skills; official designs now remain reference studies unless explicitly
+  selected, and custom art direction replaces conflicting starter paint instead of layering over it.
+- Stopped applying the official Basic study when `theme` is omitted. Theme-less projects now use an
+  undecorated internal baseline with safe insets and readable semantic Markdown, while Basic and its
+  named layouts remain available through an explicit project choice.
+
+### Fixed
+
+- Gave newly created projects an explicit 1600 × 900 canvas contract so an agent cannot silently
+  switch resolutions while replacing the starter design or refining motion.
+- Kept authored render failures inside their owning slide or deck surface so one broken Draft 1
+  route no longer turns the audience view or Studio preview into a blank page; development previews
+  retain actionable error detail while production fallbacks avoid exposing source exceptions.
+- Kept custom art directions from exposing a half-migrated starter frame by making official designs
+  reference-only for agents, assigning one owner to the complete Theme and Stage surface, and
+  preparing replacement modules before switching the live configuration.
+- Removed synthetic `0 of 5` progress from provider-internal planning steps while retaining truly
+  measurable progress when a reliable completed and total count exists.
+- Kept a managed agent's idle review checkpoint resumable instead of reporting a normal app-server
+  exit as a disconnect failure, and let the durable awaiting-approval Storyboard outrank late
+  transport errors.
+- Kept Live Draft feedback scoped to the corresponding semantic Storyboard slide while bridging the
+  audience runtime's positional slide identity by ordered index.
+- Prewarmed the authored presentation graph and recovered one transient cold-module fetch with a
+  guarded reload, so Studio previews no longer remain stranded on the loading shell after Vite
+  refreshes its dependency graph.
+- Suppressed the config watcher's initial file-discovery events so cold startup does not reset a
+  Live Draft after the user has already begun navigating it.
+- Kept the user-owned Studio development server isolated from agent review infrastructure by
+  putting managed agents in their own process group, rejecting nested managed `drever dev`
+  launches, and reserving temporary rendered-check cleanup for its own ephemeral loopback preview
+  and browser.
+
 ## [0.13.1] - 2026-08-05
 
 Release impact: **patch** — this batch fixes compatible Studio preview and lifecycle regressions in
@@ -658,7 +708,8 @@ capabilities.
 - Added parallel source, unit, package, browser, export, and website checks in CI.
 - Deployed the prerendered public website and per-branch previews through Cloudflare Pages.
 
-[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.13.1...HEAD
+[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.14.0...HEAD
+[0.14.0]: https://github.com/Zhangdroid/drever/compare/v0.13.1...v0.14.0
 [0.13.1]: https://github.com/Zhangdroid/drever/compare/v0.13.0...v0.13.1
 [0.13.0]: https://github.com/Zhangdroid/drever/compare/v0.12.1...v0.13.0
 [0.12.1]: https://github.com/Zhangdroid/drever/compare/v0.12.0...v0.12.1
