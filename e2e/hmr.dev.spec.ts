@@ -189,6 +189,7 @@ export const Counter = () => {
 `,
     );
     await reload;
+    await waitForDreverReady(page);
 
     await expect(page.getByRole("heading", { name: "Stable title" })).toBeVisible();
     await expect(page).toHaveURL(`${url}/2/2`);
@@ -220,6 +221,7 @@ export const Counter = () => {
 `,
     );
     await titleReload;
+    await waitForDreverReady(page);
 
     await expect(page).toHaveTitle("Revised HMR fixture");
     await expect(page).toHaveURL(`${url}/2/4`);
@@ -319,15 +321,19 @@ export default {
     await expect(page.getByTestId("hmr-stage-background")).toBeVisible();
     await expect(page.locator(".drever-viewer")).toHaveCSS("--drever-canvas-background", "#081a2f");
 
+    const recoveredConfigReload = page.waitForEvent("load");
     await writeFile(
       `${root}/design/recovered-config.ts`,
       'export const foreground = "./StageForeground.tsx";\n',
     );
-    await expect
-      .poll(() => output.join("").match(/Drever configuration reloaded\./gu)?.length, {
-        timeout: 20_000,
-      })
-      .toBe(3);
+    await Promise.all([
+      recoveredConfigReload,
+      expect
+        .poll(() => output.join("").match(/Drever configuration reloaded\./gu)?.length, {
+          timeout: 20_000,
+        })
+        .toBe(3),
+    ]);
     await waitForDreverReady(page);
     await expect(page.getByTestId("hmr-stage-foreground")).toBeVisible();
     health.expectHealthy();
