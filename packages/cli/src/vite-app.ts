@@ -544,7 +544,7 @@ const isWildcardHost = (host: string): boolean =>
   host === "0.0.0.0" || host === "::" || host === "[::]";
 
 const urlHost = (host: string): string => {
-  const normalized = host.replace(/^\[|\]$/gu, "").replace("%", "%25");
+  const normalized = host.replace(/^\[|\]$/gu, "").replace(/%/gu, "%25");
   return normalized.includes(":") ? `[${normalized}]` : normalized;
 };
 
