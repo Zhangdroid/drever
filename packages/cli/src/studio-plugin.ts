@@ -616,7 +616,6 @@ const stateWithoutRevision = async (
   }
   const fileAgent = agentStateWithinJournal(decodedFileAgent, latestActionRevision);
   const liveAgent = agentStateWithinJournal(decodedLiveAgent, latestActionRevision);
-  const telemetryAgent = liveSnapshot === undefined ? fileAgent : liveAgent;
   const agentLastSeenAt = heartbeat?.seenAt;
   const agentHeartbeatAge =
     agentLastSeenAt === undefined ? undefined : now.getTime() - Date.parse(agentLastSeenAt);
@@ -652,14 +651,17 @@ const stateWithoutRevision = async (
       : liveAgent?.phase;
   const publishedArtifactPhase =
     publishedPhase === "preview" || publishedPhase === "ready" ? publishedPhase : undefined;
-  const agentPhase =
-    livePhase === "error"
+  const publishedArtifactIsCurrent =
+    pendingActionCount === 0 && publishedArtifactPhase !== undefined;
+  const agentPhase = publishedArtifactIsCurrent
+    ? publishedArtifactPhase
+    : livePhase === "error"
       ? livePhase
-      : pendingActionCount === 0 && publishedArtifactPhase !== undefined
-        ? publishedArtifactPhase
-        : liveSnapshot?.connected === true
-          ? (livePhase ?? publishedPhase)
-          : (publishedPhase ?? livePhase);
+      : liveSnapshot?.connected === true
+        ? (livePhase ?? publishedPhase)
+        : (publishedPhase ?? livePhase);
+  const telemetryAgent =
+    publishedArtifactIsCurrent || liveSnapshot === undefined ? fileAgent : liveAgent;
   const draftAvailable =
     draftWasAvailable ||
     publishedPhase === "preview" ||

@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it } from "vite-plus/test";
 import {
   createStudioActionPublicationVerifier,
   verifyStudioActionPublication,
+  withStudioActionPublicationGrace,
 } from "./studio-agent-publication.ts";
 import {
   DREVER_STUDIO_ACTIONS_DIRECTORY,
@@ -103,6 +104,33 @@ afterEach(async () => {
 });
 
 describe("Studio action publication verifier", () => {
+  it("allows a completed agent turn a bounded publication grace window", async () => {
+    let attempts = 0;
+    const verify = withStudioActionPublicationGrace(
+      async () => {
+        attempts += 1;
+        return attempts === 3;
+      },
+      50,
+      1,
+    );
+    const record = {
+      version: DREVER_STUDIO_PROTOCOL_VERSION,
+      revision: 1,
+      receivedAt: "2026-08-04T20:00:00.000Z",
+      action: {
+        version: DREVER_STUDIO_PROTOCOL_VERSION,
+        requestId: "brief-1",
+        expectedRevision: 0,
+        type: "submit-common-brief",
+        brief: { topic: "A useful topic" },
+      },
+    } as const satisfies DreverStudioActionRecord;
+
+    await expect(verify(record)).resolves.toBe(true);
+    expect(attempts).toBe(3);
+  });
+
   it("accepts only a validated publication that covers the requested revision", async () => {
     const root = await createRoot();
     await writeActions(root, 2);

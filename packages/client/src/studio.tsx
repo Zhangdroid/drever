@@ -280,8 +280,10 @@ const directionIsPending = (state: DreverStudioState): boolean =>
 export const resolveStudioProgress = (state: DreverStudioState): readonly StudioProgressStage[] => {
   const hasBrief = state.phase !== "briefing" && (state.commonBrief?.topic.trim() ?? "") !== "";
   const directionInFlight = directionIsPending(state);
+  const directionNeedsInput = state.plan?.status === "awaiting-input";
   const directionSubmitted =
     !directionInFlight &&
+    !directionNeedsInput &&
     (state.skippedRemainingQuestions === true ||
       state.adaptiveAnswers !== undefined ||
       state.plan !== undefined);
@@ -354,12 +356,28 @@ const fallbackActivity = (state: DreverStudioState): readonly DreverStudioActivi
 const activityFor = (state: DreverStudioState): readonly DreverStudioActivity[] =>
   state.activity ?? fallbackActivity(state);
 
+const plainStudioNarration = (value: string): string =>
+  value
+    .replace(/^\s*```(?:[\w-]+)?\s*$/u, "")
+    .replace(/^\s*(?:>\s*)+/u, "")
+    .replace(/^#{1,6}\s+/u, "")
+    .replace(/^\s*(?:[-+*]|\d+[.)])\s+/u, "")
+    .replace(/!\[([^\]]*)\]\([^)]*\)/gu, "$1")
+    .replace(/\[([^\]]+)\]\([^)]*\)/gu, "$1")
+    .replace(/`{1,3}([^`\n]+)`{1,3}/gu, "$1")
+    .replace(/~~(\S(?:.*?\S)?)~~/gu, "$1")
+    .replace(/(\*\*|__)(\S(?:.*?\S)?)\1/gu, "$2")
+    .replace(/^(?:\*{1,3}|_{2,3})(?=\S)/u, "")
+    .replace(/(?:\*{1,3}|_{2,3})$/u, "")
+    .trim();
+
 export const latestStudioNarration = (value: string | undefined): string | undefined => {
   const normalized = value?.trim();
   if (normalized === undefined || normalized === "") return undefined;
-  const latestParagraph = normalized.split(/\n+/u).filter(Boolean).at(-1) ?? normalized;
-  if (latestParagraph.length <= 220) return latestParagraph;
-  const tail = latestParagraph.slice(-219);
+  const plainText = normalized.split(/\n+/u).map(plainStudioNarration).filter(Boolean).at(-1);
+  if (plainText === undefined) return undefined;
+  if (plainText.length <= 220) return plainText;
+  const tail = plainText.slice(-219);
   const firstSpace = tail.search(/\s/u);
   return `…${(firstSpace === -1 ? tail : tail.slice(firstSpace + 1)).trimStart()}`;
 };
@@ -1168,6 +1186,17 @@ export const resolveStudioDraftLifecycle = (
   state: DreverStudioState,
 ): StudioDraftLifecycle | undefined => {
   const detail = latestStudioNarration(state.message);
+  const agentWorkIsActive =
+    state.agentConnected &&
+    (state.pendingActionCount > 0 ||
+      state.activity?.some(({ status }) => status === "active") === true);
+  const firstDraftStarting =
+    state.phase === "waiting-for-agent" &&
+    state.plan?.status === "approved" &&
+    state.draftAvailable !== true &&
+    agentWorkIsActive;
+  const laterDraftWorkStarting =
+    state.phase === "waiting-for-agent" && state.draftAvailable === true && agentWorkIsActive;
   if (state.phase === "error") {
     return {
       detail:
@@ -1179,7 +1208,12 @@ export const resolveStudioDraftLifecycle = (
       title: state.draftAvailable === true ? "Refinement paused" : "The agent paused",
     };
   }
-  if (state.phase === "drafting" || state.phase === "refining") {
+  if (
+    state.phase === "drafting" ||
+    state.phase === "refining" ||
+    firstDraftStarting ||
+    laterDraftWorkStarting
+  ) {
     return {
       detail:
         detail ??
@@ -1205,6 +1239,17 @@ export const resolveStudioDraftLifecycle = (
       detail: detail ?? "This pass is complete. Review it or send another direction.",
       status: "ready",
       title: "This pass is ready for your feedback",
+    };
+  }
+  if (state.phase === "waiting-for-agent" && state.draftAvailable === true) {
+    return {
+      detail:
+        detail ??
+        (state.agentConnected
+          ? "No refinement is active. Review the last published draft or send the agent new direction."
+          : "The local agent is not connected, but the last published draft remains available for review."),
+      status: "ready",
+      title: "Last published draft is available",
     };
   }
   return undefined;
@@ -1274,7 +1319,11 @@ const StudioDraftStatus = ({
   const canResumeDraft = state.draftAvailable === true;
   const activity = resolveStudioActivity(state);
   const progressLabel =
-    lifecycle.status === "working" ? (activity.current?.label ?? state.progress?.label) : undefined;
+    lifecycle.status === "working"
+      ? activity.current?.status === "active"
+        ? activity.current.label
+        : state.progress?.label
+      : undefined;
   const resume = async (): Promise<void> => {
     setResuming(true);
     try {
@@ -1596,8 +1645,12 @@ const PlanScreen = ({
               Open audience
               <ExternalIcon />
             </a>
-          ) : state.phase === "drafting" ? (
-            <span>{state.progress?.label ?? "Draft 1 is being authored"}</span>
+          ) : lifecycle?.status === "working" ? (
+            <span>{state.progress?.label ?? lifecycle.title}</span>
+          ) : lifecycle?.status === "error" ? (
+            <span>{lifecycle.title}</span>
+          ) : plan.status === "approved" ? (
+            <span>Waiting for the agent to start Draft 1</span>
           ) : (
             <span>Approve the story before authoring</span>
           )}

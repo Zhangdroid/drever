@@ -17,6 +17,9 @@ export type StudioActionPublicationVerifier = (
   record: DreverStudioActionRecord,
 ) => Promise<boolean>;
 
+const PUBLICATION_GRACE_MS = 2_000;
+const PUBLICATION_POLL_MS = 40;
+
 const isMissingFile = (error: unknown): boolean =>
   error instanceof Error && "code" in error && error.code === "ENOENT";
 
@@ -120,4 +123,21 @@ export const createStudioActionPublicationVerifier =
       return false;
     }
     return hasActionOutcome(root, record, state);
+  };
+
+/** @internal Gives an atomic agent publication a short window to become observable. */
+export const withStudioActionPublicationGrace =
+  (
+    verify: StudioActionPublicationVerifier,
+    timeoutMs = PUBLICATION_GRACE_MS,
+    pollMs = PUBLICATION_POLL_MS,
+  ): StudioActionPublicationVerifier =>
+  async (record) => {
+    const deadline = Date.now() + timeoutMs;
+    while (true) {
+      if (await verify(record)) return true;
+      const remaining = deadline - Date.now();
+      if (remaining <= 0) return false;
+      await new Promise((resolve) => setTimeout(resolve, Math.min(pollMs, remaining)));
+    }
   };

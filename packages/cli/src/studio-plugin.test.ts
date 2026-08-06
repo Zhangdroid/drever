@@ -333,6 +333,42 @@ describe("Studio session", () => {
     },
   );
 
+  it("keeps a current durable ready publication above a late transport error", async () => {
+    const root = await createRoot();
+    await writeBriefActions(root, 1);
+    await writeFile(
+      join(root, "drever.plan.json"),
+      JSON.stringify({ ...plan, status: "approved" }),
+      "utf8",
+    );
+    await writeStudioAgentState(root, {
+      version: 1,
+      phase: "ready",
+      handledActionRevision: 1,
+      message: "The reviewed draft is ready.",
+    });
+    const session = createStudioSession(root, {
+      agentProvider: {
+        snapshot: () => ({
+          connected: false,
+          state: {
+            version: 1,
+            phase: "error",
+            handledActionRevision: 0,
+            message: "The transport closed before observing the publication.",
+          },
+        }),
+      },
+    });
+
+    await expect(session.read()).resolves.toMatchObject({
+      draftAvailable: true,
+      message: "The reviewed draft is ready.",
+      pendingActionCount: 0,
+      phase: "ready",
+    });
+  });
+
   it("keeps a published draft available throughout later agent work", async () => {
     const root = await createRoot();
     await writeBriefActions(root, 1);

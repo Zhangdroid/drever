@@ -1633,12 +1633,14 @@
 
   .drever-studio-preview__frame {
     display: grid;
+    grid-row: 2;
     min-height: 0;
     place-items: center;
     container-type: size;
   }
 
   .drever-studio-preview__notes {
+    grid-row: 3;
     width: min(100%, 900px);
     margin-inline: auto;
     padding: 11px 13px;
@@ -1839,6 +1841,7 @@
   }
 
   .drever-studio-preview > .drever-studio-draft-status {
+    grid-row: 1;
     width: min(100%, 900px);
     margin: 0 auto;
   }

@@ -5,6 +5,23 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+## [0.13.1] - 2026-08-05
+
+Release impact: **patch** — this batch fixes compatible Studio preview and lifecycle regressions in
+the new local authoring workflow.
+
+### Fixed
+
+- Kept the embedded Live Draft in its preview row when the lifecycle banner is absent, so speaker
+  notes can no longer collapse the rendered deck to zero height.
+- Treated an approved Storyboard that is waiting for Draft 1 as active work, preserving truthful
+  progress and toolbar copy while keeping the not-yet-available preview disabled.
+- Rendered bounded agent summaries as clean plain text instead of exposing Markdown formatting
+  markers in Studio activity.
+- Gave atomic agent publications a bounded verification grace window and kept a current durable
+  ready state above a late transport error, preventing completed Studio passes from being reported
+  as paused.
+
 ## [0.13.0] - 2026-08-05
 
 Release impact: **minor** — this batch adds a more legible and inspectable local Studio workflow
@@ -641,7 +658,8 @@ capabilities.
 - Added parallel source, unit, package, browser, export, and website checks in CI.
 - Deployed the prerendered public website and per-branch previews through Cloudflare Pages.
 
-[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.13.0...HEAD
+[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.13.1...HEAD
+[0.13.1]: https://github.com/Zhangdroid/drever/compare/v0.13.0...v0.13.1
 [0.13.0]: https://github.com/Zhangdroid/drever/compare/v0.12.1...v0.13.0
 [0.12.1]: https://github.com/Zhangdroid/drever/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/Zhangdroid/drever/compare/v0.11.0...v0.12.0

@@ -18,6 +18,7 @@ import {
 import {
   createStudioActionPublicationVerifier,
   type StudioActionPublicationVerifier,
+  withStudioActionPublicationGrace,
 } from "./studio-agent-publication.ts";
 import {
   phaseForStudioAction,
@@ -339,7 +340,8 @@ export const createCodexStudioAgent = (options: CodexStudioAgentOptions): Studio
   const actionQueue: QueuedAction[] = [];
   const spawnProcess = options.spawnProcess ?? defaultSpawn;
   const verifyActionHandled =
-    options.verifyActionHandled ?? createStudioActionPublicationVerifier(options.root);
+    options.verifyActionHandled ??
+    withStudioActionPublicationGrace(createStudioActionPublicationVerifier(options.root));
   let activeTurn = false;
   let connected = false;
   let connection: CodexAppServerConnection | undefined;

@@ -210,6 +210,45 @@ test("Studio keeps the embedded live draft navigable with real speaker notes", a
       "Pause at step 2, then jump to step 5.",
     );
     await expect(page.locator(".drever-studio-direction")).toContainText("Core fixture artifact 2");
+
+    await writeFile(
+      join(root, ".drever", "studio", "state.json"),
+      JSON.stringify({
+        version: 1,
+        phase: "waiting-for-agent",
+        handledActionRevision: 1,
+        activity: [
+          {
+            id: "draft-ready",
+            label: "Draft 1 published",
+            detail: "The stable core fixture remains available while agent telemetry reconnects.",
+            status: "complete",
+          },
+        ],
+      }),
+      "utf8",
+    );
+    await rm(join(root, ".drever", "studio", "agent-heartbeat.json"));
+    await expect(page.getByText("No agent connected", { exact: true })).toBeVisible();
+    await expect(
+      page.getByText("Last published draft is available", { exact: true }),
+    ).toBeVisible();
+    const previewFrame = page.locator(".drever-studio-preview__frame");
+    await expect
+      .poll(async () => {
+        const [frameBox, iframeBox] = await Promise.all([
+          previewFrame.boundingBox(),
+          iframe.boundingBox(),
+        ]);
+        if (frameBox === null || iframeBox === null || iframeBox.height === 0) return false;
+        const ratio = iframeBox.width / iframeBox.height;
+        const coverage = Math.max(
+          iframeBox.width / frameBox.width,
+          iframeBox.height / frameBox.height,
+        );
+        return Math.abs(ratio - 16 / 9) < 0.03 && iframeBox.height > 200 && coverage > 0.85;
+      })
+      .toBe(true);
     health.expectHealthy();
   } catch (error) {
     throw new Error(`Studio Live Draft E2E failed.\n${output}`, { cause: error });

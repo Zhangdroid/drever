@@ -27,6 +27,7 @@ import { DREVER_VERSION } from "./package-version.ts";
 import {
   createStudioActionPublicationVerifier,
   type StudioActionPublicationVerifier,
+  withStudioActionPublicationGrace,
 } from "./studio-agent-publication.ts";
 import {
   phaseForStudioAction,
@@ -357,7 +358,8 @@ class AcpStudioAgentProviderImplementation implements AcpStudioAgentProvider {
       "turnTimeoutMs",
     );
     this.#verifyActionHandled =
-      options.verifyActionHandled ?? createStudioActionPublicationVerifier(options.cwd);
+      options.verifyActionHandled ??
+      withStudioActionPublicationGrace(createStudioActionPublicationVerifier(options.cwd));
   }
 
   capabilities(): AcpStudioAgentCapabilities | undefined {

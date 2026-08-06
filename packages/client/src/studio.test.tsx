@@ -372,6 +372,56 @@ describe("Studio", () => {
     expect(markup).not.toContain("chain of thought");
   });
 
+  it("keeps the approved story truthful while the first live draft starts", () => {
+    const markup = render(
+      state({
+        agentConnected: true,
+        phase: "waiting-for-agent",
+        commonBrief: { topic: plan.brief.topic },
+        plan: { ...plan, status: "approved" },
+        activity: [
+          {
+            id: "draft-layout",
+            label: "Composing the first draft",
+            status: "active",
+          },
+        ],
+        message: "**Pausing briefly**\n**Waiting for tool execution**",
+      }),
+    );
+
+    expect(markup).toContain("Live work in progress");
+    expect(markup).toContain("Draft 1 is taking shape");
+    expect(markup).toContain("Composing the first draft");
+    expect(markup).toContain("Waiting for tool execution");
+    expect(markup).not.toContain("Approve the story before authoring");
+    expect(markup).not.toContain("**");
+    expect(markup).toContain('disabled="" type="button">Live draft');
+    expect(markup).not.toContain('title="Live Drever draft"');
+  });
+
+  it("does not mistake an idle connected agent for active draft work", () => {
+    const markup = render(
+      state({
+        agentConnected: true,
+        phase: "waiting-for-agent",
+        commonBrief: { topic: plan.brief.topic },
+        plan: { ...plan, status: "approved" },
+        activity: [
+          {
+            id: "story-approved",
+            label: "Storyboard approved",
+            status: "complete",
+          },
+        ],
+      }),
+    );
+
+    expect(markup).toContain("Waiting for the agent to start Draft 1");
+    expect(markup).not.toContain("Live work in progress");
+    expect(markup).not.toContain("Storyboard approved · Draft 1 is taking shape");
+  });
+
   it("opens an already available draft instead of returning to the storyboard", () => {
     const markup = renderToStaticMarkup(
       <Studio
@@ -474,6 +524,23 @@ describe("Studio flow helpers", () => {
     ]);
   });
 
+  it("keeps Direction current while the published plan still asks for input", () => {
+    const progress = resolveStudioProgress(
+      state({
+        commonBrief: { topic: "A useful topic" },
+        phase: "waiting-for-agent",
+        plan: { ...plan, status: "awaiting-input" },
+      }),
+    );
+
+    expect(progress).toEqual([
+      { label: "Brief", status: "complete" },
+      { label: "Direction", status: "current" },
+      { label: "Storyboard", status: "pending" },
+      { label: "Draft", status: "pending" },
+    ]);
+  });
+
   it("marks the last durable stage as failed without erasing completed work", () => {
     const progress = resolveStudioProgress(
       state({
@@ -492,16 +559,37 @@ describe("Studio flow helpers", () => {
     ]);
   });
 
-  it("shows the newest safe agent narration instead of the start of an accumulated stream", () => {
+  it("shows the newest safe plain-text narration instead of an accumulated stream", () => {
     expect(latestStudioNarration("Reading the brief.\nChoosing the strongest visual proof.")).toBe(
       "Choosing the strongest visual proof.",
     );
+    expect(latestStudioNarration("**Pausing briefly**\n**Waiting for tool execution**")).toBe(
+      "Waiting for tool execution",
+    );
+    expect(latestStudioNarration("> **Checking the rendered deck**")).toBe(
+      "Checking the rendered deck",
+    );
+    expect(latestStudioNarration("1. **Repairing the preview**")).toBe("Repairing the preview");
+    expect(latestStudioNarration("```text\nFinished the visual pass.\n```")).toBe(
+      "Finished the visual pass.",
+    );
+    expect(latestStudioNarration("```text\n```")).toBeUndefined();
   });
 
   it("describes working, reviewable, ready, and failed draft states explicitly", () => {
     expect(resolveStudioDraftLifecycle(state({ phase: "drafting" }))?.title).toBe(
       "Draft 1 is taking shape",
     );
+    expect(
+      resolveStudioDraftLifecycle(
+        state({
+          agentConnected: true,
+          phase: "waiting-for-agent",
+          plan: { ...plan, status: "approved" },
+          activity: [{ id: "draft-layout", label: "Drafting", status: "active" }],
+        }),
+      )?.title,
+    ).toBe("Draft 1 is taking shape");
     expect(resolveStudioDraftLifecycle(state({ phase: "preview" }))?.title).toBe(
       "Draft 1 is ready to review",
     );
@@ -511,6 +599,10 @@ describe("Studio flow helpers", () => {
     expect(
       resolveStudioDraftLifecycle(state({ draftAvailable: true, phase: "error" }))?.title,
     ).toBe("Refinement paused");
+    expect(
+      resolveStudioDraftLifecycle(state({ draftAvailable: true, phase: "waiting-for-agent" }))
+        ?.title,
+    ).toBe("Last published draft is available");
   });
 
   it("accepts only self-consistent preview bridge state", () => {

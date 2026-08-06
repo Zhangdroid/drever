@@ -10,6 +10,7 @@ import { ClaudeStreamDecoder, type ClaudeStreamSignal } from "./claude-stream-ad
 import {
   createStudioActionPublicationVerifier,
   type StudioActionPublicationVerifier,
+  withStudioActionPublicationGrace,
 } from "./studio-agent-publication.ts";
 import {
   phaseForStudioAction,
@@ -145,7 +146,8 @@ export const createClaudeStudioAgent = (options: ClaudeStudioAgentOptions): Stud
   const actionQueue: QueuedAction[] = [];
   const spawnProcess = options.spawnProcess ?? defaultSpawn;
   const verifyActionHandled =
-    options.verifyActionHandled ?? createStudioActionPublicationVerifier(options.root);
+    options.verifyActionHandled ??
+    withStudioActionPublicationGrace(createStudioActionPublicationVerifier(options.root));
   let activity: readonly DreverStudioActivity[] = [];
   let activeTurn = false;
   let blockedByUnsupportedApproval = false;
