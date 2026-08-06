@@ -4,10 +4,10 @@ import type { ReactElement } from "react";
 
 const scene = (slideIndex: number): string => {
   if (slideIndex === 0) return "opening";
-  if (slideIndex < 3) return "shape";
-  if (slideIndex === 3) return "room";
-  if (slideIndex < 9) return "evidence";
-  if (slideIndex < 11) return "continuity";
+  if (slideIndex < 7) return "shape";
+  if (slideIndex === 7) return "room";
+  if (slideIndex < 13) return "evidence";
+  if (slideIndex < 15) return "continuity";
   return "closing";
 };
 

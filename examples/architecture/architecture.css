@@ -503,15 +503,15 @@
 }
 
 .arch-story-plan {
-  top: 34px;
+  top: 14px;
   left: 410px;
   display: grid;
   width: 360px;
-  height: 282px;
-  padding: 24px;
+  height: 324px;
+  padding: 22px;
   border-radius: 22px;
   align-content: start;
-  gap: 12px;
+  gap: 10px;
 }
 
 .arch-story-plan header,
@@ -533,7 +533,7 @@
 
 .arch-story-plan > div {
   display: grid;
-  min-height: 54px;
+  min-height: 49px;
   padding: 0 15px;
   border: 1px solid rgb(213 207 255 / 14%);
   border-radius: 11px;
@@ -930,197 +930,107 @@
   line-height: 1.35;
 }
 
-.arch-design-evidence {
+.arch-studio-loop {
   position: relative;
   display: grid;
-  width: min(1180px, 100%);
+  width: min(1200px, 100%);
   min-height: 390px;
   justify-self: center;
   margin-top: 18px;
-  grid-template-columns: 1fr auto 0.78fr auto 1fr;
+  grid-template-columns: 1fr auto 1.08fr auto 1fr auto 1fr;
   align-items: center;
-  gap: 24px;
+  gap: 15px;
 }
 
-.arch-reference-page,
-.arch-design-output {
+.arch-studio-loop__node {
   display: grid;
-  min-height: 250px;
-  box-sizing: border-box;
-  padding: 26px;
+  min-width: 0;
+  height: 218px;
+  padding: 25px 22px;
   border: 1px solid var(--arch-border);
   border-radius: 20px;
   align-content: center;
-  background: rgb(21 13 68 / 72%);
+  background: rgb(21 13 68 / 76%);
   box-shadow: var(--arch-shadow);
+  box-sizing: border-box;
+  gap: 10px;
 }
 
-.arch-reference-page {
-  position: relative;
-  grid-template-columns: 1fr;
-  overflow: hidden;
-  gap: 13px;
-}
-
-.arch-reference-page header {
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  display: flex;
-  height: 38px;
-  padding: 0 15px;
-  border-bottom: 1px solid rgb(213 207 255 / 14%);
-  align-items: center;
-  gap: 6px;
-}
-
-.arch-reference-page header i,
-.arch-reference-page header span {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: rgb(225 220 255 / 34%);
-}
-
-.arch-reference-page__headline {
-  width: 76%;
-  height: 35px;
-  border-radius: 8px;
-  background: linear-gradient(90deg, var(--arch-violet-bright), var(--arch-signal));
-  opacity: 0.9;
-}
-
-.arch-reference-page__copy {
-  width: 58%;
-  height: 8px;
-  border-radius: 5px;
-  background: rgb(225 220 255 / 38%);
-}
-
-.arch-reference-page__swatches {
-  display: flex;
-  margin-top: 14px;
-  gap: 9px;
-}
-
-.arch-reference-page__swatches i {
-  width: 54px;
-  height: 54px;
-  border: 1px solid rgb(255 255 255 / 10%);
-  border-radius: 13px;
-  background: #a894ff;
-}
-
-.arch-reference-page__swatches i:nth-child(2) {
-  background: #dbff4f;
-}
-
-.arch-reference-page__swatches i:nth-child(3) {
-  background: #fff2dc;
-}
-
-.arch-reference-page > small {
-  position: absolute;
-  right: 18px;
-  bottom: 17px;
+.arch-studio-loop__node > small,
+.arch-studio-loop__boundary > span {
   color: var(--arch-dim);
   font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
   font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.11em;
 }
 
-.arch-design-evidence__arrow {
-  color: var(--arch-signal);
-  font-size: 29px;
-}
-
-.arch-evidence-probe {
-  position: relative;
-  display: grid;
-  width: 216px;
-  height: 216px;
-  border: 1px solid rgb(219 255 79 / 52%);
-  border-radius: 50%;
-  place-content: center;
-  overflow: hidden;
-  background: radial-gradient(circle, rgb(155 140 255 / 17%), transparent 70%), rgb(21 13 68 / 72%);
-  box-shadow: 0 0 66px rgb(219 255 79 / 7%);
-  text-align: center;
-  gap: 7px;
-}
-
-.arch-evidence-probe__scan {
-  position: absolute;
-  top: 44px;
-  right: 18px;
-  left: 18px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--arch-signal), transparent);
-  box-shadow: 0 0 20px rgb(219 255 79 / 58%);
-}
-
-.arch-evidence-probe small,
-.arch-evidence-probe span {
-  color: var(--arch-dim);
-  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-}
-
-[data-drever-slide] .arch-evidence-probe strong {
-  color: var(--arch-ink);
-  font-family: ui-monospace, SFMono-Regular, monospace;
-  font-size: 20px;
-  font-weight: 540;
-}
-
-.arch-design-output {
-  border-color: rgb(219 255 79 / 44%);
-  gap: 11px;
-}
-
-.arch-design-output > small {
-  color: var(--arch-signal);
-  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-}
-
-[data-drever-slide] .arch-design-output > strong {
-  margin-bottom: 7px;
+[data-drever-slide] .arch-studio-loop__node > strong {
   color: var(--arch-ink);
   font-family: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
-  font-size: 30px;
+  font-size: 25px;
   font-weight: 610;
+  letter-spacing: -0.035em;
+  line-height: 1;
 }
 
-.arch-design-output code {
-  padding: 9px 11px;
-  border: 1px solid rgb(213 207 255 / 14%);
-  border-radius: 8px;
-  background: rgb(12 8 48 / 38%);
-  color: var(--arch-violet-soft);
+.arch-studio-loop__node > span,
+.arch-studio-loop__node > code {
+  color: var(--arch-muted);
   font-family: ui-monospace, SFMono-Regular, monospace;
-  font-size: 12px;
+  font-size: 10px;
+  line-height: 1.35;
 }
 
-[data-drever-slide] .arch-design-evidence > p {
+.arch-studio-loop__node > code {
+  padding: 6px 8px;
+  border: 1px solid rgb(213 207 255 / 14%);
+  border-radius: 6px;
+  background: rgb(12 8 48 / 36%);
+}
+
+.arch-studio-loop__adapter {
+  border-color: rgb(219 255 79 / 42%);
+  background:
+    radial-gradient(circle at 50% 0%, rgb(219 255 79 / 9%), transparent 56%), rgb(21 13 68 / 78%);
+}
+
+.arch-studio-loop__files {
+  height: 264px;
+}
+
+.arch-studio-loop__draft {
+  border-color: rgb(155 140 255 / 44%);
+}
+
+.arch-studio-loop__arrow {
+  color: var(--arch-signal);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 22px;
+  opacity: 0.78;
+}
+
+.arch-studio-loop__boundary {
   position: absolute;
   right: 0;
-  bottom: -8px;
+  bottom: -4px;
   left: 0;
-  color: var(--arch-muted);
-  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
-  font-size: 15px;
-  text-align: center;
+  display: flex;
+  min-height: 44px;
+  padding: 0 18px;
+  border-top: 1px solid var(--arch-border);
+  align-items: center;
+  justify-content: space-between;
 }
 
-[data-drever-slide] .arch-design-evidence > p b {
+.arch-studio-loop__boundary > span {
+  letter-spacing: 0.04em;
+}
+
+[data-drever-slide] .arch-studio-loop__boundary > strong {
   color: var(--arch-signal);
+  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 13px;
   font-weight: 650;
 }
 
@@ -1815,6 +1725,29 @@
   font-size: 13px;
 }
 
+.arch-preflight-browser__frames {
+  display: grid;
+  width: 174px;
+  height: 62px;
+  margin-top: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+}
+
+.arch-preflight-browser__frames > i {
+  border: 1px solid rgb(213 207 255 / 22%);
+  border-radius: 6px;
+  background:
+    linear-gradient(145deg, transparent 0 38%, rgb(155 140 255 / 32%) 38% 72%, transparent 72%),
+    rgb(12 8 48 / 68%);
+}
+
+.arch-preflight-browser__frames > i:nth-child(2) {
+  background:
+    linear-gradient(145deg, transparent 0 28%, rgb(219 255 79 / 22%) 28% 62%, transparent 62%),
+    rgb(12 8 48 / 68%);
+}
+
 .arch-preflight-result {
   align-content: center;
   gap: 11px;
@@ -1893,138 +1826,130 @@
   width: min(1180px, 100%);
   min-height: 410px;
   margin-top: 34px;
-  grid-template-columns: 0.82fr 1.18fr;
+  grid-template-columns: 1fr 1fr 0.86fr;
   gap: 24px;
 }
 
-.arch-resource-transaction,
-.arch-diagnostic {
+.arch-last-good-draft,
+.arch-authored-surface,
+.arch-draft-recovery {
   display: grid;
-  box-sizing: border-box;
-  padding: 26px;
+  min-width: 0;
+  padding: 24px;
   border: 1px solid var(--arch-border);
   border-radius: 20px;
   align-content: center;
-  background: rgb(21 13 68 / 66%);
+  background: rgb(21 13 68 / 72%);
   box-shadow: var(--arch-shadow);
-  gap: 9px;
+  box-sizing: border-box;
 }
 
-.arch-resource-transaction > small {
-  margin-bottom: 8px;
-  color: var(--arch-dim);
-  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-}
-
-.arch-resource-transaction > div {
-  display: grid;
-  padding: 12px 14px;
-  border: 1px solid rgb(213 207 255 / 14%);
-  border-radius: 10px;
-  grid-template-columns: 34px 1fr auto;
+.arch-last-good-draft > header,
+.arch-authored-surface > header {
+  display: flex;
   align-items: center;
-  background: rgb(12 8 48 / 35%);
-  transition:
-    opacity 260ms ease,
-    translate 260ms ease;
+  justify-content: space-between;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--arch-border);
 }
 
-.arch-resource-transaction > div > span,
-.arch-resource-transaction > div > small {
+.arch-last-good-draft > header small,
+.arch-authored-surface > header small,
+.arch-draft-recovery > small {
   color: var(--arch-dim);
+  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+}
+
+.arch-last-good-draft > header span,
+.arch-authored-surface > header span {
+  color: var(--arch-signal);
   font-family: ui-monospace, SFMono-Regular, monospace;
   font-size: 10px;
 }
 
-[data-drever-slide] .arch-resource-transaction > div > strong {
-  color: var(--arch-ink);
-  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
-  font-size: 15px;
-  font-weight: 580;
+.arch-last-good-draft > div,
+.arch-authored-surface > div {
+  display: grid;
+  min-height: 226px;
+  align-content: center;
+  gap: 13px;
 }
 
-.arch-resource-transaction > p {
-  margin-top: 7px !important;
-  color: var(--arch-violet-soft) !important;
-  font:
-    12px/1.4 ui-monospace,
-    SFMono-Regular,
-    monospace !important;
-}
-
-.arch-failure-boundary[data-failed] .arch-resource-transaction > div {
-  opacity: 0.5;
-  translate: -8px 0;
-}
-
-.arch-failure-boundary[data-failed] .arch-resource-transaction > div[data-status="failed"] {
-  border-color: rgb(255 189 106 / 56%);
-  opacity: 1;
-  translate: 0;
-}
-
-.arch-diagnostic {
-  position: relative;
-  overflow: hidden;
+.arch-last-good-draft > div > i {
+  display: block;
+  width: 100%;
+  height: 94px;
+  border: 1px solid rgb(213 207 255 / 18%);
+  border-radius: 10px;
   background:
-    radial-gradient(circle at 90% 8%, rgb(255 189 106 / 10%), transparent 32%), rgb(17 11 56 / 74%);
-  gap: 16px;
+    radial-gradient(circle at 70% 30%, rgb(219 255 79 / 16%), transparent 24%),
+    linear-gradient(145deg, transparent 0 40%, rgb(155 140 255 / 18%) 40% 68%, transparent 68%),
+    rgb(12 8 48 / 54%);
 }
 
-.arch-diagnostic__trace {
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  height: 2px;
-  background: var(--arch-border);
-  transform: scaleX(0.15);
-  transform-origin: left;
-  transition:
-    background 420ms ease,
-    transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.arch-failure-boundary[data-failed] .arch-diagnostic__trace {
-  background: var(--arch-warning);
-  transform: scaleX(1);
-}
-
-.arch-diagnostic > code {
-  color: var(--arch-warning);
-  font-family: ui-monospace, SFMono-Regular, monospace;
-  font-size: 16px;
-}
-
-[data-drever-slide] .arch-diagnostic > strong {
-  max-width: 20ch;
+[data-drever-slide] .arch-last-good-draft > div > strong,
+[data-drever-slide] .arch-authored-surface > div > strong,
+[data-drever-slide] .arch-draft-recovery > strong {
   color: var(--arch-ink);
   font-family: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
-  font-size: 28px;
+  font-size: 22px;
   font-weight: 610;
-  letter-spacing: -0.035em;
-  line-height: 1.1;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
 }
 
-.arch-diagnostic > span:not(.arch-diagnostic__trace) {
-  padding: 11px 13px;
-  border-left: 2px solid var(--arch-warning);
-  background: rgb(255 189 106 / 7%);
-  color: #ffcf93;
+.arch-last-good-draft > div > span,
+.arch-authored-surface > div > code {
+  color: var(--arch-dim);
   font-family: ui-monospace, SFMono-Regular, monospace;
-  font-size: 12px;
+  font-size: 10px;
 }
 
-[data-drever-slide] .arch-diagnostic > p {
+.arch-authored-surface {
+  border-color: rgb(255 189 106 / 42%);
+  background:
+    radial-gradient(circle at 82% 10%, rgb(255 189 106 / 9%), transparent 34%), rgb(21 13 68 / 72%);
+  transition:
+    border-color 320ms ease,
+    background 320ms ease;
+}
+
+.arch-authored-surface > div > i {
+  width: 18px;
+  height: 18px;
+  border: 5px solid rgb(255 189 106 / 18%);
+  border-radius: 50%;
+  background: var(--arch-warning);
+  box-sizing: content-box;
+}
+
+.arch-failure-boundary[data-repaired] .arch-authored-surface {
+  border-color: rgb(219 255 79 / 48%);
+  background:
+    radial-gradient(circle at 82% 10%, rgb(219 255 79 / 9%), transparent 34%), rgb(21 13 68 / 72%);
+}
+
+.arch-failure-boundary[data-repaired] .arch-authored-surface > div > i {
+  border-color: rgb(219 255 79 / 18%);
+  background: var(--arch-signal);
+}
+
+.arch-draft-recovery {
+  gap: 20px;
+}
+
+[data-drever-slide] .arch-draft-recovery > strong {
+  font-size: 29px;
+}
+
+[data-drever-slide] .arch-draft-recovery > p {
   color: var(--arch-muted);
-  font:
-    15px/1.42 "Instrument Sans",
-    ui-sans-serif,
-    system-ui,
-    sans-serif;
+  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
 }
 
 .arch-test-boundaries {
@@ -2322,8 +2247,6 @@
   .arch-route-controls button,
   .arch-commit-track i,
   .arch-commit-states > div,
-  .arch-resource-transaction > div,
-  .arch-diagnostic__trace,
   .arch-preflight-browser__scan,
   .arch-preflight-result > code,
   .arch-preflight-result footer,

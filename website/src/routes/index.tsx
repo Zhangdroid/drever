@@ -8,11 +8,11 @@ import { creationStory } from "../components/creation-story-data";
 import { ArrowIcon, ArrowUpRightIcon, PlayIcon } from "../components/icons";
 import { HeroStage, HomeShowcaseCover } from "../components/showcase";
 import { StudyCover } from "../components/showcase-covers";
-import { demos } from "../site-data";
+import { demos, githubURL } from "../site-data";
 import { pageHead } from "../seo";
 
 const description =
-  "An AI-first presentation framework for approving the story early, directing one live React and MDX deck, and checking every rendered state before delivery.";
+  "A local presentation studio for approving the story, directing a live deck with your coding agent, and checking every rendered state before delivery.";
 
 type HomeDemo = (typeof demos)[number];
 
@@ -77,6 +77,19 @@ export const Route = createFileRoute("/")({
           }),
           type: "application/ld+json",
         },
+        {
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            name: "Drever",
+            applicationCategory: "PresentationApplication",
+            operatingSystem: "macOS, Windows, Linux",
+            url: "https://drever.dev/",
+            codeRepository: githubURL,
+            license: "https://opensource.org/licenses/MIT",
+          }),
+          type: "application/ld+json",
+        },
       ],
     };
   },
@@ -95,34 +108,32 @@ function HomePage() {
     <main id="main" tabIndex={-1}>
       <section className="home-hero" data-header-tone="light">
         <div className="home-hero__copy">
+          <span className="home-hero__eyebrow">A local presentation studio</span>
           <h1>
-            <span className="home-hero__line">Slides that</span>
+            <span className="home-hero__line">Your agent drafts.</span>
             <span className="home-hero__line">
-              <span className="home-hero__highlight">move</span>
-            </span>
-            <span className="home-hero__line">
-              with your <span className="home-hero__mobile-line">ideas.</span>
+              <span className="home-hero__highlight">You direct.</span>
             </span>
           </h1>
           <p className="home-hero__lede">
-            Start with a topic. Approve the story before slides exist, then keep directing one live
-            deck with your agent.
+            Approve the story, shape the live draft, and ship a checked presentation from files you
+            own.
           </p>
           <div className="home-hero__actions">
             <div className="home-hero__prompt">
               <CopyAIHandoff className="button button--primary" describedBy="home-prompt-tooltip" />
               <span id="home-prompt-tooltip" role="tooltip">
-                Paste into Codex or Claude Code. It creates the project and opens a local creation
-                room for questions, approval, and feedback.
+                Paste into your coding agent. It creates the project and opens Drever Studio when
+                the host supports it; the same workflow continues in chat otherwise.
               </span>
             </div>
-            <a className="button home-hero__demo" href="/showcase/product/">
-              <PlayIcon /> Try the live demo
+            <a className="button home-hero__demo" href="#studio-workflow">
+              <PlayIcon /> See the workflow
             </a>
           </div>
           <div aria-label="More ways to get started" className="home-hero__secondary">
             <Link className="home-hero__manual" to="/docs/getting-started/">
-              How AI creation works <ArrowIcon />
+              How Studio works <ArrowIcon />
             </Link>
             <div className="home-hero__manual-setup">
               <span>Manual setup</span>
@@ -135,9 +146,6 @@ function HomePage() {
               />
             </div>
           </div>
-          <p className="home-hero__requirements">
-            Requires Node.js 24.18+ and a current Safari or Chromium-family browser.
-          </p>
         </div>
 
         <div className="home-hero__visual">
@@ -150,8 +158,8 @@ function HomePage() {
       <section className="home-showcase" data-header-tone="light">
         <header className="section-heading">
           <div>
-            <span>Finished stories · live in the browser</span>
-            <h2>One workflow. Many visual directions.</h2>
+            <span>Proof, not promises · live in the browser</span>
+            <h2>See what directed work becomes.</h2>
           </div>
           <Link className="button button--primary" to="/showcase/">
             Explore all showcases <ArrowIcon />
@@ -168,19 +176,16 @@ function HomePage() {
       <section className="home-finale" data-header-tone="dark">
         <div className="home-finale__content">
           <div className="home-finale__copy">
-            <span>Your presentation starts the same way</span>
-            <h2>Begin with what the room should change.</h2>
-            <p>
-              Bring one outcome. Your agent returns with a storyboard for approval, opens the live
-              draft, and keeps every change in ordinary files you own.
-            </p>
+            <span>Bring the job. Keep the judgment.</span>
+            <h2>What should people understand, decide, or do?</h2>
+            <p>Start with one sentence. Every approval and revision remains yours.</p>
             <Link className="text-link text-link--light" to="/docs/getting-started/">
               Follow the creation workflow <ArrowIcon />
             </Link>
           </div>
 
           <AIHandoff
-            heading="What should this presentation help the room decide?"
+            heading="What should this presentation help people understand, decide, or do?"
             placeholder={creationStory.brief}
           />
         </div>

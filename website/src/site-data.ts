@@ -13,21 +13,23 @@ export const documentationNavigation = [
     pages: [
       { href: "/docs/", label: "Overview" },
       { href: "/docs/getting-started/", label: "Getting started" },
-      { href: "/docs/ai/", label: "AI workflows" },
+      { href: "/docs/studio/", label: "Studio" },
     ],
   },
   {
     label: "Create",
     pages: [
+      { href: "/docs/ai/", label: "Agent workflows" },
       { href: "/docs/authoring/", label: "Authoring slides" },
-      { href: "/docs/themes/", label: "Art direction" },
+      { href: "/docs/themes/", label: "Art direction & import" },
       { href: "/docs/motion/", label: "Motion" },
       { href: "/docs/plugins/", label: "Plugins" },
     ],
   },
   {
-    label: "Present & deliver",
+    label: "Review & deliver",
     pages: [
+      { href: "/docs/review/", label: "Rendered review" },
       { href: "/docs/presenting/", label: "Presenting" },
       { href: "/docs/delivery/", label: "Build, deploy, and export" },
     ],
@@ -50,7 +52,7 @@ export const documentationNavigation = [
 
 const demoContent = {
   product: {
-    meta: "Editorial · 12 slides",
+    meta: "Editorial · 16 slides",
   },
   features: {
     meta: "Studio · 12 slides",

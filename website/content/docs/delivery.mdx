@@ -1,69 +1,12 @@
-<h2 id="check">Check the source</h2>
+<h2 id="review-first">Deliver the project you reviewed</h2>
 
-Run these commands from the generated project root. The `npm run` scripts always use the Drever
-version installed in that project.
+Run the source and rendered gates before creating a production artifact. The
+[Rendered review guide](/docs/review/) owns the current diagnostic codes, isolated browser
+contract, evidence manifest, and boundaries of what Drever can prove.
 
-```bash
-npm run check
-npm run check -- slides.mdx
-npm run check -- --json
-```
-
-Preflight reports defects Drever can prove from authored source:
-
-- Missing or duplicate slide titles.
-- Missing or explicitly empty image alternative text.
-- Skipped heading levels inside a slide.
-- Authored video without a caption track.
-
-Diagnostics include a stable code, severity, stage, message, and exact source range when available.
-The command exits nonzero for errors; warnings stay visible without blocking delivery.
-
-Preflight is not a visual oracle. Inspect rendered overflow, contrast, reading order, component
-semantics, and motion in the actual browser surfaces.
-
-<h2 id="rendered-check">Check every rendered state</h2>
-
-Add `--rendered` when a production candidate needs deterministic browser evidence:
-
-```bash
-npm run check -- --rendered
-npm run check -- --rendered --json
-npm run check -- --rendered --evidence .drever/review --json
-```
-
-Drever builds an isolated inspection app and visits Step 0 plus every exact authored Step at the
-configured canvas. Stable diagnostics report clipped content, content outside the canvas,
-unexpected movement or resizing of persistent geometry, and suspicious density supported by
-multiple rendered signals.
-
-Clipping and overflow are errors. Geometry and density are warnings because deliberate reflow and
-information-rich slides can be valid. Missing Chromium and runtime failures are explicit errors.
-Install the matching browser with `npm exec -- drever browser install`.
-
-| Code                              | Severity | Evidence                                                |
-| --------------------------------- | -------- | ------------------------------------------------------- |
-| `DREVER_RENDER_CONTENT_CLIPPED`   | Error    | Visible content is cut by an owning surface.            |
-| `DREVER_RENDER_CANVAS_OVERFLOW`   | Error    | Visible content extends beyond the configured canvas.   |
-| `DREVER_RENDER_GEOMETRY_UNSTABLE` | Warning  | Persistent content moves or resizes between Steps.      |
-| `DREVER_RENDER_DENSITY_HIGH`      | Warning  | Multiple rendered density signals cross their limits.   |
-| `DREVER_RENDER_BROWSER_MISSING`   | Error    | The matching Playwright Chromium is unavailable.        |
-| `DREVER_RENDER_RUNTIME_FAILED`    | Error    | A route, application, or capture invariant did not run. |
-
-JSON mode emits the current typed report V2. Its `rendered` receipt records the receipt and ruleset
-versions, canvas, `chromium` engine, optional browser version, captured state count, status, and any
-skip or failure reason. Source errors produce a `skipped` receipt instead of starting an unsafe
-build. The schema also models a legacy source-only V1 report for stored artifacts; it does not
-count as rendered evidence. This is stable machine evidence for CI and agents, not an aesthetic
-score. Continue to inspect contrast, hierarchy, reading order, motion, and the presentation's
-visual fit in the actual browser.
-
-`--evidence <directory>` keeps that final inspection on the same browser stack.
-It writes a versioned manifest, full-size settled states, and contact sheets for
-settled layouts plus forward and reverse 80 ms transition samples. Read the
-manifest allowlist instead of treating unrelated files in the directory as
-current evidence. No Chrome extension, Chrome MCP server, or second agent
-browser is required.
+Delivery reuses that reviewed project. It does not add a second layout checker or silently repair
+the deck while building. If authoring changes invalidate the evidence, review the affected states
+again before publishing.
 
 <h2 id="static-build">Build a static website</h2>
 
@@ -194,7 +137,7 @@ Custom designs should self-host an embeddable webfont when the export host does 
 required Chinese, Japanese, or Korean glyphs. A system fallback that paints in Chromium can still
 be unavailable to Chromium's PDF writer.
 
-<h2 id="continuous-delivery">Use the same evidence in CI</h2>
+<h2 id="continuous-delivery">Reuse review evidence in CI</h2>
 
 The human commands expose stable JSON forms for agents and automation:
 
@@ -207,10 +150,11 @@ npm run build -- --json
 npm run export -- --json
 ```
 
-Run the fast source check on every change. Use rendered preflight at a production boundary or after
-layout and Step changes, then browser-test the presentation states that changed. Keep visual review
-focused on real layouts and transitions instead of adding cosmetic E2E cases for every style
-detail.
+Run the fast source check on every change. Use the exhaustive rendered gate at a production
+boundary or after layout and Step changes, then build only after that evidence is current. See
+[Rendered review](/docs/review/#review-loop) for the complete ownership model. Keep browser tests
+focused on stable product behavior instead of making mutable presentation styling a permanent E2E
+contract.
 
 <h2 id="troubleshooting">Troubleshooting and support</h2>
 

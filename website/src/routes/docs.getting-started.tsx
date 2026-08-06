@@ -20,9 +20,9 @@ function Page() {
       <DocMdx content={Content} />
       <ManualSetup />
       <DocNext
-        description="See how project-local skills, live context, and optional MCP keep AI work grounded."
-        href="/docs/ai/"
-        label="AI workflows"
+        description="Answer adaptive questions, approve the content Storyboard, and direct one live draft beside your agent."
+        href="/docs/studio/"
+        label="Studio"
       />
     </DocArticle>
   );

@@ -5,16 +5,16 @@ import { DocArticle, DocMdx, DocNext } from "../components/docs-shell";
 import { pageHead } from "../seo";
 
 const description =
-  "Use the local creation room, project-local skills, exact JSON context, rendered diagnostics, and optional read-only MCP without hiding the source.";
+  "Use versioned project workflows, exact JSON context, the live presentation position, and optional read-only MCP without hiding the source.";
 
 export const Route = createFileRoute("/docs/ai")({
   component: Page,
-  head: () => pageHead("AI workflows", description, "/docs/ai"),
+  head: () => pageHead("Agent workflows", description, "/docs/ai"),
 });
 
 function Page() {
   return (
-    <DocArticle description={description} eyebrow="Start" title="AI workflows">
+    <DocArticle description={description} eyebrow="Create" title="Agent workflows">
       <DocMdx content={Content} />
       <DocNext
         description="Shape the story with readable MDX, exact Steps, Notes, and focused React components."

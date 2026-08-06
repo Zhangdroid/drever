@@ -19,9 +19,9 @@ function Page() {
       <PluginGallery />
       <DocMdx content={Content} />
       <DocNext
-        description="Navigate, annotate, rehearse, and share the exact moment."
-        href="/docs/presenting/"
-        label="Presenting"
+        description="Check authored source and every exact rendered state before the presentation reaches the room."
+        href="/docs/review/"
+        label="Rendered review"
       />
     </DocArticle>
   );

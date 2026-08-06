@@ -13,18 +13,18 @@
 <p align="center">
   <a href="https://drever.dev">
     <img
-      src="./.github/assets/drever-readme-hero.png"
-      alt="Readable MDX becomes a live Drever slide with document and PDF outputs."
+      src="./website/public/social-card.png"
+      alt="A Drever brief becomes an approved Storyboard, a directed live draft, and a checked presentation."
     />
   </a>
 </p>
 
-<p align="center"><strong>Slides that move with your ideas.</strong></p>
+<p align="center"><strong>Your agent drafts. You direct.</strong></p>
 
 <p align="center">
-  Drever is an open-source, local-first React and MDX framework for expressive,
-  interactive presentations. Tell your AI what the room should understand,
-  then present live, publish to the web, or export a PDF from one readable source.
+  Drever is an open-source, local-first presentation studio for coding agents.
+  Approve the story, direct the live draft, and ship a checked React and MDX deck
+  from files you own.
 </p>
 
 <p align="center">
@@ -37,7 +37,7 @@
 
 ## Start
 
-With Codex, Claude Code, or another coding agent:
+With your coding agent:
 
 ```text
 Fetch and follow https://drever.dev/prompt.md

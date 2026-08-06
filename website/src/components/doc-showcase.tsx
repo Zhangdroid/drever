@@ -49,7 +49,49 @@ function ThemeVisual() {
   );
 }
 
-function StoryVisual() {
+function StudioVisual() {
+  return (
+    <div className="capability-visual capability-visual--studio" aria-hidden="true">
+      <div className="capability-studio__rail">
+        <i />
+        <i data-active="" />
+        <i />
+      </div>
+      <div className="capability-studio__canvas">
+        <span>Storyboard</span>
+        <div>
+          <i />
+          <i />
+          <i />
+        </div>
+        <strong>Approve the story</strong>
+      </div>
+      <div className="capability-studio__agent">
+        <i />
+        <span>Agent active</span>
+      </div>
+    </div>
+  );
+}
+
+function ReviewVisual() {
+  return (
+    <div className="capability-visual capability-visual--review" aria-hidden="true">
+      <div className="capability-review__canvas">
+        <i data-finding="safe" />
+        <i data-finding="overlap" />
+        <span>05 / 02</span>
+      </div>
+      <ul>
+        <li data-status="pass">Safe area</li>
+        <li data-status="error">Overlap</li>
+        <li data-status="pass">Contrast</li>
+      </ul>
+    </div>
+  );
+}
+
+function SurfaceVisual() {
   return (
     <div className="capability-visual capability-visual--story" aria-hidden="true">
       <div>
@@ -65,13 +107,31 @@ function StoryVisual() {
 
 const capabilities = [
   {
-    body: "Watch one brief become an audience choice, a grounded decision, private speaker context, an exact link, and a readable record.",
-    guide: "/docs/presenting/",
-    label: "Complete story",
-    live: "/showcase/product/",
-    liveLabel: "Follow the product story",
-    title: "One project follows the room.",
-    visual: <StoryVisual />,
+    body: "Answer adaptive questions, approve the content Storyboard, follow agent work, and direct one slide or the whole live draft.",
+    guide: "/docs/getting-started/",
+    label: "Studio",
+    live: "/docs/studio/",
+    liveLabel: "Meet Studio",
+    title: "Your agent drafts. You direct.",
+    visual: <StudioVisual />,
+  },
+  {
+    body: "Check clipping, overflow, overlap, contrast, safe areas, density, geometry, and moving backgrounds in every exact state.",
+    guide: "/docs/review/",
+    label: "Rendered review",
+    live: "/showcase/architecture/11/",
+    liveLabel: "Watch the review model",
+    title: "Give the agent evidence.",
+    visual: <ReviewVisual />,
+  },
+  {
+    body: "Derive a visual system from the subject or import a real website as evidence, then keep the editable result with the deck.",
+    guide: "/docs/themes/",
+    label: "Art direction",
+    live: "/showcase/#art-directions",
+    liveLabel: "Explore design studies",
+    title: "Design begins with the subject.",
+    visual: <ThemeVisual />,
   },
   {
     body: "Persistent objects change jobs, words change meaning, and data moves only when the story asks.",
@@ -92,13 +152,13 @@ const capabilities = [
     visual: <PluginVisual />,
   },
   {
-    body: "Study eight subject-led systems, then generate and persist the direction this story needs.",
-    guide: "/docs/themes/",
-    label: "Art direction",
-    live: "/showcase/#art-directions",
-    liveLabel: "Explore design studies",
-    title: "Design begins with the subject.",
-    visual: <ThemeVisual />,
+    body: "Watch one authored story become an audience choice, private speaker context, an exact link, a readable document, and a PDF.",
+    guide: "/docs/presenting/",
+    label: "Every surface",
+    live: "/showcase/product/",
+    liveLabel: "Follow the product story",
+    title: "One project follows the room.",
+    visual: <SurfaceVisual />,
   },
 ] as const;
 
@@ -106,9 +166,11 @@ export function DocsCapabilityGallery() {
   return (
     <section className="docs-capabilities" aria-labelledby="docs-capabilities-title">
       <header>
-        <span>See it first</span>
-        <h2 id="docs-capabilities-title">Explore the system.</h2>
-        <p>Every card opens a real Drever deck or the exact guide behind it.</p>
+        <span>The product, at a glance</span>
+        <h2 id="docs-capabilities-title">Follow the work, then inspect the contract.</h2>
+        <p>
+          Start with the human decisions. Open the real deck or exact guide when you need proof.
+        </p>
       </header>
       <div className="docs-capabilities__grid">
         {capabilities.map((capability) => (

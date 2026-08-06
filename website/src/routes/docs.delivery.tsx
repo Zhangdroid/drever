@@ -5,7 +5,7 @@ import { DocArticle, DocMdx, DocNext } from "../components/docs-shell";
 import { pageHead } from "../seo";
 
 const description =
-  "Run evidence-based source checks, build and deploy a static website, and export exact slide or Step states to PDF.";
+  "Build and deploy the reviewed static presentation, or export exact slide and Step states to PDF from the same project.";
 
 export const Route = createFileRoute("/docs/delivery")({
   component: Page,

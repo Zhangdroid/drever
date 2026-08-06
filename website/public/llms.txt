@@ -1,7 +1,7 @@
 # Drever
 
-> Drever is an open-source, local-first React and MDX framework for clear, expressive, interactive
-> slides created with AI.
+> Drever is a local-first presentation studio for coding agents. Approve the story, direct a live
+> React and MDX draft, and keep the source and every output in ordinary files.
 
 Drever uses readable MDX as its authoritative source. A root-level `---` line separates slides.
 Authors use Markdown for ordinary content, built-in `Step` for deliberate progressive disclosure,
@@ -21,11 +21,13 @@ One project produces:
 - Changelog: https://drever.dev/changelog/
 - Documentation: https://drever.dev/docs/
 - Getting started: https://drever.dev/docs/getting-started/
+- Studio: https://drever.dev/docs/studio/
 - AI workflows: https://drever.dev/docs/ai/
 - Authoring: https://drever.dev/docs/authoring/
 - Art direction and Theme contract guide: https://drever.dev/docs/themes/
 - Motion: https://drever.dev/docs/motion/
 - Plugin guide: https://drever.dev/docs/plugins/
+- Rendered review: https://drever.dev/docs/review/
 - Presenting: https://drever.dev/docs/presenting/
 - Build, deploy, and export: https://drever.dev/docs/delivery/
 - Complete command reference: https://drever.dev/docs/commands/
@@ -46,7 +48,7 @@ Manual project creation:
 npm create drever@latest my-slides
 ```
 
-Open directly in an agent:
+Open directly in Codex or Claude Code:
 
 ```sh
 npm create drever@latest my-slides -- --open codex
@@ -72,7 +74,7 @@ Catalog: https://drever.dev/showcase/
 
 - Basic: https://drever.dev/showcase/design/basic/
 - Editorial: https://drever.dev/showcase/design/editorial/
-- Studio: https://drever.dev/showcase/design/studio/
+- Studio design study: https://drever.dev/showcase/design/studio/
 - Fieldnote: https://drever.dev/showcase/design/fieldnote/
 - Atlas: https://drever.dev/showcase/design/atlas/
 - Ledger: https://drever.dev/showcase/design/ledger/
@@ -92,9 +94,15 @@ Document View. Audience paths such as `/5/2` select an exact slide and sparse St
 - Audience toolbar, slide search, fullscreen, black/white pause screens, and canonical link copying.
 - Laser, Pen, and Highlighter in audience and speaker views.
 - Source accessibility preflight with human and stable JSON diagnostics.
-- Project-local Codex and Claude skills.
-- An experimental, development-only local creation room for the common brief, adaptive questions,
-  content Storyboard approval, and deck- or slide-scoped feedback, backed by ordinary project files.
+- Project-local Codex and Claude Code workflows, plus managed Studio adapters for other supported
+  agent CLIs.
+- A development-only local creation room for the common brief, adaptive questions, content-first
+  Storyboard approval, an early live draft, and deck- or slide-scoped feedback.
+- Managed native, ACP, and portable agent bridges that leave model credentials with the agent.
+- Rendered review across exact Slide and Step states with stable diagnostics for clipping,
+  overflow, overlap, contrast, safe areas, density, geometry drift, and background ownership.
+- Subject-led art direction and read-only reference inspection that writes project-owned design
+  code through design import.
 - JSON authoring context and local live-position commands.
 - Optional dependency-free, read-only MCP server.
 - Default build-time GFM, Shiki, and reset-free Tailwind CSS.
@@ -109,6 +117,7 @@ Document View. Audience paths such as `/5/2` select an exact slide and sparse St
 
 Drever is under active development and its public API is not yet stable. Mermaid is intentionally
 deferred. Drever does not currently claim a hosted editor, real-time collaboration, cross-device
-remote control, PPTX/Keynote import or export, video export, or a visual layout oracle. The local
-creation room coordinates an already-running coding agent and is not shipped with a production
-deck. The MCP server is read-only and does not edit presentation source.
+remote control, PPTX/Keynote import or export, video export, or a visual layout oracle. Drever
+Studio runs only during local development. Provider credentials and agent coordination code stay
+with the installed agent and are excluded from production decks. The MCP server is read-only and
+does not edit presentation source.

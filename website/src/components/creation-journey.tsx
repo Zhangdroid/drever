@@ -7,15 +7,15 @@ const journeyStages = [
   {
     id: "brief",
     label: "Brief",
-    title: "Give the deck a job.",
+    title: "Give the deck one clear job.",
     description:
-      "Start with the topic, the people in the room, and what should change when the talk ends. Choose duration, density, and motion—or delegate what is still open.",
+      "Start with the topic, the people in the room, and what should change when the talk ends. Choose the essentials—or let your agent resolve what is still open.",
     status: "Brief received",
   },
   {
     id: "discover",
     label: "Direction",
-    title: "Answer only what changes the deck.",
+    title: "Answer only what changes the story.",
     description:
       "Your agent resolves the common choices, then asks a few questions selected from this subject and your earlier answers—not a generic form.",
     status: "Direction resolved",
@@ -23,34 +23,34 @@ const journeyStages = [
   {
     id: "storyboard",
     label: "Storyboard",
-    title: "Approve the story before the styling.",
+    title: "Approve content before styling.",
     description:
       "See the complete page-by-page argument before MDX exists. Select a beat, redirect the emphasis, or approve the plan while change is still cheap.",
     status: "Awaiting approval",
   },
   {
-    id: "draft",
-    label: "First draft",
-    title: "See the whole draft early.",
+    id: "design",
+    label: "Art direction",
+    title: "Let the subject shape the design.",
     description:
-      "The approved story opens atomically in the real presentation runtime with readable copy, Notes, and a stable subject-led composition.",
-    status: "Draft live",
+      "Your agent studies the subject—or imports visual evidence from a reference—and writes a local visual system instead of choosing a random skin.",
+    status: "Art direction owned",
   },
   {
     id: "iterate",
-    label: "Your direction",
-    title: "Point to what should change.",
+    label: "Live draft",
+    title: "Direct the complete first draft.",
     description:
-      "Comment on one slide or the whole deck. The same ordinary files and live preview update instead of restarting the work.",
-    status: "Revision in progress",
+      "Draft 1 arrives early with Notes. Comment on one slide or the whole deck while agent activity stays visible and the last valid preview remains available.",
+    status: "Agent refining · Draft live",
   },
   {
     id: "review",
     label: "Rendered review",
-    title: "Check what taste alone can miss.",
+    title: "Catch what generation can miss.",
     description:
       "Every authored Step is tested for clipping, overflow, overlap, contrast, density, and unstable geometry. Visual judgment still belongs to you.",
-    status: "Rendered checks passed",
+    status: "Rendered evidence ready",
   },
   {
     id: "delivery",
@@ -115,14 +115,15 @@ export function CreationJourney() {
       aria-labelledby="home-journey-title"
       className="home-journey"
       data-header-tone="dark"
+      id="studio-workflow"
       ref={sectionRef}
     >
       <header className="home-journey__intro">
-        <span>One idea · becoming</span>
-        <h2 id="home-journey-title">Watch one idea become a deck you can trust.</h2>
+        <span>One Studio · one evolving deck</span>
+        <h2 id="home-journey-title">Stay in the loop while the work becomes real.</h2>
         <p>
-          Review the story before slides exist, direct the live draft, then let rendered checks
-          catch what the eye can miss.
+          See useful work early, approve the important decisions, and let your agent keep refining
+          without taking the presentation out of your hands.
         </p>
       </header>
 
@@ -185,7 +186,7 @@ function JourneyVisual({
       <div className="home-journey__visual-shell">
         <header className="home-journey__visual-header">
           <span>Drever</span>
-          <small>Local creation room · Experimental</small>
+          <small>Drever Studio · Agent connected</small>
         </header>
 
         <div className="home-journey__workbench">
@@ -250,7 +251,7 @@ function JourneyVisual({
 
             <div className="home-journey__feedback">
               <header>
-                <span>Your direction</span>
+                <span>Entire deck</span>
                 <small>You</small>
               </header>
               <strong>Let the proof arrive one beat earlier.</strong>
@@ -290,11 +291,11 @@ function JourneyVisual({
                 <strong>Ready</strong>
               </header>
               <ul>
-                <li>Safe area</li>
+                <li>Exact states</li>
                 <li>Contrast</li>
                 <li>Geometry</li>
               </ul>
-              <p>7 slides · 11 exact states</p>
+              <p>7 slides · 11 states · both directions</p>
             </div>
 
             <div className="home-journey__room-chrome">

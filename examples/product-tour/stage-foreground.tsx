@@ -4,10 +4,10 @@ import type { ReactElement } from "react";
 const page = (value: number): string => String(value).padStart(2, "0");
 
 const chapter = (slideIndex: number): string => {
-  if (slideIndex < 3) return "01 · Shape";
-  if (slideIndex < 6) return "02 · Direct";
-  if (slideIndex < 9) return "03 · Carry";
-  if (slideIndex < 11) return "04 · One story";
+  if (slideIndex < 7) return "01 · Create";
+  if (slideIndex < 10) return "02 · Direct";
+  if (slideIndex < 13) return "03 · Carry";
+  if (slideIndex < 15) return "04 · One story";
   return "05 · Begin";
 };
 
@@ -21,7 +21,7 @@ export default function ProductTourForeground({
   position,
 }: StageLayerProps): ReactElement {
   const storyState =
-    position.slideIndex === 9 ? "source" : position.slideIndex === 10 ? "result" : undefined;
+    position.slideIndex === 13 ? "source" : position.slideIndex === 14 ? "result" : undefined;
 
   return (
     <div

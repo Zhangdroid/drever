@@ -3,10 +3,10 @@ import { canonicalSiteURL, siteOrigin } from "../site-manifest";
 export function pageHead(title: string, description: string, path: string) {
   const canonical = canonicalSiteURL(path);
   const fullTitle =
-    title === "Drever" ? "Drever — Slides that move with your ideas" : `${title} — Drever`;
+    title === "Drever" ? "Drever — Your agent drafts. You direct." : `${title} — Drever`;
   const socialImage = new URL("/social-card.png", siteOrigin).href;
   const socialImageAlt =
-    "Drever turns an AI-directed presentation into a live story, document, and PDF.";
+    "Drever is a local presentation studio where your agent drafts and you direct.";
 
   return {
     links: [{ rel: "canonical", href: canonical }],

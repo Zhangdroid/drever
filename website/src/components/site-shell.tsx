@@ -141,14 +141,17 @@ export function SiteFooter() {
         <div className="site-footer__lead">
           <img alt="Drever" src={lockupDarkHref} />
           <p>
-            <span>Clear ideas.</span> <span>Expressive slides.</span>{" "}
-            <span>One editable source.</span>
+            <span>Your agent drafts.</span> <span>You direct.</span>{" "}
+            <span>The files stay yours.</span>
           </p>
         </div>
 
         <div className="site-footer__links">
           <div>
             <span>Explore</span>
+            <Link activeOptions={{ exact: true }} to="/docs/studio/">
+              Studio
+            </Link>
             <Link activeOptions={{ exact: true }} to="/docs/">
               Documentation
             </Link>

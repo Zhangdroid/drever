@@ -246,6 +246,8 @@ export function DocNext({
     | "/docs/motion/"
     | "/docs/plugins/"
     | "/docs/presenting/"
+    | "/docs/review/"
+    | "/docs/studio/"
     | "/docs/themes/";
   label: string;
 }) {

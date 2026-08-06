@@ -27,6 +27,8 @@ import { Route as DocsGettingStartedRouteImport } from "./routes/docs.getting-st
 import { Route as DocsMotionRouteImport } from "./routes/docs.motion";
 import { Route as DocsPluginsRouteImport } from "./routes/docs.plugins";
 import { Route as DocsPresentingRouteImport } from "./routes/docs.presenting";
+import { Route as DocsReviewRouteImport } from "./routes/docs.review";
+import { Route as DocsStudioRouteImport } from "./routes/docs.studio";
 import { Route as DocsThemesRouteImport } from "./routes/docs.themes";
 
 const IndexRoute = IndexRouteImport.update({
@@ -119,6 +121,16 @@ const DocsPresentingRoute = DocsPresentingRouteImport.update({
   path: "/presenting",
   getParentRoute: () => DocsRoute,
 } as any);
+const DocsReviewRoute = DocsReviewRouteImport.update({
+  id: "/review",
+  path: "/review",
+  getParentRoute: () => DocsRoute,
+} as any);
+const DocsStudioRoute = DocsStudioRouteImport.update({
+  id: "/studio",
+  path: "/studio",
+  getParentRoute: () => DocsRoute,
+} as any);
 const DocsThemesRoute = DocsThemesRouteImport.update({
   id: "/themes",
   path: "/themes",
@@ -143,6 +155,8 @@ export interface FileRoutesByFullPath {
   "/docs/motion": typeof DocsMotionRoute;
   "/docs/plugins": typeof DocsPluginsRoute;
   "/docs/presenting": typeof DocsPresentingRoute;
+  "/docs/review": typeof DocsReviewRoute;
+  "/docs/studio": typeof DocsStudioRoute;
   "/docs/themes": typeof DocsThemesRoute;
   "/docs/": typeof DocsIndexRoute;
 }
@@ -163,6 +177,8 @@ export interface FileRoutesByTo {
   "/docs/motion": typeof DocsMotionRoute;
   "/docs/plugins": typeof DocsPluginsRoute;
   "/docs/presenting": typeof DocsPresentingRoute;
+  "/docs/review": typeof DocsReviewRoute;
+  "/docs/studio": typeof DocsStudioRoute;
   "/docs/themes": typeof DocsThemesRoute;
   "/docs": typeof DocsIndexRoute;
 }
@@ -185,6 +201,8 @@ export interface FileRoutesById {
   "/docs/motion": typeof DocsMotionRoute;
   "/docs/plugins": typeof DocsPluginsRoute;
   "/docs/presenting": typeof DocsPresentingRoute;
+  "/docs/review": typeof DocsReviewRoute;
+  "/docs/studio": typeof DocsStudioRoute;
   "/docs/themes": typeof DocsThemesRoute;
   "/docs/": typeof DocsIndexRoute;
 }
@@ -208,6 +226,8 @@ export interface FileRouteTypes {
     | "/docs/motion"
     | "/docs/plugins"
     | "/docs/presenting"
+    | "/docs/review"
+    | "/docs/studio"
     | "/docs/themes"
     | "/docs/";
   fileRoutesByTo: FileRoutesByTo;
@@ -228,6 +248,8 @@ export interface FileRouteTypes {
     | "/docs/motion"
     | "/docs/plugins"
     | "/docs/presenting"
+    | "/docs/review"
+    | "/docs/studio"
     | "/docs/themes"
     | "/docs";
   id:
@@ -249,6 +271,8 @@ export interface FileRouteTypes {
     | "/docs/motion"
     | "/docs/plugins"
     | "/docs/presenting"
+    | "/docs/review"
+    | "/docs/studio"
     | "/docs/themes"
     | "/docs/";
   fileRoutesById: FileRoutesById;
@@ -391,6 +415,20 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DocsPresentingRouteImport;
       parentRoute: typeof DocsRoute;
     };
+    "/docs/review": {
+      id: "/docs/review";
+      path: "/review";
+      fullPath: "/docs/review";
+      preLoaderRoute: typeof DocsReviewRouteImport;
+      parentRoute: typeof DocsRoute;
+    };
+    "/docs/studio": {
+      id: "/docs/studio";
+      path: "/studio";
+      fullPath: "/docs/studio";
+      preLoaderRoute: typeof DocsStudioRouteImport;
+      parentRoute: typeof DocsRoute;
+    };
     "/docs/themes": {
       id: "/docs/themes";
       path: "/themes";
@@ -412,6 +450,8 @@ interface DocsRouteChildren {
   DocsMotionRoute: typeof DocsMotionRoute;
   DocsPluginsRoute: typeof DocsPluginsRoute;
   DocsPresentingRoute: typeof DocsPresentingRoute;
+  DocsReviewRoute: typeof DocsReviewRoute;
+  DocsStudioRoute: typeof DocsStudioRoute;
   DocsThemesRoute: typeof DocsThemesRoute;
   DocsIndexRoute: typeof DocsIndexRoute;
 }
@@ -427,6 +467,8 @@ const DocsRouteChildren: DocsRouteChildren = {
   DocsMotionRoute: DocsMotionRoute,
   DocsPluginsRoute: DocsPluginsRoute,
   DocsPresentingRoute: DocsPresentingRoute,
+  DocsReviewRoute: DocsReviewRoute,
+  DocsStudioRoute: DocsStudioRoute,
   DocsThemesRoute: DocsThemesRoute,
   DocsIndexRoute: DocsIndexRoute,
 };
