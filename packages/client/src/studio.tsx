@@ -79,48 +79,6 @@ const ChevronIcon = (props: IconProps): ReactElement => (
   </svg>
 );
 
-type StudioMotionIntent = NonNullable<DreverDeckPlanSlide["motion"]>["intent"];
-
-const MotionIcon = ({ intent }: Readonly<{ intent: StudioMotionIntent }>): ReactElement => {
-  if (intent === "focus") {
-    return (
-      <svg aria-hidden="true" data-motion-intent={intent} viewBox="0 0 16 16">
-        <circle cx="8" cy="8" r="4.25" />
-        <circle cx="8" cy="8" r="1" />
-      </svg>
-    );
-  }
-  if (intent === "stagger") {
-    return (
-      <svg aria-hidden="true" data-motion-intent={intent} viewBox="0 0 16 16">
-        <path d="M3 11.5h2.5v-3H3zm4-2h2.5v-3H7zm4-2h2.5v-3H11z" />
-      </svg>
-    );
-  }
-  if (intent === "compare") {
-    return (
-      <svg aria-hidden="true" data-motion-intent={intent} viewBox="0 0 16 16">
-        <rect height="7" rx="1" width="4.5" x="2.5" y="4.5" />
-        <rect height="7" rx="1" width="4.5" x="9" y="4.5" />
-      </svg>
-    );
-  }
-  if (intent === "replace") {
-    return (
-      <svg aria-hidden="true" data-motion-intent={intent} viewBox="0 0 16 16">
-        <path d="M3 5.25h8.5m-2-2 2 2-2 2M13 10.75H4.5m2 2-2-2 2-2" />
-      </svg>
-    );
-  }
-  return (
-    <svg aria-hidden="true" data-motion-intent={intent} viewBox="0 0 16 16">
-      <path d="M2.5 10.5c2.2 0 2.3-5 5.5-5s3.3 5 5.5 5" />
-      <circle cx="2.5" cy="10.5" r="1" />
-      <circle cx="13.5" cy="10.5" r="1" />
-    </svg>
-  );
-};
-
 const densityOptions = [
   {
     description: "One idea per slide, with detail kept in notes.",
@@ -1164,7 +1122,6 @@ const SlideCard = ({
   slide: DreverDeckPlanSlide;
 }>): ReactElement => (
   <button
-    aria-description={`Layout: ${slide.composition.recipe}${slide.motion === undefined ? "" : `. Motion: ${sentenceCase(slide.motion.intent)}. ${slide.motion.purpose}`}`}
     aria-current={selected ? "true" : undefined}
     aria-pressed={selected}
     className="drever-studio-plan-card"
@@ -1182,17 +1139,6 @@ const SlideCard = ({
       <span className="drever-studio-plan-card__purpose" dir="auto">
         {slide.purpose}
       </span>
-    </span>
-    <span className="drever-studio-plan-card__meta">
-      <span className="drever-studio-plan-card__layout">
-        Layout · {sentenceCase(slide.composition.recipe)}
-      </span>
-      {slide.motion === undefined ? null : (
-        <span className="drever-studio-plan-card__motion" title={slide.motion.purpose}>
-          <MotionIcon intent={slide.motion.intent} />
-          Motion · {sentenceCase(slide.motion.intent)}
-        </span>
-      )}
     </span>
   </button>
 );
@@ -1265,7 +1211,7 @@ const FeedbackComposer = ({
               </div>
             ) : (
               <div className="drever-studio-direction__summary">
-                <span>Focal artifact</span>
+                <span>Anchor evidence</span>
                 <strong dir="auto">{selectedSlide.focalArtifact}</strong>
                 <span>Evidence</span>
                 <strong dir="auto">{selectedSlide.evidence.join(" · ")}</strong>

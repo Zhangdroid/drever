@@ -70,6 +70,11 @@ supervised persistent process instead. The managed session receives actions and 
 public progress directly; raw chain-of-thought, commands, tool payloads, paths, and provider output
 must never enter Studio.
 
+After handing off, keep observing the managed session until it reaches `ready`, `error`, user
+cancellation, or new user input. Do not publish a final response from an earlier snapshot such as
+`plan-review`; a child turn returning at the approval gate leaves the server and parent task alive,
+and a later browser approval starts the next child turn without a chat message.
+
 Without a matching managed adapter, the creation room is a local, provider-neutral action inbox.
 Keep one action cursor and poll in bounded calls:
 
@@ -191,12 +196,16 @@ been incorporated; visible activity never acknowledges unfinished work.
 
 Treat `submit-adaptive-answers` and `skip-remaining-questions` as a second latency-sensitive
 dispatch. In one bounded semantic pass, use only the submitted brief and direction to update
-`brief.md`, write a coherent valid `drever.plan.json` with status `awaiting-approval`, and publish
-`plan-review`. Before that first reviewable Storyboard, do not browse, research facts or assets,
-inspect broad project or package source, start another worker, build, export, or run browser
-automation. Put uncertain facts into explicit evidence requirements instead of inventing them.
-Stop at the approval gate and do not mutate the Storyboard behind its reviewer. Continue factual
-research and visual refinement after `approve-plan` while creating the same live Draft 1.
+`brief.md`, write a coherent valid version-2 `drever.plan.json` with status `awaiting-approval`, and
+publish `plan-review`. Keep this Storyboard content-only: record each slide's job, working title,
+purpose, evidence, and anchor evidence, but do not choose per-slide density, composition, layout, or
+motion. Keep the deck-wide density, global canvas, safe area, content inset, surface ownership, and
+the user's visual and motion preferences in `brief.md` for the later design pass. Before that first reviewable
+Storyboard, do not browse, research facts or assets, inspect broad project or package source, start
+another worker, build, export, or run browser automation. Put uncertain facts into explicit evidence
+requirements instead of inventing them. Stop this managed child turn at the approval gate and do
+not mutate the Storyboard behind its reviewer; keep the parent task and server alive. Continue
+factual research and visual refinement after `approve-plan` while creating the same live Draft 1.
 
 Skip question publication only when the same returned action batch contains
 `skip-remaining-questions` after that brief. After answers or a skip, update `brief.md` and
@@ -252,20 +261,20 @@ unanswered choices; it does not replace the topic unless the user explicitly ask
 
 ## Produce the reviewable story contract
 
-<!-- drever-plan-review-contract:v3 -->
+<!-- drever-plan-review-contract:v4 -->
 
 For a new or explicitly replacement-scoped presentation, update both planning artifacts in one
 pass before authoring slides:
 
-- `brief.md` is the concise human-readable brief and numbered outline.
-- `drever.plan.json` is the machine-readable design contract. Keep it valid against the installed
-  version-1 schema; do not add undocumented fields.
+- `brief.md` is the concise human-readable brief and content-only numbered outline.
+- `drever.plan.json` is the machine-readable story contract. Keep it valid against the installed
+  version-2 schema; do not add undocumented fields.
 
-Use this exact shape (omit `variant` and `motion` when they do not apply):
+Use this exact shape:
 
 ```json
 {
-  "version": 1,
+  "version": 2,
   "status": "awaiting-approval",
   "brief": {
     "topic": "...",
@@ -282,18 +291,15 @@ Use this exact shape (omit `variant` and `motion` when they do not apply):
       "title": "...",
       "purpose": "...",
       "evidence": ["..."],
-      "focalArtifact": "...",
-      "composition": { "recipe": "...", "variant": "..." },
-      "density": "concise",
-      "motion": { "intent": "compare", "purpose": "...", "owner": "..." }
+      "focalArtifact": "..."
     }
   ]
 }
 ```
 
-`density` is `concise`, `balanced`, or `detailed`. A slide job is `opening`, `section`, `context`,
-`claim`, `explanation`, `evidence`, `comparison`, `process`, `demo`, `decision`, or `close`.
-Motion intents are `focus`, `replace`, `compare`, `stagger`, or `continuity`.
+The brief-level `density` is `concise`, `balanced`, or `detailed`. A slide job is `opening`,
+`section`, `context`, `claim`, `explanation`, `evidence`, `comparison`, `process`, `demo`,
+`decision`, or `close`.
 
 Mark both as awaiting approval. Record the topic, audience, desired change, duration, language,
 visible density, evidence and assets, narrative direction, visual direction, motion intensity,
@@ -306,9 +312,14 @@ when the Storyboard is approved. In `drever.plan.json`, give every slide:
 
 - a stable lowercase hyphenated id and one narrative job;
 - a working title and one concrete purpose;
-- required evidence and one focal artifact;
-- a composition recipe, optional variant, and density;
-- optional motion only when it has a named intent, purpose, and single owner.
+- required evidence and one focal artifact that anchors the content.
+
+Do not put per-slide density, layout, composition, palette, typography, interaction, motion, or
+signature moment decisions into the Storyboard or the numbered outline in `brief.md`. The
+Storyboard lets the user approve content and sequence quickly; after approval,
+`drever-create-design` derives those design decisions from the accepted story and the deck-wide
+density plus global direction retained in `brief.md`, then records the per-slide implementation
+receipts in `design/art-direction.md`.
 
 Plan IDs are stable labels inside this ordered planning and review contract. The compiler and
 audience runtime still identify slides positionally; `npm exec -- drever check` validates plan shape and the
@@ -321,7 +332,7 @@ architecture view, or metric because its evidence contract calls for one; not ev
 does. Prefer contextual requirements over universal sentence or screenshot quotas.
 
 Run `npm exec -- drever check --json` and fix every plan error before presenting it. When the local
-creation room is active, publish the `plan-review` phase and let its visual Storyboard own edits and
+creation room is active, publish the `plan-review` phase and let its content Storyboard own edits and
 explicit approval. Keep polling until `approve-plan` arrives or feedback changes the plan.
 
 Otherwise start the project's development script and use the exact **Storyboard** URL reported by
@@ -341,7 +352,7 @@ approval, mark both files approved and continue.
 <!-- drever-visual-foundation-contract:v1 -->
 
 After approval, load the project-local `drever-author-deck` skill and let `drever.plan.json` remain
-the story and design contract while authoring. Treat the `approve-plan` handoff as latency-sensitive:
+the story contract while authoring. Treat the `approve-plan` handoff as latency-sensitive:
 in one bounded semantic pass, create a content-complete Draft 1 before starting design research or
 refinement. Every approved slide must exist in order with its real readable copy, required evidence,
 simple focal artifact, and speaker notes. Use semantic MDX, the locked canvas and safe-area policy,
@@ -354,6 +365,10 @@ Theme module, and any required Stage module before referencing them. Then switch
 to that complete surface and author the matching MDX/CSS in the same bounded Draft 1 pass. Do not
 publish a hybrid frame where custom dark content is still painted over the starter Theme's rail,
 background, typography, or motion.
+
+Write CSS in project-local files or import an installed package stylesheet. Never use `data:`,
+`blob:`, or `javascript:` URLs as CSS `@import` sources, and never turn inline CSS into an import
+specifier; Vite and PostCSS treat those values as file paths and the live preview will fail.
 
 Reuse the development server already serving the creation room or Storyboard. Its embedded audience
 iframe is the preview and HMR will update it as source changes; do not start or restart a second

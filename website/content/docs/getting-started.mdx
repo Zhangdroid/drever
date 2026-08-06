@@ -22,14 +22,15 @@ scope, story, visuals, or delivery. Each option explains what it changes, accept
 and keeps **Skip remaining questions — surprise me** available. A later round can respond to an
 earlier answer instead of repeating a fixed questionnaire.
 
-The agent then writes the resolved direction and numbered outline to `brief.md`, records every
-slide's job, evidence, focal artifact, composition, density, and motion ownership in
-`drever.plan.json`, runs the fast source check, and shows the visual Storyboard inside the same room
-before stopping for approval. The escape delegates unanswered choices but does not bypass this
-review. The brief also locks the exact configured canvas, safe area, content inset, and surface
-owner before Draft 1. Official Drever designs remain reference studies unless you explicitly choose
-one; a custom direction replaces conflicting starter paint rather than layering over it. If the room
-is unavailable or you prefer chat, the agent asks the same decisions in the
+The agent then writes the resolved direction, deck-wide density, and numbered outline to `brief.md`,
+records every slide's job, evidence, and anchor artifact in `drever.plan.json`, runs the fast source
+check, and shows the content-first Storyboard inside the same room before stopping for approval.
+Per-slide density, layout, and motion are deliberately deferred until the approved story becomes a
+live draft. The escape delegates unanswered choices but does not bypass this review. The brief still
+locks the exact configured canvas, safe area, content inset, surface owner, and global visual
+direction before Draft 1. Official Drever designs remain reference studies unless you explicitly
+choose one; a custom direction replaces conflicting starter paint rather than layering over it. If
+the room is unavailable or you prefer chat, the agent asks the same decisions in the
 conversation and shares the exact read-only `/storyboard` URL instead.
 
 After approval, the agent publishes a complete, valid Draft 1 rather than streaming partial MDX

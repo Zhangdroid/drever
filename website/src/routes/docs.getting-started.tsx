@@ -6,7 +6,7 @@ import { DocArticle, DocMdx, DocNext, ManualSetup } from "../components/docs-she
 import { pageHead } from "../seo";
 
 const description =
-  "Start from one sentence, answer useful questions in a local creation room, approve the visual Storyboard, then refine one live draft into a verified deck.";
+  "Start from one sentence, answer useful questions in a local creation room, approve the content Storyboard, then refine one live draft into a verified deck.";
 
 export const Route = createFileRoute("/docs/getting-started")({
   component: Page,

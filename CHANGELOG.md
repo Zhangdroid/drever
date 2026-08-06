@@ -5,6 +5,26 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+Release impact: **minor** — this batch makes Storyboard approval content-first, while preserving
+legacy plan files and strengthening the live Draft 1 handoff.
+
+### Changed
+
+- Added a strict version-2 `drever.plan.json` story contract that keeps each slide's job, purpose,
+  evidence, and anchor artifact in review while deferring per-slide density, layout, and motion
+  until the approved design pass. Existing version-1 plans remain readable.
+- Simplified Studio and standalone Storyboard cards around content and sequence, with roomier
+  evidence surfaces and no premature layout or motion labels.
+- Kept the parent creation task observing a managed Studio session across the human approval gate,
+  so a browser approval can start the next managed turn without a separate chat message.
+
+### Fixed
+
+- Opened Draft View History as a compact anchored popover instead of expanding the work-in-progress
+  banner, preventing the canvas and neighboring Studio rails from shifting.
+- Made `drever check` reject `data:`, `blob:`, and `javascript:` CSS imports with a precise source
+  diagnostic before Vite or PostCSS can strand the live preview on an error overlay.
+
 ## [0.14.0] - 2026-08-05
 
 Release impact: **minor** — this batch makes Studio creation more resilient and deliberate, adds

@@ -1,7 +1,11 @@
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { DREVER_DECK_PLAN_VERSION, validateDreverDeckPlanValue } from "@drever/schema";
+import {
+  DREVER_DECK_PLAN_LEGACY_VERSION,
+  DREVER_DECK_PLAN_VERSION,
+  validateDreverDeckPlanValue,
+} from "@drever/schema";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 import { DREVER_DECK_PLAN_FILE, loadDreverDeckPlan } from "./deck-plan.ts";
 
@@ -38,8 +42,18 @@ const plan = (status: "approved" | "awaiting-approval" = "approved") => ({
       purpose: "Surface the familiar misconception.",
       evidence: ["A comparison with an equal-mass star"],
       focalArtifact: "An orbit that remains stable",
-      composition: { recipe: "single-artifact", variant: "dark-field" },
+    },
+  ],
+});
+
+const legacyPlan = () => ({
+  ...plan(),
+  version: DREVER_DECK_PLAN_LEGACY_VERSION,
+  slides: [
+    {
+      ...plan().slides[0],
       density: "concise",
+      composition: { recipe: "single-artifact", variant: "dark-field" },
       motion: {
         intent: "compare",
         purpose: "Keep the orbit fixed while the central object changes.",
@@ -75,7 +89,17 @@ describe("loadDreverDeckPlan", () => {
     expect(result.plan).toEqual(plan());
   });
 
-  it("validates every nested V1 field through the shared schema contract", () => {
+  it("keeps a valid version 1 plan readable", async () => {
+    const root = await createRoot();
+    await writePlan(root, legacyPlan());
+
+    const result = await loadDreverDeckPlan({ root, slideCount: 1 });
+
+    expect(result.diagnostics).toEqual([]);
+    expect(result.plan).toEqual(legacyPlan());
+  });
+
+  it("validates every version 2 field through the shared schema contract", () => {
     const result = validateDreverDeckPlanValue({
       version: DREVER_DECK_PLAN_VERSION,
       status: "approved",
@@ -95,9 +119,9 @@ describe("loadDreverDeckPlan", () => {
           title: "",
           evidence: ["", 42],
           focalArtifact: "",
-          composition: { recipe: "", variant: 42, unknown: true },
+          composition: { recipe: "centered-statement" },
           density: "dense",
-          motion: { intent: "fly", purpose: "", owner: "", unknown: true },
+          motion: { intent: "focus", purpose: "Decorate the title.", owner: "title" },
           unknown: true,
         },
       ],
@@ -123,10 +147,32 @@ describe("loadDreverDeckPlan", () => {
         "slides[0].evidence[0]",
         "slides[0].evidence[1]",
         "slides[0].focalArtifact",
+        "slides[0].composition",
+        "slides[0].density",
+        "slides[0].motion",
+      ]),
+    );
+  });
+
+  it("validates the nested version 1 composition and motion fields", () => {
+    const result = validateDreverDeckPlanValue({
+      ...legacyPlan(),
+      slides: [
+        {
+          ...legacyPlan().slides[0],
+          composition: { recipe: "", variant: 42, unknown: true },
+          motion: { intent: "fly", purpose: "", owner: "", unknown: true },
+        },
+      ],
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("Expected an invalid legacy deck plan.");
+    expect(result.issues.map(({ field }) => field)).toEqual(
+      expect.arrayContaining([
         "slides[0].composition.unknown",
         "slides[0].composition.recipe",
         "slides[0].composition.variant",
-        "slides[0].density",
         "slides[0].motion.unknown",
         "slides[0].motion.intent",
         "slides[0].motion.purpose",

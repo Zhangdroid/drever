@@ -272,16 +272,17 @@ do not restart that gate. The agent writes the human-readable
 brief and outline to `brief.md`, records its smaller machine-checkable story
 contract in `drever.plan.json`, and validates it. When a development host can
 keep the server alive, the agent prefers the experimental local creation room
-for the common brief, adaptive questions, visual Storyboard approval, and later
+for the common brief, adaptive questions, content Storyboard approval, and later
 deck- or slide-scoped feedback. Chat plus the plan-only `/storyboard` route is
 the fallback; that route does not import the MDX entry, Theme, or presentation
 runtime, so it remains useful while the first deck source is absent or incomplete.
 The machine-readable contract gives every slide a stable ID, narrative job,
-evidence, focal artifact, composition recipe, density, and optional single
-motion owner. Those IDs are stable planning and review labels; compiled slide
-identity remains positional, while the check validates plan shape, order, and
-approved slide count. Once approved, the agent reuses the same development
-server. When the plan becomes a coherent end-to-end Draft 1, it shares the
+purpose, evidence, and focal artifact. The brief keeps the deck-wide density;
+per-slide density, composition, and motion are chosen after approval.
+Those IDs are stable planning and review labels; compiled slide identity remains
+positional, while the check validates plan shape, order, and approved slide
+count. Once approved, the agent reuses the same development server. When the
+plan becomes a coherent end-to-end Draft 1, it shares the
 audience URL for immediate story and content
 review, and continues visual and technical refinement without another approval
 pause. Authoring and design use source-only and affected-route checks while the

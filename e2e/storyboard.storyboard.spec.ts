@@ -22,7 +22,7 @@ const availablePort = async (): Promise<number> => {
 };
 
 const plan = (title: string) => ({
-  version: 1,
+  version: 2,
   status: "awaiting-approval",
   brief: {
     topic: "Why black holes are not cosmic vacuum cleaners",
@@ -40,13 +40,6 @@ const plan = (title: string) => ({
       purpose: "Name the misconception before replacing it.",
       evidence: ["Gravity depends on mass and distance."],
       focalArtifact: "A Sun-to-black-hole orbit comparison",
-      composition: { recipe: "comparison" },
-      density: "concise",
-      motion: {
-        intent: "compare",
-        purpose: "Keep the orbit fixed while the central object changes.",
-        owner: "orbit-comparison",
-      },
     },
   ],
 });
@@ -112,7 +105,7 @@ test("storyboard stays live before the authored deck can compile", async ({ page
     await page.evaluate(() => {
       Object.assign(globalThis, { __dreverStoryboardDidNotReload: true });
     });
-    await writeFile(planPath, '{"version":1,"status":', "utf8");
+    await writeFile(planPath, '{"version":2,"status":', "utf8");
     await expect(storyboard).toHaveAttribute("data-storyboard-state", "invalid");
     await expect(page.locator('[data-storyboard-slide="the-myth"]')).toContainText(
       "A black hole is not a vacuum cleaner",

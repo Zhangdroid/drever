@@ -188,8 +188,7 @@
     border-left: 1px solid var(--storyboard-border);
   }
 
-  .drever-storyboard__summary dt,
-  .drever-storyboard-card__specification dt {
+  .drever-storyboard__summary dt {
     margin-bottom: 5px;
     color: #7a837e;
     font-size: 0.63rem;
@@ -199,16 +198,12 @@
     text-transform: uppercase;
   }
 
-  .drever-storyboard__summary dd,
-  .drever-storyboard-card__specification dd {
-    margin: 0;
-    overflow-wrap: anywhere;
-  }
-
   .drever-storyboard__summary dd {
+    margin: 0;
     color: #353d39;
     font-size: 0.82rem;
     line-height: 1.42;
+    overflow-wrap: anywhere;
   }
 
   .drever-storyboard__review-note {
@@ -288,13 +283,13 @@
   }
 
   .drever-storyboard-card > article {
-    padding: clamp(23px, 3.6vw, 40px);
+    padding: clamp(28px, 4.2vw, 48px);
   }
 
   .drever-storyboard-card__header {
     display: grid;
-    grid-template-columns: 50px minmax(0, 1fr);
-    gap: clamp(16px, 2.8vw, 30px);
+    grid-template-columns: 54px minmax(0, 1fr);
+    gap: clamp(18px, 3vw, 32px);
     align-items: start;
   }
 
@@ -329,7 +324,7 @@
 
   .drever-storyboard-card__purpose {
     max-width: 62ch;
-    margin: 24px 0 28px 80px;
+    margin: 26px 0 30px 86px;
     color: #4f5954;
     font-size: clamp(0.96rem, 1.5vw, 1.08rem);
     line-height: 1.58;
@@ -341,12 +336,12 @@
     display: grid;
     grid-template-columns: minmax(0, 1.35fr) minmax(220px, 0.65fr);
     gap: 12px;
-    margin-left: 80px;
+    margin-left: 86px;
   }
 
   .drever-storyboard-card__body section {
     min-width: 0;
-    padding: 20px 22px;
+    padding: 22px 24px 24px;
     border-radius: 14px;
     background: rgb(30 40 34 / 3.5%);
   }
@@ -398,30 +393,6 @@
     font-size: 0.84rem;
     line-height: 1.5;
     overflow-wrap: anywhere;
-  }
-
-  .drever-storyboard-card__specification {
-    display: grid;
-    grid-template-columns: 1fr 0.62fr 1.7fr;
-    gap: 1px;
-    margin: 22px 0 0 80px;
-    padding: 0;
-    overflow: clip;
-    border: 1px solid var(--storyboard-border);
-    border-radius: 13px;
-    background: var(--storyboard-border);
-  }
-
-  .drever-storyboard-card__specification > div {
-    min-width: 0;
-    padding: 13px 15px 14px;
-    background: rgb(253 253 250 / 88%);
-  }
-
-  .drever-storyboard-card__specification dd {
-    color: #3e4742;
-    font-size: 0.75rem;
-    line-height: 1.45;
   }
 
   .drever-storyboard__notice {
@@ -605,21 +576,9 @@
       border-top: 1px solid var(--storyboard-border);
     }
 
-    .drever-storyboard-card__body,
-    .drever-storyboard-card__specification {
-      margin-left: 66px;
-    }
-
     .drever-storyboard-card__body {
       grid-template-columns: 1fr;
-    }
-
-    .drever-storyboard-card__specification {
-      grid-template-columns: 1fr 0.7fr;
-    }
-
-    .drever-storyboard-card__motion {
-      grid-column: 1 / -1;
+      margin-left: 70px;
     }
   }
 
@@ -695,9 +654,8 @@
     }
 
     .drever-storyboard-card__purpose,
-    .drever-storyboard-card__body,
-    .drever-storyboard-card__specification {
-      margin-left: 44px;
+    .drever-storyboard-card__body {
+      margin-left: 46px;
     }
 
     .drever-storyboard-card__purpose {
@@ -706,14 +664,6 @@
 
     .drever-storyboard-card__body section {
       padding: 17px;
-    }
-
-    .drever-storyboard-card__specification {
-      grid-template-columns: 1fr;
-    }
-
-    .drever-storyboard-card__motion {
-      grid-column: auto;
     }
 
     .drever-storyboard__notice {

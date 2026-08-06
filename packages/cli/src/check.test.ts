@@ -167,8 +167,6 @@ describe("checkDeck", () => {
             purpose: "Open the story.",
             evidence: ["The opening claim"],
             focalArtifact: "The central idea",
-            composition: { recipe: "centered-statement" },
-            density: "concise",
           },
         ],
       }),

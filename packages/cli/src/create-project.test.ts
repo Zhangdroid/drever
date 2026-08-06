@@ -171,8 +171,11 @@ describe("project creation", () => {
     expect(generatedBrief).toContain("Safe area and default content inset");
     expect(generatedBrief).toContain("Surface owner");
     expect(generatedBrief).toContain("## Slide outline");
+    expect(generatedBrief).toContain("Keep this approval outline content-only");
+    expect(generatedBrief).not.toContain("## Signature moments");
+    expect(generatedBrief).not.toContain("any material Notes, Steps, interaction, or motion");
     await expect(readFile(join(root, "drever.plan.json"), "utf8")).resolves.toBe(
-      `${JSON.stringify({ version: 1, status: "awaiting-input" }, null, 2)}\n`,
+      `${JSON.stringify({ version: 2, status: "awaiting-input" }, null, 2)}\n`,
     );
     await expect(readFile(join(root, "README.md"), "utf8")).resolves.toContain(
       "Open this project folder in Codex, Claude Code, or another coding agent.",

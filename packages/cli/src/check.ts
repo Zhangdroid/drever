@@ -17,6 +17,7 @@ import { DreverCliError } from "./errors.ts";
 import type { ResolvedDreverProject } from "./project.ts";
 import { checkRenderedProject } from "./rendered-check.ts";
 import { invalidateRenderedEvidence } from "./rendered-evidence.ts";
+import { checkStyleSources } from "./style-source-check.ts";
 
 export type CheckExitCode = 0 | 1;
 
@@ -105,10 +106,12 @@ export const createCheckReport = async (
   entry: string,
   root = dirname(entry),
 ): Promise<DeckPreflightReportV2> => {
-  const report = preflightDeck(await readDeck(entry), { path: entry });
+  const source = await readDeck(entry);
+  const report = preflightDeck(source, { path: entry });
+  const styles = await checkStyleSources({ entry, root, source });
   const plan = await loadDreverDeckPlan({ root, slideCount: report.slideCount });
-  if (plan.diagnostics.length === 0) return report;
-  const diagnostics = [...report.diagnostics, ...plan.diagnostics];
+  if (styles.length === 0 && plan.diagnostics.length === 0) return report;
+  const diagnostics = [...report.diagnostics, ...styles, ...plan.diagnostics];
   return { ...report, summary: summarize(diagnostics), diagnostics };
 };
 

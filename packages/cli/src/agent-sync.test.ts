@@ -164,8 +164,17 @@ describe("agent kit sync", () => {
     expect(createDeck).toMatch(/`concise`[^;]*presenter-led/iu);
     expect(createDeck).toMatch(/`balanced`[^;]*visible evidence/iu);
     expect(createDeck).toMatch(/`detailed`[^;]*reader-led/iu);
-    expect(createDeck).toContain("<!-- drever-plan-review-contract:v3 -->");
-    expect(createDeck).toMatch(/human-readable brief and numbered outline/iu);
+    expect(createDeck).toContain("<!-- drever-plan-review-contract:v4 -->");
+    expect(createDeck).toMatch(/machine-readable story contract/iu);
+    expect(createDeck).toMatch(/valid against the installed\s+version-2 schema/iu);
+    expect(createDeck).toMatch(
+      /Do not put per-slide density, layout, composition[^.]*motion[^.]*signature\s+moment/iu,
+    );
+    expect(createDeck).toMatch(
+      /deck-wide\s+density plus global direction retained in `brief\.md`/iu,
+    );
+    expect(createDeck).toMatch(/global canvas[^.]*safe area[^.]*content inset/iu);
+    expect(createDeck).toMatch(/human-readable brief and content-only numbered outline/iu);
     expect(createDeck).toMatch(/invite\s+edits or explicit\s+approval,\s+and stop/iu);
     expect(createDeck).toMatch(/exact \*\*Storyboard\*\* URL reported by\s+Drever/iu);
     expect(createDeck).toMatch(/without importing the deck MDX,\s+Theme, or runtime/iu);
@@ -237,13 +246,17 @@ describe("agent kit sync", () => {
     );
     expect(studioContract).toMatch(/publish\s+`plan-review`/iu);
     expect(studioContract).toMatch(
-      /Before that first reviewable Storyboard[^.]*do not browse[^.]*research facts or assets/iu,
+      /Before that first reviewable\s+Storyboard[^.]*do not browse[^.]*research facts or assets/iu,
     );
-    expect(studioContract).toMatch(/uncertain facts[^.]*explicit evidence requirements/iu);
-    expect(studioContract).toMatch(/Stop at the approval gate[^.]*do not mutate the Storyboard/iu);
-    expect(studioContract).toMatch(/Continue factual\s+research[^.]*after `approve-plan`/iu);
+    expect(studioContract).toMatch(/uncertain facts[^.]*explicit\s+evidence\s+requirements/iu);
+    expect(studioContract).toMatch(
+      /Stop this managed child turn at the approval gate[^.]*do\s+not mutate the Storyboard/iu,
+    );
+    expect(studioContract).toMatch(/Continue\s+factual\s+research[^.]*after `approve-plan`/iu);
     expect(studioContract).toMatch(/managed handoff is not task completion/iu);
     expect(studioContract).toMatch(/keep the development command session and parent task alive/iu);
+    expect(studioContract).toMatch(/keep observing the managed session[^.]*`ready`, `error`/iu);
+    expect(studioContract).toMatch(/Do not publish a final response from an earlier snapshot/iu);
     expect(studioContract).toMatch(/one-shot or noninteractive host[^.]*do not launch Studio/iu);
   });
 
@@ -269,6 +282,9 @@ describe("agent kit sync", () => {
     expect(createDeck).toMatch(/continue in the same turn/iu);
     expect(createDeck).toMatch(/isolated\s+Playwright rendered review[^.]*final source/iu);
     expect(createDeck).toMatch(/later mutation invalidates[^.]*evidence/iu);
+    expect(createDeck).toMatch(
+      /Never use `data:`,\s+`blob:`, or `javascript:` URLs as CSS `@import`/iu,
+    );
     expect(createDeck).toMatch(/one\s+production build[^.]*requested PDF export/iu);
     expect(createDeck).toMatch(/design worker may prepare[^.]*primary worker owns/iu);
     expect(authorDeck).toMatch(/Expose an approved Draft 1 without blocking on polish/iu);

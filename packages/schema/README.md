@@ -68,10 +68,11 @@ if (!result.ok) {
 const plan: DreverDeckPlan = result.value;
 ```
 
-The validator rejects unknown fields and validates every nested V1 value. A
-future incompatible plan shape receives a new `version`; consumers should not
-silently coerce it. Planning slide IDs are stable review labels, while the
-compiled audience runtime remains position-based.
+The validator rejects unknown fields and accepts both the current content-only
+V2 contract and read-only legacy V1 plans. Narrow on `version` before reading
+V1-only composition or motion fields; consumers should not silently coerce an
+unsupported future version. Planning slide IDs are stable review labels, while
+the compiled audience runtime remains position-based.
 
 `DreverAuthoringContextV2` is the current context and pairs with the V2
 preflight report. `DreverAuthoringContextV1` retains the prior source-only

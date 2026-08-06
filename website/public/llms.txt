@@ -94,7 +94,7 @@ Document View. Audience paths such as `/5/2` select an exact slide and sparse St
 - Source accessibility preflight with human and stable JSON diagnostics.
 - Project-local Codex and Claude skills.
 - An experimental, development-only local creation room for the common brief, adaptive questions,
-  visual Storyboard approval, and deck- or slide-scoped feedback, backed by ordinary project files.
+  content Storyboard approval, and deck- or slide-scoped feedback, backed by ordinary project files.
 - JSON authoring context and local live-position commands.
 - Optional dependency-free, read-only MCP server.
 - Default build-time GFM, Shiki, and reset-free Tailwind CSS.

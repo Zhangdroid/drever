@@ -43,13 +43,6 @@ const plan = {
       purpose: "Surface the misconception before correcting it.",
       evidence: ["The orbit depends on mass and distance."],
       focalArtifact: "Two equal orbital paths around different central objects.",
-      composition: { recipe: "split-proof", variant: "orbit" },
-      density: "concise",
-      motion: {
-        intent: "compare",
-        purpose: "Keep the orbit fixed while the central object changes.",
-        owner: "orbit-model",
-      },
     },
     {
       id: "closing-model",
@@ -58,8 +51,6 @@ const plan = {
       purpose: "Leave the room with a reusable model.",
       evidence: ["Gravity does not become a vacuum cleaner."],
       focalArtifact: "One sentence beside a restrained gravity well.",
-      composition: { recipe: "statement" },
-      density: "concise",
     },
   ],
 } as const satisfies DreverDeckPlan;
@@ -312,12 +303,9 @@ describe("Studio", () => {
     expect(markup).toContain("Approve story");
     expect(markup).toContain('aria-controls="drever-studio-plan-card-closing-model"');
     expect(markup).toContain('data-studio-slide-id="closing-model"');
-    expect(markup).toContain("Layout · Split Proof");
-    expect(markup).toContain("Motion · Compare");
-    expect(markup).toContain('title="Keep the orbit fixed while the central object changes."');
-    expect(markup).toContain(
-      'aria-description="Layout: split-proof. Motion: Compare. Keep the orbit fixed while the central object changes."',
-    );
+    expect(markup).not.toContain("Layout · Split Proof");
+    expect(markup).not.toContain("Motion · Compare");
+    expect(markup).not.toContain("aria-description=");
     expect(markup).not.toContain("Live Drever draft");
   });
 

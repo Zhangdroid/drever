@@ -25,13 +25,6 @@ const plan = {
         "The loss of sunlight is catastrophic, but gravity does not suddenly intensify.",
       ],
       focalArtifact: "A paired orbital diagram with equal paths and different light.",
-      composition: { recipe: "split-proof", variant: "orbit" },
-      density: "concise",
-      motion: {
-        intent: "compare",
-        purpose: "Keep the orbit fixed while the star changes into a black hole.",
-        owner: "orbit-model",
-      },
     },
     {
       id: "closing-model",
@@ -40,8 +33,6 @@ const plan = {
       purpose: "Leave the audience with a reusable explanation.",
       evidence: ["A black hole attracts like any object with the same mass at the same distance."],
       focalArtifact: "One sentence beside a restrained gravity well.",
-      composition: { recipe: "statement" },
-      density: "concise",
     },
   ],
 } as const satisfies DreverDeckPlan;
@@ -65,10 +56,11 @@ describe("Storyboard", () => {
     expect(markup).toContain("Surface the misconception before correcting it.");
     expect(markup).toContain("Earth follows the same orbit when the central mass stays constant.");
     expect(markup).toContain("A paired orbital diagram with equal paths and different light.");
-    expect(markup).toContain("split-proof · orbit");
-    expect(markup).toContain("Motion · Compare · owner orbit-model");
-    expect(markup).toContain("Keep the orbit fixed while the star changes into a black hole.");
-    expect(markup).toContain("None planned");
+    expect(markup).toContain("Anchor evidence");
+    expect(markup).not.toContain("split-proof · orbit");
+    expect(markup).not.toContain("Motion · Compare · owner orbit-model");
+    expect(markup).not.toContain("Keep the orbit fixed while the star changes into a black hole.");
+    expect(markup).not.toContain("None planned");
     expect(markup.match(/data-storyboard-slide/g)).toHaveLength(2);
   });
 

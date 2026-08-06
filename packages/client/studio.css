@@ -1942,15 +1942,13 @@
 
   .drever-studio-plan-card {
     display: grid;
-    grid-template-columns: 34px minmax(0, 1fr);
-    grid-template-areas:
-      "number copy"
-      ". meta";
-    gap: 11px 10px;
+    grid-template-columns: 38px minmax(0, 1fr);
+    grid-template-areas: "number copy";
+    gap: 12px;
     width: 100%;
     align-items: start;
-    min-height: 144px;
-    padding: 17px;
+    min-height: 136px;
+    padding: 21px 20px 22px;
     border: 1px solid rgb(28 36 31 / 10%);
     border-radius: 17px;
     color: var(--studio-ink);
@@ -2010,62 +2008,10 @@
 
   .drever-studio-plan-card__purpose {
     display: block;
-    margin: 7px 0 0;
+    margin: 9px 0 0;
     color: #69716c;
     font-size: 0.76rem;
-    line-height: 1.48;
-  }
-
-  .drever-studio-plan-card__meta {
-    grid-area: meta;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: start;
-    align-items: center;
-    gap: 7px;
-    padding-top: 3px;
-    color: #68716c;
-    font-size: 0.61rem;
-    font-weight: 600;
-    opacity: 0.68;
-    transition: opacity var(--studio-motion-quick) var(--studio-motion-ease);
-  }
-
-  .drever-studio-plan-card:is(:hover, :focus-visible) .drever-studio-plan-card__meta,
-  .drever-studio-plan-card[data-selected] .drever-studio-plan-card__meta {
-    opacity: 1;
-  }
-
-  .drever-studio-plan-card__layout,
-  .drever-studio-plan-card__motion {
-    display: inline-flex;
-    align-items: center;
-    min-height: 23px;
-    gap: 5px;
-    padding: 3px 7px;
-    border-radius: 999px;
-    background: rgb(31 39 34 / 4.5%);
-  }
-
-  .drever-studio-plan-card__motion {
-    color: #5f5570;
-    background: rgb(91 69 216 / 8%);
-  }
-
-  .drever-studio-plan-card__motion svg {
-    width: 12px;
-    height: 12px;
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 1.6;
-    transition: transform var(--studio-motion-standard) var(--studio-motion-emphasized);
-  }
-
-  .drever-studio-plan-card:is(:hover, :focus-visible) .drever-studio-plan-card__motion svg,
-  .drever-studio-plan-card[data-selected] .drever-studio-plan-card__motion svg {
-    transform: translateY(-2px);
+    line-height: 1.55;
   }
 
   .drever-studio-draft-status {
@@ -2232,7 +2178,90 @@
   }
 
   .drever-studio-draft-status > .drever-studio-activity-history {
+    position: relative;
     grid-column: 2 / -1;
+    width: max-content;
+    max-width: 100%;
+  }
+
+  .drever-studio-draft-status .drever-studio-activity-history__toggle {
+    min-height: 27px;
+    padding: 5px 2px 0;
+    color: #858b87;
+    font-size: 0.56rem;
+    font-weight: 560;
+    letter-spacing: 0.01em;
+  }
+
+  .drever-studio-draft-status .drever-studio-activity-history__toggle:hover,
+  .drever-studio-draft-status
+    .drever-studio-activity-history[data-open]
+    > .drever-studio-activity-history__toggle {
+    color: #5f6863;
+  }
+
+  .drever-studio-draft-status .drever-studio-activity-history__toggle span {
+    min-width: 16px;
+    min-height: 16px;
+    margin-left: 3px;
+    color: #727a75;
+    background: rgb(91 69 216 / 6%);
+    font-size: 0.49rem;
+  }
+
+  .drever-studio-draft-status .drever-studio-activity-history__toggle svg {
+    width: 11px;
+  }
+
+  .drever-studio-draft-status
+    > .drever-studio-activity-history
+    > .drever-studio-activity-history__reveal {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + 7px);
+    left: 0;
+    display: block;
+    width: min(360px, calc(100vw - 48px));
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-5px) scale(0.985);
+    transform-origin: top left;
+    transition:
+      visibility 0s linear var(--studio-motion-quick),
+      opacity var(--studio-motion-quick) var(--studio-motion-ease),
+      transform var(--studio-motion-quick) var(--studio-motion-emphasized);
+  }
+
+  .drever-studio-draft-status
+    > .drever-studio-activity-history
+    > .drever-studio-activity-history__reveal
+    > div {
+    overflow: visible;
+  }
+
+  .drever-studio-draft-status
+    > .drever-studio-activity-history[data-open]
+    > .drever-studio-activity-history__reveal {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+    transition-delay: 0s;
+  }
+
+  .drever-studio-draft-status .drever-studio-activity-history__reveal ol {
+    gap: 10px;
+    max-height: min(340px, calc(100svh - 210px));
+    margin: 0;
+    padding: 14px;
+    border: 1px solid rgb(255 255 255 / 82%);
+    border-radius: 14px;
+    background: rgb(250 249 244 / 96%);
+    box-shadow: 0 18px 48px rgb(33 39 35 / 14%);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    backdrop-filter: blur(18px);
   }
 
   .drever-studio-direction {

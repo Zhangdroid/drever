@@ -13,7 +13,7 @@ afterEach(async () => {
 });
 
 const approvedPlan = {
-  version: 1,
+  version: 2,
   status: "awaiting-approval",
   brief: {
     topic: "Why black holes are not cosmic vacuum cleaners",
@@ -31,13 +31,6 @@ const approvedPlan = {
       purpose: "Name the misconception before replacing it.",
       evidence: ["Gravity depends on mass and distance."],
       focalArtifact: "A Sun-to-black-hole orbit comparison",
-      composition: { recipe: "comparison" },
-      density: "concise",
-      motion: {
-        intent: "compare",
-        purpose: "Keep the orbit fixed while the central object changes.",
-        owner: "orbit-comparison",
-      },
     },
   ],
 } as const;
@@ -74,7 +67,7 @@ describe("storyboard plan reader", () => {
     const reader = createStoryboardPlanReader(root);
     await writeFile(path, JSON.stringify(approvedPlan), "utf8");
     await reader.read();
-    await writeFile(path, '{"version":1,"status":', "utf8");
+    await writeFile(path, '{"version":2,"status":', "utf8");
 
     await expect(reader.read()).resolves.toMatchObject({
       diagnostics: [{ code: "DREVER_PLAN_JSON_INVALID", severity: "error" }],

@@ -63,12 +63,10 @@ const planSlide = (
   purpose: `Keep the stable core fixture contract visible on slide ${String(index)}.`,
   evidence: [`Core fixture evidence ${String(index)}`],
   focalArtifact: `Core fixture artifact ${String(index)}`,
-  composition: { recipe: "single-artifact" },
-  density: "concise",
 });
 
 const approvedPlan = {
-  version: 1,
+  version: 2,
   status: "approved",
   brief: {
     topic: "Stable Drever browser contracts",
@@ -143,6 +141,18 @@ const prepareFixture = async (root: string, port: number): Promise<void> => {
       phase: "preview",
       handledActionRevision: 1,
       activity: [
+        {
+          id: "story-approved",
+          label: "Story approved",
+          detail: "The stable core fixture is ready for authoring.",
+          status: "complete",
+        },
+        {
+          id: "draft-started",
+          label: "Draft 1 started",
+          detail: "The presentation source and speaker notes are being assembled.",
+          status: "complete",
+        },
         {
           id: "draft-ready",
           label: "Draft 1 published",
@@ -258,6 +268,32 @@ test("Studio keeps the embedded live draft navigable with real speaker notes", a
       "Speaker notes · Slide 1",
       { timeout: 20_000 },
     );
+    const draftStatus = page.locator(".drever-studio-draft-status");
+    const geometry = async () =>
+      Promise.all(
+        [
+          page.locator(".drever-studio-workspace"),
+          page.locator(".drever-studio-preview"),
+          page.locator(".drever-studio-direction"),
+          draftStatus,
+        ].map(async (locator) => {
+          const box = await locator.boundingBox();
+          if (box === null) throw new TypeError("Studio geometry was unavailable.");
+          return box;
+        }),
+      );
+    const beforeHistory = await geometry();
+    await draftStatus.getByRole("button", { name: /View history/u }).click();
+    await expect(draftStatus.locator(".drever-studio-activity-history__reveal")).toBeVisible();
+    const afterHistory = await geometry();
+    for (const [index, before] of beforeHistory.entries()) {
+      const after = afterHistory[index];
+      if (after === undefined) throw new TypeError("Studio geometry changed shape.");
+      for (const dimension of ["x", "y", "width", "height"] as const) {
+        expect(Math.abs(after[dimension] - before[dimension])).toBeLessThan(1);
+      }
+    }
+    await draftStatus.getByRole("button", { name: /View history/u }).click();
     const rail = page.getByRole("navigation", { name: "Presentation slides" });
     await rail.getByRole("button", { name: /Motion should carry meaning/u }).click();
 
@@ -269,7 +305,10 @@ test("Studio keeps the embedded live draft navigable with real speaker notes", a
     await expect(page.locator(".drever-studio-preview__notes")).toContainText(
       "Pause at step 2, then jump to step 5.",
     );
-    await expect(page.locator(".drever-studio-direction")).toContainText("Core fixture artifact 2");
+    const directionPanel = page.locator(".drever-studio-direction");
+    await expect(directionPanel).toContainText("Core fixture artifact 2");
+    await directionPanel.getByRole("button", { name: "Slide context" }).click();
+    await expect(directionPanel).toContainText("Anchor evidence");
 
     await writeFile(
       join(root, ".drever", "studio", "state.json"),

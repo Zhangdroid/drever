@@ -34,7 +34,7 @@ function DocsOverview() {
           </h2>
           <p>
             One handoff creates the project, then opens a local room for topic-specific questions,
-            visual Storyboard approval, and feedback on the live draft.
+            content Storyboard approval, and feedback on the live draft.
           </p>
           <Link className="button button--primary" to="/docs/getting-started/">
             See the one-step workflow <ArrowIcon />

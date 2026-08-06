@@ -7,7 +7,7 @@ create that bootstrap.
 
 The package also exposes a separate development-only `@drever/client/studio`
 entry and `studio.css` surface for Drever's experimental local creation room.
-It renders the common brief, agent-supplied adaptive questions, visual
+It renders the common brief, agent-supplied adaptive questions, content-first
 Storyboard review, the real Audience View draft, and deck- or slide-scoped
 feedback. The CLI loads it only for `/studio` during `drever dev`; it is not
 included in audience, production, document, speaker, or export bundles.
