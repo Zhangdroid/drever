@@ -576,7 +576,7 @@ export const AudienceControls = ({
     });
   }, [run]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const document = hostRef.current?.ownerDocument;
     if (document === undefined) {
       return;

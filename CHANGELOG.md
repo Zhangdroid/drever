@@ -9,6 +9,8 @@ section, while commit snapshots use the current Unreleased section.
 
 - Replaced Studio's backtracking Markdown link cleanup with a linear forward scan so malformed or
   adversarial agent narration cannot monopolize the browser main thread.
+- Attached audience shortcuts before the viewer reports itself ready so an immediate keypress after
+  a cold load is no longer dropped.
 
 ## [0.14.0] - 2026-08-05
 
