@@ -25,6 +25,15 @@
           "wght" 650;
       }
 
+      .hero-display {
+        font-family: "Bricolage Grotesque", "Instrument Sans", sans-serif;
+        font-weight: 620;
+        font-variation-settings:
+          "opsz" 96,
+          "wdth" 100,
+          "wght" 620;
+      }
+
       .sans {
         font-family: "Instrument Sans", sans-serif;
         font-variation-settings:
@@ -74,7 +83,7 @@
   </g>
 
   <g transform="translate(72 190)">
-    <text class="display" fill="#19172B" font-size="64" letter-spacing="-3" x="0" y="54">
+    <text class="hero-display" fill="#19172B" font-size="64" letter-spacing="-3.712" x="0" y="54">
       Your agent drafts.
     </text>
     <rect
@@ -86,7 +95,7 @@
       fill="#C7F03A"
       filter="url(#highlight-shadow)"
     />
-    <text class="display" fill="#19172B" font-size="64" letter-spacing="-3" x="5" y="139">
+    <text class="hero-display" fill="#19172B" font-size="64" letter-spacing="-3.712" x="5" y="139">
       You direct.
     </text>
 
