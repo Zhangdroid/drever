@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import Content from "../../content/docs/studio.mdx";
 import { DocArticle, DocMdx, DocNext } from "../components/docs-shell";
+import { StudioScreenshots } from "../components/studio-screenshots";
 import { pageHead } from "../seo";
 
 const description =
@@ -14,7 +15,8 @@ export const Route = createFileRoute("/docs/studio")({
 
 function Page() {
   return (
-    <DocArticle description={description} eyebrow="Start" title="Direct the work in Studio">
+    <DocArticle description={description} eyebrow="Start" title="Direct the work in Studio" wide>
+      <StudioScreenshots />
       <DocMdx content={Content} />
       <DocNext
         description="Understand the project-local workflows, context, and read-only connections that keep agent work grounded."

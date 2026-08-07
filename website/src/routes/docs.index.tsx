@@ -48,32 +48,60 @@ function DocsOverview() {
         <p>Read only the part of the workflow you need now.</p>
       </header>
 
-      <section className="docs-overview__paths">
-        <Link to="/docs/studio/">
-          <span>01 · Direct</span>
-          <h2>Work beside your agent</h2>
-          <p>Adaptive questions, Storyboard approval, public activity, and live feedback.</p>
-          <ArrowIcon />
-        </Link>
-        <Link to="/docs/authoring/">
-          <span>02 · Create</span>
-          <h2>Author readable slides</h2>
-          <p>MDX, slide boundaries, Step state, Notes, and React components.</p>
-          <ArrowIcon />
-        </Link>
-        <Link to="/docs/review/">
-          <span>03 · Review</span>
-          <h2>Check every exact state</h2>
-          <p>Stable diagnostics, rendered evidence, and the limits that still need judgment.</p>
-          <ArrowIcon />
-        </Link>
-        <Link to="/docs/delivery/">
-          <span>04 · Deliver</span>
-          <h2>Ship what you reviewed</h2>
-          <p>Static hosting, deterministic routes, and exact PDF slide or Step states.</p>
-          <ArrowIcon />
-        </Link>
-      </section>
+      <ol className="docs-overview__workflow" aria-label="Guide workflow">
+        <li>
+          <Link to="/docs/studio/">
+            <span className="docs-overview__workflow-index" aria-hidden="true">
+              01
+            </span>
+            <span className="docs-overview__workflow-heading">
+              <small>Direct</small>
+              <strong>Work beside your agent</strong>
+            </span>
+            <p>Adaptive questions, Storyboard approval, public activity, and live feedback.</p>
+            <ArrowIcon />
+          </Link>
+        </li>
+        <li>
+          <Link to="/docs/authoring/">
+            <span className="docs-overview__workflow-index" aria-hidden="true">
+              02
+            </span>
+            <span className="docs-overview__workflow-heading">
+              <small>Create</small>
+              <strong>Author readable slides</strong>
+            </span>
+            <p>MDX, slide boundaries, Step state, Notes, and React components.</p>
+            <ArrowIcon />
+          </Link>
+        </li>
+        <li>
+          <Link to="/docs/review/">
+            <span className="docs-overview__workflow-index" aria-hidden="true">
+              03
+            </span>
+            <span className="docs-overview__workflow-heading">
+              <small>Review</small>
+              <strong>Check every exact state</strong>
+            </span>
+            <p>Stable diagnostics, rendered evidence, and the limits that still need judgment.</p>
+            <ArrowIcon />
+          </Link>
+        </li>
+        <li>
+          <Link to="/docs/delivery/">
+            <span className="docs-overview__workflow-index" aria-hidden="true">
+              04
+            </span>
+            <span className="docs-overview__workflow-heading">
+              <small>Deliver</small>
+              <strong>Ship what you reviewed</strong>
+            </span>
+            <p>Static hosting, deterministic routes, and exact PDF slide or Step states.</p>
+            <ArrowIcon />
+          </Link>
+        </li>
+      </ol>
 
       <header className="docs-overview__reference docs-overview__reference--tools">
         <span>Reference</span>
@@ -81,22 +109,26 @@ function DocsOverview() {
         <p>Commands and configuration stay complete, precise, and easy to scan.</p>
       </header>
 
-      <section className="docs-overview__paths docs-overview__paths--compact">
+      <nav className="docs-overview__reference-list" aria-label="Documentation reference">
         <Link to="/docs/commands/">
-          <span>Commands</span>
-          <h2>Find every command</h2>
+          <span>
+            <small>Commands</small>
+            <strong>Find every command</strong>
+          </span>
           <p>
             Exact syntax, options, defaults, caveats, and links to the guide that owns each task.
           </p>
           <ArrowIcon />
         </Link>
         <Link to="/docs/configuration/">
-          <span>Configuration</span>
-          <h2>Control the project</h2>
+          <span>
+            <small>Configuration</small>
+            <strong>Control the project</strong>
+          </span>
           <p>Entry, canvas, Theme, server, build, rehearsal, focus tools, Stage, and plugins.</p>
           <ArrowIcon />
         </Link>
-      </section>
+      </nav>
 
       <section className="docs-overview__ai" data-header-tone="dark">
         <span>Bring the agent you already use</span>
