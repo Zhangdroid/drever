@@ -1,0 +1,102 @@
+<h2 id="one-room">Keep the creation loop in one room</h2>
+
+Studio is Drever's local, development-only workspace for directing a coding agent. It keeps the
+brief, adaptive questions, content Storyboard, live draft, agent activity, approvals, and feedback
+beside the presentation without turning the browser into a hosted editor.
+
+Start it from the project root:
+
+```bash
+npm run dev -- --open studio --agent codex
+```
+
+Replace `codex` with another supported adapter when needed. Drever opens the exact loopback-only
+`/studio` URL on an ordinary desktop. Headless environments print the URL without attempting to
+open a browser.
+
+Studio does not call a model by itself. The selected CLI owns its account, credentials, model, and
+provider policy. Drever normalizes only bounded public work summaries, plan state, semantic tool
+events, and supported actions before sending them to the browser.
+
+<h2 id="workflow">Move through four deliberate phases</h2>
+
+Studio follows the same project contract as the agent's installed Drever workflows:
+
+1. **Brief** — state the topic, audience, desired outcome, duration, visible density, and motion
+   intensity. Free-form duration and direction remain available when the suggested choices do not
+   fit.
+2. **Direction** — answer a small set of questions chosen from the subject and earlier answers.
+   Every round can accept free-form detail or **Skip remaining questions — surprise me**.
+3. **Storyboard** — review the content and sequence before per-slide layout or motion exists. The
+   agent publishes a complete `drever.plan.json`, then waits for explicit approval or edits.
+4. **Draft** — inspect the real Audience View, speaker Notes, and public agent activity while the
+   agent refines one coherent draft.
+
+The Storyboard is intentionally content-first. It shows each slide's job, purpose, evidence, and
+anchor artifact, but defers per-slide layout and motion until the story is approved. This keeps the
+first checkpoint fast and prevents styling from making a weak argument feel finished.
+
+If Studio is unavailable, the installed workflow asks the same questions in chat and opens the
+read-only `/storyboard` route for approval. The persisted files and approval boundary are identical.
+
+<h2 id="live-draft">Direct the live draft without restarting it</h2>
+
+After approval, the agent publishes a complete, valid Draft 1 atomically. Studio never treats a
+token-streamed fragment of MDX as a presentation. The real deck appears only when it can render as
+one coherent draft.
+
+Use the slide rail to select the current preview. Feedback has an independent scope:
+
+- **This slide** sends a focused request for the selected slide.
+- **Entire deck** sends one request about the story or visual system without changing the previewed
+  slide.
+
+The agent updates the same ordinary project files and the same live preview. `slides.mdx`,
+`brief.md`, `drever.plan.json`, local design files, assets, configuration, and Git remain the source
+of truth. A revision does not create a hidden Studio document.
+
+Studio shows the latest public work summary and keeps earlier milestones in expandable history. It
+does not expose private chain-of-thought, raw commands, tool payloads, or provider transcripts. A
+prominent action appears when the connected adapter requires a decision that Studio can return.
+
+<h2 id="adapters">Connect the agent you already use</h2>
+
+Codex and Claude Code use dedicated native transports. Agents with a compatible Agent Client
+Protocol server share one ACP adapter. Other coding agents can use the portable action-journal
+bridge when they can run project commands but expose no stable interactive protocol.
+
+| Agent                                                                                               | Studio transport      | Approval path                       |
+| --------------------------------------------------------------------------------------------------- | --------------------- | ----------------------------------- |
+| [Codex](https://developers.openai.com/codex/app-server/)                                            | Native App Server     | Studio                              |
+| [Claude Code](https://code.claude.com/docs/en/agent-sdk/streaming-vs-single-mode)                   | Native streaming CLI  | Claude permission policy            |
+| [Gemini CLI](https://geminicli.com/docs/cli/acp-mode/)                                              | ACP v1                | Studio when advertised by the agent |
+| [GitHub Copilot CLI](https://docs.github.com/en/copilot/reference/copilot-cli-reference/acp-server) | ACP v1 public preview | Studio when advertised by the agent |
+| [Goose](https://block.github.io/goose/)                                                             | ACP v1                | Studio when advertised by the agent |
+| [Cursor CLI](https://cursor.com/docs/cli/acp)                                                       | ACP v1                | Studio when advertised by the agent |
+| [OpenCode](https://opencode.ai/docs/acp/)                                                           | ACP v1                | Studio when advertised by the agent |
+| [OpenHands](https://docs.openhands.dev/openhands/usage/cli/command-reference)                       | ACP v1                | Studio when advertised by the agent |
+| [Cline](https://docs.cline.bot/cli/cli-reference)                                                   | ACP v1                | Studio when advertised by the agent |
+
+Start a managed adapter only when the matching CLI is installed and authenticated:
+
+```bash
+npm run dev -- --open studio --agent claude
+```
+
+Without `--agent`, Studio uses the provider-neutral bridge to the coding-agent task that started
+the workflow. Opening `/studio` alone does not launch or wake a model. If the task stops polling,
+submitted actions remain queued until it resumes, and Studio reports that the connection is absent
+instead of pretending work is active.
+
+<h2 id="ownership">Know what stays local</h2>
+
+Studio is served only by `drever dev`. It is excluded from production builds, PDF export, and the
+audience bundle. Session files under `.drever/studio` are ephemeral coordination state and should
+not be committed.
+
+The browser receives no API key and no arbitrary file access. Provider credentials and protocol
+details remain on the local server. Drever adds no telemetry to the generated project; the chosen
+AI provider, remote media, and eventual hosting platform keep their own privacy contracts.
+
+When the draft is ready, continue with [Rendered review](/docs/review/) for deterministic layout
+evidence before delivery.

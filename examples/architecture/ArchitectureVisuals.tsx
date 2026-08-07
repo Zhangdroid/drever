@@ -108,24 +108,30 @@ export const StoryContract = (): ReactElement => {
       <div className="arch-story-plan" data-state={storyState(1, active)}>
         <header>
           <span>drever.plan.json</span>
-          <small>v1</small>
+          <small>v2 · content only</small>
         </header>
         <div>
           <i />
           <span>
-            <b>01</b> Open with the invariant
+            <b>job</b> Open with the invariant
           </span>
         </div>
         <div>
           <i />
           <span>
-            <b>02</b> Make the contract visible
+            <b>purpose</b> Make the contract visible
           </span>
         </div>
         <div>
           <i />
           <span>
-            <b>03</b> Prove the system boundary
+            <b>evidence</b> One shared position
+          </span>
+        </div>
+        <div>
+          <i />
+          <span>
+            <b>anchor</b> Living Build Graph
           </span>
         </div>
       </div>
@@ -276,45 +282,43 @@ export const CompilerRail = (): ReactElement => {
   );
 };
 
-export const DesignEvidence = (): ReactElement => (
-  <div className="arch-design-evidence">
-    <div className="arch-reference-page">
-      <header>
-        <i />
-        <span />
-        <span />
-      </header>
-      <div className="arch-reference-page__headline" />
-      <div className="arch-reference-page__copy" />
-      <div className="arch-reference-page__swatches">
-        <i />
-        <i />
-        <i />
-      </div>
-      <small>PUBLIC REFERENCE</small>
+export const StudioLoop = (): ReactElement => (
+  <div className="arch-studio-loop">
+    <div className="arch-studio-loop__node arch-studio-loop__studio">
+      <small>LOCAL BROWSER</small>
+      <strong>Studio</strong>
+      <span>brief · approval · feedback</span>
     </div>
-    <span className="arch-design-evidence__arrow" aria-hidden="true">
+    <span className="arch-studio-loop__arrow" aria-hidden="true">
       →
     </span>
-    <div className="arch-evidence-probe">
-      <span className="arch-evidence-probe__scan" aria-hidden="true" />
-      <small>ISOLATED BROWSER</small>
-      <strong>Visual evidence</strong>
-      <span>type · color · spacing · geometry</span>
+    <div className="arch-studio-loop__node arch-studio-loop__adapter">
+      <small>BOUNDED TRANSPORT</small>
+      <strong>Agent adapter</strong>
+      <span>native · ACP · journal</span>
     </div>
-    <span className="arch-design-evidence__arrow" aria-hidden="true">
+    <span className="arch-studio-loop__arrow" aria-hidden="true">
       →
     </span>
-    <div className="arch-design-output">
-      <small>PROJECT-OWNED OUTPUT</small>
-      <strong>design/</strong>
-      <code>reference.json</code>
-      <code>theme.ts + theme.css</code>
-      <code>art-direction.md</code>
+    <div className="arch-studio-loop__node arch-studio-loop__files">
+      <small>SOURCE OF TRUTH</small>
+      <strong>Project files</strong>
+      <code>brief.md</code>
+      <code>drever.plan.json</code>
+      <code>slides.mdx</code>
     </div>
-    <p>
-      <b>No copied code.</b> No hotlinked assets. Evidence stays untrusted.
-    </p>
+    <span className="arch-studio-loop__arrow" aria-hidden="true">
+      →
+    </span>
+    <div className="arch-studio-loop__node arch-studio-loop__draft">
+      <small>REAL RUNTIME</small>
+      <strong>Live Draft</strong>
+      <span>audience · notes · exact route</span>
+    </div>
+    <div className="arch-studio-loop__boundary">
+      <span>Browser receives public progress—not model credentials or arbitrary file access.</span>
+      <strong>The agent still owns the work.</strong>
+    </div>
   </div>
 );
 
@@ -422,6 +426,15 @@ export const SurfaceDelivery = (): ReactElement => (
 
 const PREFLIGHT_STATES = ["/1", "/3/1", "/3/2", "/9/3", "/11/3"] as const;
 
+const PREFLIGHT_DIAGNOSTICS = [
+  "DREVER_RENDER_TEXT_SAFE_AREA",
+  "DREVER_RENDER_CONTENT_OVERLAP",
+  "DREVER_RENDER_TEXT_CONTRAST_LOW",
+  "DREVER_RENDER_GEOMETRY_UNSTABLE",
+  "DREVER_RENDER_BACKGROUND_TRANSITIONED",
+  "DREVER_RENDER_RUNTIME_FAILED",
+] as const;
+
 export const RenderedPreflight = (): ReactElement => {
   const { position } = useStage();
   const active = Math.min(position.step, 3);
@@ -431,7 +444,10 @@ export const RenderedPreflight = (): ReactElement => {
       <div className="arch-preflight-states">
         <small>EXACT MANIFEST STATES</small>
         {PREFLIGHT_STATES.map((route, index) => (
-          <span key={route} data-scanned={active > 0 && index <= 3 ? "" : undefined}>
+          <span
+            key={route}
+            data-scanned={active > 0 && (index <= 3 || active === 3) ? "" : undefined}
+          >
             <i />
             <code>{route}</code>
           </span>
@@ -446,20 +462,27 @@ export const RenderedPreflight = (): ReactElement => {
         </header>
         <div>
           <i className="arch-preflight-browser__scan" />
-          <strong>Every state</strong>
-          <span>Slide + every Step · deck canvas</span>
+          <strong>Every state + handoff</strong>
+          <span>settled · forward · reverse</span>
+          <div className="arch-preflight-browser__frames" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </div>
         </div>
       </div>
       <div className="arch-preflight-result">
         <header>
-          <span>rendered receipt</span>
-          <small>v1 · ruleset 2</small>
+          <span>evidence manifest</span>
+          <small>fingerprinted build</small>
         </header>
-        <code data-visible={active >= 2 ? "" : undefined}>DREVER_RENDER_CONTENT_CLIPPED</code>
-        <code data-visible={active >= 2 ? "" : undefined}>DREVER_RENDER_CONTENT_OVERLAP</code>
-        <code data-visible={active >= 2 ? "" : undefined}>DREVER_RENDER_TEXT_CONTRAST_LOW</code>
+        {PREFLIGHT_DIAGNOSTICS.map((diagnostic) => (
+          <code data-visible={active >= 2 ? "" : undefined} key={diagnostic}>
+            {diagnostic}
+          </code>
+        ))}
         <footer data-visible={active >= 3 ? "" : undefined}>
-          <span>every exact state captured</span>
+          <span>settled states · both directions · contact sheets</span>
           <strong>evidence ready → repair</strong>
         </footer>
       </div>
@@ -469,31 +492,40 @@ export const RenderedPreflight = (): ReactElement => {
 
 export const FailureBoundary = (): ReactElement => {
   const { position } = useStage();
-  const failed = position.step > 0;
+  const repaired = position.step > 0;
 
   return (
-    <div className="arch-failure-boundary" data-failed={failed ? "" : undefined}>
-      <div className="arch-resource-transaction">
-        <small>SETUP TRANSACTION</small>
-        {["Navigation", "Keyboard", "Synchronization", "Plugin setup"].map((resource, index) => (
-          <div
-            key={resource}
-            data-resource={index}
-            data-status={failed ? (index === 3 ? "failed" : "rolled-back") : "acquired"}
-          >
-            <span>{String(index + 1).padStart(2, "0")}</span>
-            <strong>{resource}</strong>
-            <small>{failed ? (index === 3 ? "failed" : "rolled back") : "acquired"}</small>
-          </div>
-        ))}
-        <p>Acquire down · dispose up · abort once</p>
+    <div className="arch-failure-boundary" data-repaired={repaired ? "" : undefined}>
+      <div className="arch-last-good-draft">
+        <header>
+          <small>LAST VALID DRAFT</small>
+          <span>still available</span>
+        </header>
+        <div>
+          <i />
+          <strong>One story remains reviewable.</strong>
+          <span>14 slides · exact states indexed</span>
+        </div>
       </div>
-      <div className="arch-diagnostic">
-        <span className="arch-diagnostic__trace" aria-hidden="true" />
-        <code>drever:step-index-invalid</code>
-        <strong>Step at must be a positive safe integer.</strong>
-        <span>slides.mdx:18:7 · compiler / manifest</span>
-        <p>One structured error for the CLI, overlay, tests, and AI repair.</p>
+      <div className="arch-authored-surface">
+        <header>
+          <small>AUTHORED SURFACE · /13</small>
+          <span>{repaired ? "repaired" : "isolated"}</span>
+        </header>
+        <div>
+          <i aria-hidden="true" />
+          <strong>{repaired ? "Repaired draft ready" : "This slide could not render"}</strong>
+          <code>{repaired ? "publish atomically" : "slides.mdx:335:3 · runtime"}</code>
+        </div>
+      </div>
+      <div className="arch-draft-recovery">
+        <small>OWNED BOUNDARY</small>
+        <strong>{repaired ? "Replace only when valid." : "Keep the good deck visible."}</strong>
+        <p>
+          {repaired
+            ? "One coherent revision replaces the previous preview."
+            : "The failure stays with its slide while the agent receives a precise diagnostic."}
+        </p>
       </div>
     </div>
   );

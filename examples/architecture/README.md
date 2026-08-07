@@ -1,12 +1,14 @@
 # Drever architecture tour
 
-A fourteen-slide visual explanation of how an approved story plan becomes a
-shared contract, route-selected presentation surfaces, and trustworthy rendered evidence.
+A fourteen-slide visual explanation of how a content-first approved story becomes a
+shared contract, locally coordinated live draft, route-selected presentation surfaces, and
+trustworthy rendered evidence.
 
 The deck uses a local **Living Build Graph** design derived from the architecture
 cover on the Drever website. A persistent violet topology and one lime signal
-connect plan and Storyboard approval to MDX, Deck IR, the manifest, delivery surfaces,
-and rendered evidence. The diagrams are built with React, SVG, and CSS; they use no
+connect v2 Storyboard approval and Studio's bounded local agent loop to MDX, Deck IR, the manifest,
+delivery surfaces, resilient Draft 1 recovery, and rendered evidence. The diagrams are built with
+React, SVG, and CSS; they use no
 network resources.
 
 The route compiler is intentionally interactive. Every other state change uses
@@ -38,7 +40,7 @@ vp run -F @drever/example-architecture build
 ## Suggested delivery
 
 Treat the deck as one causal system, not a package inventory. Advance deliberately
-through plan approval, artifact lineage, protected compilation, design evidence, extension
-ownership, canonical navigation, route-selected delivery, rendered preflight, failure
-rollback, and testing boundaries. Each slide includes speaker notes for the transition
+through content-only plan approval, artifact lineage, protected compilation, local Studio
+coordination, extension ownership, canonical navigation, route-selected delivery, rendered
+preflight, live-draft recovery, and testing boundaries. Each slide includes speaker notes for the transition
 to the next architectural decision.

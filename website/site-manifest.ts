@@ -11,11 +11,13 @@ export const canonicalSiteURL = (path: string): string => {
 export const documentationRoutes = [
   "/docs",
   "/docs/getting-started",
+  "/docs/studio",
   "/docs/ai",
   "/docs/authoring",
   "/docs/themes",
   "/docs/motion",
   "/docs/plugins",
+  "/docs/review",
   "/docs/presenting",
   "/docs/delivery",
   "/docs/commands",
@@ -30,7 +32,7 @@ export const siteRoutes = [...publicSiteRoutes, "/release-smoke"] as const;
 export const demoMounts = [
   {
     description:
-      "A launch decision shaped with AI, directed by the room, grounded in proof, and kept useful afterward.",
+      "One brief becomes an approved Storyboard, a directed live draft, a room-shaped decision, and every useful delivery surface.",
     id: "product",
     label: "Product tour",
     slug: "product",
@@ -60,7 +62,7 @@ export const demoMounts = [
   },
   {
     description:
-      "An architectural tour from an approved story plan through Deck IR, compilation, routed surfaces, static delivery, and rendered evidence.",
+      "An architectural tour from a content-first plan and local agent loop through Deck IR, routed surfaces, resilient previews, and rendered evidence.",
     id: "architecture",
     label: "Architecture",
     slug: "architecture",

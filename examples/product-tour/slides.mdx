@@ -1,10 +1,15 @@
 import {
   AudienceSignal,
+  ContentStoryboard,
   DecisionProof,
+  DraftFeedback,
+  LiveDraft,
+  RenderedReview,
   RoomResponse,
   SignalOutcome,
+  StudioBrief,
+  StudioDirection,
   StoryCore,
-  StoryRoute,
 } from "./TourComponents.tsx";
 import "@drever/brand/fonts.css";
 import "@drever/brand/tokens.css";
@@ -24,73 +29,106 @@ import "./tour.css";
       </span>
       <span className="tour-cover__shift">Your deck should too.</span>
     </h1>
-    <p>Shape the story with AI. Direct what happens live. Keep every moment useful afterward.</p>
-    <small>Made with AI · Directed by you</small>
+    <p>
+      Shape the story with your agent. Direct what happens live. Keep every moment useful afterward.
+    </p>
+    <small>Drafted by an agent · Directed by you</small>
   </div>
   <RoomResponse />
 </section>
 
 <Note>
-  Open with the product promise. AI can shape the story, while the presenter still directs what the
-  room sees, when it sees it, and what remains afterward.
+  Open with the product promise. An agent can shape the story, while the presenter still directs
+  what the room sees, when it sees it, and what remains afterward.
 </Note>
 
 ---
 
 ## Start with what<br />the room must decide.
 
-<p>One plain-language brief gives AI the point, the audience, and the shape of the experience.</p>
+<p>One local room turns a plain-language outcome into shared presentation constraints.</p>
 
-<section className="tour-prompt" aria-label="A natural-language presentation brief">
-  <div className="tour-prompt__request">
-    <span className="tour-kicker">Your prompt</span>
-    <blockquote>
-      Help a product, legal, and sales team decide whether to approve a launch pilot. Ask the room
-      what they need before revealing the <span className="tour-prompt__ending">result.</span>
-    </blockquote>
-  </div>
-  <dl className="tour-prompt__constraints">
-    <div>
-      <dt>Audience</dt>
-      <dd>Product · Legal · Sales</dd>
-    </div>
-    <div>
-      <dt>Decision</dt>
-      <dd>Approve the launch pilot</dd>
-    </div>
-    <div>
-      <dt>Time</dt>
-      <dd>20 minutes</dd>
-    </div>
-    <div>
-      <dt>Direction</dt>
-      <dd>Ask before proof</dd>
-    </div>
-  </dl>
-</section>
+<StudioBrief />
 
 <Note>
-  A person starts with intent rather than syntax. The example stays concrete: a cross-functional
-  team deciding whether to approve a launch pilot.
+  A person starts with the outcome, not MDX or a configuration file. Studio keeps the topic,
+  audience, duration, visible density, and motion direction together while the local agent remains
+  the one doing the work.
 </Note>
 
 ---
 
-## AI drafts the route. **You direct the room.**
+## Ask only what<br />changes the story.
 
-<p>Advance once. One deliberate beat changes a generated outline into a live presentation.</p>
+<p>The next question comes from this launch decision—not a generic form.</p>
 
-<StoryRoute>
-  <Step at={1} className="tour-route__row tour-route__row--directed">
-    <span>02</span>
-    <strong>Ask the room</strong>
-    <small>Directed by you</small>
-  </Step>
-</StoryRoute>
+<StudioDirection />
 
 <Note>
-  Advance once to insert “Ask the room.” AI produced the first route, but the presenter decides
-  where the room should participate and when the proof should arrive.
+  A useful direction question changes the content that follows. Choosing unaided completion makes
+  the later evidence and decision specific without asking the user to design the slide in advance.
+</Note>
+
+---
+
+## Approve the story<br />before the styling.
+
+<p>Review slide jobs, evidence, and sequence while changing them is still cheap.</p>
+
+<ContentStoryboard>
+  <Step at={1}>Approved · authoring may begin</Step>
+</ContentStoryboard>
+
+<Note>
+  Advance once to approve. This Storyboard is content-first: it records what each slide must do, why
+  it exists, the evidence it needs, and its anchor artifact. Per-slide layout and motion wait for
+  the design pass instead of constraining the story too early.
+</Note>
+
+---
+
+## See the whole draft early.
+
+<p>The complete story arrives atomically in the real presentation runtime.</p>
+
+<LiveDraft />
+
+<Note>
+  Draft 1 is complete enough to review: every slide exists, the copy is readable, and speaker notes
+  are already connected. The agent continues research and refinement beside the same live preview
+  instead of hiding all work behind a production build.
+</Note>
+
+---
+
+## Direct one slide—<br />or the whole deck.
+
+<p>Feedback scope changes without moving the slide you are currently reviewing.</p>
+
+<DraftFeedback>
+  <Step at={1}>Request sent · the same draft stays live</Step>
+</DraftFeedback>
+
+<Note>
+  Advance once to send the deck-wide direction. A person can target the current slide or the entire
+  deck while keeping the same preview position. The request updates normal project files; it does
+  not start a second hidden document.
+</Note>
+
+---
+
+## Check every state—<br />not one lucky frame.
+
+<p>Stable browser evidence catches defects that taste alone cannot prove.</p>
+
+<RenderedReview>
+  <Step at={1}>Ready · the reviewed draft can move to the room</Step>
+</RenderedReview>
+
+<Note>
+  Advance once. Rendered review visits Step 0 and every exact authored Step, samples both transition
+  directions, and records safe-area, contrast, overlap, geometry, and runtime evidence. Visual
+  judgment remains human; repeatable defects become machine-readable repairs.
 </Note>
 
 ---
@@ -225,15 +263,15 @@ import "./tour.css";
       <br />
       <span>the exact moment.</span>
     </h2>
-    <p>Slide five. Step two. The evidence the room asked for.</p>
+    <p>Slide nine. Step two. The evidence the room asked for.</p>
     <a
       aria-label="Open the shared slide state in a new tab"
       className="tour-state-link"
-      href="5/2"
+      href="9/2"
       rel="noopener"
       target="_blank"
     >
-      <span>your-deck.com/5/2</span>
+      <span>your-deck.com/9/2</span>
       <span aria-hidden="true">↗</span>
     </a>
     <small>Open · reload · go back · the state remains addressable</small>
@@ -372,7 +410,7 @@ import "./tour.css";
       <span>Bring the idea.</span>
       <span>Direct the experience.</span>
     </h1>
-    <p>AI shapes the first draft. You decide what the room experiences.</p>
+    <p>Your agent shapes the first draft. You decide what the room experiences.</p>
     <div className="drever-example-exit tour-cover__links">
       <a
         className="drever-example-exit__primary"
@@ -394,5 +432,5 @@ import "./tour.css";
 
 <Note>
   Close on agency and a concrete product promise. Drever is for anyone with a story to tell, while
-  AI handles the first draft without taking away direction.
+  Your agent handles the first draft without taking away direction.
 </Note>

@@ -19,7 +19,12 @@ export const Route = createFileRoute("/showcase")({
 function ShowcasePage() {
   const product = demos.find((demo) => demo.id === "product");
   const minimal = demos.find((demo) => demo.id === "basic");
-  const capabilities = demos.filter((demo) => demo.id !== "product" && demo.id !== "basic");
+  const capabilityOrder = ["architecture", "motion", "features", "scenes", "spatial"];
+  const capabilities = capabilityOrder.map((id) => {
+    const demo = demos.find((candidate) => candidate.id === id);
+    if (demo === undefined) throw new Error(`The ${id} study is required by the showcase.`);
+    return demo;
+  });
 
   if (product === undefined || minimal === undefined) {
     throw new Error("The product and minimal-reference demos are required by the showcase.");
@@ -112,8 +117,8 @@ function ShowcasePage() {
             <h2 id="showcase-capabilities-title">Watch one capability do a real job.</h2>
           </div>
           <p>
-            These smaller decks isolate motion, plugins, persistent scenes, and architecture without
-            turning the showcase into a feature checklist.
+            Each smaller deck gives one capability enough room to prove itself without turning the
+            showcase into a feature checklist.
           </p>
         </header>
 
@@ -160,7 +165,7 @@ function ShowcasePage() {
       >
         <header className="showcase-section__heading">
           <div>
-            <span>Eight art directions</span>
+            <span>Art-direction studies</span>
             <h2 id="showcase-art-title">Start from the subject, not a preset.</h2>
           </div>
           <div>
@@ -173,6 +178,35 @@ function ShowcasePage() {
             </Link>
           </div>
         </header>
+
+        <aside className="showcase-design-import" data-header-tone="dark">
+          <div className="showcase-design-import__copy">
+            <span>Bring your own visual language</span>
+            <h3>Import evidence. Keep the code.</h3>
+            <p>
+              Drever can study computed color, type, spacing, and shape from a reference page, then
+              write a local starting direction without copying its source.
+            </p>
+            <a className="text-link text-link--light" href="/docs/themes/#import-design-evidence">
+              See how design import works <ArrowIcon />
+            </a>
+          </div>
+          <div className="showcase-design-import__visual" aria-hidden="true">
+            <div data-import-surface="reference">
+              <span />
+              <i />
+              <i />
+              <b />
+            </div>
+            <strong>→</strong>
+            <div data-import-surface="owned">
+              <span />
+              <i />
+              <i />
+              <b />
+            </div>
+          </div>
+        </aside>
 
         <div className="theme-strip">
           {themes.map((theme) => (
@@ -189,16 +223,16 @@ function ShowcasePage() {
 
       <section className="catalog-proof" data-header-tone="dark">
         <div>
-          <span>No capture tricks</span>
+          <span>Open the real builds</span>
           <h2>
-            <span className="display-line">Everything here is a</span>
-            <span className="display-line">production build.</span>
+            <span className="display-line">Every linked presentation</span>
+            <span className="display-line">runs from repository source.</span>
           </h2>
         </div>
         <p>
-          Each presentation is rebuilt from repository source and mounted as a standalone app. Clean
-          URLs, exact Step states, Speaker View, Document View, interaction, and assets all keep
-          working below <code>/showcase/*</code>.
+          Each linked deck is rebuilt and mounted as a standalone app. Clean URLs, exact Step
+          states, Speaker View, Document View, interaction, and assets all keep working below{" "}
+          <code>/showcase/*</code>.
         </p>
         <a className="button button--light" href={`${githubURL}/tree/main/examples`}>
           Browse example source <ArrowUpRightIcon />

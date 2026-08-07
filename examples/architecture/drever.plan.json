@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "status": "approved",
   "brief": {
     "topic": "How Drever keeps one presentation story consistent across authoring, runtime, delivery, and review",
@@ -14,16 +14,9 @@
       "id": "one-story",
       "job": "opening",
       "title": "One story. Every surface agrees.",
-      "purpose": "Frame architecture as agreement from reviewed intent to every surface.",
+      "purpose": "Frame the architecture as agreement from reviewed intent to every delivery surface.",
       "evidence": ["Story, MDX, Deck IR, CompilePlan, artifact, and four surfaces"],
-      "focalArtifact": "Living Build Graph",
-      "composition": { "recipe": "claim beside causal graph", "variant": "opening" },
-      "density": "concise",
-      "motion": {
-        "intent": "continuity",
-        "purpose": "Carry one signal through the system",
-        "owner": "lime build signal"
-      }
+      "focalArtifact": "Living build graph"
     },
     {
       "id": "semantic-invariant",
@@ -31,29 +24,15 @@
       "title": "First, decide what must never drift.",
       "purpose": "Establish the shared semantic center before implementation detail.",
       "evidence": ["Audience, speaker, document, and export share one coordinate"],
-      "focalArtifact": "Invariant map",
-      "composition": { "recipe": "central contract with four dependent surfaces" },
-      "density": "concise"
+      "focalArtifact": "Invariant map"
     },
     {
       "id": "story-contract",
       "job": "process",
       "title": "Before source, the story earns approval.",
-      "purpose": "Show the fast human approval gate before authoring and design.",
-      "evidence": [
-        "brief.md",
-        "drever.plan.json",
-        "development-only /storyboard",
-        "human approval"
-      ],
-      "focalArtifact": "Brief-to-Storyboard approval flow",
-      "composition": { "recipe": "connected three-stage pipeline with approval seal" },
-      "density": "balanced",
-      "motion": {
-        "intent": "focus",
-        "purpose": "Advance one approval boundary at a time",
-        "owner": "approval flow"
-      }
+      "purpose": "Show the human approval gate before design and authoring begin.",
+      "evidence": ["brief.md", "drever.plan.json v2", "content-only Storyboard", "human approval"],
+      "focalArtifact": "Brief-to-Storyboard approval flow"
     },
     {
       "id": "artifact-lineage",
@@ -61,20 +40,13 @@
       "title": "Each boundary leaves evidence behind.",
       "purpose": "Separate readable source, semantic data, resolved capability, and sealed output.",
       "evidence": ["Authored MDX", "Deck IR", "CompilePlan", "Deck artifact"],
-      "focalArtifact": "Artifact lens",
-      "composition": { "recipe": "vertical lineage rail with one inspectable artifact" },
-      "density": "balanced",
-      "motion": {
-        "intent": "replace",
-        "purpose": "Inspect each artifact without moving its frame",
-        "owner": "artifact lens"
-      }
+      "focalArtifact": "Artifact lineage"
     },
     {
       "id": "protected-compilation",
       "job": "process",
       "title": "Extensions transform content—not the deck contract.",
-      "purpose": "Explain the truthful protected compilation pipeline.",
+      "purpose": "Explain the protected compilation pipeline and the boundaries extensions cannot cross.",
       "evidence": [
         "Fixed grammar",
         "Deck IR and source ranges",
@@ -82,43 +54,33 @@
         "MDX 3 phases",
         "sealed artifact"
       ],
-      "focalArtifact": "Protected compiler rail",
-      "composition": { "recipe": "five-stage horizontal rail" },
-      "density": "balanced",
-      "motion": {
-        "intent": "focus",
-        "purpose": "Move causality through one protected boundary",
-        "owner": "compiler rail"
-      }
+      "focalArtifact": "Protected compiler rail"
     },
     {
-      "id": "design-evidence",
+      "id": "local-coordination",
       "job": "explanation",
-      "title": "A reference becomes evidence—not source.",
-      "purpose": "Make the isolation and ownership guarantees of design import visible.",
+      "title": "The browser directs. The agent owns the work.",
+      "purpose": "Show how Studio coordinates local agents without becoming a second source of truth.",
       "evidence": [
-        "Fixed Chromium viewport",
-        "computed-style evidence",
-        "project-owned design output",
-        "no copied or hotlinked code and assets"
+        "typed Studio actions",
+        "native, ACP, and journal adapters",
+        "bounded public progress",
+        "ordinary project files",
+        "live draft"
       ],
-      "focalArtifact": "Reference-to-owned-design evidence adapter",
-      "composition": { "recipe": "reference, circular probe, and owned output" },
-      "density": "balanced"
+      "focalArtifact": "Studio-to-agent coordination loop"
     },
     {
       "id": "extension-boundaries",
       "job": "comparison",
       "title": "Design changes expression. Plugins change capability.",
-      "purpose": "Resolve ownership without duplicating the deck contract.",
+      "purpose": "Resolve extension ownership without duplicating the deck contract.",
       "evidence": [
-        "Design vocabulary",
+        "design vocabulary",
         "plugin capability",
         "unchanged slide, Step, and note semantics"
       ],
-      "focalArtifact": "Twin extension orbits",
-      "composition": { "recipe": "two unequal ownership fields around one contract" },
-      "density": "concise"
+      "focalArtifact": "Twin extension boundaries"
     },
     {
       "id": "canonical-position",
@@ -126,13 +88,11 @@
       "title": "One coordinate drives every surface.",
       "purpose": "Let the audience manipulate a manifest-derived route and output file.",
       "evidence": [
-        "Manifest-derived slide and Step options",
+        "manifest-derived slide and Step options",
         "canonical route",
         "reloadable static file"
       ],
-      "focalArtifact": "Interactive route compiler",
-      "composition": { "recipe": "compact controls beside large route output" },
-      "density": "balanced"
+      "focalArtifact": "Interactive route compiler"
     },
     {
       "id": "native-navigation",
@@ -145,69 +105,47 @@
         "typed document View Transition",
         "BroadcastChannel"
       ],
-      "focalArtifact": "Atomic navigation protocol",
-      "composition": { "recipe": "four-stage transaction rail" },
-      "density": "balanced",
-      "motion": {
-        "intent": "focus",
-        "purpose": "Reveal the atomic commit in causal order",
-        "owner": "commit protocol"
-      }
+      "focalArtifact": "Atomic navigation protocol"
     },
     {
       "id": "route-selected-delivery",
       "job": "explanation",
       "title": "One route loads one surface.",
-      "purpose": "Connect code splitting, portable static routes, and document metadata.",
+      "purpose": "Connect code splitting, portable static routes, and typed document metadata.",
       "evidence": [
-        "Route-specific dynamic import",
+        "route-specific dynamic import",
         "real nested index.html",
         "typed document metadata",
         "isolated export app"
       ],
-      "focalArtifact": "Route-selected delivery topology",
-      "composition": { "recipe": "route to bootstrap to selected surface with delivery seal" },
-      "density": "balanced"
+      "focalArtifact": "Route-selected delivery topology"
     },
     {
       "id": "rendered-preflight",
       "job": "evidence",
       "title": "Inspect every state—not one lucky frame.",
-      "purpose": "Show deterministic geometry and contrast evidence across exact Step states.",
+      "purpose": "Show deterministic geometry, contrast, runtime, and transition evidence across exact states.",
       "evidence": [
-        "Configured canvas",
-        "deterministic Chromium",
-        "stable diagnostics",
-        "versioned rendered receipt"
+        "configured canvas",
+        "isolated deterministic Chromium",
+        "every exact Slide and Step state",
+        "forward and reverse handoffs",
+        "fingerprinted evidence manifest"
       ],
-      "focalArtifact": "Rendered preflight scanner",
-      "composition": { "recipe": "state queue, browser canvas, and diagnostic receipt" },
-      "density": "balanced",
-      "motion": {
-        "intent": "focus",
-        "purpose": "Scan states before exposing diagnostics and receipt",
-        "owner": "preflight scanner"
-      }
+      "focalArtifact": "Rendered preflight scanner"
     },
     {
-      "id": "owned-failure",
+      "id": "resilient-draft",
       "job": "evidence",
-      "title": "Failure is reversible—and explainable.",
-      "purpose": "Demonstrate transactional rollback and a real structured diagnostic.",
+      "title": "A broken slide cannot erase the last good deck.",
+      "purpose": "Show how an authored render failure stays isolated while a valid repair replaces the draft atomically.",
       "evidence": [
-        "Reverse disposal",
-        "drever:step-index-invalid",
-        "source location",
-        "shared diagnostic output"
+        "last known good draft",
+        "slide-scoped error boundary",
+        "precise source diagnostic",
+        "atomic repaired revision"
       ],
-      "focalArtifact": "Setup transaction and diagnostic",
-      "composition": { "recipe": "rollback ledger beside diagnostic trace" },
-      "density": "balanced",
-      "motion": {
-        "intent": "compare",
-        "purpose": "Contrast acquired state with owned rollback",
-        "owner": "setup transaction"
-      }
+      "focalArtifact": "Resilient live-draft boundary"
     },
     {
       "id": "evidence-boundaries",
@@ -215,19 +153,12 @@
       "title": "Prove each promise where it can break.",
       "purpose": "Match unit, compiler, rendered, and outcome evidence to distinct risks.",
       "evidence": [
-        "Pure state tests",
+        "pure state tests",
         "artifact contract tests",
         "rendered canvas checks",
         "browser, export, and real-AI runs"
       ],
-      "focalArtifact": "Nested evidence boundaries",
-      "composition": { "recipe": "four proof boundaries around one contract" },
-      "density": "balanced",
-      "motion": {
-        "intent": "focus",
-        "purpose": "Expand assurance from the contract to user reality",
-        "owner": "evidence boundaries"
-      }
+      "focalArtifact": "Nested evidence boundaries"
     },
     {
       "id": "agreement-by-default",
@@ -235,22 +166,12 @@
       "title": "Agreement, by default.",
       "purpose": "Resolve the opening graph and return the audience to the product.",
       "evidence": [
-        "Resolved story-to-surface graph",
+        "resolved story-to-surface graph",
         "one story",
         "one position",
         "inspectable evidence"
       ],
-      "focalArtifact": "Resolved Living Build Graph",
-      "composition": {
-        "recipe": "resolved graph beside closing claim and actions",
-        "variant": "closing"
-      },
-      "density": "concise",
-      "motion": {
-        "intent": "continuity",
-        "purpose": "Complete the signal path introduced on the cover",
-        "owner": "lime build signal"
-      }
+      "focalArtifact": "Resolved living build graph"
     }
   ]
 }

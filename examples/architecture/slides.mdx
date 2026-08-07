@@ -5,11 +5,11 @@ import {
   BuildGraph,
   CommitProtocol,
   CompilerRail,
-  DesignEvidence,
   FailureBoundary,
   InvariantMap,
   RenderedPreflight,
   StoryContract,
+  StudioLoop,
   SurfaceDelivery,
   TestBoundaries,
 } from "./ArchitectureVisuals.tsx";
@@ -68,21 +68,24 @@ import "./architecture.css";
     intent="focus"
   >
     <Step at={1}>
-      <p>The brief records audience, desired change, duration, language, and density.</p>
+      <p>The brief records audience, desired change, duration, language, and deck-wide density.</p>
     </Step>
     <Step at={2}>
-      <p>The Storyboard renders the plan without importing MDX, Theme, or runtime.</p>
+      <p>
+        The v2 plan keeps each slide's job, purpose, evidence, and anchor artifact—nothing visual.
+      </p>
     </Step>
     <Step at={3}>
-      <p>A human approves the contract before design and authoring begin.</p>
+      <p>The Storyboard approves content and sequence before design and authoring begin.</p>
     </Step>
   </MotionGroup>
 </section>
 
 <Note>
   Advance three times. The versioned drever.plan.json is a pre-authoring contract, not a compiler
-  pass and not a production dependency. Its development-only Storyboard gives people a fast,
-  design-neutral place to review the story before expensive authoring starts.
+  pass and not a production dependency. Version 2 deliberately defers per-slide density, layout, and
+  motion so the development-only Storyboard reviews content and sequence without pretending the
+  design already exists.
 </Note>
 
 ---
@@ -155,21 +158,21 @@ import "./architecture.css";
 
 <section className="arch-slide">
   <header className="arch-slide-heading">
-    <span className="arch-kicker">05 / Design evidence</span>
+    <span className="arch-kicker">05 / Local coordination</span>
     <h1>
-      <span>A reference becomes evidence—</span>
+      <span>The browser directs.</span>
       <br />
-      <span>not source.</span>
+      <span>The agent owns the work.</span>
     </h1>
-    <p>Design import observes a page, then writes code the project owns.</p>
+    <p>Typed actions and bounded progress connect Studio to ordinary project files.</p>
   </header>
-  <DesignEvidence />
+  <StudioLoop />
 </section>
 
 <Note>
-  The fixed Chromium probe samples computed visual evidence. It never copies or hotlinks source
-  HTML, CSS, JavaScript, fonts, or images. The result is a local Pass-0 Theme and art direction that
-  the author can refine for the subject.
+  Studio never becomes a cloud editor or a second source of truth. Native, ACP, and portable journal
+  adapters normalize only typed actions and public progress. Model credentials stay with the local
+  agent; brief.md, drever.plan.json, slides.mdx, assets, and Git remain authoritative.
 </Note>
 
 ---
@@ -269,32 +272,37 @@ import "./architecture.css";
     intent="focus"
   >
     <Step at={1}>
-      <p>Exact Slide and Step routes render at the configured canvas in deterministic Chromium.</p>
+      <p>Exact Slide and Step routes settle at the configured canvas in isolated Chromium.</p>
     </Step>
     <Step at={2}>
-      <p>Stable diagnostics expose clipping, overflow, overlap, contrast, drift, and density.</p>
+      <p>
+        Forward and reverse handoffs expose clipping, overlap, contrast, drift, and moving paint.
+      </p>
     </Step>
     <Step at={3}>
-      <p>A versioned receipt gives AI and people evidence for the next repair pass.</p>
+      <p>
+        A fingerprinted manifest links diagnostics to full states, transitions, and contact sheets.
+      </p>
     </Step>
   </MotionGroup>
 </section>
 
 <Note>
-  Advance three times. drever check --rendered runs only after source safety, builds an isolated
-  inspection app, and records the canvas, Chromium version, ruleset, state count, and result. Image
-  and gradient contrast remain explicit review warnings rather than false passes.
+  Advance three times. drever check --rendered runs only after source safety and builds an isolated
+  inspection app. Its receipt and evidence manifest share one build fingerprint, so stale captures
+  cannot look current. Image and gradient contrast remain explicit review warnings rather than false
+  passes.
 </Note>
 
 ---
 
 <section className="arch-slide">
   <header className="arch-slide-heading arch-slide-heading--compact">
-    <span className="arch-kicker">11 / Owned failure</span>
+    <span className="arch-kicker">11 / Resilient draft</span>
     <h1>
-      <span>Failure is reversible—</span>
+      <span>A broken slide cannot erase</span>
       <br />
-      <span>and explainable.</span>
+      <span>the last good deck.</span>
     </h1>
   </header>
   <FailureBoundary />
@@ -304,14 +312,17 @@ import "./architecture.css";
     intent="focus"
   >
     <Step at={1}>
-      <p>A failed acquisition rolls back in reverse and points to authored source.</p>
+      <p>
+        A valid repair replaces the preview atomically; partial work never becomes the new baseline.
+      </p>
     </Step>
   </MotionGroup>
 </section>
 
 <Note>
-  Advance once. Setup behaves as a transaction. Expected failures cross boundaries as structured
-  diagnostics with stable codes, ownership, location, and an actionable message.
+  Advance once. Authored render errors stay inside their owning slide or deck surface. Studio keeps
+  the last valid draft visible, gives the agent a precise source diagnostic, and publishes the
+  repaired revision only after it becomes one coherent render again.
 </Note>
 
 ---

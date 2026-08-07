@@ -77,24 +77,21 @@
   </g>
 
   <g transform="translate(72 190)">
-    <text class="label" fill="#5B45D8" x="0" y="0">AI-FIRST PRESENTATION FRAMEWORK</text>
+    <text class="label" fill="#5B45D8" x="0" y="0">LOCAL PRESENTATION STUDIO</text>
 
     <text class="display" fill="#19172B" font-size="68" letter-spacing="-3.2" x="0" y="96">
-      Slides that
+      Your agent drafts.
     </text>
-    <rect x="337" y="39" width="183" height="68" rx="3" fill="#C7F03A" />
-    <text class="display" fill="#19172B" font-size="68" letter-spacing="-3.2" x="349" y="96">
-      move
-    </text>
-    <text class="display" fill="#19172B" font-size="68" letter-spacing="-3.2" x="0" y="170">
-      with your ideas.
+    <rect x="-4" y="114" width="332" height="68" rx="3" fill="#C7F03A" />
+    <text class="display" fill="#19172B" font-size="68" letter-spacing="-3.2" x="7" y="171">
+      You direct.
     </text>
 
-    <text class="sans" fill="#686474" font-size="20" x="2" y="224">
-      Create with AI. Refine every detail.
+    <text class="sans" fill="#686474" font-size="20" x="2" y="228">
+      Approve the story. Shape the live draft.
     </text>
-    <text class="sans" fill="#686474" font-size="20" x="2" y="254">
-      Respond to the room live.
+    <text class="sans" fill="#686474" font-size="20" x="2" y="258">
+      Ship checked slides from files you own.
     </text>
   </g>
 
@@ -111,32 +108,54 @@
     />
     <rect width="452" height="430" rx="18" fill="#19172B" filter="url(#stage-shadow)" />
 
-    <g transform="translate(38 42)">
-      <text class="label" fill="#B9B3C7" x="0" y="0">LIVE STORY</text>
-      <text class="label" fill="#B9B3C7" text-anchor="end" x="376" y="0">04 / 12</text>
+    <g transform="translate(26 34)">
+      <text class="label" fill="#F6F3E9" x="0" y="0">DREVER STUDIO</text>
+      <circle cx="316" cy="-4" r="5" fill="#5B45D8" />
+      <text class="label" fill="#B9B3C7" x="329" y="0">AGENT ACTIVE</text>
 
-      <text class="display" fill="#F6F3E9" font-size="60" letter-spacing="-2.8" x="0" y="103">
-        The room
-      </text>
-      <rect x="-2" y="128" width="254" height="66" rx="2" fill="#C7F03A" />
-      <text class="display" fill="#19172B" font-size="65" letter-spacing="-3.1" x="7" y="185">
-        changes.
-      </text>
+      <g transform="translate(0 30)">
+        <circle cx="7" cy="6" r="7" fill="#C7F03A" />
+        <text class="label" fill="#F6F3E9" x="23" y="11">BRIEF</text>
+        <line x1="91" x2="117" y1="6" y2="6" stroke="#4A4658" />
+        <circle cx="128" cy="6" r="7" fill="#C7F03A" />
+        <text class="label" fill="#F6F3E9" x="144" y="11">STORY</text>
+        <line x1="218" x2="244" y1="6" y2="6" stroke="#4A4658" />
+        <circle cx="255" cy="6" r="7" fill="#5B45D8" />
+        <text class="label" fill="#F6F3E9" x="271" y="11">DRAFT</text>
+      </g>
 
-      <text class="sans" fill="#B9B3C7" font-size="16" x="2" y="235">
-        Reveal the proof when the room needs it.
-      </text>
+      <g transform="translate(0 76)">
+        <rect width="266" height="218" rx="12" fill="#F6F3E9" />
+        <rect width="266" height="218" rx="12" fill="none" stroke="#FFFFFF" stroke-opacity=".22" />
+        <text class="label" fill="#5B45D8" x="20" y="31">LIVE DRAFT · 05</text>
+        <text class="display" fill="#19172B" font-size="35" letter-spacing="-1.8" x="20" y="88">
+          One clear
+        </text>
+        <rect x="18" y="102" width="180" height="38" rx="2" fill="#C7F03A" />
+        <text class="display" fill="#19172B" font-size="36" letter-spacing="-1.8" x="24" y="134">
+          decision.
+        </text>
+        <line x1="20" x2="219" y1="166" y2="166" stroke="#D8D2C5" />
+        <line x1="20" x2="162" y1="183" y2="183" stroke="#D8D2C5" />
+        <circle cx="228" cy="182" r="15" fill="#5B45D8" />
+        <path d="M223 182l4 4 8-10" fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" />
+      </g>
 
-      <line x1="0" x2="376" y1="292" y2="292" stroke="#3A3549" />
-      <g transform="translate(0 329)">
-        <circle cx="5" cy="0" r="5" fill="#C7F03A" />
-        <text class="label" fill="#F6F3E9" x="21" y="5">LIVE</text>
+      <g transform="translate(282 110)">
+        <rect width="118" height="154" rx="12" fill="#EEE9FF" stroke="#7B66EA" stroke-opacity=".5" />
+        <text class="label" fill="#5B45D8" x="14" y="28">YOU</text>
+        <line x1="14" x2="94" y1="53" y2="53" stroke="#5B45D8" stroke-opacity=".34" stroke-width="5" />
+        <line x1="14" x2="82" y1="72" y2="72" stroke="#5B45D8" stroke-opacity=".22" stroke-width="5" />
+        <line x1="14" x2="66" y1="91" y2="91" stroke="#5B45D8" stroke-opacity=".22" stroke-width="5" />
+        <path d="M16 124h78" stroke="#C7F03A" stroke-width="4" />
+        <circle cx="94" cy="124" r="6" fill="#C7F03A" />
+      </g>
 
-        <circle cx="130" cy="0" r="5" fill="#5B45D8" />
-        <text class="label" fill="#B9B3C7" x="146" y="5">DOCUMENT</text>
-
-        <circle cx="285" cy="0" r="5" fill="#5B45D8" />
-        <text class="label" fill="#B9B3C7" x="301" y="5">PDF</text>
+      <g transform="translate(0 320)">
+        <rect width="400" height="52" rx="10" fill="#23212F" stroke="#C7F03A" stroke-opacity=".28" />
+        <circle cx="22" cy="26" r="6" fill="#C7F03A" />
+        <text class="label" fill="#F6F3E9" x="38" y="31">RENDERED REVIEW</text>
+        <text class="label" fill="#C7F03A" text-anchor="end" x="380" y="31">READY</text>
       </g>
     </g>
   </g>

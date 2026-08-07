@@ -254,7 +254,7 @@ export function HeroStage() {
   return (
     <figure
       className="hero-stage"
-      aria-label="One idea becoming a coherent visual system across a presentation"
+      aria-label="A local agent moving from brief to Storyboard to live deck under human direction"
       ref={stageRef}
     >
       <canvas className="hero-stage__lightfield" ref={lightfieldRef} aria-hidden="true" />
@@ -298,7 +298,7 @@ export function HeroStage() {
         </div>
       </div>
       <figcaption>
-        One product-team brief becoming a visual direction, live story, and complete deck.
+        A brief becoming an approved story, a directed live draft, and a checked presentation.
       </figcaption>
     </figure>
   );
@@ -310,7 +310,7 @@ export function HomeShowcaseCover({ kind }: { kind: "motion" | "product" }) {
       <div className="home-showcase-cover home-showcase-cover--product" aria-hidden="true">
         <div className="home-showcase-cover__meta">
           <span>Live product story</span>
-          <small>05 / 12</small>
+          <small>09 / 16</small>
         </div>
         <div className="home-product-cover__statement">
           <strong>The room</strong>
@@ -332,7 +332,7 @@ export function HomeShowcaseCover({ kind }: { kind: "motion" | "product" }) {
           <div data-surface="document">
             <span>Document</span>
             <strong>The exact moment stays readable.</strong>
-            <small>/5/2 · searchable</small>
+            <small>/9/2 · searchable</small>
           </div>
         </div>
         <small className="home-product-cover__promise">One story · every useful surface</small>
@@ -344,7 +344,7 @@ export function HomeShowcaseCover({ kind }: { kind: "motion" | "product" }) {
     <div className="home-showcase-cover home-showcase-cover--motion" aria-hidden="true">
       <div className="home-showcase-cover__meta">
         <span>Object lifecycle</span>
-        <small>03 / 16</small>
+        <small>03 / 18</small>
       </div>
       <div className="home-motion-cover__artifact">
         <header>

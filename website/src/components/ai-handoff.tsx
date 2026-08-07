@@ -26,7 +26,7 @@ export function CopyAIHandoff({
       copiedText="Prompt copied"
       describedBy={describedBy}
       idleText="Copy prompt"
-      label="for Codex or Claude Code"
+      label="for your coding agent"
       value={createAIHandoff(brief)}
     />
   );
@@ -60,8 +60,8 @@ export function AIHandoff({
       </label>
       <footer>
         <p>
-          Copies one short handoff. Your agent creates the project and opens the local creation
-          room; the deck stays in ordinary files.
+          Copies one short handoff. Your coding agent creates the project and opens Drever Studio
+          when supported; the deck stays in ordinary files.
         </p>
         <div>
           <a href="/prompt.md">Read prompt.md</a>

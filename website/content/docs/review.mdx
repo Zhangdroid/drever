@@ -1,0 +1,112 @@
+<h2 id="source-check">Check the authored source first</h2>
+
+Run the fast source check throughout authoring:
+
+```bash
+npm run check
+npm run check -- slides.mdx
+npm run check -- --json
+```
+
+It reports defects Drever can prove without opening a browser:
+
+- Missing or duplicate slide titles.
+- Missing or explicitly empty image alternative text.
+- Skipped heading levels inside a slide.
+- Authored video without a caption track.
+- Invalid plan, configuration, plugin, or compilation contracts.
+
+Diagnostics include a stable code, severity, stage, message, hint, and exact source range when one
+is available. Errors make the command exit nonzero; warnings remain visible without blocking the
+next authoring pass.
+
+Source checks cannot prove browser geometry, paint, motion, or runtime component behavior. Use the
+rendered gate for a production candidate or after layout and Step changes.
+
+<h2 id="rendered-check">Inspect every exact rendered state</h2>
+
+Install Drever's matching Playwright Chromium once, then run the rendered review:
+
+```bash
+npm exec -- drever browser install
+npm run check -- --rendered --evidence .drever/review --json
+```
+
+Drever builds an isolated inspection app at the configured canvas and visits Step 0 plus every
+exact authored Step. It does not attach to an open personal browser, require Chrome DevTools MCP, or
+reuse the production build.
+
+The current rendered rules report:
+
+| Code                                        | Severity | Evidence                                                             |
+| ------------------------------------------- | -------- | -------------------------------------------------------------------- |
+| `DREVER_RENDER_CONTENT_CLIPPED`             | Error    | Required content or a line fragment is clipped by its owner.         |
+| `DREVER_RENDER_CANVAS_OVERFLOW`             | Error    | Visible content extends beyond the configured canvas.                |
+| `DREVER_RENDER_CONTENT_OVERLAP`             | Error    | Independent readable elements overlap.                               |
+| `DREVER_RENDER_TEXT_CONTRAST_LOW`           | Error    | Resolved solid colors fail the applicable contrast threshold.        |
+| `DREVER_RENDER_BACKGROUND_TRANSITIONED`     | Error    | Repeated full-canvas paint moves with the deck instead of the Stage. |
+| `DREVER_RENDER_TEXT_CONTRAST_INDETERMINATE` | Warning  | A gradient, image, blend, or translucent surface needs review.       |
+| `DREVER_RENDER_GEOMETRY_UNSTABLE`           | Warning  | Persistent content unexpectedly moves or resizes between Steps.      |
+| `DREVER_RENDER_TEXT_SAFE_AREA`              | Warning  | Readable text sits suspiciously close to a canvas edge.              |
+| `DREVER_RENDER_DENSITY_HIGH`                | Warning  | Multiple rendered density signals cross their thresholds.            |
+| `DREVER_RENDER_BROWSER_MISSING`             | Error    | The matching Playwright Chromium is unavailable.                     |
+| `DREVER_RENDER_RUNTIME_FAILED`              | Error    | A route, application, resource, or capture invariant failed.         |
+
+Clipping, overflow, independent overlap, proven low contrast, and repeated backgrounds moving with
+the deck are concrete defects. Geometry, safe-area, density, and indeterminate contrast remain
+warnings because deliberate composition can be valid. Review the evidence before changing the
+design.
+
+Deliberate overlap can use `data-drever-overlap="allow"`. Text that exists only as visual artwork
+can use `data-drever-visual-role="decoration"`. These annotations must describe real intent; they
+are not a way to silence required content.
+
+<h2 id="evidence">Keep the evidence with the review</h2>
+
+`--evidence .drever/review` writes a versioned allowlisted manifest, full-size settled states,
+contact sheets, and forward and reverse transition samples. The manifest and JSON receipt share the
+exact inspection input fingerprint, so a failed refresh cannot leave older images looking current.
+
+JSON output includes the typed rendered report V2 and a versioned receipt with:
+
+- Ruleset and receipt versions.
+- Canvas and Chromium version.
+- Captured state count and final status.
+- Evidence manifest identity when requested.
+- A reason when source errors, a missing browser, or runtime failure prevents completion.
+
+A stored legacy V1 report is source-only and does not satisfy this gate.
+
+<h2 id="judgment">Use evidence without pretending it is taste</h2>
+
+Rendered review is deliberately not an aesthetic score. It cannot decide whether the hierarchy is
+persuasive, motion fits the idea, an image is appropriate, or an art direction feels specific to
+the subject. Image, gradient, blend, and translucent contrast also require human inspection.
+
+Review the contact sheet for hierarchy and density, open relevant full-size states for typography
+and edges, then inspect forward and reverse transitions in the live deck. Check Audience, Document,
+and Speaker surfaces when they changed. Chromium evidence alone is not cross-browser proof.
+
+Development previews also expose a version-matched experimental typography probe:
+
+```js
+await globalThis.__dreverExperimentalTextLayout();
+```
+
+It uses [Pretext](https://github.com/chenglou/pretext) to compare predicted and rendered line layout
+for supported visible plain-text blocks. The result is advisory and absent from production and
+export bundles. Rich inline markup, non-default wrapping, columns, transforms, generic system
+fonts, and unsupported shaping settings are skipped rather than reported as proven.
+
+<h2 id="review-loop">Give each kind of risk one owner</h2>
+
+1. Run the fast source check while writing.
+2. Preview affected routes and Steps while refining the draft.
+3. Run one exhaustive rendered gate when the presentation is ready for review.
+4. Fix proven defects and inspect every warning against the actual design intent.
+5. Re-run only after changes invalidate the evidence.
+6. Build the static site or PDF from the reviewed project.
+
+Use the same JSON report in CI. Keep cosmetic E2E tests focused on stable product behavior; use the
+rendered receipt and visual evidence for presentation-specific layout instead of freezing mutable
+showcase styling as a permanent test API.

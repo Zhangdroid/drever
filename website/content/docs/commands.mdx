@@ -140,8 +140,7 @@ answer, approval, and deck- or slide-feedback actions; it cannot name or write a
 
 Session files under `.drever/studio` are ephemeral local coordination state. Do not commit them or
 put API keys and provider transcripts in them. The creation room is served only by `drever dev` and
-is absent from production, export, and audience bundles. See
-[AI workflows: local creation room](/docs/ai/#local-creation-room).
+is absent from production, export, and audience bundles. See [Studio](/docs/studio/).
 
 <h2 id="inspect-and-connect">Inspect and connect AI tools</h2>
 
@@ -225,7 +224,8 @@ It is needed for rendered preflight, website design import, and PDF export.
 Use `--with-deps` when a Linux host also needs Playwright's operating-system
 packages.
 
-See [PDF export](/docs/delivery/#pdf-export).
+See [Rendered review](/docs/review/#rendered-check) and
+[PDF export](/docs/delivery/#pdf-export).
 
 <h3 id="check">Check source and rendered states</h3>
 
@@ -245,7 +245,7 @@ review. The manifest and JSON receipt share the exact inspection build's SHA-256
 failed refresh cannot leave an older manifest looking current. It never creates or mutates the
 production build.
 
-See [Source and rendered checks](/docs/delivery/#check).
+See [Rendered review](/docs/review/).
 
 <h3 id="build">Build the static website</h3>
 

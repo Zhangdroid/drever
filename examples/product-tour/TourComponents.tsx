@@ -122,33 +122,209 @@ export const RoomResponse = ({
   </div>
 );
 
-/** A drafted route with one deliberate, human-directed beat. */
-export const StoryRoute = ({ children }: PropsWithChildren): ReactElement => (
-  <section className="tour-route" aria-label="A drafted story route revised by its presenter">
-    <div className="tour-route__direction">
-      <span className="tour-kicker">Your direction</span>
-      <strong>Ask before proof.</strong>
-      <p>The audience should decide what the story needs next.</p>
+/** The first useful Studio surface: one outcome, with ordinary shared constraints beside it. */
+export const StudioBrief = (): ReactElement => (
+  <section
+    className="tour-studio-brief"
+    aria-label="A presentation brief inside the local creation room"
+  >
+    <header>
+      <span>Local creation room</span>
+      <small>
+        <i aria-hidden="true" /> Agent connected
+      </small>
+    </header>
+    <div className="tour-studio-brief__body">
+      <article>
+        <span className="tour-kicker">The job</span>
+        <blockquote>
+          Help product, legal, and sales decide whether to approve a launch pilot.
+        </blockquote>
+      </article>
+      <dl>
+        <div>
+          <dt>Audience</dt>
+          <dd>Product · Legal · Sales</dd>
+        </div>
+        <div>
+          <dt>Duration</dt>
+          <dd>20 minutes</dd>
+        </div>
+        <div>
+          <dt>Density</dt>
+          <dd>Concise</dd>
+        </div>
+        <div>
+          <dt>Motion</dt>
+          <dd>Measured</dd>
+        </div>
+      </dl>
     </div>
-    <div className="tour-route__path">
-      <div className="tour-route__row">
-        <span>01</span>
-        <strong>Name the decision</strong>
-        <small>Drafted by AI</small>
+  </section>
+);
+
+/** One subject-specific direction choice, with the consequence kept visible. */
+export const StudioDirection = (): ReactElement => (
+  <section
+    className="tour-studio-direction"
+    aria-label="A topic-specific presentation direction question"
+  >
+    <div className="tour-studio-direction__question">
+      <span className="tour-kicker">Chosen for this launch decision</span>
+      <h3>What proof would make approval feel safe?</h3>
+      <div aria-label="Direction options" role="list">
+        <span aria-current="true" data-selected="" role="listitem">
+          <i aria-hidden="true" /> Unaided completion
+        </span>
+        <span role="listitem">Support volume</span>
+        <span role="listitem">Time to value</span>
       </div>
-      <MotionGroup flow="block" intent="focus">
-        {children}
-      </MotionGroup>
-      <div className="tour-route__row">
-        <span>03</span>
-        <strong>Reveal the proof</strong>
-        <small>When it helps</small>
+    </div>
+    <aside>
+      <small>This answer changes</small>
+      <strong>The evidence and decision beats.</strong>
+      <p>It does not add another generic slide.</p>
+    </aside>
+  </section>
+);
+
+/** A content-only Storyboard with a separate, authored approval state. */
+export const ContentStoryboard = ({ children }: PropsWithChildren): ReactElement => (
+  <section
+    className="tour-content-storyboard"
+    aria-label="A content-first Storyboard approval flow"
+  >
+    <header>
+      <div>
+        <span className="tour-kicker">Storyboard · content first</span>
+        <strong>Review the argument while change is cheap.</strong>
       </div>
-      <div className="tour-route__row">
-        <span>04</span>
-        <strong>Leave a next move</strong>
-        <small>Keep it useful</small>
+      <small>Layout and motion come later</small>
+    </header>
+    <ol>
+      {[
+        ["01", "Opening", "Name the launch decision"],
+        ["02", "Question", "Ask what still feels risky"],
+        ["03", "Evidence", "Answer with pilot proof"],
+        ["04", "Decision", "Leave one explicit move"],
+      ].map(([index, job, purpose]) => (
+        <li key={index}>
+          <span>{index}</span>
+          <div>
+            <small>{job}</small>
+            <strong>{purpose}</strong>
+          </div>
+        </li>
+      ))}
+    </ol>
+    <footer>{children}</footer>
+  </section>
+);
+
+/** A complete first draft in the real runtime, with notes and current work beside it. */
+export const LiveDraft = (): ReactElement => (
+  <section className="tour-live-draft" aria-label="A complete live Draft 1 with speaker notes">
+    <div className="tour-live-draft__rail" aria-hidden="true">
+      {["Opening", "Question", "Evidence", "Decision"].map((label, index) => (
+        <div data-current={index === 2 ? "" : undefined} key={label}>
+          <i />
+          <span>{String(index + 1).padStart(2, "0")}</span>
+        </div>
+      ))}
+    </div>
+    <div className="tour-live-draft__preview">
+      <header>
+        <span>Live draft · 03 / 04</span>
+        <small>Complete story</small>
+      </header>
+      <div>
+        <small>Pilot evidence</small>
+        <strong>96%</strong>
+        <p>completed setup without support</p>
       </div>
+      <footer>
+        <span>Speaker note</span>
+        <p>Ask what still feels risky before revealing the number.</p>
+      </footer>
+    </div>
+    <aside>
+      <span>
+        <i aria-hidden="true" /> Agent active
+      </span>
+      <strong>Refining the same draft</strong>
+      <p>Researching the pilot evidence · checking the decision sequence</p>
+    </aside>
+  </section>
+);
+
+/** Feedback stays independent from the currently previewed slide. */
+export const DraftFeedback = ({ children }: PropsWithChildren): ReactElement => (
+  <section className="tour-draft-feedback" aria-label="Feedback for one slide or the whole deck">
+    <div className="tour-draft-feedback__preview">
+      <header>
+        <span>Live draft</span>
+        <small>Slide 03 remains selected</small>
+      </header>
+      <div>
+        <strong>96%</strong>
+        <i />
+        <i />
+      </div>
+    </div>
+    <div className="tour-draft-feedback__composer">
+      <span className="tour-kicker">Your direction</span>
+      <div className="tour-draft-feedback__scope" aria-label="Feedback scope" role="list">
+        <span role="listitem">This slide</span>
+        <span aria-current="true" data-selected="" role="listitem">
+          Entire deck
+        </span>
+      </div>
+      <blockquote>Let the proof arrive one beat earlier.</blockquote>
+      <small>Feedback applies to the entire deck.</small>
+      <footer>{children}</footer>
+    </div>
+  </section>
+);
+
+/** Rendered evidence connects exact states and transitions to one repairable result. */
+export const RenderedReview = ({ children }: PropsWithChildren): ReactElement => (
+  <section
+    className="tour-rendered-review"
+    aria-label="Rendered review with sampled exact presentation states"
+  >
+    <div className="tour-rendered-review__states">
+      <small>Sample exact states</small>
+      {["/1", "/4/1", "/6/1", "/9/1", "/9/2"].map((route) => (
+        <span key={route}>
+          <i aria-hidden="true" /> {route}
+        </span>
+      ))}
+    </div>
+    <div className="tour-rendered-review__frames" aria-hidden="true">
+      <div>
+        <span>settled</span>
+        <i />
+        <i />
+      </div>
+      <div>
+        <span>transition</span>
+        <i />
+        <i />
+      </div>
+    </div>
+    <div className="tour-rendered-review__result">
+      <header>
+        <span>Rendered evidence</span>
+        <strong>Ready</strong>
+      </header>
+      <ul>
+        <li>Safe area</li>
+        <li>Contrast</li>
+        <li>Overlap</li>
+        <li>Geometry</li>
+      </ul>
+      <p>Every Step · both directions · one versioned manifest</p>
+      <footer>{children}</footer>
     </div>
   </section>
 );

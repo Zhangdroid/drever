@@ -6,7 +6,7 @@ import { ArrowIcon } from "../components/icons";
 import { pageHead } from "../seo";
 
 const description =
-  "Open real examples of motion, art direction, plugins, and presentation surfaces. Read the detailed contract when you need it.";
+  "Start in Studio, approve the content Storyboard, direct the live draft, and review every exact state before delivery.";
 
 export const Route = createFileRoute("/docs/")({
   component: DocsOverview,
@@ -18,30 +18,29 @@ function DocsOverview() {
     <article className="docs-overview">
       <header>
         <span>Documentation</span>
-        <h1>See it before you study it.</h1>
+        <h1>Start with the work.</h1>
         <p>{description}</p>
       </header>
 
-      <DocsCapabilityGallery />
-
       <section className="docs-overview__start">
         <div>
-          <span>Start with AI</span>
+          <span>One handoff</span>
           <h2 className="docs-overview__start-heading">
-            <span>Tell your agent</span>
-            <span>what the presentation</span>
-            <span>must achieve.</span>
+            <span>Give your agent the job.</span>
+            <span>Direct the result in Studio.</span>
           </h2>
           <p>
-            One handoff creates the project, then opens a local room for topic-specific questions,
-            content Storyboard approval, and feedback on the live draft.
+            Start with one sentence. Studio keeps adaptive questions, content Storyboard approval,
+            live agent activity, and slide- or deck-scoped feedback in one local room.
           </p>
           <Link className="button button--primary" to="/docs/getting-started/">
-            See the one-step workflow <ArrowIcon />
+            Start with one sentence <ArrowIcon />
           </Link>
         </div>
         <AIHandoff />
       </section>
+
+      <DocsCapabilityGallery />
 
       <header className="docs-overview__reference">
         <span>Guides</span>
@@ -49,32 +48,60 @@ function DocsOverview() {
         <p>Read only the part of the workflow you need now.</p>
       </header>
 
-      <section className="docs-overview__paths">
-        <Link to="/docs/authoring/">
-          <span>01 · Create</span>
-          <h2>Author readable slides</h2>
-          <p>MDX, slide boundaries, Step state, Notes, and React components.</p>
-          <ArrowIcon />
-        </Link>
-        <Link to="/docs/motion/">
-          <span>02 · Direct</span>
-          <h2>Move with purpose</h2>
-          <p>Five semantic intents, stable geometry, and theme-owned choreography.</p>
-          <ArrowIcon />
-        </Link>
-        <Link to="/docs/presenting/">
-          <span>03 · Present</span>
-          <h2>Run the room</h2>
-          <p>Speaker context, exact URLs, focus tools, and a searchable document.</p>
-          <ArrowIcon />
-        </Link>
-        <Link to="/docs/delivery/">
-          <span>04 · Deliver</span>
-          <h2>Ship what you reviewed</h2>
-          <p>Source preflight, static hosting, deterministic states, and PDF export.</p>
-          <ArrowIcon />
-        </Link>
-      </section>
+      <ol className="docs-overview__workflow" aria-label="Guide workflow">
+        <li>
+          <Link to="/docs/studio/">
+            <span className="docs-overview__workflow-index" aria-hidden="true">
+              01
+            </span>
+            <span className="docs-overview__workflow-heading">
+              <small>Direct</small>
+              <strong>Work beside your agent</strong>
+            </span>
+            <p>Adaptive questions, Storyboard approval, public activity, and live feedback.</p>
+            <ArrowIcon />
+          </Link>
+        </li>
+        <li>
+          <Link to="/docs/authoring/">
+            <span className="docs-overview__workflow-index" aria-hidden="true">
+              02
+            </span>
+            <span className="docs-overview__workflow-heading">
+              <small>Create</small>
+              <strong>Author readable slides</strong>
+            </span>
+            <p>MDX, slide boundaries, Step state, Notes, and React components.</p>
+            <ArrowIcon />
+          </Link>
+        </li>
+        <li>
+          <Link to="/docs/review/">
+            <span className="docs-overview__workflow-index" aria-hidden="true">
+              03
+            </span>
+            <span className="docs-overview__workflow-heading">
+              <small>Review</small>
+              <strong>Check every exact state</strong>
+            </span>
+            <p>Stable diagnostics, rendered evidence, and the limits that still need judgment.</p>
+            <ArrowIcon />
+          </Link>
+        </li>
+        <li>
+          <Link to="/docs/delivery/">
+            <span className="docs-overview__workflow-index" aria-hidden="true">
+              04
+            </span>
+            <span className="docs-overview__workflow-heading">
+              <small>Deliver</small>
+              <strong>Ship what you reviewed</strong>
+            </span>
+            <p>Static hosting, deterministic routes, and exact PDF slide or Step states.</p>
+            <ArrowIcon />
+          </Link>
+        </li>
+      </ol>
 
       <header className="docs-overview__reference docs-overview__reference--tools">
         <span>Reference</span>
@@ -82,35 +109,40 @@ function DocsOverview() {
         <p>Commands and configuration stay complete, precise, and easy to scan.</p>
       </header>
 
-      <section className="docs-overview__paths docs-overview__paths--compact">
+      <nav className="docs-overview__reference-list" aria-label="Documentation reference">
         <Link to="/docs/commands/">
-          <span>Commands</span>
-          <h2>Find every command</h2>
+          <span>
+            <small>Commands</small>
+            <strong>Find every command</strong>
+          </span>
           <p>
             Exact syntax, options, defaults, caveats, and links to the guide that owns each task.
           </p>
           <ArrowIcon />
         </Link>
         <Link to="/docs/configuration/">
-          <span>Configuration</span>
-          <h2>Control the project</h2>
+          <span>
+            <small>Configuration</small>
+            <strong>Control the project</strong>
+          </span>
           <p>Entry, canvas, Theme, server, build, rehearsal, focus tools, Stage, and plugins.</p>
           <ArrowIcon />
         </Link>
-      </section>
+      </nav>
 
       <section className="docs-overview__ai" data-header-tone="dark">
-        <span>Working with AI</span>
+        <span>Bring the agent you already use</span>
         <h2 className="docs-overview__ai-heading">
-          <span>One prompt starts the work.</span>
-          <span>Project-local skills carry the contract.</span>
+          <span>Studio coordinates the work.</span>
+          <span>Ordinary files remain the contract.</span>
         </h2>
         <p>
-          A provider-neutral local creation room, versioned project skills, exact source context,
-          and stable rendered diagnostics keep every change visible in normal files and Git.
+          Native Codex and Claude Code transports, an ACP adapter, and a portable journal bridge
+          meet different agents at one bounded local interface. MDX, configuration, assets, and Git
+          stay authoritative.
         </p>
         <Link className="text-link" to="/docs/ai/">
-          Explore AI workflows <ArrowIcon />
+          Explore agent workflows <ArrowIcon />
         </Link>
       </section>
     </article>
