@@ -175,6 +175,23 @@ explicitly a local Pass-0 Theme: an agent must select the traits that serve the
 presentation, replace needed assets with licensed local files, design the
 meaningful visual system, and review the result.
 
+### Make visual decisions explicit
+
+After Storyboard approval and the first content-complete preview, the design
+workflow records two implementation maps in `design/art-direction.md`:
+
+- the **Scene map** gives every slide one claim, focal evidence, visual form,
+  composition, motion owner, and readable settled endpoint;
+- the **Handoff map** classifies every adjacent edge and records what continues,
+  whether it cuts, changes locally, or uses continuity, the fixed snapshot
+  geometry, and reverse behavior.
+
+This keeps subject-led illustration, charts, typography, color, and motion from
+remaining prompt adjectives. A related focal object normally carries continuity
+into the next slide when its geometry is stable; an incompatible handoff records
+the reason and uses a local replacement instead of stretching a snapshot. The
+rendered review compares the finished deck with both maps.
+
 ## Install the global agent plugin
 
 `@drever/agent` packages the same canonical skills as one plugin directory with

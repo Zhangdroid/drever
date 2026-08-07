@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { isPublicPresentationSlug, labPresentationMounts } from "../website/site-manifest.ts";
 import { applyWebsitePresentationMetadata } from "./website-presentation-metadata.mjs";
 
 const input = `<!doctype html>
@@ -47,6 +48,18 @@ test("marks secondary presentation surfaces non-indexable and stays idempotent",
 
   assert.equal(twice, once);
   assert.equal(twice.match(/name="robots" content="noindex, follow"/gu)?.length, 1);
+});
+
+test("marks experimental presentation roots non-indexable", () => {
+  const presentation = labPresentationMounts[0];
+  const output = applyWebsitePresentationMetadata(input, {
+    ...metadata,
+    canonical: `https://drever.dev/showcase/${presentation.slug}/`,
+    indexable: isPublicPresentationSlug(presentation.slug),
+  });
+
+  assert.equal(isPublicPresentationSlug(presentation.slug), false);
+  assert.match(output, /name="robots" content="noindex, follow"/u);
 });
 
 test("rejects output without a document head", () => {

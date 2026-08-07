@@ -1,0 +1,179 @@
+{
+  "version": 2,
+  "status": "approved",
+  "brief": {
+    "topic": "Why airport signs work when nobody has time to read: practical wayfinding principles for rushed interfaces",
+    "audience": "Product designers and product managers",
+    "desiredChange": "Apply six airport-wayfinding principles and a pre-ship glance test to make rushed interfaces easier to scan, act on, and trust.",
+    "durationMinutes": 15,
+    "language": "en",
+    "density": "concise"
+  },
+  "slides": [
+    {
+      "id": "design-for-the-glance",
+      "job": "opening",
+      "title": "Why airport signs work when nobody has time to read",
+      "purpose": "Open with the promise that rushed interfaces should work at a glance without sacrificing deeper explanation.",
+      "evidence": [
+        "Familiar conceptual moment: navigating toward a gate while moving",
+        "Thesis: design for the glance, then reward the read"
+      ],
+      "focalArtifact": "The title thesis expressed as a destination-and-direction statement"
+    },
+    {
+      "id": "attention-already-spent",
+      "job": "context",
+      "title": "Nobody arrives at the sign calm",
+      "purpose": "Establish the divided-attention conditions that define rushed use.",
+      "evidence": [
+        "Conceptual traveler state: moving, uncertain, interrupted, and carrying a goal",
+        "No quantitative or empirical claim"
+      ],
+      "focalArtifact": "A traveler-state inventory centered on the unresolved goal"
+    },
+    {
+      "id": "rushed-not-simple",
+      "job": "claim",
+      "title": "Rushed is not the same as simple",
+      "purpose": "Show that limited attention and task complexity coexist, so clarity requires structure rather than mere subtraction.",
+      "evidence": [
+        "Four simultaneous needs: orient, choose, act, and confirm",
+        "Conceptual contrast between less information and better-sequenced information"
+      ],
+      "focalArtifact": "The four needs that remain even when reading time collapses"
+    },
+    {
+      "id": "destination-before-detail",
+      "job": "claim",
+      "title": "1 — Announce destination before detail",
+      "purpose": "Teach teams to lead with the user’s goal rather than procedure or system language.",
+      "evidence": [
+        "Conceptual destination-first sign",
+        "Hypothetical procedure-first interface prompt"
+      ],
+      "focalArtifact": "A destination-first instruction and its procedure-first counterpart"
+    },
+    {
+      "id": "information-horizons",
+      "job": "explanation",
+      "title": "Hierarchy changes with distance",
+      "purpose": "Explain how information priority changes as a user approaches, chooses, and pauses.",
+      "evidence": [
+        "Three conceptual horizons: decide from afar, confirm at the choice, read detail when stopped",
+        "No claim about a named airport or formal signage standard"
+      ],
+      "focalArtifact": "The three information horizons along one journey"
+    },
+    {
+      "id": "one-decision-now",
+      "job": "claim",
+      "title": "2 — One decision at each decision point",
+      "purpose": "Show that each moment should answer the choice the user must make now, not every later choice.",
+      "evidence": [
+        "Conceptual corridor junction",
+        "Hypothetical multi-step product flow with premature decisions removed"
+      ],
+      "focalArtifact": "A current fork separated from future forks"
+    },
+    {
+      "id": "detail-in-sequence",
+      "job": "explanation",
+      "title": "3 — Reveal detail in sequence",
+      "purpose": "Reframe progressive disclosure as a deliberate route through questions rather than hidden complexity.",
+      "evidence": [
+        "Question sequence: destination, direction, confirmation, local detail",
+        "Each reveal answers the next user question"
+      ],
+      "focalArtifact": "A four-stage chain of questions and answers"
+    },
+    {
+      "id": "consistency-over-cleverness",
+      "job": "claim",
+      "title": "4 — Consistency beats cleverness",
+      "purpose": "Argue for a stable vocabulary that users can recognize across repeated decisions.",
+      "evidence": [
+        "Repeated conceptual labels and symbols across decision points",
+        "Contrast between recognition and reinterpretation"
+      ],
+      "focalArtifact": "A small cue vocabulary repeated across a route"
+    },
+    {
+      "id": "redundant-cues",
+      "job": "claim",
+      "title": "5 — Use redundant cues",
+      "purpose": "Show how overlapping words, icons, color, position, and shape make instructions resilient.",
+      "evidence": [
+        "One conceptual instruction expressed through multiple cue types",
+        "The message remains understandable when one cue is unavailable"
+      ],
+      "focalArtifact": "A single instruction with independent reinforcing cues"
+    },
+    {
+      "id": "confirm-the-route",
+      "job": "explanation",
+      "title": "Confirmation is part of navigation",
+      "purpose": "Teach teams to preserve orientation and reassure users after they act.",
+      "evidence": [
+        "Conceptual continuity marker after a turn",
+        "Hypothetical persistent progress after a product action"
+      ],
+      "focalArtifact": "A before-action choice connected to an after-action confirmation"
+    },
+    {
+      "id": "scan-versus-read",
+      "job": "claim",
+      "title": "6 — Separate scan mode from read mode",
+      "purpose": "Distinguish glanceable action and status from explanation that belongs where users can pause.",
+      "evidence": [
+        "Conceptual rushed state and safe-to-read state",
+        "Primary action and status remain available without parsing prose"
+      ],
+      "focalArtifact": "Two attention modes with different information needs"
+    },
+    {
+      "id": "translate-to-products",
+      "job": "comparison",
+      "title": "Translate the sign into the interface",
+      "purpose": "Map wayfinding behaviors to familiar product moments without copying airport visual style.",
+      "evidence": [
+        "Conceptual mappings for checkout recovery, incident response, onboarding, and permission prompts",
+        "Each mapping uses a principle from the preceding sequence"
+      ],
+      "focalArtifact": "Paired wayfinding behaviors and rushed-interface responses"
+    },
+    {
+      "id": "decision-map-process",
+      "job": "process",
+      "title": "Start with the decision map",
+      "purpose": "Give teams a practical method for structuring a rushed journey before styling screens.",
+      "evidence": [
+        "Four steps: identify the goal, mark decision points, define the attention window, assign cue and confirmation",
+        "Method is presented as a practical synthesis, not a formal standard"
+      ],
+      "focalArtifact": "The four-step decision-map method"
+    },
+    {
+      "id": "pre-ship-glance-test",
+      "job": "decision",
+      "title": "The pre-ship glance test",
+      "purpose": "Turn the six principles into a compact review that product teams can apply before shipping.",
+      "evidence": [
+        "Six review questions: destination, current decision, sequence, consistency, redundancy, scan/read separation",
+        "Questions directly trace to the approved principles"
+      ],
+      "focalArtifact": "A six-question pre-ship checklist"
+    },
+    {
+      "id": "reward-the-read",
+      "job": "close",
+      "title": "Design for the glance. Reward the read.",
+      "purpose": "Close with a memorable rule that combines immediate clarity with available depth.",
+      "evidence": [
+        "Concise recap of the six principles",
+        "Final standard: make the next step unmistakable and deeper explanation available"
+      ],
+      "focalArtifact": "The closing rule paired with the next unmistakable step"
+    }
+  ]
+}

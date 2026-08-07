@@ -1,0 +1,164 @@
+:root {
+  color-scheme: light;
+  --drever-canvas-background: #f4f1e8;
+  --drever-stage-background: #f4f1e8;
+  --drever-canvas-color: #152522;
+  --drever-stage-color: #152522;
+  --rv-ink: #152522;
+  --rv-paper: #f4f1e8;
+  --rv-surface: #fffdf7;
+  --rv-green: #0f766e;
+  --rv-mint: #b8eadc;
+  --rv-coral: #d95d43;
+  --rv-yellow: #e3b93f;
+  --rv-muted: #52615e;
+  --rv-line: #bac3bd;
+  --rv-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-drever-slide] {
+  color: var(--rv-ink);
+  background: transparent !important;
+  animation: none !important;
+}
+
+[data-drever-slide] h1,
+[data-drever-slide] h2,
+[data-drever-slide] p,
+[data-drever-slide] span,
+[data-drever-slide] strong,
+[data-drever-slide] em {
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+[data-drever-slide] strong,
+.big-number,
+.cost-lockup strong,
+.metric-pair strong,
+.before-after strong {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-drever-slide] *,
+  [data-drever-stage] * {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.rv-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--rv-paper);
+  color: var(--rv-ink);
+  transition:
+    background-color 520ms var(--rv-ease),
+    color 520ms var(--rv-ease);
+}
+
+.rv-stage--opening,
+.rv-stage--close {
+  background: var(--rv-ink);
+  color: var(--rv-paper);
+}
+.rv-stage__grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.14;
+  background-image: radial-gradient(circle at 1px 1px, currentColor 1px, transparent 1.4px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(to bottom, transparent, #000 22%, #000 78%, transparent);
+}
+.rv-stage__route {
+  position: absolute;
+  left: 72px;
+  right: 72px;
+  bottom: 64px;
+  height: 44px;
+  opacity: 0;
+  transition: opacity 360ms var(--rv-ease);
+}
+.rv-stage--opening .rv-stage__route,
+.rv-stage--corridor .rv-stage__route,
+.rv-stage--gates .rv-stage__route,
+.rv-stage--close .rv-stage__route {
+  opacity: 0.3;
+}
+.rv-stage__track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 18px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+}
+.rv-stage__crossing {
+  position: absolute;
+  left: 50%;
+  top: -64px;
+  width: 6px;
+  height: 170px;
+  border-radius: 999px;
+  background: var(--rv-coral);
+  opacity: 0;
+  transition: opacity 360ms var(--rv-ease);
+}
+.rv-stage__route.has-crossing .rv-stage__crossing {
+  opacity: 1;
+}
+.rv-stage__node,
+.rv-stage__signal {
+  position: absolute;
+  top: 8px;
+  width: 26px;
+  height: 26px;
+  border: 6px solid currentColor;
+  border-radius: 50%;
+  background: var(--rv-paper);
+}
+.rv-stage--opening .rv-stage__node,
+.rv-stage--close .rv-stage__node,
+.rv-stage--opening .rv-stage__signal,
+.rv-stage--close .rv-stage__signal {
+  background: var(--rv-ink);
+}
+.rv-stage__node--one {
+  left: 24%;
+}
+.rv-stage__node--two {
+  left: 50%;
+}
+.rv-stage__node--three {
+  left: 76%;
+}
+.rv-stage__signal {
+  left: 0;
+  border-color: var(--rv-coral);
+  background: var(--rv-coral) !important;
+}
+.rv-stage--opening:not(.is-reduced) .rv-stage__signal {
+  animation: rv-stage-travel 1100ms 320ms var(--rv-ease) both;
+}
+.rv-stage--gates:not(.is-reduced) .rv-stage__signal {
+  animation: rv-stage-travel 1300ms 220ms var(--rv-ease) both;
+}
+.rv-stage--close .rv-stage__signal {
+  left: calc(100% - 26px);
+}
+@keyframes rv-stage-travel {
+  from {
+    left: 0;
+  }
+  to {
+    left: calc(100% - 26px);
+  }
+}

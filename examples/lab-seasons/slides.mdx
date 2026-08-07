@@ -1,0 +1,491 @@
+import "./draft.css";
+
+<div className="science-slide opening-slide">
+  <div className="eyebrow">SEASONS • A TESTABLE MYSTERY</div>
+  <h1>
+    Why summer is not <span className="sun-text">“closer”</span>
+  </h1>
+  <p className="lead">Is summer the part of Earth’s orbit nearest the Sun?</p>
+  <div className="opening-orbit" aria-label="Schematic orbit with Earth and Sun">
+    <div className="sun-disc" />
+    <div className="orbit-line" />
+    <div className="earth-disc tiny-earth">
+      <span />
+    </div>
+  </div>
+  <div className="question-chip">Let’s make the idea predict.</div>
+</div>
+
+<Note>
+  Open by asking for a show of hands: “Who has heard that summer happens because Earth is closer to
+  the Sun?” Treat the idea respectfully—it sounds plausible because standing closer to a fire does
+  feel warmer. Tell students that science lets us test an explanation by asking what it predicts.
+  Today we will use two clues, then build an explanation they can teach to someone else.
+</Note>
+
+---
+
+<div className="science-slide prediction-slide">
+  <div className="eyebrow">THE HYPOTHESIS</div>
+  <h2>If distance causes seasons…</h2>
+  <div className="prediction-band">
+    <div className="prediction-icon earth-disc">
+      <span />
+    </div>
+    <div className="prediction-arrow">closer to the Sun</div>
+    <div className="prediction-result">the whole planet should warm together</div>
+  </div>
+  <p className="prompt">Does that prediction match Earth?</p>
+</div>
+
+<Note>
+  Turn the misconception into a prediction. Every place on Earth travels with the same planet, so
+  the Earth–Sun distance is shared by both hemispheres. If that shared distance were the main
+  control, both hemispheres should move into summer together and winter together. Pause briefly
+  before the final question and invite students to anticipate the answer.
+</Note>
+
+---
+
+<div className="science-slide clue-slide january-slide">
+  <div className="clue-number">01</div>
+  <div className="clue-copy">
+    <div className="eyebrow">CLUE ONE</div>
+    <h2>
+      Earth is closest in <span className="sun-text">early January</span>
+    </h2>
+    <p>That is winter in the Northern Hemisphere.</p>
+  </div>
+  <div className="january-art" aria-label="Earth closest to the Sun in early January">
+    <div className="sun-disc large-sun" />
+    <div className="distance-line">
+      <span>closest</span>
+    </div>
+    <div className="earth-disc winter-earth">
+      <span />
+    </div>
+    <div className="month-stamp">JAN</div>
+  </div>
+</div>
+
+<Note>
+  Reveal the first contradiction: Earth is closest to the Sun in early January. In the Northern
+  Hemisphere, that is winter—not summer. This single fact does not yet explain seasons, but it tells
+  us that simple closeness cannot be the main cause. Avoid introducing an exact date or an
+  orbital-distance percentage; those are outside the supplied evidence and are unnecessary here.
+</Note>
+
+---
+
+<div className="science-slide clue-slide hemispheres-slide">
+  <div className="clue-number">02</div>
+  <div className="eyebrow">CLUE TWO • SAME MOMENT, SAME DISTANCE</div>
+  <h2>
+    Opposite hemispheres.
+    <br />
+    <span className="sun-text">Opposite seasons.</span>
+  </h2>
+  <div
+    className="hemisphere-pair"
+    aria-label="Northern and Southern Hemispheres have opposite seasons"
+  >
+    <div className="half-card warm-card">
+      <span className="hemi-label">NORTH</span>
+      <strong>SUMMER</strong>
+      <span>higher Sun • longer day</span>
+    </div>
+    <div className="earth-split">
+      <div className="earth-north" />
+      <div className="earth-south" />
+      <i />
+    </div>
+    <div className="half-card cool-card">
+      <span className="hemi-label">SOUTH</span>
+      <strong>WINTER</strong>
+      <span>lower Sun • shorter day</span>
+    </div>
+  </div>
+</div>
+
+<Note>
+  State the second contradiction. At one moment, Earth has one distance from the Sun, yet the two
+  hemispheres have opposite seasons. Use a familiar example: when the Northern Hemisphere has
+  summer, the Southern Hemisphere has winter, and six months later the pattern reverses. The cause
+  must therefore distinguish north from south, not merely near from far.
+</Note>
+
+---
+
+<div className="science-slide verdict-slide">
+  <div className="eyebrow">TEST THE MODEL</div>
+  <h2>
+    The distance idea fails <span className="sun-text">both tests</span>
+  </h2>
+  <div className="test-grid">
+    <div className="test-card">
+      <span className="test-id">TEST 1</span>
+      <strong>Closest in January</strong>
+      <span className="fail-mark">≠ northern summer</span>
+    </div>
+    <div className="test-card">
+      <span className="test-id">TEST 2</span>
+      <strong>One shared distance</strong>
+      <span className="fail-mark">≠ opposite seasons</span>
+    </div>
+  </div>
+  <p className="verdict-line">Distance is not the seasonal switch.</p>
+</div>
+
+<Note>
+  Bring the two clues together as a verdict. A strong scientific explanation must survive both
+  tests. The distance hypothesis does not. Be precise: we are rejecting distance as the cause of the
+  seasons, not claiming that Earth’s distance never changes. Transition with: “So what can treat the
+  two hemispheres differently at the same moment?”
+</Note>
+
+---
+
+<div className="science-slide tilt-slide">
+  <div className="tilt-copy">
+    <div className="eyebrow">THE REAL GEOMETRY</div>
+    <h2>
+      Earth spins on a <span className="sun-text">tilted axis</span>
+    </h2>
+    <div className="tilt-value">23.4°</div>
+    <p>about one quarter of a right angle</p>
+  </div>
+  <div className="tilt-art" aria-label="Earth axis tilted about 23.4 degrees">
+    <div className="axis-line" />
+    <div className="reference-line" />
+    <div className="angle-arc">23.4°</div>
+    <MotionGroup name="tilt-earth" intent="continuity" className="tilt-earth-motion">
+      <div className="earth-disc tilt-earth-shell hero-earth">
+        <span />
+      </div>
+    </MotionGroup>
+  </div>
+</div>
+
+<Note>
+  Introduce Earth’s axial tilt: about 23.4 degrees. The axis is the imaginary line through the poles
+  around which Earth rotates. The small right-angle comparison gives students a physical sense of
+  the amount without adding a new numerical claim. Emphasize that tilt is an orientation, not a
+  large change in how far a hemisphere is from the Sun.
+</Note>
+
+---
+
+<div className="science-slide orbit-slide">
+  <div className="eyebrow">THE AXIS KEEPS ITS DIRECTION</div>
+  <h2>
+    One hemisphere tilts <span className="sun-text">toward</span>.<br />
+    The other tilts <span className="cool-text">away</span>.
+  </h2>
+  <div className="orbit-scene" aria-label="Earth at two positions with parallel tilted axes">
+    <div className="sun-disc orbit-sun" />
+    <div className="orbit-track" />
+    <div className="orbit-earth-position left-earth">
+      <MotionGroup name="tilt-earth" intent="continuity" className="tilt-earth-motion">
+        <div className="earth-disc tilt-earth-shell">
+          <span />
+        </div>
+      </MotionGroup>
+      <i className="orbit-axis" />
+    </div>
+    <div className="orbit-earth-position right-earth">
+      <div className="earth-disc tilt-earth-shell">
+        <span />
+      </div>
+      <i className="orbit-axis" />
+    </div>
+    <div className="axis-guide left-guide" />
+    <div className="axis-guide right-guide" />
+  </div>
+  <div className="parallel-label">same axis direction</div>
+</div>
+
+<Note>
+  Explain that as Earth travels around the Sun, its tilted axis keeps pointing in the same
+  direction. At one side of the orbit, the Northern Hemisphere is tilted toward the Sun; on the
+  other side, it is tilted away. At either position, the Southern Hemisphere experiences the
+  reverse. The diagram is schematic: the key evidence is parallel axis direction, not the orbit’s
+  shape or scale.
+</Note>
+
+---
+
+<div className="science-slide two-effects-slide">
+  <div className="eyebrow">TILT CHANGES TWO THINGS</div>
+  <h2>
+    Angle <span className="plus-sign">+</span> time
+  </h2>
+  <div className="effect-branches">
+    <div className="effect-card angle-card">
+      <span className="effect-number">1</span>
+      <div className="ray-icon">
+        <i />
+        <i />
+        <i />
+      </div>
+      <strong>Higher Sun angle</strong>
+      <span>more direct light</span>
+    </div>
+    <div className="effect-card time-card">
+      <span className="effect-number">2</span>
+      <div className="day-arc">
+        <i />
+      </div>
+      <strong>Longer daylight</strong>
+      <span>more hours of light</span>
+    </div>
+  </div>
+</div>
+
+<Note>
+  Preview the two-part mechanism. When a hemisphere tilts toward the Sun, summer brings a higher Sun
+  angle and longer daylight. Students need both ideas: the light arrives more directly, and it
+  arrives for more hours. Tell them the next two slides will unpack one effect at a time before
+  recombining them.
+</Note>
+
+---
+
+<div className="science-slide angle-slide">
+  <div className="eyebrow">EFFECT 1 • SUN ANGLE</div>
+  <h2>
+    Same beam. <span className="sun-text">Different spread.</span>
+  </h2>
+  <div
+    className="beam-comparison"
+    aria-label="Direct and low-angle beams spread over different surface areas"
+  >
+    <div className="beam-case direct-case">
+      <span className="case-label">HIGHER ANGLE</span>
+      <div className="beam direct-beam" />
+      <div className="ground short-ground" />
+      <strong>concentrated</strong>
+    </div>
+    <div className="beam-case low-case">
+      <span className="case-label">LOWER ANGLE</span>
+      <div className="beam low-beam" />
+      <div className="ground long-ground" />
+      <strong>spread out</strong>
+    </div>
+  </div>
+</div>
+
+<Note>
+  Use the equal-width beams as a geometric comparison. At a higher Sun angle, incoming light strikes
+  the ground more directly and the beam is concentrated over a smaller patch. At a lower angle, the
+  same beam is spread over a longer patch. Do not say that individual rays become stronger; the
+  difference is how the incoming energy is distributed across the surface.
+</Note>
+
+---
+
+<div className="science-slide daylight-slide">
+  <div className="eyebrow">EFFECT 2 • DAYLIGHT</div>
+  <h2>
+    More daylight means <span className="sun-text">more heating time</span>
+  </h2>
+  <div
+    className="day-comparison"
+    aria-label="Long summer daylight compared with short winter daylight"
+  >
+    <div className="day-row">
+      <span className="season-label">SUMMER</span>
+      <div className="time-track">
+        <div className="light-time long-light">
+          <i className="mini-sun" />
+        </div>
+        <div className="dark-time short-dark" />
+      </div>
+      <strong>longer day</strong>
+    </div>
+    <div className="day-row">
+      <span className="season-label">WINTER</span>
+      <div className="time-track">
+        <div className="light-time short-light">
+          <i className="mini-sun" />
+        </div>
+        <div className="dark-time long-dark" />
+      </div>
+      <strong>shorter day</strong>
+    </div>
+  </div>
+  <p className="time-caption">The Sun has more hours to deliver energy.</p>
+</div>
+
+<Note>
+  Explain the second effect without giving specific hour counts. In summer, longer daylight means
+  solar energy arrives for more of each day. In winter, daylight is shorter. Angle and duration work
+  together; neither panel is meant as a numerical scale. Ask: “Which season gets both the more
+  direct light and the longer time?”
+</Note>
+
+---
+
+<div className="science-slide chain-slide">
+  <div className="eyebrow">THE SUMMER CHAIN</div>
+  <h2>Follow the cause</h2>
+  <div className="causal-chain" aria-label="Causal chain from tilt toward the Sun to summer">
+    <div className="chain-rail" aria-hidden="true">
+      <span className="chain-signal" />
+    </div>
+    <div className="chain-node">
+      <span>01</span>
+      <strong>Tilted toward</strong>
+    </div>
+    <i>→</i>
+    <div className="chain-node double-node">
+      <span>02</span>
+      <strong>
+        Higher angle
+        <br />+ longer day
+      </strong>
+    </div>
+    <i>→</i>
+    <div className="chain-node">
+      <span>03</span>
+      <strong>More heating</strong>
+    </div>
+    <i>→</i>
+    <div className="chain-node summer-node">
+      <span>04</span>
+      <strong>Summer</strong>
+    </div>
+  </div>
+  <p className="chain-check">Not closer. Tilted toward.</p>
+</div>
+
+<Note>
+  Read the causal chain once, slowly: tilted toward the Sun leads to a higher Sun angle and longer
+  daylight; together those produce more heating; that hemisphere experiences summer. Then contrast
+  the first phrase with the misconception: “tilted toward” describes orientation and lighting, not a
+  meaningful seasonal change in distance.
+</Note>
+
+---
+
+<div className="science-slide reverse-slide">
+  <div className="eyebrow">SAME EARTH • OPPOSITE EFFECTS</div>
+  <h2>The other hemisphere gets the reverse</h2>
+  <div className="reverse-system" aria-label="Opposite seasonal chains in the hemispheres">
+    <div className="reverse-chain warm-chain">
+      <span className="hemi-label">TILTED TOWARD</span>
+      <strong>higher angle + longer day</strong>
+      <i>→</i>
+      <b>SUMMER</b>
+    </div>
+    <div className="reverse-earth">
+      <div className="earth-disc center-earth">
+        <span />
+      </div>
+      <div className="reverse-axis" />
+    </div>
+    <div className="reverse-chain cool-chain">
+      <span className="hemi-label">TILTED AWAY</span>
+      <strong>lower angle + shorter day</strong>
+      <i>→</i>
+      <b>WINTER</b>
+    </div>
+  </div>
+</div>
+
+<Note>
+  Apply the same reasoning to both hemispheres at once. If the north is tilted toward the Sun, the
+  south is tilted away, so the south receives the reverse combination: lower Sun angle and shorter
+  daylight. This is why the hemispheres can have opposite seasons at the same Earth–Sun distance.
+  Six months later, their roles swap.
+</Note>
+
+---
+
+<div className="science-slide comparison-slide">
+  <div className="eyebrow">WHICH MODEL EXPLAINS THE EVIDENCE?</div>
+  <h2>Distance vs. tilt</h2>
+  <div className="model-table" role="table" aria-label="Comparison of distance and tilt models">
+    <div className="model-head blank-cell" />
+    <div className="model-head distance-head">DISTANCE</div>
+    <div className="model-head tilt-head">AXIAL TILT</div>
+    <div className="row-label">Closest in early January</div>
+    <div className="model-cell no-cell">cannot explain</div>
+    <div className="model-cell yes-cell">not required</div>
+    <div className="row-label">Opposite seasons</div>
+    <div className="model-cell no-cell">cannot explain</div>
+    <div className="model-cell yes-cell">explains</div>
+    <div className="row-label">Angle + daylight</div>
+    <div className="model-cell no-cell">no mechanism</div>
+    <div className="model-cell yes-cell">explains</div>
+  </div>
+</div>
+
+<Note>
+  Use this as the final evidence check. The distance model fails to account for the January clue,
+  opposite seasons, or the angle-and-daylight mechanism. Axial tilt does not require closest
+  approach to line up with summer, and it directly explains why the hemispheres receive opposite
+  patterns of sunlight. A good model explains more observations with one connected mechanism.
+</Note>
+
+---
+
+<div className="science-slide explain-slide">
+  <div className="eyebrow">EXPLAIN IT IN FOUR MOVES</div>
+  <h2>Build the answer</h2>
+  <ol className="four-moves">
+    <li>
+      <span>1</span>
+      <strong>Reject distance</strong>
+      <small>January + opposite seasons</small>
+    </li>
+    <li>
+      <span>2</span>
+      <strong>Name the tilt</strong>
+      <small>about 23.4°</small>
+    </li>
+    <li>
+      <span>3</span>
+      <strong>Describe both effects</strong>
+      <small>Sun angle + daylight</small>
+    </li>
+    <li>
+      <span>4</span>
+      <strong>Connect the hemispheres</strong>
+      <small>toward / away → opposite seasons</small>
+    </li>
+  </ol>
+</div>
+
+<Note>
+  Model a short explanation using the four moves: “Seasons are not caused by Earth moving closer to
+  the Sun: Earth is actually closest in early January, and the hemispheres have opposite seasons.
+  Earth’s axis is tilted about 23.4 degrees. A hemisphere tilted toward the Sun gets a higher Sun
+  angle and longer daylight, so it warms more. The other hemisphere gets the reverse, so their
+  seasons are opposite.”
+</Note>
+
+---
+
+<div className="science-slide close-slide">
+  <div className="eyebrow">YOUR TURN • TEACH IT BACK</div>
+  <h2>
+    Explain the seasons
+    <br />
+    to someone beside you.
+  </h2>
+  <div className="closing-statement">
+    <span>Tilt changes</span>
+    <strong>angle + daylight</strong>
+    <span>— not Earth’s seasonal distance.</span>
+  </div>
+  <div className="closing-earth earth-disc">
+    <span />
+  </div>
+</div>
+
+<Note>
+  Give pairs about twenty seconds. One student explains; the other listens for the four moves. If
+  time permits, swap. End by reading the closing statement together: tilt changes angle and
+  daylight—not Earth’s seasonal distance. The goal is not just to remember the answer, but to be
+  able to explain the mechanism to another person.
+</Note>

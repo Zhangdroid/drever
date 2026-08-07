@@ -1,0 +1,173 @@
+{
+  "version": 2,
+  "status": "approved",
+  "brief": {
+    "topic": "A six-month bus-priority-lane pilot on Riverton's 6.2 km corridor",
+    "audience": "Riverton City Council",
+    "desiredChange": "Authorize the $6.8 million six-month pilot with reviews at weeks 4, 12, and 24",
+    "durationMinutes": 15,
+    "language": "en",
+    "density": "concise"
+  },
+  "slides": [
+    {
+      "id": "controlled-pilot",
+      "job": "opening",
+      "title": "A controlled pilot, with three chances to review",
+      "purpose": "State the recommended council action and frame the decision as a six-month test with scheduled oversight.",
+      "evidence": [
+        "The proposed bus-priority-lane pilot lasts six months.",
+        "Review gates are scheduled at weeks 4, 12, and 24."
+      ],
+      "focalArtifact": "A concise recommendation anchored by the six-month duration and the three review weeks"
+    },
+    {
+      "id": "decision-standard",
+      "job": "context",
+      "title": "The decision standard",
+      "purpose": "Define the decision questions the council will use to weigh need, expected effects, trade-offs, cost, and oversight.",
+      "evidence": [
+        "The supplied record covers rider scale, current bus performance, expected bus and car effects, emergency response, cost, duration, and review gates."
+      ],
+      "focalArtifact": "Four decision questions derived from the supplied evidence categories"
+    },
+    {
+      "id": "corridor-scale",
+      "job": "evidence",
+      "title": "One corridor, 18,400 weekday riders",
+      "purpose": "Establish the physical scope and the number of weekday bus riders directly exposed to corridor performance.",
+      "evidence": [
+        "The corridor is 6.2 km long.",
+        "The corridor carries 18,400 weekday bus riders."
+      ],
+      "focalArtifact": "The 6.2 km corridor and 18,400-rider scale"
+    },
+    {
+      "id": "current-trip",
+      "job": "evidence",
+      "title": "The peak bus trip is 34 minutes—and unpredictable",
+      "purpose": "Show that the current problem includes both peak travel time and substantial variability.",
+      "evidence": [
+        "The peak bus trip is 34 minutes.",
+        "Trip variability is plus or minus 9 minutes."
+      ],
+      "focalArtifact": "A 34-minute trip paired with the quoted plus-or-minus 9-minute variability"
+    },
+    {
+      "id": "intersection-delay",
+      "job": "claim",
+      "title": "Most delay occurs at intersections",
+      "purpose": "Identify where the supplied evidence locates the dominant share of corridor delay without adding an unsupported engineering prescription.",
+      "evidence": ["Fifty-eight percent of delay occurs at intersections."],
+      "focalArtifact": "The 58% intersection-delay share"
+    },
+    {
+      "id": "expected-bus-trip",
+      "job": "comparison",
+      "title": "The expected bus trip: 34 minutes to 26",
+      "purpose": "Translate the expected 8-minute reduction into an easy-to-evaluate before-and-expected comparison.",
+      "evidence": [
+        "The current peak bus trip is 34 minutes.",
+        "The pilot is expected to reduce the bus trip by 8 minutes.",
+        "Twenty-six minutes is the arithmetic result and must be labeled as expected, not observed."
+      ],
+      "focalArtifact": "A current 34-minute trip compared with an expected 26-minute trip"
+    },
+    {
+      "id": "car-tradeoff",
+      "job": "comparison",
+      "title": "The trade-off: three minutes for the typical car trip",
+      "purpose": "Make the expected road-user trade-off explicit and compare it with the expected bus-time gain.",
+      "evidence": [
+        "The typical car trip is expected to increase by 3 minutes.",
+        "The bus trip is expected to decrease by 8 minutes."
+      ],
+      "focalArtifact": "The expected 8-minute bus gain beside the expected 3-minute typical car penalty"
+    },
+    {
+      "id": "emergency-response",
+      "job": "claim",
+      "title": "Emergency response is expected to remain unchanged",
+      "purpose": "Address the emergency-response constraint directly and faithfully.",
+      "evidence": ["Emergency response is expected to remain unchanged."],
+      "focalArtifact": "The unchanged emergency-response expectation"
+    },
+    {
+      "id": "pilot-cost",
+      "job": "evidence",
+      "title": "The six-month test costs $6.8 million",
+      "purpose": "State the fiscal commitment without inventing unit costs, funding sources, or payback claims.",
+      "evidence": ["The pilot costs $6.8 million.", "The pilot lasts six months."],
+      "focalArtifact": "The $6.8 million authorization amount"
+    },
+    {
+      "id": "decision-balance",
+      "job": "comparison",
+      "title": "The case, on one page",
+      "purpose": "Synthesize the supplied case for and against authorization so the council can see the whole decision balance.",
+      "evidence": [
+        "There are 18,400 weekday bus riders on the corridor.",
+        "The bus trip is expected to decrease by 8 minutes.",
+        "The typical car trip is expected to increase by 3 minutes.",
+        "Emergency response is expected to remain unchanged.",
+        "The pilot costs $6.8 million."
+      ],
+      "focalArtifact": "A single synthesis of rider scale, expected travel-time effects, emergency response, and cost"
+    },
+    {
+      "id": "forecast-limits",
+      "job": "explanation",
+      "title": "What the forecast does not decide",
+      "purpose": "Separate proposal expectations from observed pilot results and prevent the council from treating forecasts as completed evidence.",
+      "evidence": [
+        "The 8-minute bus reduction and 3-minute typical car increase are expected outcomes.",
+        "Emergency response is expected to remain unchanged.",
+        "No additional measurements or outcome thresholds were supplied."
+      ],
+      "focalArtifact": "A boundary between supplied expectations and outcomes that remain to be observed"
+    },
+    {
+      "id": "six-month-test",
+      "job": "process",
+      "title": "Six months turns a forecast into a decision record",
+      "purpose": "Explain why the proposal is structured as a time-bounded test rather than a permanent conclusion.",
+      "evidence": [
+        "The proposed pilot lasts six months.",
+        "The final supplied review gate is at week 24."
+      ],
+      "focalArtifact": "The six-month pilot period ending in the week-24 review"
+    },
+    {
+      "id": "review-gates",
+      "job": "process",
+      "title": "Three review gates keep the council in control",
+      "purpose": "Sequence the formal review points without inventing numerical pass or fail thresholds.",
+      "evidence": ["Reviews occur at weeks 4, 12, and 24."],
+      "focalArtifact": "The ordered week-4, week-12, and week-24 review sequence"
+    },
+    {
+      "id": "decision-choice",
+      "job": "decision",
+      "title": "The choice: test the proposal or retain the status quo",
+      "purpose": "Put the recommended pilot authorization against the alternative of not conducting the test.",
+      "evidence": [
+        "The corridor serves 18,400 weekday bus riders over 6.2 km.",
+        "The current peak bus trip is 34 minutes with plus or minus 9 minutes variability.",
+        "The expected effects are an 8-minute bus reduction, a 3-minute increase to the typical car trip, and unchanged emergency response.",
+        "The six-month pilot costs $6.8 million and has review gates at weeks 4, 12, and 24."
+      ],
+      "focalArtifact": "A binary council choice grounded in the complete supplied decision record"
+    },
+    {
+      "id": "authorize-pilot",
+      "job": "close",
+      "title": "Authorize the six-month pilot",
+      "purpose": "End with a direct motion that incorporates the supplied cost, duration, and oversight schedule.",
+      "evidence": [
+        "The requested authorization is $6.8 million for a six-month pilot.",
+        "Reviews are scheduled at weeks 4, 12, and 24."
+      ],
+      "focalArtifact": "The proposed motion to authorize the pilot with all three review gates"
+    }
+  ]
+}

@@ -33,6 +33,9 @@ const SKILLS = [
   "drever-review-deck",
   "drever-deliver-deck",
 ] as const;
+const SKILL_RESOURCES: Partial<Record<(typeof SKILLS)[number], readonly string[]>> = {
+  "drever-create-design": ["references/visual-decision-pass.md"],
+};
 
 type AgentPlatform = "claude" | "codex";
 
@@ -77,11 +80,21 @@ const skillTargets = (platform: AgentPlatform): readonly OwnedTarget[] =>
       marker: SKILL_MARKER,
       source: ["skills", skill, "SKILL.md"],
     };
+    const resources: readonly OwnedTarget[] = (SKILL_RESOURCES[skill] ?? []).map((path) => {
+      const segments = path.split("/");
+      return {
+        destination: [...root, ...segments],
+        kind: "owned",
+        marker: SKILL_MARKER,
+        source: ["skills", skill, ...segments],
+      };
+    });
     if (platform === "claude") {
-      return [skillTarget];
+      return [skillTarget, ...resources];
     }
     return [
       skillTarget,
+      ...resources,
       {
         destination: [...root, "agents", "openai.yaml"],
         kind: "owned",

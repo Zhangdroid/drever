@@ -1,0 +1,119 @@
+:root {
+  color-scheme: dark;
+  --drever-canvas-background: #0b1f33;
+  --drever-stage-background: #0b1f33;
+  --drever-canvas-color: #f7f4ea;
+  --drever-stage-color: #f7f4ea;
+  --route-canvas: #0b1f33;
+  --route-paper: #f7f4ea;
+  --route-ink: #10233a;
+  --route-quiet-light: #9aabba;
+  --route-quiet-dark: #5c6f82;
+  --route-blue: #2f6fed;
+  --route-yellow: #ffd34e;
+  --route-line: #2b4359;
+}
+
+[data-drever-slide] {
+  background: transparent;
+  color: var(--route-paper);
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  animation: none;
+}
+
+[data-drever-slide] h1,
+[data-drever-slide] h2,
+[data-drever-slide] h3,
+[data-drever-slide] p,
+[data-drever-slide] ol,
+[data-drever-slide] ul {
+  max-width: none;
+  margin-block: 0;
+  text-transform: none;
+}
+
+.wayfinding-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--route-canvas);
+  transition: background-color 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.wayfinding-stage__grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.13;
+  background-image:
+    linear-gradient(to right, rgba(154, 171, 186, 0.22) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(154, 171, 186, 0.18) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), transparent 82%);
+}
+
+.wayfinding-stage__route {
+  position: absolute;
+  left: 56px;
+  top: 56px;
+  width: 180px;
+  height: 8px;
+  background: var(--route-blue);
+  opacity: 0.72;
+}
+
+.wayfinding-stage__route::after {
+  content: "";
+  position: absolute;
+  right: -14px;
+  top: -10px;
+  width: 28px;
+  height: 28px;
+  background: var(--route-yellow);
+}
+
+.wayfinding-stage__index {
+  position: absolute;
+  right: 56px;
+  bottom: 48px;
+  color: rgba(247, 244, 234, 0.32);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+}
+
+.wayfinding-stage--opening .wayfinding-stage__route {
+  width: 320px;
+}
+.wayfinding-stage--action .wayfinding-stage__route {
+  width: 240px;
+  background: var(--route-yellow);
+}
+.wayfinding-stage--action .wayfinding-stage__route::after {
+  background: var(--route-blue);
+}
+.wayfinding-stage--close {
+  background: #071829;
+}
+.wayfinding-stage--close .wayfinding-stage__grid {
+  opacity: 0.07;
+}
+.wayfinding-stage--close .wayfinding-stage__route {
+  width: 420px;
+  background: var(--route-yellow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wayfinding-stage,
+  .wayfinding-stage * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
