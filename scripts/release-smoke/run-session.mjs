@@ -92,6 +92,10 @@ const harnessFiles = [
   [instructionPath, "Project instructions"],
   [`${skillRoot}/drever-create-deck/SKILL.md`, "Creation skill"],
   [`${skillRoot}/drever-create-design/SKILL.md`, "Design skill"],
+  [
+    `${skillRoot}/drever-create-design/references/visual-decision-pass.md`,
+    "Visual decision reference",
+  ],
   [`${skillRoot}/drever-author-deck/SKILL.md`, "Authoring skill"],
   [`${skillRoot}/drever-review-deck/SKILL.md`, "Review skill"],
   ["package.json", "Scaffold package"],

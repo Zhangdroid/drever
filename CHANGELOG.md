@@ -5,6 +5,17 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+Release impact: **minor** — this batch makes subject-led visual direction an explicit, inspectable
+part of the generated authoring workflow.
+
+### Changed
+
+- Added a version-matched visual decision pass that records one Scene map across every slide and one
+  Handoff map across every adjacent edge before refined visual authoring. The installed Codex and
+  Claude workflows now choose evidence, imagery, typography, color roles, content-led motion,
+  continuity geometry, reverse behavior, and settled endpoints explicitly, then verify those
+  decisions against the rendered deck.
+
 ## [0.16.0] - 2026-08-06
 
 Release impact: **minor** — this batch makes Studio's completed creation stages safely revisitable

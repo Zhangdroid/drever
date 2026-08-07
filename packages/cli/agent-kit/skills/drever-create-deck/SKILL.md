@@ -400,6 +400,8 @@ can run parallel workers, a design worker may prepare tokens, assets, and signat
 milestone while the primary worker owns the narrative and MDX; never let two workers edit the same
 visual source. After design and authoring settle, let `drever-review-deck` launch the isolated
 Playwright rendered review for the final source; never duplicate that browser gate during Draft 1.
+The design pass is incomplete until `design/art-direction.md` contains the complete Scene and
+Handoff maps required by that skill and their decisions are implemented in the live deck.
 
 The active Studio development server, Creation room, embedded preview iframe, and managed agent
 transport belong to the user's session. Keep them alive through Storyboard review, Draft 1,

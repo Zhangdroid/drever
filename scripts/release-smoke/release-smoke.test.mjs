@@ -2389,7 +2389,12 @@ test("rebuilds the secret-runner handoff from an exact regular-file allowlist", 
   ]);
 
   const receipt = await copyReleaseSmokeHandoff(scaffold, project);
-  assert.deepEqual(receipt.files, [...RELEASE_SMOKE_HANDOFF_PATHS, "drever.config.ts"].sort());
+  assert.deepEqual(
+    receipt.files,
+    [...RELEASE_SMOKE_HANDOFF_PATHS, "drever.config.ts"].sort((left, right) =>
+      left.localeCompare(right),
+    ),
+  );
   assert.equal(await readFile(join(project, "package.json"), "utf8"), "package.json\n");
   await assert.rejects(readFile(join(project, ".codex/hooks.json"), "utf8"), { code: "ENOENT" });
   await assert.rejects(readFile(join(project, "node_modules/drever/package.json"), "utf8"), {
@@ -2417,7 +2422,10 @@ test("copies a legacy scaffold handoff without inventing a deck plan", async () 
 
   const receipt = await copyReleaseSmokeHandoff(scaffold, project);
 
-  assert.deepEqual(receipt.files, [...legacyPaths].sort());
+  assert.deepEqual(
+    receipt.files,
+    [...legacyPaths].sort((left, right) => left.localeCompare(right)),
+  );
   await assert.rejects(readFile(join(project, "drever.plan.json"), "utf8"), { code: "ENOENT" });
   assert.equal(await readFile(join(project, "brief.md"), "utf8"), "brief.md\n");
 });
@@ -2450,6 +2458,26 @@ test("keeps Codex and Claude handoffs exact and mutually isolated", async () => 
   assert.deepEqual(
     claudeReceipt.files,
     [...claudePaths].sort((left, right) => left.localeCompare(right)),
+  );
+  assert.ok(
+    codexPaths.includes(".agents/skills/drever-create-design/references/visual-decision-pass.md"),
+  );
+  assert.ok(
+    claudePaths.includes(".claude/skills/drever-create-design/references/visual-decision-pass.md"),
+  );
+  assert.equal(
+    await readFile(
+      join(codexProject, ".agents/skills/drever-create-design/references/visual-decision-pass.md"),
+      "utf8",
+    ),
+    ".agents/skills/drever-create-design/references/visual-decision-pass.md\n",
+  );
+  assert.equal(
+    await readFile(
+      join(claudeProject, ".claude/skills/drever-create-design/references/visual-decision-pass.md"),
+      "utf8",
+    ),
+    ".claude/skills/drever-create-design/references/visual-decision-pass.md\n",
   );
   assert.equal(await readFile(join(codexProject, "AGENTS.md"), "utf8"), "AGENTS.md\n");
   assert.equal(await readFile(join(claudeProject, "CLAUDE.md"), "utf8"), "CLAUDE.md\n");
@@ -2487,7 +2515,9 @@ test("re-sanitizes downloaded handoff files before the secret-bearing runner sta
   ]);
   assert.deepEqual(
     handoff.files,
-    [...RELEASE_SMOKE_HANDOFF_PATHS, ...RELEASE_SMOKE_PRIVATE_PATHS].sort(),
+    [...RELEASE_SMOKE_HANDOFF_PATHS, ...RELEASE_SMOKE_PRIVATE_PATHS].sort((left, right) =>
+      left.localeCompare(right),
+    ),
   );
   assert.deepEqual(seed.files, [...RELEASE_SMOKE_ARTIFACT_SEED_PATHS].sort());
   await assert.rejects(readFile(join(project, ".codex/config.toml"), "utf8"), {
@@ -2693,6 +2723,8 @@ process.stdout.write(JSON.stringify({
   assert.match(repairTurn, /do not edit the project\s+instructions or release-smoke harness/iu);
   assert.match(repairTurn, /both labeled contact\s+sheets/iu);
   assert.match(repairTurn, /whole-canvas backgrounds that move/iu);
+  assert.match(repairTurn, /Visual decision reference/iu);
+  assert.match(repairTurn, /visual-decision-pass\.md/iu);
   assert.deepEqual(attachedImages, [
     join(project, RELEASE_SMOKE_VISUAL_EVIDENCE_PATH, "settled-contact-sheet.png"),
     join(project, RELEASE_SMOKE_VISUAL_EVIDENCE_PATH, "transition-contact-sheet.png"),

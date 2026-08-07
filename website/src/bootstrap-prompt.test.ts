@@ -10,6 +10,13 @@ const createDesignSkill = await readFile(
   new URL("../../packages/cli/agent-kit/skills/drever-create-design/SKILL.md", import.meta.url),
   "utf8",
 );
+const visualDecisionReference = await readFile(
+  new URL(
+    "../../packages/cli/agent-kit/skills/drever-create-design/references/visual-decision-pass.md",
+    import.meta.url,
+  ),
+  "utf8",
+);
 const authorDeckSkill = await readFile(
   new URL("../../packages/cli/agent-kit/skills/drever-author-deck/SKILL.md", import.meta.url),
   "utf8",
@@ -170,5 +177,26 @@ describe("public bootstrap prompt", () => {
     expect(reviewDeckSkill).toMatch(/compare every planned narrative job/iu);
     expect(reviewDeckSkill).toMatch(/resolved solid-color contrast failures/iu);
     expect(reviewDeckSkill).toMatch(/indeterminate-paint warnings/iu);
+  });
+
+  it("turns visual direction into scene and handoff decisions", () => {
+    expect(prompt).not.toMatch(/Scene map|Handoff map|visual evidence ladder/iu);
+    expect(createDesignSkill).toContain("references/visual-decision-pass.md");
+    expect(createDesignSkill).toMatch(/every slide and every\s+adjacent edge/iu);
+    expect(createDeckSkill).toMatch(/complete Scene and\s+Handoff maps/iu);
+    expect(authorDeckSkill).toMatch(/Scene and Handoff maps/iu);
+    expect(reviewDeckSkill).toMatch(/require complete Scene and Handoff maps/iu);
+
+    expect(visualDecisionReference).toContain("### Scene map");
+    expect(visualDecisionReference).toContain("### Handoff map");
+    expect(visualDecisionReference).toMatch(/same-object[^]*native View Transition/iu);
+    expect(visualDecisionReference).toMatch(/semantic-successor[^]*needs to track that feature/iu);
+    expect(visualDecisionReference).toMatch(/shared topic alone is not a semantic successor/iu);
+    expect(visualDecisionReference).toMatch(/host exposes image generation/iu);
+    expect(visualDecisionReference).toMatch(/Generated imagery is never factual proof/iu);
+    expect(visualDecisionReference).toMatch(/at most one display family and one body family/iu);
+    expect(visualDecisionReference).toMatch(/normally no more than two non-data accents/iu);
+    expect(visualDecisionReference).toMatch(/Match motion to the content form/iu);
+    expect(visualDecisionReference).toMatch(/parent skill owns deck rhythm/iu);
   });
 });
