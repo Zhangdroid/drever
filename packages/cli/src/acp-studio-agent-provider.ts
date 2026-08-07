@@ -33,6 +33,7 @@ import {
   phaseForStudioAction,
   signalStudioAgentProcess,
   studioAgentProcessOptions,
+  studioActionAgentPayload,
   studioActionWorkflowInstructions,
   type StudioAgentApprovalDecision,
   type StudioAgentApprovalRequest,
@@ -296,7 +297,7 @@ const promptForAction = (record: DreverStudioActionRecord): string =>
     "Keep the browser informed through concise public progress updates. Never expose private reasoning.",
     "Follow the project-local Drever workflow and publication contract; do not wait for terminal input.",
     studioActionWorkflowInstructions(record),
-    JSON.stringify({ revision: record.revision, action: record.action }),
+    JSON.stringify(studioActionAgentPayload(record)),
   ]
     .filter((part) => part.length > 0)
     .join("\n\n");

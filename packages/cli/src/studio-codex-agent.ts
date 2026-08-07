@@ -24,6 +24,7 @@ import {
   phaseForStudioAction,
   signalStudioAgentProcess,
   studioAgentProcessOptions,
+  studioActionAgentPayload,
   studioActionWorkflowInstructions,
   type StudioAgentApprovalDecision,
   type StudioAgentApprovalRequest,
@@ -282,7 +283,7 @@ const actionPrompt = (record: DreverStudioActionRecord): string =>
     "Use concise user-facing progress summaries. Never expose private chain-of-thought.",
     studioActionWorkflowInstructions(record),
     `Studio action revision ${String(record.revision)}:`,
-    JSON.stringify(record.action),
+    JSON.stringify(studioActionAgentPayload(record)),
   ]
     .filter((part) => part.length > 0)
     .join("\n\n");

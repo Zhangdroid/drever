@@ -40,12 +40,15 @@ const createRoot = async (): Promise<string> => {
 };
 
 const writeBriefActions = async (root: string, count: number): Promise<void> => {
-  const token = "studio-action-test-token";
-  const session = createStudioSession(root, { token });
+  const actionsDirectory = join(root, DREVER_STUDIO_DIRECTORY, DREVER_STUDIO_ACTIONS_DIRECTORY);
+  await mkdir(actionsDirectory, { recursive: true });
   for (let revision = 1; revision <= count; revision += 1) {
-    const result = await session.accept(
-      {
-        token,
+    await writeFile(
+      join(actionsDirectory, `${String(revision).padStart(8, "0")}.json`),
+      JSON.stringify({
+        version: 1,
+        revision,
+        receivedAt: new Date(Date.UTC(2026, 7, 1, 0, 0, revision)).toISOString(),
         action: {
           version: 1,
           requestId: `request-${String(revision)}`,
@@ -53,10 +56,9 @@ const writeBriefActions = async (root: string, count: number): Promise<void> => 
           type: "submit-common-brief",
           brief: { topic: `Topic ${String(revision)}` },
         },
-      },
-      true,
+      }),
+      "utf8",
     );
-    if (!result.accepted) throw new Error(`Could not persist Studio action ${String(revision)}.`);
   }
 };
 
@@ -217,8 +219,8 @@ describe("Drever Studio action validation", () => {
 });
 
 describe("Studio session", () => {
-  it.each(["drafting", "refining", "error"] as const)(
-    "keeps live %s state ahead of pending work and an approved-plan preview fallback",
+  it.each(["drafting", "refining"] as const)(
+    "rejects an upstream revision while live %s work is active",
     async (phase) => {
       const root = await createRoot();
       await writeFile(
@@ -230,23 +232,90 @@ describe("Studio session", () => {
         token: "studio-token",
         agentProvider: {
           snapshot: () => ({
-            connected: phase !== "error",
+            connected: true,
             state: { version: 1, phase },
           }),
         },
       });
 
-      await session.accept(
-        {
-          token: "studio-token",
-          action: action({ type: "submit-common-brief", brief: { topic: "A useful topic" } }),
-        },
-        true,
-      );
+      await expect(
+        session.accept(
+          {
+            token: "studio-token",
+            action: action({ type: "submit-common-brief", brief: { topic: "A useful topic" } }),
+          },
+          true,
+        ),
+      ).resolves.toMatchObject({
+        accepted: false,
+        error: { code: "DREVER_STUDIO_UPSTREAM_BUSY" },
+      });
+      await expect(session.read()).resolves.toMatchObject({ pendingActionCount: 0, phase });
+    },
+  );
 
+  it.each(["drafting", "refining"] as const)(
+    "allows an upstream revision after the agent disconnects from %s work",
+    async (phase) => {
+      const root = await createRoot();
+      await writeFile(
+        join(root, "drever.plan.json"),
+        JSON.stringify({ ...plan, status: "approved" }),
+        "utf8",
+      );
+      const session = createStudioSession(root, {
+        token: "studio-token",
+        agentProvider: {
+          snapshot: () => ({
+            connected: false,
+            state: { version: 1, phase },
+          }),
+        },
+      });
+
+      await expect(
+        session.accept(
+          {
+            token: "studio-token",
+            action: action({ type: "submit-common-brief", brief: { topic: "A useful topic" } }),
+          },
+          true,
+        ),
+      ).resolves.toMatchObject({ accepted: true, revision: 1 });
       await expect(session.read()).resolves.toMatchObject({ pendingActionCount: 1, phase });
     },
   );
+
+  it("allows an upstream revision after the active agent turn reports an error", async () => {
+    const root = await createRoot();
+    await writeFile(
+      join(root, "drever.plan.json"),
+      JSON.stringify({ ...plan, status: "approved" }),
+      "utf8",
+    );
+    const session = createStudioSession(root, {
+      token: "studio-token",
+      agentProvider: {
+        snapshot: () => ({
+          connected: false,
+          state: { version: 1, phase: "error" },
+        }),
+      },
+    });
+
+    await session.accept(
+      {
+        token: "studio-token",
+        action: action({ type: "submit-common-brief", brief: { topic: "A useful topic" } }),
+      },
+      true,
+    );
+
+    await expect(session.read()).resolves.toMatchObject({
+      pendingActionCount: 1,
+      phase: "error",
+    });
+  });
 
   it("keeps the common brief visible before a connected provider advances the flow", async () => {
     const root = await createRoot();
@@ -923,6 +992,177 @@ describe("Studio session", () => {
     });
   });
 
+  it("persists the validated question round with its answers and clears it for a new brief", async () => {
+    const root = await createRoot();
+    const token = "studio-token";
+    const session = createStudioSession(root, { token });
+    const briefAck = await session.accept(
+      {
+        token,
+        action: action({ type: "submit-common-brief", brief: { topic: "A durable topic" } }),
+      },
+      true,
+    );
+    expect(briefAck.accepted).toBe(true);
+    await writeStudioAgentState(root, {
+      version: 1,
+      phase: "adaptive-questions",
+      handledActionRevision: 1,
+      adaptiveQuestions: [
+        {
+          id: "proof",
+          prompt: "Which proof should lead?",
+          options: [
+            { id: "demo", label: "Demo", description: "Show the change directly." },
+            { id: "data", label: "Data", description: "Lead with measured evidence." },
+          ],
+        },
+      ],
+    });
+    const questionsState = (await session.refresh()).state;
+    const answersAck = await session.accept(
+      {
+        token,
+        action: {
+          ...action({
+            type: "submit-adaptive-answers",
+            answers: [{ questionId: "proof", optionIds: ["demo"] }],
+          }),
+          expectedRevision: questionsState.revision,
+          requestId: "answers-2",
+        },
+      },
+      true,
+    );
+    expect(answersAck.accepted).toBe(true);
+    await writeFile(join(root, "drever.plan.json"), JSON.stringify(plan), "utf8");
+    await writeStudioAgentState(root, {
+      version: 1,
+      phase: "plan-review",
+      handledActionRevision: 2,
+    });
+    await session.refresh();
+
+    const reloaded = createStudioSession(root, { token });
+    await expect(reloaded.read()).resolves.toMatchObject({
+      adaptiveAnswers: [{ questionId: "proof", optionIds: ["demo"] }],
+      adaptiveQuestions: [{ id: "proof", prompt: "Which proof should lead?" }],
+      phase: "plan-review",
+    });
+    const persistedAnswer = JSON.parse(
+      await readFile(
+        join(root, DREVER_STUDIO_DIRECTORY, DREVER_STUDIO_ACTIONS_DIRECTORY, "00000002.json"),
+        "utf8",
+      ),
+    ) as Record<string, unknown>;
+    expect(persistedAnswer).toMatchObject({
+      context: { adaptiveQuestions: [{ id: "proof" }] },
+    });
+
+    const reset = await reloaded.accept(
+      {
+        token,
+        action: {
+          ...action({ type: "submit-common-brief", brief: { topic: "A new topic" } }),
+          expectedRevision: 2,
+          requestId: "brief-3",
+        },
+      },
+      true,
+    );
+    expect(reset.accepted).toBe(true);
+    await expect(reloaded.read()).resolves.toMatchObject({
+      storyboardOutdated: true,
+    });
+    await expect(reloaded.read()).resolves.not.toHaveProperty("adaptiveQuestions");
+  });
+
+  it("keeps an old Storyboard and draft visible but marks both outdated after a new brief", async () => {
+    const root = await createRoot();
+    const token = "studio-token";
+    await writeFile(join(root, "drever.plan.json"), JSON.stringify(plan), "utf8");
+    const session = createStudioSession(root, { token });
+    const approved = await session.accept(
+      { token, action: action({ type: "approve-plan" }) },
+      true,
+    );
+    expect(approved.accepted).toBe(true);
+    await writeFile(
+      join(root, "drever.plan.json"),
+      JSON.stringify({ ...plan, status: "approved" }),
+      "utf8",
+    );
+    await writeStudioAgentState(root, {
+      version: 1,
+      phase: "ready",
+      handledActionRevision: 1,
+    });
+    const ready = (await session.refresh()).state;
+    expect(ready).toMatchObject({ draftAvailable: true, phase: "ready" });
+    expect(ready).not.toHaveProperty("storyboardOutdated");
+    expect(ready).not.toHaveProperty("draftOutdated");
+
+    await session.accept(
+      {
+        token,
+        action: {
+          ...action({ type: "submit-common-brief", brief: { topic: "A revised topic" } }),
+          expectedRevision: ready.revision,
+          requestId: "brief-2",
+        },
+      },
+      true,
+    );
+    await expect(session.read()).resolves.toMatchObject({
+      draftAvailable: true,
+      draftOutdated: true,
+      plan: { status: "approved" },
+      storyboardOutdated: true,
+    });
+  });
+
+  it("allows the immediate brief-and-skip pair while rejecting other concurrent upstream edits", async () => {
+    const root = await createRoot();
+    const token = "studio-token";
+    const session = createStudioSession(root, { token });
+    await session.accept(
+      {
+        token,
+        action: action({ type: "submit-common-brief", brief: { topic: "A useful topic" } }),
+      },
+      true,
+    );
+    await expect(
+      session.accept(
+        {
+          token,
+          action: {
+            ...action({ type: "skip-remaining-questions" }),
+            expectedRevision: 1,
+            requestId: "skip-2",
+          },
+        },
+        true,
+      ),
+    ).resolves.toMatchObject({ accepted: true, revision: 2 });
+    await expect(
+      session.accept(
+        {
+          token,
+          action: {
+            ...action({ type: "submit-common-brief", brief: { topic: "Another topic" } }),
+            expectedRevision: 2,
+            requestId: "brief-3",
+          },
+        },
+        true,
+      ),
+    ).resolves.toMatchObject({
+      accepted: false,
+      error: { code: "DREVER_STUDIO_UPSTREAM_BUSY" },
+    });
+  });
+
   it("reconstructs a submitted brief after reload without trusting an older agent phase", async () => {
     const root = await createRoot();
     const session = createStudioSession(root, { token: "studio-token" });
@@ -1043,6 +1283,54 @@ describe("Studio session", () => {
     ).resolves.toMatchObject({
       accepted: false,
       error: { code: "DREVER_STUDIO_PLAN_BUSY" },
+    });
+  });
+
+  it("rejects approval of an old Storyboard after revised briefing has been handled", async () => {
+    const root = await createRoot();
+    const token = "studio-token";
+    await writeFile(join(root, "drever.plan.json"), JSON.stringify(plan), "utf8");
+    const session = createStudioSession(root, { token });
+    await session.accept(
+      {
+        token,
+        action: action({ type: "submit-common-brief", brief: { topic: "A revised topic" } }),
+      },
+      true,
+    );
+    await writeStudioAgentState(root, {
+      version: 1,
+      phase: "adaptive-questions",
+      handledActionRevision: 1,
+      adaptiveQuestions: [
+        {
+          id: "proof",
+          prompt: "Which proof should lead?",
+          options: [
+            { id: "demo", label: "Demo", description: "Show the change directly." },
+            { id: "data", label: "Data", description: "Lead with measured evidence." },
+          ],
+        },
+      ],
+    });
+    const latest = (await session.refresh()).state;
+    expect(latest).toMatchObject({ pendingActionCount: 0, storyboardOutdated: true });
+
+    await expect(
+      session.accept(
+        {
+          token,
+          action: {
+            ...action({ type: "approve-plan" }),
+            expectedRevision: latest.revision,
+            requestId: "approve-old",
+          },
+        },
+        true,
+      ),
+    ).resolves.toMatchObject({
+      accepted: false,
+      error: { code: "DREVER_STUDIO_STORYBOARD_OUTDATED" },
     });
   });
 });

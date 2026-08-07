@@ -14,6 +14,7 @@ import {
   signalStudioAgentProcess,
   studioAgentProcessEnvironment,
   studioAgentProcessOptions,
+  studioActionAgentPayload,
   studioActionWorkflowInstructions,
   type StudioAgentProviderSnapshot,
 } from "./studio-agent-provider.ts";
@@ -204,6 +205,38 @@ describe("Studio action workflow instructions", () => {
     expect(instructions).toMatch(/parent task remain active[^.]*ready, error, cancellation/iu);
     expect(instructions).toMatch(/Continue factual research[^.]*after approve-plan/iu);
     expect(instructions).not.toMatch(/content-complete Draft 1/iu);
+  });
+
+  it("hands restored question semantics to every agent transport", () => {
+    const record = {
+      version: 1,
+      revision: 4,
+      receivedAt: "2026-08-05T08:00:00.000Z",
+      action: {
+        version: 1,
+        type: "submit-adaptive-answers",
+        requestId: "answers-4",
+        expectedRevision: 7,
+        answers: [{ questionId: "proof", optionIds: ["demo"] }],
+      },
+      context: {
+        adaptiveQuestions: [
+          {
+            id: "proof",
+            prompt: "Which proof should lead?",
+            options: [
+              { id: "demo", label: "Live demo", description: "Show the behavior directly." },
+            ],
+          },
+        ],
+      },
+    } as const satisfies DreverStudioActionRecord;
+
+    expect(studioActionAgentPayload(record)).toEqual({
+      revision: 4,
+      action: record.action,
+      context: record.context,
+    });
   });
 });
 

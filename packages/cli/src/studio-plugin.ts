@@ -14,7 +14,7 @@ import {
   type DreverStudioState,
 } from "@drever/schema";
 import { createHmac, randomBytes, randomUUID } from "node:crypto";
-import { mkdir, readFile, readdir, rename, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, rename, stat, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { normalizePath, type Plugin, type ViteDevServer, type WebSocketClient } from "vite";
 import { DREVER_DECK_PLAN_FILE, loadDreverDeckPlan } from "./deck-plan.ts";
@@ -31,6 +31,7 @@ export const DREVER_STUDIO_STATE_REQUEST_EVENT = "drever:studio-state-request";
 export const DREVER_STUDIO_DIRECTORY = ".drever/studio";
 export const DREVER_STUDIO_AGENT_STATE_FILE = "state.json";
 export const DREVER_STUDIO_AGENT_HEARTBEAT_FILE = "agent-heartbeat.json";
+export const DREVER_STUDIO_ARTIFACT_CHECKPOINT_FILE = "artifacts.json";
 export const DREVER_STUDIO_ACTIONS_DIRECTORY = "actions";
 export const DREVER_STUDIO_AGENT_CONNECTION_TTL_MS = 5 * 60 * 1_000;
 
@@ -70,6 +71,12 @@ type StudioSessionSnapshot = Readonly<{
   agentLeaseExpiresAt?: number;
   records: readonly DreverStudioActionRecord[];
   state: DreverStudioState;
+}>;
+
+type StudioArtifactCheckpoint = Readonly<{
+  version: typeof DREVER_STUDIO_PROTOCOL_VERSION;
+  storyboardRevision?: number;
+  draftRevision?: number;
 }>;
 
 const isRecord = (value: unknown): value is JsonRecord =>
@@ -181,6 +188,18 @@ const decodeQuestion = (value: unknown): DreverStudioQuestion | undefined => {
   return Object.freeze(value as DreverStudioQuestion);
 };
 
+const decodeQuestions = (value: unknown): readonly DreverStudioQuestion[] | undefined => {
+  if (!Array.isArray(value) || value.length === 0 || value.length > MAX_QUESTIONS) return;
+  const questions = value.map(decodeQuestion);
+  if (
+    questions.some((question) => question === undefined) ||
+    new Set(questions.map((question) => question?.id)).size !== questions.length
+  ) {
+    return;
+  }
+  return Object.freeze(questions as readonly DreverStudioQuestion[]);
+};
+
 const decodeActivity = (value: unknown): DreverStudioActivity | undefined => {
   if (
     !isRecord(value) ||
@@ -221,16 +240,7 @@ export const decodeStudioAgentState = (value: unknown): DreverStudioAgentState |
     return;
   }
   if (value.adaptiveQuestions !== undefined) {
-    if (
-      !Array.isArray(value.adaptiveQuestions) ||
-      value.adaptiveQuestions.length === 0 ||
-      value.adaptiveQuestions.length > MAX_QUESTIONS ||
-      value.adaptiveQuestions.some((question) => decodeQuestion(question) === undefined) ||
-      new Set(value.adaptiveQuestions.map((question) => (question as JsonRecord).id)).size !==
-        value.adaptiveQuestions.length
-    ) {
-      return;
-    }
+    if (decodeQuestions(value.adaptiveQuestions) === undefined) return;
   }
   if (value.activity !== undefined) {
     if (
@@ -334,6 +344,27 @@ export const decodeStudioAction = (value: unknown): DreverStudioAction | undefin
   return;
 };
 
+const decodeStudioActionContext = (
+  value: unknown,
+): DreverStudioActionRecord["context"] | undefined => {
+  if (
+    !isRecord(value) ||
+    !exactKeys(value, ["adaptiveQuestions", "feedbackTarget"]) ||
+    (value.feedbackTarget !== undefined &&
+      value.feedbackTarget !== "draft" &&
+      value.feedbackTarget !== "storyboard")
+  ) {
+    return;
+  }
+  const adaptiveQuestions =
+    value.adaptiveQuestions === undefined ? undefined : decodeQuestions(value.adaptiveQuestions);
+  if (value.adaptiveQuestions !== undefined && adaptiveQuestions === undefined) return;
+  return Object.freeze({
+    ...(adaptiveQuestions === undefined ? {} : { adaptiveQuestions }),
+    ...(value.feedbackTarget === undefined ? {} : { feedbackTarget: value.feedbackTarget }),
+  });
+};
+
 const readJson = async (path: string): Promise<unknown> => {
   try {
     return JSON.parse(await readFile(path, "utf8")) as unknown;
@@ -420,11 +451,17 @@ const readActionRecords = async (
       if (action === undefined) {
         throw new TypeError(`Invalid Drever Studio action payload: ${name}`);
       }
+      const context =
+        value.context === undefined ? undefined : decodeStudioActionContext(value.context);
+      if (value.context !== undefined && context === undefined) {
+        throw new TypeError(`Invalid Drever Studio action context: ${name}`);
+      }
       return Object.freeze({
         version: DREVER_STUDIO_PROTOCOL_VERSION,
         revision: value.revision,
         receivedAt: value.receivedAt,
         action,
+        ...(context === undefined ? {} : { context }),
       });
     }),
   );
@@ -434,6 +471,163 @@ export const readStudioActionRecords = (
   root: string,
 ): Promise<readonly DreverStudioActionRecord[]> =>
   readActionRecords(join(root, DREVER_STUDIO_DIRECTORY, DREVER_STUDIO_ACTIONS_DIRECTORY));
+
+const decodeStudioArtifactCheckpoint = (value: unknown): StudioArtifactCheckpoint | undefined => {
+  if (
+    !isRecord(value) ||
+    !exactKeys(value, ["version", "storyboardRevision", "draftRevision"]) ||
+    value.version !== DREVER_STUDIO_PROTOCOL_VERSION ||
+    (value.storyboardRevision !== undefined &&
+      !(
+        typeof value.storyboardRevision === "number" &&
+        Number.isSafeInteger(value.storyboardRevision) &&
+        value.storyboardRevision >= 0
+      )) ||
+    (value.draftRevision !== undefined &&
+      !(
+        typeof value.draftRevision === "number" &&
+        Number.isSafeInteger(value.draftRevision) &&
+        value.draftRevision >= 0
+      ))
+  ) {
+    return;
+  }
+  return Object.freeze(value as StudioArtifactCheckpoint);
+};
+
+const readStudioArtifactCheckpoint = async (
+  root: string,
+): Promise<StudioArtifactCheckpoint | undefined> => {
+  const value = await readJson(
+    join(root, DREVER_STUDIO_DIRECTORY, DREVER_STUDIO_ARTIFACT_CHECKPOINT_FILE),
+  );
+  return value === undefined ? undefined : decodeStudioArtifactCheckpoint(value);
+};
+
+const latestRevisionMatching = (
+  records: readonly DreverStudioActionRecord[],
+  matches: (record: DreverStudioActionRecord) => boolean,
+): number => {
+  for (let index = records.length - 1; index >= 0; index -= 1) {
+    const record = records[index];
+    if (record !== undefined && matches(record)) return record.revision;
+  }
+  return 0;
+};
+
+const latestStoryboardInvalidationRevision = (
+  records: readonly DreverStudioActionRecord[],
+  planStatus: "approved" | "awaiting-approval" | "awaiting-input" | undefined,
+): number =>
+  latestRevisionMatching(records, ({ action, context }) => {
+    if (
+      action.type === "submit-common-brief" ||
+      action.type === "submit-adaptive-answers" ||
+      action.type === "skip-remaining-questions"
+    ) {
+      return true;
+    }
+    return (
+      action.type === "submit-feedback" &&
+      (context?.feedbackTarget === "storyboard" ||
+        (context?.feedbackTarget === undefined && planStatus !== "approved"))
+    );
+  });
+
+const latestDraftInvalidationRevision = (records: readonly DreverStudioActionRecord[]): number =>
+  latestRevisionMatching(
+    records,
+    ({ action }) =>
+      action.type === "submit-common-brief" ||
+      action.type === "submit-adaptive-answers" ||
+      action.type === "skip-remaining-questions" ||
+      action.type === "approve-plan" ||
+      action.type === "submit-feedback",
+  );
+
+const planWasWrittenAfter = async (
+  root: string,
+  records: readonly DreverStudioActionRecord[],
+  revision: number,
+): Promise<boolean> => {
+  if (revision === 0) return true;
+  const record = records.find((candidate) => candidate.revision === revision);
+  if (record === undefined) return false;
+  try {
+    const metadata = await stat(join(root, DREVER_DECK_PLAN_FILE));
+    return metadata.mtimeMs >= Date.parse(record.receivedAt);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return false;
+    throw error;
+  }
+};
+
+const artifactRevisionsForPublication = async (
+  root: string,
+  records: readonly DreverStudioActionRecord[],
+  state: DreverStudioAgentState,
+): Promise<Readonly<{ storyboardRevision?: number; draftRevision?: number }>> => {
+  const latestActionRevision = records.at(-1)?.revision ?? 0;
+  const handled = state.handledActionRevision ?? (latestActionRevision === 0 ? 0 : undefined);
+  if (handled === undefined || handled > latestActionRevision) return {};
+  const plan = (await loadDreverDeckPlan({ root })).plan;
+  if (plan === undefined || plan.status === "awaiting-input") return {};
+  const storyboardInvalidation = latestStoryboardInvalidationRevision(records, plan.status);
+  const storyboardPhaseMatches =
+    (plan.status === "awaiting-approval" && state.phase === "plan-review") ||
+    (plan.status === "approved" &&
+      (state.phase === "drafting" ||
+        state.phase === "preview" ||
+        state.phase === "refining" ||
+        state.phase === "ready"));
+  const storyboardCurrent =
+    storyboardPhaseMatches &&
+    handled >= storyboardInvalidation &&
+    (await planWasWrittenAfter(root, records, storyboardInvalidation));
+  const draftInvalidation = latestDraftInvalidationRevision(records);
+  const draftCurrent =
+    storyboardCurrent &&
+    plan.status === "approved" &&
+    (state.phase === "preview" || state.phase === "ready") &&
+    handled >= draftInvalidation;
+  return Object.freeze({
+    ...(storyboardCurrent ? { storyboardRevision: handled } : {}),
+    ...(draftCurrent ? { draftRevision: handled } : {}),
+  });
+};
+
+const writeStudioArtifactCheckpoint = async (
+  root: string,
+  revisions: Readonly<{ storyboardRevision?: number; draftRevision?: number }>,
+): Promise<void> => {
+  if (revisions.storyboardRevision === undefined && revisions.draftRevision === undefined) return;
+  const existing = await readStudioArtifactCheckpoint(root);
+  const checkpoint: StudioArtifactCheckpoint = Object.freeze({
+    version: DREVER_STUDIO_PROTOCOL_VERSION,
+    ...(existing?.storyboardRevision === undefined && revisions.storyboardRevision === undefined
+      ? {}
+      : {
+          storyboardRevision: Math.max(
+            existing?.storyboardRevision ?? 0,
+            revisions.storyboardRevision ?? 0,
+          ),
+        }),
+    ...(existing?.draftRevision === undefined && revisions.draftRevision === undefined
+      ? {}
+      : {
+          draftRevision: Math.max(existing?.draftRevision ?? 0, revisions.draftRevision ?? 0),
+        }),
+  });
+  const directory = join(root, DREVER_STUDIO_DIRECTORY);
+  const path = join(directory, DREVER_STUDIO_ARTIFACT_CHECKPOINT_FILE);
+  const temporaryPath = `${path}.${randomUUID()}.next`;
+  await mkdir(directory, { recursive: true, mode: 0o700 });
+  await writeFile(temporaryPath, `${JSON.stringify(checkpoint, null, 2)}\n`, {
+    encoding: "utf8",
+    mode: 0o600,
+  });
+  await rename(temporaryPath, path);
+};
 
 const validHandledActionRevision = (revision: number, latestActionRevision: number): boolean =>
   Number.isSafeInteger(revision) && revision >= 0 && revision <= latestActionRevision;
@@ -505,6 +699,7 @@ export const writeStudioAgentState = async (
   if ((state.handledActionRevision ?? 0) > latestActionRevision) {
     throw new TypeError(`handledActionRevision cannot exceed ${String(latestActionRevision)}.`);
   }
+  const artifactRevisions = await artifactRevisionsForPublication(root, records, state);
   const directory = join(root, DREVER_STUDIO_DIRECTORY);
   const path = join(directory, DREVER_STUDIO_AGENT_STATE_FILE);
   const temporaryPath = `${path}.${randomUUID()}.next`;
@@ -514,6 +709,7 @@ export const writeStudioAgentState = async (
     mode: 0o600,
   });
   await rename(temporaryPath, path);
+  await writeStudioArtifactCheckpoint(root, artifactRevisions);
   return state;
 };
 
@@ -542,21 +738,33 @@ export const writeStudioAgentActivity = async (
 
 const reduceBrowserState = (records: readonly DreverStudioActionRecord[]) => {
   let adaptiveAnswers: readonly DreverStudioAnswer[] | undefined;
+  let adaptiveQuestions: readonly DreverStudioQuestion[] | undefined;
   let commonBrief: DreverStudioCommonBrief | undefined;
+  let commonBriefRevision = 0;
   let skippedRemainingQuestions = false;
-  for (const { action } of records) {
+  for (const { action, context, revision } of records) {
     if (action.type === "submit-common-brief") {
       commonBrief = action.brief;
+      commonBriefRevision = revision;
       adaptiveAnswers = undefined;
+      adaptiveQuestions = undefined;
       skippedRemainingQuestions = false;
     } else if (action.type === "submit-adaptive-answers") {
       adaptiveAnswers = action.answers;
+      adaptiveQuestions = context?.adaptiveQuestions ?? adaptiveQuestions;
       skippedRemainingQuestions = false;
     } else if (action.type === "skip-remaining-questions") {
+      adaptiveQuestions = context?.adaptiveQuestions ?? adaptiveQuestions;
       skippedRemainingQuestions = true;
     }
   }
-  return { adaptiveAnswers, commonBrief, skippedRemainingQuestions };
+  return {
+    adaptiveAnswers,
+    adaptiveQuestions,
+    commonBrief,
+    commonBriefRevision,
+    skippedRemainingQuestions,
+  };
 };
 
 const publicAgentApprovals = (
@@ -599,9 +807,10 @@ const stateWithoutRevision = async (
 > => {
   const agentPath = join(root, DREVER_STUDIO_DIRECTORY, DREVER_STUDIO_AGENT_STATE_FILE);
   const heartbeatPath = join(root, DREVER_STUDIO_DIRECTORY, DREVER_STUDIO_AGENT_HEARTBEAT_FILE);
-  const [agentValue, heartbeat] = await Promise.all([
+  const [agentValue, heartbeat, persistedCheckpoint] = await Promise.all([
     readJson(agentPath),
     readStudioAgentHeartbeat(heartbeatPath),
+    readStudioArtifactCheckpoint(root),
   ]);
   const latestActionRevision = records.at(-1)?.revision ?? 0;
   const decodedFileAgent =
@@ -636,6 +845,38 @@ const stateWithoutRevision = async (
   );
   const pendingActionCount = records.filter(({ revision }) => revision > handled).length;
   const plan = loadedPlan.plan;
+  const inferredCheckpoint =
+    fileAgent === undefined ? {} : await artifactRevisionsForPublication(root, records, fileAgent);
+  const checkpointStoryboardRevision =
+    persistedCheckpoint?.storyboardRevision !== undefined &&
+    persistedCheckpoint.storyboardRevision <= latestActionRevision
+      ? persistedCheckpoint.storyboardRevision
+      : undefined;
+  const checkpointDraftRevision =
+    persistedCheckpoint?.draftRevision !== undefined &&
+    persistedCheckpoint.draftRevision <= latestActionRevision
+      ? persistedCheckpoint.draftRevision
+      : undefined;
+  const storyboardRevision = Math.max(
+    checkpointStoryboardRevision ?? -1,
+    inferredCheckpoint.storyboardRevision ?? -1,
+    plan !== undefined && latestActionRevision === 0 ? 0 : -1,
+  );
+  const draftRevision = Math.max(
+    checkpointDraftRevision ?? -1,
+    inferredCheckpoint.draftRevision ?? -1,
+  );
+  const storyboardInvalidationRevision = latestStoryboardInvalidationRevision(
+    records,
+    plan?.status,
+  );
+  const draftInvalidationRevision = latestDraftInvalidationRevision(records);
+  const effectiveStoryboardRevision = Math.max(
+    storyboardRevision,
+    plan !== undefined && storyboardInvalidationRevision === 0 ? 0 : -1,
+  );
+  const storyboardOutdated =
+    plan !== undefined && effectiveStoryboardRevision < storyboardInvalidationRevision;
   const agentApprovals =
     liveSnapshot?.connected === true
       ? publicAgentApprovals(liveApprovals, publicApprovalId)
@@ -651,10 +892,17 @@ const stateWithoutRevision = async (
       : liveAgent?.phase;
   const publishedArtifactPhase =
     publishedPhase === "preview" || publishedPhase === "ready" ? publishedPhase : undefined;
+  const draftAvailable =
+    draftWasAvailable ||
+    draftRevision >= 0 ||
+    publishedPhase === "preview" ||
+    publishedPhase === "refining" ||
+    publishedPhase === "ready";
+  const draftOutdated = draftAvailable && draftRevision < draftInvalidationRevision;
   const publishedArtifactIsCurrent =
-    pendingActionCount === 0 && publishedArtifactPhase !== undefined;
+    pendingActionCount === 0 && publishedArtifactPhase !== undefined && !draftOutdated;
   const publishedPlanReviewIsCurrent =
-    pendingActionCount === 0 && plan?.status === "awaiting-approval";
+    pendingActionCount === 0 && plan?.status === "awaiting-approval" && !storyboardOutdated;
   const durableCheckpointIsCurrent = publishedArtifactIsCurrent || publishedPlanReviewIsCurrent;
   const agentPhase = publishedPlanReviewIsCurrent
     ? "plan-review"
@@ -667,11 +915,13 @@ const stateWithoutRevision = async (
           : (publishedPhase ?? livePhase);
   const telemetryAgent =
     durableCheckpointIsCurrent || liveSnapshot === undefined ? fileAgent : liveAgent;
-  const draftAvailable =
-    draftWasAvailable ||
-    publishedPhase === "preview" ||
-    publishedPhase === "refining" ||
-    publishedPhase === "ready";
+  const fileQuestionsAreCurrent =
+    fileAgent?.adaptiveQuestions !== undefined &&
+    (fileAgent.handledActionRevision ?? 0) >= browser.commonBriefRevision;
+  const adaptiveQuestions = fileQuestionsAreCurrent
+    ? fileAgent.adaptiveQuestions
+    : browser.adaptiveQuestions;
+  const currentPlan = storyboardOutdated ? undefined : plan;
   const phase: DreverStudioPhase =
     agentPhase === "error"
       ? "error"
@@ -679,15 +929,15 @@ const stateWithoutRevision = async (
         ? agentPhase
         : pendingActionCount > 0
           ? "waiting-for-agent"
-          : fileAgent?.phase === "adaptive-questions" && fileAgent.adaptiveQuestions !== undefined
+          : fileAgent?.phase === "adaptive-questions" && adaptiveQuestions !== undefined
             ? "adaptive-questions"
-            : plan?.status === "awaiting-approval"
+            : currentPlan?.status === "awaiting-approval"
               ? "plan-review"
               : agentPhase === "drafting" || agentPhase === "refining"
                 ? agentPhase
-                : browser.commonBrief === undefined && plan === undefined
+                : browser.commonBrief === undefined && currentPlan === undefined
                   ? "briefing"
-                  : plan?.status === "approved"
+                  : currentPlan?.status === "approved"
                     ? agentPhase === "preview" || agentPhase === "ready"
                       ? agentPhase
                       : "waiting-for-agent"
@@ -698,14 +948,14 @@ const stateWithoutRevision = async (
       version: DREVER_STUDIO_PROTOCOL_VERSION,
       phase,
       ...(draftAvailable ? { draftAvailable: true } : {}),
+      ...(storyboardOutdated ? { storyboardOutdated: true } : {}),
+      ...(draftOutdated ? { draftOutdated: true } : {}),
       ...(liveSnapshot === undefined ? {} : { agentConfigured: true }),
       agentConnected,
       latestActionRevision,
       pendingActionCount,
       ...(browser.commonBrief === undefined ? {} : { commonBrief: browser.commonBrief }),
-      ...(fileAgent?.adaptiveQuestions === undefined
-        ? {}
-        : { adaptiveQuestions: fileAgent.adaptiveQuestions }),
+      ...(adaptiveQuestions === undefined ? {} : { adaptiveQuestions }),
       ...(browser.adaptiveAnswers === undefined
         ? {}
         : { adaptiveAnswers: browser.adaptiveAnswers }),
@@ -765,7 +1015,28 @@ const rejectedAck = (
 const validActionForState = (
   action: DreverStudioAction,
   state: DreverStudioState,
+  records: readonly DreverStudioActionRecord[],
 ): Readonly<{ code: string; message: string }> | undefined => {
+  const latestRecord = records.at(-1);
+  const consecutiveBriefSkip =
+    action.type === "skip-remaining-questions" &&
+    state.pendingActionCount === 1 &&
+    latestRecord?.action.type === "submit-common-brief";
+  const upstreamMutation =
+    action.type === "submit-common-brief" ||
+    action.type === "submit-adaptive-answers" ||
+    action.type === "skip-remaining-questions";
+  if (
+    upstreamMutation &&
+    !consecutiveBriefSkip &&
+    (state.pendingActionCount > 0 ||
+      (state.agentConnected && (state.phase === "drafting" || state.phase === "refining")))
+  ) {
+    return {
+      code: "DREVER_STUDIO_UPSTREAM_BUSY",
+      message: "Wait for the agent to finish the current change before revising an earlier step.",
+    };
+  }
   if (action.type === "skip-remaining-questions" && state.commonBrief === undefined) {
     return {
       code: "DREVER_STUDIO_TOPIC_REQUIRED",
@@ -830,6 +1101,12 @@ const validActionForState = (
       message: "Wait for the agent to apply earlier changes before approving the story.",
     };
   }
+  if (action.type === "approve-plan" && state.storyboardOutdated === true) {
+    return {
+      code: "DREVER_STUDIO_STORYBOARD_OUTDATED",
+      message: "Wait for the agent to rebuild the Storyboard from the latest direction.",
+    };
+  }
   if (
     action.type === "respond-agent-approval" &&
     state.agentApprovals?.some(({ id }) => id === action.approvalId) !== true
@@ -852,6 +1129,12 @@ const validActionForState = (
     return {
       code: "DREVER_STUDIO_FEEDBACK_UNAVAILABLE",
       message: "Feedback is available after the story plan exists.",
+    };
+  }
+  if (action.type === "submit-feedback" && state.storyboardOutdated === true) {
+    return {
+      code: "DREVER_STUDIO_STORYBOARD_OUTDATED",
+      message: "Wait for the agent to rebuild the Storyboard before sending more feedback.",
     };
   }
   if (action.type === "submit-feedback" && action.scope.kind === "slide") {
@@ -1040,7 +1323,7 @@ export const createStudioSession = (
           "The Studio changed before this action arrived. Review the latest state and try again.",
         );
       }
-      const semanticError = validActionForState(action, before.state);
+      const semanticError = validActionForState(action, before.state, before.records);
       if (semanticError !== undefined) {
         return rejectedAck(
           action.requestId,
@@ -1075,11 +1358,29 @@ export const createStudioSession = (
         );
       }
       const actionRevision = (before.records.at(-1)?.revision ?? 0) + 1;
+      const adaptiveQuestions =
+        action.type === "submit-adaptive-answers" || action.type === "skip-remaining-questions"
+          ? before.state.adaptiveQuestions
+          : undefined;
+      const feedbackTarget =
+        action.type === "submit-feedback"
+          ? before.state.plan?.status === "approved"
+            ? "draft"
+            : "storyboard"
+          : undefined;
+      const context =
+        adaptiveQuestions === undefined && feedbackTarget === undefined
+          ? undefined
+          : Object.freeze({
+              ...(adaptiveQuestions === undefined ? {} : { adaptiveQuestions }),
+              ...(feedbackTarget === undefined ? {} : { feedbackTarget }),
+            });
       const record: DreverStudioActionRecord = Object.freeze({
         version: DREVER_STUDIO_PROTOCOL_VERSION,
         revision: actionRevision,
         receivedAt: now().toISOString(),
         action,
+        ...(context === undefined ? {} : { context }),
       });
       await mkdir(actionsDirectory, { recursive: true, mode: 0o700 });
       const path = join(actionsDirectory, recordFileName(actionRevision));

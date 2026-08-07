@@ -572,6 +572,24 @@ const presentationOptions = {
   registry: components,
   runtime: { runSetup, theme },${canvas === undefined ? "" : `\n  canvas: ${JSON.stringify(canvas)},`}${stageSource.option}
 };
+const resolvedCanvas = presentationOptions.canvas ?? theme?.canvas ?? { width: 1920, height: 1080 };
+const studioThumbnailValue =
+  import.meta.hot && ${previewCapability === undefined ? "false" : "true"}
+    ? new URL(document.URL).searchParams.get("drever-studio-thumbnail")
+    : null;
+const studioThumbnailSlideNumber =
+  studioThumbnailValue === null ? undefined : Number(studioThumbnailValue);
+if (
+  studioThumbnailValue !== null &&
+  (
+    !Number.isSafeInteger(studioThumbnailSlideNumber) ||
+    studioThumbnailSlideNumber < 1 ||
+    String(studioThumbnailSlideNumber) !== studioThumbnailValue ||
+    studioThumbnailSlideNumber > deckManifest.slides.length
+  )
+) {
+  throw new RangeError("The Drever Studio thumbnail must identify a 1-based slide number.");
+}
 document.title = ${
     deck?.title === undefined
       ? 'deckManifest.slides[0]?.title ?? "Drever"'
@@ -587,7 +605,13 @@ const interactiveOptions = ${
   };
 let presentation;
 try {
-  if (routePath === "document") {
+  if (studioThumbnailSlideNumber !== undefined) {
+    const { createStudioThumbnail } = await import("@drever/client/studio-thumbnail");
+    presentation = await createStudioThumbnail({
+      ...presentationOptions,
+      slideIndex: studioThumbnailSlideNumber - 1,
+    });
+  } else if (routePath === "document") {
     const { createDocument } = await import("@drever/client/document");
     presentation = await createDocument(presentationOptions);
   } else if (routePath === "speaker" || routePath.startsWith("speaker/")) {
@@ -635,6 +659,7 @@ if (
       {
         type: "drever:studio-preview-state",
         version: 1,
+        canvas: resolvedCanvas,
         manifest: deckManifest,
         position: presentation.getPosition(),
       },

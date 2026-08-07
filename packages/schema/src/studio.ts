@@ -97,6 +97,10 @@ export type DreverStudioState = Readonly<{
   adaptiveAnswers?: readonly DreverStudioAnswer[];
   skippedRemainingQuestions?: boolean;
   plan?: DreverDeckPlan;
+  /** A previous Storyboard remains visible but no longer reflects the latest upstream input. */
+  storyboardOutdated?: boolean;
+  /** A previous live draft remains visible but no longer reflects the latest approved work. */
+  draftOutdated?: boolean;
   activity?: readonly DreverStudioActivity[];
   agentApprovals?: readonly DreverStudioAgentApprovalRequest[];
   progress?: DreverStudioProgress;
@@ -143,6 +147,11 @@ export type DreverStudioActionRecord = Readonly<{
   revision: number;
   receivedAt: string;
   action: DreverStudioAction;
+  /** Server-owned context captured only after the corresponding browser action is validated. */
+  context?: Readonly<{
+    adaptiveQuestions?: readonly DreverStudioQuestion[];
+    feedbackTarget?: "draft" | "storyboard";
+  }>;
 }>;
 
 /** Agent-owned publication merged with browser actions and drever.plan.json by drever dev. */

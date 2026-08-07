@@ -97,6 +97,11 @@ change, or motion choices already present in the brief. Prefer a missing desired
 topic-specific scope or evidence fork, then a visual or delivery fork that would materially change
 the story.
 
+A `submit-common-brief` received after Storyboard or Draft already exists is an intentional
+revision, not a new session and not permission to reuse the old plan as current. Publish a fresh
+question round for the revised brief while leaving the previous Storyboard and live Draft intact as
+read-only reference. Do not edit the deck source until the revised direction is approved.
+
 Write `.drever-studio-publication.json` and copy this exact structure, replacing the example
 revision and strings with values for the submitted brief:
 
@@ -206,6 +211,10 @@ another worker, build, export, or run browser automation. Put uncertain facts in
 requirements instead of inventing them. Stop this managed child turn at the approval gate and do
 not mutate the Storyboard behind its reviewer; keep the parent task and server alive. Continue
 factual research and visual refinement after `approve-plan` while creating the same live Draft 1.
+
+When these actions revise an existing direction, replace the current `brief.md` and Storyboard with
+the revised content contract, publish `plan-review` for the new action revision, and wait for a new
+approval. Leave the previous live Draft untouched until that approval starts its replacement.
 
 Skip question publication only when the same returned action batch contains
 `skip-remaining-questions` after that brief. After answers or a skip, update `brief.md` and

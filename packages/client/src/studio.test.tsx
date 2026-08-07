@@ -9,6 +9,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vite-plus/test";
 import {
   hydrateStudioAnswerDrafts,
+  isStudioArtifactOutdated,
   isStudioPreviewReady,
   latestStudioNarration,
   nextStudioMode,
@@ -18,8 +19,13 @@ import {
   resolveStudioDuration,
   resolveStudioProgress,
   resolveStudioPlanSlideId,
+  resolveStudioStepAvailability,
+  resolveStudioWorkflowStep,
   respondToStudioAgentApproval,
   Studio,
+  studioDraftThumbnailUrl,
+  studioAnswersMatch,
+  studioBriefsMatch,
   type StudioProps,
   submitStudioBrief,
 } from "./studio.tsx";
@@ -100,9 +106,15 @@ describe("Studio", () => {
     expect(markup).toContain("Motion direction");
     expect(markup).toContain("After the presentation");
     expect(markup).toContain("No local agent is active.");
+    expect(markup).toContain('aria-label="Dismiss agent connection notice"');
+    expect(markup).toContain('class="drever-studio-agent-notice" role="status"');
     expect(markup).toContain('aria-label="Custom duration in minutes"');
-    expect(markup).toContain("Skip the rest — surprise me");
+    expect(markup).toContain('aria-label="Skip remaining questions and surprise me"');
+    expect(markup).toContain("Skip the rest");
+    expect(markup).toContain("Surprise me");
     expect(markup).toContain('data-studio-phase="briefing"');
+    expect(markup).toContain('aria-label="View Brief"');
+    expect(markup).toContain('aria-label="View Direction" aria-pressed="false" disabled');
     expect(markup).not.toContain("Experimental");
   });
 
@@ -513,8 +525,10 @@ describe("Studio", () => {
     expect(markup).toContain('aria-pressed="true" type="button">Live draft');
     expect(markup).toContain('aria-label="Feedback scope"');
     expect(markup).toContain('data-presentation="popover-start"');
-    expect(markup).toContain("Entire deck");
+    expect(markup.match(/>Entire deck</gu)).toHaveLength(1);
     expect(markup).toContain("This slide");
+    expect(markup.match(/class="drever-studio-rail__thumbnail"/gu)).toHaveLength(2);
+    expect(markup).toContain("drever-studio-rail__thumbnail-placeholder");
     expect(markup).toContain("1 request waiting for the agent");
   });
 
@@ -538,6 +552,24 @@ describe("Studio", () => {
     expect(markup).not.toContain('disabled="" type="button">Live draft');
   });
 
+  it("marks outdated Storyboard and Draft surfaces as previous versions", () => {
+    const markup = render(
+      state({
+        adaptiveAnswers: [{ questionId: "starting-model", optionIds: ["vacuum"] }],
+        commonBrief: { topic: plan.brief.topic },
+        draftAvailable: true,
+        draftOutdated: true,
+        phase: "waiting-for-agent",
+        plan,
+        storyboardOutdated: true,
+      }),
+    );
+
+    expect(markup).toContain('aria-label="View previous Storyboard"');
+    expect(markup).toContain('aria-label="View previous Draft"');
+    expect(markup).not.toContain("Approve story");
+  });
+
   it("does not infer a draft from refining telemetry without a durable publication", () => {
     const markup = renderToStaticMarkup(
       <Studio
@@ -558,12 +590,122 @@ describe("Studio", () => {
 });
 
 describe("Studio flow helpers", () => {
+  it("builds isolated visual-thumbnail URLs without changing the preview route", () => {
+    expect(
+      studioDraftThumbnailUrl(
+        "http://127.0.0.1:51999/deck/?session=current#ignored",
+        "http://127.0.0.1:4317/",
+        2,
+      ),
+    ).toBe("http://127.0.0.1:51999/deck/?session=current&drever-studio-thumbnail=3");
+  });
+
+  it("treats a retained Draft independently from the current Storyboard", () => {
+    const revisedStoryboard = state({
+      draftAvailable: true,
+      draftOutdated: true,
+      phase: "plan-review",
+      plan,
+    });
+
+    expect(isStudioArtifactOutdated(revisedStoryboard, "storyboard")).toBe(false);
+    expect(isStudioArtifactOutdated(revisedStoryboard, "draft")).toBe(true);
+    expect(
+      isStudioArtifactOutdated({ ...revisedStoryboard, storyboardOutdated: true }, "storyboard"),
+    ).toBe(true);
+  });
+
+  it("separates the live workflow step from reviewable historical surfaces", () => {
+    const ready = state({
+      adaptiveAnswers: [{ questionId: "starting-model", optionIds: ["vacuum"] }],
+      adaptiveQuestions,
+      commonBrief: { topic: plan.brief.topic },
+      draftAvailable: true,
+      phase: "ready",
+      plan: { ...plan, status: "approved" },
+    });
+
+    expect(resolveStudioWorkflowStep(ready)).toBe("draft");
+    expect(resolveStudioStepAvailability(ready)).toEqual({
+      brief: true,
+      direction: true,
+      storyboard: true,
+      draft: true,
+    });
+  });
+
+  it("keeps previous artifacts reviewable without counting them as current workflow progress", () => {
+    const revising = state({
+      adaptiveQuestions,
+      commonBrief: { topic: plan.brief.topic },
+      draftAvailable: true,
+      draftOutdated: true,
+      phase: "adaptive-questions",
+      plan: { ...plan, status: "approved" },
+      storyboardOutdated: true,
+    });
+
+    expect(resolveStudioWorkflowStep(revising)).toBe("direction");
+    expect(resolveStudioStepAvailability(revising)).toEqual({
+      brief: true,
+      direction: true,
+      storyboard: true,
+      draft: true,
+    });
+    expect(resolveStudioProgress(revising).map(({ status }) => status)).toEqual([
+      "complete",
+      "current",
+      "pending",
+      "pending",
+    ]);
+  });
+
+  it("compares revisited brief and direction values by their semantic defaults", () => {
+    expect(
+      studioBriefsMatch(
+        { topic: "A useful topic" },
+        { density: "balanced", durationMinutes: 10, topic: "A useful topic" },
+      ),
+    ).toBe(true);
+    expect(
+      studioBriefsMatch(
+        { durationMinutes: 10, topic: "A useful topic" },
+        { durationMinutes: 15, topic: "A useful topic" },
+      ),
+    ).toBe(false);
+    expect(
+      studioAnswersMatch(
+        [{ questionId: "proof", optionIds: ["data", "demo"] }],
+        [{ questionId: "proof", optionIds: ["demo", "data"] }],
+      ),
+    ).toBe(true);
+  });
+
   it("marks Storyboard current until a real plan has been approved", () => {
     const progress = resolveStudioProgress(
       state({
         adaptiveAnswers: [],
         commonBrief: { topic: "A useful topic" },
         phase: "waiting-for-agent",
+      }),
+    );
+
+    expect(progress).toEqual([
+      { label: "Brief", status: "complete" },
+      { label: "Direction", status: "complete" },
+      { label: "Storyboard", status: "current" },
+      { label: "Draft", status: "pending" },
+    ]);
+  });
+
+  it("moves to Storyboard after revised direction is submitted", () => {
+    const progress = resolveStudioProgress(
+      state({
+        adaptiveAnswers: [{ questionId: "starting-model", optionIds: ["vacuum"] }],
+        commonBrief: { topic: "A useful topic" },
+        phase: "waiting-for-agent",
+        plan: { ...plan, status: "approved" },
+        storyboardOutdated: true,
       }),
     );
 
@@ -714,6 +856,7 @@ describe("Studio flow helpers", () => {
     const previewState = {
       type: "drever:studio-preview-state",
       version: 1,
+      canvas: { height: 900, width: 1600 },
       manifest: {
         version: 2,
         slides: [{ id: "intro", index: 0, speakerNotes: [], stepStops: [] }],
@@ -726,6 +869,12 @@ describe("Studio flow helpers", () => {
       readStudioPreviewState({
         ...previewState,
         position: { slideId: "missing", slideIndex: 0, step: 0 },
+      }),
+    ).toBeUndefined();
+    expect(
+      readStudioPreviewState({
+        ...previewState,
+        canvas: { height: 0, width: 1600 },
       }),
     ).toBeUndefined();
     expect(

@@ -16,6 +16,7 @@ import {
   phaseForStudioAction,
   signalStudioAgentProcess,
   studioAgentProcessOptions,
+  studioActionAgentPayload,
   studioActionWorkflowInstructions,
   type StudioAgentProvider,
   type StudioAgentProviderSnapshot,
@@ -102,7 +103,7 @@ const actionPrompt = (record: DreverStudioActionRecord): string =>
     "Never expose private chain-of-thought, secrets, raw command arguments, or raw tool output.",
     studioActionWorkflowInstructions(record),
     `Studio action revision ${String(record.revision)}:`,
-    JSON.stringify(record.action),
+    JSON.stringify(studioActionAgentPayload(record)),
   ]
     .filter((part) => part.length > 0)
     .join("\n\n");

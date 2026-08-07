@@ -1,5 +1,6 @@
 import {
   DECK_MANIFEST_VERSION,
+  type CanvasDefinition,
   type DeckManifest,
   type DreverDeckPlanSlide,
   type DreverStudioAgentApprovalDecision,
@@ -18,8 +19,10 @@ import {
   useState,
   type FormEvent,
   type ReactElement,
+  type RefObject,
   type SVGProps,
 } from "react";
+import { DEFAULT_CANVAS } from "./canvas.tsx";
 
 export type StudioActionInput =
   | Readonly<{ brief: DreverStudioCommonBrief; type: "submit-common-brief" }>
@@ -79,6 +82,12 @@ const ChevronIcon = (props: IconProps): ReactElement => (
   </svg>
 );
 
+const CloseIcon = (props: IconProps): ReactElement => (
+  <svg aria-hidden="true" viewBox="0 0 20 20" {...props}>
+    <path d="m5.5 5.5 9 9m0-9-9 9" />
+  </svg>
+);
+
 const densityOptions = [
   {
     description: "One idea per slide, with detail kept in notes.",
@@ -122,20 +131,24 @@ const motionOptions = [
   },
 ] as const;
 
-const durationOptions = [5, 10, 20, 30] as const;
+const durationOptions = [5, 10, 15, 30] as const;
 
 type DensityChoice = NonNullable<DreverStudioCommonBrief["density"]>;
 type MotionChoice = "agent-choice" | NonNullable<DreverStudioCommonBrief["motionIntensity"]>;
 type StudioMode = "draft" | "storyboard";
 type StudioFeedbackTarget = "deck" | "slide";
 type StudioProgressStatus = "complete" | "current" | "error" | "pending";
+type StudioStep = "brief" | "direction" | "draft" | "storyboard";
 
 export type StudioProgressStage = Readonly<{
   label: "Brief" | "Direction" | "Storyboard" | "Draft";
   status: StudioProgressStatus;
 }>;
 
+type StudioStepAvailability = Readonly<Record<StudioStep, boolean>>;
+
 export type StudioPreviewState = Readonly<{
+  canvas?: CanvasDefinition;
   manifest: DeckManifest;
   position: Readonly<{ slideId: string; slideIndex: number; step: number }>;
   type: "drever:studio-preview-state";
@@ -197,6 +210,21 @@ export const resolveStudioAnswers = (
     ];
   });
 
+const comparableStudioAnswers = (answers: readonly DreverStudioAnswer[]) =>
+  answers
+    .map((answer) => ({
+      optionIds: [...(answer.optionIds ?? [])].sort(),
+      questionId: answer.questionId,
+      text: answer.text?.trim() ?? "",
+    }))
+    .sort((left, right) => left.questionId.localeCompare(right.questionId));
+
+export const studioAnswersMatch = (
+  left: readonly DreverStudioAnswer[],
+  right: readonly DreverStudioAnswer[],
+): boolean =>
+  JSON.stringify(comparableStudioAnswers(left)) === JSON.stringify(comparableStudioAnswers(right));
+
 export const submitStudioBrief = async (
   onAction: StudioProps["onAction"],
   brief: DreverStudioCommonBrief,
@@ -205,6 +233,22 @@ export const submitStudioBrief = async (
   await onAction({ brief, type: "submit-common-brief" });
   if (skipRemaining) await onAction({ type: "skip-remaining-questions" });
 };
+
+const comparableStudioBrief = (brief: DreverStudioCommonBrief) => ({
+  audience: brief.audience?.trim() ?? "",
+  density: brief.density ?? "balanced",
+  desiredChange: brief.desiredChange?.trim() ?? "",
+  durationMinutes: brief.durationMinutes ?? 10,
+  language: brief.language ?? "",
+  motionIntensity: brief.motionIntensity ?? "agent-choice",
+  topic: brief.topic.trim(),
+});
+
+export const studioBriefsMatch = (
+  left: DreverStudioCommonBrief,
+  right: DreverStudioCommonBrief,
+): boolean =>
+  JSON.stringify(comparableStudioBrief(left)) === JSON.stringify(comparableStudioBrief(right));
 
 export const resolveStudioDuration = (value: string): number | undefined => {
   const normalized = value.trim();
@@ -222,18 +266,132 @@ export const nextStudioMode = (
   return wasDraftAvailable ? mode : "draft";
 };
 
+export const isStudioArtifactOutdated = (state: DreverStudioState, mode: StudioMode): boolean =>
+  mode === "draft"
+    ? state.draftOutdated === true || state.storyboardOutdated === true
+    : state.storyboardOutdated === true;
+
 const sentenceCase = (value: string): string =>
   value
     .split("-")
     .map((part) => `${part.slice(0, 1).toUpperCase()}${part.slice(1)}`)
     .join(" ");
 
+const RevisionConfirmation = ({
+  busy,
+  confirmLabel = "Update and rebuild",
+  detail,
+  eyebrow = "Earlier step changed",
+  onCancel,
+  onConfirm,
+  title,
+}: Readonly<{
+  busy: boolean;
+  confirmLabel?: string;
+  detail: string;
+  eyebrow?: string;
+  onCancel(): void;
+  onConfirm(): void;
+  title: string;
+}>): ReactElement => {
+  const headingId = useId();
+  const detailId = useId();
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    dialog?.showModal();
+    return () => {
+      if (dialog?.open === true) dialog.close();
+    };
+  }, []);
+  return (
+    <dialog
+      aria-describedby={detailId}
+      aria-labelledby={headingId}
+      aria-modal="true"
+      className="drever-studio-revision-dialog"
+      onCancel={(event) => {
+        event.preventDefault();
+        if (!busy) onCancel();
+      }}
+      ref={dialogRef}
+      role="alertdialog"
+    >
+      <span aria-hidden="true">
+        <SparkIcon />
+      </span>
+      <div>
+        <small>{eyebrow}</small>
+        <strong id={headingId}>{title}</strong>
+        <p id={detailId}>{detail}</p>
+      </div>
+      <footer>
+        <button
+          autoFocus
+          className="drever-studio-button drever-studio-button--quiet"
+          disabled={busy}
+          onClick={onCancel}
+          type="button"
+        >
+          Cancel
+        </button>
+        <button
+          className="drever-studio-button drever-studio-button--primary"
+          disabled={busy}
+          onClick={onConfirm}
+          type="button"
+        >
+          {busy ? "Updating…" : confirmLabel}
+          <ArrowIcon />
+        </button>
+      </footer>
+    </dialog>
+  );
+};
+
+const SelectionSurface = ({ value }: Readonly<{ value: number | string }>): ReactElement => {
+  const surfaceRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const surface = surfaceRef.current;
+    const group = surface?.parentElement;
+    if (surface === null || group === null || group === undefined) return;
+
+    const moveToSelection = (): void => {
+      const selected = group.querySelector<HTMLElement>("[data-selected]");
+      if (selected === null) {
+        surface.removeAttribute("data-visible");
+        return;
+      }
+      surface.style.width = `${selected.offsetWidth}px`;
+      surface.style.height = `${selected.offsetHeight}px`;
+      surface.style.transform = `translate3d(${selected.offsetLeft}px, ${selected.offsetTop}px, 0)`;
+      surface.setAttribute("data-visible", "");
+    };
+
+    moveToSelection();
+    const view = group.ownerDocument.defaultView;
+    if (view === null) return;
+    const readyFrame = view.requestAnimationFrame(() => surface.setAttribute("data-ready", ""));
+    const observer = new view.ResizeObserver(moveToSelection);
+    observer.observe(group);
+    return () => {
+      view.cancelAnimationFrame(readyFrame);
+      observer.disconnect();
+    };
+  }, [value]);
+
+  return <span aria-hidden="true" className="drever-studio-selection-surface" ref={surfaceRef} />;
+};
+
 const ChoiceGroup = <Value extends string>({
+  disabled = false,
   label,
   onChange,
   options,
   value,
 }: Readonly<{
+  disabled?: boolean;
   label: string;
   onChange(value: Value): void;
   options: readonly Readonly<{
@@ -246,11 +404,13 @@ const ChoiceGroup = <Value extends string>({
 }>): ReactElement => (
   <fieldset className="drever-studio-choice-group">
     <legend>{label}</legend>
-    <div className="drever-studio-choice-grid">
+    <div className="drever-studio-choice-grid" data-option-count={options.length}>
+      <SelectionSurface value={value} />
       {options.map((option) => (
         <label data-selected={value === option.id ? "" : undefined} key={option.id}>
           <input
             checked={value === option.id}
+            disabled={disabled}
             name={label}
             onChange={() => onChange(option.id)}
             type="radio"
@@ -274,11 +434,16 @@ const StudioIdentity = (): ReactElement => (
     </svg>
     <span>Drever</span>
     <i />
-    <strong>Creation room</strong>
+    <strong>Studio</strong>
   </div>
 );
 
-const progressLabels = ["Brief", "Direction", "Storyboard", "Draft"] as const;
+const studioSteps = [
+  { label: "Brief", step: "brief" },
+  { label: "Direction", step: "direction" },
+  { label: "Storyboard", step: "storyboard" },
+  { label: "Draft", step: "draft" },
+] as const satisfies readonly Readonly<{ label: StudioProgressStage["label"]; step: StudioStep }>[];
 
 const measurableStudioProgress = (
   progress: DreverStudioState["progress"],
@@ -300,20 +465,22 @@ const directionIsPending = (state: DreverStudioState): boolean =>
 export const resolveStudioProgress = (state: DreverStudioState): readonly StudioProgressStage[] => {
   const hasBrief = state.phase !== "briefing" && (state.commonBrief?.topic.trim() ?? "") !== "";
   const directionInFlight = directionIsPending(state);
-  const directionNeedsInput = state.plan?.status === "awaiting-input";
+  const directionNeedsInput =
+    state.phase === "adaptive-questions" || state.plan?.status === "awaiting-input";
   const directionSubmitted =
     !directionInFlight &&
     !directionNeedsInput &&
     (state.skippedRemainingQuestions === true ||
       state.adaptiveAnswers !== undefined ||
-      state.plan !== undefined);
-  const storyboardApproved = !directionInFlight && state.plan?.status === "approved";
-  const draftComplete = state.phase === "ready";
+      (state.storyboardOutdated !== true && state.plan !== undefined));
+  const storyboardApproved =
+    !directionInFlight && state.storyboardOutdated !== true && state.plan?.status === "approved";
+  const draftComplete = state.phase === "ready" && state.draftOutdated !== true;
   const complete = [hasBrief, directionSubmitted, storyboardApproved, draftComplete];
   let current = complete.findIndex((value) => !value);
-  if (current === -1) current = progressLabels.length - 1;
+  if (current === -1) current = studioSteps.length - 1;
 
-  return progressLabels.map((label, index) => ({
+  return studioSteps.map(({ label }, index) => ({
     label,
     status:
       state.phase === "error" && index === current
@@ -326,28 +493,75 @@ export const resolveStudioProgress = (state: DreverStudioState): readonly Studio
   }));
 };
 
-const StudioProgress = ({ state }: Readonly<{ state: DreverStudioState }>): ReactElement => {
+export const resolveStudioWorkflowStep = (state: DreverStudioState): StudioStep => {
   const stages = resolveStudioProgress(state);
+  const current = stages.findIndex(({ status }) => status === "current" || status === "error");
+  return studioSteps[current === -1 ? studioSteps.length - 1 : current]?.step ?? "brief";
+};
+
+export const resolveStudioStepAvailability = (
+  state: DreverStudioState,
+): StudioStepAvailability => ({
+  brief: true,
+  direction:
+    state.commonBrief !== undefined &&
+    ((state.adaptiveQuestions?.length ?? 0) > 0 ||
+      state.adaptiveAnswers !== undefined ||
+      state.skippedRemainingQuestions === true ||
+      state.plan !== undefined),
+  storyboard: state.plan !== undefined && state.plan.status !== "awaiting-input",
+  draft: state.draftAvailable === true || state.phase === "preview" || state.phase === "ready",
+});
+
+const StudioProgress = ({
+  onStepSelect,
+  state,
+  viewedStep,
+  workflowStep,
+}: Readonly<{
+  onStepSelect(step: StudioStep): void;
+  state: DreverStudioState;
+  viewedStep?: StudioStep;
+  workflowStep: StudioStep;
+}>): ReactElement => {
+  const stages = resolveStudioProgress(state);
+  const availability = resolveStudioStepAvailability(state);
   return (
     <ol aria-label="Creation progress" className="drever-studio-progress">
-      {stages.map((stage, index) => (
-        <li
-          aria-current={stage.status === "current" ? "step" : undefined}
-          data-status={stage.status}
-          key={stage.label}
-        >
-          <span>
-            {stage.status === "complete" ? (
-              <CheckIcon />
-            ) : stage.status === "error" ? (
-              "!"
-            ) : (
-              String(index + 1).padStart(2, "0")
-            )}
-          </span>
-          {stage.label}
-        </li>
-      ))}
+      {stages.map((stage, index) => {
+        const step = studioSteps[index]?.step ?? "brief";
+        const outdated =
+          (step === "storyboard" && state.storyboardOutdated === true) ||
+          (step === "draft" && state.draftOutdated === true);
+        return (
+          <li
+            data-outdated={outdated ? "" : undefined}
+            data-status={stage.status}
+            data-viewing={viewedStep === step ? "" : undefined}
+            key={stage.label}
+          >
+            <button
+              aria-current={workflowStep === step ? "step" : undefined}
+              aria-label={`${outdated ? "View previous" : "View"} ${stage.label}`}
+              aria-pressed={viewedStep === step}
+              disabled={!availability[step]}
+              onClick={() => onStepSelect(step)}
+              type="button"
+            >
+              <span className="drever-studio-progress__marker">
+                {stage.status === "complete" ? (
+                  <CheckIcon />
+                ) : stage.status === "error" ? (
+                  "!"
+                ) : (
+                  String(index + 1).padStart(2, "0")
+                )}
+              </span>
+              <strong className="drever-studio-progress__label">{stage.label}</strong>
+            </button>
+          </li>
+        );
+      })}
     </ol>
   );
 };
@@ -688,12 +902,19 @@ const StudioAgentApproval = ({
 
 const BriefScreen = ({
   onAction,
+  onDirtyChange,
+  onReturnToWorkflow,
+  reviewing,
   state,
 }: Readonly<{
   onAction: StudioProps["onAction"];
+  onDirtyChange(dirty: boolean): void;
+  onReturnToWorkflow(): void;
+  reviewing: boolean;
   state: DreverStudioState;
 }>): ReactElement => {
   const existing = state.commonBrief;
+  const existingKey = JSON.stringify(existing);
   const [topic, setTopic] = useState(existing?.topic ?? "");
   const [audience, setAudience] = useState(existing?.audience ?? "");
   const [desiredChange, setDesiredChange] = useState(existing?.desiredChange ?? "");
@@ -708,29 +929,92 @@ const BriefScreen = ({
   const [density, setDensity] = useState<DensityChoice>(existing?.density ?? "balanced");
   const [motion, setMotion] = useState<MotionChoice>(existing?.motionIntensity ?? "agent-choice");
   const [submitting, setSubmitting] = useState(false);
+  const [pendingUpdate, setPendingUpdate] = useState<
+    Readonly<{ brief: DreverStudioCommonBrief; skipRemaining: boolean }> | undefined
+  >();
   const durationMinutes =
     durationChoice === "custom" ? resolveStudioDuration(customDuration) : durationChoice;
+  const revisionBusy =
+    reviewing &&
+    (state.pendingActionCount > 0 ||
+      (state.agentConnected && (state.phase === "drafting" || state.phase === "refining")));
 
-  const submit = async (event: FormEvent, skipRemaining = false): Promise<void> => {
-    event.preventDefault();
+  useEffect(() => {
+    if (existing === undefined) return;
+    const nextDuration = existing.durationMinutes ?? 10;
+    const nextPreset = durationOptions.find((duration) => duration === nextDuration);
+    setTopic(existing.topic);
+    setAudience(existing.audience ?? "");
+    setDesiredChange(existing.desiredChange ?? "");
+    setDurationChoice(nextPreset ?? "custom");
+    setCustomDuration(nextPreset === undefined ? String(nextDuration) : "");
+    setDensity(existing.density ?? "balanced");
+    setMotion(existing.motionIntensity ?? "agent-choice");
+    setPendingUpdate(undefined);
+  }, [existingKey]);
+
+  const currentBrief = (): DreverStudioCommonBrief | undefined => {
     if (topic.trim() === "" || durationMinutes === undefined) return;
-    const brief: DreverStudioCommonBrief = {
+    return {
       topic: topic.trim(),
       ...(audience.trim() === "" ? {} : { audience: audience.trim() }),
       ...(desiredChange.trim() === "" ? {} : { desiredChange: desiredChange.trim() }),
       density,
       durationMinutes,
+      ...(existing?.language === undefined ? {} : { language: existing.language }),
       ...(motion === "agent-choice" ? {} : { motionIntensity: motion }),
     };
+  };
+
+  const sendBrief = async (
+    brief: DreverStudioCommonBrief,
+    skipRemaining: boolean,
+  ): Promise<void> => {
     setSubmitting(true);
     try {
       await submitStudioBrief(onAction, brief, skipRemaining);
+      setPendingUpdate(undefined);
+      onReturnToWorkflow();
     } catch {
       // Studio owns the visible action error at the shared dispatch boundary.
     } finally {
       setSubmitting(false);
     }
   };
+
+  const submit = async (event: FormEvent, skipRemaining = false): Promise<void> => {
+    event.preventDefault();
+    const brief = currentBrief();
+    if (brief === undefined || revisionBusy) return;
+    const briefChanged = existing === undefined || !studioBriefsMatch(existing, brief);
+    const skipChanged = skipRemaining && state.skippedRemainingQuestions !== true;
+    const restartQuestions =
+      reviewing && !skipRemaining && state.skippedRemainingQuestions === true;
+    if (reviewing && !briefChanged && !skipChanged && !restartQuestions) {
+      onReturnToWorkflow();
+      return;
+    }
+    const hasDownstreamWork =
+      state.adaptiveAnswers !== undefined ||
+      (state.adaptiveQuestions?.length ?? 0) > 0 ||
+      state.skippedRemainingQuestions === true ||
+      state.plan !== undefined ||
+      state.draftAvailable === true;
+    if (reviewing && hasDownstreamWork) {
+      setPendingUpdate({ brief, skipRemaining });
+      return;
+    }
+    await sendBrief(brief, skipRemaining);
+  };
+
+  const draftBrief = currentBrief();
+  const briefChanged =
+    existing === undefined || draftBrief === undefined || !studioBriefsMatch(existing, draftBrief);
+
+  useEffect(() => {
+    onDirtyChange(reviewing && briefChanged);
+    return () => onDirtyChange(false);
+  }, [briefChanged, onDirtyChange, reviewing]);
 
   return (
     <main className="drever-studio-brief" data-studio-screen="brief">
@@ -747,7 +1031,8 @@ const BriefScreen = ({
         <label className="drever-studio-topic">
           <span>Presentation topic</span>
           <textarea
-            autoFocus
+            autoFocus={!reviewing}
+            readOnly={revisionBusy}
             onChange={(event) => setTopic(event.currentTarget.value)}
             placeholder="For example: Why black holes are not cosmic vacuum cleaners"
             required
@@ -762,6 +1047,7 @@ const BriefScreen = ({
               Audience <small>Optional</small>
             </span>
             <input
+              readOnly={revisionBusy}
               onChange={(event) => setAudience(event.currentTarget.value)}
               placeholder="Who will be in the room?"
               value={audience}
@@ -772,8 +1058,9 @@ const BriefScreen = ({
               After the presentation <small>Optional</small>
             </span>
             <input
+              readOnly={revisionBusy}
               onChange={(event) => setDesiredChange(event.currentTarget.value)}
-              placeholder="What should people understand, decide, or do?"
+              placeholder="What should people know or do?"
               value={desiredChange}
             />
           </label>
@@ -782,15 +1069,17 @@ const BriefScreen = ({
         <fieldset className="drever-studio-duration">
           <legend>Duration</legend>
           <div>
+            <SelectionSurface value={durationChoice} />
             {durationOptions.map((duration) => (
               <label data-selected={duration === durationChoice ? "" : undefined} key={duration}>
                 <input
                   checked={duration === durationChoice}
+                  disabled={revisionBusy}
                   name="duration"
                   onChange={() => setDurationChoice(duration)}
                   type="radio"
                 />
-                {duration} min
+                <span>{duration} min</span>
               </label>
             ))}
             <label
@@ -804,6 +1093,7 @@ const BriefScreen = ({
                     durationChoice === "custom" && durationMinutes === undefined ? true : undefined
                   }
                   aria-label="Custom duration in minutes"
+                  disabled={revisionBusy}
                   inputMode="numeric"
                   max={1_440}
                   min={1}
@@ -825,37 +1115,87 @@ const BriefScreen = ({
         </fieldset>
 
         <ChoiceGroup<DensityChoice>
+          disabled={revisionBusy}
           label="Information density"
           onChange={setDensity}
           options={densityOptions}
           value={density}
         />
         <ChoiceGroup<MotionChoice>
+          disabled={revisionBusy}
           label="Motion direction"
           onChange={setMotion}
           options={motionOptions}
           value={motion}
         />
 
+        {revisionBusy ? (
+          <p aria-live="polite" className="drever-studio-revision-busy" role="status">
+            You can review this brief now. Wait for the active agent request before changing it.
+          </p>
+        ) : null}
+
         <footer className="drever-studio-brief__actions">
+          <span className="drever-studio-surprise-control">
+            <button
+              aria-label="Skip remaining questions and surprise me"
+              className="drever-studio-button drever-studio-button--quiet drever-studio-button--subtle drever-studio-button--surprise"
+              disabled={
+                submitting || revisionBusy || topic.trim() === "" || durationMinutes === undefined
+              }
+              onClick={(event) => void submit(event, true)}
+              type="button"
+            >
+              <SparkIcon />
+              <span aria-hidden="true" className="drever-studio-button__swap">
+                <span>Skip the rest</span>
+                <span>Surprise me</span>
+              </span>
+            </button>
+            <span aria-hidden="true" className="drever-studio-button__confetti">
+              <i />
+              <i />
+              <i />
+              <i />
+              <i />
+              <i />
+              <i />
+              <i />
+              <i />
+              <i />
+              <i />
+              <i />
+            </span>
+          </span>
           <button
-            className="drever-studio-button drever-studio-button--quiet"
-            disabled={submitting || topic.trim() === "" || durationMinutes === undefined}
-            onClick={(event) => void submit(event, true)}
-            type="button"
-          >
-            Skip the rest — surprise me
-          </button>
-          <button
-            className="drever-studio-button drever-studio-button--primary"
-            disabled={submitting || topic.trim() === "" || durationMinutes === undefined}
+            className="drever-studio-button drever-studio-button--forward drever-studio-button--primary"
+            disabled={
+              submitting || revisionBusy || topic.trim() === "" || durationMinutes === undefined
+            }
             type="submit"
           >
-            {submitting ? "Sending…" : "Shape the direction"}
+            {submitting
+              ? "Sending…"
+              : reviewing
+                ? briefChanged
+                  ? "Update brief"
+                  : state.skippedRemainingQuestions === true
+                    ? "Ask me questions"
+                    : "Return to current step"
+                : "Shape the direction"}
             <ArrowIcon />
           </button>
         </footer>
       </form>
+      {pendingUpdate === undefined ? null : (
+        <RevisionConfirmation
+          busy={submitting}
+          detail="Direction, Storyboard, and Draft will be regenerated. The current draft remains available as a previous version until its replacement is ready."
+          onCancel={() => setPendingUpdate(undefined)}
+          onConfirm={() => void sendBrief(pendingUpdate.brief, pendingUpdate.skipRemaining)}
+          title="Update this brief?"
+        />
+      )}
     </main>
   );
 };
@@ -942,6 +1282,56 @@ const WaitingScreen = ({ state }: Readonly<{ state: DreverStudioState }>): React
   );
 };
 
+const DirectionSummaryScreen = ({
+  onReturnToWorkflow,
+  state,
+}: Readonly<{
+  onReturnToWorkflow(): void;
+  state: DreverStudioState;
+}>): ReactElement => {
+  const brief = state.commonBrief;
+  const skipped = state.skippedRemainingQuestions === true;
+  return (
+    <main className="drever-studio-direction-summary" data-studio-screen="direction-summary">
+      <header>
+        <p>Direction saved</p>
+        <h1>{skipped ? "The agent chose the remaining details." : "Your direction is saved."}</h1>
+        <span>
+          {skipped
+            ? "This session skipped the optional question round. The choices below still guide the Storyboard and design pass."
+            : "This earlier session did not retain its question wording, but the saved direction still guides the current Storyboard."}
+        </span>
+      </header>
+      <section aria-label="Saved direction">
+        <div>
+          <small>Duration</small>
+          <strong>{brief?.durationMinutes ?? 10} minutes</strong>
+        </div>
+        <div>
+          <small>Information</small>
+          <strong>{sentenceCase(brief?.density ?? "balanced")}</strong>
+        </div>
+        <div>
+          <small>Motion</small>
+          <strong>
+            {brief?.motionIntensity === undefined
+              ? "Agent choice"
+              : sentenceCase(brief.motionIntensity)}
+          </strong>
+        </div>
+        <button
+          className="drever-studio-button drever-studio-button--forward drever-studio-button--primary"
+          onClick={onReturnToWorkflow}
+          type="button"
+        >
+          Return to current step
+          <ArrowIcon />
+        </button>
+      </section>
+    </main>
+  );
+};
+
 const ErrorScreen = ({
   onAction,
   state,
@@ -988,14 +1378,20 @@ const ErrorScreen = ({
   );
 };
 
-const AgentConnectionNotice = ({ state }: Readonly<{ state: DreverStudioState }>): ReactElement => {
+const AgentConnectionNotice = ({
+  state,
+}: Readonly<{ state: DreverStudioState }>): ReactElement | null => {
+  const [dismissed, setDismissed] = useState(false);
   const resumable = state.agentConfigured === true;
-  const awaitingReview = state.plan?.status === "awaiting-approval";
+  const awaitingReview =
+    state.plan?.status === "awaiting-approval" && state.storyboardOutdated !== true;
+  if (dismissed) return null;
   return (
     <aside
       aria-live="polite"
       className="drever-studio-agent-notice"
       data-resumable={resumable ? "" : undefined}
+      role="status"
     >
       <span aria-hidden="true" />
       <div>
@@ -1012,15 +1408,28 @@ const AgentConnectionNotice = ({ state }: Readonly<{ state: DreverStudioState }>
             : "Studio does not run a model itself. Changes stay queued until the coding-agent task starts or resumes the Drever workflow."}
         </span>
       </div>
+      <button
+        aria-label="Dismiss agent connection notice"
+        onClick={() => setDismissed(true)}
+        type="button"
+      >
+        <CloseIcon />
+      </button>
     </aside>
   );
 };
 
 const QuestionsScreen = ({
   onAction,
+  onDirtyChange,
+  onReturnToWorkflow,
+  reviewing,
   state,
 }: Readonly<{
   onAction: StudioProps["onAction"];
+  onDirtyChange(dirty: boolean): void;
+  onReturnToWorkflow(): void;
+  reviewing: boolean;
   state: DreverStudioState;
 }>): ReactElement => {
   const serializedQuestionRound = JSON.stringify({
@@ -1036,6 +1445,11 @@ const QuestionsScreen = ({
     hydrateStudioAnswerDrafts(questions, hydratedAnswers),
   );
   const [submitting, setSubmitting] = useState(false);
+  const [pendingRevision, setPendingRevision] = useState<"answers" | "skip" | undefined>();
+  const revisionBusy =
+    reviewing &&
+    (state.pendingActionCount > 0 ||
+      (state.agentConnected && (state.phase === "drafting" || state.phase === "refining")));
 
   useEffect(() => {
     setDrafts(hydrateStudioAnswerDrafts(questionRound.questions, questionRound.answers));
@@ -1059,12 +1473,12 @@ const QuestionsScreen = ({
     });
   };
 
-  const submit = async (event: FormEvent): Promise<void> => {
-    event.preventDefault();
-    const resolved = resolveStudioAnswers(questions, drafts);
+  const sendAnswers = async (answers: readonly DreverStudioAnswer[]): Promise<void> => {
     setSubmitting(true);
     try {
-      await onAction({ answers: resolved, type: "submit-adaptive-answers" });
+      await onAction({ answers, type: "submit-adaptive-answers" });
+      setPendingRevision(undefined);
+      onReturnToWorkflow();
     } catch {
       // Studio owns the visible action error at the shared dispatch boundary.
     } finally {
@@ -1072,10 +1486,12 @@ const QuestionsScreen = ({
     }
   };
 
-  const skip = async (): Promise<void> => {
+  const sendSkip = async (): Promise<void> => {
     setSubmitting(true);
     try {
       await onAction({ type: "skip-remaining-questions" });
+      setPendingRevision(undefined);
+      onReturnToWorkflow();
     } catch {
       // Studio owns the visible action error at the shared dispatch boundary.
     } finally {
@@ -1084,6 +1500,40 @@ const QuestionsScreen = ({
   };
 
   const resolvedAnswers = resolveStudioAnswers(questions, drafts);
+  const answersChanged = !studioAnswersMatch(state.adaptiveAnswers ?? [], resolvedAnswers);
+  const hasDownstreamWork = state.plan !== undefined || state.draftAvailable === true;
+
+  useEffect(() => {
+    onDirtyChange(answersChanged);
+    return () => onDirtyChange(false);
+  }, [answersChanged, onDirtyChange]);
+
+  const submit = async (event: FormEvent): Promise<void> => {
+    event.preventDefault();
+    if (revisionBusy) return;
+    if (reviewing && !answersChanged && state.skippedRemainingQuestions !== true) {
+      onReturnToWorkflow();
+      return;
+    }
+    if (reviewing && hasDownstreamWork) {
+      setPendingRevision("answers");
+      return;
+    }
+    await sendAnswers(resolvedAnswers);
+  };
+
+  const skip = async (): Promise<void> => {
+    if (revisionBusy) return;
+    if (reviewing && state.skippedRemainingQuestions === true) {
+      onReturnToWorkflow();
+      return;
+    }
+    if (reviewing && hasDownstreamWork) {
+      setPendingRevision("skip");
+      return;
+    }
+    await sendSkip();
+  };
 
   return (
     <main className="drever-studio-questions" data-studio-screen="questions">
@@ -1109,6 +1559,7 @@ const QuestionsScreen = ({
                     <label data-selected={checked ? "" : undefined} key={option.id}>
                       <input
                         checked={checked}
+                        disabled={revisionBusy}
                         name={question.id}
                         onChange={() => setAnswer(question, option.id)}
                         type={question.multiple === true ? "checkbox" : "radio"}
@@ -1127,6 +1578,7 @@ const QuestionsScreen = ({
               <label className="drever-studio-question__custom">
                 <span>Or add your own direction</span>
                 <input
+                  readOnly={revisionBusy}
                   onChange={(event) =>
                     setDrafts((current) => ({
                       ...current,
@@ -1143,25 +1595,49 @@ const QuestionsScreen = ({
             </fieldset>
           );
         })}
+        {revisionBusy ? (
+          <p aria-live="polite" className="drever-studio-revision-busy" role="status">
+            You can review this direction now. Wait for the active agent request before changing it.
+          </p>
+        ) : null}
         <footer className="drever-studio-brief__actions">
           <button
             className="drever-studio-button drever-studio-button--quiet"
-            disabled={submitting}
+            disabled={submitting || revisionBusy}
             onClick={() => void skip()}
             type="button"
           >
             Skip remaining questions
           </button>
           <button
-            className="drever-studio-button drever-studio-button--primary"
-            disabled={submitting || resolvedAnswers.length !== questions.length}
+            className="drever-studio-button drever-studio-button--forward drever-studio-button--primary"
+            disabled={submitting || revisionBusy || resolvedAnswers.length !== questions.length}
             type="submit"
           >
-            {submitting ? "Saving…" : "Create the storyboard"}
+            {submitting
+              ? "Saving…"
+              : reviewing
+                ? answersChanged || state.skippedRemainingQuestions === true
+                  ? "Update direction"
+                  : "Return to current step"
+                : "Create the storyboard"}
             <ArrowIcon />
           </button>
         </footer>
       </form>
+      {pendingRevision === undefined ? null : (
+        <RevisionConfirmation
+          busy={submitting}
+          detail="The Storyboard and Draft will be regenerated from this direction. The current draft remains available as a previous version until its replacement is ready."
+          onCancel={() => setPendingRevision(undefined)}
+          onConfirm={() =>
+            void (pendingRevision === "skip" ? sendSkip() : sendAnswers(resolvedAnswers))
+          }
+          title={
+            pendingRevision === "skip" ? "Let the agent choose the rest?" : "Update direction?"
+          }
+        />
+      )}
     </main>
   );
 };
@@ -1190,9 +1666,13 @@ const SlideCard = ({
     ref={cardRef}
     type="button"
   >
-    <span className="drever-studio-plan-card__number">{String(index + 1).padStart(2, "0")}</span>
     <span className="drever-studio-plan-card__copy">
-      <small>{sentenceCase(slide.job)}</small>
+      <span className="drever-studio-plan-card__meta">
+        <span className="drever-studio-plan-card__number">
+          {String(index + 1).padStart(2, "0")}
+        </span>
+        <small>{sentenceCase(slide.job)}</small>
+      </span>
       <strong dir="auto">{slide.title}</strong>
       <span className="drever-studio-plan-card__purpose" dir="auto">
         {slide.purpose}
@@ -1201,16 +1681,124 @@ const SlideCard = ({
   </button>
 );
 
+export const studioDraftThumbnailUrl = (
+  previewUrl: string,
+  audienceUrl: string,
+  slideIndex: number,
+): string => {
+  const url = new URL(previewUrl, audienceUrl);
+  url.searchParams.set("drever-studio-thumbnail", String(slideIndex + 1));
+  url.hash = "";
+  return url.href;
+};
+
+const StudioDraftThumbnail = ({
+  audienceUrl,
+  current,
+  index,
+  onSelect,
+  previewRoot,
+  previewUrl,
+  selected,
+  slide,
+  canvas,
+}: Readonly<{
+  audienceUrl: string;
+  canvas: CanvasDefinition;
+  current: boolean;
+  index: number;
+  onSelect(): void;
+  previewRoot: RefObject<HTMLElement | null>;
+  previewUrl: string;
+  selected: boolean;
+  slide: Readonly<{ id: string; title: string }>;
+}>): ReactElement => {
+  const cardRef = useRef<HTMLElement>(null);
+  const [previewReady, setPreviewReady] = useState(current);
+
+  useEffect(() => {
+    if (current) setPreviewReady(true);
+  }, [current]);
+
+  useEffect(() => {
+    const card = cardRef.current;
+    if (card === null || previewReady) return;
+    if (typeof IntersectionObserver !== "function") {
+      setPreviewReady(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting !== true) return;
+        setPreviewReady(true);
+        observer.disconnect();
+      },
+      { root: previewRoot.current, rootMargin: "300px 0px" },
+    );
+    observer.observe(card);
+    return () => observer.disconnect();
+  }, [previewReady, previewRoot]);
+
+  const ordinal = index + 1;
+  return (
+    <article
+      className="drever-studio-rail__thumbnail"
+      data-selected={selected ? "" : undefined}
+      ref={cardRef}
+    >
+      <span className="drever-studio-rail__index">{String(ordinal).padStart(2, "0")}</span>
+      <div
+        aria-hidden="true"
+        className="drever-studio-rail__thumbnail-frame"
+        inert
+        style={{ aspectRatio: `${canvas.width} / ${canvas.height}` }}
+      >
+        {previewReady ? (
+          <iframe
+            aria-hidden="true"
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            sandbox="allow-same-origin allow-scripts"
+            src={studioDraftThumbnailUrl(previewUrl, audienceUrl, index)}
+            tabIndex={-1}
+            title={`Slide ${String(ordinal)} preview`}
+          />
+        ) : (
+          <span className="drever-studio-rail__thumbnail-placeholder" />
+        )}
+      </div>
+      <strong className="drever-studio-rail__title" dir="auto">
+        {slide.title}
+      </strong>
+      <button
+        aria-controls="drever-studio-live-draft"
+        aria-current={current ? "page" : undefined}
+        className="drever-studio-rail__thumbnail-link"
+        onClick={onSelect}
+        type="button"
+      >
+        <span className="drever-studio-visually-hidden">
+          View slide {ordinal}: <span dir="auto">{slide.title}</span>
+        </span>
+      </button>
+    </article>
+  );
+};
+
 const FeedbackComposer = ({
   feedbackTarget,
   onAction,
+  onDirtyChange,
   onFeedbackTargetChange,
+  outdated,
   selectedSlide,
   state,
 }: Readonly<{
   feedbackTarget: StudioFeedbackTarget;
   onAction: StudioProps["onAction"];
+  onDirtyChange(dirty: boolean): void;
   onFeedbackTargetChange(target: StudioFeedbackTarget): void;
+  outdated: boolean;
   selectedSlide?: DreverDeckPlanSlide;
   state: DreverStudioState;
 }>): ReactElement => {
@@ -1222,6 +1810,11 @@ const FeedbackComposer = ({
   const targetDescriptionId = useId();
   const feedbackSlide = feedbackTarget === "slide" ? selectedSlide : undefined;
   const effectiveTarget = feedbackSlide === undefined ? "deck" : "slide";
+
+  useEffect(() => {
+    onDirtyChange(message.trim() !== "");
+    return () => onDirtyChange(false);
+  }, [message, onDirtyChange]);
 
   const submit = async (event: FormEvent): Promise<void> => {
     event.preventDefault();
@@ -1272,9 +1865,11 @@ const FeedbackComposer = ({
         </div>
       </header>
       <p aria-live="polite" className="drever-studio-direction__target" id={targetDescriptionId}>
-        {feedbackSlide === undefined
-          ? "Feedback applies to the entire deck."
-          : `Feedback applies to “${feedbackSlide.title}”`}
+        {outdated
+          ? "This is a previous version. Return to the current step before sending more direction."
+          : feedbackSlide === undefined
+            ? "Feedback applies to the entire deck."
+            : `Feedback applies to “${feedbackSlide.title}”`}
       </p>
       <section
         className="drever-studio-direction__context"
@@ -1328,13 +1923,14 @@ const FeedbackComposer = ({
                 ? "Make the story more concrete and reduce repeated claims…"
                 : "Keep the idea, but make the visual evidence easier to understand…"
             }
+            readOnly={outdated}
             rows={5}
             value={message}
           />
         </label>
         <button
-          className="drever-studio-button drever-studio-button--primary"
-          disabled={submitting || message.trim() === ""}
+          className="drever-studio-button drever-studio-button--forward drever-studio-button--primary"
+          disabled={outdated || submitting || message.trim() === ""}
           type="submit"
         >
           {submitting ? "Sending…" : "Send to agent"}
@@ -1355,7 +1951,7 @@ const FeedbackComposer = ({
 
 type StudioDraftLifecycle = Readonly<{
   detail: string;
-  status: "error" | "ready" | "working";
+  status: "error" | "outdated" | "ready" | "working";
   title: string;
 }>;
 
@@ -1363,6 +1959,14 @@ export const resolveStudioDraftLifecycle = (
   state: DreverStudioState,
 ): StudioDraftLifecycle | undefined => {
   const detail = latestStudioNarration(state.message);
+  if (state.draftOutdated === true && state.draftAvailable === true) {
+    return {
+      detail:
+        "This preview reflects the earlier brief. Keep reviewing it while the agent prepares its replacement.",
+      status: "outdated",
+      title: "Previous draft remains available",
+    };
+  }
   const disconnectedDraftWork =
     !state.agentConnected && (state.phase === "drafting" || state.phase === "refining");
   const agentWorkIsActive =
@@ -1437,9 +2041,16 @@ export const resolveStudioDraftLifecycle = (
 export const readStudioPreviewState = (value: unknown): StudioPreviewState | undefined => {
   if (typeof value !== "object" || value === null) return undefined;
   const candidate = value as Partial<StudioPreviewState>;
+  const canvas = candidate.canvas;
   if (
     candidate.type !== "drever:studio-preview-state" ||
     candidate.version !== 1 ||
+    (canvas !== undefined &&
+      (typeof canvas !== "object" ||
+        !Number.isFinite(canvas.width) ||
+        canvas.width <= 0 ||
+        !Number.isFinite(canvas.height) ||
+        canvas.height <= 0)) ||
     typeof candidate.manifest !== "object" ||
     candidate.manifest === null ||
     candidate.manifest.version !== DECK_MANIFEST_VERSION ||
@@ -1491,13 +2102,23 @@ export const resolveStudioPlanSlideId = (
 ): string | undefined => slides?.[runtimeSlideIndex]?.id;
 
 const StudioDraftStatus = ({
+  mode,
   onAction,
   state,
 }: Readonly<{
+  mode: StudioMode;
   onAction: StudioProps["onAction"];
   state: DreverStudioState;
 }>): ReactElement | null => {
-  const lifecycle = resolveStudioDraftLifecycle(state);
+  const lifecycle: StudioDraftLifecycle | undefined =
+    mode === "storyboard" && state.storyboardOutdated === true
+      ? {
+          detail:
+            "This sequence belongs to the earlier direction. Keep it for reference while the agent prepares a replacement.",
+          status: "outdated",
+          title: "Previous storyboard remains available",
+        }
+      : resolveStudioDraftLifecycle(state);
   const [resuming, setResuming] = useState(false);
   if (lifecycle === undefined) return null;
   const canResumeDraft = state.draftAvailable === true;
@@ -1542,7 +2163,9 @@ const StudioDraftStatus = ({
             ? "Live work in progress"
             : lifecycle.status === "error"
               ? "Action needed"
-              : "Review point"}
+              : lifecycle.status === "outdated"
+                ? "Previous version"
+                : "Review point"}
         </small>
         <strong dir="auto">{lifecycle.title}</strong>
         <p dir="auto">
@@ -1585,16 +2208,31 @@ const StudioDraftStatus = ({
 
 const PlanScreen = ({
   audienceUrl,
+  onDirtyChange,
+  onModeChange,
   onAction,
   previewCapability,
   previewUrl = audienceUrl,
+  requestedMode,
   state,
-}: StudioProps): ReactElement => {
+}: StudioProps &
+  Readonly<{
+    onDirtyChange(dirty: boolean): void;
+    onModeChange?(mode: StudioMode): void;
+    requestedMode?: StudioMode;
+  }>): ReactElement => {
   const plan = state.plan?.status === "awaiting-input" ? undefined : state.plan;
   const [selectedSlideId, setSelectedSlideId] = useState<string | undefined>();
   const draftAvailable =
     state.draftAvailable === true || state.phase === "preview" || state.phase === "ready";
-  const [mode, setMode] = useState<StudioMode>(draftAvailable ? "draft" : "storyboard");
+  const mode: StudioMode =
+    requestedMode === "draft" && draftAvailable
+      ? "draft"
+      : requestedMode === "storyboard"
+        ? "storyboard"
+        : draftAvailable
+          ? "draft"
+          : "storyboard";
   const [feedbackScope, setFeedbackScope] = useState<StudioFeedbackTarget>(
     draftAvailable ? "slide" : "deck",
   );
@@ -1605,6 +2243,7 @@ const PlanScreen = ({
   const [previewLoaded, setPreviewLoaded] = useState(false);
   const [previewConnection, setPreviewConnection] = useState<StudioPreviewConnection>("connecting");
   const planRef = useRef<HTMLDivElement>(null);
+  const railRef = useRef<HTMLElement>(null);
   const slideElements = useRef(new Map<string, HTMLButtonElement>());
   const pendingPreviewSlideIndex = useRef<number | undefined>(undefined);
   const selectedSlide =
@@ -1617,10 +2256,10 @@ const PlanScreen = ({
     [audienceUrl, previewUrl],
   );
   const lifecycle = resolveStudioDraftLifecycle(state);
+  const artifactOutdated = isStudioArtifactOutdated(state, mode);
 
   useEffect(() => {
     if (!previousDraftAvailable.current && draftAvailable) setFeedbackScope("slide");
-    setMode((current) => nextStudioMode(current, previousDraftAvailable.current, draftAvailable));
     previousDraftAvailable.current = draftAvailable;
   }, [draftAvailable]);
 
@@ -1772,6 +2411,7 @@ const PlanScreen = ({
         }))
       : plan.slides;
   const previewSlide = previewState?.manifest.slides[previewState.position.slideIndex];
+  const previewCanvas = previewState?.canvas ?? DEFAULT_CANVAS;
   const previewNotes =
     previewSlide?.speakerNotes
       .map(({ plainText }) => plainText)
@@ -1782,43 +2422,53 @@ const PlanScreen = ({
       : "No speaker notes for this slide yet.");
   return (
     <main className="drever-studio-workspace" data-studio-screen="plan">
-      <nav aria-label="Presentation slides" className="drever-studio-rail" data-mode={mode}>
+      <nav
+        aria-label="Presentation slides"
+        className="drever-studio-rail"
+        data-mode={mode}
+        ref={railRef}
+      >
         <header>
           <p>{mode === "draft" ? "Live draft" : "Story"}</p>
           <span>{railSlides.length} slides</span>
         </header>
-        {mode === "storyboard" ? (
-          <button
-            aria-pressed={feedbackScope === "deck"}
-            className="drever-studio-rail__whole"
-            data-selected={feedbackScope === "deck" ? "" : undefined}
-            onClick={selectDeck}
-            type="button"
-          >
-            <SparkIcon />
-            Entire deck
-          </button>
-        ) : null}
         <ol>
           {railSlides.map((slide, index) => {
             const current =
               mode === "draft" ? index === selectedSlideIndex : slide.id === selectedSlideId;
             const selected = mode === "draft" ? current : feedbackScope === "slide" && current;
+            if (mode === "draft") {
+              return (
+                <li key={slide.id}>
+                  <StudioDraftThumbnail
+                    audienceUrl={audienceUrl}
+                    canvas={previewCanvas}
+                    current={current}
+                    index={index}
+                    onSelect={() => selectSlide(slide.id, index)}
+                    previewRoot={railRef}
+                    previewUrl={previewUrl}
+                    selected={selected}
+                    slide={slide}
+                  />
+                </li>
+              );
+            }
             return (
               <li key={slide.id}>
                 <button
-                  aria-controls={
-                    mode === "draft"
-                      ? "drever-studio-live-draft"
-                      : `drever-studio-plan-card-${slide.id}`
-                  }
-                  aria-current={current ? (mode === "draft" ? "page" : "true") : undefined}
+                  aria-controls={`drever-studio-plan-card-${slide.id}`}
+                  aria-current={current ? "true" : undefined}
                   data-selected={selected ? "" : undefined}
                   onClick={() => selectSlide(slide.id, index)}
                   type="button"
                 >
-                  <span>{String(index + 1).padStart(2, "0")}</span>
-                  <strong dir="auto">{slide.title}</strong>
+                  <span className="drever-studio-rail__index">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <strong className="drever-studio-rail__title" dir="auto">
+                    {slide.title}
+                  </strong>
                 </button>
               </li>
             );
@@ -1832,7 +2482,7 @@ const PlanScreen = ({
             <button
               aria-pressed={mode === "storyboard"}
               onClick={() => {
-                setMode("storyboard");
+                onModeChange?.("storyboard");
                 if (feedbackScope === "deck") selectDeck();
                 else if (selectedSlideId !== undefined) scrollStoryboardSlide(selectedSlideId);
               }}
@@ -1844,15 +2494,15 @@ const PlanScreen = ({
               aria-pressed={mode === "draft"}
               disabled={!draftAvailable}
               onClick={() => {
-                setMode("draft");
                 setFeedbackScope("slide");
+                onModeChange?.("draft");
               }}
               type="button"
             >
               Live draft
             </button>
           </div>
-          {plan.status === "awaiting-approval" ? (
+          {mode === "storyboard" && plan.status === "awaiting-approval" && !artifactOutdated ? (
             <button
               className="drever-studio-approve"
               disabled={approving || state.pendingActionCount > 0}
@@ -1866,6 +2516,14 @@ const PlanScreen = ({
                   : "Approve story"}
               <ArrowIcon />
             </button>
+          ) : artifactOutdated ? (
+            <span
+              className="drever-studio-canvas__status"
+              data-studio-status-copy=""
+              key="previous-version"
+            >
+              Viewing a previous version
+            </span>
           ) : draftAvailable ? (
             <a href={audienceUrl} rel="noreferrer" target="_blank">
               Open audience
@@ -1913,7 +2571,7 @@ const PlanScreen = ({
             data-studio-panel="draft"
             id="drever-studio-live-draft"
           >
-            <StudioDraftStatus onAction={onAction} state={state} />
+            <StudioDraftStatus mode="draft" onAction={onAction} state={state} />
             <div className="drever-studio-preview__frame">
               <iframe
                 allow="fullscreen"
@@ -1951,7 +2609,7 @@ const PlanScreen = ({
           </div>
         ) : (
           <div className="drever-studio-plan" data-studio-panel="storyboard" ref={planRef}>
-            <StudioDraftStatus onAction={onAction} state={state} />
+            <StudioDraftStatus mode="storyboard" onAction={onAction} state={state} />
             <header>
               <div>
                 <p>Structure preview</p>
@@ -1993,10 +2651,12 @@ const PlanScreen = ({
       <FeedbackComposer
         feedbackTarget={feedbackScope}
         onAction={onAction}
+        onDirtyChange={onDirtyChange}
         onFeedbackTargetChange={(target) => {
           setFeedbackScope(target);
           if (target === "deck" && mode === "storyboard") setSelectedSlideId(undefined);
         }}
+        outdated={artifactOutdated}
         {...(selectedSlide === undefined ? {} : { selectedSlide })}
         state={state}
       />
@@ -2008,19 +2668,55 @@ const PlanScreen = ({
 export const Studio = (props: StudioProps): ReactElement => {
   const { state } = props;
   const [actionError, setActionError] = useState<string | undefined>();
+  const [viewedStep, setViewedStep] = useState<StudioStep>();
+  const [viewDirty, setViewDirty] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<
+    Readonly<{ viewedStep?: StudioStep }> | undefined
+  >();
   const commonBriefDone = (state.commonBrief?.topic.trim() ?? "") !== "";
   const hasQuestions = (state.adaptiveQuestions?.length ?? 0) > 0;
-  const plan =
-    state.plan?.status === "awaiting-input" || directionIsPending(state) ? undefined : state.plan;
-  const screen = useMemo(() => {
-    if (state.phase === "error" && plan === undefined) return "error";
+  const workflowStep = resolveStudioWorkflowStep(state);
+  const availableSteps = resolveStudioStepAvailability(state);
+  const displayedStep = viewedStep ?? workflowStep;
+  const currentPlan =
+    state.plan?.status === "awaiting-input" ||
+    directionIsPending(state) ||
+    state.storyboardOutdated === true
+      ? undefined
+      : state.plan;
+  const workflowScreen = useMemo(() => {
+    if (state.phase === "error" && currentPlan === undefined) return "error";
     if (!commonBriefDone || state.phase === "briefing") return "brief";
     if (state.phase === "adaptive-questions" && hasQuestions) return "questions";
-    if (plan !== undefined) return "plan";
+    if (currentPlan !== undefined) return "plan";
     return "waiting";
-  }, [commonBriefDone, hasQuestions, plan, state.phase]);
+  }, [commonBriefDone, currentPlan, hasQuestions, state.phase]);
+  const screen = useMemo(() => {
+    if (viewedStep === undefined) return workflowScreen;
+    if (viewedStep === "brief") return "brief";
+    if (viewedStep === "direction") {
+      return hasQuestions ? "questions" : "direction-summary";
+    }
+    return state.plan === undefined ? workflowScreen : "plan";
+  }, [hasQuestions, state.plan, viewedStep, workflowScreen]);
+  const activeSurfaceStep: StudioStep | undefined =
+    screen === "brief"
+      ? "brief"
+      : screen === "questions" || screen === "direction-summary"
+        ? "direction"
+        : screen === "plan"
+          ? displayedStep === "draft"
+            ? "draft"
+            : "storyboard"
+          : undefined;
+
+  useEffect(() => {
+    if (viewedStep !== undefined && !availableSteps[viewedStep]) setViewedStep(undefined);
+  }, [availableSteps, viewedStep]);
   const waitingForReview =
-    state.plan?.status === "awaiting-approval" && state.pendingActionCount === 0;
+    state.plan?.status === "awaiting-approval" &&
+    state.storyboardOutdated !== true &&
+    state.pendingActionCount === 0;
   const agentStatus = waitingForReview
     ? "Waiting for your review"
     : state.phase === "error"
@@ -2036,6 +2732,15 @@ export const Studio = (props: StudioProps): ReactElement => {
     setActionError(undefined);
     try {
       await props.onAction(action);
+      if (
+        action.type === "submit-common-brief" ||
+        action.type === "submit-adaptive-answers" ||
+        action.type === "skip-remaining-questions" ||
+        action.type === "approve-plan"
+      ) {
+        setViewDirty(false);
+        setViewedStep(undefined);
+      }
     } catch (error) {
       setActionError(
         error instanceof Error
@@ -2044,6 +2749,18 @@ export const Studio = (props: StudioProps): ReactElement => {
       );
       throw error;
     }
+  };
+  const selectStep = (step: StudioStep): void => {
+    const nextViewedStep = step === workflowStep ? undefined : step;
+    if (viewDirty && nextViewedStep !== viewedStep) {
+      setPendingNavigation(
+        nextViewedStep === undefined
+          ? Object.freeze({})
+          : Object.freeze({ viewedStep: nextViewedStep }),
+      );
+      return;
+    }
+    setViewedStep(nextViewedStep);
   };
 
   return (
@@ -2055,7 +2772,12 @@ export const Studio = (props: StudioProps): ReactElement => {
     >
       <header className="drever-studio-header">
         <StudioIdentity />
-        <StudioProgress state={state} />
+        <StudioProgress
+          onStepSelect={selectStep}
+          state={state}
+          {...(activeSurfaceStep === undefined ? {} : { viewedStep: activeSurfaceStep })}
+          workflowStep={workflowStep}
+        />
         <div aria-live="polite" className="drever-studio-agent-status">
           <i aria-hidden="true" />
           <span data-studio-status-copy="" key={agentStatus}>
@@ -2068,20 +2790,66 @@ export const Studio = (props: StudioProps): ReactElement => {
       )}
       <StudioAgentApproval approvals={state.agentApprovals ?? []} onAction={dispatch} />
       {screen === "questions" &&
+      viewedStep === undefined &&
       (state.activity !== undefined ||
         state.progress !== undefined ||
         state.message !== undefined) ? (
         <StudioActivityTicker state={state} />
       ) : null}
-      {screen === "brief" ? <BriefScreen onAction={dispatch} state={state} /> : null}
-      {screen === "questions" ? <QuestionsScreen onAction={dispatch} state={state} /> : null}
+      {screen === "brief" ? (
+        <BriefScreen
+          onAction={dispatch}
+          onDirtyChange={setViewDirty}
+          onReturnToWorkflow={() => setViewedStep(undefined)}
+          reviewing={viewedStep === "brief" && workflowStep !== "brief"}
+          state={state}
+        />
+      ) : null}
+      {screen === "questions" ? (
+        <QuestionsScreen
+          onAction={dispatch}
+          onDirtyChange={setViewDirty}
+          onReturnToWorkflow={() => setViewedStep(undefined)}
+          reviewing={viewedStep === "direction" && workflowStep !== "direction"}
+          state={state}
+        />
+      ) : null}
+      {screen === "direction-summary" ? (
+        <DirectionSummaryScreen onReturnToWorkflow={() => setViewedStep(undefined)} state={state} />
+      ) : null}
       {screen === "waiting" ? <WaitingScreen state={state} /> : null}
-      {screen === "plan" ? <PlanScreen {...props} onAction={dispatch} /> : null}
+      {screen === "plan" ? (
+        <PlanScreen
+          {...props}
+          onAction={dispatch}
+          onDirtyChange={setViewDirty}
+          onModeChange={(mode) => {
+            const step = mode === "draft" ? "draft" : "storyboard";
+            setViewedStep(step === workflowStep ? undefined : step);
+          }}
+          requestedMode={displayedStep === "draft" ? "draft" : "storyboard"}
+        />
+      ) : null}
       {screen === "error" ? <ErrorScreen onAction={dispatch} state={state} /> : null}
       {actionError === undefined ? null : (
         <div aria-live="assertive" className="drever-studio-error" role="alert">
           {actionError}
         </div>
+      )}
+      {pendingNavigation === undefined ? null : (
+        <RevisionConfirmation
+          busy={false}
+          confirmLabel="Discard edits"
+          detail="The values you changed on this step have not been sent to the agent."
+          eyebrow="Unsaved changes"
+          onCancel={() => setPendingNavigation(undefined)}
+          onConfirm={() => {
+            setViewDirty(false);
+            setViewedStep(pendingNavigation.viewedStep);
+            setPendingNavigation(undefined);
+          }}
+          title="Leave this step?"
+        />
       )}
     </div>
   );

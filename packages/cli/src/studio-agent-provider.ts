@@ -103,6 +103,20 @@ export const phaseForStudioAction = (record: DreverStudioActionRecord): DreverSt
   }
 };
 
+/** @internal Gives every agent transport the same validated browser action and server context. */
+export const studioActionAgentPayload = (
+  record: DreverStudioActionRecord,
+): Readonly<{
+  revision: number;
+  action: DreverStudioActionRecord["action"];
+  context?: DreverStudioActionRecord["context"];
+}> =>
+  Object.freeze({
+    revision: record.revision,
+    action: record.action,
+    ...(record.context === undefined ? {} : { context: record.context }),
+  });
+
 /** @internal Keeps the latency-sensitive Studio handoff identical across agent transports. */
 export const studioActionWorkflowInstructions = (record: DreverStudioActionRecord): string =>
   [

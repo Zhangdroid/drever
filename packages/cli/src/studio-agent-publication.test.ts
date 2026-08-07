@@ -1,4 +1,4 @@
-import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, rm, utimes, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { DREVER_STUDIO_PROTOCOL_VERSION, type DreverStudioActionRecord } from "@drever/schema";
@@ -271,7 +271,9 @@ describe("Studio action publication verifier", () => {
       action: {
         version: DREVER_STUDIO_PROTOCOL_VERSION,
         requestId: "skip-2",
-        expectedRevision: 1,
+        // Browser state revisions also advance for agent publications, independently of the
+        // journal revision. Adjacency in the server-owned journal proves this is the paired skip.
+        expectedRevision: 7,
         type: "skip-remaining-questions",
       },
     } as const satisfies DreverStudioActionRecord;
@@ -346,6 +348,84 @@ describe("Studio action publication verifier", () => {
     await expect(verify(record)).resolves.toBe(false);
 
     await writePlan(root, "awaiting-approval");
+    await expect(verify(record)).resolves.toBe(true);
+  });
+
+  it("does not let an older Storyboard satisfy a newer direction action", async () => {
+    const root = await createRoot();
+    const record = {
+      version: DREVER_STUDIO_PROTOCOL_VERSION,
+      revision: 1,
+      receivedAt: "2026-08-04T20:00:00.000Z",
+      action: {
+        version: DREVER_STUDIO_PROTOCOL_VERSION,
+        requestId: "answers-1",
+        expectedRevision: 0,
+        type: "submit-adaptive-answers",
+        answers: [{ questionId: "proof", optionIds: ["demo"] }],
+      },
+    } as const satisfies DreverStudioActionRecord;
+    await writeActionRecords(root, [record]);
+    await writePlan(root, "awaiting-approval");
+    const planPath = join(root, "drever.plan.json");
+    await utimes(
+      planPath,
+      new Date("2026-08-03T20:00:00.000Z"),
+      new Date("2026-08-03T20:00:00.000Z"),
+    );
+    await writeState(root, {
+      version: DREVER_STUDIO_PROTOCOL_VERSION,
+      phase: "plan-review",
+      handledActionRevision: 1,
+    });
+    const verify = createStudioActionPublicationVerifier(root);
+
+    await expect(verify(record)).resolves.toBe(false);
+    await utimes(
+      planPath,
+      new Date("2026-08-05T20:00:00.000Z"),
+      new Date("2026-08-05T20:00:00.000Z"),
+    );
+    await expect(verify(record)).resolves.toBe(true);
+  });
+
+  it("does not let an older Storyboard satisfy newer Storyboard feedback", async () => {
+    const root = await createRoot();
+    const record = {
+      version: DREVER_STUDIO_PROTOCOL_VERSION,
+      revision: 1,
+      receivedAt: "2026-08-04T20:00:00.000Z",
+      action: {
+        version: DREVER_STUDIO_PROTOCOL_VERSION,
+        requestId: "feedback-1",
+        expectedRevision: 3,
+        type: "submit-feedback",
+        scope: { kind: "deck" },
+        message: "Make the Storyboard opening more concrete.",
+      },
+      context: { feedbackTarget: "storyboard" },
+    } as const satisfies DreverStudioActionRecord;
+    await writeActionRecords(root, [record]);
+    await writePlan(root, "awaiting-approval");
+    const planPath = join(root, "drever.plan.json");
+    await utimes(
+      planPath,
+      new Date("2026-08-03T20:00:00.000Z"),
+      new Date("2026-08-03T20:00:00.000Z"),
+    );
+    await writeState(root, {
+      version: DREVER_STUDIO_PROTOCOL_VERSION,
+      phase: "plan-review",
+      handledActionRevision: 1,
+    });
+    const verify = createStudioActionPublicationVerifier(root);
+
+    await expect(verify(record)).resolves.toBe(false);
+    await utimes(
+      planPath,
+      new Date("2026-08-05T20:00:00.000Z"),
+      new Date("2026-08-05T20:00:00.000Z"),
+    );
     await expect(verify(record)).resolves.toBe(true);
   });
 

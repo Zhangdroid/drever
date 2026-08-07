@@ -5,6 +5,36 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+Release impact: **minor** — this batch makes Studio's completed creation stages safely revisitable
+and adds explicit public state for superseded Storyboards and live drafts.
+
+### Added
+
+- Added a dedicated `@drever/client/studio-thumbnail` entry point for isolated visual slide
+  thumbnails without loading the complete Studio surface.
+
+### Changed
+
+- Made completed Brief, Direction, Storyboard, and Draft stages navigable from Studio's progress
+  header. Revising an earlier stage now asks for confirmation, rebuilds dependent work, and keeps
+  the previous Storyboard and live Draft available as clearly marked read-only references.
+- Persisted validated adaptive-question context with Studio actions so Direction remains reviewable
+  after plan publication, agent reconnection, and local server reloads.
+- Rebalanced Studio's creation progress, Storyboard rail, plan cards, and supporting controls around
+  a compact semantic type scale, equally spaced stages, and content-first slide labels.
+- Replaced Live Draft's text-only rail with lazy, isolated visual slide thumbnails while keeping
+  Storyboard navigation focused on story structure and feedback scope in the Direction panel.
+
+### Fixed
+
+- Kept Studio's packaged brand fonts available to generated development apps, avoiding a system-font
+  fallback when the authored deck lives outside Drever's workspace.
+- Kept Live Draft canvas geometry stable as speaker-note length changes, removed a discrete hover
+  repaint from Brief actions, and moved the disconnected-agent notice into a dismissible floating
+  glass panel that no longer reduces the workspace height.
+- Kept production output outside the development watch graph so existing build files cannot reload
+  Studio while visual Draft thumbnails initialize.
+
 ## [0.15.0] - 2026-08-06
 
 Release impact: **minor** — this batch makes Storyboard approval content-first, while preserving

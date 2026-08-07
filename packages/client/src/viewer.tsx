@@ -1,6 +1,5 @@
 /// <reference types="react/canary" />
 
-import type { SlideManifest } from "@drever/schema";
 import {
   startTransition,
   useCallback,
@@ -16,6 +15,7 @@ import { DreverClientError, isAbortError } from "./client-error.ts";
 import type { PresentationCommit, PresentationNavigationIntent } from "./navigation.ts";
 import type { PresentationFocusAppearance } from "./presentation-focus.ts";
 import type { PresentationFocusStore } from "./presentation-focus-store.ts";
+import { resolveSlidePreviewPosition } from "./slide-preview.ts";
 import type {
   DeckCommand,
   DeckPosition,
@@ -32,6 +32,7 @@ import {
 import { scheduleStableMountNotification } from "./viewer-lifecycle.ts";
 import { ViewerSurface, type ViewerProps } from "./viewer-surface.tsx";
 
+export { resolveSlidePreviewPosition } from "./slide-preview.ts";
 export { Viewer, resolveSlideState } from "./viewer-surface.tsx";
 export type { ViewerProps } from "./viewer-surface.tsx";
 
@@ -39,14 +40,6 @@ const samePosition = (left: DeckPosition, right: DeckPosition): boolean =>
   left.slideId === right.slideId &&
   left.slideIndex === right.slideIndex &&
   left.step === right.step;
-
-/** Shows the most complete authored state in a slide overview thumbnail. */
-export const resolveSlidePreviewPosition = (slide: SlideManifest): DeckPosition =>
-  Object.freeze({
-    slideId: slide.id,
-    slideIndex: slide.index,
-    step: slide.stepStops.at(-1) ?? 0,
-  });
 
 export type ViewerCommitRegistrar = (commit: PresentationCommit) => () => void;
 

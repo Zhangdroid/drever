@@ -44,8 +44,11 @@ const workspaceFallbacks = Object.freeze({
   "@drever/client/storyboard": "../../client/src/storyboard-entry.ts",
   "@drever/client/storyboard.css": "../../client/storyboard.css",
   "@drever/client/studio": "../../client/src/studio-entry.ts",
+  "@drever/client/studio-thumbnail": "../../client/src/studio-thumbnail-entry.tsx",
   "@drever/client/studio.css": "../../client/studio.css",
   "@drever/client/styles.css": "../../client/styles.css",
+  "@drever/brand/fonts.css": "../../brand/fonts.css",
+  "@drever/brand/tokens.css": "../../brand/tokens.css",
   "@drever/core": "../../core/src/index.ts",
   "@drever/designs/basic/layouts": "../../designs/src/basic/layouts.tsx",
   "@drever/designs/basic/theme.css": "../../designs/themes/basic/theme.css",
@@ -64,6 +67,7 @@ const optimizedFrameworkDependencies = Object.freeze([
   "@drever/client/speaker",
   "@drever/client/storyboard",
   "@drever/client/studio",
+  "@drever/client/studio-thumbnail",
   "@drever/core",
   "@drever/designs/basic/layouts",
   "react",
@@ -132,12 +136,24 @@ const frameworkAliases = (): readonly Alias[] => [
     replacement: packageFile("@drever/client/studio"),
   },
   {
+    find: /^@drever\/client\/studio-thumbnail$/u,
+    replacement: packageFile("@drever/client/studio-thumbnail"),
+  },
+  {
     find: /^@drever\/client\/studio\.css$/u,
     replacement: packageFile("@drever/client/studio.css"),
   },
   {
     find: /^@drever\/client\/styles\.css$/u,
     replacement: packageFile("@drever/client/styles.css"),
+  },
+  {
+    find: /^@drever\/brand\/fonts\.css$/u,
+    replacement: packageFile("@drever/brand/fonts.css"),
+  },
+  {
+    find: /^@drever\/brand\/tokens\.css$/u,
+    replacement: packageFile("@drever/brand/tokens.css"),
   },
   { find: /^@drever\/client$/u, replacement: packageFile("@drever/client") },
   { find: /^@drever\/core$/u, replacement: packageFile("@drever/core") },
@@ -222,6 +238,11 @@ export const resolveServerFsDeny = (): readonly string[] => [
   ...viteDefaultServerFsDeny,
 ];
 
+/** @internal Keeps generated production output outside the live development graph. */
+export const resolveDevelopmentWatchIgnored = (
+  project: Pick<ResolvedDreverProject, "outDir">,
+): readonly string[] => [`${normalizePath(project.outDir)}/**`];
+
 const inlineConfig = (
   project: ResolvedDreverProject,
   appRoot: string,
@@ -248,6 +269,7 @@ const inlineConfig = (
         ),
         deny: [...resolveServerFsDeny()],
       },
+      watch: { ignored: [...resolveDevelopmentWatchIgnored(project)] },
       warmup: { clientFiles: [...framework.warmup] },
       ...serverConfig,
       ...(parentServer === undefined

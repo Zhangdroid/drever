@@ -319,6 +319,20 @@ test("Studio keeps the embedded live draft navigable with real speaker notes", a
       }
     }
     const rail = page.getByRole("navigation", { name: "Presentation slides" });
+    const firstThumbnail = rail.locator('iframe[title="Slide 1 preview"]');
+    await expect(firstThumbnail).toBeVisible();
+    await expect(
+      page
+        .frameLocator('iframe[title="Slide 1 preview"]')
+        .locator('[data-drever-slide][data-slide-index="0"]'),
+    ).toBeVisible();
+    await expect(
+      page
+        .frameLocator('iframe[title="Slide 1 preview"]')
+        .getByRole("navigation", { name: "Presentation controls" }),
+    ).toHaveCount(0);
+    await expect(firstThumbnail).toHaveAttribute("src", /[?&]drever-studio-thumbnail=1(?:&|$)/u);
+    const beforeSlideNavigation = await geometry();
     await rail.getByRole("button", { name: /Motion should carry meaning/u }).click();
 
     await expect(mode.getByRole("button", { name: "Live draft" })).toHaveAttribute(
@@ -329,6 +343,31 @@ test("Studio keeps the embedded live draft navigable with real speaker notes", a
     await expect(page.locator(".drever-studio-preview__notes")).toContainText(
       "Pause at step 2, then jump to step 5.",
     );
+    const afterSlideNavigation = await geometry();
+    for (const [index, before] of beforeSlideNavigation.entries()) {
+      const after = afterSlideNavigation[index];
+      if (after === undefined) throw new TypeError("Studio geometry changed shape between slides.");
+      for (const dimension of ["x", "y", "width", "height"] as const) {
+        expect(Math.abs(after[dimension] - before[dimension])).toBeLessThan(1);
+      }
+    }
+
+    const draftStep = page.getByRole("button", { name: "View Draft", exact: true });
+    await page.getByRole("button", { name: "View Brief", exact: true }).click();
+    await expect(page.getByLabel("Presentation topic")).toHaveValue(approvedPlan.brief.topic);
+    await expect(draftStep).toHaveAttribute("aria-current", "step");
+    await page.getByRole("button", { name: "Return to current step", exact: true }).click();
+    await page.getByRole("button", { name: "View Direction", exact: true }).click();
+    await expect(page.getByText("Your direction is saved.", { exact: true })).toBeVisible();
+    await page.getByRole("button", { name: "Return to current step", exact: true }).click();
+    await page.getByRole("button", { name: "View Storyboard", exact: true }).click();
+    await expect(page.getByText("Structure preview", { exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Approve story" })).toHaveCount(0);
+    await draftStep.click();
+    await expect(draftStep).toHaveAttribute("aria-pressed", "true");
+    await rail.getByRole("button", { name: /Motion should carry meaning/u }).click();
+    await expect.poll(async () => new URL((await currentDraft()).url()).pathname).toBe("/2");
+
     const directionPanel = page.locator(".drever-studio-direction");
     await expect(directionPanel).toContainText("Core fixture artifact 2");
     await directionPanel.getByRole("button", { name: "Slide context" }).click();
@@ -346,9 +385,14 @@ test("Studio keeps the embedded live draft navigable with real speaker notes", a
       rail.getByRole("button", { name: /Motion should carry meaning/u }),
     ).toHaveAttribute("aria-current", "page");
     await expect.poll(async () => new URL((await currentDraft()).url()).pathname).toBe("/2");
-    await directionPanel
-      .getByRole("textbox", { name: "What should change?" })
-      .fill("Make the whole deck more concise without changing its conclusion.");
+    const feedbackBox = directionPanel.getByRole("textbox", { name: "What should change?" });
+    const feedback = "Make the whole deck more concise without changing its conclusion.";
+    await feedbackBox.fill(feedback);
+    await page.getByRole("button", { name: "View Brief", exact: true }).click();
+    const discardDialog = page.getByRole("alertdialog", { name: "Leave this step?" });
+    await expect(discardDialog).toBeVisible();
+    await discardDialog.getByRole("button", { name: "Cancel", exact: true }).click();
+    await expect(feedbackBox).toHaveValue(feedback);
     await directionPanel.getByRole("button", { name: /Send to agent/u }).click();
     await expect
       .poll(async () => {
@@ -382,9 +426,8 @@ test("Studio keeps the embedded live draft navigable with real speaker notes", a
     );
     await rm(join(root, ".drever", "studio", "agent-heartbeat.json"));
     await expect(page.getByText("No agent connected", { exact: true })).toBeVisible();
-    await expect(
-      page.getByText("Last published draft is available", { exact: true }),
-    ).toBeVisible();
+    await page.getByRole("button", { name: "View previous Draft", exact: true }).click();
+    await expect(page.getByText("Previous draft remains available", { exact: true })).toBeVisible();
     const previewFrame = page.locator(".drever-studio-preview__frame");
     await expect
       .poll(async () => {

@@ -133,12 +133,38 @@ describe("generated private application", () => {
       expect(presentation).toContain("virtual:drever/runtime");
       expect(presentation).toContain('"drever:studio-preview-connect"');
       expect(presentation).toContain('type: "drever:studio-preview-state"');
+      expect(presentation).toContain("canvas: resolvedCanvas");
       expect(presentation).toContain('"drever:studio-preview-navigate"');
       expect(presentation).toContain('const studioPreviewCapability = "studio-capability";');
       expect(presentation).toContain(
         'import.meta.hot &&\n  typeof studioPreviewCapability === "string" &&\n  globalThis.parent !== globalThis',
       );
       expect(presentation).toContain("studioParentOrigin,");
+    } finally {
+      await app.dispose();
+    }
+  });
+
+  it("routes canonical 1-based Studio thumbnail requests to an inert client surface", async () => {
+    const app = await createPrivateDevApp("/project/slides.mdx", {
+      canvas: { height: 900, width: 1_600 },
+      previewCapability: "studio-capability",
+    });
+    try {
+      const source = await readFile(join(app.root, "presentation.js"), "utf8");
+
+      expect(source).toContain("import.meta.hot && true");
+      expect(source).toContain('searchParams.get("drever-studio-thumbnail")');
+      expect(source).toContain("String(studioThumbnailSlideNumber) !== studioThumbnailValue");
+      expect(source).toContain(
+        'throw new RangeError("The Drever Studio thumbnail must identify a 1-based slide number.")',
+      );
+      expect(source).toContain('await import("@drever/client/studio-thumbnail")');
+      expect(source).toContain("slideIndex: studioThumbnailSlideNumber - 1");
+      expect(source).toContain(
+        "const resolvedCanvas = presentationOptions.canvas ?? theme?.canvas ?? { width: 1920, height: 1080 }",
+      );
+      expect(studioPreviewBridgeSource(source)).toContain("canvas: resolvedCanvas");
     } finally {
       await app.dispose();
     }
@@ -589,6 +615,7 @@ describe("generated private application", () => {
       const navigate = vi.fn(() => Promise.resolve());
       const unsubscribe = vi.fn();
       const removeEventListener = vi.fn();
+      const resolvedCanvas = { height: 900, width: 1_600 };
       const context = {
         URL,
         deckManifest,
@@ -609,6 +636,7 @@ describe("generated private application", () => {
           receiveMessage = callback;
         },
         removeEventListener,
+        resolvedCanvas,
       };
       runInNewContext(
         `${bridge}\nglobalThis.disposeStudioPreviewBridge = () => stopStudioPreviewBridge?.();`,
@@ -650,6 +678,7 @@ describe("generated private application", () => {
         {
           type: "drever:studio-preview-state",
           version: 1,
+          canvas: resolvedCanvas,
           manifest: deckManifest,
           position: { slideId: "opening", slideIndex: 0, step: 0 },
         },
@@ -749,6 +778,7 @@ describe("generated private application", () => {
         },
         removeEventListener: vi.fn(),
         reportPresentationError: vi.fn(),
+        resolvedCanvas: { height: 1_080, width: 1_920 },
         routePath: "",
       });
 

@@ -45,6 +45,10 @@
       "types": "./dist/studio.d.mts",
       "import": "./dist/studio.mjs"
     },
+    "./studio-thumbnail": {
+      "types": "./dist/studio-thumbnail.d.mts",
+      "import": "./dist/studio-thumbnail.mjs"
+    },
     "./studio.css": "./studio.css",
     "./storyboard.css": "./storyboard.css",
     "./styles.css": "./styles.css",

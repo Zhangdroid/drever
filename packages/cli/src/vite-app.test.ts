@@ -5,6 +5,7 @@ import {
   openStudioWhenRequested,
   resolveDevelopmentServerHost,
   resolveDevelopmentServerUrls,
+  resolveDevelopmentWatchIgnored,
   resolveFrameworkViteConfig,
   resolvePrivateAppOptions,
   resolveServerFsAllow,
@@ -40,6 +41,7 @@ describe("resolveFrameworkViteConfig", () => {
       "@drever/client/speaker",
       "@drever/client/storyboard",
       "@drever/client/studio",
+      "@drever/client/studio-thumbnail",
       "@drever/core",
       "@drever/designs/basic/layouts",
       "react",
@@ -62,6 +64,25 @@ describe("resolveFrameworkViteConfig", () => {
         .filter(({ find }) => find instanceof RegExp && find.test("react"))
         .map(({ replacement }) => replacement),
     ).toHaveLength(1);
+    expect(
+      config.aliases
+        .filter(
+          ({ find }) =>
+            find instanceof RegExp &&
+            (find.test("@drever/brand/fonts.css") || find.test("@drever/brand/tokens.css")),
+        )
+        .map(({ replacement }) => replacement),
+    ).toEqual([
+      expect.stringMatching(/packages\/brand\/fonts\.css$/u),
+      expect.stringMatching(/packages\/brand\/tokens\.css$/u),
+    ]);
+    expect(
+      config.aliases.find(
+        ({ find }) => find instanceof RegExp && find.test("@drever/client/studio-thumbnail"),
+      )?.replacement,
+    ).toMatch(
+      /packages\/client\/(?:dist\/studio-thumbnail\.mjs|src\/studio-thumbnail-entry\.tsx)$/u,
+    );
   });
 });
 
@@ -94,6 +115,14 @@ describe("resolveServerFsDeny", () => {
       ".npmrc",
       ".yarnrc.yml",
       "**/.git/**",
+    ]);
+  });
+});
+
+describe("resolveDevelopmentWatchIgnored", () => {
+  it("keeps production output outside the live development graph", () => {
+    expect(resolveDevelopmentWatchIgnored({ outDir: "/tmp/drever-project/dist" })).toEqual([
+      "/tmp/drever-project/dist/**",
     ]);
   });
 });

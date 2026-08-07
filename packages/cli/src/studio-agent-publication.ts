@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 import type {
   DreverDeckPlanStatus,
@@ -54,6 +54,18 @@ const publicationCoversRevision = async (
 const hasPlanStatus = async (root: string, status: DreverDeckPlanStatus): Promise<boolean> =>
   (await loadDreverDeckPlan({ root })).plan?.status === status;
 
+const planWasWrittenAfter = async (
+  root: string,
+  record: DreverStudioActionRecord,
+): Promise<boolean> => {
+  try {
+    return (await stat(join(root, "drever.plan.json"))).mtimeMs >= Date.parse(record.receivedAt);
+  } catch (error) {
+    if (isMissingFile(error)) return false;
+    throw error;
+  }
+};
+
 const hasConsecutiveSkipOutcome = async (
   root: string,
   record: DreverStudioActionRecord,
@@ -66,9 +78,9 @@ const hasConsecutiveSkipOutcome = async (
   const skip = records.find(({ revision }) => revision === record.revision + 1);
   return (
     skip?.action.type === "skip-remaining-questions" &&
-    skip.action.expectedRevision === record.revision &&
     handledActionRevision >= skip.revision &&
-    (await hasPlanStatus(root, "awaiting-approval"))
+    (await hasPlanStatus(root, "awaiting-approval")) &&
+    (await planWasWrittenAfter(root, skip))
   );
 };
 
@@ -89,14 +101,22 @@ const hasActionOutcome = async (
     case "submit-adaptive-answers":
       return (
         (state.phase === "adaptive-questions" && state.adaptiveQuestions !== undefined) ||
-        (state.phase === "plan-review" && (await hasPlanStatus(root, "awaiting-approval")))
+        (state.phase === "plan-review" &&
+          (await hasPlanStatus(root, "awaiting-approval")) &&
+          (await planWasWrittenAfter(root, record)))
       );
     case "skip-remaining-questions":
-      return state.phase === "plan-review" && (await hasPlanStatus(root, "awaiting-approval"));
+      return (
+        state.phase === "plan-review" &&
+        (await hasPlanStatus(root, "awaiting-approval")) &&
+        (await planWasWrittenAfter(root, record))
+      );
     case "approve-plan":
       return state.phase === "ready" && (await hasPlanStatus(root, "approved"));
     case "submit-feedback":
-      if (await hasPlanStatus(root, "awaiting-approval")) return state.phase === "plan-review";
+      if (await hasPlanStatus(root, "awaiting-approval")) {
+        return state.phase === "plan-review" && (await planWasWrittenAfter(root, record));
+      }
       return state.phase === "ready" && (await hasPlanStatus(root, "approved"));
     case "respond-agent-approval":
       // Approval responses use the provider's bidirectional channel and are not journaled.
