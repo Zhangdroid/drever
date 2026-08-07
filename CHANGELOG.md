@@ -5,6 +5,8 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-08-06
+
 Release impact: **minor** — this batch makes Storyboard approval content-first, while preserving
 legacy plan files and strengthening the live Draft 1 handoff.
 
@@ -734,7 +736,8 @@ capabilities.
 - Added parallel source, unit, package, browser, export, and website checks in CI.
 - Deployed the prerendered public website and per-branch previews through Cloudflare Pages.
 
-[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.14.0...HEAD
+[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.15.0...HEAD
+[0.15.0]: https://github.com/Zhangdroid/drever/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/Zhangdroid/drever/compare/v0.13.1...v0.14.0
 [0.13.1]: https://github.com/Zhangdroid/drever/compare/v0.13.0...v0.13.1
 [0.13.0]: https://github.com/Zhangdroid/drever/compare/v0.12.1...v0.13.0
