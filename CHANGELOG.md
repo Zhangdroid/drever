@@ -5,6 +5,8 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-08-06
+
 Release impact: **minor** — this batch makes Studio's completed creation stages safely revisitable
 and adds explicit public state for superseded Storyboards and live drafts.
 
@@ -766,7 +768,8 @@ capabilities.
 - Added parallel source, unit, package, browser, export, and website checks in CI.
 - Deployed the prerendered public website and per-branch previews through Cloudflare Pages.
 
-[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.15.0...HEAD
+[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.16.0...HEAD
+[0.16.0]: https://github.com/Zhangdroid/drever/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/Zhangdroid/drever/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/Zhangdroid/drever/compare/v0.13.1...v0.14.0
 [0.13.1]: https://github.com/Zhangdroid/drever/compare/v0.13.0...v0.13.1
