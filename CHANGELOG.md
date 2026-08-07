@@ -29,6 +29,9 @@ and adds explicit public state for superseded Storyboards and live drafts.
 
 ### Fixed
 
+- Kept Studio's isolated live-preview proxy alive when thumbnail or HMR connections reset, and
+  re-established the Draft connection after revisiting an earlier stage so the first navigation is
+  never dropped.
 - Kept Studio's packaged brand fonts available to generated development apps, avoiding a system-font
   fallback when the authored deck lives outside Drever's workspace.
 - Kept Live Draft canvas geometry stable as speaker-note length changes, removed a discrete hover

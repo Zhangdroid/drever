@@ -2311,6 +2311,14 @@ const PlanScreen = ({
   }, [previewOrigin]);
 
   useEffect(() => {
+    if (mode === "draft") return;
+    setPreviewState(undefined);
+    setPreviewLoaded(false);
+    setPreviewConnection("connecting");
+    pendingPreviewSlideIndex.current = undefined;
+  }, [mode]);
+
+  useEffect(() => {
     if (mode !== "draft" || !draftAvailable || !previewLoaded || previewState !== undefined) return;
     if (previewCapability === undefined) {
       setPreviewConnection("unavailable");

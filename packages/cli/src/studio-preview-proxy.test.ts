@@ -1,5 +1,6 @@
 import { createServer, request } from "node:http";
-import type { AddressInfo } from "node:net";
+import { connect, type AddressInfo } from "node:net";
+import type { Duplex } from "node:stream";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 import { startStudioPreviewProxy, type StudioPreviewProxy } from "./studio-preview-proxy.ts";
 
@@ -27,6 +28,27 @@ const requestAbsolutePath = (url: URL, path: string): Promise<string> =>
     );
     pending.once("error", reject);
     pending.end();
+  });
+
+const resetUpgradedConnection = (url: URL): Promise<void> =>
+  new Promise((resolve, reject) => {
+    const socket = connect(Number(url.port), url.hostname);
+    socket.once("error", (error) => {
+      if ((error as NodeJS.ErrnoException).code === "ECONNRESET") {
+        resolve();
+        return;
+      }
+      reject(error);
+    });
+    socket.once("connect", () => {
+      socket.write(
+        `GET /socket HTTP/1.1\r\nHost: ${url.host}\r\nConnection: Upgrade\r\nUpgrade: drever-test\r\n\r\n`,
+      );
+    });
+    socket.once("data", () => {
+      socket.resetAndDestroy();
+      resolve();
+    });
   });
 
 describe("isolated Studio preview proxy", () => {
@@ -89,6 +111,34 @@ describe("isolated Studio preview proxy", () => {
     ).resolves.toBe("expected upstream");
     await expect(startStudioPreviewProxy("https://example.com/deck/")).rejects.toThrow(
       "loopback hostname",
+    );
+  });
+
+  it("survives an upgraded preview connection being reset", async () => {
+    const upstream = createServer((_request, response) => response.end("still available"));
+    const upgradedSockets = new Set<Duplex>();
+    upstream.on("upgrade", (_request, socket) => {
+      upgradedSockets.add(socket);
+      socket.once("close", () => upgradedSockets.delete(socket));
+      socket.on("error", () => socket.destroy());
+      socket.write(
+        "HTTP/1.1 101 Switching Protocols\r\nConnection: Upgrade\r\nUpgrade: drever-test\r\n\r\n",
+      );
+    });
+    await new Promise<void>((resolve) => upstream.listen(0, "127.0.0.1", resolve));
+    close.push(async () => {
+      for (const socket of upgradedSockets) socket.destroy();
+      await closeServer(upstream);
+    });
+    const targetPort = (upstream.address() as AddressInfo).port;
+    const preview = await startStudioPreviewProxy(`http://127.0.0.1:${String(targetPort)}/`);
+    close.push(() => preview.close());
+
+    await resetUpgradedConnection(new URL(preview.audienceUrl));
+    await new Promise((resolve) => setTimeout(resolve, 25));
+
+    await expect(fetch(preview.audienceUrl).then((response) => response.text())).resolves.toBe(
+      "still available",
     );
   });
 });

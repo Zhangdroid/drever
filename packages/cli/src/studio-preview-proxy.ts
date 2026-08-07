@@ -6,7 +6,8 @@ import {
   type ServerResponse,
 } from "node:http";
 import { request as requestHttps } from "node:https";
-import type { AddressInfo, Socket } from "node:net";
+import type { AddressInfo } from "node:net";
+import type { Duplex } from "node:stream";
 
 export type StudioPreviewProxy = Readonly<{
   audienceUrl: string;
@@ -58,7 +59,13 @@ export const startStudioPreviewProxy = async (
   }
   const hostname = loopbackHostname(target.hostname);
   const requestUpstream = target.protocol === "https:" ? requestHttps : requestHttp;
-  const sockets = new Set<Socket>();
+  const sockets = new Set<Duplex>();
+  const trackSocket = (socket: Duplex): void => {
+    if (sockets.has(socket)) return;
+    sockets.add(socket);
+    socket.on("error", () => socket.destroy());
+    socket.once("close", () => sockets.delete(socket));
+  };
   const server = createServer((request, response) => {
     if (isStudioPath(request.url)) {
       response.statusCode = 404;
@@ -83,10 +90,7 @@ export const startStudioPreviewProxy = async (
     request.pipe(upstream);
   });
 
-  server.on("connection", (socket) => {
-    sockets.add(socket);
-    socket.once("close", () => sockets.delete(socket));
-  });
+  server.on("connection", trackSocket);
   server.on("upgrade", (request, clientSocket, head) => {
     if (isStudioPath(request.url)) {
       clientSocket.destroy();
@@ -101,6 +105,10 @@ export const startStudioPreviewProxy = async (
       method: request.method,
     });
     upstream.once("upgrade", (response, upstreamSocket, upstreamHead) => {
+      trackSocket(clientSocket);
+      trackSocket(upstreamSocket);
+      clientSocket.once("close", () => upstreamSocket.destroy());
+      upstreamSocket.once("close", () => clientSocket.destroy());
       const responseHeaders = response.rawHeaders
         .map((value, index) => (index % 2 === 0 ? `${value}: ` : `${value}\r\n`))
         .join("");
