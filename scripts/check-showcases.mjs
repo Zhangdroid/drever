@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { demoMounts } from "../website/site-manifest.ts";
+import { standalonePresentationMounts } from "../website/site-manifest.ts";
 import { resolveTaskConcurrency } from "./run-concurrently.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -36,7 +36,10 @@ const runGroups = async (concurrency, demos, designs) => {
 };
 
 export const checkShowcases = async (concurrency = resolveTaskConcurrency()) => {
-  const demoFilters = demoMounts.flatMap(({ source }) => ["-F", `@drever/example-${source}`]);
+  const demoFilters = standalonePresentationMounts.flatMap(({ source }) => [
+    "-F",
+    `@drever/example-${source}`,
+  ]);
 
   await runGroups(
     concurrency,

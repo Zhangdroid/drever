@@ -86,6 +86,32 @@ export const demoMounts = [
   },
 ] as const;
 
+export const labPresentationMounts = [
+  {
+    description:
+      "An experimental long-form explanation of why Earth's seasons are not caused by its distance from the Sun.",
+    id: "seasons",
+    label: "Seasons experiment",
+    slug: "labs/seasons",
+    source: "lab-seasons",
+  },
+  {
+    description: "An experimental decision story for a fictional city's bus-priority pilot.",
+    id: "bus-priority",
+    label: "Bus-priority experiment",
+    slug: "labs/bus-priority",
+    source: "lab-bus-priority",
+  },
+  {
+    description:
+      "An experimental visual explanation of how airport signs work when nobody has time to read.",
+    id: "airport-wayfinding",
+    label: "Airport wayfinding experiment",
+    slug: "labs/airport-wayfinding",
+    source: "lab-airport-wayfinding",
+  },
+] as const;
+
 export const designStudyMounts = [
   {
     description:
@@ -162,3 +188,15 @@ export const designStudyMounts = [
 ] as const;
 
 export const publicPresentationMounts = [...demoMounts, ...designStudyMounts] as const;
+
+export const standalonePresentationMounts = [...demoMounts, ...labPresentationMounts] as const;
+
+export const builtPresentationMounts = [
+  ...publicPresentationMounts,
+  ...labPresentationMounts,
+] as const;
+
+const publicPresentationSlugs = new Set<string>(publicPresentationMounts.map(({ slug }) => slug));
+
+export const isPublicPresentationSlug = (slug: string): boolean =>
+  publicPresentationSlugs.has(slug);

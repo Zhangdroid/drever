@@ -3,13 +3,16 @@ import { cp, mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promi
 import { fileURLToPath } from "node:url";
 import { dirname, join, resolve } from "node:path";
 import {
+  builtPresentationMounts,
   canonicalSiteURL,
-  demoMounts,
   documentationRoutes,
+  isPublicPresentationSlug,
+  labPresentationMounts,
   publicPresentationMounts,
   publicSiteRoutes,
   siteOrigin,
   siteRoutes,
+  standalonePresentationMounts,
 } from "../website/site-manifest.ts";
 import { checkShowcases } from "./check-showcases.mjs";
 import { resolveTaskConcurrency } from "./run-concurrently.mjs";
@@ -70,7 +73,7 @@ const decoratePresentation = async (presentation, destination) => {
       const html = applyWebsitePresentationMetadata(await readFile(path, "utf8"), {
         canonical,
         description: presentation.description,
-        indexable: isRoot,
+        indexable: isRoot && isPublicPresentationSlug(presentation.slug),
         socialImageAlt,
         socialImageURL,
         title,
@@ -96,8 +99,11 @@ const assertNoGeneratedReleaseSmokeSource = async () => {
   }
 };
 
-const buildDemos = (concurrency) => {
-  const filters = demoMounts.flatMap(({ source }) => ["-F", `@drever/example-${source}`]);
+const buildStandalonePresentations = (concurrency) => {
+  const filters = standalonePresentationMounts.flatMap(({ source }) => [
+    "-F",
+    `@drever/example-${source}`,
+  ]);
   return run("vp", [
     "run",
     "--parallel",
@@ -118,12 +124,12 @@ const buildDesignStudies = (concurrency) =>
 
 const buildPresentations = async (concurrency) => {
   if (concurrency === 1) {
-    await buildDemos(1);
+    await buildStandalonePresentations(1);
     await buildDesignStudies(1);
     return;
   }
   await Promise.all([
-    buildDemos(Math.ceil(concurrency / 2)),
+    buildStandalonePresentations(Math.ceil(concurrency / 2)),
     buildDesignStudies(Math.floor(concurrency / 2)),
   ]);
 };
@@ -134,7 +140,7 @@ const build = async () => {
   await run("vp", ["run", "build:packages"]);
   await checkShowcases(concurrency);
   const presentationSources = new Set(
-    publicPresentationMounts.map((presentation) => presentation.source),
+    builtPresentationMounts.map((presentation) => presentation.source),
   );
   await Promise.all([
     rm(join(root, "website", "dist"), { force: true, recursive: true }),
@@ -154,7 +160,7 @@ const assemblePresentations = async () => {
   await mkdir(presentationsOutput, { recursive: true });
 
   await Promise.all(
-    publicPresentationMounts.map(async (presentation) => {
+    builtPresentationMounts.map(async (presentation) => {
       const source = presentationOutput(presentation);
       const destination = join(presentationsOutput, presentation.slug);
       await rm(destination, { force: true, recursive: true });
@@ -180,13 +186,13 @@ const requiredFiles = [
   "social-card.png",
   "sitemap.xml",
   ...siteEntryFiles,
-  ...publicPresentationMounts.map(
+  ...builtPresentationMounts.map(
     (presentation) => `${presentationMountRoot}/${presentation.slug}/index.html`,
   ),
-  ...publicPresentationMounts.map(
+  ...builtPresentationMounts.map(
     (presentation) => `${presentationMountRoot}/${presentation.slug}/document/index.html`,
   ),
-  ...publicPresentationMounts.map(
+  ...builtPresentationMounts.map(
     (presentation) => `${presentationMountRoot}/${presentation.slug}/speaker/index.html`,
   ),
 ];
@@ -241,7 +247,7 @@ const verifyOutput = async () => {
     throw new Error("The home page is missing WebSite structured data.");
   }
 
-  for (const presentation of publicPresentationMounts) {
+  for (const presentation of builtPresentationMounts) {
     const assets = await readdir(
       join(websiteOutput, presentationMountRoot, presentation.slug, "assets"),
     );
@@ -262,7 +268,10 @@ const verifyOutput = async () => {
       !rootHtml.includes(`rel="canonical" href="${presentationURL(presentation.slug)}"`) ||
       !rootHtml.includes(`property="og:image" content="${socialImageURL}"`) ||
       !rootHtml.includes('name="twitter:card" content="summary_large_image"') ||
-      rootHtml.includes('name="robots" content="noindex')
+      (isPublicPresentationSlug(presentation.slug) &&
+        rootHtml.includes('name="robots" content="noindex')) ||
+      (!isPublicPresentationSlug(presentation.slug) &&
+        !rootHtml.includes('name="robots" content="noindex, follow"'))
     ) {
       throw new Error(`Presentation root metadata is incomplete: ${presentation.slug}`);
     }
@@ -331,6 +340,14 @@ const verifyOutput = async () => {
   ) {
     throw new Error("Sitemap routes do not match the public site manifest.");
   }
+  const indexedLabLocations = labPresentationMounts
+    .map(({ slug }) => presentationURL(slug))
+    .filter((location) => sitemapLocations.has(location));
+  if (indexedLabLocations.length > 0) {
+    throw new Error(
+      `Sitemap exposes experimental presentations:\n${indexedLabLocations.join("\n")}`,
+    );
+  }
 
   const llms = await readFile(join(websiteOutput, "llms.txt"), "utf8");
   const missingAgentRoutes = [
@@ -339,6 +356,12 @@ const verifyOutput = async () => {
   ].filter((location) => !llms.includes(location));
   if (missingAgentRoutes.length > 0) {
     throw new Error(`llms.txt is missing public routes:\n${missingAgentRoutes.join("\n")}`);
+  }
+  const listedLabRoutes = labPresentationMounts
+    .map(({ slug }) => presentationURL(slug))
+    .filter((location) => llms.includes(location));
+  if (listedLabRoutes.length > 0) {
+    throw new Error(`llms.txt exposes experimental presentations:\n${listedLabRoutes.join("\n")}`);
   }
 
   const redirects = await readFile(join(websiteOutput, "_redirects"), "utf8");

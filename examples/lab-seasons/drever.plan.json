@@ -1,0 +1,170 @@
+{
+  "version": 2,
+  "status": "approved",
+  "brief": {
+    "topic": "Why seasons are not caused by Earth moving closer to the Sun",
+    "audience": "Students aged 14 to 16",
+    "desiredChange": "Students can reject the distance misconception and explain how Earth's axial tilt changes Sun angle and daylight length to produce opposite seasons in the two hemispheres.",
+    "durationMinutes": 12,
+    "language": "en",
+    "density": "concise"
+  },
+  "slides": [
+    {
+      "id": "opening-mystery",
+      "job": "opening",
+      "title": "Why summer is not ‘closer’",
+      "purpose": "Surface the familiar distance explanation and frame it as a mystery students can solve.",
+      "evidence": [
+        "The claim that summer happens because Earth is closer to the Sun is a testable hypothesis."
+      ],
+      "focalArtifact": "A single provocative question: ‘Is summer when Earth is closer?’"
+    },
+    {
+      "id": "distance-prediction",
+      "job": "context",
+      "title": "Make the idea predict",
+      "purpose": "Turn the distance misconception into a clear prediction before testing it.",
+      "evidence": [
+        "If Earth–Sun distance were the main cause, the whole planet should respond in the same seasonal direction at the same time."
+      ],
+      "focalArtifact": "The hypothesis-to-prediction statement"
+    },
+    {
+      "id": "january-clue",
+      "job": "evidence",
+      "title": "Clue 1: January",
+      "purpose": "Challenge the distance idea with the timing of Earth's closest approach to the Sun.",
+      "evidence": [
+        "Earth is closest to the Sun in early January.",
+        "Early January is winter in the Northern Hemisphere."
+      ],
+      "focalArtifact": "The evidence label ‘Closest: early January’"
+    },
+    {
+      "id": "opposite-seasons-clue",
+      "job": "evidence",
+      "title": "Clue 2: opposite seasons",
+      "purpose": "Show that one shared Earth–Sun distance cannot explain simultaneous opposite seasons.",
+      "evidence": ["The Northern and Southern Hemispheres have opposite seasons at the same time."],
+      "focalArtifact": "A paired Northern Hemisphere/Southern Hemisphere seasonal comparison"
+    },
+    {
+      "id": "distance-verdict",
+      "job": "claim",
+      "title": "The distance idea fails both tests",
+      "purpose": "Combine the two contradictions and reject distance as the main cause of seasons.",
+      "evidence": [
+        "Earth is closest to the Sun in early January.",
+        "The hemispheres have opposite seasons."
+      ],
+      "focalArtifact": "A two-check verdict on the distance hypothesis"
+    },
+    {
+      "id": "axial-tilt",
+      "job": "explanation",
+      "title": "Meet the real cause: a tilted Earth",
+      "purpose": "Introduce Earth's axial tilt as the geometry that drives the seasons.",
+      "evidence": ["Earth's axial tilt is about 23.4 degrees."],
+      "focalArtifact": "Earth's rotation axis labeled 23.4°"
+    },
+    {
+      "id": "tilt-direction",
+      "job": "explanation",
+      "title": "The tilt keeps its direction",
+      "purpose": "Explain how Earth's orientation makes one hemisphere tilt toward the Sun while the other tilts away during a season.",
+      "evidence": [
+        "The seasonal mechanism requires the axis to retain its orientation as Earth travels around the Sun.",
+        "When one hemisphere tilts toward the Sun, the other tilts away."
+      ],
+      "focalArtifact": "The same-axis-direction idea across two orbital positions"
+    },
+    {
+      "id": "two-effects",
+      "job": "section",
+      "title": "Tilt changes two things",
+      "purpose": "Preview the two consequences of tilt that control seasonal heating.",
+      "evidence": ["Summer brings a higher Sun angle.", "Summer brings longer daylight."],
+      "focalArtifact": "A two-branch chain: Sun angle and daylight duration"
+    },
+    {
+      "id": "sun-angle",
+      "job": "explanation",
+      "title": "Effect 1: a higher Sun angle",
+      "purpose": "Explain why more direct sunlight produces stronger surface heating.",
+      "evidence": [
+        "A higher Sun angle makes incoming light more direct.",
+        "The same incoming light is spread across a smaller surface area when it strikes more directly."
+      ],
+      "focalArtifact": "Equal light beams spread across unequal ground areas"
+    },
+    {
+      "id": "longer-daylight",
+      "job": "explanation",
+      "title": "Effect 2: longer daylight",
+      "purpose": "Explain why a longer day gives sunlight more time to warm the surface.",
+      "evidence": [
+        "Summer brings longer daylight.",
+        "More hours of daylight provide more time for solar energy to arrive."
+      ],
+      "focalArtifact": "A short-day versus long-day time comparison"
+    },
+    {
+      "id": "summer-chain",
+      "job": "process",
+      "title": "Put the summer chain together",
+      "purpose": "Assemble the full causal sequence from axial tilt to summer heating.",
+      "evidence": [
+        "Tilt toward the Sun produces a higher Sun angle and longer daylight.",
+        "Those two effects increase seasonal heating."
+      ],
+      "focalArtifact": "Tilt toward → higher angle plus longer day → more heating → summer"
+    },
+    {
+      "id": "hemisphere-reversal",
+      "job": "comparison",
+      "title": "The other hemisphere gets the reverse",
+      "purpose": "Apply the same mechanism to explain simultaneous opposite seasons.",
+      "evidence": [
+        "The hemispheres have opposite seasons.",
+        "When one hemisphere tilts toward the Sun, the other tilts away and receives the reverse angle-and-daylight effects."
+      ],
+      "focalArtifact": "Mirrored causal chains for the two hemispheres"
+    },
+    {
+      "id": "model-comparison",
+      "job": "comparison",
+      "title": "What distance can’t explain—but tilt can",
+      "purpose": "Compare the two models against the observations students now understand.",
+      "evidence": [
+        "The distance idea conflicts with Earth's early-January closest approach.",
+        "The distance idea cannot explain opposite hemispheric seasons.",
+        "Axial tilt explains both Sun-angle and daylight changes in opposite hemispheres."
+      ],
+      "focalArtifact": "A two-model evidence test"
+    },
+    {
+      "id": "four-move-explanation",
+      "job": "demo",
+      "title": "Can you explain it in four moves?",
+      "purpose": "Give students a memorable structure for explaining the mechanism to someone else.",
+      "evidence": [
+        "Reject distance using the January and hemisphere clues.",
+        "Name the approximately 23.4-degree axial tilt.",
+        "Describe higher Sun angle and longer daylight.",
+        "Connect the reversed effects to opposite seasons."
+      ],
+      "focalArtifact": "Four numbered verbal moves"
+    },
+    {
+      "id": "teach-it-back",
+      "job": "close",
+      "title": "Your turn: teach it back",
+      "purpose": "Prompt immediate retrieval practice and close on the causal idea students should remember.",
+      "evidence": [
+        "The seasons are driven by tilt changing Sun angle and daylight, not by a seasonal change in Earth–Sun distance."
+      ],
+      "focalArtifact": "The closing line ‘Tilt changes angle and daylight—not Earth’s seasonal distance.’"
+    }
+  ]
+}

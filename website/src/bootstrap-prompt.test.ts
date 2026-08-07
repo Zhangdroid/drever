@@ -189,6 +189,9 @@ describe("public bootstrap prompt", () => {
 
     expect(visualDecisionReference).toContain("### Scene map");
     expect(visualDecisionReference).toContain("### Handoff map");
+    expect(visualDecisionReference).toMatch(
+      /same explicit lowercase kebab-case `name`[\s\S]+only once in each rendered endpoint[\s\S]+`id` does not name a continuity boundary/iu,
+    );
     expect(visualDecisionReference).toMatch(/same-object[^]*native View Transition/iu);
     expect(visualDecisionReference).toMatch(/semantic-successor[^]*needs to track that feature/iu);
     expect(visualDecisionReference).toMatch(/shared topic alone is not a semantic successor/iu);

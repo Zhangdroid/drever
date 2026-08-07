@@ -1,0 +1,16 @@
+{
+  "name": "@drever/example-lab-airport-wayfinding",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "drever build",
+    "check": "drever check --json",
+    "dev": "drever dev"
+  },
+  "devDependencies": {
+    "@types/react": "catalog:",
+    "drever": "workspace:*",
+    "react": "catalog:"
+  }
+}

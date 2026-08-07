@@ -52,7 +52,12 @@ Choose the handoff with this priority:
 
 1. For `same-object`, preserve continuity. Use a native View Transition when the smallest meaningful
    shared shell can have identical explicit inline size, block size, aspect ratio, `box-sizing`,
-   paint, crop, and text metrics at both endpoints.
+   crop box, and typographic box at both endpoints. Paint, crop position, or inner state may change
+   only as a deliberate endpoint crossfade or a local live-DOM change inside that fixed shell; do
+   not scale changing glyph snapshots. In MDX, give both endpoint
+   `MotionGroup intent="continuity"` boundaries the same explicit lowercase kebab-case `name`.
+   That name must occur only once in each rendered endpoint; use distinct names for multiple shared
+   boundaries. `id` does not name a continuity boundary.
 2. For `semantic-successor`, look for one stable shared feature and use continuity when the audience
    needs to track that feature through the change. Share only that feature, not the entire
    composition. Narrative adjacency or a shared topic alone is not a semantic successor: the
@@ -96,6 +101,10 @@ Generated imagery is never factual proof, a real screenshot, a historical photog
 logo, or a substitute for missing data. Label it as an illustration when an audience could mistake
 it for documentary evidence, record how it was produced, store it locally, and provide a useful
 alternative or mark it decorative. Never invent a chart or diagram value to make a slide look full.
+When a deck uses more than one generated image, lock one reusable image direction first: medium,
+camera or projection, lighting, palette, texture, negative-space region, and aspect ratio. Reuse it
+unless a documented chapter change earns a deliberate shift; do not let adjacent scenes drift into
+unrelated illustration styles.
 
 For every section containing a causal, spatial, quantitative, comparative, or unfamiliar claim,
 include at least one scene where the audience can understand that claim primarily from the visual

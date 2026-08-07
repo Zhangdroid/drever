@@ -1,0 +1,72 @@
+:root {
+  color-scheme: dark;
+  --drever-canvas-background: #071522;
+  --drever-stage-background: #071522;
+  --drever-canvas-color: #f5f1e8;
+  --drever-stage-color: #f5f1e8;
+}
+
+[data-drever-slide] {
+  color: #f5f1e8;
+  background: transparent;
+}
+
+[data-drever-slide] > :where(h1, h2, h3, p) {
+  max-width: none;
+}
+
+.season-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #071522;
+}
+
+.season-stage__atmosphere {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 88% 18%, rgba(255, 202, 86, 0.105), transparent 24%),
+    radial-gradient(circle at 12% 82%, rgba(86, 184, 201, 0.07), transparent 28%),
+    linear-gradient(135deg, #071522, #091b2a 62%, #06111c);
+  transition: background 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.season-stage[data-chapter="resolve"] .season-stage__atmosphere {
+  background:
+    radial-gradient(circle at 78% 34%, rgba(255, 202, 86, 0.17), transparent 29%),
+    radial-gradient(circle at 18% 86%, rgba(86, 184, 201, 0.08), transparent 28%),
+    linear-gradient(135deg, #091a26, #102a35 62%, #071522);
+}
+
+.season-stage__arc {
+  position: absolute;
+  width: 1020px;
+  height: 1020px;
+  right: -560px;
+  top: -590px;
+  border: 2px solid rgba(255, 202, 86, 0.16);
+  border-radius: 50%;
+}
+
+.season-stage__starfield {
+  position: absolute;
+  inset: 0;
+  opacity: 0.24;
+  background-image:
+    radial-gradient(circle, rgba(245, 241, 232, 0.75) 0 1px, transparent 1.5px),
+    radial-gradient(circle, rgba(130, 184, 255, 0.55) 0 1px, transparent 1.5px);
+  background-position:
+    0 0,
+    83px 61px;
+  background-size:
+    173px 149px,
+    211px 187px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.58), transparent 78%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .season-stage__atmosphere {
+    transition: none;
+  }
+}
