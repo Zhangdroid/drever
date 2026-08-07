@@ -13,8 +13,8 @@
 <p align="center">
   <a href="https://drever.dev">
     <img
-      src="./website/public/social-card.png"
-      alt="A Drever brief becomes an approved Storyboard, a directed live draft, and a checked presentation."
+      src="./.github/assets/drever-readme-hero.png"
+      alt="A faint presentation draft becomes a polished slide through one directed adjustment."
     />
   </a>
 </p>

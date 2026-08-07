@@ -6,7 +6,7 @@ export function pageHead(title: string, description: string, path: string) {
     title === "Drever" ? "Drever — Your agent drafts. You direct." : `${title} — Drever`;
   const socialImage = new URL("/social-card.png", siteOrigin).href;
   const socialImageAlt =
-    "Drever is a local presentation studio where your agent drafts and you direct.";
+    "Drever is an AI-first presentation workspace where your agent drafts and you direct.";
 
   return {
     links: [{ rel: "canonical", href: canonical }],

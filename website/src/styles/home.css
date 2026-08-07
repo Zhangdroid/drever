@@ -18,25 +18,6 @@
   line-height: 0.9;
 }
 
-.home-hero__eyebrow {
-  display: inline-flex;
-  margin-block-end: 1.15rem;
-  align-items: center;
-  gap: 0.55rem;
-  color: var(--site-continuity);
-  font-size: 0.68rem;
-  font-weight: 680;
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
-}
-
-.home-hero__eyebrow::before {
-  width: 1.8rem;
-  height: 2px;
-  background: linear-gradient(90deg, var(--site-signal), var(--site-continuity));
-  content: "";
-}
-
 .home-hero__line {
   display: block;
   white-space: nowrap;

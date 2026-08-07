@@ -9,6 +9,8 @@
   --site-signal-soft: var(--drever-brand-color-signal-soft);
   --site-continuity: var(--drever-brand-color-continuity);
   --site-continuity-soft: var(--drever-brand-color-continuity-soft);
+  --site-scrollbar-thumb: color-mix(in srgb, var(--site-continuity), transparent 54%);
+  --site-scrollbar-thumb-hover: color-mix(in srgb, var(--site-continuity), transparent 34%);
   --site-night: var(--drever-brand-color-night);
   --site-night-surface: var(--drever-brand-color-night-surface);
   --site-night-text: var(--drever-brand-color-night-text);
@@ -21,6 +23,8 @@
   color: var(--site-ink);
   font-family: var(--drever-brand-font-family-sans);
   font-synthesis: none;
+  scrollbar-color: var(--site-scrollbar-thumb) transparent;
+  scrollbar-width: thin;
   text-rendering: optimizeLegibility;
 }
 
@@ -31,6 +35,24 @@
 html {
   scroll-behavior: smooth;
   scrollbar-gutter: stable;
+}
+
+html::-webkit-scrollbar {
+  width: 0.38rem;
+  height: 0.38rem;
+}
+
+html::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--site-scrollbar-thumb);
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  background: var(--site-scrollbar-thumb-hover);
 }
 
 html:active-view-transition-type(site-page)::view-transition-old(root),

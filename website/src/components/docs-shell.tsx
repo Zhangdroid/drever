@@ -286,15 +286,19 @@ function MdxPre({ children }: { children?: ReactNode }) {
 }
 
 export function DocMdx({
+  components,
   content: Content,
 }: {
+  components?: Record<string, ComponentType<Record<string, unknown>>>;
   content: ComponentType<{
     components?: Record<string, ComponentType<Record<string, unknown>>>;
   }>;
 }) {
   return (
     <div className="doc-mdx">
-      <Content components={{ pre: MdxPre as ComponentType<Record<string, unknown>> }} />
+      <Content
+        components={{ ...components, pre: MdxPre as ComponentType<Record<string, unknown>> }}
+      />
     </div>
   );
 }

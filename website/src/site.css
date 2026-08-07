@@ -3,6 +3,7 @@
 @import "./styles/foundation.css";
 @import "./styles/home.css";
 @import "./styles/docs.css";
+@import "./styles/doc-guide-map.css";
 @import "./styles/changelog.css";
 @import "./styles/catalog.css";
 @import "./styles/release-smoke.css";

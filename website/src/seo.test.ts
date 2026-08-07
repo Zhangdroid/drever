@@ -31,18 +31,20 @@ describe("website metadata", () => {
   });
 
   it("keeps the public title and social description aligned with the Studio positioning", () => {
-    const head = pageHead("Drever", "Local presentation studio.", "/");
+    const head = pageHead("Drever", "AI-first presentation workspace.", "/");
 
     expect(head.meta).toEqual(
       expect.arrayContaining([
         { title: "Drever — Your agent drafts. You direct." },
         {
           property: "og:image:alt",
-          content: "Drever is a local presentation studio where your agent drafts and you direct.",
+          content:
+            "Drever is an AI-first presentation workspace where your agent drafts and you direct.",
         },
         {
           name: "twitter:image:alt",
-          content: "Drever is a local presentation studio where your agent drafts and you direct.",
+          content:
+            "Drever is an AI-first presentation workspace where your agent drafts and you direct.",
         },
       ]),
     );

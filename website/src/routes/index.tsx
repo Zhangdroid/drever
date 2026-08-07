@@ -12,7 +12,7 @@ import { demos, githubURL } from "../site-data";
 import { pageHead } from "../seo";
 
 const description =
-  "A local presentation studio for approving the story, directing a live deck with your coding agent, and checking every rendered state before delivery.";
+  "An AI-first presentation workspace where your agent drafts, you direct, and every checked deck remains in files you own.";
 
 type HomeDemo = (typeof demos)[number];
 
@@ -108,7 +108,6 @@ function HomePage() {
     <main id="main" tabIndex={-1}>
       <section className="home-hero" data-header-tone="light">
         <div className="home-hero__copy">
-          <span className="home-hero__eyebrow">A local presentation studio</span>
           <h1>
             <span className="home-hero__line">Your agent drafts.</span>
             <span className="home-hero__line">
@@ -127,8 +126,8 @@ function HomePage() {
                 the host supports it; the same workflow continues in chat otherwise.
               </span>
             </div>
-            <a className="button home-hero__demo" href="#studio-workflow">
-              <PlayIcon /> See the workflow
+            <a className="button home-hero__demo" href={story.href}>
+              <PlayIcon /> View a live deck
             </a>
           </div>
           <div aria-label="More ways to get started" className="home-hero__secondary">
