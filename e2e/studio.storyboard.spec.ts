@@ -290,34 +290,8 @@ test("Studio keeps the embedded live draft navigable with real speaker notes", a
           return box;
         }),
       );
-    const beforeHistory = await geometry();
-    await draftStatus.getByRole("button", { name: /View history/u }).click();
-    await expect(draftStatus.locator(".drever-studio-activity-history__reveal")).toBeVisible();
-    await expect
-      .poll(() =>
-        draftStatus
-          .locator(".drever-studio-activity-history__reveal ol")
-          .evaluate((element) => element.scrollHeight > element.clientHeight),
-      )
-      .toBe(true);
-    const afterHistory = await geometry();
-    for (const [index, before] of beforeHistory.entries()) {
-      const after = afterHistory[index];
-      if (after === undefined) throw new TypeError("Studio geometry changed shape.");
-      for (const dimension of ["x", "y", "width", "height"] as const) {
-        expect(Math.abs(after[dimension] - before[dimension])).toBeLessThan(1);
-      }
-    }
-    await draftStatus.getByRole("button", { name: /View history/u }).click();
-    await expect(draftStatus.locator(".drever-studio-activity-history__reveal")).toBeHidden();
-    const afterHistoryClose = await geometry();
-    for (const [index, before] of beforeHistory.entries()) {
-      const after = afterHistoryClose[index];
-      if (after === undefined) throw new TypeError("Studio geometry changed shape after closing.");
-      for (const dimension of ["x", "y", "width", "height"] as const) {
-        expect(Math.abs(after[dimension] - before[dimension])).toBeLessThan(1);
-      }
-    }
+    await expect(draftStatus).toContainText("Draft 1 is ready to review");
+    await expect(draftStatus.getByRole("button", { name: /View history/u })).toHaveCount(0);
     const rail = page.getByRole("navigation", { name: "Presentation slides" });
     const firstThumbnail = rail.locator('iframe[title="Slide 1 preview"]');
     await expect(firstThumbnail).toBeVisible();

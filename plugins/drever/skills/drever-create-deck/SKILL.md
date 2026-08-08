@@ -48,8 +48,13 @@ rediscover APIs documented by the installed skills.
 
 <!-- drever-studio-question-contract:v1 -->
 
-For a new deck, start the development script before asking questions when the host can keep a local
-server alive. Pass `--open studio` and the matching managed adapter when one exists—for example,
+For a new deck, start the development script before asking any presentation questions when the host
+can keep a local server alive. If no topic was supplied, open Studio with an empty Brief and let
+Studio ask for it; do not ask for or mirror the topic in chat first. If the user's request already
+contains a topic, preserve that exact text and pass it once as one shell-quoted `--topic <topic>`
+argument so Studio opens with the Brief field prefilled but not submitted. Ask in chat only about project scope or target
+directory ambiguity that must be resolved before the project can be opened safely. Pass `--open
+studio` and the matching managed adapter when one exists—for example,
 Codex runs `npm run dev -- --open studio --agent codex`; Claude Code uses `--agent claude`; Gemini
 CLI, GitHub Copilot CLI, Goose, Cursor CLI, OpenCode, OpenHands, and Cline use `--agent gemini`,
 `--agent copilot`, `--agent goose`, `--agent cursor`, `--agent opencode`, `--agent openhands`, and
@@ -74,6 +79,13 @@ After handing off, keep observing the managed session until it reaches `ready`, 
 cancellation, or new user input. Do not publish a final response from an earlier snapshot such as
 `plan-review`; a child turn returning at the approval gate leaves the server and parent task alive,
 and a later browser approval starts the next child turn without a chat message.
+
+Managed Studio remains the only authoring owner after this handoff. Do not answer or mirror its
+questions in chat, and never interpret a later chat message such as `continue` as permission for the
+parent task to bypass Studio and write the deck itself. In Claude Code, keep the development Bash
+task actively supervised while Studio is open; do not leave it as a turn-scoped background task
+that the host can reclaim when the parent response ends. If the parent task is resumed while Studio
+is still reachable, resume observing that same session instead of starting a chat fallback.
 
 Without a matching managed adapter, the creation room is a local, provider-neutral action inbox.
 Keep one action cursor and poll in bounded calls:
@@ -229,6 +241,44 @@ applied through the normal authoring and review workflow; feedback received duri
 `handledActionRevision` to the last action actually incorporated; never acknowledge work before it
 has been applied.
 
+Treat `request-draft-review` as analysis only. Do not edit the deck, apply a suggestion, rebuild,
+or begin another refinement pass. Review only the requested deck or slide scope and publish at most
+three concrete ideas in `draftReview` for that action revision. The human chooses whether to put one
+proposal into the existing feedback composer and still sends it explicitly. Never add an “apply
+all” step.
+
+```json
+{
+  "version": 1,
+  "phase": "ready",
+  "handledActionRevision": 12,
+  "draftReview": {
+    "actionRevision": 12,
+    "suggestions": [
+      {
+        "id": "clarify-comparison",
+        "category": "content",
+        "priority": "worth-improving",
+        "scope": { "kind": "slide", "slideId": "comparison" },
+        "observation": "The two alternatives use different comparison criteria.",
+        "reason": "The audience cannot make a fair decision from unlike measures.",
+        "proposal": "Use the same three criteria for both alternatives and keep the recommendation below them.",
+        "impact": "The decision becomes faster and easier to defend.",
+        "evidence": "Slide comparison labels cost, setup time, and risk on only one side."
+      }
+    ]
+  }
+}
+```
+
+Every suggestion has only `id`, `category`, `priority`, `scope`, `observation`, `reason`,
+`proposal`, `impact`, and optional `evidence`. Categories are `content`, `design`, `motion`, or
+`accessibility`; priorities are `must-fix`, `worth-improving`, or `optional`; scope is either
+`{ "kind": "deck" }` or a current slide ID. A `must-fix` or `worth-improving` idea requires
+specific source, rendered, narrative, or accessibility evidence. Without evidence, use `optional`.
+Prefer no suggestion over generic advice. Publishing an empty suggestions array is valid when the
+draft has no evidence-backed improvement worth interrupting the user for.
+
 Do not put API keys or provider transcripts in creation-room state. The MDX, brief, plan,
 configuration, assets, and Git history remain the source of truth. The room only coordinates the
 existing coding agent and displays the real Drever runtime.
@@ -240,7 +290,8 @@ existing coding agent and displays the real Drever runtime.
 Infer every choice already supplied by the user or their source material. Reply and author in the
 user's language unless they request another language.
 
-If the topic is missing, ask for it as one short open question. Once the topic is known, ask one to
+In the chat fallback, if the topic is missing, ask for it as one short open question. Once the topic
+is known, ask one to
 three decisions per round and normally resolve four to seven material decisions across the whole
 interview. Every question must:
 
@@ -340,6 +391,12 @@ repeat the same split layout by default. A technical sales slide may require a s
 architecture view, or metric because its evidence contract calls for one; not every presentation
 does. Prefer contextual requirements over universal sentence or screenshot quotas.
 
+For most decks, make slide 1 a restrained opening rather than the first body slide: establish the
+title or premise, one short orientation line, and at most one focal artifact. Move the first
+substantive argument, evidence stack, agenda, or dense explanation to slide 2. Break this default
+only when the user explicitly asks for a cold open or the format itself requires an immediate live
+surface.
+
 Run `npm exec -- drever check --json` and fix every plan error before presenting it. When the local
 creation room is active, publish the `plan-review` phase and let its content Storyboard own edits and
 explicit approval. Keep polling until `approve-plan` arrives or feedback changes the plan.
@@ -388,11 +445,13 @@ run rendered review, inspect every route, build, export, or wait for optional th
 Studio is unavailable, start one development server, keep its reported URL stable, run the same
 source-only gate, and share only that real URL—never invent or guess a preview address.
 
-Treat this coherent Draft 1 as the first last-known-good layout checkpoint. Later design and motion
-passes must preserve its canvas, safe area, slide and panel padding, grid, readable line wraps, and
-stable geometry unless user feedback explicitly changes the composition. Publish complete edits
-atomically. If an enhancement regresses the checkpoint, restore the stable layout and redesign the
-enhancement around it before publishing another preview; never rely on a later cleanup pass.
+Treat this coherent Draft 1 as immutable geometry for refinement. Preserve its exact canvas, slide
+bounds, safe area, outer margins, root and panel padding, grid tracks, layout shell, readable line
+wraps, and largest painted footprint unless user feedback explicitly changes the composition. Add
+motion and polish inside that shell; never reset or temporarily remove those foundations to make an
+effect easier. Publish complete edits atomically. If an enhancement regresses the checkpoint,
+revert it before publishing the next preview and redesign it around the stable geometry—do not
+expose a broken intermediate layout or defer recovery to a later cleanup pass.
 
 Share a non-blocking update when Draft 1 is ready, then continue in the same turn and load the
 project-local `drever-create-design` skill for refinement against the same live preview. If the host

@@ -76,9 +76,18 @@ const bounded = (value: string, limit: number): string => value.slice(0, limit);
 
 const boundedTail = (value: string, limit: number): string => value.slice(-limit);
 
+/** @internal Prevents a managed Claude child from inheriting Claude Code's nesting guard. */
+export const claudeStudioAgentProcessOptions = (
+  root: string,
+  environment: NodeJS.ProcessEnv = process.env,
+): ReturnType<typeof studioAgentProcessOptions> => {
+  const { CLAUDECODE: _claudeCode, ...childEnvironment } = environment;
+  return studioAgentProcessOptions(root, childEnvironment);
+};
+
 const defaultSpawn = (root: string, args: readonly string[]): ClaudeCodeProcess =>
   spawn("claude", [...args], {
-    ...studioAgentProcessOptions(root),
+    ...claudeStudioAgentProcessOptions(root),
     stdio: ["pipe", "pipe", "pipe"],
   });
 
@@ -139,6 +148,17 @@ const toolLabel = (toolName: string): string => {
   if (normalized === "todowrite") return "Updating the work plan";
   if (normalized === "task") return "Running a focused task";
   return `Using ${safeToolName(toolName)}`;
+};
+
+const toolActivityId = (toolUseId: string): string => {
+  const normalized = bounded(
+    toolUseId
+      .toLowerCase()
+      .replace(/[^a-z\d]+/gu, "-")
+      .replace(/^-+|-+$/gu, ""),
+    96,
+  ).replace(/-+$/u, "");
+  return `claude-tool-${normalized.length === 0 ? "tool" : normalized}`;
 };
 
 /** @internal Native Claude Code host for one local Studio session. */
@@ -339,13 +359,13 @@ export const createClaudeStudioAgent = (options: ClaudeStudioAgentOptions): Stud
     } else if (signal.kind === "tool-start") {
       updateActivity(
         Object.freeze({
-          id: `claude-tool-${bounded(signal.toolUseId.replace(/[^a-z\d-]+/giu, "-"), 96)}`,
+          id: toolActivityId(signal.toolUseId),
           label: toolLabel(signal.toolName),
           status: "active",
         }),
       );
     } else if (signal.kind === "tool-result") {
-      const id = `claude-tool-${bounded(signal.toolUseId.replace(/[^a-z\d-]+/giu, "-"), 96)}`;
+      const id = toolActivityId(signal.toolUseId);
       activity = Object.freeze(
         activity.map((item) =>
           item.id === id

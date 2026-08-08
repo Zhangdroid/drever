@@ -267,6 +267,7 @@ describe("Creation room browser launch", () => {
     await expect(
       openStudioWhenRequested(resolvedUrls, "studio-capability", "http://127.0.0.1:51999/talk/", {
         environment,
+        initialTopic: "Confidential launch plan",
         open: "studio",
         openUrl,
       }),
@@ -276,7 +277,6 @@ describe("Creation room browser launch", () => {
       "http://127.0.0.1:4317/talk/studio#access=studio-capability&preview=http%3A%2F%2F127.0.0.1%3A51999%2Ftalk%2F",
       environment,
     );
-
     openUrl.mockClear();
     await expect(
       openStudioWhenRequested(resolvedUrls, "studio-capability", "http://127.0.0.1:51999/talk/", {

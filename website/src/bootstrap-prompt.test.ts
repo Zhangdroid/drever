@@ -50,11 +50,14 @@ describe("public bootstrap prompt", () => {
     expect(prompt).toMatch(/generated project contract is authoritative/iu);
     expect(prompt).toMatch(/do not search the\s+Drever repository/iu);
     expect(prompt).toContain("`node_modules`");
-    expect(prompt).toMatch(/handoff transfers action handling, not process\s+ownership/iu);
-    expect(prompt).toMatch(
-      /keep\s+the development command and parent task alive through delivery/iu,
-    );
+    expect(prompt).toMatch(/sole authoring surface/iu);
+    expect(prompt).toMatch(/keep the development command alive through delivery/iu);
     expect(prompt).toMatch(/one-shot host[^.]*chat plus\s+Storyboard/iu);
+    expect(prompt).toMatch(/before asking presentation questions/iu);
+    expect(prompt).toMatch(/topic was\s+supplied[^.]*`drever dev --topic <topic>`/iu);
+    expect(prompt).toMatch(/otherwise let Studio collect it/iu);
+    expect(prompt).toMatch(/`continue`[^.]*chat fallback/iu);
+    expect(prompt).toMatch(/Claude Code[^.]*actively\s+supervise/iu);
     expect(prompt).not.toMatch(/drever-(?:briefing|plan-review|preview)-contract/iu);
     expect(prompt).not.toMatch(/topic-fingerprint|usable inner silhouette|MotionGroup/iu);
   });
@@ -63,6 +66,9 @@ describe("public bootstrap prompt", () => {
     expect(createDeckSkill).toContain("<!-- drever-authoring-scope-contract:v3 -->");
     expect(createDeckSkill).toContain("<!-- drever-briefing-contract:v4 -->");
     expect(createDeckSkill).toMatch(/one to\s+three decisions per round/iu);
+    expect(createDeckSkill).toMatch(/no topic was supplied[^.]*Studio with an empty Brief/iu);
+    expect(createDeckSkill).toMatch(/`--topic <topic>`[^.]*prefilled but not submitted/iu);
+    expect(createDeckSkill).toMatch(/do not ask for or mirror the topic in chat first/iu);
     expect(createDeckSkill).toMatch(/two to four topic-specific choices/iu);
     expect(createDeckSkill).toMatch(/consequence of each choice/iu);
     expect(createDeckSkill).toMatch(/at most one \*\*Recommended\*\* option/iu);
@@ -159,7 +165,7 @@ describe("public bootstrap prompt", () => {
     expect(createDeckSkill).toMatch(/never substitute\s+1920 × 1080/iu);
     expect(createDesignSkill).toMatch(/custom[^.]*owns the complete presentation surface/iu);
     expect(createDesignSkill).toMatch(/inherited\s+blue rail/iu);
-    expect(authorDeckSkill).toMatch(/last-known-good visual checkpoint/iu);
+    expect(authorDeckSkill).toMatch(/immutable geometry for refinement/iu);
     expect(reviewDeckSkill).toMatch(/blocking contract drift/iu);
   });
 

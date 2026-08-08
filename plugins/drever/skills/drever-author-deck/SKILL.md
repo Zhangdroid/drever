@@ -61,13 +61,13 @@ Drever or Vite development server, attach generic browser control before preview
 kill-by-port, or broad cleanup against a process the workflow did not start. The final review command
 owns its own short-lived isolated loopback server and Playwright browser.
 
-Treat each coherent live preview as the last-known-good visual checkpoint. Refine one concern at a
-time and preserve its established slide bounds, content insets, grid, spacing tokens, and readable
-line wraps while adding motion. A motion pass must not replace or reset a working layout merely to
-make an entrance easier: animate the smallest child inside the stable geometry, publish complete
-edits atomically, and compare the affected routes with the checkpoint before moving on. If a motion
-change degrades layout, restore the known-good geometry first and redesign the motion around it
-instead of asking a later cleanup pass to recover the composition.
+Treat each coherent live preview as immutable geometry for refinement. Preserve its exact canvas,
+slide bounds, safe area, outer margins, root and panel padding, grid tracks, layout shell, readable
+line wraps, and largest painted footprint while adding motion. Animate the smallest child inside
+that shell; never reset or temporarily remove the foundations to make an entrance easier. Publish
+complete edits atomically and compare affected routes with the checkpoint. If an enhancement
+regresses the layout, revert it before publishing the next preview and redesign it around the stable
+geometry—do not expose a broken intermediate layout or ask a later cleanup pass to recover it.
 
 When materially changing the visual direction, use the project-local `drever-create-design` skill and revise the persisted design artifact in place. Derive it again from the subject, audience, purpose, venue, and source material instead of layering on an unrelated style. Treat all eight official Themes as reference studies, never automatic presets. Import or assign one only when the user explicitly names it or the existing project already selects it. Otherwise convert useful principles into a small original local system without using the package. If an organization or product has an established identity and research is allowed, use current primary official sources to understand its palette, typography, marks, imagery, rhythm, and motion. Reuse fonts and assets only when their source and license permit it; otherwise use an attributed, licensed substitute or an original abstraction.
 

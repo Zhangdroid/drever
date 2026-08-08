@@ -134,15 +134,24 @@ export const studioActionWorkflowInstructions = (record: DreverStudioActionRecor
         ? [
             "Treat this approve-plan handoff as latency-sensitive.",
             "First mark brief.md and drever.plan.json approved and publish the drafting phase for this action, then write one bounded, semantic, content-complete Draft 1: every approved slide has its real readable copy, evidence, focal artifact, and speaker notes, using only a deliberately simple visual system.",
+            "Unless the approved story explicitly calls for a cold open or immediate live surface, make slide 1 a restrained cover with a title or premise, at most one short orientation line, optional presenter or event metadata, and one focal artifact; move the first body argument or dense evidence to slide 2.",
             "Before Draft 1, preserve the exact approved or configured canvas and choose one explicit safe-area or content-inset policy; do not substitute another familiar resolution. Treat those bounds as locked.",
             "Write CSS in project-local files. Never use data:, blob:, or javascript: URLs as CSS @import sources, and never turn inline CSS into an import specifier.",
             "Before publishing preview, run only the project-local `drever check --json` through the detected package manager and repair blocking source diagnostics.",
             "Reuse the active Studio development server and its embedded preview iframe; let HMR reveal the draft in that same surface.",
             "Before preview, do not start or restart another development server, open another browser, invoke Playwright or any browser automation, run rendered review, build, export, or begin design research.",
             "Publish preview as soon as the source check passes. Then refine the same live draft with the design skill, and run the isolated rendered review only after the final authored source is stable.",
-            "During later design or motion refinement, preserve the last-known-good canvas, safe area, slide and panel padding, grid, and readable line wraps. If an enhancement regresses them, restore the baseline and redesign the enhancement before publishing.",
+            "During later design or motion refinement, treat the last-known-good canvas, safe area, outer margins, slide and panel padding, grid, layout shell, readable line wraps, and largest painted footprint as immutable geometry. Add motion inside that shell; never temporarily remove those foundations. If an enhancement regresses them, revert it before publishing the next preview and redesign it around the checkpoint.",
           ].join(" ")
-        : "",
+        : record.action.type === "request-draft-review"
+          ? [
+              "Treat this as an analysis-only review of the current ready Draft; do not edit source, apply a suggestion, rebuild, or start a refinement pass.",
+              "Inspect the requested deck or slide scope and publish `draftReview` in `.drever/studio/state.json` for this exact action revision, with at most three specific suggestions.",
+              "Each suggestion must include a stable kebab-case id, category (`content`, `design`, `motion`, or `accessibility`), priority (`must-fix`, `worth-improving`, or `optional`), deck or slide scope, and concrete `observation`, `reason`, `proposal`, and `impact` text.",
+              "Include concrete source, rendered, narrative, or accessibility `evidence` for every must-fix or worth-improving suggestion. Without evidence, mark the suggestion optional. Prefer fewer high-value suggestions over generic advice.",
+              "Publish phase `ready` with handledActionRevision and the structured draftReview, then return. The human decides whether to place any proposal into feedback and explicitly send it; never apply all suggestions automatically.",
+            ].join(" ")
+          : "",
     "The active Studio development server, Creation room URL, embedded preview, and managed-agent transport are user-owned session resources. Keep them alive through Storyboard review, Draft 1, refinement, and user feedback; never stop, restart, replace, or clean them up as temporary review infrastructure.",
     "Do not launch another `drever dev` or Vite server, and never use broad process cleanup such as `pkill`, `killall`, killing a process by port, or terminating an unowned browser or server.",
     "For final rendered evidence use the project-local `drever check --rendered --evidence .drever/review --json`; Drever owns its isolated ephemeral loopback preview and Playwright browser and closes only those resources.",

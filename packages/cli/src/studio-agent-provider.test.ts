@@ -109,8 +109,9 @@ describe("Studio action workflow instructions", () => {
     expect(instructions).toMatch(/do not start or restart another development server/iu);
     expect(instructions).toMatch(/Before preview[^.]*do not[^.]*invoke Playwright/iu);
     expect(instructions).toMatch(/isolated rendered review only after the final authored source/iu);
-    expect(instructions).toMatch(/preserve the last-known-good canvas[^.]*safe area/iu);
-    expect(instructions).toMatch(/restore the baseline[^.]*redesign the enhancement/iu);
+    expect(instructions).toMatch(/last-known-good canvas[^.]*safe area[^.]*immutable geometry/iu);
+    expect(instructions).toMatch(/revert it before publishing[^.]*redesign it/iu);
+    expect(instructions).toMatch(/slide 1[^.]*restrained cover/iu);
     expect(instructions).toMatch(/Never use data:, blob:, or javascript: URLs as CSS @import/iu);
   });
 
@@ -357,6 +358,52 @@ describe("Studio live agent seam", () => {
       adaptiveQuestions: [expect.objectContaining({ id: "proof" })],
       activity: [expect.objectContaining({ id: "codex-draft" })],
       message: "Checking the story flow.",
+    });
+  });
+
+  it("fails soft on invalid live state and preserves durable adaptive questions", async () => {
+    const root = await createRoot();
+    const directory = join(root, DREVER_STUDIO_DIRECTORY);
+    await mkdir(directory, { recursive: true });
+    await writeFile(
+      join(directory, DREVER_STUDIO_AGENT_STATE_FILE),
+      JSON.stringify({
+        version: 1,
+        phase: "adaptive-questions",
+        adaptiveQuestions: [
+          {
+            id: "proof",
+            prompt: "Which proof should lead?",
+            options: [
+              { id: "demo", label: "Demo", description: "Show it directly." },
+              { id: "data", label: "Data", description: "Lead with a metric." },
+            ],
+          },
+        ],
+        message: "Choose the evidence direction.",
+      }),
+      "utf8",
+    );
+    const session = createStudioSession(root, {
+      agentProvider: {
+        snapshot: () =>
+          ({
+            connected: true,
+            state: {
+              version: 1,
+              phase: "drafting",
+              activity: [{ id: "ClaudeToolMixedCase", label: "Invalid", status: "active" }],
+            },
+          }) as unknown as StudioAgentProviderSnapshot,
+      },
+    });
+
+    await expect(session.read()).resolves.toMatchObject({
+      agentConfigured: true,
+      agentConnected: false,
+      phase: "adaptive-questions",
+      adaptiveQuestions: [expect.objectContaining({ id: "proof" })],
+      message: "Choose the evidence direction.",
     });
   });
 

@@ -1,3 +1,4 @@
+import { DREVER_STUDIO_PROTOCOL_VERSION } from "@drever/schema";
 import { mkdtemp, realpath, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -904,6 +905,7 @@ if (routePath === "studio") {
   const studioToken = studioAccess.get("access");
   const studioPreviewUrl = studioAccess.get("preview");
   const studioPreviewCapability = ${JSON.stringify(previewCapability)};
+  const studioProtocolVersion = ${JSON.stringify(DREVER_STUDIO_PROTOCOL_VERSION)};
   if (
     studioToken === null ||
     studioToken.length === 0 ||
@@ -929,13 +931,14 @@ if (routePath === "studio") {
   }, 15000);
   const createAction = (input) => {
     const shared = {
-      version: 1,
+      version: studioProtocolVersion,
       requestId: globalThis.crypto.randomUUID(),
       expectedRevision: currentRevision,
       type: input.type,
     };
     if (input.type === "submit-common-brief") return { ...shared, brief: input.brief };
     if (input.type === "submit-adaptive-answers") return { ...shared, answers: input.answers };
+    if (input.type === "resume-pending") return shared;
     if (input.type === "respond-agent-approval") {
       return {
         ...shared,
@@ -947,6 +950,15 @@ if (routePath === "studio") {
       return {
         ...shared,
         message: input.message,
+        scope:
+          input.slideId === undefined
+            ? { kind: "deck" }
+            : { kind: "slide", slideId: input.slideId },
+      };
+    }
+    if (input.type === "request-draft-review") {
+      return {
+        ...shared,
         scope:
           input.slideId === undefined
             ? { kind: "deck" }
@@ -1011,7 +1023,7 @@ if (routePath === "studio") {
   import.meta.hot.dispose(() => {
     for (const pending of pendingActions.values()) {
       pending.resolve({
-        version: 1,
+        version: studioProtocolVersion,
         requestId: pending.requestId,
         accepted: false,
         revision: 0,

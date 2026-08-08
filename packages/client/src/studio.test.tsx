@@ -118,6 +118,38 @@ describe("Studio", () => {
     expect(markup).not.toContain("Experimental");
   });
 
+  it("prefills a bootstrap topic as an unsubmitted Brief draft", () => {
+    const onAction = vi.fn<StudioProps["onAction"]>();
+    const markup = renderToStaticMarkup(
+      <Studio
+        audienceUrl="http://127.0.0.1:4317/"
+        onAction={onAction}
+        state={state({ initialTopic: "React 19 changes" })}
+      />,
+    );
+
+    expect(markup).toContain('data-studio-screen="brief"');
+    expect(markup).toContain(">React 19 changes</textarea>");
+    expect(markup).toContain('aria-label="View Direction" aria-pressed="false" disabled');
+    expect(onAction).not.toHaveBeenCalled();
+  });
+
+  it("prefers an already submitted Brief over the bootstrap topic", () => {
+    const markup = renderToStaticMarkup(
+      <Studio
+        audienceUrl="http://127.0.0.1:4317/"
+        onAction={vi.fn()}
+        state={state({
+          commonBrief: { topic: "Saved topic" },
+          initialTopic: "Bootstrap topic",
+        })}
+      />,
+    );
+
+    expect(markup).toContain(">Saved topic</textarea>");
+    expect(markup).not.toContain("Bootstrap topic");
+  });
+
   it("removes the offline notice when the local agent lease is active", () => {
     const markup = render(state({ agentConnected: true }));
 
@@ -216,7 +248,6 @@ describe("Studio", () => {
 
     expect(markup).toContain("Request saved locally");
     expect(markup).toContain("Nothing is running inside Studio itself.");
-    expect(markup).toContain("Brief saved");
     expect(markup).toContain("Waiting for a local agent");
     expect(markup).toContain("Questions ready");
     expect(markup).toContain("Paused");
@@ -243,14 +274,7 @@ describe("Studio", () => {
     expect(markup).toContain("Selecting the decisions that materially change the deck.");
     expect(markup).toContain('aria-current="step"');
     expect(markup).toContain('class="drever-studio-activity__current"');
-    expect(markup).toMatch(
-      /<button aria-controls="[^"]+" aria-expanded="false" class="drever-studio-activity-history__toggle"/u,
-    );
-    expect(markup).toMatch(
-      /<div aria-hidden="true" class="drever-studio-activity-history__reveal" id="[^"]+">/u,
-    );
-    expect(markup).toContain('data-presentation="inline"');
-    expect(markup).not.toContain("<details");
+    expect(markup).not.toContain("View history");
   });
 
   it("does not present an unstarted estimate as measurable progress", () => {
@@ -325,27 +349,31 @@ describe("Studio", () => {
   it("renders an error surface when no reviewable artifact exists", () => {
     const markup = render(
       state({
+        agentConfigured: true,
         phase: "error",
         commonBrief: { topic: plan.brief.topic },
         message: "The agent could not validate Draft 1.",
+        pendingActionCount: 1,
       }),
     );
 
     expect(markup).toContain("Agent needs attention");
     expect(markup).toContain("The draft paused.");
     expect(markup).toContain("The agent could not validate Draft 1.");
-    expect(markup).toContain("Retry from this brief");
+    expect(markup).toContain("Reconnect agent");
     expect(markup).not.toContain("Live Drever draft");
   });
 
   it("keeps the last published draft visible when refinement fails", () => {
     const markup = render(
       state({
+        agentConfigured: true,
         draftAvailable: true,
         phase: "error",
         commonBrief: { topic: plan.brief.topic },
         message: "The motion pass stopped before verification.",
         plan: { ...plan, status: "approved" },
+        pendingActionCount: 1,
       }),
     );
 
@@ -356,7 +384,7 @@ describe("Studio", () => {
     expect(markup).not.toContain("The draft paused.");
   });
 
-  it("keeps completed agent activity available after the draft reaches a review point", () => {
+  it("keeps the review point concise after the draft is ready", () => {
     const markup = render(
       state({
         draftAvailable: true,
@@ -371,18 +399,54 @@ describe("Studio", () => {
     );
 
     expect(markup).toContain("This pass is ready for your feedback");
-    expect(markup).toContain("View history");
-    expect(markup).toContain("Layout completed");
-    expect(markup).toContain("Rendered review completed");
+    expect(markup).not.toContain("View history");
+    expect(markup).not.toContain("Layout completed");
+    expect(markup).not.toContain("Rendered review completed");
+    expect(markup).toContain("Find improvements");
+    expect(markup).toContain("Nothing changes until you send one");
+  });
+
+  it("renders structured draft review ideas as optional feedback seeds", () => {
+    const markup = render(
+      state({
+        draftAvailable: true,
+        phase: "ready",
+        commonBrief: { topic: plan.brief.topic },
+        plan: { ...plan, status: "approved" },
+        draftReview: {
+          actionRevision: 2,
+          suggestions: [
+            {
+              id: "clarify-comparison",
+              category: "content",
+              priority: "worth-improving",
+              scope: { kind: "slide", slideId: "opening-question" },
+              observation: "The comparison uses unlike measures.",
+              reason: "The audience cannot compare both alternatives fairly.",
+              proposal: "Use the same three criteria on both sides.",
+              impact: "The recommendation becomes easier to defend.",
+              evidence: "Only one side names setup time and risk.",
+            },
+          ],
+        },
+      }),
+    );
+
+    expect(markup).toContain("The comparison uses unlike measures.");
+    expect(markup).toContain("The recommendation becomes easier to defend.");
+    expect(markup).toContain("Story");
+    expect(markup).not.toContain("Apply all");
   });
 
   it("retries the first draft without claiming that an unpublished draft exists", () => {
     const markup = render(
       state({
+        agentConfigured: true,
         phase: "error",
         commonBrief: { topic: plan.brief.topic },
         message: "Draft 1 stopped before its first preview.",
         plan: { ...plan, status: "approved" },
+        pendingActionCount: 1,
       }),
     );
 
@@ -475,6 +539,23 @@ describe("Studio", () => {
     expect(markup).not.toContain('title="Live Drever draft"');
   });
 
+  it("keeps a visible Draft 1 loading state immediately after Storyboard approval", () => {
+    const markup = render(
+      state({
+        agentConnected: true,
+        phase: "drafting",
+        commonBrief: { topic: plan.brief.topic },
+        pendingActionCount: 1,
+        plan,
+      }),
+    );
+
+    expect(markup).toContain("Live work in progress");
+    expect(markup).toContain("Draft 1 is taking shape");
+    expect(markup).not.toContain("Waiting for the agent to start Draft 1");
+    expect(markup).not.toContain('data-studio-screen="questions"');
+  });
+
   it("does not mistake an idle connected agent for active draft work", () => {
     const markup = render(
       state({
@@ -524,7 +605,7 @@ describe("Studio", () => {
     expect(markup).toContain('href="http://127.0.0.1:4317/"');
     expect(markup).toContain('aria-pressed="true" type="button">Live draft');
     expect(markup).toContain('aria-label="Feedback scope"');
-    expect(markup).toContain('data-presentation="popover-start"');
+    expect(markup).not.toContain("View history");
     expect(markup.match(/>Entire deck</gu)).toHaveLength(1);
     expect(markup).toContain("This slide");
     expect(markup.match(/class="drever-studio-rail__thumbnail"/gu)).toHaveLength(2);
@@ -706,6 +787,25 @@ describe("Studio flow helpers", () => {
         phase: "waiting-for-agent",
         plan: { ...plan, status: "approved" },
         storyboardOutdated: true,
+      }),
+    );
+
+    expect(progress).toEqual([
+      { label: "Brief", status: "complete" },
+      { label: "Direction", status: "complete" },
+      { label: "Storyboard", status: "current" },
+      { label: "Draft", status: "pending" },
+    ]);
+  });
+
+  it("does not send an approved Storyboard handoff back to Direction", () => {
+    const progress = resolveStudioProgress(
+      state({
+        adaptiveAnswers: [{ questionId: "starting-model", optionIds: ["vacuum"] }],
+        commonBrief: { topic: "A useful topic" },
+        pendingActionCount: 1,
+        phase: "drafting",
+        plan,
       }),
     );
 
