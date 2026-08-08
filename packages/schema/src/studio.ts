@@ -39,6 +39,28 @@ export type DreverStudioFeedbackScope =
   | Readonly<{ kind: "deck" }>
   | Readonly<{ kind: "slide"; slideId: string }>;
 
+export type DreverStudioImprovementCategory = "content" | "design" | "motion" | "accessibility";
+export type DreverStudioImprovementPriority = "must-fix" | "worth-improving" | "optional";
+
+/** One analysis-only improvement idea. Applying it always requires a separate feedback action. */
+export type DreverStudioImprovement = Readonly<{
+  id: string;
+  category: DreverStudioImprovementCategory;
+  priority: DreverStudioImprovementPriority;
+  scope: DreverStudioFeedbackScope;
+  observation: string;
+  reason: string;
+  proposal: string;
+  impact: string;
+  /** Concrete rendered, source, or narrative evidence. Ideas without evidence must be optional. */
+  evidence?: string;
+}>;
+
+export type DreverStudioDraftReview = Readonly<{
+  actionRevision: number;
+  suggestions: readonly DreverStudioImprovement[];
+}>;
+
 export type DreverStudioProgress = Readonly<{
   label: string;
   completed?: number;
@@ -87,6 +109,8 @@ export type DreverStudioState = Readonly<{
   version: typeof DREVER_STUDIO_PROTOCOL_VERSION;
   revision: number;
   phase: DreverStudioPhase;
+  /** Transient local-only Brief prefill. It is never part of the action journal or agent state. */
+  initialTopic?: string;
   /** True after this Studio session has published its first live draft. */
   draftAvailable?: boolean;
   /** True when the development server owns a managed agent that can resume on the next action. */
@@ -104,6 +128,7 @@ export type DreverStudioState = Readonly<{
   activity?: readonly DreverStudioActivity[];
   agentApprovals?: readonly DreverStudioAgentApprovalRequest[];
   progress?: DreverStudioProgress;
+  draftReview?: DreverStudioDraftReview;
   message?: string;
   latestActionRevision: number;
   pendingActionCount: number;
@@ -122,6 +147,10 @@ export type DreverStudioAction =
       Readonly<{ type: "submit-adaptive-answers"; answers: readonly DreverStudioAnswer[] }>)
   | (DreverStudioActionBase & Readonly<{ type: "skip-remaining-questions" }>)
   | (DreverStudioActionBase & Readonly<{ type: "approve-plan" }>)
+  /** Restarts the configured local agent and replays the existing pending journal entry. */
+  | (DreverStudioActionBase & Readonly<{ type: "resume-pending" }>)
+  | (DreverStudioActionBase &
+      Readonly<{ type: "request-draft-review"; scope: DreverStudioFeedbackScope }>)
   | (DreverStudioActionBase &
       Readonly<{
         type: "respond-agent-approval";
@@ -162,5 +191,6 @@ export type DreverStudioAgentState = Readonly<{
   adaptiveQuestions?: readonly DreverStudioQuestion[];
   activity?: readonly DreverStudioActivity[];
   progress?: DreverStudioProgress;
+  draftReview?: DreverStudioDraftReview;
   message?: string;
 }>;

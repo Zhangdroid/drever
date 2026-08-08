@@ -70,6 +70,18 @@ const receivedActionActivity = (record: DreverStudioActionRecord): DreverStudioA
         label: "Building the first preview",
         detail: "The plan is approved. Drafting the complete presentation now.",
       });
+    case "resume-pending":
+      return Object.freeze({
+        ...shared,
+        label: "Reconnecting the managed agent",
+        detail: "Replaying the existing pending Studio action without adding another request.",
+      });
+    case "request-draft-review":
+      return Object.freeze({
+        ...shared,
+        label: "Reviewing the current draft",
+        detail: "Finding a few concrete improvements without changing the presentation.",
+      });
     case "respond-agent-approval":
       return Object.freeze({
         ...shared,

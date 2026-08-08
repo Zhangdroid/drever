@@ -14,6 +14,13 @@ Replace `codex` with another supported adapter when needed. Drever opens the exa
 `/studio` URL on an ordinary desktop. Headless environments print the URL without attempting to
 open a browser.
 
+The Creation room belongs to that running development command. Keep its terminal or supervised
+agent task alive while you review and revise the deck; ending the parent process also ends Studio.
+
+When the original request already names the subject, pass it once as `--topic "React 19 changes"`.
+Studio prefills the Brief but still waits for the user to confirm it; if no topic was supplied, open
+Studio directly and collect it there instead of asking once in chat and again in the browser.
+
 Studio does not call a model by itself. The selected CLI owns its account, credentials, model, and
 provider policy. Drever normalizes only bounded public work summaries, plan state, semantic tool
 events, and supported actions before sending them to the browser.
@@ -56,13 +63,18 @@ Use the slide rail to select the current preview. Feedback has an independent sc
 - **Entire deck** sends one request about the story or visual system without changing the previewed
   slide.
 
+When the live draft is ready, **Find improvements** asks the connected agent for a short,
+analysis-only review. Studio shows at most three evidence-based ideas across story, visual, motion,
+and accessibility concerns. Selecting one only places its proposal into the feedback box and
+selects its scope; nothing changes until you explicitly send that feedback to the agent.
+
 The agent updates the same ordinary project files and the same live preview. `slides.mdx`,
 `brief.md`, `drever.plan.json`, local design files, assets, configuration, and Git remain the source
 of truth. A revision does not create a hidden Studio document.
 
-Studio shows the latest public work summary and keeps earlier milestones in expandable history. It
-does not expose private chain-of-thought, raw commands, tool payloads, or provider transcripts. A
-prominent action appears when the connected adapter requires a decision that Studio can return.
+Studio keeps one current public work summary visible while the agent is active. It does not expose
+private chain-of-thought, raw commands, tool payloads, or provider transcripts. A prominent action
+appears when the connected adapter requires a decision that Studio can return.
 
 <h2 id="adapters">Connect the agent you already use</h2>
 
@@ -92,6 +104,10 @@ Without `--agent`, Studio uses the provider-neutral bridge to the coding-agent t
 the workflow. Opening `/studio` alone does not launch or wake a model. If the task stops polling,
 submitted actions remain queued until it resumes, and Studio reports that the connection is absent
 instead of pretending work is active.
+
+If a managed adapter disconnects while an action is pending, Studio offers a reconnect control. It
+restarts the local provider and replays that same journal revision; it does not append duplicate
+brief or feedback instructions.
 
 <h2 id="ownership">Know what stays local</h2>
 

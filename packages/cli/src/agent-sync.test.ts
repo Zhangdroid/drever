@@ -269,6 +269,11 @@ describe("agent kit sync", () => {
     expect(studioContract).toMatch(/Continue\s+factual\s+research[^.]*after `approve-plan`/iu);
     expect(studioContract).toMatch(/managed handoff is not task completion/iu);
     expect(studioContract).toMatch(/keep the development command session and parent task alive/iu);
+    expect(studioContract).toMatch(/no topic was supplied[^.]*Studio with an empty Brief/iu);
+    expect(studioContract).toMatch(/`--topic <topic>`[^.]*prefilled but not submitted/iu);
+    expect(studioContract).toMatch(/do not ask for or mirror the topic in chat first/iu);
+    expect(studioContract).toMatch(/`continue`[^.]*parent task[^.]*bypass Studio/iu);
+    expect(studioContract).toMatch(/Claude Code[^.]*development Bash\s+task actively supervised/iu);
     expect(studioContract).toMatch(/keep observing the managed session[^.]*`ready`, `error`/iu);
     expect(studioContract).toMatch(/Do not publish a final response from an earlier snapshot/iu);
     expect(studioContract).toMatch(/one-shot or noninteractive host[^.]*do not launch Studio/iu);
@@ -382,10 +387,13 @@ describe("agent kit sync", () => {
     );
 
     for (const contents of [agents, createDeck, createDesign, authorDeck, reviewDeck]) {
-      expect(contents).toMatch(/last-known-good/iu);
+      expect(contents).toMatch(/last-known-good|immutable geometry/iu);
       expect(contents).toMatch(/safe area|safe-area/iu);
       expect(contents).toMatch(/panel padding|content-inset|content inset/iu);
     }
+    expect(createDeck).toMatch(/slide 1[^.]*restrained opening/iu);
+    expect(createDesign).toMatch(/slide 1[^.]*restrained cover/iu);
+    expect(reviewDeck).toMatch(/slide 1[^.]*restrained title or premise/iu);
     expect(createDeck).toMatch(/generic\s+browser-control[^.]*before preview/iu);
     expect(reviewDeck).toMatch(/isolated Playwright browser/iu);
   });

@@ -466,6 +466,7 @@ export type ServeDreverProjectOptions = Readonly<{
   agent?: StudioAgentName;
   configDependencies?: readonly string[];
   environment?: NodeJS.ProcessEnv;
+  initialTopic?: string;
   open?: "studio";
   openUrl?: (url: string, environment?: NodeJS.ProcessEnv) => Promise<boolean>;
   reloadProject?: () => Promise<
@@ -803,6 +804,7 @@ export const serveDreverProject = async (
         root: activeProject.root,
         token: studioCapabilities.action,
         ...(agentProvider === undefined ? {} : { agentProvider }),
+        ...(options.initialTopic === undefined ? {} : { initialTopic: options.initialTopic }),
       }),
       createCurrentPositionPlugin({ root: activeProject.root, sourcePath: activeProject.entry }),
     ];
