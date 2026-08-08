@@ -85,6 +85,7 @@ const runBrowserSupportBootstrap = (
 
 describe("generated private application", () => {
   it("keeps the storyboard bootstrap independent from the authored presentation graph", async () => {
+    const initialTopic = 'A private "launch" & migration plan';
     const app = await createPrivateDevApp("/project/broken-slides.mdx", {
       previewCapability: "studio-capability",
     });
@@ -102,6 +103,9 @@ describe("generated private application", () => {
       expect(entry).toContain("location.hash.slice(1)");
       expect(entry).toContain('studioAccess.get("access")');
       expect(entry).toContain('studioAccess.get("preview")');
+      expect(entry).not.toContain('studioAccess.get("topic")');
+      expect(entry).not.toContain("initialTopic");
+      expect(entry).not.toContain(initialTopic);
       expect(entry).toContain("Open the exact Creation room URL printed by Drever.");
       expect(entry).toContain(
         'import.meta.hot.send("drever:studio-state-request", { token: studioToken })',
@@ -113,6 +117,7 @@ describe("generated private application", () => {
       expect(entry).not.toContain("export const studioToken");
       expect(entry).toContain('import.meta.hot.send("drever:studio-action"');
       expect(entry).toContain('input.type === "respond-agent-approval"');
+      expect(entry).toContain('input.type === "resume-pending"');
       expect(entry).toContain("approvalId: input.approvalId");
       expect(entry).toContain("if (!ack.accepted)");
       expect(entry).toContain("Drever Studio rejected the action.");

@@ -1,5 +1,6 @@
 import {
   DREVER_STUDIO_PROTOCOL_VERSION,
+  type DreverDeckPlan,
   type DreverStudioAction,
   type DreverStudioActionAck,
   type DreverStudioActionRecord,
@@ -9,6 +10,9 @@ import {
   type DreverStudioAgentState,
   type DreverStudioAnswer,
   type DreverStudioCommonBrief,
+  type DreverStudioDraftReview,
+  type DreverStudioFeedbackScope,
+  type DreverStudioImprovement,
   type DreverStudioPhase,
   type DreverStudioQuestion,
   type DreverStudioState,
@@ -42,6 +46,7 @@ const MAX_ACTIVITY_ITEMS = 12;
 const MAX_TRANSIENT_RECEIPTS = 64;
 const MAX_QUESTIONS = 3;
 const MAX_OPTIONS = 4;
+const MAX_IMPROVEMENTS = 3;
 const STUDIO_REFRESH_INTERVAL_MS = 250;
 const REQUEST_ID = /^[\w.:-]{1,128}$/u;
 const ID = /^[a-z][a-z\d]*(?:-[a-z\d]+)*$/u;
@@ -65,6 +70,8 @@ const APPROVAL_DECISIONS = new Set<DreverStudioAgentApprovalDecision>([
   "decline",
   "cancel",
 ]);
+const IMPROVEMENT_CATEGORIES = new Set(["content", "design", "motion", "accessibility"]);
+const IMPROVEMENT_PRIORITIES = new Set(["must-fix", "worth-improving", "optional"]);
 
 type JsonRecord = Record<string, unknown>;
 type StudioSessionSnapshot = Readonly<{
@@ -215,6 +222,93 @@ const decodeActivity = (value: unknown): DreverStudioActivity | undefined => {
   return Object.freeze(value as DreverStudioActivity);
 };
 
+const decodeFeedbackScope = (value: unknown): DreverStudioFeedbackScope | undefined => {
+  if (!isRecord(value)) return;
+  if (value.kind === "deck" && exactKeys(value, ["kind"])) {
+    return Object.freeze(value) as DreverStudioFeedbackScope;
+  }
+  return value.kind === "slide" &&
+    exactKeys(value, ["kind", "slideId"]) &&
+    requiredText(value.slideId, MAX_SHORT_TEXT) &&
+    ID.test(value.slideId)
+    ? (Object.freeze(value) as DreverStudioFeedbackScope)
+    : undefined;
+};
+
+const decodeImprovement = (value: unknown): DreverStudioImprovement | undefined => {
+  if (
+    !isRecord(value) ||
+    !exactKeys(value, [
+      "id",
+      "category",
+      "priority",
+      "scope",
+      "observation",
+      "reason",
+      "proposal",
+      "impact",
+      "evidence",
+    ]) ||
+    !requiredText(value.id, MAX_SHORT_TEXT) ||
+    !ID.test(value.id) ||
+    !IMPROVEMENT_CATEGORIES.has(value.category as string) ||
+    !IMPROVEMENT_PRIORITIES.has(value.priority as string) ||
+    decodeFeedbackScope(value.scope) === undefined ||
+    !requiredText(value.observation, MAX_LONG_TEXT) ||
+    !requiredText(value.reason, MAX_LONG_TEXT) ||
+    !requiredText(value.proposal, MAX_LONG_TEXT) ||
+    !requiredText(value.impact, MAX_LONG_TEXT) ||
+    !optionalText(value.evidence, MAX_LONG_TEXT) ||
+    (value.evidence === undefined && value.priority !== "optional")
+  ) {
+    return;
+  }
+  return Object.freeze(value as DreverStudioImprovement);
+};
+
+const decodeDraftReview = (value: unknown): DreverStudioDraftReview | undefined => {
+  if (
+    !isRecord(value) ||
+    !exactKeys(value, ["actionRevision", "suggestions"]) ||
+    !Number.isSafeInteger(value.actionRevision) ||
+    (value.actionRevision as number) <= 0 ||
+    !Array.isArray(value.suggestions) ||
+    value.suggestions.length > MAX_IMPROVEMENTS ||
+    value.suggestions.some((suggestion) => decodeImprovement(suggestion) === undefined) ||
+    new Set(value.suggestions.map((suggestion) => (suggestion as JsonRecord).id)).size !==
+      value.suggestions.length
+  ) {
+    return;
+  }
+  return Object.freeze(value as DreverStudioDraftReview);
+};
+
+/** @internal Keeps analysis suggestions inside the requested, currently reviewable scope. */
+export const draftReviewMatchesRequest = (
+  review: DreverStudioDraftReview,
+  record: DreverStudioActionRecord | undefined,
+  plan: DreverDeckPlan | undefined,
+): boolean => {
+  if (
+    record?.action.type !== "request-draft-review" ||
+    review.actionRevision !== record.revision ||
+    plan?.status !== "approved"
+  ) {
+    return false;
+  }
+  const requestedScope = record.action.scope;
+  const currentSlideIds = new Set(plan.slides.map(({ id }) => id));
+  if (requestedScope.kind === "slide" && !currentSlideIds.has(requestedScope.slideId)) {
+    return false;
+  }
+  return review.suggestions.every(({ scope }) => {
+    if (requestedScope.kind === "slide") {
+      return scope.kind === "slide" && scope.slideId === requestedScope.slideId;
+    }
+    return scope.kind === "deck" || currentSlideIds.has(scope.slideId);
+  });
+};
+
 export const decodeStudioAgentState = (value: unknown): DreverStudioAgentState | undefined => {
   if (
     !isRecord(value) ||
@@ -225,6 +319,7 @@ export const decodeStudioAgentState = (value: unknown): DreverStudioAgentState |
       "adaptiveQuestions",
       "activity",
       "progress",
+      "draftReview",
       "message",
     ]) ||
     value.version !== DREVER_STUDIO_PROTOCOL_VERSION ||
@@ -271,6 +366,7 @@ export const decodeStudioAgentState = (value: unknown): DreverStudioAgentState |
       return;
     }
   }
+  if (value.draftReview !== undefined && decodeDraftReview(value.draftReview) === undefined) return;
   return Object.freeze(value as DreverStudioAgentState);
 };
 
@@ -311,8 +407,17 @@ export const decodeStudioAction = (value: unknown): DreverStudioAction | undefin
     }
     return Object.freeze({ ...value, answers: Object.freeze(answers) }) as DreverStudioAction;
   }
-  if (value.type === "skip-remaining-questions" || value.type === "approve-plan") {
+  if (
+    value.type === "skip-remaining-questions" ||
+    value.type === "approve-plan" ||
+    value.type === "resume-pending"
+  ) {
     return exactKeys(value, base) ? (Object.freeze(value) as DreverStudioAction) : undefined;
+  }
+  if (value.type === "request-draft-review") {
+    return exactKeys(value, [...base, "scope"]) && decodeFeedbackScope(value.scope) !== undefined
+      ? (Object.freeze(value) as DreverStudioAction)
+      : undefined;
   }
   if (value.type === "respond-agent-approval") {
     return exactKeys(value, [...base, "approvalId", "decision"]) &&
@@ -329,15 +434,7 @@ export const decodeStudioAction = (value: unknown): DreverStudioAction | undefin
     ) {
       return;
     }
-    if (value.scope.kind === "deck" && exactKeys(value.scope, ["kind"])) {
-      return Object.freeze(value) as DreverStudioAction;
-    }
-    if (
-      value.scope.kind === "slide" &&
-      exactKeys(value.scope, ["kind", "slideId"]) &&
-      requiredText(value.scope.slideId, MAX_SHORT_TEXT) &&
-      ID.test(value.scope.slideId)
-    ) {
+    if (decodeFeedbackScope(value.scope) !== undefined) {
       return Object.freeze(value) as DreverStudioAction;
     }
   }
@@ -545,6 +642,14 @@ const latestDraftInvalidationRevision = (records: readonly DreverStudioActionRec
       action.type === "submit-feedback",
   );
 
+const latestDraftRequestRevision = (records: readonly DreverStudioActionRecord[]): number =>
+  latestRevisionMatching(
+    records,
+    ({ action, context }) =>
+      action.type === "approve-plan" ||
+      (action.type === "submit-feedback" && context?.feedbackTarget === "draft"),
+  );
+
 const planWasWrittenAfter = async (
   root: string,
   records: readonly DreverStudioActionRecord[],
@@ -670,15 +775,20 @@ const readDurableHandledActionRevision = async (
 /** @internal Forwards only actions not covered by live or validated durable agent state. */
 export const forwardStudioAgentActions = async (
   root: string,
-  agentProvider: StudioAgentProvider,
+  agentProvider: Pick<StudioAgentProvider, "handleAction" | "snapshot">,
 ): Promise<void> => {
   const records = await readStudioActionRecords(root);
   const latestActionRevision = records.at(-1)?.revision ?? 0;
   const durableHandled = await readDurableHandledActionRevision(root, latestActionRevision);
-  const liveHandled = handledActionRevisionWithinJournal(
-    agentProvider.snapshot().state,
-    latestActionRevision,
-  );
+  let liveSnapshot: StudioAgentProviderSnapshot;
+  try {
+    liveSnapshot = agentProvider.snapshot();
+  } catch {
+    liveSnapshot = Object.freeze({ connected: false });
+  }
+  const liveState =
+    liveSnapshot.state === undefined ? undefined : decodeStudioAgentState(liveSnapshot.state);
+  const liveHandled = handledActionRevisionWithinJournal(liveState, latestActionRevision);
   const handled = Math.max(durableHandled, liveHandled);
   for (const record of records) {
     if (record.revision > handled) await agentProvider.handleAction(record);
@@ -698,6 +808,15 @@ export const writeStudioAgentState = async (
   const latestActionRevision = records.at(-1)?.revision ?? 0;
   if ((state.handledActionRevision ?? 0) > latestActionRevision) {
     throw new TypeError(`handledActionRevision cannot exceed ${String(latestActionRevision)}.`);
+  }
+  if (state.draftReview !== undefined) {
+    const reviewRecord = records.find(
+      ({ revision }) => revision === state.draftReview?.actionRevision,
+    );
+    const { plan } = await loadDreverDeckPlan({ root });
+    if (!draftReviewMatchesRequest(state.draftReview, reviewRecord, plan)) {
+      throw new TypeError("The Drever Studio draft review does not match its requested scope.");
+    }
   }
   const artifactRevisions = await artifactRevisionsForPublication(root, records, state);
   const directory = join(root, DREVER_STUDIO_DIRECTORY);
@@ -820,9 +939,7 @@ const stateWithoutRevision = async (
   }
   const decodedLiveAgent =
     liveSnapshot?.state === undefined ? undefined : decodeStudioAgentState(liveSnapshot.state);
-  if (liveSnapshot?.state !== undefined && decodedLiveAgent === undefined) {
-    throw new TypeError("The live Studio agent state is invalid.");
-  }
+  const liveStateIsValid = liveSnapshot?.state === undefined || decodedLiveAgent !== undefined;
   const fileAgent = agentStateWithinJournal(decodedFileAgent, latestActionRevision);
   const liveAgent = agentStateWithinJournal(decodedLiveAgent, latestActionRevision);
   const agentLastSeenAt = heartbeat?.seenAt;
@@ -832,7 +949,8 @@ const stateWithoutRevision = async (
     agentHeartbeatAge !== undefined &&
     agentHeartbeatAge >= 0 &&
     agentHeartbeatAge < DREVER_STUDIO_AGENT_CONNECTION_TTL_MS;
-  const agentConnected = liveSnapshot === undefined ? heartbeatConnected : liveSnapshot.connected;
+  const liveAgentConnected = liveStateIsValid && liveSnapshot?.connected === true;
+  const agentConnected = liveSnapshot === undefined ? heartbeatConnected : liveAgentConnected;
   const agentLeaseExpiresAt =
     heartbeatConnected && agentLastSeenAt !== undefined
       ? Date.parse(agentLastSeenAt) + DREVER_STUDIO_AGENT_CONNECTION_TTL_MS
@@ -871,16 +989,16 @@ const stateWithoutRevision = async (
     plan?.status,
   );
   const draftInvalidationRevision = latestDraftInvalidationRevision(records);
+  const draftRequestRevision = latestDraftRequestRevision(records);
   const effectiveStoryboardRevision = Math.max(
     storyboardRevision,
     plan !== undefined && storyboardInvalidationRevision === 0 ? 0 : -1,
   );
   const storyboardOutdated =
     plan !== undefined && effectiveStoryboardRevision < storyboardInvalidationRevision;
-  const agentApprovals =
-    liveSnapshot?.connected === true
-      ? publicAgentApprovals(liveApprovals, publicApprovalId)
-      : undefined;
+  const agentApprovals = liveAgentConnected
+    ? publicAgentApprovals(liveApprovals, publicApprovalId)
+    : undefined;
   // The durable browser journal owns whether briefing is complete.
   const publishedPhase =
     browser.commonBrief !== undefined && fileAgent?.phase === "briefing"
@@ -899,6 +1017,10 @@ const stateWithoutRevision = async (
     publishedPhase === "refining" ||
     publishedPhase === "ready";
   const draftOutdated = draftAvailable && draftRevision < draftInvalidationRevision;
+  const draftWorkOutstanding =
+    draftRequestRevision > 0 &&
+    draftRequestRevision >= storyboardInvalidationRevision &&
+    draftRequestRevision > draftRevision;
   const publishedArtifactIsCurrent =
     pendingActionCount === 0 && publishedArtifactPhase !== undefined && !draftOutdated;
   const publishedPlanReviewIsCurrent =
@@ -910,11 +1032,30 @@ const stateWithoutRevision = async (
       ? publishedArtifactPhase
       : livePhase === "error"
         ? livePhase
-        : liveSnapshot?.connected === true
+        : liveAgentConnected
           ? (livePhase ?? publishedPhase)
           : (publishedPhase ?? livePhase);
   const telemetryAgent =
-    durableCheckpointIsCurrent || liveSnapshot === undefined ? fileAgent : liveAgent;
+    durableCheckpointIsCurrent ||
+    liveSnapshot === undefined ||
+    !liveStateIsValid ||
+    liveAgent === undefined
+      ? fileAgent
+      : liveAgent;
+  const draftReview = telemetryAgent?.draftReview;
+  const latestDraftReviewRevision = latestRevisionMatching(
+    records,
+    ({ action }) => action.type === "request-draft-review",
+  );
+  const draftReviewRecord = records.find(
+    ({ revision }) => revision === draftReview?.actionRevision,
+  );
+  const draftReviewIsCurrent =
+    draftReview !== undefined &&
+    draftReview.actionRevision === latestDraftReviewRevision &&
+    draftReview.actionRevision >= draftInvalidationRevision &&
+    draftReview.actionRevision <= handled &&
+    draftReviewMatchesRequest(draftReview, draftReviewRecord, plan);
   const fileQuestionsAreCurrent =
     fileAgent?.adaptiveQuestions !== undefined &&
     (fileAgent.handledActionRevision ?? 0) >= browser.commonBriefRevision;
@@ -925,23 +1066,27 @@ const stateWithoutRevision = async (
   const phase: DreverStudioPhase =
     agentPhase === "error"
       ? "error"
-      : pendingActionCount > 0 && (agentPhase === "drafting" || agentPhase === "refining")
-        ? agentPhase
-        : pendingActionCount > 0
-          ? "waiting-for-agent"
-          : fileAgent?.phase === "adaptive-questions" && adaptiveQuestions !== undefined
-            ? "adaptive-questions"
-            : currentPlan?.status === "awaiting-approval"
-              ? "plan-review"
-              : agentPhase === "drafting" || agentPhase === "refining"
-                ? agentPhase
-                : browser.commonBrief === undefined && currentPlan === undefined
-                  ? "briefing"
-                  : currentPlan?.status === "approved"
-                    ? agentPhase === "preview" || agentPhase === "ready"
-                      ? agentPhase
-                      : "waiting-for-agent"
-                    : (agentPhase ?? "waiting-for-agent");
+      : draftWorkOutstanding
+        ? draftAvailable
+          ? "refining"
+          : "drafting"
+        : pendingActionCount > 0 && (agentPhase === "drafting" || agentPhase === "refining")
+          ? agentPhase
+          : pendingActionCount > 0
+            ? "waiting-for-agent"
+            : fileAgent?.phase === "adaptive-questions" && adaptiveQuestions !== undefined
+              ? "adaptive-questions"
+              : currentPlan?.status === "awaiting-approval"
+                ? "plan-review"
+                : agentPhase === "drafting" || agentPhase === "refining"
+                  ? agentPhase
+                  : browser.commonBrief === undefined && currentPlan === undefined
+                    ? "briefing"
+                    : currentPlan?.status === "approved"
+                      ? agentPhase === "preview" || agentPhase === "ready"
+                        ? agentPhase
+                        : "waiting-for-agent"
+                      : (agentPhase ?? "waiting-for-agent");
   return Object.freeze({
     ...(agentLeaseExpiresAt === undefined ? {} : { agentLeaseExpiresAt }),
     state: Object.freeze({
@@ -964,6 +1109,7 @@ const stateWithoutRevision = async (
       ...(telemetryAgent?.activity === undefined ? {} : { activity: telemetryAgent.activity }),
       ...(agentApprovals === undefined ? {} : { agentApprovals }),
       ...(telemetryAgent?.progress === undefined ? {} : { progress: telemetryAgent.progress }),
+      ...(draftReviewIsCurrent ? { draftReview } : {}),
       ...(telemetryAgent?.message === undefined ? {} : { message: telemetryAgent.message }),
     }),
   });
@@ -1012,11 +1158,59 @@ const rejectedAck = (
     error: Object.freeze({ code, message }),
   });
 
+const readLiveAgentSnapshot = (
+  provider:
+    | (Pick<StudioAgentProvider, "snapshot"> &
+        Partial<Pick<StudioAgentProvider, "approvals" | "respondToApproval">>)
+    | undefined,
+): StudioAgentProviderSnapshot | undefined => {
+  if (provider === undefined) return;
+  try {
+    return provider.snapshot();
+  } catch {
+    return Object.freeze({ connected: false });
+  }
+};
+
+const readLiveAgentApprovals = (
+  provider:
+    | (Pick<StudioAgentProvider, "snapshot"> &
+        Partial<Pick<StudioAgentProvider, "approvals" | "respondToApproval">>)
+    | undefined,
+): readonly StudioAgentApprovalRequest[] | undefined => {
+  try {
+    return provider?.approvals?.();
+  } catch {
+    return;
+  }
+};
+
 const validActionForState = (
   action: DreverStudioAction,
   state: DreverStudioState,
   records: readonly DreverStudioActionRecord[],
 ): Readonly<{ code: string; message: string }> | undefined => {
+  if (action.type === "resume-pending") {
+    if (state.agentConfigured !== true) {
+      return {
+        code: "DREVER_STUDIO_AGENT_UNAVAILABLE",
+        message: "No managed Studio agent is configured for this session.",
+      };
+    }
+    if (state.pendingActionCount === 0) {
+      return {
+        code: "DREVER_STUDIO_NOTHING_TO_RESUME",
+        message: "There is no pending Studio action to resume.",
+      };
+    }
+    if (state.agentConnected && state.phase !== "error") {
+      return {
+        code: "DREVER_STUDIO_AGENT_ACTIVE",
+        message: "The managed Studio agent is already working on this action.",
+      };
+    }
+    return;
+  }
   const latestRecord = records.at(-1);
   const consecutiveBriefSkip =
     action.type === "skip-remaining-questions" &&
@@ -1131,6 +1325,31 @@ const validActionForState = (
       message: "Feedback is available after the story plan exists.",
     };
   }
+  if (action.type === "request-draft-review") {
+    if (
+      state.draftAvailable !== true ||
+      state.draftOutdated === true ||
+      state.phase !== "ready" ||
+      state.pendingActionCount > 0
+    ) {
+      return {
+        code: "DREVER_STUDIO_DRAFT_NOT_REVIEWABLE",
+        message: "Wait for a current ready draft before asking the agent to find improvements.",
+      };
+    }
+    if (action.scope.kind === "slide") {
+      const slideId = action.scope.slideId;
+      if (
+        state.plan?.status === "awaiting-input" ||
+        state.plan?.slides.some(({ id }) => id === slideId) !== true
+      ) {
+        return {
+          code: "DREVER_STUDIO_SLIDE_UNKNOWN",
+          message: `Unknown Studio slide: ${slideId}.`,
+        };
+      }
+    }
+  }
   if (action.type === "submit-feedback" && state.storyboardOutdated === true) {
     return {
       code: "DREVER_STUDIO_STORYBOARD_OUTDATED",
@@ -1157,11 +1376,17 @@ export const createStudioSession = (
   root: string,
   options: Readonly<{
     agentProvider?: Pick<StudioAgentProvider, "snapshot"> &
-      Partial<Pick<StudioAgentProvider, "approvals" | "respondToApproval">>;
+      Partial<
+        Pick<StudioAgentProvider, "approvals" | "handleAction" | "respondToApproval" | "start">
+      >;
+    initialTopic?: string;
     now?: () => Date;
     token?: string;
   }> = {},
 ): StudioSession => {
+  if (options.initialTopic !== undefined && !requiredText(options.initialTopic, MAX_LONG_TEXT)) {
+    throw new TypeError("The Drever Studio initial topic is invalid.");
+  }
   const directory = join(root, DREVER_STUDIO_DIRECTORY);
   const actionsDirectory = join(directory, DREVER_STUDIO_ACTIONS_DIRECTORY);
   const token = options.token ?? randomUUID();
@@ -1194,13 +1419,16 @@ export const createStudioSession = (
       root,
       records,
       now(),
-      options.agentProvider?.snapshot(),
-      options.agentProvider?.approvals?.(),
+      readLiveAgentSnapshot(options.agentProvider),
+      readLiveAgentApprovals(options.agentProvider),
       publicApprovalId,
       snapshot?.state.draftAvailable === true,
     );
     const state = Object.freeze({
       ...resolved.state,
+      ...(resolved.state.commonBrief !== undefined || options.initialTopic === undefined
+        ? {}
+        : { initialTopic: options.initialTopic.trim() }),
       revision: revision ?? Math.max(records.at(-1)?.revision ?? 0, snapshot?.state.revision ?? 0),
     });
     return Object.freeze({
@@ -1332,11 +1560,31 @@ export const createStudioSession = (
           semanticError.message,
         );
       }
+      if (action.type === "resume-pending") {
+        const provider = options.agentProvider;
+        if (provider?.start === undefined || provider.handleAction === undefined) {
+          return rejectedAck(
+            action.requestId,
+            before.state.revision,
+            "DREVER_STUDIO_AGENT_UNAVAILABLE",
+            "No resumable managed Studio agent is configured for this session.",
+          );
+        }
+        return rememberApprovalReceipt(
+          action,
+          Object.freeze({
+            version: DREVER_STUDIO_PROTOCOL_VERSION,
+            requestId: action.requestId,
+            accepted: true,
+            revision: before.state.revision,
+          }),
+        );
+      }
       if (action.type === "respond-agent-approval") {
         const provider = options.agentProvider;
-        const approval = provider
-          ?.approvals?.()
-          .find(({ id }) => publicApprovalId(id) === action.approvalId);
+        const approval = readLiveAgentApprovals(provider)?.find(
+          ({ id }) => publicApprovalId(id) === action.approvalId,
+        );
         if (provider?.respondToApproval === undefined || approval === undefined) {
           return rejectedAck(
             action.requestId,
@@ -1395,8 +1643,8 @@ export const createStudioSession = (
         root,
         records,
         now(),
-        options.agentProvider?.snapshot(),
-        options.agentProvider?.approvals?.(),
+        readLiveAgentSnapshot(options.agentProvider),
+        readLiveAgentApprovals(options.agentProvider),
         publicApprovalId,
         before.state.draftAvailable === true,
       );
@@ -1465,10 +1713,17 @@ export const resolveStudioUrls = (
 export const createStudioPlugin = ({
   root,
   agentProvider,
+  initialTopic,
   token,
-}: Readonly<{ root: string; agentProvider?: StudioAgentProvider; token?: string }>): Plugin => {
+}: Readonly<{
+  root: string;
+  agentProvider?: StudioAgentProvider;
+  initialTopic?: string;
+  token?: string;
+}>): Plugin => {
   const session = createStudioSession(root, {
     ...(agentProvider === undefined ? {} : { agentProvider }),
+    ...(initialTopic === undefined ? {} : { initialTopic }),
     ...(token === undefined ? {} : { token }),
   });
   const agentStatePath = normalizePath(
@@ -1559,13 +1814,17 @@ export const createStudioPlugin = ({
     );
   };
 
-  const forwardAgentActions = (): void => {
+  const forwardAgentActions = (restart = false): void => {
     if (agentProvider === undefined) return;
     agentUpdates = agentUpdates
-      .then(() => forwardStudioAgentActions(root, agentProvider))
+      .then(async () => {
+        if (restart) await agentProvider.start();
+        await forwardStudioAgentActions(root, agentProvider);
+      })
       .catch((error: unknown) => {
         server?.config.logger.error(`Drever could not forward a Studio action: ${String(error)}`);
-      });
+      })
+      .finally(requestPublish);
   };
 
   const startRefreshPolling = (): void => {
@@ -1629,6 +1888,8 @@ export const createStudioPlugin = ({
       value.ws.on(DREVER_STUDIO_ACTION_EVENT, (payload, client) => {
         const local = isLoopbackAddress(clientAddress(client));
         const authorized = local && isRecord(payload) && payload.token === session.token;
+        const decodedAction =
+          authorized && isRecord(payload) ? decodeStudioAction(payload.action) : undefined;
         if (authorized) {
           registerStudioClient(client);
           startRefreshPolling();
@@ -1663,7 +1924,9 @@ export const createStudioPlugin = ({
             client.send({ type: "custom", event: DREVER_STUDIO_ACTION_ACK_EVENT, data: ack });
             if (state !== undefined) {
               sendStudioState(state);
-              forwardAgentActions();
+              forwardAgentActions(
+                decodedAction?.type === "resume-pending" && state.pendingActionCount > 0,
+              );
             }
           })
           .catch((error: unknown) => {

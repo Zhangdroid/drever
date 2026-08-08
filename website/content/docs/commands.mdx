@@ -22,23 +22,23 @@ available for CI or manual use.
 
 <h2 id="summary">Command summary</h2>
 
-| Command                                                                                                                    | Purpose                                                |
-| -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| `drever create [directory] [options]`                                                                                      | Create an AI-ready presentation project.               |
-| `drever dev [entry] [--open studio] [--agent <codex\|claude\|gemini\|copilot\|goose\|cursor\|opencode\|openhands\|cline>]` | Run the local creation room and presentation surfaces. |
-| `drever studio status [--json]`                                                                                            | Read the local creation-room state for an agent.       |
-| `drever studio wait --after <revision> [--timeout <seconds>] [--json]`                                                     | Wait for browser actions after an agent cursor.        |
-| `drever studio publish --file <path> [--json]`                                                                             | Publish validated agent progress to the creation room. |
-| `drever context [entry] [--json]`                                                                                          | Resolve the complete authoring contract.               |
-| `drever current [--json]`                                                                                                  | Read the latest connected live presentation position.  |
-| `drever mcp [entry]`                                                                                                       | Serve the read-only Drever MCP over stdio.             |
-| `drever agent sync [options]`                                                                                              | Install or refresh project-local AI workflows.         |
-| `drever doctor [--json]`                                                                                                   | Inspect local runtime and delivery prerequisites.      |
-| `drever browser install [--with-deps]`                                                                                     | Install Drever's matching Playwright Chromium.         |
-| `drever check [entry] [options]`                                                                                           | Check authored source and optional rendered states.    |
-| `drever build [entry] [--json]`                                                                                            | Build the static presentation website.                 |
-| `drever export pdf [entry] [options]`                                                                                      | Export final slides or exact Step states to PDF.       |
-| `drever design import <url> [options]`                                                                                     | Derive a local Pass-0 Theme from rendered evidence.    |
+| Command                                                                | Purpose                                                |
+| ---------------------------------------------------------------------- | ------------------------------------------------------ |
+| `drever create [directory] [options]`                                  | Create an AI-ready presentation project.               |
+| `drever dev [entry] [--open studio] [--agent <name>] [--topic <text>]` | Run the local creation room and presentation surfaces. |
+| `drever studio status [--json]`                                        | Read the local creation-room state for an agent.       |
+| `drever studio wait --after <revision> [--timeout <seconds>] [--json]` | Wait for browser actions after an agent cursor.        |
+| `drever studio publish --file <path> [--json]`                         | Publish validated agent progress to the creation room. |
+| `drever context [entry] [--json]`                                      | Resolve the complete authoring contract.               |
+| `drever current [--json]`                                              | Read the latest connected live presentation position.  |
+| `drever mcp [entry]`                                                   | Serve the read-only Drever MCP over stdio.             |
+| `drever agent sync [options]`                                          | Install or refresh project-local AI workflows.         |
+| `drever doctor [--json]`                                               | Inspect local runtime and delivery prerequisites.      |
+| `drever browser install [--with-deps]`                                 | Install Drever's matching Playwright Chromium.         |
+| `drever check [entry] [options]`                                       | Check authored source and optional rendered states.    |
+| `drever build [entry] [--json]`                                        | Build the static presentation website.                 |
+| `drever export pdf [entry] [options]`                                  | Export final slides or exact Step states to PDF.       |
+| `drever design import <url> [options]`                                 | Derive a local Pass-0 Theme from rendered evidence.    |
 
 <h2 id="global-options">Help and version</h2>
 
@@ -92,6 +92,7 @@ See [Getting started](/docs/getting-started/).
 drever dev [entry]
   [--open studio]
   [--agent <codex|claude|gemini|copilot|goose|cursor|opencode|openhands|cline>]
+  [--topic <text>]
 ```
 
 The command starts one HMR-enabled local server and prints Creation room,
@@ -100,12 +101,15 @@ Creation room after Vite chooses its port. `--agent` starts a managed local sess
 already-installed and authenticated agent CLI: Codex and Claude Code use native transports;
 Gemini CLI, GitHub Copilot CLI, Goose, Cursor CLI, OpenCode, OpenHands, and Cline use ACP.
 Omitting it keeps the portable journal bridge.
+`--topic` requires `--open studio` and prefills the Brief without submitting it, so an agent can
+carry a topic from the original request into Studio without asking for it twice. The text is not
+included in the printed Creation room URL.
 
 The `/studio` route coordinates the common brief, adaptive questions, plan approval, a navigable
 Live Draft with speaker notes, public agent activity, tool approvals where supported, and later
-feedback. Its compact status surface follows the current public work summary while keeping earlier
-milestones in an expandable history. It distinguishes an editable first preview, active refinement,
-review readiness, and a paused refinement without hiding the last available draft.
+feedback. Its compact status surface follows the current public work summary. It distinguishes an
+editable first preview, active refinement, review readiness, and a paused refinement without hiding
+the last available draft.
 `/storyboard` reads only `drever.plan.json`, so it can open before the configured MDX entry exists or compiles; Audience and
 Speaker still require the deck. Configure `host`, `open`, `port`, and `strictPort` under `server` in
 `drever.config.ts`; `dev` deliberately exposes no raw Vite flags and there is no
@@ -134,13 +138,17 @@ tool lifecycle events directly and returns Codex or ACP approval choices through
 connection. Claude Code streams progress but currently retains approvals in its provider policy.
 
 `publish` accepts a project-local JSON file containing only the versioned agent phase, handled
-action revision, optional adaptive questions, progress, and message. It validates the complete
-payload before replacing the visible agent state. The browser can request only the supported brief,
-answer, approval, and deck- or slide-feedback actions; it cannot name or write arbitrary files.
+action revision, optional adaptive questions, draft-review suggestions, progress, and message. It
+validates the complete payload before replacing the visible agent state. The browser can request
+only the supported brief, answer, approval, analysis-only draft review, and deck- or slide-feedback
+actions; it cannot name or write arbitrary files.
 
 Session files under `.drever/studio` are ephemeral local coordination state. Do not commit them or
-put API keys and provider transcripts in them. The creation room is served only by `drever dev` and
-is absent from production, export, and audience bundles. See [Studio](/docs/studio/).
+put API keys and provider transcripts in them. The CLI, client, and schema ship this local protocol
+in lockstep; the session directory is not a migration or downgrade format. Stop the server and
+remove it before reopening the same project with an older Drever version. The creation room is
+served only by `drever dev` and is absent from production, export, and audience bundles. See
+[Studio](/docs/studio/).
 
 <h2 id="inspect-and-connect">Inspect and connect AI tools</h2>
 

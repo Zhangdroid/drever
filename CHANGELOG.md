@@ -5,16 +5,38 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
-Release impact: **minor** — this batch makes subject-led visual direction an explicit, inspectable
-part of the generated authoring workflow.
+Release impact: **minor** — this batch hardens the managed Studio handoff and adds inspectable
+subject-led design plus an analysis-only post-draft review workflow.
 
 ### Changed
 
+- Added an analysis-only Studio draft review action with up to three structured, evidence-based
+  improvement ideas that users can selectively turn into feedback without automatic application.
 - Added a version-matched visual decision pass that records one Scene map across every slide and one
   Handoff map across every adjacent edge before refined visual authoring. The installed Codex and
   Claude workflows now choose evidence, imagery, typography, color roles, content-led motion,
   continuity geometry, reverse behavior, and settled endpoints explicitly, then verify those
   decisions against the rendered deck.
+- Made a restrained cover the default opening for generated decks and made the accepted Draft 1
+  geometry an immutable refinement checkpoint, so later motion polish cannot temporarily discard
+  safe areas, spacing, layout shells, or readable line wraps.
+- Added `drever dev --topic <text>` as a private Studio Brief prefill so coding agents can carry an
+  already supplied subject into the Creation room without putting it in the URL or asking twice.
+
+### Fixed
+
+- Kept Studio on Storyboard and Draft after approval by deriving in-flight authoring from the
+  durable action journal and artifact checkpoint instead of transient activity telemetry. The
+  current loading summary now remains visible until a Draft publication, failure, or disconnect.
+- Removed expandable activity history from Direction, Storyboard, and Draft so each stage presents
+  one consistent current status without oversized controls or clipped popovers.
+- Normalized Claude Code's real mixed-case tool event IDs before publishing Studio telemetry and
+  made invalid live telemetry fail soft, so durable questions remain usable instead of freezing the
+  Creation room. Managed Claude children also start without inheriting the parent nesting marker.
+- Made a disconnected managed agent restart and replay the same pending journal revision instead of
+  appending a duplicate Brief or feedback action.
+- Kept the installed workflow from mirroring Studio questions or treating a later `continue` as a
+  chat fallback, and made Claude Code supervision of the live development task explicit.
 
 ## [0.16.0] - 2026-08-06
 

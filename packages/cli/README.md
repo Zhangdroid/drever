@@ -35,6 +35,7 @@ npm exec -- drever check slides.mdx --rendered --evidence .drever/review --json
 npm exec -- drever dev slides.mdx
 npm exec -- drever dev slides.mdx --open studio
 npm exec -- drever dev slides.mdx --open studio --agent codex
+npm exec -- drever dev slides.mdx --open studio --agent claude --topic "React 19 changes"
 npm exec -- drever studio status --json
 npm exec -- drever current --json
 npm exec -- drever mcp slides.mdx
@@ -51,6 +52,9 @@ respectively, plus that manager's script runner.
 `dev --open studio` opens the exact loopback-only Creation room in the default browser after the
 server chooses its URL. CI, explicitly disabled browser opening, and headless Linux sessions keep
 the server running and print the same URL as a manual fallback.
+
+Add `--topic <text>` with `--open studio` to prefill the Brief without submitting it. The value
+stays out of the printed Creation room URL, and an already submitted Brief remains authoritative.
 
 Add `--agent codex` or `--agent claude` for a native live session. Gemini CLI, GitHub Copilot CLI,
 Goose, Cursor CLI, OpenCode, OpenHands, and Cline use the shared ACP transport through `--agent gemini`,

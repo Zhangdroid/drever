@@ -255,9 +255,10 @@ Before styling, classify each slide by its dominant reading job and record the c
 focal object, motion owner, and static endpoint in the Scene map. Use these recipes as tested
 starting points, not mandatory templates:
 
-- **Opening or chapter:** keep one short claim and one subject-specific focal artifact. After the
-  audience has had time to orient, a draw-on, highlight, or small state change may emphasize the
-  phrase that carries the premise. Avoid two prose-heavy focal regions.
+- **Opening or chapter:** for slide 1, default to a restrained cover with one short premise and at
+  most one subject-specific focal artifact; do not make it carry the body argument. A chapter opener
+  may be slightly more contextual, but still avoid two prose-heavy focal regions. After orientation,
+  one quiet draw-on, highlight, atmosphere shift, or object state change may emphasize the premise.
 - **List or card sequence:** when order matters, keep the heading and layout fixed and reveal items
   in reading order with `Step` or one deterministic stagger. When order does not matter, settle the
   group together. Treat the group as one motion payload instead of giving every card an unrelated
@@ -430,11 +431,13 @@ and subject-led choices that work. Correct evidence-backed problems in hierarchy
 rhythm, readability, background emphasis, motion, and consistency; do not restyle the deck
 wholesale or add decoration merely to make the second pass look different.
 
-Use the coherent Draft 1 as a last-known-good layout checkpoint. Before each enhancement, retain its
-exact canvas, safe area, root and panel padding, grid tracks, readable line wraps, and largest required
-painted footprint. Add motion inside stable geometry rather than rewriting a working layout. Compare
-the affected routes after the change; if any foundation or spacing regresses, restore the checkpoint
-and redesign the enhancement before continuing. A later cleanup pass is not a valid recovery plan.
+Treat the last approved working preview as immutable geometry for refinement. Preserve its exact
+canvas, slide bounds, safe area, outer margins, root and panel padding, grid tracks, layout shell,
+readable line wraps, and largest painted footprint. Add motion and polish inside that shell; never
+reset or temporarily remove those foundations to make an effect easier. Compare the affected routes
+after each complete change. If an enhancement regresses the checkpoint, revert it before publishing
+the next preview and redesign it around the stable geometry—do not expose a broken intermediate
+layout or defer recovery to a later cleanup pass.
 
 When this skill is part of new-deck creation, it must not delay the coherent end-to-end content
 Draft 1 or its stable development URL. Resume the design work against that same live preview without

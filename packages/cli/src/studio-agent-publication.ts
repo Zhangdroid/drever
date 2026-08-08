@@ -8,6 +8,7 @@ import type {
 import { loadDreverDeckPlan } from "./deck-plan.ts";
 import {
   decodeStudioAgentState,
+  draftReviewMatchesRequest,
   DREVER_STUDIO_AGENT_STATE_FILE,
   DREVER_STUDIO_DIRECTORY,
   readStudioActionRecords,
@@ -113,6 +114,13 @@ const hasActionOutcome = async (
       );
     case "approve-plan":
       return state.phase === "ready" && (await hasPlanStatus(root, "approved"));
+    case "request-draft-review":
+      if (state.phase !== "ready" || state.draftReview === undefined) return false;
+      return draftReviewMatchesRequest(
+        state.draftReview,
+        record,
+        (await loadDreverDeckPlan({ root })).plan,
+      );
     case "submit-feedback":
       if (await hasPlanStatus(root, "awaiting-approval")) {
         return state.phase === "plan-review" && (await planWasWrittenAfter(root, record));
@@ -120,6 +128,9 @@ const hasActionOutcome = async (
       return state.phase === "ready" && (await hasPlanStatus(root, "approved"));
     case "respond-agent-approval":
       // Approval responses use the provider's bidirectional channel and are not journaled.
+      return true;
+    case "resume-pending":
+      // Resume is a local transport control and is never written to the journal.
       return true;
   }
 };
