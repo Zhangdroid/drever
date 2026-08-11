@@ -1,0 +1,544 @@
+import "./deck.css";
+
+<div className="slide draft title-slide">
+  <p className="eyebrow">A practical design talk</p>
+  <h1>
+    Why airport signs work
+    <br />
+    when nobody has time to read
+  </h1>
+  <div className="destination-line opening-route">
+    <span>RUSHED INTERFACES</span>
+    <i className="opening-route__track">
+      <b className="opening-route__signal" />
+    </i>
+    <span>CONFIDENT NEXT STEPS</span>
+  </div>
+  <p className="thesis">Design for the glance. Reward the read.</p>
+</div>
+
+<Note>
+  Open inside the experience, not with a definition. You are moving, your gate may be far away, and
+  you are already filtering announcements, people, bags, and time. Yet a good sign can still produce
+  a confident next step in a second or two. This talk is not about copying the visual style of
+  airports. It is about extracting the operating principles behind good wayfinding and applying them
+  to product moments where attention is scarce. The promise is practical: six principles and one
+  short pre-ship test.
+</Note>
+
+---
+
+<div className="slide draft">
+  <p className="eyebrow">THE USER ARRIVES WITH A DEFICIT</p>
+  <h2>Nobody arrives at the sign calm.</h2>
+  <div className="pressure-field">
+    <div className="goal-token">GET THERE</div>
+    <div className="state state-a">
+      <span>01</span>
+      <strong>Moving</strong>
+    </div>
+    <div className="state state-b">
+      <span>02</span>
+      <strong>Uncertain</strong>
+    </div>
+    <div className="state state-c">
+      <span>03</span>
+      <strong>Interrupted</strong>
+    </div>
+    <div className="state state-d">
+      <span>04</span>
+      <strong>Goal-loaded</strong>
+    </div>
+  </div>
+  <p className="bottom-line">Attention is already spent before the interface appears.</p>
+</div>
+
+<Note>
+  The useful design move is to model the state in which the interface is encountered. In an airport,
+  people are often walking, looking for landmarks, listening for changes, and holding a destination
+  in working memory. Product interfaces create similar conditions during checkout recovery, incident
+  response, permissions, travel, onboarding, or any interruption-heavy workflow. “Rushed” here does
+  not only mean a clock is visible. It means the user has less capacity to read, compare, remember,
+  and recover than the team designing the screen.
+</Note>
+
+---
+
+<div className="slide draft">
+  <p className="eyebrow">THE CORE MISREAD</p>
+  <h2>Rushed is not the same as simple.</h2>
+  <div className="needs-cycle">
+    <div className="need need-top">
+      <span>◎</span>
+      <strong>Orient</strong>
+      <small>Where am I?</small>
+    </div>
+    <div className="need need-right">
+      <span>↗</span>
+      <strong>Choose</strong>
+      <small>Which way now?</small>
+    </div>
+    <div className="need need-bottom">
+      <span>●</span>
+      <strong>Act</strong>
+      <small>What do I do?</small>
+    </div>
+    <div className="need need-left">
+      <span>✓</span>
+      <strong>Confirm</strong>
+      <small>Did it work?</small>
+    </div>
+    <div className="rushed-core">RUSHED</div>
+  </div>
+  <p className="bottom-line">Less copy cannot replace a clear sequence.</p>
+</div>
+
+<Note>
+  Teams often respond to low attention by removing information. Sometimes that helps, but the
+  underlying task can still be complex. A rushed user still has to orient, choose, act, and confirm.
+  If we remove the landmarks, sequence, or reassurance that support those jobs, the interface
+  becomes sparse but not clear. Airport signs work because they structure complexity into moments.
+  The question is not “How little can we show?” It is “What does this person need to know at this
+  exact point in the journey?”
+</Note>
+
+---
+
+<div className="slide draft principle-slide">
+  <p className="principle-number">01</p>
+  <h2>
+    Announce destination
+    <br />
+    before detail.
+  </h2>
+  <div className="comparison-strip">
+    <div className="weak">
+      <small>SYSTEM FIRST</small>
+      <p>Complete identity verification to continue</p>
+    </div>
+    <div className="strong">
+      <small>DESTINATION FIRST</small>
+      <p>
+        <span>Continue to your gate</span> <b>→</b>
+      </p>
+      <em>Identity check ahead</em>
+    </div>
+  </div>
+</div>
+
+<Note>
+  Good wayfinding begins with the destination the traveler recognizes, not the system procedure
+  behind it. Product interfaces often reverse this: they lead with an internal requirement, error
+  code, or policy and make the user infer the goal. Start with where the user can go or what they
+  can accomplish. Then explain the condition. The interface example is deliberately hypothetical:
+  “Continue to your gate” gives the goal first; “Identity check ahead” supplies the necessary detail
+  without making the procedure the headline.
+</Note>
+
+---
+
+<div className="slide draft">
+  <p className="eyebrow">INFORMATION HAS A HORIZON</p>
+  <h2>Hierarchy changes with distance.</h2>
+  <div className="horizon-track">
+    <div>
+      <strong>DECIDE</strong>
+      <span>from afar</span>
+      <p>Gates A–D →</p>
+    </div>
+    <i>→</i>
+    <div>
+      <strong>CONFIRM</strong>
+      <span>at the choice</span>
+      <p>Gate C →</p>
+    </div>
+    <i>→</i>
+    <div>
+      <strong>READ</strong>
+      <span>when stopped</span>
+      <p>Boarding details</p>
+    </div>
+  </div>
+  <p className="bottom-line">Design for the attention window, not the screen size.</p>
+</div>
+
+<Note>
+  The same journey needs different information at different distances. From afar, people need a
+  large category or destination. At the junction, they need an unmistakable directional
+  confirmation. Once stopped, they can read detailed instructions. Interfaces have equivalent
+  horizons: a notification, a landing state, a decision point, and a detail view. Responsive design
+  usually means adapting to device dimensions. This adds another question: what can the user
+  perceive in the time available before they must decide?
+</Note>
+
+---
+
+<div className="slide draft principle-slide">
+  <p className="principle-number">02</p>
+  <h2>
+    One decision
+    <br />
+    at each decision point.
+  </h2>
+  <div className="fork-map">
+    <div className="you-are-here">YOU ARE HERE</div>
+    <MotionGroup name="decision-token" intent="continuity">
+      <span className="decision-token">NOW</span>
+    </MotionGroup>
+    <div className="current-fork">
+      <span>← Gates A–D</span>
+      <span>Gates E–H →</span>
+    </div>
+    <div className="future-forks">
+      <span>Later: lounges</span>
+      <span>Later: connections</span>
+      <span>Later: baggage</span>
+    </div>
+  </div>
+  <p className="bottom-line">Future choices are not helpful at the current fork.</p>
+</div>
+
+<Note>
+  At a junction, a useful sign answers the choice available now. It does not ask you to plan every
+  later turn. Product flows often expose configuration, exceptions, and future decisions too early
+  because the system knows they will eventually matter. That creates a wall of choices at the moment
+  of least context. Identify the actual fork. Show the alternatives that can be acted on now. Defer
+  later branches until the user reaches the point where those choices become meaningful.
+</Note>
+
+---
+
+<div className="slide draft principle-slide">
+  <p className="principle-number">03</p>
+  <h2>
+    Reveal detail
+    <br />
+    in sequence.
+  </h2>
+  <div className="sequence-chain">
+    <div>
+      <MotionGroup name="decision-token" intent="continuity">
+        <span className="decision-token">NOW</span>
+      </MotionGroup>
+      <strong>Destination</strong>
+      <small>Can I get there?</small>
+    </div>
+    <div>
+      <span>2</span>
+      <strong>Direction</strong>
+      <small>Which way now?</small>
+    </div>
+    <div>
+      <span>3</span>
+      <strong>Confirmation</strong>
+      <small>Am I still right?</small>
+    </div>
+    <div>
+      <span>4</span>
+      <strong>Local detail</strong>
+      <small>What happens here?</small>
+    </div>
+  </div>
+  <p className="bottom-line">Every reveal should answer the next question.</p>
+</div>
+
+<Note>
+  Progressive disclosure is often treated as a visual technique: hide details in a drawer,
+  accordion, or secondary screen. Wayfinding suggests a stronger model. Disclosure is a route
+  through questions. First: can I reach the destination? Then: which direction? Then: am I still on
+  course? Finally: what do I need to know here? A good product sequence is not merely less content
+  per screen. Each stage deliberately resolves one question and creates the context needed for the
+  next.
+</Note>
+
+---
+
+<div className="slide draft principle-slide">
+  <p className="principle-number">04</p>
+  <h2>Consistency beats cleverness.</h2>
+  <div className="vocabulary">
+    <div className="key">
+      <span className="shape square">A</span>
+      <strong>Destination</strong>
+    </div>
+    <div className="route-repeat">
+      <span className="shape square">A</span>
+      <b>→</b>
+      <span className="shape square">A</span>
+      <b>→</b>
+      <span className="shape square">A</span>
+    </div>
+    <p>Same label. Same shape. Same meaning.</p>
+  </div>
+  <p className="bottom-line">Recognition is faster than reinterpretation.</p>
+</div>
+
+<Note>
+  Airport navigation becomes learnable because a small vocabulary repeats. A category retains its
+  name, symbols behave consistently, and directional cues keep their meaning. In product work, local
+  optimization can make every screen individually “better” while making the journey harder to learn.
+  A clever label at one step, a new icon at the next, and a different status color after that all
+  charge an interpretation cost. Under pressure, consistency is not boring. It is cached
+  understanding.
+</Note>
+
+---
+
+<div className="slide draft principle-slide">
+  <p className="principle-number">05</p>
+  <h2>Use redundant cues.</h2>
+  <div className="redundancy-core">
+    <div className="instruction">
+      <span className="gate-chip">C12</span>
+      <strong>Gate C12</strong>
+      <b>→</b>
+    </div>
+    <div className="cue-list">
+      <span>WORD</span>
+      <span>SHAPE</span>
+      <span>POSITION</span>
+      <span>DIRECTION</span>
+    </div>
+  </div>
+  <p className="bottom-line">The message should survive the loss of one cue.</p>
+</div>
+
+<Note>
+  Redundancy is sometimes mistaken for visual noise. Useful redundancy lets multiple independent
+  cues reinforce the same instruction. A traveler may miss the color, not recognize the icon, have
+  limited vision, or approach from an unexpected angle. The words, shape, position, and direction
+  can still agree. Product teams should ask whether a critical status or action depends on color
+  alone, an unfamiliar symbol, a transient toast, or a subtle position change. Important meaning
+  deserves more than one path to comprehension.
+</Note>
+
+---
+
+<div className="slide draft">
+  <p className="eyebrow">AFTER THE TURN</p>
+  <h2>Confirmation is part of navigation.</h2>
+  <div className="confirmation-route">
+    <div className="decision-node">
+      <small>CHOOSE</small>
+      <strong>Gate C →</strong>
+    </div>
+    <div className="route-line">
+      <i></i>
+      <i></i>
+      <i></i>
+    </div>
+    <div className="confirm-node">
+      <span>✓</span>
+      <div>
+        <small>STILL ON ROUTE</small>
+        <strong>Gate C · 4 min</strong>
+      </div>
+    </div>
+  </div>
+  <p className="bottom-line">Silence after action creates doubt.</p>
+</div>
+
+<Note>
+  Navigation does not end when someone chooses a direction. Between junctions, small confirmations
+  preserve confidence: the route continues, the destination remains named, and progress is visible.
+  Product interfaces often celebrate the action but then remove the context. A button disappears,
+  the next screen has a different label, or a background operation offers no durable state.
+  Confirmation should answer three quiet questions: did the action register, am I still on the
+  intended route, and what should I expect next?
+</Note>
+
+---
+
+<div className="slide draft principle-slide">
+  <p className="principle-number">06</p>
+  <h2>
+    Separate scan mode
+    <br />
+    from read mode.
+  </h2>
+  <div className="mode-pair">
+    <div className="scan-mode">
+      <small>SCAN MODE · MOVING</small>
+      <strong>Gate changed</strong>
+      <p>C12 → C18</p>
+    </div>
+    <div className="read-mode">
+      <small>READ MODE · PAUSED</small>
+      <strong>Why it changed</strong>
+      <p>Details, assistance, and alternatives remain available when the user can stop.</p>
+    </div>
+  </div>
+  <p className="bottom-line">Urgent users should not have to parse prose.</p>
+</div>
+
+<Note>
+  A sign designed for walking and a directory designed for standing can coexist because they serve
+  different attention modes. Products should make the urgent action and current state glanceable,
+  while keeping explanation available in a place where reading is safe. Do not force the short
+  message to carry every caveat, and do not force the detailed message to function as the alert.
+  This is not about hiding information. It is about giving information the right moment.
+</Note>
+
+---
+
+<div className="slide draft">
+  <p className="eyebrow">TRANSFER THE BEHAVIOR, NOT THE STYLE</p>
+  <h2>Translate the sign into the interface.</h2>
+  <div className="translation-grid">
+    <div>
+      <strong>Airport behavior</strong>
+      <strong>Product response</strong>
+    </div>
+    <Step>
+      <div className="mapping-body">
+        <div>
+          <span>Name the destination</span>
+          <span>Lead recovery with the user’s goal</span>
+        </div>
+        <div>
+          <span>Mark the current fork</span>
+          <span>Ask only the decision available now</span>
+        </div>
+        <div>
+          <span>Repeat route cues</span>
+          <span>Preserve labels, status, and progress</span>
+        </div>
+        <div>
+          <span>Separate sign from directory</span>
+          <span>Separate urgent action from explanation</span>
+        </div>
+      </div>
+    </Step>
+  </div>
+</div>
+
+<Note>
+  The transfer is behavioral, not cosmetic. A checkout recovery screen does not need to look like a
+  terminal sign. It can still lead with the outcome, isolate the current choice, preserve labels
+  across steps, and confirm progress. The same applies to incident response, onboarding, and
+  permission prompts. If we copy yellow arrows and condensed type, we have borrowed a style. If we
+  structure attention and decisions, we have borrowed the useful part.
+</Note>
+
+---
+
+<div className="slide draft">
+  <p className="eyebrow">A PRACTICAL WORKING METHOD</p>
+  <h2>Start with the decision map.</h2>
+  <div className="method-route">
+    <div>
+      <span>01</span>
+      <strong>Identify the goal</strong>
+    </div>
+    <b>→</b>
+    <div>
+      <span>02</span>
+      <strong>Mark decision points</strong>
+    </div>
+    <b>→</b>
+    <div>
+      <span>03</span>
+      <strong>Define attention windows</strong>
+    </div>
+    <b>→</b>
+    <div>
+      <div className="method-marker">
+        <span className="method-checkpoint" />
+        <span className="method-marker__label">04</span>
+      </div>
+      <strong>Assign cue + confirmation</strong>
+    </div>
+  </div>
+  <p className="bottom-line">Structure the journey before styling the screens.</p>
+</div>
+
+<Note>
+  Here is the method teams can use immediately. First, name the destination in the user’s language.
+  Second, mark every place where a choice or recovery is required. Third, describe the likely
+  attention window at that point: moving or paused, first-time or familiar, calm or disrupted.
+  Fourth, assign the cue that enables the choice and the confirmation that preserves orientation
+  afterward. Only then design the screens. This often reveals that the problem is not a component
+  problem; it is a sequencing problem.
+</Note>
+
+---
+
+<div className="slide draft checklist-slide">
+  <p className="eyebrow">THE PRE-SHIP GLANCE TEST</p>
+  <h2>Can a rushed user answer these?</h2>
+  <div className="glance-test-frame">
+    <div className="checklist-marker">
+      <span className="method-checkpoint checklist-anchor" />
+      <span className="method-marker__label">01</span>
+    </div>
+    <p className="glance-intro">Start with the destination.</p>
+    <Step>
+      <ol className="glance-test">
+        <li>
+          <span>01</span>What destination is being offered?
+        </li>
+        <li>
+          <span>02</span>What decision belongs here?
+        </li>
+        <li>
+          <span>03</span>What is the next question—not every question?
+        </li>
+        <li>
+          <span>04</span>Which cues stay consistent?
+        </li>
+        <li>
+          <span>05</span>Does meaning survive one missing cue?
+        </li>
+        <li>
+          <span>06</span>What must scan now, and what can be read later?
+        </li>
+      </ol>
+    </Step>
+  </div>
+</div>
+
+<Note>
+  Use this as a fast design review. Do not ask the team to admire the screen. Ask them to point to
+  the destination, the current decision, the next question, the stable cues, the redundant meaning,
+  and the boundary between scanning and reading. If those answers require a walkthrough from the
+  designer, the rushed user will not have them. This is not a substitute for usability work. It is a
+  compact way to catch structural ambiguity before shipping or testing.
+</Note>
+
+---
+
+<div className="slide draft close-slide">
+  <p className="eyebrow">THE STANDARD</p>
+  <h2>
+    Design for the glance.
+    <br />
+    <span>Reward the read.</span>
+  </h2>
+  <div className="closing-route">
+    <div>
+      <strong>DESTINATION</strong>
+    </div>
+    <i></i>
+    <div>
+      <strong>DECISION</strong>
+    </div>
+    <i></i>
+    <div>
+      <strong>CONFIRMATION</strong>
+    </div>
+    <b className="closing-route__signal" />
+  </div>
+  <p className="closing-copy">
+    <span>Make the next step unmistakable.</span>
+    <br />
+    <span>Keep the deeper explanation available.</span>
+  </p>
+</div>
+
+<Note>
+  Close by returning to the promise. Clear rushed interfaces are not interfaces with no detail. They
+  make the immediate destination and next step unmistakable, then reward the user who needs to read
+  further. Announce destination before detail. Put one decision at each decision point. Reveal
+  detail in sequence. Prefer consistency over cleverness. Use redundant cues. Separate scan mode
+  from read mode. The result is not merely fewer words. It is confident movement through complexity.
+</Note>

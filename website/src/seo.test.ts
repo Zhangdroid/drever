@@ -1,10 +1,18 @@
 import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vite-plus/test";
 
-import { canonicalSiteURL, publicPresentationMounts, publicSiteRoutes } from "../site-manifest";
+import {
+  builtPresentationMounts,
+  canonicalSiteURL,
+  labPresentationMounts,
+  publicPresentationMounts,
+  publicSiteRoutes,
+  standalonePresentationMounts,
+} from "../site-manifest";
 import { pageHead } from "./seo";
 
 const sitemap = await readFile(new URL("../public/sitemap.xml", import.meta.url), "utf8");
+const llms = await readFile(new URL("../public/llms.txt", import.meta.url), "utf8");
 
 describe("website metadata", () => {
   it("uses the final trailing-slash URL for canonical pages", () => {
@@ -58,5 +66,23 @@ describe("website metadata", () => {
     ];
 
     expect(new Set(actualLocations)).toEqual(new Set(expectedLocations));
+  });
+
+  it("builds experimental labs without publishing or advertising them", () => {
+    const labSlugs = labPresentationMounts.map(({ slug }) => slug);
+    const publicSlugs = new Set<string>(publicPresentationMounts.map(({ slug }) => slug));
+    const standaloneSlugs = new Set<string>(standalonePresentationMounts.map(({ slug }) => slug));
+    const builtSlugs = new Set<string>(builtPresentationMounts.map(({ slug }) => slug));
+
+    expect(labSlugs).toEqual(["labs/seasons", "labs/bus-priority", "labs/airport-wayfinding"]);
+    expect(labSlugs.every((slug) => !publicSlugs.has(slug))).toBe(true);
+    expect(labSlugs.every((slug) => standaloneSlugs.has(slug))).toBe(true);
+    expect(labSlugs.every((slug) => builtSlugs.has(slug))).toBe(true);
+
+    for (const slug of labSlugs) {
+      const url = canonicalSiteURL(`/showcase/${slug}`);
+      expect(sitemap).not.toContain(url);
+      expect(llms).not.toContain(url);
+    }
   });
 });

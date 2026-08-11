@@ -394,6 +394,42 @@ importers:
         specifier: 19.3.0-canary-83840902-20260719
         version: 19.3.0-canary-83840902-20260719
 
+  examples/lab-airport-wayfinding:
+    devDependencies:
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.17
+      drever:
+        specifier: workspace:*
+        version: link:../../packages/cli
+      react:
+        specifier: 19.3.0-canary-83840902-20260719
+        version: 19.3.0-canary-83840902-20260719
+
+  examples/lab-bus-priority:
+    devDependencies:
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.17
+      drever:
+        specifier: workspace:*
+        version: link:../../packages/cli
+      react:
+        specifier: 19.3.0-canary-83840902-20260719
+        version: 19.3.0-canary-83840902-20260719
+
+  examples/lab-seasons:
+    devDependencies:
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.17
+      drever:
+        specifier: workspace:*
+        version: link:../../packages/cli
+      react:
+        specifier: 19.3.0-canary-83840902-20260719
+        version: 19.3.0-canary-83840902-20260719
+
   examples/motion-contracts:
     devDependencies:
       '@drever/brand':

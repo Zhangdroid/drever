@@ -225,6 +225,23 @@ relationship should still plausibly belong to this subject. A recolored card gri
 gradient, or ordinary entrance does not pass. Use quieter supporting slides between signature beats
 so the deck has rhythm.
 
+## Complete the visual decision pass
+
+Before implementing the refined visual system, read
+[`references/visual-decision-pass.md`](references/visual-decision-pass.md) completely and apply it
+to this deck. Add its complete Scene map and Handoff map to `art-direction.md`; every slide and every
+adjacent edge must have a concrete decision. Treat those maps as implementation contracts, not
+planning decoration. A related focal object should normally carry continuity into the next slide;
+when a native View Transition is unsafe, record the exact geometry, wrapping, crop, or accessibility
+reason and use the reference's local alternative instead of silently dropping the relationship.
+
+Use the reference's evidence decision tree before decoration. When image generation is available, generate
+subject-specific conceptual imagery only where it improves explanation or a signature scene, never
+as factual proof. Give unfamiliar causal, spatial, quantitative, or comparative ideas a diagram,
+chart, artifact, or other visual explanation instead of leaving all difficult reasoning in prose.
+Keep the declared type-family and color-role limits unless the subject provides a documented reason
+for an exception.
+
 Plan composition across the deck rather than repeating one convenient template. Do not default
 most slides to a left-copy/right-artifact split. Let the content structure justify centered
 statements, full-canvas diagrams, single artifacts, sequences, comparisons, data fields, or
@@ -235,7 +252,7 @@ asymmetric editorial layouts; visual variety without a narrative job is not a de
 ## Translate content into a scene
 
 Before styling, classify each slide by its dominant reading job and record the chosen composition,
-focal object, motion owner, and static endpoint in `art-direction.md`. Use these recipes as tested
+focal object, motion owner, and static endpoint in the Scene map. Use these recipes as tested
 starting points, not mandatory templates:
 
 - **Opening or chapter:** keep one short claim and one subject-specific focal artifact. After the
@@ -459,6 +476,10 @@ loopback server and Playwright browser.
    or generic entrance does not satisfy a planned signature moment merely because the prose calls
    it one. Redesign any missing beat; do not hand off fewer than two implemented signature moments
    for a multi-slide custom deck.
+   Compare the receipt with both decision maps: every implemented scene must preserve its declared
+   settled endpoint, and every continuity or local handoff must match its recorded edge technique
+   and reverse behavior. Update a map only when rendered evidence proves that a safer technique is
+   needed; do not rewrite it after the fact to excuse missing implementation.
 7. Once the applied design is stable, use the project-local `drever-review-deck` skill as the single
    rendered completion gate. Reinspect the whole deck after changing shared tokens, layouts, Stage
    layers, or components; source review and successful generation commands do not count as rendered

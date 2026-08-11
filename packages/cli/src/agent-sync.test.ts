@@ -17,16 +17,23 @@ const SKILLS = [
   "drever-review-deck",
   "drever-deliver-deck",
 ] as const;
+const SKILL_RESOURCES: Partial<Record<(typeof SKILLS)[number], readonly string[]>> = {
+  "drever-create-design": ["references/visual-decision-pass.md"],
+};
 const CODEX_TARGETS = [
   "AGENTS.md",
   ...SKILLS.flatMap((skill) => [
     `.agents/skills/${skill}/SKILL.md`,
+    ...(SKILL_RESOURCES[skill] ?? []).map((path) => `.agents/skills/${skill}/${path}`),
     `.agents/skills/${skill}/agents/openai.yaml`,
   ]),
 ] as const;
 const CLAUDE_TARGETS = [
   "CLAUDE.md",
-  ...SKILLS.map((skill) => `.claude/skills/${skill}/SKILL.md`),
+  ...SKILLS.flatMap((skill) => [
+    `.claude/skills/${skill}/SKILL.md`,
+    ...(SKILL_RESOURCES[skill] ?? []).map((path) => `.claude/skills/${skill}/${path}`),
+  ]),
 ] as const;
 
 const directories: string[] = [];
@@ -63,6 +70,13 @@ const createTemplateKit = async (version: string): Promise<string> => {
         root,
         `skills/${skill}/agents/openai.yaml`,
         `${YAML_MARKER}\ninterface:\n  display_name: ${skill} ${version}\n`,
+      ),
+      ...(SKILL_RESOURCES[skill] ?? []).map((path) =>
+        write(
+          root,
+          `skills/${skill}/${path}`,
+          `${SKILL_MARKER}\n\n# ${skill} reference ${version}\n`,
+        ),
       ),
     ]),
   );
@@ -532,6 +546,11 @@ describe("agent kit sync", () => {
       await expect(read(root, `.agents/skills/${skill}/agents/openai.yaml`)).resolves.toBe(
         await read(templateRoot, `skills/${skill}/agents/openai.yaml`),
       );
+      for (const path of SKILL_RESOURCES[skill] ?? []) {
+        await expect(read(root, `.agents/skills/${skill}/${path}`)).resolves.toBe(
+          await read(templateRoot, `skills/${skill}/${path}`),
+        );
+      }
     }
 
     const unchanged = await syncAgentKit({ root, templateRoot });
@@ -560,6 +579,10 @@ describe("agent kit sync", () => {
       { path: ".agents/skills/drever-create-deck/SKILL.md", status: "updated" },
       { path: ".agents/skills/drever-create-deck/agents/openai.yaml", status: "created" },
       { path: ".agents/skills/drever-create-design/SKILL.md", status: "created" },
+      {
+        path: ".agents/skills/drever-create-design/references/visual-decision-pass.md",
+        status: "created",
+      },
       { path: ".agents/skills/drever-create-design/agents/openai.yaml", status: "created" },
       { path: ".agents/skills/drever-review-deck/SKILL.md", status: "created" },
       { path: ".agents/skills/drever-review-deck/agents/openai.yaml", status: "unchanged" },
