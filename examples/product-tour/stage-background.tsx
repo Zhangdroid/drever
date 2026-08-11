@@ -5,7 +5,9 @@ import type { ReactElement } from "react";
 const scene = (slideIndex: number, slideCount: number): string => {
   if (slideIndex === 0) return "opening";
   if (slideIndex === slideCount - 1) return "closing";
-  return "shape";
+  if (slideIndex < 5) return "shape";
+  if (slideIndex < 7) return "room";
+  return "continuity";
 };
 
 export default function ProductTourBackground({
