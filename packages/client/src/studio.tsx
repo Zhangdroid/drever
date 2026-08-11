@@ -8,6 +8,7 @@ import {
   type DreverStudioAnswer,
   type DreverStudioActivity,
   type DreverStudioCommonBrief,
+  type DreverStudioImprovement,
   type DreverStudioQuestion,
   type DreverStudioState,
 } from "@drever/schema";
@@ -29,6 +30,8 @@ export type StudioActionInput =
   | Readonly<{ answers: readonly DreverStudioAnswer[]; type: "submit-adaptive-answers" }>
   | Readonly<{ type: "skip-remaining-questions" }>
   | Readonly<{ type: "approve-plan" }>
+  | Readonly<{ type: "resume-pending" }>
+  | Readonly<{ slideId?: string; type: "request-draft-review" }>
   | Readonly<{
       approvalId: string;
       decision: DreverStudioAgentApprovalDecision;
@@ -669,7 +672,6 @@ type StudioActivitySnapshot = Readonly<{
   active: boolean;
   current?: DreverStudioActivity;
   detail?: string;
-  history: readonly DreverStudioActivity[];
 }>;
 
 export const resolveStudioActivity = (state: DreverStudioState): StudioActivitySnapshot => {
@@ -680,53 +682,7 @@ export const resolveStudioActivity = (state: DreverStudioState): StudioActivityS
     active: current?.status === "active" && state.agentConnected,
     ...(current === undefined ? {} : { current }),
     ...(detail === undefined ? {} : { detail }),
-    history: current === undefined ? activity : activity.filter(({ id }) => id !== current.id),
   };
-};
-
-const StudioActivityHistory = ({
-  activity,
-  presentation = "inline",
-}: Readonly<{
-  activity: readonly DreverStudioActivity[];
-  presentation?: "inline" | "popover-end" | "popover-start";
-}>): ReactElement | null => {
-  const [open, setOpen] = useState(false);
-  const panelId = useId();
-  if (activity.length === 0) return null;
-  return (
-    <section
-      className="drever-studio-activity-history"
-      data-open={open ? "" : undefined}
-      data-presentation={presentation}
-    >
-      <button
-        aria-controls={panelId}
-        aria-expanded={open}
-        className="drever-studio-activity-history__toggle"
-        onClick={() => setOpen((current) => !current)}
-        type="button"
-      >
-        View history <span>{activity.length}</span>
-        <ChevronIcon />
-      </button>
-      <div aria-hidden={!open} className="drever-studio-activity-history__reveal" id={panelId}>
-        <div>
-          <ol>
-            {activity.map((item) => (
-              <li data-status={item.status} key={item.id}>
-                <i aria-hidden="true" />
-                <div>
-                  <strong dir="auto">{item.label}</strong>
-                  {item.detail === undefined ? null : <p dir="auto">{item.detail}</p>}
-                </div>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </div>
-    </section>
-  );
 };
 
 const StudioActivityTicker = ({ state }: Readonly<{ state: DreverStudioState }>): ReactElement => {
@@ -753,7 +709,6 @@ const StudioActivityTicker = ({ state }: Readonly<{ state: DreverStudioState }>)
           <p dir="auto">{activity.detail}</p>
         )}
       </div>
-      <StudioActivityHistory activity={activity.history} presentation="popover-end" />
     </aside>
   );
 };
@@ -915,7 +870,7 @@ const BriefScreen = ({
 }>): ReactElement => {
   const existing = state.commonBrief;
   const existingKey = JSON.stringify(existing);
-  const [topic, setTopic] = useState(existing?.topic ?? "");
+  const [topic, setTopic] = useState(existing?.topic ?? state.initialTopic ?? "");
   const [audience, setAudience] = useState(existing?.audience ?? "");
   const [desiredChange, setDesiredChange] = useState(existing?.desiredChange ?? "");
   const initialDuration = existing?.durationMinutes ?? 10;
@@ -940,7 +895,10 @@ const BriefScreen = ({
       (state.agentConnected && (state.phase === "drafting" || state.phase === "refining")));
 
   useEffect(() => {
-    if (existing === undefined) return;
+    if (existing === undefined) {
+      setTopic(state.initialTopic ?? "");
+      return;
+    }
     const nextDuration = existing.durationMinutes ?? 10;
     const nextPreset = durationOptions.find((duration) => duration === nextDuration);
     setTopic(existing.topic);
@@ -951,7 +909,7 @@ const BriefScreen = ({
     setDensity(existing.density ?? "balanced");
     setMotion(existing.motionIntensity ?? "agent-choice");
     setPendingUpdate(undefined);
-  }, [existingKey]);
+  }, [existingKey, state.initialTopic]);
 
   const currentBrief = (): DreverStudioCommonBrief | undefined => {
     if (topic.trim() === "" || durationMinutes === undefined) return;
@@ -1276,7 +1234,6 @@ const WaitingScreen = ({ state }: Readonly<{ state: DreverStudioState }>): React
           <span>Next</span>
           <strong>{nextMilestone}</strong>
         </footer>
-        <StudioActivityHistory activity={activity.history} />
       </section>
     </main>
   );
@@ -1340,11 +1297,16 @@ const ErrorScreen = ({
   state: DreverStudioState;
 }>): ReactElement => {
   const [retrying, setRetrying] = useState(false);
+  const resumePending = state.agentConfigured === true && state.pendingActionCount > 0;
   const retry = async (): Promise<void> => {
-    if (state.commonBrief === undefined) return;
+    if (!resumePending && state.commonBrief === undefined) return;
     setRetrying(true);
     try {
-      await onAction({ brief: state.commonBrief, type: "submit-common-brief" });
+      await onAction(
+        resumePending
+          ? { type: "resume-pending" }
+          : { brief: state.commonBrief!, type: "submit-common-brief" },
+      );
     } catch {
       // Studio owns the visible action error at the shared dispatch boundary.
     } finally {
@@ -1363,17 +1325,23 @@ const ErrorScreen = ({
         {state.message ??
           "Resolve the reported agent error, then continue from this Studio session."}
       </span>
-      {state.commonBrief === undefined ? null : (
+      {resumePending || state.commonBrief !== undefined ? (
         <button
           className="drever-studio-button drever-studio-button--primary"
           disabled={retrying}
           onClick={() => void retry()}
           type="button"
         >
-          {retrying ? "Retrying…" : "Retry from this brief"}
+          {retrying
+            ? resumePending
+              ? "Reconnecting…"
+              : "Retrying…"
+            : resumePending
+              ? "Reconnect agent"
+              : "Retry from this brief"}
           <ArrowIcon />
         </button>
-      )}
+      ) : null}
     </main>
   );
 };
@@ -1787,17 +1755,21 @@ const StudioDraftThumbnail = ({
 
 const FeedbackComposer = ({
   feedbackTarget,
+  mode,
   onAction,
   onDirtyChange,
   onFeedbackTargetChange,
+  onSuggestionScopeChange,
   outdated,
   selectedSlide,
   state,
 }: Readonly<{
   feedbackTarget: StudioFeedbackTarget;
+  mode: StudioMode;
   onAction: StudioProps["onAction"];
   onDirtyChange(dirty: boolean): void;
   onFeedbackTargetChange(target: StudioFeedbackTarget): void;
+  onSuggestionScopeChange(suggestion: DreverStudioImprovement): void;
   outdated: boolean;
   selectedSlide?: DreverDeckPlanSlide;
   state: DreverStudioState;
@@ -1805,11 +1777,28 @@ const FeedbackComposer = ({
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [contextOpen, setContextOpen] = useState(false);
+  const [reviewing, setReviewing] = useState(false);
+  const [suggestionFilter, setSuggestionFilter] = useState<"all" | "story" | "visual" | "motion">(
+    "all",
+  );
   const contextId = useId();
   const headingId = useId();
   const targetDescriptionId = useId();
   const feedbackSlide = feedbackTarget === "slide" ? selectedSlide : undefined;
   const effectiveTarget = feedbackSlide === undefined ? "deck" : "slide";
+  const suggestions = state.draftReview?.suggestions ?? [];
+  const filteredSuggestions = suggestions.filter(({ category }) => {
+    if (suggestionFilter === "all") return true;
+    if (suggestionFilter === "story") return category === "content";
+    if (suggestionFilter === "motion") return category === "motion";
+    return category === "design" || category === "accessibility";
+  });
+  const canReview =
+    state.phase === "ready" &&
+    state.draftAvailable === true &&
+    state.draftOutdated !== true &&
+    !outdated &&
+    state.pendingActionCount === 0;
 
   useEffect(() => {
     onDirtyChange(message.trim() !== "");
@@ -1833,6 +1822,35 @@ const FeedbackComposer = ({
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const requestReview = async (): Promise<void> => {
+    if (!canReview) return;
+    setReviewing(true);
+    try {
+      await onAction({
+        ...(feedbackSlide === undefined ? {} : { slideId: feedbackSlide.id }),
+        type: "request-draft-review",
+      });
+    } catch {
+      // Studio owns the visible action error at the shared dispatch boundary.
+    } finally {
+      setReviewing(false);
+    }
+  };
+
+  const useSuggestion = (suggestion: DreverStudioImprovement): void => {
+    if (suggestion.scope.kind === "slide") {
+      const suggestionSlideId = suggestion.scope.slideId;
+      if (
+        state.plan?.status === "awaiting-input" ||
+        state.plan?.slides.some(({ id }) => id === suggestionSlideId) !== true
+      ) {
+        return;
+      }
+    }
+    onSuggestionScopeChange(suggestion);
+    setMessage(suggestion.proposal);
   };
 
   return (
@@ -1908,6 +1926,60 @@ const FeedbackComposer = ({
           </div>
         </div>
       </section>
+
+      {mode === "draft" ? (
+        <section className="drever-studio-direction__suggestions">
+          <header>
+            <div>
+              <SparkIcon />
+              <strong>Review ideas</strong>
+            </div>
+            <button
+              disabled={!canReview || reviewing}
+              onClick={() => void requestReview()}
+              type="button"
+            >
+              {reviewing || (state.pendingActionCount > 0 && state.phase === "waiting-for-agent")
+                ? "Reviewing…"
+                : "Find improvements"}
+            </button>
+          </header>
+          {suggestions.length === 0 ? (
+            <p>
+              Ask the agent for up to three evidence-based ideas. Nothing changes until you send
+              one.
+            </p>
+          ) : (
+            <>
+              <div aria-label="Filter review ideas" role="group">
+                {(["all", "story", "visual", "motion"] as const).map((filter) => (
+                  <button
+                    aria-pressed={suggestionFilter === filter}
+                    key={filter}
+                    onClick={() => setSuggestionFilter(filter)}
+                    type="button"
+                  >
+                    {sentenceCase(filter)}
+                  </button>
+                ))}
+              </div>
+              <ul>
+                {filteredSuggestions.map((suggestion) => (
+                  <li key={suggestion.id}>
+                    <button onClick={() => useSuggestion(suggestion)} type="button">
+                      <span>
+                        {sentenceCase(suggestion.category)} · {sentenceCase(suggestion.priority)}
+                      </span>
+                      <strong>{suggestion.observation}</strong>
+                      <small>{suggestion.impact}</small>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </section>
+      ) : null}
 
       <form onSubmit={(event) => void submit(event)}>
         <label>
@@ -2122,8 +2194,11 @@ const StudioDraftStatus = ({
   const [resuming, setResuming] = useState(false);
   if (lifecycle === undefined) return null;
   const canResumeDraft = state.draftAvailable === true;
+  const canResumeAgent =
+    state.agentConfigured === true &&
+    state.pendingActionCount > 0 &&
+    (!state.agentConnected || state.phase === "error");
   const activity = resolveStudioActivity(state);
-  const activityHistory = lifecycle.status === "working" ? activity.history : activityFor(state);
   const measurableProgress = measurableStudioProgress(state.progress);
   const progressLabel =
     lifecycle.status === "working"
@@ -2134,12 +2209,16 @@ const StudioDraftStatus = ({
   const resume = async (): Promise<void> => {
     setResuming(true);
     try {
-      await onAction({
-        message: canResumeDraft
-          ? "Resume from the last published draft. Preserve its working layout and fix the reported failure before making further changes."
-          : "Retry Draft 1 from the approved storyboard. Reuse the accepted story and report the concrete failure if authoring pauses again.",
-        type: "submit-feedback",
-      });
+      await onAction(
+        canResumeAgent
+          ? { type: "resume-pending" }
+          : {
+              message: canResumeDraft
+                ? "Resume from the last published draft. Preserve its working layout and fix the reported failure before making further changes."
+                : "Retry Draft 1 from the approved storyboard. Reuse the accepted story and report the concrete failure if authoring pauses again.",
+              type: "submit-feedback",
+            },
+      );
     } catch {
       // Studio owns the visible action error at the shared dispatch boundary.
     } finally {
@@ -2201,7 +2280,6 @@ const StudioDraftStatus = ({
               : "Retry Draft 1"}
         </button>
       ) : null}
-      <StudioActivityHistory activity={activityHistory} presentation="popover-start" />
     </section>
   );
 };
@@ -2658,11 +2736,21 @@ const PlanScreen = ({
 
       <FeedbackComposer
         feedbackTarget={feedbackScope}
+        mode={mode}
         onAction={onAction}
         onDirtyChange={onDirtyChange}
         onFeedbackTargetChange={(target) => {
           setFeedbackScope(target);
           if (target === "deck" && mode === "storyboard") setSelectedSlideId(undefined);
+        }}
+        onSuggestionScopeChange={(suggestion) => {
+          if (suggestion.scope.kind === "deck") {
+            setFeedbackScope("deck");
+            if (mode === "storyboard") setSelectedSlideId(undefined);
+            return;
+          }
+          setSelectedSlideId(suggestion.scope.slideId);
+          setFeedbackScope("slide");
         }}
         outdated={artifactOutdated}
         {...(selectedSlide === undefined ? {} : { selectedSlide })}

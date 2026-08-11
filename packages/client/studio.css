@@ -370,7 +370,7 @@
     position: relative;
     z-index: 3;
     display: grid;
-    grid-template-columns: 7px auto minmax(0, auto) minmax(0, 1fr) auto;
+    grid-template-columns: 7px auto minmax(0, 1fr);
     align-items: center;
     gap: 8px;
     width: min(100% - 48px, 1160px);
@@ -390,7 +390,7 @@
   .drever-studio-live-update__current {
     display: grid;
     grid-template-columns: minmax(0, auto) minmax(0, 1fr);
-    grid-column: 3 / 5;
+    grid-column: 3;
     align-items: center;
     gap: 8px;
   }
@@ -644,29 +644,6 @@
     white-space: normal;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
-  }
-
-  .drever-studio-live-update .drever-studio-activity-history {
-    position: relative;
-    grid-column: 5;
-    grid-row: 1;
-    justify-self: end;
-  }
-
-  .drever-studio-live-update .drever-studio-activity-history__toggle {
-    padding: 4px 7px;
-    border-radius: 8px;
-    color: #767e79;
-    cursor: pointer;
-    font-size: 0.6rem;
-    white-space: nowrap;
-  }
-
-  .drever-studio-live-update
-    .drever-studio-activity-history[data-open]
-    > .drever-studio-activity-history__toggle {
-    color: var(--studio-ink);
-    background: rgb(255 255 252 / 72%);
   }
 
   .drever-studio-agent-notice > span {
@@ -2101,202 +2078,6 @@
     font-weight: 640;
   }
 
-  .drever-studio-activity-history__toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 12px 0 0;
-    border: 0;
-    color: #707873;
-    background: transparent;
-    cursor: pointer;
-    font-size: 0.64rem;
-    font-weight: 640;
-    transition:
-      color var(--studio-motion-quick) var(--studio-motion-ease),
-      background var(--studio-motion-quick) var(--studio-motion-ease);
-  }
-
-  .drever-studio-activity-history__toggle svg {
-    width: 13px;
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 1.6;
-    transition: transform var(--studio-motion-quick) var(--studio-motion-emphasized);
-  }
-
-  .drever-studio-activity-history[data-open] .drever-studio-activity-history__toggle svg {
-    transform: rotate(180deg);
-  }
-
-  .drever-studio-activity-history__toggle span {
-    display: inline-grid;
-    min-width: 19px;
-    min-height: 19px;
-    margin-left: 5px;
-    place-items: center;
-    border-radius: 999px;
-    background: rgb(91 69 216 / 8%);
-    font-size: 0.55rem;
-  }
-
-  .drever-studio-activity-history[data-presentation="inline"]
-    > .drever-studio-activity-history__reveal {
-    display: grid;
-    grid-template-rows: 0fr;
-    visibility: hidden;
-    opacity: 0;
-    transform: translateY(-4px);
-    transition:
-      grid-template-rows var(--studio-motion-standard) var(--studio-motion-emphasized),
-      visibility 0s linear var(--studio-motion-standard),
-      opacity var(--studio-motion-quick) var(--studio-motion-ease),
-      transform var(--studio-motion-standard) var(--studio-motion-emphasized);
-  }
-
-  .drever-studio-activity-history[data-presentation="inline"]
-    > .drever-studio-activity-history__reveal
-    > div {
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  .drever-studio-activity-history[data-presentation="inline"][data-open]
-    > .drever-studio-activity-history__reveal {
-    grid-template-rows: 1fr;
-    visibility: visible;
-    opacity: 1;
-    transform: translateY(0);
-    transition-delay: 0s;
-  }
-
-  .drever-studio-activity-history[data-presentation^="popover"] {
-    position: relative;
-  }
-
-  .drever-studio-activity-history[data-presentation^="popover"]
-    > .drever-studio-activity-history__reveal {
-    position: absolute;
-    z-index: 20;
-    top: calc(100% + 7px);
-    display: block;
-    width: min(360px, calc(100vw - 48px));
-    visibility: hidden;
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(-5px) scale(0.985);
-    transition:
-      visibility 0s linear var(--studio-motion-quick),
-      opacity var(--studio-motion-quick) var(--studio-motion-ease),
-      transform var(--studio-motion-quick) var(--studio-motion-emphasized);
-  }
-
-  .drever-studio-activity-history[data-presentation="popover-start"]
-    > .drever-studio-activity-history__reveal {
-    left: 0;
-    transform-origin: top left;
-  }
-
-  .drever-studio-activity-history[data-presentation="popover-end"]
-    > .drever-studio-activity-history__reveal {
-    top: calc(100% + 10px);
-    right: 0;
-    transform-origin: top right;
-  }
-
-  .drever-studio-activity-history[data-presentation^="popover"]
-    > .drever-studio-activity-history__reveal
-    > div {
-    overflow: visible;
-  }
-
-  .drever-studio-activity-history[data-presentation^="popover"][data-open]
-    > .drever-studio-activity-history__reveal {
-    visibility: visible;
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateY(0) scale(1);
-    transition-delay: 0s;
-  }
-
-  .drever-studio-activity-history[data-presentation^="popover"]
-    .drever-studio-activity-history__reveal
-    ol {
-    gap: 10px;
-    max-height: min(340px, calc(100svh - 210px));
-    margin: 0;
-    padding: 14px;
-    border: 1px solid rgb(255 255 255 / 82%);
-    border-radius: 14px;
-    background: rgb(250 249 244 / 96%);
-    box-shadow: 0 18px 48px rgb(33 39 35 / 14%);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    backdrop-filter: blur(18px);
-  }
-
-  .drever-studio-activity-history[data-presentation="popover-end"]
-    .drever-studio-activity-history__reveal
-    ol {
-    max-height: min(440px, calc(100svh - 150px));
-  }
-
-  .drever-studio-activity-history ol {
-    display: grid;
-    gap: 11px;
-    margin: 12px 0 0;
-    max-height: min(360px, calc(100svh - 220px));
-    padding: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    list-style: none;
-  }
-
-  .drever-studio-activity-history li {
-    display: grid;
-    grid-template-columns: 8px minmax(0, 1fr);
-    gap: 9px;
-    padding: 0;
-  }
-
-  .drever-studio-activity-history[data-open] li {
-    animation: drever-studio-history-item var(--studio-motion-standard)
-      var(--studio-motion-emphasized) both;
-  }
-
-  .drever-studio-activity-history[data-open] li:nth-child(2) {
-    animation-delay: 24ms;
-  }
-
-  .drever-studio-activity-history[data-open] li:nth-child(3) {
-    animation-delay: 48ms;
-  }
-
-  .drever-studio-activity-history li > i {
-    width: 6px;
-    height: 6px;
-    margin-top: 5px;
-    border-radius: 50%;
-    background: #a0a6a2;
-  }
-
-  .drever-studio-activity-history li[data-status="complete"] > i {
-    background: var(--studio-accent-bright);
-  }
-
-  .drever-studio-activity-history li[data-status="error"] > i {
-    background: #a64f46;
-  }
-
-  .drever-studio-activity-history li p {
-    margin: 3px 0 0;
-    color: #858c88;
-    font-size: 0.62rem;
-    line-height: 1.45;
-  }
-
   .drever-studio-activity__marker {
     position: relative;
     display: grid;
@@ -3009,7 +2790,7 @@
 
   .drever-studio-draft-status {
     display: grid;
-    grid-template-columns: 26px minmax(0, 1fr) minmax(72px, 0.22fr) auto;
+    grid-template-columns: 26px minmax(0, 1fr) minmax(72px, 0.22fr);
     align-items: center;
     gap: 8px;
     margin-bottom: 12px;
@@ -3030,7 +2811,7 @@
   }
 
   .drever-studio-draft-status:not([data-status="working"]) {
-    grid-template-columns: 26px minmax(0, 1fr) auto auto;
+    grid-template-columns: 26px minmax(0, 1fr);
   }
 
   .drever-studio-draft-status[data-status="ready"] {
@@ -3049,7 +2830,7 @@
   }
 
   .drever-studio-draft-status[data-status="error"] {
-    grid-template-columns: 26px minmax(0, 1fr) auto auto;
+    grid-template-columns: 26px minmax(0, 1fr) auto;
     border-color: rgb(166 79 70 / 20%);
     background: linear-gradient(115deg, rgb(255 238 233 / 90%), rgb(248 244 238 / 80%));
   }
@@ -3175,43 +2956,6 @@
     opacity: 0.56;
   }
 
-  .drever-studio-draft-status > .drever-studio-activity-history {
-    position: relative;
-    grid-column: auto;
-    justify-self: end;
-    width: max-content;
-    max-width: 100%;
-  }
-
-  .drever-studio-draft-status .drever-studio-activity-history__toggle {
-    min-height: 24px;
-    padding: 3px 2px;
-    color: #858b87;
-    font-size: 0.56rem;
-    font-weight: 560;
-    letter-spacing: 0.01em;
-  }
-
-  .drever-studio-draft-status .drever-studio-activity-history__toggle:hover,
-  .drever-studio-draft-status
-    .drever-studio-activity-history[data-open]
-    > .drever-studio-activity-history__toggle {
-    color: #5f6863;
-  }
-
-  .drever-studio-draft-status .drever-studio-activity-history__toggle span {
-    min-width: 16px;
-    min-height: 16px;
-    margin-left: 3px;
-    color: #727a75;
-    background: rgb(91 69 216 / 6%);
-    font-size: 0.49rem;
-  }
-
-  .drever-studio-draft-status .drever-studio-activity-history__toggle svg {
-    width: 11px;
-  }
-
   .drever-studio-direction {
     padding: 17px;
   }
@@ -3303,6 +3047,117 @@
     font-size: var(--studio-type-control);
     font-weight: var(--studio-weight-medium);
     line-height: 1.5;
+  }
+
+  .drever-studio-direction__suggestions {
+    display: grid;
+    gap: 10px;
+    padding: 14px 7px;
+    border-bottom: 1px solid var(--studio-border);
+  }
+
+  .drever-studio-direction__suggestions > header,
+  .drever-studio-direction__suggestions > header > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .drever-studio-direction__suggestions > header > div {
+    justify-content: flex-start;
+    color: #4b544f;
+    font-size: var(--studio-type-control);
+  }
+
+  .drever-studio-direction__suggestions > header svg {
+    width: 14px;
+    fill: none;
+    stroke: var(--studio-accent);
+    stroke-width: 1.5;
+  }
+
+  .drever-studio-direction__suggestions button {
+    border: 0;
+    color: #6354b5;
+    background: transparent;
+    cursor: pointer;
+    font: inherit;
+  }
+
+  .drever-studio-direction__suggestions > header > button {
+    padding: 4px 0;
+    font-size: 0.64rem;
+    font-weight: var(--studio-weight-semibold);
+  }
+
+  .drever-studio-direction__suggestions button:disabled {
+    cursor: default;
+    opacity: 0.45;
+  }
+
+  .drever-studio-direction__suggestions > p {
+    margin: 0;
+    color: #7b827e;
+    font-size: 0.64rem;
+    line-height: 1.5;
+  }
+
+  .drever-studio-direction__suggestions > div {
+    display: flex;
+    gap: 3px;
+  }
+
+  .drever-studio-direction__suggestions > div button {
+    padding: 4px 7px;
+    border-radius: 999px;
+    color: #858b87;
+    font-size: 0.59rem;
+  }
+
+  .drever-studio-direction__suggestions > div button[aria-pressed="true"] {
+    color: #4f455f;
+    background: rgb(91 69 216 / 9%);
+  }
+
+  .drever-studio-direction__suggestions ul {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .drever-studio-direction__suggestions li > button {
+    display: grid;
+    width: 100%;
+    gap: 3px;
+    padding: 9px 10px;
+    border-radius: 10px;
+    color: #434b46;
+    background: rgb(255 255 252 / 58%);
+    text-align: left;
+    transition:
+      background var(--studio-motion-quick) var(--studio-motion-ease),
+      transform var(--studio-motion-quick) var(--studio-motion-emphasized);
+  }
+
+  .drever-studio-direction__suggestions li > button:hover {
+    background: rgb(255 255 252 / 92%);
+    transform: translateY(-1px);
+  }
+
+  .drever-studio-direction__suggestions li span,
+  .drever-studio-direction__suggestions li small {
+    color: #858b87;
+    font-size: 0.56rem;
+    line-height: 1.35;
+  }
+
+  .drever-studio-direction__suggestions li strong {
+    font-size: 0.66rem;
+    font-weight: var(--studio-weight-semibold);
+    line-height: 1.4;
   }
 
   .drever-studio-direction form {
@@ -3445,18 +3300,6 @@
 
     to {
       opacity: 1;
-    }
-  }
-
-  @keyframes drever-studio-history-item {
-    from {
-      opacity: 0;
-      transform: translateY(-3px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
     }
   }
 
@@ -3609,12 +3452,6 @@
 
     .drever-studio-live-update p {
       display: none;
-    }
-
-    .drever-studio-live-update .drever-studio-activity-history {
-      grid-column: 3;
-      grid-row: 2;
-      justify-self: start;
     }
 
     .drever-studio-live-update__current {

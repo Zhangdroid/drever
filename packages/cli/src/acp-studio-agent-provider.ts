@@ -283,6 +283,10 @@ const activityForAction = (record: DreverStudioActionRecord): DreverStudioActivi
       return Object.freeze({ ...shared, label: "Shaping the storyboard" });
     case "approve-plan":
       return Object.freeze({ ...shared, label: "Building the first preview" });
+    case "resume-pending":
+      return Object.freeze({ ...shared, label: "Reconnecting the managed agent" });
+    case "request-draft-review":
+      return Object.freeze({ ...shared, label: "Reviewing the current draft" });
     case "respond-agent-approval":
       return Object.freeze({ ...shared, label: "Resuming approved agent work" });
     case "submit-feedback":

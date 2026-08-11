@@ -1,6 +1,6 @@
 # Run the Drever project workflow
 
-Follow these instructions now; do not merely summarize or report that they were fetched.
+Follow these instructions now; do not merely summarize them.
 
 Create or edit a local Drever MDX/React web project. This bootstrap and the installed Drever
 workflow are the only authoring contract. If another artifact skill was activated before this page
@@ -33,13 +33,15 @@ Enter the project and read `AGENTS.md` or `CLAUDE.md`. Use the project-local
 Use `drever-author-deck` for an edit; preserve its approved plan. Never infer replacement. If the
 target is ambiguous, ask whether to edit, replace, or create a named sibling.
 
-For new or replacement work, follow the version-matched skill through its local creation room, or
-chat plus Storyboard when unavailable. Complete every approval, preview, review, and delivery gate.
+For new or replacement work, open Studio before asking presentation questions. If a topic was
+supplied, pass it once as a safely quoted `drever dev --topic <topic>` argument;
+otherwise let Studio collect it. Follow the version-matched workflow through delivery.
 
-Start the creation room with the matching managed adapter; for example, Codex passes
-`--open studio --agent codex`. The handoff transfers action handling, not process ownership;
-keep the development command and parent task alive through delivery. A one-shot host must use chat plus
-Storyboard or a user-managed server. Without an adapter, use the installed portable Studio bridge.
+Start Studio with the matching managed adapter; for example, Codex passes `--open studio --agent
+codex`. It becomes the sole authoring surface: never mirror its questions or let `continue` invoke a
+chat fallback. Keep the development command alive through delivery; Claude Code must actively
+supervise that task. A one-shot host uses chat plus Storyboard or a user-managed server. Without an
+adapter, use the installed portable Studio bridge.
 
 If an existing project has no local adapter, use its installed version to run
 `drever agent sync --target codex` or `--target claude`, then read the generated files.

@@ -4,6 +4,7 @@ import type { DreverStudioActionRecord } from "@drever/schema";
 import { describe, expect, it, vi } from "vite-plus/test";
 import {
   CLAUDE_STUDIO_AGENT_CAPABILITIES,
+  claudeStudioAgentProcessOptions,
   createClaudeStudioAgent,
   type ClaudeCodeProcess,
 } from "./studio-claude-agent.ts";
@@ -97,6 +98,21 @@ const createTestClaudeStudioAgent = (options: Parameters<typeof createClaudeStud
   });
 
 describe("native Claude Code Studio agent", () => {
+  it("removes Claude Code session ownership while preserving the child host environment", () => {
+    const options = claudeStudioAgentProcessOptions("/workspace/deck", {
+      ANTHROPIC_API_KEY: "test-auth-token",
+      CLAUDECODE: "1",
+      PATH: "/usr/local/bin:/usr/bin",
+    });
+
+    expect(options.env).toEqual({
+      ANTHROPIC_API_KEY: "test-auth-token",
+      DREVER_STUDIO_HOST_ROOT: "/workspace/deck",
+      PATH: "/usr/local/bin:/usr/bin",
+    });
+    expect(options.env).not.toHaveProperty("CLAUDECODE");
+  });
+
   it("delivers the preview-first approve-plan contract to Claude Code", async () => {
     const child = new FakeClaudeProcess(false, true);
     const provider = createTestClaudeStudioAgent({
@@ -255,6 +271,52 @@ describe("native Claude Code Studio agent", () => {
     await delivery;
   });
 
+  it("normalizes real mixed-case Claude tool use ids for Studio activity", async () => {
+    const child = new FakeClaudeProcess();
+    const provider = createTestClaudeStudioAgent({
+      root: "/workspace/deck",
+      spawnProcess: () => child as unknown as ClaudeCodeProcess,
+    });
+    const delivery = provider.handleAction(actionRecord(1));
+    await vi.waitFor(() => expect(child.inputs).toHaveLength(1));
+    const toolUseId = "toolu_01AbCdEfGhIjKlMnOpQrStUv";
+
+    child.send({
+      type: "stream_event",
+      session_id: "claude-session-1",
+      event: {
+        type: "content_block_start",
+        content_block: { type: "tool_use", id: toolUseId, name: "Read", input: {} },
+      },
+    });
+
+    await vi.waitFor(() =>
+      expect(provider.snapshot().state?.activity).toContainEqual({
+        id: "claude-tool-toolu-01abcdefghijklmnopqrstuv",
+        label: "Reading project context",
+        status: "active",
+      }),
+    );
+    child.send({
+      type: "user",
+      session_id: "claude-session-1",
+      message: {
+        role: "user",
+        content: [{ type: "tool_result", tool_use_id: toolUseId, content: "done" }],
+      },
+    });
+    await vi.waitFor(() =>
+      expect(provider.snapshot().state?.activity).toContainEqual(
+        expect.objectContaining({
+          id: "claude-tool-toolu-01abcdefghijklmnopqrstuv",
+          status: "complete",
+        }),
+      ),
+    );
+    child.send({ type: "result", subtype: "success", session_id: "claude-session-1" });
+    await delivery;
+  });
+
   it("keeps late public text visible after the bounded history fills", async () => {
     const child = new FakeClaudeProcess();
     const provider = createTestClaudeStudioAgent({
@@ -318,6 +380,33 @@ describe("native Claude Code Studio agent", () => {
     expect(provider.snapshot().state).toMatchObject({
       handledActionRevision: 2,
       phase: "waiting-for-agent",
+    });
+  });
+
+  it("accepts a later Studio action after the previous Claude turn has settled", async () => {
+    const child = new FakeClaudeProcess();
+    const provider = createTestClaudeStudioAgent({
+      root: "/workspace/deck",
+      spawnProcess: () => child as unknown as ClaudeCodeProcess,
+    });
+
+    const first = provider.handleAction(actionRecord(1));
+    await vi.waitFor(() => expect(child.inputs).toHaveLength(1));
+    child.send({ type: "result", subtype: "success", session_id: "claude-session-1" });
+    await first;
+    expect(provider.snapshot()).toMatchObject({
+      connected: true,
+      state: { handledActionRevision: 1 },
+    });
+
+    const second = provider.handleAction(actionRecord(2, "submit-feedback"));
+    await vi.waitFor(() => expect(child.inputs).toHaveLength(2));
+    expect(JSON.stringify(child.inputs[1])).toContain("Make the opening clearer.");
+    child.send({ type: "result", subtype: "success", session_id: "claude-session-1" });
+    await second;
+    expect(provider.snapshot()).toMatchObject({
+      connected: true,
+      state: { handledActionRevision: 2, phase: "waiting-for-agent" },
     });
   });
 

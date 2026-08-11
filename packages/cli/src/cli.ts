@@ -66,6 +66,7 @@ type DevCommand = Readonly<{
   entry?: string;
   name: "dev";
   open?: "studio";
+  topic?: string;
 }>;
 
 export type CheckCommand = Readonly<{
@@ -151,7 +152,7 @@ const BUILD_USAGE = "Usage: drever build [entry] [--json]";
 const CHECK_USAGE = "Usage: drever check [entry] [--rendered] [--evidence <directory>] [--json]";
 const CONTEXT_USAGE = "Usage: drever context [entry] [--json]";
 const CURRENT_USAGE = "Usage: drever current [--json]";
-const DEV_USAGE = `Usage: drever dev [entry] [--open studio] [--agent <${STUDIO_AGENT_NAMES.join("|")}>]`;
+const DEV_USAGE = `Usage: drever dev [entry] [--open studio] [--agent <${STUDIO_AGENT_NAMES.join("|")}>] [--topic <text>]`;
 const DOCTOR_USAGE = "Usage: drever doctor [--json]";
 const MCP_USAGE = "Usage: drever mcp [entry]";
 const AGENT_SYNC_USAGE = "Usage: drever agent sync [--target <all|auto|codex|claude>]";
@@ -685,6 +686,7 @@ const parseDev = (arguments_: readonly string[]): DevCommand => {
   let agent: StudioAgentName | undefined;
   let entry: string | undefined;
   let open: "studio" | undefined;
+  let topic: string | undefined;
   for (let index = 0; index < arguments_.length; index += 1) {
     const argument = arguments_[index] as string;
     if (argument === "--agent") {
@@ -706,15 +708,38 @@ const parseDev = (arguments_: readonly string[]): DevCommand => {
       index += 1;
       continue;
     }
+    if (argument === "--topic") {
+      if (topic !== undefined) invalidArgument("--topic can be specified only once.", DEV_USAGE);
+      const value =
+        arguments_[index + 1] ??
+        invalidArgument("--topic requires presentation topic text.", DEV_USAGE);
+      if (value.startsWith("-")) {
+        invalidArgument("--topic requires presentation topic text.", DEV_USAGE);
+      }
+      const normalized = value.trim();
+      if (normalized.length === 0) {
+        invalidArgument("--topic requires presentation topic text.", DEV_USAGE);
+      }
+      if (normalized.length > 4_000) {
+        invalidArgument("--topic cannot exceed 4,000 characters.", DEV_USAGE);
+      }
+      topic = normalized;
+      index += 1;
+      continue;
+    }
     if (argument.startsWith("-")) invalidArgument(`Unknown dev flag: ${argument}`, DEV_USAGE);
     if (entry !== undefined) invalidArgument("dev accepts at most one deck entry path.", DEV_USAGE);
     entry = argument;
+  }
+  if (topic !== undefined && open !== "studio") {
+    invalidArgument("--topic requires --open studio.", DEV_USAGE);
   }
   return Object.freeze({
     name: "dev",
     ...(agent === undefined ? {} : { agent }),
     ...(entry === undefined ? {} : { entry }),
     ...(open === undefined ? {} : { open }),
+    ...(topic === undefined ? {} : { topic }),
   });
 };
 
@@ -722,7 +747,7 @@ export const HELP = `Drever — AI-first MDX presentations
 
 Usage:
   drever create [directory] [options]
-  drever dev [entry] [--open studio] [--agent <codex|claude|gemini|copilot|goose|cursor|opencode|openhands|cline>]
+  drever dev [entry] [--open studio] [--agent <codex|claude|gemini|copilot|goose|cursor|opencode|openhands|cline>] [--topic <text>]
   drever build [entry] [--json]
   drever check [entry] [--rendered] [--evidence <directory>] [--json]
   drever context [entry] [--json]
@@ -1099,6 +1124,7 @@ export const runCli = async (
     ...(command.agent === undefined ? {} : { agent: command.agent }),
     ...(loaded.dependencies === undefined ? {} : { configDependencies: loaded.dependencies }),
     ...(options.environment === undefined ? {} : { environment: options.environment }),
+    ...(command.topic === undefined ? {} : { initialTopic: command.topic }),
     ...(command.open === undefined ? {} : { open: command.open }),
     reloadProject: async () => {
       const reloaded = await loadDreverConfig({ command: "serve", root });

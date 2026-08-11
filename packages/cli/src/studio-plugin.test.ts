@@ -3,9 +3,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import type { ViteDevServer, WebSocketClient } from "vite";
+import type { DreverStudioActionRecord } from "@drever/schema";
 import type { StudioAgentProvider } from "./studio-agent-provider.ts";
 import {
   DREVER_STUDIO_ACTION_EVENT,
+  DREVER_STUDIO_ACTION_ACK_EVENT,
   DREVER_STUDIO_ACTIONS_DIRECTORY,
   DREVER_STUDIO_AGENT_CONNECTION_TTL_MS,
   DREVER_STUDIO_AGENT_HEARTBEAT_FILE,
@@ -17,8 +19,10 @@ import {
   createStudioSession,
   decodeStudioAction,
   decodeStudioAgentState,
+  draftReviewMatchesRequest,
   forwardStudioAgentActions,
   isLoopbackAddress,
+  readStudioActionRecords,
   resolveStudioUrls,
   writeStudioAgentActivity,
   writeStudioAgentState,
@@ -127,7 +131,7 @@ const plan = {
 } as const;
 
 describe("Drever Studio action validation", () => {
-  it("accepts the six bounded browser action shapes and rejects unknown fields", () => {
+  it("accepts the bounded browser action shapes and rejects unknown fields", () => {
     expect(
       decodeStudioAction(
         action({
@@ -150,6 +154,12 @@ describe("Drever Studio action validation", () => {
     ).toBeDefined();
     expect(decodeStudioAction(action({ type: "skip-remaining-questions" }))).toBeDefined();
     expect(decodeStudioAction(action({ type: "approve-plan" }))).toBeDefined();
+    expect(decodeStudioAction(action({ type: "resume-pending" }))).toBeDefined();
+    expect(
+      decodeStudioAction(
+        action({ type: "request-draft-review", scope: { kind: "slide", slideId: "the-myth" } }),
+      ),
+    ).toBeDefined();
     expect(
       decodeStudioAction(
         action({
@@ -215,10 +225,165 @@ describe("Drever Studio action validation", () => {
         activity: [{ id: "private-reasoning", label: "Thinking", status: "streaming" }],
       }),
     ).toBeUndefined();
+    expect(
+      decodeStudioAgentState({
+        version: 1,
+        phase: "briefing",
+        initialTopic: "A browser-only prefill",
+      }),
+    ).toBeUndefined();
+  });
+
+  it("accepts evidence-based draft review suggestions and downgrades unsupported ideas", () => {
+    const review = {
+      version: 1,
+      phase: "ready",
+      handledActionRevision: 2,
+      draftReview: {
+        actionRevision: 2,
+        suggestions: [
+          {
+            id: "clarify-comparison",
+            category: "content",
+            priority: "worth-improving",
+            scope: { kind: "slide", slideId: "the-myth" },
+            observation: "The comparison uses unlike measures.",
+            reason: "The audience cannot compare the two alternatives fairly.",
+            proposal: "Use the same three criteria on both sides.",
+            impact: "The recommendation becomes easier to defend.",
+            evidence: "Only the left side names setup time and risk.",
+          },
+        ],
+      },
+    };
+    expect(decodeStudioAgentState(review)).toBeDefined();
+    expect(
+      decodeStudioAgentState({
+        ...review,
+        draftReview: {
+          ...review.draftReview,
+          suggestions: [{ ...review.draftReview.suggestions[0], evidence: undefined }],
+        },
+      }),
+    ).toBeUndefined();
+    expect(
+      decodeStudioAgentState({
+        ...review,
+        draftReview: {
+          ...review.draftReview,
+          suggestions: [
+            { ...review.draftReview.suggestions[0], evidence: undefined, priority: "optional" },
+          ],
+        },
+      }),
+    ).toBeDefined();
+  });
+
+  it("keeps draft review suggestions inside the requested current plan scope", () => {
+    const suggestion = {
+      id: "clarify-comparison",
+      category: "content" as const,
+      priority: "optional" as const,
+      observation: "The comparison can be clearer.",
+      reason: "The criteria differ.",
+      proposal: "Use matching criteria.",
+      impact: "The choice becomes easier.",
+    };
+    const record = (scope: { kind: "deck" } | { kind: "slide"; slideId: string }) =>
+      ({
+        version: 1,
+        revision: 2,
+        receivedAt: "2026-08-01T00:00:02.000Z",
+        action: {
+          version: 1,
+          expectedRevision: 1,
+          requestId: "review-2",
+          type: "request-draft-review",
+          scope,
+        },
+      }) as const satisfies DreverStudioActionRecord;
+    const review = (scope: { kind: "deck" } | { kind: "slide"; slideId: string }) => ({
+      actionRevision: 2,
+      suggestions: [{ ...suggestion, scope }],
+    });
+    const approvedPlan = { ...plan, status: "approved" } as const;
+
+    expect(
+      draftReviewMatchesRequest(review({ kind: "deck" }), record({ kind: "deck" }), approvedPlan),
+    ).toBe(true);
+    expect(
+      draftReviewMatchesRequest(
+        review({ kind: "slide", slideId: "the-myth" }),
+        record({ kind: "deck" }),
+        approvedPlan,
+      ),
+    ).toBe(true);
+    expect(
+      draftReviewMatchesRequest(
+        review({ kind: "slide", slideId: "missing" }),
+        record({ kind: "deck" }),
+        approvedPlan,
+      ),
+    ).toBe(false);
+    expect(
+      draftReviewMatchesRequest(
+        review({ kind: "slide", slideId: "other-slide" }),
+        record({ kind: "slide", slideId: "the-myth" }),
+        approvedPlan,
+      ),
+    ).toBe(false);
+    expect(
+      draftReviewMatchesRequest(
+        review({ kind: "deck" }),
+        record({ kind: "slide", slideId: "the-myth" }),
+        approvedPlan,
+      ),
+    ).toBe(false);
+    expect(
+      draftReviewMatchesRequest(
+        { actionRevision: 2, suggestions: [] },
+        record({ kind: "slide", slideId: "missing" }),
+        approvedPlan,
+      ),
+    ).toBe(false);
   });
 });
 
 describe("Studio session", () => {
+  it("exposes an initial topic only as transient browser state", async () => {
+    const root = await createRoot();
+    const session = createStudioSession(root, {
+      initialTopic: "  React 19 changes  ",
+      token: "studio-token",
+    });
+
+    await expect(session.read()).resolves.toMatchObject({
+      initialTopic: "React 19 changes",
+      phase: "briefing",
+    });
+    await expect(session.read()).resolves.not.toHaveProperty("commonBrief");
+    await expect(readStudioActionRecords(root)).resolves.toEqual([]);
+    await expect(
+      readFile(join(root, DREVER_STUDIO_DIRECTORY, DREVER_STUDIO_AGENT_STATE_FILE), "utf8"),
+    ).rejects.toMatchObject({ code: "ENOENT" });
+
+    await session.accept(
+      {
+        token: "studio-token",
+        action: action({
+          type: "submit-common-brief",
+          brief: { topic: "React 19 for frontend teams" },
+        }),
+      },
+      true,
+    );
+    await expect(session.read()).resolves.toMatchObject({
+      commonBrief: { topic: "React 19 for frontend teams" },
+      phase: "waiting-for-agent",
+    });
+    await expect(session.read()).resolves.not.toHaveProperty("initialTopic");
+  });
+
   it.each(["drafting", "refining"] as const)(
     "rejects an upstream revision while live %s work is active",
     async (phase) => {
@@ -403,6 +568,43 @@ describe("Studio session", () => {
     await expect(createStudioSession(await createRoot()).read()).resolves.not.toHaveProperty(
       "agentConfigured",
     );
+  });
+
+  it("keeps durable telemetry when a configured provider has no live state", async () => {
+    const root = await createRoot();
+    await writeStudioAgentState(root, {
+      version: 1,
+      phase: "waiting-for-agent",
+      message: "The durable handoff is still available.",
+      activity: [{ id: "durable-handoff", label: "Preparing direction", status: "complete" }],
+    });
+    const session = createStudioSession(root, {
+      agentProvider: { snapshot: () => ({ connected: false }) },
+    });
+
+    await expect(session.read()).resolves.toMatchObject({
+      agentConnected: false,
+      activity: [{ id: "durable-handoff", label: "Preparing direction", status: "complete" }],
+      message: "The durable handoff is still available.",
+    });
+  });
+
+  it("fails soft when a provider cannot enumerate approvals", async () => {
+    const root = await createRoot();
+    const session = createStudioSession(root, {
+      agentProvider: {
+        approvals: () => {
+          throw new Error("approval transport unavailable");
+        },
+        snapshot: () => ({ connected: false }),
+      },
+    });
+
+    await expect(session.read()).resolves.toMatchObject({
+      agentConfigured: true,
+      agentConnected: false,
+    });
+    await expect(session.read()).resolves.not.toHaveProperty("agentApprovals");
   });
 
   it("does not treat plan approval alone as proof that a live draft exists", async () => {
@@ -1252,6 +1454,145 @@ describe("Studio session", () => {
     });
   });
 
+  it("keeps a Draft request active until its matching artifact checkpoint is published", async () => {
+    const root = await createRoot();
+    await writeFile(join(root, "drever.plan.json"), JSON.stringify(plan), "utf8");
+    let livePhase = "plan-review" as "plan-review" | "ready" | "waiting-for-agent";
+    let handledActionRevision = 0;
+    const session = createStudioSession(root, {
+      token: "studio-token",
+      agentProvider: {
+        snapshot: () => ({
+          connected: true,
+          state: { version: 1, phase: livePhase, handledActionRevision },
+        }),
+      },
+    });
+
+    await session.accept({ token: "studio-token", action: action({ type: "approve-plan" }) }, true);
+    await expect(session.read()).resolves.toMatchObject({
+      pendingActionCount: 1,
+      phase: "drafting",
+      plan: { status: "awaiting-approval" },
+    });
+
+    await writeFile(
+      join(root, "drever.plan.json"),
+      JSON.stringify({ ...plan, status: "approved" }),
+      "utf8",
+    );
+    handledActionRevision = 1;
+    livePhase = "waiting-for-agent";
+    await writeStudioAgentState(root, {
+      version: 1,
+      phase: "waiting-for-agent",
+      handledActionRevision,
+    });
+    await expect(session.refresh()).resolves.toMatchObject({
+      state: { pendingActionCount: 0, phase: "drafting", plan: { status: "approved" } },
+    });
+
+    livePhase = "ready";
+    await writeStudioAgentState(root, {
+      version: 1,
+      phase: "ready",
+      handledActionRevision,
+    });
+    const ready = (await session.refresh()).state;
+    expect(ready).toMatchObject({
+      draftAvailable: true,
+      pendingActionCount: 0,
+      phase: "ready",
+    });
+
+    await session.accept(
+      {
+        token: "studio-token",
+        action: {
+          ...action({ type: "request-draft-review", scope: { kind: "deck" } }),
+          expectedRevision: ready.revision,
+          requestId: "review-2",
+        },
+      },
+      true,
+    );
+    handledActionRevision = 2;
+    await writeStudioAgentState(root, {
+      version: 1,
+      phase: "ready",
+      handledActionRevision,
+      draftReview: {
+        actionRevision: 2,
+        suggestions: [
+          {
+            id: "clarify-comparison",
+            category: "content",
+            priority: "optional",
+            scope: { kind: "deck" },
+            observation: "The comparison can be more direct.",
+            reason: "One sentence repeats the setup.",
+            proposal: "Remove the repeated setup sentence.",
+            impact: "The story reaches the evidence sooner.",
+          },
+        ],
+      },
+    });
+    const reviewed = (await session.refresh()).state;
+    expect(reviewed.draftReview).toMatchObject({ actionRevision: 2 });
+    await expect(
+      writeStudioAgentState(root, {
+        version: 1,
+        phase: "ready",
+        handledActionRevision: 2,
+        draftReview: {
+          actionRevision: 2,
+          suggestions: [
+            {
+              id: "unknown-slide",
+              category: "design",
+              priority: "optional",
+              scope: { kind: "slide", slideId: "missing" },
+              observation: "An unknown slide appears crowded.",
+              reason: "The claimed scope is not in the approved plan.",
+              proposal: "Change the unknown slide.",
+              impact: "This must never reach the feedback composer.",
+            },
+          ],
+        },
+      }),
+    ).rejects.toThrow(/does not match its requested scope/u);
+
+    await session.accept(
+      {
+        token: "studio-token",
+        action: {
+          ...action({
+            type: "submit-feedback",
+            scope: { kind: "deck" },
+            message: "Refine the motion without changing the layout.",
+          }),
+          expectedRevision: reviewed.revision,
+          requestId: "feedback-3",
+        },
+      },
+      true,
+    );
+    handledActionRevision = 3;
+    livePhase = "waiting-for-agent";
+    await writeStudioAgentState(root, {
+      version: 1,
+      phase: "waiting-for-agent",
+      handledActionRevision,
+    });
+    const refining = (await session.refresh()).state;
+    expect(refining).toMatchObject({
+      draftAvailable: true,
+      pendingActionCount: 0,
+      phase: "refining",
+    });
+    expect(refining).not.toHaveProperty("draftReview");
+  });
+
   it("rejects plan approval while earlier browser work is still pending", async () => {
     const root = await createRoot();
     await writeFile(join(root, "drever.plan.json"), JSON.stringify(plan), "utf8");
@@ -1399,9 +1740,161 @@ describe("Studio action forwarding", () => {
 
     expect(handleAction.mock.calls.map(([record]) => record.revision)).toEqual([1, 2, 3]);
   });
+
+  it("does not advance from schema-invalid live agent state", async () => {
+    const root = await createRoot();
+    await writeBriefActions(root, 3);
+    const { handleAction, provider } = forwardingProvider(3);
+    const invalidProvider = {
+      ...provider,
+      snapshot: () => ({
+        connected: true,
+        state: {
+          version: 1 as const,
+          phase: "waiting-for-agent" as const,
+          handledActionRevision: 3,
+          unexpected: true,
+        },
+      }),
+    } as StudioAgentProvider;
+
+    await forwardStudioAgentActions(root, invalidProvider);
+
+    expect(handleAction.mock.calls.map(([record]) => record.revision)).toEqual([1, 2, 3]);
+  });
 });
 
 describe("Studio Vite state", () => {
+  it("reconnects the managed agent and replays the same pending journal revision", async () => {
+    const root = await createRoot();
+    const token = "studio-test-token";
+    const listeners = new Map<string, (payload: unknown, client: WebSocketClient) => void>();
+    const clientSend = vi.fn();
+    let notify = (): void => undefined;
+    let connected = false;
+    let phase = "briefing" as "briefing" | "error" | "waiting-for-agent";
+    let handledActionRevision = 0;
+    let deliveryAttempts = 0;
+    const reconnect = Promise.withResolvers<void>();
+    const start = vi.fn(async () => {
+      if (start.mock.calls.length > 1) await reconnect.promise;
+      connected = true;
+      phase = "waiting-for-agent";
+      notify();
+    });
+    const handleAction = vi.fn<StudioAgentProvider["handleAction"]>(async (record) => {
+      deliveryAttempts += 1;
+      if (deliveryAttempts === 1) {
+        connected = false;
+        phase = "error";
+        notify();
+        throw new Error("transport closed");
+      }
+      handledActionRevision = record.revision;
+      phase = "waiting-for-agent";
+      notify();
+    });
+    const provider: StudioAgentProvider = {
+      approvals: () => [],
+      handleAction,
+      respondToApproval: vi.fn(async () => undefined),
+      snapshot: () => ({
+        connected,
+        state: { version: 1, phase, handledActionRevision },
+      }),
+      start,
+      stop: vi.fn(async () => undefined),
+      subscribe(listener) {
+        notify = listener;
+        return () => undefined;
+      },
+    };
+    const plugin = createStudioPlugin({ root, agentProvider: provider, token });
+    const server = {
+      config: { logger: { error: vi.fn(), info: vi.fn() } },
+      httpServer: { once: vi.fn() },
+      middlewares: { use: vi.fn() },
+      moduleGraph: { getModuleById: vi.fn() },
+      watcher: { add: vi.fn(), off: vi.fn(), on: vi.fn() },
+      ws: {
+        on(event: string, listener: (payload: unknown, client: WebSocketClient) => void) {
+          listeners.set(event, listener);
+        },
+        send: vi.fn(),
+      },
+    } as unknown as ViteDevServer;
+    const configureServer = plugin.configureServer;
+    if (typeof configureServer !== "function") throw new TypeError("Missing server hook.");
+    await configureServer.call({} as never, server);
+    await vi.waitFor(() => expect(start).toHaveBeenCalledOnce());
+    const receiveAction = listeners.get(DREVER_STUDIO_ACTION_EVENT);
+    if (receiveAction === undefined) throw new TypeError("Missing action listener.");
+    const client = studioClient(clientSend);
+
+    receiveAction(
+      {
+        token,
+        action: action({ type: "submit-common-brief", brief: { topic: "A durable topic" } }),
+      },
+      client,
+    );
+    await vi.waitFor(() => expect(handleAction).toHaveBeenCalledTimes(1));
+    await vi.waitFor(() =>
+      expect(clientSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: DREVER_STUDIO_STATE_EVENT,
+          data: expect.objectContaining({ phase: "error", pendingActionCount: 1 }),
+        }),
+      ),
+    );
+    const errorState = [...clientSend.mock.calls]
+      .map(
+        ([message]) => message as { event?: string; data?: { phase?: string; revision?: number } },
+      )
+      .findLast(
+        ({ event, data }) => event === DREVER_STUDIO_STATE_EVENT && data?.phase === "error",
+      )?.data;
+    if (errorState?.revision === undefined) throw new TypeError("Missing error revision.");
+
+    const resumePayload = {
+      token,
+      action: {
+        ...action({ type: "resume-pending" }),
+        expectedRevision: errorState.revision,
+        requestId: "resume-1",
+      },
+    };
+    receiveAction(resumePayload, client);
+
+    await vi.waitFor(() =>
+      expect(clientSend).toHaveBeenCalledWith({
+        type: "custom",
+        event: DREVER_STUDIO_ACTION_ACK_EVENT,
+        data: expect.objectContaining({ accepted: true, requestId: "resume-1" }),
+      }),
+    );
+    expect(handleAction).toHaveBeenCalledTimes(1);
+    reconnect.resolve();
+
+    await vi.waitFor(() => expect(handleAction).toHaveBeenCalledTimes(2));
+    await vi.waitFor(() =>
+      expect(clientSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: DREVER_STUDIO_STATE_EVENT,
+          data: expect.objectContaining({ pendingActionCount: 0 }),
+        }),
+      ),
+    );
+    expect(start).toHaveBeenCalledTimes(2);
+    expect(handleAction.mock.calls.map(([record]) => record.revision)).toEqual([1, 1]);
+    await expect(readStudioActionRecords(root)).resolves.toHaveLength(1);
+
+    receiveAction(resumePayload, client);
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(start).toHaveBeenCalledTimes(2);
+    expect(handleAction).toHaveBeenCalledTimes(2);
+  });
+
   it("accepts an authenticated action without publishing state or tokens through a module", async () => {
     const root = await createRoot();
     const token = "studio-test-token";
@@ -1571,7 +2064,12 @@ describe("Studio Vite state", () => {
         return () => undefined;
       },
     };
-    const plugin = createStudioPlugin({ root, agentProvider: provider, token });
+    const plugin = createStudioPlugin({
+      root,
+      agentProvider: provider,
+      initialTopic: "A private bootstrap topic",
+      token,
+    });
     const server = {
       config: { logger: { error: vi.fn(), info } },
       httpServer: {
@@ -1601,7 +2099,15 @@ describe("Studio Vite state", () => {
     requestState({ token }, studioClient(remoteSend, "192.168.1.8"));
     requestState({ token: "wrong-token" }, studioClient(unauthorizedSend));
     requestState({ token }, studioClient(localSend));
-    await vi.waitFor(() => expect(localSend).toHaveBeenCalled());
+    await vi.waitFor(() =>
+      expect(localSend).toHaveBeenCalledWith({
+        type: "custom",
+        event: DREVER_STUDIO_STATE_EVENT,
+        data: expect.objectContaining({ initialTopic: "A private bootstrap topic" }),
+      }),
+    );
+    expect(remoteSend).not.toHaveBeenCalled();
+    expect(unauthorizedSend).not.toHaveBeenCalled();
     snapshot.mockClear();
     localSend.mockClear();
 

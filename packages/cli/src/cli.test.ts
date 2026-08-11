@@ -35,12 +35,22 @@ describe("parseCommand", () => {
       open: "studio",
     });
     expect(
-      parseCommand(["dev", "decks/keynote.mdx", "--agent", "gemini", "--open", "studio"]),
+      parseCommand([
+        "dev",
+        "decks/keynote.mdx",
+        "--agent",
+        "gemini",
+        "--open",
+        "studio",
+        "--topic",
+        "  React 19 for product teams  ",
+      ]),
     ).toEqual({
       agent: "gemini",
       entry: "decks/keynote.mdx",
       name: "dev",
       open: "studio",
+      topic: "React 19 for product teams",
     });
     expect(parseCommand(["build", "decks/keynote.mdx"])).toEqual({
       entry: "decks/keynote.mdx",
@@ -305,6 +315,18 @@ describe("parseCommand", () => {
     expect(() => parseCommand(["dev", "--agent", "codex", "--agent", "claude"])).toThrowError(
       expect.objectContaining({ code: "DREVER_ARGUMENT_INVALID" }),
     );
+    expect(() => parseCommand(["dev", "--topic"])).toThrowError(
+      expect.objectContaining({ code: "DREVER_ARGUMENT_INVALID" }),
+    );
+    expect(() => parseCommand(["dev", "--topic", "   "])).toThrowError(
+      expect.objectContaining({ code: "DREVER_ARGUMENT_INVALID" }),
+    );
+    expect(() => parseCommand(["dev", "--topic", "First", "--topic", "Second"])).toThrowError(
+      expect.objectContaining({ code: "DREVER_ARGUMENT_INVALID" }),
+    );
+    expect(() => parseCommand(["dev", "--topic", "React 19"])).toThrowError(
+      expect.objectContaining({ code: "DREVER_ARGUMENT_INVALID" }),
+    );
   });
 });
 
@@ -367,11 +389,14 @@ describe("runCli dev", () => {
     const serveProject = vi.fn(async () => server as never);
     const environment = { CI: "true" };
 
-    const result = await runCli(["dev", "--open", "studio", "--agent", "codex"], {
-      cwd: root,
-      environment,
-      serveProject,
-    });
+    const result = await runCli(
+      ["dev", "--open", "studio", "--agent", "codex", "--topic", "React 19 changes"],
+      {
+        cwd: root,
+        environment,
+        serveProject,
+      },
+    );
 
     expect(result).toBe(server);
     expect(serveProject).toHaveBeenCalledWith(
@@ -380,6 +405,7 @@ describe("runCli dev", () => {
         agent: "codex",
         configDependencies: [expect.stringContaining("drever.config.ts")],
         environment,
+        initialTopic: "React 19 changes",
         open: "studio",
         reloadProject: expect.any(Function),
       }),
