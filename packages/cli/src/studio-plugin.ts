@@ -1744,7 +1744,37 @@ export const createStudioPlugin = ({
   let publishQueued = false;
   let publishDirty = false;
   let cleanup: (() => void) | undefined;
+  let lastLoggedSemanticState: string | undefined;
+  const loggedAcceptedRequests = new Set<string>();
   const studioClients = new Set<WebSocketClient>();
+
+  const logStudioState = (state: DreverStudioState): void => {
+    const handledActionRevision = state.latestActionRevision - state.pendingActionCount;
+    const semanticState = [
+      state.phase,
+      handledActionRevision,
+      state.latestActionRevision,
+      state.agentConnected,
+    ].join(":");
+    if (semanticState === lastLoggedSemanticState) return;
+    lastLoggedSemanticState = semanticState;
+    const terminal = state.phase === "ready" || state.phase === "error";
+    server?.config.logger.info?.(
+      `Drever Studio state: phase=${state.phase} handled=${String(handledActionRevision)} latest=${String(state.latestActionRevision)} agent=${state.agentConnected ? "connected" : "disconnected"}${terminal ? ` terminal=${state.phase}` : ""}.`,
+    );
+  };
+
+  const logAcceptedAction = (action: DreverStudioAction, state: DreverStudioState): void => {
+    if (loggedAcceptedRequests.has(action.requestId)) return;
+    loggedAcceptedRequests.add(action.requestId);
+    if (loggedAcceptedRequests.size > MAX_TRANSIENT_RECEIPTS) {
+      const oldestRequestId = loggedAcceptedRequests.values().next().value;
+      if (oldestRequestId !== undefined) loggedAcceptedRequests.delete(oldestRequestId);
+    }
+    server?.config.logger.info?.(
+      `Drever Studio accepted browser action: type=${action.type} latest=${String(state.latestActionRevision)} state=${String(state.revision)}.`,
+    );
+  };
 
   const stopRefreshPollingIfIdle = (): void => {
     if (studioClients.size > 0 || refreshInterval === undefined) return;
@@ -1778,6 +1808,7 @@ export const createStudioPlugin = ({
   const publish = async (): Promise<void> => {
     const { changed, state } = await session.refresh();
     scheduleAgentExpiry(await session.agentLeaseExpiresAt());
+    logStudioState(state);
     if (!changed) return;
     sendStudioState(state);
   };
@@ -1923,6 +1954,8 @@ export const createStudioPlugin = ({
             const state = ack.accepted ? await session.read() : undefined;
             client.send({ type: "custom", event: DREVER_STUDIO_ACTION_ACK_EVENT, data: ack });
             if (state !== undefined) {
+              if (decodedAction !== undefined) logAcceptedAction(decodedAction, state);
+              logStudioState(state);
               sendStudioState(state);
               forwardAgentActions(
                 decodedAction?.type === "resume-pending" && state.pendingActionCount > 0,
@@ -1941,6 +1974,7 @@ export const createStudioPlugin = ({
           .then(async () => {
             const { state } = await session.refresh();
             scheduleAgentExpiry(await session.agentLeaseExpiresAt());
+            logStudioState(state);
             client.send({
               type: "custom",
               event: DREVER_STUDIO_STATE_EVENT,

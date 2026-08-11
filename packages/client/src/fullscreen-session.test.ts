@@ -306,6 +306,126 @@ describe("fullscreen audience session", () => {
     session.dispose();
   });
 
+  it("does not retry a denied wake lock on activity during the same active lifecycle", async () => {
+    const cause = new DOMException("wake lock denied", "NotAllowedError");
+    const request = vi.fn(async (): Promise<ScreenWakeLockSentinel> => {
+      throw cause;
+    });
+    const document = createDocumentHarness({ request });
+    const onError = vi.fn();
+    document.setFullscreen(true);
+    const session = createFullscreenSession({
+      document: document.document,
+      onError,
+      schedule: createScheduler().schedule,
+    });
+    await flushMicrotasks();
+
+    document.dispatch("pointermove");
+    document.dispatch("pointerdown");
+    document.dispatch("keydown");
+    await flushMicrotasks();
+
+    expect(request).toHaveBeenCalledOnce();
+    expect(onError).toHaveBeenCalledOnce();
+
+    session.dispose();
+  });
+
+  it("retries a denied wake lock after the active visibility lifecycle restarts", async () => {
+    const cause = new DOMException("wake lock denied", "NotAllowedError");
+    const acquired = createSentinel();
+    const request = vi
+      .fn<ScreenWakeLockManager["request"]>()
+      .mockRejectedValueOnce(cause)
+      .mockResolvedValueOnce(acquired.sentinel);
+    const document = createDocumentHarness({ request });
+    const onError = vi.fn();
+    document.setFullscreen(true);
+    const session = createFullscreenSession({
+      document: document.document,
+      onError,
+      schedule: createScheduler().schedule,
+    });
+    await flushMicrotasks();
+
+    document.setVisibility("hidden");
+    document.dispatch("visibilitychange");
+    document.setVisibility("visible");
+    document.dispatch("visibilitychange");
+    await flushMicrotasks();
+
+    expect(request).toHaveBeenCalledTimes(2);
+    expect(onError).toHaveBeenCalledOnce();
+
+    session.dispose();
+    expect(acquired.release).toHaveBeenCalledOnce();
+  });
+
+  it("starts the current lifecycle request when a stale request resolves", async () => {
+    const stale = deferred<ScreenWakeLockSentinel>();
+    const staleSentinel = createSentinel();
+    const acquired = createSentinel();
+    const request = vi
+      .fn<ScreenWakeLockManager["request"]>()
+      .mockReturnValueOnce(stale.promise)
+      .mockResolvedValueOnce(acquired.sentinel);
+    const document = createDocumentHarness({ request });
+    document.setFullscreen(true);
+    const session = createFullscreenSession({
+      document: document.document,
+      onError: vi.fn(),
+      schedule: createScheduler().schedule,
+    });
+    await flushMicrotasks();
+
+    document.setVisibility("hidden");
+    document.dispatch("visibilitychange");
+    document.setVisibility("visible");
+    document.dispatch("visibilitychange");
+    expect(request).toHaveBeenCalledOnce();
+
+    stale.resolve(staleSentinel.sentinel);
+    await flushMicrotasks();
+
+    expect(staleSentinel.release).toHaveBeenCalledOnce();
+    expect(request).toHaveBeenCalledTimes(2);
+    session.dispose();
+    expect(acquired.release).toHaveBeenCalledOnce();
+  });
+
+  it("starts the current lifecycle request when a stale request rejects", async () => {
+    const stale = deferred<ScreenWakeLockSentinel>();
+    const acquired = createSentinel();
+    const request = vi
+      .fn<ScreenWakeLockManager["request"]>()
+      .mockReturnValueOnce(stale.promise)
+      .mockResolvedValueOnce(acquired.sentinel);
+    const document = createDocumentHarness({ request });
+    const onError = vi.fn();
+    document.setFullscreen(true);
+    const session = createFullscreenSession({
+      document: document.document,
+      onError,
+      schedule: createScheduler().schedule,
+    });
+    await flushMicrotasks();
+
+    document.setVisibility("hidden");
+    document.dispatch("visibilitychange");
+    document.setVisibility("visible");
+    document.dispatch("visibilitychange");
+    expect(request).toHaveBeenCalledOnce();
+
+    stale.reject(new DOMException("stale denial", "NotAllowedError"));
+    await flushMicrotasks();
+
+    expect(onError).not.toHaveBeenCalled();
+    expect(request).toHaveBeenCalledTimes(2);
+    session.dispose();
+    expect(acquired.release).toHaveBeenCalledOnce();
+  });
+
   it("reports a missing native API once without installing a fallback", () => {
     const document = createDocumentHarness();
     const onError = vi.fn();

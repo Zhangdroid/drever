@@ -58,6 +58,9 @@ describe("public bootstrap prompt", () => {
     expect(prompt).toMatch(/otherwise let Studio collect it/iu);
     expect(prompt).toMatch(/`continue`[^.]*chat fallback/iu);
     expect(prompt).toMatch(/Claude Code[^.]*actively\s+supervise/iu);
+    expect(prompt).toMatch(/Studio state[^.]*quiet development terminal[^.]*source of truth/iu);
+    expect(prompt).toMatch(/silence from Vite[^.]*does not mean\s+the agent stopped/iu);
+    expect(prompt).toMatch(/must not need to type `continue`/iu);
     expect(prompt).not.toMatch(/drever-(?:briefing|plan-review|preview)-contract/iu);
     expect(prompt).not.toMatch(/topic-fingerprint|usable inner silhouette|MotionGroup/iu);
   });
@@ -111,12 +114,15 @@ describe("public bootstrap prompt", () => {
   });
 
   it("separates first preview, deterministic checks, and human visual judgment", () => {
-    expect(createDeckSkill).toContain("<!-- drever-preview-contract:v6 -->");
+    expect(createDeckSkill).toContain("<!-- drever-preview-contract:v7 -->");
     expect(createDeckSkill).toMatch(/every approved slide[^.]*real readable copy/iu);
-    expect(createDeckSkill).toMatch(/only pre-preview gate[^.]*drever check --json/iu);
+    expect(createDeckSkill).toMatch(/only pre-preview gate[^.]*one source check/iu);
+    expect(createDeckSkill).toMatch(/publish `preview` in that same action immediately/iu);
     expect(createDeckSkill).toMatch(/embedded audience\s+iframe[^.]*HMR/iu);
-    expect(createDeckSkill).toMatch(/Before that publication[^.]*do not invoke Playwright/iu);
+    expect(createDeckSkill).toMatch(/Before that publication[^.]*do not\s+invoke Playwright/iu);
     expect(createDeckSkill).toMatch(/continue in the same turn/iu);
+    expect(createDeckSkill).toMatch(/semantic Studio state as the source of truth/iu);
+    expect(createDeckSkill).toMatch(/no\s+`continue` message is required/iu);
     expect(createDeckSkill).toMatch(/later mutation invalidates[^.]*evidence/iu);
     expect(createDeckSkill).toMatch(/never invent or guess a preview address/iu);
     expect(createDeckSkill).not.toContain("drever check --rendered --json");
@@ -131,13 +137,17 @@ describe("public bootstrap prompt", () => {
     );
     expect(createDeckSkill).toMatch(/do not require a\s+new-plan approval gate/iu);
     expect(createDeckSkill).toMatch(
-      /bounded semantic pass[^.]*Draft 1 before starting design research or\s+refinement/iu,
+      /bounded semantic pass[^.]*Draft 1 before loading\s+`drever-create-design`/iu,
     );
 
     for (const skill of [createDeckSkill, createDesignSkill, authorDeckSkill, deliverDeckSkill]) {
       expect(skill).not.toContain("drever check --rendered --json");
     }
     expect(reviewDeckSkill).toMatch(/single owner[^.]*exhaustive rendered completion gate/iu);
+    expect(reviewDeckSkill).toMatch(/pixel-first verdict/iu);
+    expect(reviewDeckSkill.indexOf("pixel-first verdict")).toBeLessThan(
+      reviewDeckSkill.indexOf("Only after the pixel-first verdict"),
+    );
     expect(deliverDeckSkill).toMatch(/Reuse review evidence[^.]*when no source/iu);
     expect(deliverDeckSkill).toMatch(/input changed[^.]*run the review skill again/iu);
 
@@ -191,7 +201,7 @@ describe("public bootstrap prompt", () => {
     expect(createDesignSkill).toMatch(/every slide and every\s+adjacent edge/iu);
     expect(createDeckSkill).toMatch(/complete Scene and\s+Handoff maps/iu);
     expect(authorDeckSkill).toMatch(/Scene and Handoff maps/iu);
-    expect(reviewDeckSkill).toMatch(/require complete Scene and Handoff maps/iu);
+    expect(reviewDeckSkill).toMatch(/require complete Scene and\s+Handoff maps/iu);
 
     expect(visualDecisionReference).toContain("### Scene map");
     expect(visualDecisionReference).toContain("### Handoff map");

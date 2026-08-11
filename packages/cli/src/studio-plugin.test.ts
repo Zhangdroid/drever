@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import type { ViteDevServer, WebSocketClient } from "vite";
-import type { DreverStudioActionRecord } from "@drever/schema";
+import type { DreverStudioActionRecord, DreverStudioPhase } from "@drever/schema";
 import type { StudioAgentProvider } from "./studio-agent-provider.ts";
 import {
   DREVER_STUDIO_ACTION_EVENT,
@@ -1952,6 +1952,149 @@ describe("Studio Vite state", () => {
       });
     });
     expect(send).not.toHaveBeenCalled();
+    close?.();
+  });
+
+  it("logs accepted actions and deduplicated semantic agent progress", async () => {
+    const root = await createRoot();
+    const token = "studio-test-token";
+    const listeners = new Map<string, (payload: unknown, client: WebSocketClient) => void>();
+    const clientSend = vi.fn();
+    const info = vi.fn();
+    let close: (() => void) | undefined;
+    let notify = (): void => undefined;
+    let phase: DreverStudioPhase = "briefing";
+    let handledActionRevision = 0;
+    let message = "Waiting for the brief";
+    const provider: StudioAgentProvider = {
+      approvals: () => [],
+      handleAction: vi.fn(async () => undefined),
+      respondToApproval: vi.fn(async () => undefined),
+      snapshot: () => ({
+        connected: true,
+        state: { version: 1, phase, handledActionRevision, message },
+      }),
+      start: vi.fn(async () => undefined),
+      stop: vi.fn(async () => undefined),
+      subscribe(listener) {
+        notify = listener;
+        return () => undefined;
+      },
+    };
+    const plugin = createStudioPlugin({ root, agentProvider: provider, token });
+    const server = {
+      config: { logger: { error: vi.fn(), info } },
+      httpServer: {
+        once(event: string, listener: () => void) {
+          if (event === "close") close = listener;
+        },
+      },
+      middlewares: { use: vi.fn() },
+      moduleGraph: { getModuleById: vi.fn() },
+      watcher: { add: vi.fn(), off: vi.fn(), on: vi.fn() },
+      ws: {
+        on(event: string, listener: (payload: unknown, client: WebSocketClient) => void) {
+          listeners.set(event, listener);
+        },
+        send: vi.fn(),
+      },
+    } as unknown as ViteDevServer;
+    const configureServer = plugin.configureServer;
+    if (typeof configureServer !== "function") throw new TypeError("Missing server hook.");
+    await configureServer.call({} as never, server);
+
+    await vi.waitFor(() =>
+      expect(info).toHaveBeenCalledWith(
+        "Drever Studio state: phase=briefing handled=0 latest=0 agent=connected.",
+      ),
+    );
+    const receiveAction = listeners.get(DREVER_STUDIO_ACTION_EVENT);
+    if (receiveAction === undefined) throw new TypeError("Missing action listener.");
+    const payload = {
+      token,
+      action: action({ type: "submit-common-brief", brief: { topic: "A durable topic" } }),
+    };
+    receiveAction(payload, studioClient(clientSend));
+
+    await vi.waitFor(() =>
+      expect(info).toHaveBeenCalledWith(
+        "Drever Studio accepted browser action: type=submit-common-brief latest=1 state=1.",
+      ),
+    );
+    await vi.waitFor(() =>
+      expect(info).toHaveBeenCalledWith(
+        "Drever Studio state: phase=waiting-for-agent handled=0 latest=1 agent=connected.",
+      ),
+    );
+
+    phase = "drafting";
+    message = "Writing a visible first draft";
+    notify();
+    await vi.waitFor(() =>
+      expect(info).toHaveBeenCalledWith(
+        "Drever Studio state: phase=drafting handled=0 latest=1 agent=connected.",
+      ),
+    );
+    const callsBeforeTelemetryOnlyUpdate = info.mock.calls.length;
+    const telemetryMessageCount = clientSend.mock.calls.filter(
+      ([value]) =>
+        (value as { data?: { message?: string }; event?: string }).event ===
+          DREVER_STUDIO_STATE_EVENT &&
+        (value as { data?: { message?: string } }).data?.message ===
+          "Still writing the same first draft",
+    ).length;
+    message = "Still writing the same first draft";
+    notify();
+    await vi.waitFor(() =>
+      expect(
+        clientSend.mock.calls.filter(
+          ([value]) =>
+            (value as { data?: { message?: string }; event?: string }).event ===
+              DREVER_STUDIO_STATE_EVENT &&
+            (value as { data?: { message?: string } }).data?.message ===
+              "Still writing the same first draft",
+        ),
+      ).toHaveLength(telemetryMessageCount + 1),
+    );
+    expect(info).toHaveBeenCalledTimes(callsBeforeTelemetryOnlyUpdate);
+
+    phase = "error";
+    message = "The agent needs attention";
+    notify();
+    await vi.waitFor(() =>
+      expect(info).toHaveBeenCalledWith(
+        "Drever Studio state: phase=error handled=0 latest=1 agent=connected terminal=error.",
+      ),
+    );
+
+    handledActionRevision = 1;
+    phase = "ready";
+    message = "Draft ready";
+    notify();
+    await vi.waitFor(() =>
+      expect(info).toHaveBeenCalledWith(
+        "Drever Studio state: phase=ready handled=1 latest=1 agent=connected terminal=ready.",
+      ),
+    );
+    const callsBeforeDuplicateAction = info.mock.calls.length;
+    const acknowledgementsBeforeDuplicate = clientSend.mock.calls.filter(
+      ([value]) => (value as { event?: string }).event === DREVER_STUDIO_ACTION_ACK_EVENT,
+    ).length;
+    receiveAction(payload, studioClient(clientSend));
+    await vi.waitFor(() =>
+      expect(
+        clientSend.mock.calls.filter(
+          ([value]) => (value as { event?: string }).event === DREVER_STUDIO_ACTION_ACK_EVENT,
+        ),
+      ).toHaveLength(acknowledgementsBeforeDuplicate + 1),
+    );
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(info).toHaveBeenCalledTimes(callsBeforeDuplicateAction);
+    const logs = info.mock.calls.flat().join("\n");
+    expect(logs).not.toContain("A durable topic");
+    expect(logs).not.toContain("Waiting for the brief");
+    expect(logs).not.toContain("The agent needs attention");
+    expect(logs).not.toContain("Draft ready");
     close?.();
   });
 

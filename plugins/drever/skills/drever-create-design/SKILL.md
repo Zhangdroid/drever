@@ -197,6 +197,14 @@ transformation → settled payoff → static or reduced-motion endpoint**. Put a
 opening third. Its transformation must clarify causality, comparison, reveal, or role change; a
 generic fade or slide entrance alone is not a signature moment.
 
+A badge, receipt, caption, underline, glow, status strip, or explanatory label added beside or below
+an otherwise unchanged focal artifact is supporting feedback, not a signature transformation. The
+artifact, evidence, or relationship that carries the claim must visibly change state, role, causal
+position, or interpretation. When the visual-story pattern declares a recurring focal artifact, at
+least one adjacent beat must recontextualize that same artifact in the rendered pixels. A recurring
+Stage path or motif counts only when it visibly lands on, connects, constrains, or changes real
+evidence; otherwise classify it as subordinate atmosphere and do not cite it as the story arc.
+
 Choose one primary **visual-story pattern** for the deck and record its ID, rationale, beat-to-slide
 mapping, recurring focal artifact, and final static payoff in `art-direction.md`. A palette, Theme,
 or repeated layout is not a visual-story pattern. Use one of these proven arcs, or declare `custom`
@@ -486,11 +494,12 @@ loopback server and Playwright browser.
 5. Review the result against `art-direction.md`: remove any prominent choice that cannot be justified as subject-led or clearly acknowledged as fallback.
 6. Append an **implementation receipt** to `art-direction.md` before review. Give every planned
    signature moment one row with its claim, exact slide route and Step, visual-story pattern role,
-   focal source component or selector, implemented transformation or static reveal, settled payoff,
-   and reduced-motion endpoint. Inspect each cited route. A static card grid, ordinary text layout,
-   or generic entrance does not satisfy a planned signature moment merely because the prose calls
-   it one. Redesign any missing beat; do not hand off fewer than two implemented signature moments
-   for a multi-slide custom deck.
+   focal source component or selector, before pixels, after pixels, the exact artifact that changes,
+   implemented transformation or static reveal, semantic result, settled payoff, and reduced-motion
+   endpoint. Inspect each cited route. A static card grid, ordinary text layout, generic entrance,
+   or unchanged artifact followed by a new receipt, label, or underline does not satisfy a planned
+   signature moment merely because the prose calls it one. Redesign any missing beat; do not hand
+   off fewer than two implemented signature moments for a multi-slide custom deck.
    Compare the receipt with both decision maps: every implemented scene must preserve its declared
    settled endpoint, and every continuity or local handoff must match its recorded edge technique
    and reverse behavior. Update a map only when rendered evidence proves that a safer technique is

@@ -5,6 +5,30 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+## [0.17.2] - 2026-08-11
+
+Release impact: **patch** — this batch makes managed Studio progress observable, shortens the path
+to the first useful preview, and makes rendered visual intent harder to overstate.
+
+### Changed
+
+- Made an approved Draft publish immediately after its first passing source check, before loading
+  the design workflow, researching optional assets, making design-led Theme or Stage replacements,
+  or waiting for visual polish. A minimal replacement required for safe rendering remains allowed;
+  later factual and art-direction work may proceed in parallel without competing with the single
+  visual-source writer.
+- Taught the final visual-review workflow to begin with a pixel-first verdict from the settled and
+  transition contact sheets before reading `art-direction.md`. An unchanged artifact followed by a
+  receipt, label, underline, or glow should no longer qualify as a signature transformation.
+
+### Fixed
+
+- Added deduplicated Studio action and phase lines to the development terminal and taught managed
+  supervisors to treat Studio status—not quiet Vite output—as the completion source of truth, so a
+  continuously running agent is not mistaken for one that needs a chat `continue` message.
+- Stopped retrying and reporting a denied audience screen wake lock on every pointer or keyboard
+  event; a new visible-fullscreen lifecycle may still retry once.
+
 ## [0.17.1] - 2026-08-11
 
 Release impact: **patch** — this batch makes authored motion explain a visible state change and
@@ -824,7 +848,8 @@ capabilities.
 - Added parallel source, unit, package, browser, export, and website checks in CI.
 - Deployed the prerendered public website and per-branch previews through Cloudflare Pages.
 
-[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.17.1...HEAD
+[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.17.2...HEAD
+[0.17.2]: https://github.com/Zhangdroid/drever/compare/v0.17.1...v0.17.2
 [0.17.1]: https://github.com/Zhangdroid/drever/compare/v0.17.0...v0.17.1
 [0.17.0]: https://github.com/Zhangdroid/drever/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/Zhangdroid/drever/compare/v0.15.0...v0.16.0

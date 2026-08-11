@@ -91,6 +91,10 @@ common brief, adaptive questions, content Storyboard approval, and deck- or slid
 The active coding agent polls its provider-neutral action journal and publishes progress; the
 browser does not call a model or write arbitrary project files. If the room is unavailable or the
 user prefers chat, the same contract runs conversationally and uses `/storyboard` for plan review.
+Managed adapters also emit deduplicated Studio action and phase changes to the development
+terminal. Supervising agents treat those semantic events or `drever studio status --json` as the
+completion source of truth; quiet Vite output does not mean the managed author stopped and does not
+require a chat `continue` message.
 
 ### Adaptive briefing contract
 
@@ -177,7 +181,9 @@ meaningful visual system, and review the result.
 
 ### Make visual decisions explicit
 
-After Storyboard approval and the first content-complete preview, the design
+After Storyboard approval, the author writes the complete semantic draft, runs one source check,
+and publishes that first stable preview before optional research, custom art direction, and motion
+polish. The design
 workflow records two implementation maps in `design/art-direction.md`:
 
 - the **Scene map** gives every slide one claim, focal evidence, visual form,
@@ -190,7 +196,9 @@ This keeps subject-led illustration, charts, typography, color, and motion from
 remaining prompt adjectives. A related focal object normally carries continuity
 into the next slide when its geometry is stable; an incompatible handoff records
 the reason and uses a local replacement instead of stretching a snapshot. The
-rendered review compares the finished deck with both maps.
+rendered review first writes a pixel-led verdict from the settled and transition evidence, then
+compares the finished deck with both maps. A label, receipt, underline, or glow beside an unchanged
+artifact does not satisfy a declared signature transformation.
 
 ## Install the global agent plugin
 

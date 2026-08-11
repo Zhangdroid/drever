@@ -101,6 +101,9 @@ Creation room after Vite chooses its port. `--agent` starts a managed local sess
 already-installed and authenticated agent CLI: Codex and Claude Code use native transports;
 Gemini CLI, GitHub Copilot CLI, Goose, Cursor CLI, OpenCode, OpenHands, and Cline use ACP.
 Omitting it keeps the portable journal bridge.
+The development terminal also prints deduplicated Studio action and phase changes. A quiet Vite
+terminal is not an idle-agent signal; use these semantic lines or `drever studio status --json`
+before deciding that a managed workflow stopped.
 `--topic` requires `--open studio` and prefills the Brief without submitting it, so an agent can
 carry a topic from the original request into Studio without asking for it twice. The text is not
 included in the printed Creation room URL.

@@ -80,6 +80,14 @@ cancellation, or new user input. Do not publish a final response from an earlier
 `plan-review`; a child turn returning at the approval gate leaves the server and parent task alive,
 and a later browser approval starts the next child turn without a chat message.
 
+Treat semantic Studio state as the source of truth after handoff. Observe the deduplicated Studio
+action and phase lines emitted by the development command; if a phase is uncertain or before any
+final response, run `npm exec -- drever studio status --json`. Never infer that Studio received no
+action, disconnected, or stopped because Vite stdout is quiet, no HMR line appeared recently, or a
+shell poll returned no new text. A configured session in a nonterminal phase remains active. If the
+host must yield while that work continues, state that the managed agent is still working and no
+`continue` message is required; on resume, read the same Studio status before doing anything else.
+
 Managed Studio remains the only authoring owner after this handoff. Do not answer or mirror its
 questions in chat, and never interpret a later chat message such as `continue` as permission for the
 parent task to bypass Studio and write the deck itself. In Claude Code, keep the development Bash
@@ -413,24 +421,26 @@ approval, mark both files approved and continue.
 
 ## Create the first useful preview
 
-<!-- drever-preview-contract:v6 -->
+<!-- drever-preview-contract:v7 -->
 
 <!-- drever-visual-foundation-contract:v1 -->
 
 After approval, load the project-local `drever-author-deck` skill and let `drever.plan.json` remain
 the story contract while authoring. Treat the `approve-plan` handoff as latency-sensitive:
-in one bounded semantic pass, create a content-complete Draft 1 before starting design research or
-refinement. Every approved slide must exist in order with its real readable copy, required evidence,
-simple focal artifact, and speaker notes. Use semantic MDX, the locked canvas and safe-area policy,
-and one deliberately simple subject-led visual system; do not substitute placeholders, change the
-approved resolution, finish bespoke choreography, hunt for optional assets, or build a custom design
-system before exposing the first useful preview.
+in one bounded semantic pass, create a content-complete Draft 1 before loading
+`drever-create-design`, reading its references, starting design research, writing
+`design/art-direction.md`, hunting for optional assets, or refining motion. Every approved slide
+must exist in order with its real readable copy, required evidence, simple focal artifact, and
+speaker notes. Use semantic MDX, the locked canvas and safe-area policy, and the current coherent
+starter or approved surface. Do not substitute placeholders, change the approved resolution,
+replace Theme or Stage configuration, finish bespoke choreography, or build a custom design system
+before exposing the first useful preview.
 
-When that subject-led system replaces the starter design, prepare its minimal local Theme CSS,
-Theme module, and any required Stage module before referencing them. Then switch `drever.config.ts`
-to that complete surface and author the matching MDX/CSS in the same bounded Draft 1 pass. Do not
-publish a hybrid frame where custom dark content is still painted over the starter Theme's rail,
-background, typography, or motion.
+If the current surface cannot render the approved content safely, prepare the smallest complete
+replacement Theme CSS, Theme module, and required Stage module while they remain unreferenced, then
+switch `drever.config.ts` exactly once. This is an exceptional safety repair, not a design pass. Do
+not expose a hybrid frame where custom content is painted over conflicting starter rails,
+backgrounds, typography, or motion.
 
 Write CSS in project-local files or import an installed package stylesheet. Never use `data:`,
 `blob:`, or `javascript:` URLs as CSS `@import` sources, and never turn inline CSS into an import
@@ -439,11 +449,14 @@ specifier; Vite and PostCSS treat those values as file paths and the live previe
 Reuse the development server already serving the creation room or Storyboard. Its embedded audience
 iframe is the preview and HMR will update it as source changes; do not start or restart a second
 server, open another browser or audience window, or replace that URL. The only pre-preview gate is
-the source check `npm exec -- drever check --json`; repair blocking source diagnostics, then publish
-`preview` immediately. Before that publication, do not invoke Playwright or other browser automation,
-run rendered review, inspect every route, build, export, or wait for optional third-party polish. When
-Studio is unavailable, start one development server, keep its reported URL stable, run the same
-source-only gate, and share only that real URL—never invent or guess a preview address.
+one source check, `npm exec -- drever check --json`, after the complete Draft 1 write. Rerun it only
+to repair a blocking diagnostic, then publish `preview` in that same action immediately after the
+last passing check. Do not pause for prose documentation, a progress recap, optional research, or
+another refinement between the passing check and publication. Before that publication, do not
+invoke Playwright or other browser automation, run rendered review, inspect every route, build,
+export, or wait for optional third-party polish. When Studio is unavailable, start one development
+server, keep its reported URL stable, run the same source-only gate, and share only that real
+URL—never invent or guess a preview address.
 
 Treat this coherent Draft 1 as immutable geometry for refinement. Preserve its exact canvas, slide
 bounds, safe area, outer margins, root and panel padding, grid tracks, layout shell, readable line
@@ -455,9 +468,10 @@ expose a broken intermediate layout or defer recovery to a later cleanup pass.
 
 Share a non-blocking update when Draft 1 is ready, then continue in the same turn and load the
 project-local `drever-create-design` skill for refinement against the same live preview. If the host
-can run parallel workers, a design worker may prepare tokens, assets, and signature beats before that
-milestone while the primary worker owns the narrative and MDX; never let two workers edit the same
-visual source. After design and authoring settle, let `drever-review-deck` launch the isolated
+can run parallel workers, begin factual research and a read-only art-direction or asset lane after
+the preview publication while one primary worker remains the only writer of MDX, Theme, Stage, and
+CSS. Never wait for an optional lane before publishing preview, and never let two workers edit the
+same visual source. After design and authoring settle, let `drever-review-deck` launch the isolated
 Playwright rendered review for the final source; never duplicate that browser gate during Draft 1.
 The design pass is incomplete until `design/art-direction.md` contains the complete Scene and
 Handoff maps required by that skill and their decisions are implemented in the live deck.

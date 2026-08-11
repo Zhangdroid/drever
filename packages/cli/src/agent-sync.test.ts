@@ -199,9 +199,19 @@ describe("agent kit sync", () => {
     );
     expect(createDesign).toMatch(/Record each in `art-direction\.md`/iu);
     expect(createDesign).toMatch(/generic fade or slide entrance alone/iu);
+    expect(createDesign).toMatch(
+      /unchanged focal artifact[^.]*supporting feedback[^.]*not a signature transformation/iu,
+    );
+    expect(createDesign).toMatch(/recurring\s+Stage path[^.]*subordinate atmosphere/iu);
     expect(createDesign).toMatch(/implementation receipt/iu);
+    expect(createDesign).toMatch(/before pixels[^.]*after pixels[^.]*artifact that changes/iu);
     expect(reviewDeck).toMatch(/coherent visual-story arc/iu);
     expect(reviewDeck).toMatch(/passing implementation gate for every planned signature moment/iu);
+    expect(reviewDeck).toMatch(/pixel-first verdict/iu);
+    expect(reviewDeck.indexOf("pixel-first verdict")).toBeLessThan(
+      reviewDeck.indexOf("Only after the pixel-first verdict"),
+    );
+    expect(reviewDeck).toMatch(/unchanged artifact[^.]*receipt[^.]*fails this gate/iu);
   });
 
   it("installs a latency-bounded exact Studio question publication contract", async () => {
@@ -289,14 +299,16 @@ describe("agent kit sync", () => {
     const authorDeck = await read(root, ".agents/skills/drever-author-deck/SKILL.md");
     const openai = await read(root, ".agents/skills/drever-create-deck/agents/openai.yaml");
 
-    expect(createDeck).toContain("<!-- drever-preview-contract:v6 -->");
+    expect(createDeck).toContain("<!-- drever-preview-contract:v7 -->");
     expect(createDeck).toMatch(/Reuse the development server already serving/iu);
     expect(createDeck).toMatch(/first useful preview/iu);
     expect(createDeck).toMatch(/bounded semantic pass[^.]*content-complete Draft 1/iu);
     expect(createDeck).toMatch(/embedded audience\s+iframe[^.]*HMR/iu);
-    expect(createDeck).toMatch(/only pre-preview gate[^.]*drever check --json/iu);
+    expect(createDeck).toMatch(/only pre-preview gate[^.]*one source check/iu);
+    expect(createDeck).toMatch(/publish `preview` in that same action immediately/iu);
+    expect(createDeck).toMatch(/Draft 1 before loading\s+`drever-create-design`/iu);
     expect(createDeck).toMatch(/do not start or restart a second\s+server/iu);
-    expect(createDeck).toMatch(/Before that publication[^.]*do not invoke Playwright/iu);
+    expect(createDeck).toMatch(/Before that publication[^.]*do not\s+invoke Playwright/iu);
     expect(createDeck).toMatch(/non-blocking update/iu);
     expect(createDeck).toMatch(/continue in the same turn/iu);
     expect(createDeck).toMatch(/isolated\s+Playwright rendered review[^.]*final source/iu);
@@ -305,7 +317,7 @@ describe("agent kit sync", () => {
       /Never use `data:`,\s+`blob:`, or `javascript:` URLs as CSS `@import`/iu,
     );
     expect(createDeck).toMatch(/one\s+production build[^.]*requested PDF export/iu);
-    expect(createDeck).toMatch(/design worker may prepare[^.]*primary worker owns/iu);
+    expect(createDeck).toMatch(/begin factual research[^.]*after\s+the preview publication/iu);
     expect(authorDeck).toMatch(/Expose an approved Draft 1 without blocking on polish/iu);
     expect(authorDeck).toMatch(
       /Keep the active Studio server, URL, and embedded audience iframe/iu,
@@ -381,7 +393,7 @@ describe("agent kit sync", () => {
     expect(createDesign).toMatch(
       /Prepare replacement Theme CSS[^.]*while they are still unreferenced/iu,
     );
-    expect(createDeck).toMatch(/Do not\s+publish a hybrid frame/iu);
+    expect(createDeck).toMatch(/Do\s+not expose a hybrid frame/iu);
     expect(reviewDeck).toMatch(
       /conflicting starter rail\/background[^.]*blocking contract drift/iu,
     );
@@ -419,9 +431,12 @@ describe("agent kit sync", () => {
     expect(agents).toMatch(/edit to an authored deck[^.]*does not restart that gate/iu);
 
     expect(createDeck).toMatch(
-      /approve-plan` handoff[^.]*bounded semantic pass[^.]*Draft 1 before starting design research or\s+refinement/iu,
+      /approve-plan` handoff[^.]*bounded semantic pass[^.]*Draft 1 before loading\s+`drever-create-design`/iu,
     );
     expect(createDeck).toMatch(/load the\s+project-local `drever-create-design`[^.]*refinement/iu);
+    expect(createDeck).toMatch(/semantic Studio state as the source of truth/iu);
+    expect(createDeck).toMatch(/Vite stdout is quiet[^.]*no HMR line/iu);
+    expect(createDeck).toMatch(/no\s+`continue` message is required/iu);
 
     for (const contents of [createDeck, createDesign, authorDeck, deliverDeck]) {
       expect(contents).not.toContain("drever check --rendered");

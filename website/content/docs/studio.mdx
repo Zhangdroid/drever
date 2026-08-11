@@ -16,6 +16,9 @@ open a browser.
 
 The Creation room belongs to that running development command. Keep its terminal or supervised
 agent task alive while you review and revise the deck; ending the parent process also ends Studio.
+The terminal prints deduplicated Studio action and phase changes even when Vite itself is quiet.
+Coding-agent supervisors use those lines—or `drever studio status --json`—as the source of truth;
+they do not require a chat `continue` message to keep an already active managed agent working.
 
 When the original request already names the subject, pass it once as `--topic "React 19 changes"`.
 Studio prefills the Brief but still waits for the user to confirm it; if no topic was supplied, open
@@ -53,9 +56,10 @@ read-only `/storyboard` route for approval. The persisted files and approval bou
 
 <h2 id="live-draft">Direct the live draft without restarting it</h2>
 
-After approval, the agent publishes a complete, valid Draft 1 atomically. Studio never treats a
-token-streamed fragment of MDX as a presentation. The real deck appears only when it can render as
-one coherent draft.
+After approval, the agent publishes a complete, valid Draft 1 atomically. It writes the whole
+content draft, runs the source check once, and exposes that stable preview before optional research,
+custom art direction, or motion refinement. Studio never treats a token-streamed fragment of MDX as
+a presentation, but it also does not hold the first useful preview until final polish is complete.
 
 Use the slide rail to select the current preview. Feedback has an independent scope:
 

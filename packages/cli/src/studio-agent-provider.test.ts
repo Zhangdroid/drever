@@ -104,10 +104,14 @@ describe("Studio action workflow instructions", () => {
     expect(instructions).toMatch(/safe-area or content-inset policy/iu);
     expect(instructions).toMatch(/Treat those bounds as locked/iu);
     expect(instructions).toMatch(/project-local `drever check --json`[^.]*package manager/iu);
+    expect(instructions).toMatch(/exactly once[^.]*blocking source diagnostic/iu);
     expect(instructions).toMatch(/active Studio development server[^.]*embedded preview iframe/iu);
     expect(instructions).toMatch(/HMR reveal the draft/iu);
+    expect(instructions).toMatch(/do not load the design skill[^.]*write art-direction\.md/iu);
+    expect(instructions).toMatch(/write art-direction\.md, replace Theme or Stage configuration/iu);
     expect(instructions).toMatch(/do not start or restart another development server/iu);
     expect(instructions).toMatch(/Before preview[^.]*do not[^.]*invoke Playwright/iu);
+    expect(instructions).toMatch(/Publish preview in the same action immediately/iu);
     expect(instructions).toMatch(/isolated rendered review only after the final authored source/iu);
     expect(instructions).toMatch(/last-known-good canvas[^.]*safe area[^.]*immutable geometry/iu);
     expect(instructions).toMatch(/revert it before publishing[^.]*redesign it/iu);

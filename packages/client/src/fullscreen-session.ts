@@ -47,10 +47,13 @@ export const createFullscreenSession = ({
   schedule = scheduleTimeout,
 }: CreateFullscreenSessionOptions): FullscreenSession => {
   let activeWakeLock: ActiveWakeLock | undefined;
+  let activeLifecycle = 0;
   let cancelCursorIdle: (() => void) | undefined;
   let disposed = false;
+  let lastActive = false;
   let pendingWakeLock: Promise<void> | undefined;
   let unsupportedReported = false;
+  let wakeLockRequestFailed = false;
 
   const isFullscreen = (): boolean => document.fullscreenElement !== null;
   const isActive = (): boolean =>
@@ -113,7 +116,12 @@ export const createFullscreenSession = ({
     sentinel.addEventListener("release", onRelease);
   };
   const requestWakeLock = (): void => {
-    if (!isActive() || activeWakeLock !== undefined || pendingWakeLock !== undefined) {
+    if (
+      !isActive() ||
+      activeWakeLock !== undefined ||
+      pendingWakeLock !== undefined ||
+      wakeLockRequestFailed
+    ) {
       return;
     }
     const manager = (document.defaultView?.navigator as WakeLockNavigator | undefined)?.wakeLock;
@@ -130,6 +138,7 @@ export const createFullscreenSession = ({
       return;
     }
 
+    const requestLifecycle = activeLifecycle;
     const request = Promise.resolve()
       .then(() => manager.request("screen"))
       .then(
@@ -137,19 +146,26 @@ export const createFullscreenSession = ({
           if (pendingWakeLock === request) {
             pendingWakeLock = undefined;
           }
-          if (isActive()) {
+          if (isActive() && activeLifecycle === requestLifecycle) {
             retainWakeLock(sentinel);
           } else {
             releaseSentinel(sentinel);
+            if (isActive()) {
+              requestWakeLock();
+            }
           }
         },
         (cause: unknown) => {
           if (pendingWakeLock === request) {
             pendingWakeLock = undefined;
           }
-          if (!isActive()) {
+          if (!isActive() || activeLifecycle !== requestLifecycle) {
+            if (isActive()) {
+              requestWakeLock();
+            }
             return;
           }
+          wakeLockRequestFailed = true;
           onError(
             wakeLockError(
               "DREVER_CLIENT_WAKE_LOCK_REQUEST_FAILED",
@@ -162,8 +178,14 @@ export const createFullscreenSession = ({
     pendingWakeLock = request;
   };
   const synchronize = (): void => {
+    const active = isActive();
+    if (active !== lastActive) {
+      lastActive = active;
+      activeLifecycle += 1;
+      wakeLockRequestFailed = false;
+    }
     armCursorTimer();
-    if (isActive()) {
+    if (active) {
       requestWakeLock();
     } else {
       releaseWakeLock();

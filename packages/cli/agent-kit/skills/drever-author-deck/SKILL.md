@@ -43,14 +43,16 @@ first-pass mode before the normal refinement workflow. Author every approved sli
 end-to-end pass with real readable copy, required evidence, a simple focal artifact, and speaker
 notes. Keep the visual system deliberately simple but safe and coherent on the exact approved or
 configured canvas and safe-area policy. Do not leave placeholder
-slides, and do not begin bespoke design research, optional asset work, or elaborate motion before
-the whole content draft exists.
+slides, load the design skill, write art-direction, replace Theme or Stage configuration, or begin
+bespoke design research, optional asset work, or elaborate motion before the whole content draft is
+visible.
 
 Keep the active Studio server, URL, and embedded audience iframe. Let HMR update that iframe; do not
 start or restart another development server, open a second browser or audience window, or invoke
 Playwright or other browser automation before preview. Run only the source check
-`npm exec -- drever check --json`, repair blocking source diagnostics, and publish `preview` as soon
-as it passes. Then refine the same live draft with `drever-create-design`. Only after the final
+`npm exec -- drever check --json` once after the complete write, rerun only to repair blocking source
+diagnostics, and publish `preview` in the same action as soon as it passes. Then refine the same live
+draft with `drever-create-design`. Only after the final
 authored source is stable should `drever-review-deck` own the isolated rendered browser review and
 `drever-deliver-deck` own the production build or export. This fast path applies only to the initial
 approved Draft 1; later edits follow the affected-route and review rules below.
