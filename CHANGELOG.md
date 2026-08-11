@@ -5,6 +5,8 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-08-10
+
 Release impact: **minor** — this batch hardens the managed Studio handoff and adds inspectable
 subject-led design plus an analysis-only post-draft review workflow.
 
@@ -804,7 +806,8 @@ capabilities.
 - Added parallel source, unit, package, browser, export, and website checks in CI.
 - Deployed the prerendered public website and per-branch previews through Cloudflare Pages.
 
-[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.16.0...HEAD
+[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.17.0...HEAD
+[0.17.0]: https://github.com/Zhangdroid/drever/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/Zhangdroid/drever/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/Zhangdroid/drever/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/Zhangdroid/drever/compare/v0.13.1...v0.14.0
