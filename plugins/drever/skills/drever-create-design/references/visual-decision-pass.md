@@ -36,8 +36,8 @@ state why a short type-led scene is the clearest form. Never use unreadable micr
 
 Create one row for every adjacent slide edge:
 
-| Edge | Carried idea or object | Relationship | Technique | Fixed geometry | Reverse behavior |
-| ---- | ---------------------- | ------------ | --------- | -------------- | ---------------- |
+| Edge | Carried idea or object | Relationship | Technique | Arrival owner | Fixed geometry | Reverse behavior |
+| ---- | ---------------------- | ------------ | --------- | ------------- | -------------- | ---------------- |
 
 Classify `Relationship` as one of:
 
@@ -47,6 +47,13 @@ Classify `Relationship` as one of:
 - `same-scene-state`: the scene stays in place while one state changes;
 - `chapter-boundary`: the argument changes scene or atmosphere;
 - `unrelated`: the new slide starts a different visual thought.
+
+Give every edge exactly one **Arrival owner**: `native/document capture`, `local live DOM`,
+`destination Step`, or `none`. If native capture owns arrival, the destination payload is already
+settled when capture finishes; never run a mount-, active-slide-, or delayed entrance on that same
+payload afterward. If destination live DOM owns arrival, declare the edge local before capture.
+Use a destination Step only when presenter navigation intentionally owns the reveal. One edge cannot
+combine two arrival owners.
 
 Choose the handoff with this priority:
 
@@ -60,7 +67,7 @@ Choose the handoff with this priority:
    boundaries. `id` does not name a continuity boundary.
 2. For `semantic-successor`, look for one stable shared feature and use continuity when the audience
    needs to track that feature through the change. Share only that feature, not the entire
-   composition. Narrative adjacency or a shared topic alone is not a semantic successor: the
+   composition. Narrative adjacency, related subject matter, or a shared topic alone is not a semantic successor: the
    audience must be able to name the exact carried evidence object, state, or stable feature.
 3. For `same-scene-state`, keep the frame live and stationary; use a Step or local live-DOM change
    instead of snapshotting the whole scene.
@@ -165,13 +172,39 @@ Use motion as a verb that describes what the content is doing:
 | A metric changes                                | Animate the changed mark and its stable-width number from one frame source               |
 | An image first arrives as evidence              | Reserve final geometry, then fade with a small rise or mask reveal                       |
 | An object physically enters the described scene | Travel from the meaningful direction, including from below when the story says it enters |
-| Related wording changes                         | Fixed-slot local mask, rotating, decrypted, or draw-on text effect                       |
+| Related wording changes                         | Fixed-slot local sequential dissolve, mask, rotating, decrypted, or draw-on text effect  |
 | A chapter or closing payoff begins              | Transition one persistent Stage sub-layer, then settle the content                       |
 
 Do not send an image from below merely because image entrances need variety. Do not reuse the same
 fade-and-slide entrance on every slide. Keep a media frame stationary after its first arrival and
 change crop, annotation, or context when the same evidence continues. Retire it cleanly when it no
 longer carries the argument; never leave an unexplained fragment below or beside the next slide.
+
+## Require a visible consequence
+
+Before implementing any non-`none` motion owner, write its compact acceptance chain in
+`art-direction.md`: **start state → semantic verb → settled evidence → reverse/reduced-motion
+behavior**. The verb must describe what the audience learns or tracks—such as compare, connect,
+approve, reveal, verify, or transfer—not merely `move`, `fade`, `scan`, or `animate`.
+
+Judge the motion from both its initial and settled frames. The settled frame must retain the result
+that the motion explained. A transient sweep, tracer, cursor, shimmer, glow, confetti burst, or scan
+may disappear only after it lands on, changes, or leaves behind a persistent artifact, annotation,
+selection, status, or verified result. If the effect vanishes and the slide means exactly the same
+thing, remove it; decorative activity is not a signature moment.
+
+For related wording, keep the parent layout and one explicitly sized text slot stationary. Place the
+old and new live-DOM strings in that slot with identical font metrics and wrapping, let the old state
+exit before the new state reveals, and use only a restrained opacity, blur, mask, or small-axis
+translation. Never give changing glyphs a shared View Transition identity or scale their captured
+bitmap. Reduced motion renders the final string immediately.
+
+Reject a motion plan before implementation when any of these questions has no concrete answer:
+
+- What single object should the audience follow?
+- What meaning changes while it moves?
+- What visible evidence remains when it stops?
+- What must stay geometrically invariant through the forward and reverse path?
 
 Give each moment one primary motion and at most one quieter cue in the same causal chain. Covers,
 section boundaries, and closes may carry a distinctive draw, atmosphere, or object transformation,

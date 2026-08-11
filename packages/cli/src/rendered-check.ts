@@ -14,11 +14,14 @@ import { analyzeRenderedCheckFrames } from "./rendered-check-analysis.ts";
 import { captureRenderedCheckFrame, type RenderedCheckFrame } from "./rendered-check-browser.ts";
 import {
   hashRenderedEvidenceInput,
+  inspectRenderedMotion,
   invalidateRenderedEvidence,
   writeRenderedEvidence,
   type RenderedEvidenceState,
   type RenderedSettledCapture,
 } from "./rendered-evidence.ts";
+import { analyzeRenderedPostTransitionEntrances } from "./rendered-motion-analysis.ts";
+import type { RenderedPostTransitionEntrance } from "./rendered-motion-browser.ts";
 import { buildDreverInspectionApp, resolvePrivateAppOptions } from "./vite-app.ts";
 
 const CHECK_TIMEOUT = 30_000;
@@ -290,21 +293,36 @@ export const checkRenderedProject = async (
       }
     });
     await context.close();
-    capturedDiagnostics = analyzeRenderedCheckFrames(frames);
-    const evidence =
-      options.evidenceDirectory === undefined || inputSha256 === undefined
-        ? undefined
-        : await writeRenderedEvidence({
-            browser,
-            browserVersion,
-            canvas,
-            inputSha256,
-            ...(locale === undefined ? {} : { locale }),
-            origin,
-            output: options.evidenceDirectory,
-            settledCaptures,
-            states,
-          });
+    const motionEvidence: RenderedPostTransitionEntrance[] = [];
+    let evidence: Awaited<ReturnType<typeof writeRenderedEvidence>> | undefined;
+    if (options.evidenceDirectory === undefined || inputSha256 === undefined) {
+      motionEvidence.push(
+        ...(await inspectRenderedMotion({
+          browser,
+          canvas,
+          ...(locale === undefined ? {} : { locale }),
+          origin,
+          states,
+        })),
+      );
+    } else {
+      evidence = await writeRenderedEvidence({
+        browser,
+        browserVersion,
+        canvas,
+        inputSha256,
+        ...(locale === undefined ? {} : { locale }),
+        origin,
+        output: options.evidenceDirectory,
+        onMotionEvidence: (findings) => motionEvidence.push(...findings),
+        settledCaptures,
+        states,
+      });
+    }
+    capturedDiagnostics = [
+      ...analyzeRenderedCheckFrames(frames),
+      ...analyzeRenderedPostTransitionEntrances(motionEvidence),
+    ];
     return {
       diagnostics: capturedDiagnostics,
       receipt: receipt(project, {

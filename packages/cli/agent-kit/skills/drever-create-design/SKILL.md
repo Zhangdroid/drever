@@ -231,9 +231,12 @@ Before implementing the refined visual system, read
 [`references/visual-decision-pass.md`](references/visual-decision-pass.md) completely and apply it
 to this deck. Add its complete Scene map and Handoff map to `art-direction.md`; every slide and every
 adjacent edge must have a concrete decision. Treat those maps as implementation contracts, not
-planning decoration. A related focal object should normally carry continuity into the next slide;
-when a native View Transition is unsafe, record the exact geometry, wrapping, crop, or accessibility
-reason and use the reference's local alternative instead of silently dropping the relationship.
+planning decoration. The maps must name one semantic result for every non-`none` motion owner and
+exactly one arrival owner for every edge. Reject effect-only owners and any edge that combines native
+capture with a destination replay. Use continuity only when adjacent endpoints carry the same object
+or an immediately legible semantic successor; related subject matter alone does not earn a shared
+transition. When a native View Transition is unsafe, record the exact geometry, wrapping, crop, or
+accessibility reason and use the reference's local alternative.
 
 Use the reference's evidence decision tree before decoration. When image generation is available, generate
 subject-specific conceptual imagery only where it improves explanation or a signature scene, never
@@ -404,6 +407,7 @@ When a slide pairs a text-heavy narrative region with supporting content, make t
 
 - Give each moment one primary motion and at most one quieter cue in the same causal chain. Count native transitions, Steps, kinetic type, video, 3D, and third-party animation against that one budget.
 - Establish a concrete claim, evidence, and decision before adding choreography. Motion cannot rescue abstract copy.
+- For a multi-slide custom deck, choose two to four signature moments before implementation. At least one must transform a subject-specific focal artifact, evidence state, or related wording; a generic entrance, card stagger, or decorative loop does not qualify by itself. Implement these moments in Design Pass 1 instead of promising to add them after review.
 - Give the deck one theme-led transition vocabulary, not one mandatory effect. Its cadence may mix direct cuts, restrained fades, local live-DOM handoffs, Steps, and a few continuity transitions when those choices share the subject's timing and gesture. A traditional or minimal deck may use mostly cuts and almost no navigation animation. Use directional travel only when spatial progression matters, and never run a View Transition on every edge merely to make the deck feel consistent.
 - When designing a catalog or a family of reference decks, distinguish the systems structurally as well as cosmetically. Vary narrative length, density, composition silhouettes, transition cadence, Step grammar, and signature moments; seven recolored versions of one three-slide, left-copy/right-artifact continuity sequence are one design, not seven.
 - Plan a key object's narrative lifecycle instead of a series of entrances. It may begin completely off-stage, enter as evidence, dock at lower contrast when it becomes context, and retire when it stops supporting the claim. When one concrete artifact keeps carrying the argument, build a short connected sequence around it: let the surrounding context or surface change while the artifact remains recognizable, and give it a distinct narrative job on every slide. Show a fragment only when that fragment creates useful anticipation; never leave a meaningless clipped sliver.
@@ -416,6 +420,8 @@ When a slide pairs a text-heavy narrative region with supporting content, make t
 - Use continuity for the same object or for adjacent objects with a clear semantic or visual correspondence. Share the smallest stable feature that makes the relationship legible; color or shape alone is insufficient. Keep endpoint geometry, type metrics, wrapping, paint, shadows, and media crop explicit, and count the handoff as the moment's primary motion. A shared snapshot must not interpolate between incompatible boxes: give both endpoints the same explicit inline size, block size, aspect ratio, and `box-sizing`, then move that fixed shell through parent layout. If preserving the two silhouettes matters more than invariant geometry, stop sharing the identity and use a cut, replacement, or restrained dissolve. A grow-then-shrink impression is a geometry mismatch, not an easing problem.
 - Do not preserve an artifact across every slide simply because continuity is available. End a continuity sequence when its object stops carrying the argument, and use `SlideTransition mode="local"` for an exact edge that should cut directly or let destination-side live DOM own the change.
 - Give each moving indicator one visual role. A cursor or focus reticle has a recognizable hotspot that lands exactly on a target; anchor a text caret inside the same inline wrapper as the final word instead of positioning it against the surrounding panel. A route signal remains centered on its path and reaches the real endpoint. Keep the marker and milestones in one local positioned coordinate system instead of using travel distances measured from another container.
+- Give every transient cue a visible consequence. A sweep, tracer, scan, shimmer, cursor, or burst may disappear only after it lands on, changes, or leaves behind a persistent artifact, annotation, selection, status, or verified result. If the settled slide communicates no result from the cue, remove it rather than polishing the effect.
+- When related wording changes, use one stationary, explicitly sized live-DOM text slot. Keep font metrics and wrapping invariant, finish the old text's restrained exit before revealing the new text, and use only opacity, blur, a mask, or a small-axis translation. Never scale changing glyphs or put them in one native continuity snapshot.
 - Never stretch text or boxes, hard-clip painted shadows, switch a shadow from `none`, or animate a recurring motif merely because it exists. Treat repeated accents as layout anchors: keep their position and geometry identical across adjacent slides unless a meaningful chapter, comparison, or state change requires a move. Make that exception legible and hold its new position long enough to read as intentional.
 - Size every animated or spatial component for its largest transformed and painted footprint across the whole sequence. At maximum expansion, 2D or 3D layers must retain clear space from tracks, labels, and adjacent copy. Give full-canvas scenes one stable positioned slide-relative root with explicit `inset: 0`; contain paint at that outer scene boundary while preserving the required shadows, glows, filters, and outlines of inner surfaces.
 - Add quiet delight only when it emphasizes the slide's claim. Respect reduced motion and deterministic export.
@@ -466,6 +472,12 @@ loopback server and Playwright browser.
    Check intermediate motion frames in both directions for coordinate rebasing, activation timing,
    and paint containment, not only endpoints. Treat this live-preview pass as iteration evidence,
    not the final rendered completion gate.
+   For every signature moment and every unfamiliar transition, inspect the initial frame, one early
+   frame, the visual midpoint, the settled frame, and the reverse path. Continue observing briefly
+   after native navigation settles: no destination content may replay a second entrance. Compare
+   the motion with its recorded acceptance chain and reject a transient cue that leaves no visible
+   result, a text swap that changes its slot geometry, or any frame that stretches glyphs, rules,
+   panels, or shadows.
    Check safe areas, panel padding, line measure, line height, optical alignment, and contrast in
    every inspected state. Confirm that the selected content-to-scene recipe still serves the claim
    after rendering; replace a clever but illegible or purposeless treatment with the quieter

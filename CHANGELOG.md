@@ -5,6 +5,24 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+## [0.17.1] - 2026-08-11
+
+Release impact: **patch** — this batch makes authored motion explain a visible state change and
+strengthens the generated deck's intermediate-frame review.
+
+### Changed
+
+- Made the installed design and review workflows require a semantic start-to-result chain for every
+  prominent motion. Transient scans, sweeps, cursors, and similar cues must now leave a visible
+  result, while related wording uses a fixed live-DOM slot instead of scaling captured glyphs.
+- Expanded the motion review pass beyond the deterministic early-frame capture: signature moments
+  must also be checked at their visual midpoint, settled state, reverse path, and briefly after
+  navigation so duplicate destination entrances cannot hide behind a valid endpoint. Rendered
+  preflight ruleset 5 now reports the high-confidence form of that defect as
+  `DREVER_RENDER_POST_TRANSITION_ENTRANCE`.
+- Refined the Product showcase's validation and multi-surface beats around persistent results and a
+  stable sequential text transformation.
+
 ## [0.17.0] - 2026-08-10
 
 Release impact: **minor** — this batch hardens the managed Studio handoff and adds inspectable
@@ -806,7 +824,8 @@ capabilities.
 - Added parallel source, unit, package, browser, export, and website checks in CI.
 - Deployed the prerendered public website and per-branch previews through Cloudflare Pages.
 
-[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.17.0...HEAD
+[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.17.1...HEAD
+[0.17.1]: https://github.com/Zhangdroid/drever/compare/v0.17.0...v0.17.1
 [0.17.0]: https://github.com/Zhangdroid/drever/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/Zhangdroid/drever/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/Zhangdroid/drever/compare/v0.14.0...v0.15.0

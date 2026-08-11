@@ -4,11 +4,10 @@ import type { ReactElement } from "react";
 const page = (value: number): string => String(value).padStart(2, "0");
 
 const chapter = (slideIndex: number): string => {
-  if (slideIndex < 7) return "01 · Create";
-  if (slideIndex < 10) return "02 · Direct";
-  if (slideIndex < 13) return "03 · Carry";
-  if (slideIndex < 15) return "04 · One story";
-  return "05 · Begin";
+  if (slideIndex < 5) return "01 · Create";
+  if (slideIndex < 7) return "02 · Direct";
+  if (slideIndex < 8) return "03 · Carry";
+  return "04 · Begin";
 };
 
 const signalPosition = (slideIndex: number, slideCount: number): string => {
@@ -20,9 +19,6 @@ export default function ProductTourForeground({
   manifest,
   position,
 }: StageLayerProps): ReactElement {
-  const storyState =
-    position.slideIndex === 13 ? "source" : position.slideIndex === 14 ? "result" : undefined;
-
   return (
     <div
       aria-hidden="true"
@@ -32,19 +28,6 @@ export default function ProductTourForeground({
       <span className="tour-stage-foreground__signal" data-testid="tour-stage-signal">
         <i />
       </span>
-      {storyState === undefined ? null : (
-        <div
-          className="tour-stage-foreground__story"
-          data-story-state={storyState}
-          data-testid="tour-stage-story"
-        >
-          <span>One story,</span>
-          <span className="tour-stage-foreground__story-slot">
-            <strong data-story-copy="source">made once.</strong>
-            <strong data-story-copy="result">alive everywhere.</strong>
-          </span>
-        </div>
-      )}
       <div className="tour-stage-foreground__footer">
         <span>Drever · {chapter(position.slideIndex)}</span>
         <span data-testid="tour-stage-page-number">

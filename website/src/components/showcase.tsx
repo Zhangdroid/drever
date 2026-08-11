@@ -310,7 +310,7 @@ export function HomeShowcaseCover({ kind }: { kind: "motion" | "product" }) {
       <div className="home-showcase-cover home-showcase-cover--product" aria-hidden="true">
         <div className="home-showcase-cover__meta">
           <span>Live product story</span>
-          <small>09 / 16</small>
+          <small>08 / 09</small>
         </div>
         <div className="home-product-cover__statement">
           <strong>The room</strong>
@@ -332,7 +332,7 @@ export function HomeShowcaseCover({ kind }: { kind: "motion" | "product" }) {
           <div data-surface="document">
             <span>Document</span>
             <strong>The exact moment stays readable.</strong>
-            <small>/9/2 · searchable</small>
+            <small>/7/2 · searchable</small>
           </div>
         </div>
         <small className="home-product-cover__promise">One story · every useful surface</small>

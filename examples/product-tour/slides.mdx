@@ -1,15 +1,12 @@
 import {
   AudienceSignal,
   ContentStoryboard,
-  DecisionProof,
-  DraftFeedback,
-  LiveDraft,
-  RenderedReview,
+  DraftReview,
+  DraftWall,
   RoomResponse,
-  SignalOutcome,
-  StudioBrief,
-  StudioDirection,
-  StoryCore,
+  SignalDecision,
+  StorySurfaces,
+  StudioPlan,
 } from "./TourComponents.tsx";
 import "@drever/brand/fonts.css";
 import "@drever/brand/tokens.css";
@@ -30,7 +27,9 @@ import "./tour.css";
       <span className="tour-cover__shift">Your deck should too.</span>
     </h1>
     <p>
-      Shape the story with your agent. Direct what happens live. Keep every moment useful afterward.
+      {
+        "Shape the story with your agent. Direct what happens live. Keep every moment useful afterward."
+      }
     </p>
     <small>Drafted by an agent · Directed by you</small>
   </div>
@@ -44,91 +43,84 @@ import "./tour.css";
 
 ---
 
-## Start with what<br />the room must decide.
-
-<p>One local room turns a plain-language outcome into shared presentation constraints.</p>
-
-<StudioBrief />
+<section className="tour-studio-scene">
+  <header className="tour-studio-scene__header">
+    <h2>
+      <span>Start with the decision.</span>
+      <br />
+      <span>Shape only what matters.</span>
+    </h2>
+    <p>A plain-language brief becomes one question that can actually change the story.</p>
+  </header>
+  <StudioPlan>
+    <Step at={1}>Direction shaped · evidence now has a job</Step>
+  </StudioPlan>
+</section>
 
 <Note>
-  A person starts with the outcome, not MDX or a configuration file. Studio keeps the topic,
-  audience, duration, visible density, and motion direction together while the local agent remains
-  the one doing the work.
+  Advance once. Studio preserves the audience, duration, and desired outcome, then uses them to ask
+  one topic-specific question. The brief does not become a generic questionnaire or disappear into a
+  hidden process.
 </Note>
 
 ---
 
-## Ask only what<br />changes the story.
-
-<p>The next question comes from this launch decision—not a generic form.</p>
-
-<StudioDirection />
+<section className="tour-studio-scene">
+  <header className="tour-studio-scene__header">
+    <h2>
+      <span>Approve the story</span>
+      <br />
+      <span>before the styling.</span>
+    </h2>
+    <p>Four clear jobs form one argument while changing them is still cheap.</p>
+  </header>
+  <ContentStoryboard>
+    <Step at={1}>Approved · authoring may begin</Step>
+  </ContentStoryboard>
+</section>
 
 <Note>
-  A useful direction question changes the content that follows. Choosing unaided completion makes
-  the later evidence and decision specific without asking the user to design the slide in advance.
+  Advance once. A signal crosses Opening, Question, Evidence, and Decision before the Storyboard
+  locks. Layout and motion wait until the content sequence is approved.
 </Note>
 
 ---
 
-## Approve the story<br />before the styling.
-
-<p>Review slide jobs, evidence, and sequence while changing them is still cheap.</p>
-
-<ContentStoryboard>
-  <Step at={1}>Approved · authoring may begin</Step>
-</ContentStoryboard>
+<section className="tour-studio-scene">
+  <header className="tour-studio-scene__header">
+    <h2>See the whole draft early.</h2>
+    <p>One reviewable seed opens into the complete story—not a single polished sample slide.</p>
+  </header>
+  <DraftWall>
+    <Step at={1}>Draft 1 · 12 slides · ready to review</Step>
+  </DraftWall>
+</section>
 
 <Note>
-  Advance once to approve. This Storyboard is content-first: it records what each slide must do, why
-  it exists, the evidence it needs, and its anchor artifact. Per-slide layout and motion wait for
-  the design pass instead of constraining the story too early.
+  Advance once. The first complete draft unfolds as a twelve-slide wall, with the requested evidence
+  page held slightly forward. Every slide and its speaker notes exist before polish begins.
 </Note>
 
 ---
 
-## See the whole draft early.
-
-<p>The complete story arrives atomically in the real presentation runtime.</p>
-
-<LiveDraft />
-
-<Note>
-  Draft 1 is complete enough to review: every slide exists, the copy is readable, and speaker notes
-  are already connected. The agent continues research and refinement beside the same live preview
-  instead of hiding all work behind a production build.
-</Note>
-
----
-
-## Direct one slide—<br />or the whole deck.
-
-<p>Feedback scope changes without moving the slide you are currently reviewing.</p>
-
-<DraftFeedback>
-  <Step at={1}>Request sent · the same draft stays live</Step>
-</DraftFeedback>
+<section className="tour-studio-scene">
+  <header className="tour-studio-scene__header">
+    <h2>
+      <span>Direct the draft.</span>
+      <br />
+      <span>Prove it still holds.</span>
+    </h2>
+    <p>Human direction and rendered evidence work on the same live preview.</p>
+  </header>
+  <DraftReview>
+    <Step at={1}>Direction applied · the draft stays live</Step>
+    <Step at={2}>Rendered review complete · ready for the room</Step>
+  </DraftReview>
+</section>
 
 <Note>
-  Advance once to send the deck-wide direction. A person can target the current slide or the entire
-  deck while keeping the same preview position. The request updates normal project files; it does
-  not start a second hidden document.
-</Note>
-
----
-
-## Check every state—<br />not one lucky frame.
-
-<p>Stable browser evidence catches defects that taste alone cannot prove.</p>
-
-<RenderedReview>
-  <Step at={1}>Ready · the reviewed draft can move to the room</Step>
-</RenderedReview>
-
-<Note>
-  Advance once. Rendered review visits Step 0 and every exact authored Step, samples both transition
-  directions, and records safe-area, contrast, overlap, geometry, and runtime evidence. Visual
-  judgment remains human; repeatable defects become machine-readable repairs.
+  Advance once to apply the deck-wide direction without moving the selected slide. Advance again to
+  scan every exact Step for safe area, contrast, overlap, and geometry before presenting.
 </Note>
 
 ---
@@ -140,262 +132,36 @@ import "./tour.css";
 <AudienceSignal />
 
 <Note>
-  Choose a response, leave the slide, then return. The choice remains available to later authored
-  React and changes the next beat without turning the deck into a separate application.
+  Choose a response. The result changes immediately and remains available to the next authored
+  slide. Direct links without a prior choice use the evidence route as a deterministic default.
 </Note>
 
 ---
 
 ## The story follows the room.
 
-<SignalOutcome>
-  <Step at={1}>
-    <div className="tour-outcome__beat-row">
-      <span>01</span>
-      <strong>The concern becomes the next beat.</strong>
-    </div>
-  </Step>
-  <Step at={2}>
-    <div className="tour-outcome__beat-row">
-      <span>02</span>
-      <strong>Then the evidence arrives.</strong>
-    </div>
-    <MotionGroup className="tour-outcome__proof-inline" intent="continuity" name="decision-proof">
-      <DecisionProof />
-    </MotionGroup>
-  </Step>
-</SignalOutcome>
+<SignalDecision>
+  <Step at={1}>The requested evidence arrives.</Step>
+  <Step at={2}>Decision recorded · approve the three-team pilot</Step>
+</SignalDecision>
 
 <Note>
-  Advance twice. The first Step acknowledges the room. The second reveals one stable piece of
-  evidence. Direct links without a prior choice use the evidence route as a deterministic default.
+  Advance once to reveal the requested proof, then once more to lock the decision beneath it. The
+  order matters: acknowledge the room, show evidence, and only then ask for the move.
 </Note>
 
 ---
 
-## Now the room can decide.
+## One story, useful everywhere.
 
-<section className="tour-decision">
-  <div className="tour-decision__copy">
-    <span className="tour-kicker">The decision · now grounded</span>
-    <h2>Now the room can decide.</h2>
-    <p>Evidence stays visible while the next move becomes explicit.</p>
-    <MotionGroup className="tour-decision__confirmation" flow="block" intent="focus">
-      <Step at={1}>
-        <span>Decision recorded</span>
-        <strong>Approve the three-team pilot.</strong>
-        <small>Product · Legal · Sales</small>
-      </Step>
-    </MotionGroup>
-  </div>
-  <MotionGroup
-    className="tour-proof-position tour-proof-position--decision"
-    intent="continuity"
-    name="decision-proof"
-  >
-    <DecisionProof />
-  </MotionGroup>
-</section>
+<StorySurfaces>
+  <Step at={1}>Audience · Speaker · Exact link · Document</Step>
+</StorySurfaces>
 
 <Note>
-  The proof is exactly the same object from the previous slide. Advance once to record the decision
-  without replacing the evidence that made it possible.
-</Note>
-
----
-
-## You see<br />what the audience cannot.
-
-<p>Private context stays beside the same evidence—not on top of it.</p>
-
-<section className="tour-speaker" aria-label="Speaker view with private notes and next context">
-  <div className="tour-speaker__chrome">
-    <header>
-      <span>Speaker view</span>
-      <span>
-        08:42 <i /> 11:18 remaining
-      </span>
-    </header>
-    <div className="tour-speaker__current">
-      <span className="tour-kicker">Audience sees</span>
-      <MotionGroup intent="continuity" name="decision-proof">
-        <DecisionProof />
-      </MotionGroup>
-    </div>
-    <aside>
-      <div>
-        <span className="tour-kicker">Up next</span>
-        <strong>Approve the three-team pilot.</strong>
-      </div>
-      <div>
-        <span className="tour-kicker">Private note</span>
-        <p>Ask what still feels risky before confirming the decision.</p>
-      </div>
-      <footer>
-        <span>
-          <i data-tool="laser" /> Laser
-        </span>
-        <span>
-          <i data-tool="pen" /> Pen
-        </span>
-        <span>
-          <i data-tool="highlighter" /> Highlight
-        </span>
-      </footer>
-    </aside>
-  </div>
-</section>
-
-<Note>
-  Press P to open the real speaker view. It includes current and next previews, private notes,
-  timing, and synchronized Laser, Pen, and Highlighter tools.
-</Note>
-
----
-
-## Send the exact moment.
-
-<section className="tour-share">
-  <div className="tour-share__copy">
-    <span className="tour-kicker">A link to the state—not directions</span>
-    <h2>
-      <span>Send</span>
-      <br />
-      <span>the exact moment.</span>
-    </h2>
-    <p>Slide nine. Step two. The evidence the room asked for.</p>
-    <a
-      aria-label="Open the shared slide state in a new tab"
-      className="tour-state-link"
-      href="9/2"
-      rel="noopener"
-      target="_blank"
-    >
-      <span>your-deck.com/9/2</span>
-      <span aria-hidden="true">↗</span>
-    </a>
-    <small>Open · reload · go back · the state remains addressable</small>
-  </div>
-  <MotionGroup
-    className="tour-proof-position tour-proof-position--share"
-    intent="continuity"
-    name="decision-proof"
-  >
-    <DecisionProof />
-  </MotionGroup>
-</section>
-
-<Note>
-  The same proof becomes the shared moment. Path routes and history preserve both slide and Step
-  state on static hosting.
-</Note>
-
----
-
-## The story keeps working.
-
-<section className="tour-document">
-  <div className="tour-document__copy">
-    <span className="tour-kicker">After the room moves on</span>
-    <h2>
-      <span>The story</span>
-      <br />
-      <span>keeps working.</span>
-    </h2>
-    <p>Every Step becomes readable, searchable, and ready to revisit.</p>
-    <a
-      aria-label="Open Document View in a new tab"
-      className="tour-document__link"
-      href="document"
-      rel="noopener"
-      target="_blank"
-    >
-      Open Document View <span aria-hidden="true">↗</span>
-    </a>
-  </div>
-  <div
-    className="tour-document__page"
-    aria-label="A document containing the same decision evidence"
-  >
-    <header>
-      <span>Launch pilot · Decision record</span>
-      <kbd>⌘ F</kbd>
-    </header>
-    <div className="tour-document__intro">
-      <span>01 · Context</span>
-      <strong>Should we approve the launch pilot?</strong>
-      <i />
-      <i />
-    </div>
-    <MotionGroup intent="continuity" name="decision-proof">
-      <DecisionProof />
-    </MotionGroup>
-    <footer>
-      <span>02 · Evidence</span>
-      <span>03 · Decision</span>
-    </footer>
-  </div>
-</section>
-
-<Note>
-  Press D to open the real Document View. It exposes every Step in reading order instead of
-  flattening the presentation into screenshots.
-</Note>
-
----
-
-## One story, made once.
-
-<section className="tour-continuity-page tour-continuity-page--source">
-  <div className="tour-continuity-page__copy">
-    <span className="tour-kicker">A deliverable you can keep</span>
-    <p>Content, interaction, notes, and design remain one editable project.</p>
-  </div>
-  <MotionGroup className="tour-story-core-position" intent="continuity" name="story-core">
-    <StoryCore />
-  </MotionGroup>
-</section>
-
-<Note>
-  The story core is the same object in the same place on the next slide. The headline carries the
-  primary transition; the project itself remains visually stable.
-</Note>
-
----
-
-## One story, alive everywhere.
-
-<section className="tour-continuity-page tour-continuity-page--result">
-  <div className="tour-continuity-page__copy">
-    <span className="tour-kicker">One project · every useful surface</span>
-    <p>The same authored story meets each person in the form they need.</p>
-  </div>
-  <div className="tour-surfaces" aria-label="Audience, speaker, document, and export surfaces">
-    <div>
-      <span>Audience</span>
-      <strong>Live</strong>
-    </div>
-    <div>
-      <span>Speaker</span>
-      <strong>Guided</strong>
-    </div>
-    <div>
-      <span>Document</span>
-      <strong>Searchable</strong>
-    </div>
-    <div>
-      <span>Export</span>
-      <strong>Portable</strong>
-    </div>
-  </div>
-  <MotionGroup className="tour-story-core-position" intent="continuity" name="story-core">
-    <StoryCore />
-  </MotionGroup>
-</section>
-
-<Note>
-  The story core and stage hold still. Four surfaces appear as one quiet supporting consequence of
-  the headline changing from “made once” to “alive everywhere.”
+  The exact same proof arrives from the decision slide. Advance once to unfold Audience, Speaker,
+  exact-link, and Document contexts around it. The story stays authored once while each person gets
+  the surface they need.
 </Note>
 
 ---
@@ -431,6 +197,6 @@ import "./tour.css";
 </section>
 
 <Note>
-  Close on agency and a concrete product promise. Drever is for anyone with a story to tell, while
-  Your agent handles the first draft without taking away direction.
+  Close on agency and a concrete next action. Drever gives the agent room to build without taking
+  direction away from the person presenting.
 </Note>

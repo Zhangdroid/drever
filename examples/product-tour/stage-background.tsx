@@ -2,22 +2,22 @@ import { useAudienceSignal } from "./audience-signal.js";
 import type { StageLayerProps } from "drever";
 import type { ReactElement } from "react";
 
-const scene = (slideIndex: number): string => {
+const scene = (slideIndex: number, slideCount: number): string => {
   if (slideIndex === 0) return "opening";
-  if (slideIndex < 7) return "shape";
-  if (slideIndex === 7) return "room";
-  if (slideIndex < 13) return "evidence";
-  if (slideIndex < 15) return "continuity";
-  return "closing";
+  if (slideIndex === slideCount - 1) return "closing";
+  return "shape";
 };
 
-export default function ProductTourBackground({ position }: StageLayerProps): ReactElement {
+export default function ProductTourBackground({
+  manifest,
+  position,
+}: StageLayerProps): ReactElement {
   const signal = useAudienceSignal();
 
   return (
     <div
       className="tour-stage-background"
-      data-scene={scene(position.slideIndex)}
+      data-scene={scene(position.slideIndex, manifest.slides.length)}
       data-signal={signal ?? "idle"}
       data-testid="tour-stage-background"
     >

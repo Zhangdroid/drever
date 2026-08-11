@@ -237,7 +237,7 @@ test("rendered check catches high-confidence visual failures without writing a p
       expect.objectContaining({
         browserVersion: expect.any(String),
         engine: "chromium",
-        rulesetVersion: 4,
+        rulesetVersion: 5,
         stateCount: 5,
         status: "failed",
         version: 1,
@@ -440,7 +440,7 @@ test("rendered check blocks repeated full-canvas direct and pseudo background pa
       ({ code }) => code === "DREVER_RENDER_BACKGROUND_TRANSITIONED",
     );
 
-    expect(report.rendered).toMatchObject({ rulesetVersion: 4, stateCount: 4 });
+    expect(report.rendered).toMatchObject({ rulesetVersion: 5, stateCount: 4 });
     expect(backgroundDiagnostics).toHaveLength(2);
     expect(backgroundDiagnostics.map(({ details }) => details?.background)).toEqual(
       expect.arrayContaining([
@@ -448,6 +448,80 @@ test("rendered check blocks repeated full-canvas direct and pseudo background pa
         expect.objectContaining({ tag: "section::before" }),
       ]),
     );
+  } finally {
+    await rm(root, { force: true, recursive: true });
+  }
+});
+
+test("rendered check blocks a visible payload that re-enters after document navigation", async () => {
+  test.setTimeout(120_000);
+  const root = await realpath(await mkdtemp(join(tmpdir(), "drever-motion-owner-check-e2e-")));
+  try {
+    await writeFile(
+      join(root, "slides.mdx"),
+      `<style>{\`
+  :root {
+    --drever-motion-duration: 120ms;
+    --drever-motion-slide-offset: 0%;
+  }
+  [data-drever-slide][data-slide-state="active"] .post-transition-entrance {
+    animation: post-transition-entrance 180ms ease 280ms forwards;
+  }
+  [data-drever-slide][data-slide-state="active"] .sequenced-entrance {
+    animation: post-transition-entrance 180ms ease 280ms both;
+  }
+  @keyframes post-transition-entrance {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: none; }
+  }
+\`}</style>
+
+# Source state
+
+The document transition owns this handoff.
+
+---
+
+<section className="post-transition-entrance">
+
+# Destination payload
+
+This payload is visible in the native snapshot, then starts another entrance.
+
+</section>
+
+<p className="sequenced-entrance">This payload stays hidden until its deliberate entrance.</p>
+`,
+    );
+
+    const failure = await runFailingCheck(root, "--rendered", "--json");
+    const report = parseReport(failure.stdout) as CheckReport &
+      Readonly<{ rendered: Readonly<{ rulesetVersion: number; stateCount: number }> }>;
+    const diagnostics = report.diagnostics.filter(
+      ({ code }) => code === "DREVER_RENDER_POST_TRANSITION_ENTRANCE",
+    );
+
+    expect(report.rendered, JSON.stringify(report, null, 2)).toMatchObject({
+      rulesetVersion: 5,
+      stateCount: 2,
+    });
+    expect(diagnostics, JSON.stringify(report, null, 2)).toHaveLength(1);
+    expect(diagnostics[0]).toMatchObject({
+      severity: "error",
+      details: {
+        animation: {
+          entranceProperties: expect.arrayContaining(["opacity", "transform"]),
+          name: "post-transition-entrance",
+        },
+        edge: {
+          direction: "forward",
+          from: { route: "/", slideIndex: 0, step: 0 },
+          to: { route: "/2", slideIndex: 1, step: 0 },
+        },
+        route: "/2",
+        sampledAtMilliseconds: 80,
+      },
+    });
   } finally {
     await rm(root, { force: true, recursive: true });
   }

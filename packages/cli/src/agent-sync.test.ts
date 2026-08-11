@@ -487,6 +487,40 @@ describe("agent kit sync", () => {
     expect(reviewDeck).toMatch(/full-canvas\s+background[^.]*every navigation edge/iu);
   });
 
+  it("installs motion consequence, text-swap, and intermediate-frame review contracts", async () => {
+    const root = await temporaryDirectory("drever-agent-project-");
+    await syncAgentKit({ root });
+
+    const createDesign = await read(root, ".agents/skills/drever-create-design/SKILL.md");
+    const designReference = await read(
+      root,
+      ".agents/skills/drever-create-design/references/visual-decision-pass.md",
+    );
+    const authorDeck = await read(root, ".agents/skills/drever-author-deck/SKILL.md");
+    const reviewDeck = await read(root, ".agents/skills/drever-review-deck/SKILL.md");
+
+    expect(designReference).toMatch(
+      /start state[^]*semantic verb[^]*settled evidence[^]*reverse\/reduced-motion/iu,
+    );
+    expect(designReference).toMatch(/If the effect vanishes[^.]*remove it/iu);
+    expect(designReference).toMatch(/Arrival owner[^]*exactly one/iu);
+    expect(createDesign).toMatch(/exactly one arrival owner for every edge/iu);
+    expect(authorDeck).toMatch(/fixed-slot sequential dissolve/iu);
+    expect(authorDeck).toMatch(/native slide transition[^.]*must\s+not run/iu);
+    expect(reviewDeck).toMatch(/sequential live-DOM dissolve/iu);
+    expect(reviewDeck).toMatch(/One edge has one arrival owner/iu);
+
+    for (const contents of [createDesign, authorDeck]) {
+      expect(contents).toMatch(/transient cue[^.]*visible consequence/iu);
+      expect(contents).toMatch(/persistent artifact[^.]*verified result/iu);
+    }
+    expect(reviewDeck).toMatch(/transient sweep[^.]*persistent artifact[^.]*verified result/iu);
+    expect(reviewDeck).toMatch(/disappears without a visible consequence/iu);
+    expect(createDesign).toMatch(/initial frame[^.]*visual midpoint[^.]*settled frame/iu);
+    expect(reviewDeck).toMatch(/80 ms image[^.]*early-frame tripwire/iu);
+    expect(reviewDeck).toMatch(/destination-side animation[^.]*replay the same entrance/iu);
+  });
+
   it("installs stable Step, active-keyframe, and rendered CSS contracts", async () => {
     const root = await temporaryDirectory("drever-agent-project-");
     await syncAgentKit({ root });

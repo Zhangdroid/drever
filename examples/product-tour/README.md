@@ -1,10 +1,10 @@
 # Drever product tour
 
-A sixteen-slide, network-free product story for people meeting Drever for the
+A nine-slide, network-free product story for people meeting Drever for the
 first time. It follows one concrete launch decision from the local creation
 room through content-first Storyboard approval, an early complete Draft 1,
 human direction, rendered review, a live room response, requested evidence, an
-explicit decision, exact-state sharing, and post-meeting reading.
+explicit decision, and four useful delivery surfaces.
 
 The deck demonstrates:
 
@@ -16,9 +16,9 @@ The deck demonstrates:
 - rendered review across every exact Step and both transition directions;
 - React interaction whose room response remains available to later slides;
 - a concrete concern-to-proof-to-decision sequence rather than a feature inventory;
-- stable continuity as the requested proof moves through audience, decision,
-  speaker, exact-link, and document contexts;
-- the exact `/9/2` evidence state, clean path URLs, and canonical link copying;
+- one deliberate continuity handoff as the requested proof moves from the
+  decision into audience, speaker, exact-link, and document contexts;
+- the exact `/7/2` evidence state, clean path URLs, and canonical link copying;
 - the searchable, fully revealed `/document` reading view;
 - speaker notes, focus tools, and the `/speaker` rehearsal view with a
   20-minute target;
@@ -58,18 +58,14 @@ accessibility report without starting the presentation server.
 
 ## Delivery notes
 
-The second slide turns a plain-language outcome into explicit presentation
-constraints. The next five slides show topic-specific direction, content-first
-approval, an early complete Draft 1, human feedback, and rendered evidence.
-Then choose a room response on slide eight. Slide nine acknowledges that concern
-before revealing the requested proof; slide ten keeps the proof visible while
-the room records its decision.
+Slide two turns a plain-language outcome into one topic-specific direction
+question. Slide three locks a content-first Storyboard; slide four unfolds a
+complete Draft 1; slide five keeps human direction and rendered evidence beside
+the same live preview. Choose a room response on slide six. Slide seven reveals
+the requested proof before recording the decision, and slide eight carries that
+same proof into Audience, Speaker, exact-link, and Document contexts. The final
+slide links to Getting Started, Motion Stories, and the Feature Gallery.
 
-Press `P` on slide eleven to open the real speaker surface. Slide twelve links
-back to the exact requested evidence state, while slide thirteen turns the same evidence into a real
-`/document` reading surface. Slides fourteen and fifteen keep one story core stable
-while the related headline changes from “made once” to “alive everywhere” and
-its audience, speaker, document, and export surfaces appear. The final slide
-links to Getting Started, Motion Stories, and the Feature Gallery. Speaker
-guidance for every slide is authored in `<Note>` and intentionally absent from
-the audience DOM.
+Press `P` at any point to open the real speaker surface, or `D` to open the real
+`/document` reading surface. Speaker guidance for every slide is authored in
+`<Note>` and intentionally absent from the audience DOM.

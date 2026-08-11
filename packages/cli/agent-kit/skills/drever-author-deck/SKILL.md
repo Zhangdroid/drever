@@ -113,7 +113,23 @@ Each paired `MotionGroup intent="continuity"` endpoint must use the same explici
 kebab-case `name`, and that name must occur only once in each rendered endpoint; an HTML or React
 `id` does not name the continuity boundary. Use distinct names for multiple shared boundaries.
 
-When semantically linked wording is the narrative change, use a local fixed-slot rotating, decrypted, mask-reveal, or draw-on effect after capture instead of a shared View Transition. Keep font metrics and wrapping stable, expose the final copy as accessible text, and use non-overlapping exit and reveal phases. Never scale or crossfade different glyph snapshots; under reduced motion, render the same final copy immediately.
+When semantically linked wording is the narrative change, use a local fixed-slot sequential dissolve,
+rotating, decrypted, mask-reveal, or draw-on effect after capture instead of a shared View
+Transition. Keep the parent layout, slot geometry, font metrics, and wrapping stable; let the old
+live-DOM string exit before the new string reveals, and expose the final copy as accessible text.
+Never scale changing glyphs or put them in one native continuity snapshot; under reduced motion,
+render the same final copy immediately.
+
+Give every transient cue a visible consequence. A sweep, tracer, scan, shimmer, cursor, or burst may
+disappear only after it lands on, changes, or leaves behind a persistent artifact, annotation,
+selection, status, or verified result. If the settled slide communicates no result from the cue,
+remove it rather than tuning its duration or easing.
+
+Treat navigation arrival as motion ownership. A payload captured by a native slide transition must
+not run a mount-, active-slide-, or delayed entrance after that transition; use a local edge when
+destination live DOM should own arrival. Never animate `scale`, `scaleX`, or `scaleY` on an element
+or ancestor that contains readable text. Animate a separate paint layer, or use opacity, translate,
+mask, or clip on a fixed text slot.
 
 When an adjacent edge should cut directly or a live-DOM scene must own its handoff, declare that exact edge with `SlideTransition` instead of native snapshot motion. For a direct cut, use no animation. For a live-DOM handoff, use scoped local CSS or Steps. Do not apply native View Transitions to every edge by default. Bypass `startViewTransition` before capture; starting and then skipping a transition can still expose a distorted capture frame. Scope any local animation to the active slide and the runtime local-transition marker so unrelated entry paths do not replay it.
 
@@ -141,7 +157,9 @@ During authoring, run the fast source and affected-route loop: regenerate
 `npm exec -- drever context --json`, run `npm exec -- drever check --json`, and inspect every affected
 exact slide and Step route in the existing live preview. Fix proven source errors immediately. Treat
 visual observations as iteration evidence, not the exhaustive rendered completion gate. For motion,
-inspect intermediate frames and the finished handoff in both directions; compare relevant
+inspect the initial frame, one early frame, the visual midpoint, the settled frame, and the finished
+handoff in both directions; keep observing briefly after navigation settles so destination content
+cannot replay the same entrance. Compare relevant
 `getBoundingClientRect()` values and computed spacing, foreground, and paint before, during, and
 after navigation, and verify invariant Step coordinate systems, active-state timing, full-canvas
 containment, and pointer focus. If a shared object appears to enlarge and then settle, repair or

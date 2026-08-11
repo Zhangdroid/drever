@@ -3,6 +3,10 @@ import { createHash } from "node:crypto";
 import { mkdir, readdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { join, relative } from "node:path";
 import type { Browser, Page } from "playwright-core";
+import {
+  captureRenderedPostTransitionEntrances,
+  type RenderedPostTransitionEntrance,
+} from "./rendered-motion-browser.ts";
 
 export const RENDERED_EVIDENCE_VERSION = 1 as const;
 export const RENDERED_TRANSITION_SAMPLE_MILLISECONDS = 80 as const;
@@ -51,6 +55,12 @@ type CapturedSettledEvidence = PlannedSettledEvidence &
 type CapturedTransitionEvidence = PlannedTransitionEvidence &
   Readonly<{
     content: Buffer;
+    postTransitionEntrances?: readonly RenderedPostTransitionEntrance[];
+  }>;
+
+type InspectedTransitionEvidence = PlannedTransitionEvidence &
+  Readonly<{
+    postTransitionEntrances: readonly RenderedPostTransitionEntrance[];
   }>;
 
 export type RenderedEvidenceManifest = Readonly<{
@@ -88,7 +98,16 @@ export type WriteRenderedEvidenceRequest = Readonly<{
   locale?: string;
   origin: string;
   output: string;
+  onMotionEvidence?: (evidence: readonly RenderedPostTransitionEntrance[]) => void;
   settledCaptures: readonly RenderedSettledCapture[];
+  states: readonly RenderedEvidenceState[];
+}>;
+
+export type InspectRenderedMotionRequest = Readonly<{
+  browser: Browser;
+  canvas: CanvasDefinition;
+  locale?: string;
+  origin: string;
   states: readonly RenderedEvidenceState[];
 }>;
 
@@ -162,6 +181,7 @@ const manifestTransition = ({
   direction,
   from,
   path,
+  postTransitionEntrances: _postTransitionEntrances,
   sampledAtMilliseconds,
   to,
 }: CapturedTransitionEvidence) =>
@@ -321,11 +341,11 @@ const finishFiniteAnimations = async (page: Page): Promise<void> => {
   });
 };
 
-const captureTransition = async (
+const inspectTransition = async (
   page: Page,
   origin: string,
   transition: PlannedTransitionEvidence,
-): Promise<CapturedTransitionEvidence> => {
+): Promise<InspectedTransitionEvidence> => {
   const source = stateUrl(origin, transition.from.route);
   const response = await page.goto(source.href, { timeout: CHECK_TIMEOUT, waitUntil: "load" });
   if (response === null || !response.ok()) {
@@ -353,9 +373,68 @@ const captureTransition = async (
     );
   }
   await page.waitForTimeout(transition.sampledAtMilliseconds);
-  const content = await page.screenshot({ caret: "hide", type: "png" });
-  return Object.freeze({ ...transition, content });
+  const postTransitionEntrances = await page.evaluate(captureRenderedPostTransitionEntrances, {
+    direction: transition.direction,
+    from: {
+      route: transition.from.route,
+      slideIndex: transition.from.slideIndex,
+      step: transition.from.step,
+    },
+    sampledAtMilliseconds: transition.sampledAtMilliseconds,
+    slideId: transition.to.slideId,
+    to: {
+      route: transition.to.route,
+      slideIndex: transition.to.slideIndex,
+      step: transition.to.step,
+    },
+  });
+  return Object.freeze({ ...transition, postTransitionEntrances });
 };
+
+const captureTransition = async (
+  page: Page,
+  origin: string,
+  transition: PlannedTransitionEvidence,
+): Promise<CapturedTransitionEvidence> => {
+  const inspected = await inspectTransition(page, origin, transition);
+  const content = await page.screenshot({ caret: "hide", type: "png" });
+  return Object.freeze({ ...inspected, content });
+};
+
+const traverseRenderedTransitions = async <Value>(
+  { browser, canvas, locale, origin, states }: InspectRenderedMotionRequest,
+  inspect: (page: Page, origin: string, transition: PlannedTransitionEvidence) => Promise<Value>,
+): Promise<readonly Value[]> => {
+  const plan = createRenderedEvidencePlan(states);
+  const context = await browser.newContext({
+    deviceScaleFactor: 1,
+    ...(locale === undefined ? {} : { locale }),
+    reducedMotion: "no-preference",
+    serviceWorkers: "block",
+    timezoneId: "UTC",
+    viewport: { height: canvas.height, width: canvas.width },
+  });
+  try {
+    const page = await context.newPage();
+    const captures: Value[] = [];
+    for (const transition of plan.transitions) {
+      captures.push(await inspect(page, origin, transition));
+    }
+    return Object.freeze(captures);
+  } finally {
+    await context.close();
+  }
+};
+
+/** Runs the same adjacent-edge traversal as visual evidence without writing artifacts. */
+export const inspectRenderedMotion = async (
+  request: InspectRenderedMotionRequest,
+): Promise<readonly RenderedPostTransitionEntrance[]> =>
+  Object.freeze(
+    (await traverseRenderedTransitions(request, inspectTransition)).flatMap(
+      ({ postTransitionEntrances }) => postTransitionEntrances,
+    ),
+  );
 
 const escapeHtml = (value: string): string =>
   value
@@ -428,6 +507,7 @@ export const writeRenderedEvidence = async ({
   locale,
   origin,
   output,
+  onMotionEvidence,
   settledCaptures,
   states,
 }: WriteRenderedEvidenceRequest): Promise<RenderedEvidenceManifest> => {
@@ -451,26 +531,21 @@ export const writeRenderedEvidence = async ({
   ]);
   await Promise.all(settled.map(({ content, path }) => writeFile(join(output, path), content)));
 
-  const transitions = await (async (): Promise<readonly CapturedTransitionEvidence[]> => {
-    const context = await browser.newContext({
-      deviceScaleFactor: 1,
+  const transitions = await traverseRenderedTransitions(
+    {
+      browser,
+      canvas,
       ...(locale === undefined ? {} : { locale }),
-      reducedMotion: "no-preference",
-      serviceWorkers: "block",
-      timezoneId: "UTC",
-      viewport: { height: canvas.height, width: canvas.width },
-    });
-    try {
-      const page = await context.newPage();
-      const captures: CapturedTransitionEvidence[] = [];
-      for (const transition of plan.transitions) {
-        captures.push(await captureTransition(page, origin, transition));
-      }
-      return Object.freeze(captures);
-    } finally {
-      await context.close();
-    }
-  })();
+      origin,
+      states,
+    },
+    captureTransition,
+  );
+  onMotionEvidence?.(
+    Object.freeze(
+      transitions.flatMap(({ postTransitionEntrances }) => postTransitionEntrances ?? []),
+    ),
+  );
   await Promise.all(transitions.map(({ content, path }) => writeFile(join(output, path), content)));
 
   const [settledContactSheet, transitionContactSheet] = await Promise.all([
