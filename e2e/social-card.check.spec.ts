@@ -6,7 +6,6 @@ import { expect, test } from "@playwright/test";
 const root = join(import.meta.dirname, "..");
 const sourcePath = join(root, ".github", "assets", "drever-social-card-source.svg");
 const svgImagePath = join(root, ".github", "assets", "drever-social-card.svg");
-const githubImagePath = join(root, ".github", "assets", "drever-social-card.png");
 const imagePath = join(root, "website", "public", "social-card.png");
 const readmePath = join(root, "README.md");
 
@@ -57,23 +56,22 @@ test("the social card renders with the website brand fonts", async ({ page }) =>
   expect(png.readUInt32BE(20)).toBe(630);
 
   const svgImage = await readFile(svgImagePath, "utf8");
-  expect(svgImage).toContain(
-    '<image width="1200" height="630" href="drever-social-card.png?v=website-hero"',
-  );
+  expect(svgImage).toContain('data-social-text="drafts"');
+  expect(svgImage).toContain('data-social-underline="true"');
   expect(svgImage).not.toContain("data:");
-  expect(svgImage).not.toContain("url(");
+  expect(svgImage).not.toContain("<image");
+  expect(svgImage).not.toContain("<text");
+  expect(svgImage).not.toContain("@font-face");
   await page.goto(pathToFileURL(svgImagePath).href);
-  await expect(page.locator("image")).toHaveAttribute(
-    "href",
-    "drever-social-card.png?v=website-hero",
-  );
-  const svgCapture = await page.screenshot({
-    animations: "disabled",
-    clip: { height: 630, width: 1200, x: 0, y: 0 },
-    type: "png",
+  const outlinedHeadline = await page.locator('[data-social-text="drafts"]').evaluate((element) => {
+    const box = (element as SVGGraphicsElement).getBBox();
+    return { height: box.height, width: box.width };
   });
-  expect(svgCapture.equals(png)).toBe(true);
-  expect((await readFile(githubImagePath)).equals(png)).toBe(true);
+  expect(outlinedHeadline.width).toBeGreaterThan(425);
+  expect(outlinedHeadline.width).toBeLessThan(431);
+  expect(outlinedHeadline.height).toBeGreaterThan(50);
+  expect(outlinedHeadline.height).toBeLessThan(58);
+  await expect(page.locator('[data-social-underline="true"]')).toHaveAttribute("width", "260");
 
   const readme = await readFile(readmePath, "utf8");
   expect(readme).toContain('src="./website/public/social-card.png?v=website-hero"');
