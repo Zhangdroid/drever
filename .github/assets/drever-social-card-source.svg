@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <!-- scripts/render-social-card.mjs loads these local assets before Chromium capture. -->
+    <style>
+      @font-face {
+        font-family: "Bricolage Grotesque";
+        font-style: normal;
+        font-weight: 200 800;
+        src: url("../../packages/brand/fonts/BricolageGrotesque-Latin[opsz,wdth,wght].woff2")
+          format("woff2-variations");
+      }
+
+      @font-face {
+        font-family: "Instrument Sans";
+        font-style: normal;
+        font-weight: 400 700;
+        src: url("../../packages/brand/fonts/InstrumentSans[wdth,wght].woff2")
+          format("woff2-variations");
+      }
+
+      .display {
+        font-family: "Bricolage Grotesque", "Instrument Sans", sans-serif;
+        font-variation-settings:
+          "opsz" 88,
+          "wdth" 100,
+          "wght" 650;
+      }
+
+      .hero-display {
+        font-family: "Bricolage Grotesque", "Instrument Sans", sans-serif;
+        font-weight: 620;
+        font-variation-settings:
+          "opsz" 96,
+          "wdth" 100,
+          "wght" 620;
+      }
+
+      .sans {
+        font-family: "Instrument Sans", sans-serif;
+        font-variation-settings:
+          "wdth" 100,
+          "wght" 520;
+      }
+
+      .label {
+        font-family: "Instrument Sans", sans-serif;
+        font-size: 14px;
+        font-variation-settings:
+          "wdth" 100,
+          "wght" 680;
+        letter-spacing: 1.8px;
+      }
+    </style>
+
+    <linearGradient id="copy-field" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#F6F3E9" stop-opacity=".99" />
+      <stop offset=".72" stop-color="#F6F3E9" stop-opacity=".94" />
+      <stop offset="1" stop-color="#F6F3E9" stop-opacity="0" />
+    </linearGradient>
+
+  </defs>
+
+  <rect width="1200" height="630" fill="#F6F3E9" />
+  <image
+    width="1200"
+    height="630"
+    href="drever-social-art.png"
+    preserveAspectRatio="xMidYMid slice"
+    xlink:href="drever-social-art.png"
+  />
+  <rect width="630" height="630" fill="url(#copy-field)" />
+
+  <g transform="translate(72 54)">
+    <g transform="scale(.5)">
+      <path fill="#C7F03A" d="M4 13h12v6H4zm16 0h12v6H20z" />
+      <path fill="#19172B" d="M36 13h22v39H6V30h8v14h36V21H36z" />
+    </g>
+    <text class="display" fill="#19172B" font-size="32" letter-spacing="-1.2" x="40" y="28">
+      drever
+    </text>
+  </g>
+
+  <g transform="translate(72 190)">
+    <text class="hero-display" fill="#19172B" font-size="64" letter-spacing="-3.712" x="0" y="54">
+      Your agent drafts.
+    </text>
+    <rect
+      class="hero-underline"
+      x="3"
+      y="122"
+      width="260"
+      height="19"
+      rx="2"
+      fill="#C7F03A"
+    />
+    <text class="hero-display" fill="#19172B" font-size="64" letter-spacing="-3.712" x="5" y="139">
+      You direct.
+    </text>
+
+    <text class="sans" fill="#5F5B6B" font-size="22" x="1" y="210">
+      An open-source presentation studio
+    </text>
+    <text class="sans" fill="#5F5B6B" font-size="22" x="1" y="241">
+      for coding agents.
+    </text>
+  </g>
+
+  <g transform="translate(72 548)">
+    <circle cx="5" cy="-5" r="5" fill="#5B45D8" />
+    <text class="label" fill="#5F5B6B" x="22" y="0">BRIEF</text>
+    <path d="M83 -5h35" fill="none" stroke="#BDB6D9" stroke-width="1.5" />
+    <circle cx="123" cy="-5" r="5" fill="#8A76EA" />
+    <text class="label" fill="#5F5B6B" x="140" y="0">STORYBOARD</text>
+    <path d="M271 -5h35" fill="none" stroke="#BDB6D9" stroke-width="1.5" />
+    <circle cx="311" cy="-5" r="5" fill="#C7F03A" />
+    <text class="label" fill="#19172B" x="328" y="0">LIVE DECK</text>
+  </g>
+</svg>

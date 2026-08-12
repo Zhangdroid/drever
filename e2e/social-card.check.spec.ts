@@ -4,8 +4,10 @@ import { pathToFileURL } from "node:url";
 import { expect, test } from "@playwright/test";
 
 const root = join(import.meta.dirname, "..");
-const sourcePath = join(root, ".github", "assets", "drever-social-card.svg");
+const sourcePath = join(root, ".github", "assets", "drever-social-card-source.svg");
+const svgImagePath = join(root, ".github", "assets", "drever-social-card.svg");
 const imagePath = join(root, "website", "public", "social-card.png");
+const readmePath = join(root, "README.md");
 
 test("the social card renders with the website brand fonts", async ({ page }) => {
   await page.goto(pathToFileURL(sourcePath).href);
@@ -30,8 +32,35 @@ test("the social card renders with the website brand fonts", async ({ page }) =>
   expect(headlineWidth).toBeGreaterThan(425);
   expect(headlineWidth).toBeLessThan(431);
 
+  const underlineGeometry = await page.evaluate(() => {
+    const text = document.querySelectorAll<SVGGraphicsElement>("text.hero-display")[1];
+    const underline = document.querySelector<SVGGraphicsElement>(".hero-underline");
+    if (text === undefined || underline === null) return;
+    const textBox = text.getBBox();
+    const underlineBox = underline.getBBox();
+    return {
+      leftExtension: textBox.x - underlineBox.x,
+      rightExtension: underlineBox.x + underlineBox.width - (textBox.x + textBox.width),
+      underlineHeight: underlineBox.height,
+    };
+  });
+  expect(underlineGeometry).toEqual({
+    leftExtension: 2,
+    rightExtension: expect.closeTo(5.4, 0),
+    underlineHeight: 19,
+  });
+
   const png = await readFile(imagePath);
   expect(png.subarray(1, 4).toString("ascii")).toBe("PNG");
   expect(png.readUInt32BE(16)).toBe(1200);
   expect(png.readUInt32BE(20)).toBe(630);
+
+  const svgImage = await readFile(svgImagePath, "utf8");
+  expect(svgImage).toContain('<image width="1200" height="630" href="data:image/png;base64,');
+  expect(svgImage).not.toContain("url(");
+  await page.goto(pathToFileURL(svgImagePath).href);
+  await expect(page.locator("image")).toHaveAttribute("href", /^data:image\/png;base64,/u);
+
+  const readme = await readFile(readmePath, "utf8");
+  expect(readme).toContain('src="./.github/assets/drever-social-card.svg"');
 });
