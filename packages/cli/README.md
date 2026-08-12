@@ -298,7 +298,14 @@ fresh evidence and runs the one production build plus requested exports. Any
 later source, configuration, or asset mutation invalidates affected evidence.
 
 Managed sessions stream concise public summaries and tool lifecycle events directly into Studio.
-Codex uses its native app-server protocol; Claude Code uses native `stream-json`; Gemini CLI,
+An acknowledged feedback request remains visibly pending, reconnecting, or refining until that
+action settles, while the latest valid draft stays available to inspect. A disconnected managed
+provider gets one bounded automatic restart and replay of the same durable revision before Studio
+offers manual recovery.
+
+Codex uses its native app-server protocol with `workspace-write`, `on-request` approvals, and
+Auto-review for eligible approval requests; provider requests that still surface a user decision
+remain visible in Studio. Claude Code uses native `stream-json`; Gemini CLI,
 GitHub Copilot CLI, Cursor CLI, OpenCode, and Cline use the official Agent Client Protocol. ACP and Codex permission
 requests can be resolved in Studio. Claude Code keeps permission decisions in its own provider
 policy until its CLI exposes an equivalent interactive client protocol.

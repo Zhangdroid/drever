@@ -23,6 +23,8 @@ import {
   resolveStudioWorkflowStep,
   respondToStudioAgentApproval,
   Studio,
+  studioFeedbackSubmissionIsReflected,
+  studioFeedbackSubmissionSnapshot,
   studioDraftThumbnailUrl,
   studioAnswersMatch,
   studioBriefsMatch,
@@ -382,6 +384,27 @@ describe("Studio", () => {
     expect(markup).toContain("The motion pass stopped before verification.");
     expect(markup).toContain("Resume from last draft");
     expect(markup).not.toContain("The draft paused.");
+  });
+
+  it("keeps a queued refinement visibly reconnecting without hiding its draft", () => {
+    const markup = render(
+      state({
+        agentConfigured: true,
+        agentConnected: false,
+        draftAvailable: true,
+        phase: "waiting-for-agent",
+        commonBrief: { topic: plan.brief.topic },
+        plan: { ...plan, status: "approved" },
+        pendingActionCount: 1,
+      }),
+    );
+
+    expect(markup).toContain('title="Live Drever draft"');
+    expect(markup).toContain("Reconnecting the agent");
+    expect(markup).toContain("The request is safely queued while Drever reconnects");
+    expect(markup).toContain("Live work in progress");
+    expect(markup).not.toContain("Reconnect agent");
+    expect(markup).not.toContain("Last published draft is available");
   });
 
   it("keeps the review point concise after the draft is ready", () => {
@@ -940,6 +963,54 @@ describe("Studio flow helpers", () => {
       resolveStudioDraftLifecycle(state({ draftAvailable: true, phase: "waiting-for-agent" }))
         ?.title,
     ).toBe("Last published draft is available");
+  });
+
+  it("keeps an accepted feedback receipt until newer authoritative work is visible", () => {
+    const beforeSubmit = state({
+      draftAvailable: true,
+      latestActionRevision: 3,
+      phase: "ready",
+      revision: 8,
+    });
+    const submission = studioFeedbackSubmissionSnapshot(beforeSubmit);
+
+    expect(studioFeedbackSubmissionIsReflected(submission, beforeSubmit)).toBe(false);
+    expect(
+      studioFeedbackSubmissionIsReflected(
+        submission,
+        state({
+          draftAvailable: true,
+          latestActionRevision: 3,
+          phase: "waiting-for-agent",
+          revision: 9,
+        }),
+      ),
+    ).toBe(false);
+    expect(
+      studioFeedbackSubmissionIsReflected(
+        submission,
+        state({
+          agentConnected: true,
+          draftAvailable: true,
+          latestActionRevision: 4,
+          pendingActionCount: 1,
+          phase: "waiting-for-agent",
+          revision: 9,
+        }),
+      ),
+    ).toBe(true);
+    expect(
+      studioFeedbackSubmissionIsReflected(
+        submission,
+        state({
+          agentConnected: true,
+          draftAvailable: true,
+          latestActionRevision: 3,
+          phase: "refining",
+          revision: 9,
+        }),
+      ),
+    ).toBe(false);
   });
 
   it("marks disconnected draft work as paused instead of showing indefinite live activity", () => {

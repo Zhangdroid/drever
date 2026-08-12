@@ -651,7 +651,7 @@ export const createCodexStudioAgent = (options: CodexStudioAgentOptions): Studio
           cwd: options.root,
           runtimeWorkspaceRoots: [options.root],
           approvalPolicy: "on-request",
-          approvalsReviewer: "user",
+          approvalsReviewer: "auto_review",
           sandbox: "workspace-write",
           serviceName: "drever_studio",
           threadSource: "appServer",

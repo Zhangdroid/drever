@@ -164,6 +164,8 @@ export const studioActionWorkflowInstructions = (record: DreverStudioActionRecor
 
 /** @internal Live agent boundary used by the local Studio server. */
 export type StudioAgentProvider = Readonly<{
+  /** @internal Prevents the Studio host from stacking another retry over provider-owned recovery. */
+  actionRecovery?: "provider";
   start(): Promise<void>;
   stop(): Promise<void>;
   snapshot(): StudioAgentProviderSnapshot;

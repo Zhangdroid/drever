@@ -182,6 +182,7 @@ export const createClaudeStudioAgent = (options: ClaudeStudioAgentOptions): Stud
   let phase: DreverStudioPhase = "waiting-for-agent";
   let process: ClaudeCodeProcess | undefined;
   let processClosed: Promise<void> | undefined;
+  let processExiting: ClaudeCodeProcess | undefined;
   let pumping = false;
   let publicText = "";
   let sessionId: string | undefined;
@@ -259,6 +260,7 @@ export const createClaudeStudioAgent = (options: ClaudeStudioAgentOptions): Stud
     stateAvailable = true;
     process = undefined;
     processClosed = undefined;
+    if (processExiting === child) processExiting = undefined;
     sessionId = undefined;
     startPromise = undefined;
     phase = "error";
@@ -274,9 +276,26 @@ export const createClaudeStudioAgent = (options: ClaudeStudioAgentOptions): Stud
     connected = false;
     process = undefined;
     processClosed = undefined;
+    if (processExiting === child) processExiting = undefined;
     sessionId = undefined;
     startPromise = undefined;
     changed();
+  };
+
+  const continueQueuedActions = async (child: ClaudeCodeProcess): Promise<void> => {
+    retire(child);
+    if (stopping || actionQueue.length === 0) return;
+    try {
+      await start();
+      void pump();
+    } catch {
+      const error = new Error("Claude Code could not restart for the next Studio action.");
+      rejectOutstanding(error);
+      phase = "error";
+      publishMessage(error.message);
+      completeActive("error");
+      changed();
+    }
   };
 
   const touchTurn = (): void => {
@@ -326,7 +345,13 @@ export const createClaudeStudioAgent = (options: ClaudeStudioAgentOptions): Stud
         }
       } finally {
         if (settlingAction === current) settlingAction = undefined;
-        if (actionQueue.length > 0 && connected && !activeTurn && currentAction === undefined) {
+        if (
+          actionQueue.length > 0 &&
+          connected &&
+          processExiting !== process &&
+          !activeTurn &&
+          currentAction === undefined
+        ) {
           void pump();
         }
       }
@@ -433,7 +458,8 @@ export const createClaudeStudioAgent = (options: ClaudeStudioAgentOptions): Stud
       settlingAction !== undefined ||
       activeTurn ||
       !connected ||
-      process === undefined
+      process === undefined ||
+      processExiting === process
     ) {
       return;
     }
@@ -470,6 +496,7 @@ export const createClaudeStudioAgent = (options: ClaudeStudioAgentOptions): Stud
       if (
         actionQueue.length > 0 &&
         connected &&
+        processExiting !== process &&
         settlingAction === undefined &&
         !activeTurn &&
         currentAction === undefined
@@ -488,6 +515,7 @@ export const createClaudeStudioAgent = (options: ClaudeStudioAgentOptions): Stud
       try {
         child = spawnProcess(options.root, CLAUDE_ARGS);
         process = child;
+        processExiting = undefined;
         completedTurn = false;
         decoder = new ClaudeStreamDecoder();
         processClosed = new Promise<void>((resolve) => {
@@ -537,12 +565,13 @@ export const createClaudeStudioAgent = (options: ClaudeStudioAgentOptions): Stud
           );
         });
         child.once("exit", () => {
+          if (!stopping && process === child) processExiting = child;
           void (async () => {
             if (stopping || process !== child || terminalError !== undefined) return;
             await waitForActionSettlement();
             if (stopping || process !== child || terminalError !== undefined) return;
-            if (currentAction === undefined && actionQueue.length === 0 && completedTurn) {
-              retire(child!);
+            if (currentAction === undefined && completedTurn) {
+              await continueQueuedActions(child!);
             } else {
               disconnect(
                 child!,
@@ -596,6 +625,7 @@ export const createClaudeStudioAgent = (options: ClaudeStudioAgentOptions): Stud
       const closed = processClosed;
       process = undefined;
       processClosed = undefined;
+      processExiting = undefined;
       sessionId = undefined;
       rejectOutstanding(new Error("The Claude Studio agent stopped before delivering the action."));
       if (child !== undefined) {

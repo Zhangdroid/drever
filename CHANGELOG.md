@@ -5,14 +5,23 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
-Release impact: **patch** — this batch keeps an active local Studio easy to recover after its
-browser tab is closed.
+Release impact: **patch** — this batch keeps an active local Studio easy to recover and makes
+follow-up feedback visibly progress without weakening the managed-agent sandbox.
 
 ### Fixed
 
 - Preserved development-terminal scrollback, printed the exact local Creation room URL when the
   last Studio tab closes, and kept it near later semantic phase changes while no room is open, so
   users can reopen an active session without restarting it or searching through cleared output.
+- Kept accepted Draft feedback visibly pending or refining until the managed agent settles,
+  including while a disconnected provider restarts, instead of briefly returning the main status
+  to a ready state or leaving only a quiet request counter.
+- Made managed providers retry one interrupted delivery from the same durable action revision and
+  made Claude Code start a fresh child after its completed one-shot process retires, so follow-up
+  feedback does not require a duplicate request or manual `continue` message.
+- Routed eligible managed Codex approval requests through Auto-review while retaining the
+  `workspace-write` sandbox and `on-request` approval policy; provider requests that still surface
+  a user decision keep Studio's existing approval path.
 
 ## [0.17.3] - 2026-08-11
 

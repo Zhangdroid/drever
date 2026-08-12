@@ -463,6 +463,7 @@ const measurableStudioProgress = (
 
 const directionIsPending = (state: DreverStudioState): boolean =>
   state.pendingActionCount > 0 &&
+  state.draftAvailable !== true &&
   (state.phase === "waiting-for-agent" || state.phase === "adaptive-questions");
 
 export const resolveStudioProgress = (state: DreverStudioState): readonly StudioProgressStage[] => {
@@ -1776,6 +1777,7 @@ const FeedbackComposer = ({
 }>): ReactElement => {
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [acceptedSubmission, setAcceptedSubmission] = useState<StudioFeedbackSubmissionSnapshot>();
   const [contextOpen, setContextOpen] = useState(false);
   const [reviewing, setReviewing] = useState(false);
   const [suggestionFilter, setSuggestionFilter] = useState<"all" | "story" | "visual" | "motion">(
@@ -1805,10 +1807,20 @@ const FeedbackComposer = ({
     return () => onDirtyChange(false);
   }, [message, onDirtyChange]);
 
+  useEffect(() => {
+    if (
+      acceptedSubmission !== undefined &&
+      studioFeedbackSubmissionIsReflected(acceptedSubmission, state)
+    ) {
+      setAcceptedSubmission(undefined);
+    }
+  }, [acceptedSubmission, state]);
+
   const submit = async (event: FormEvent): Promise<void> => {
     event.preventDefault();
     const next = message.trim();
-    if (next === "") return;
+    if (next === "" || submitting || acceptedSubmission !== undefined) return;
+    const submissionSnapshot = studioFeedbackSubmissionSnapshot(state);
     setSubmitting(true);
     try {
       await onAction({
@@ -1817,6 +1829,7 @@ const FeedbackComposer = ({
         type: "submit-feedback",
       });
       setMessage("");
+      setAcceptedSubmission(submissionSnapshot);
     } catch {
       // Keep the draft feedback available after Studio reports the failure.
     } finally {
@@ -2002,15 +2015,21 @@ const FeedbackComposer = ({
         </label>
         <button
           className="drever-studio-button drever-studio-button--forward drever-studio-button--primary"
-          disabled={outdated || submitting || message.trim() === ""}
+          disabled={
+            outdated || submitting || acceptedSubmission !== undefined || message.trim() === ""
+          }
           type="submit"
         >
-          {submitting ? "Sending…" : "Send to agent"}
+          {submitting ? "Sending…" : acceptedSubmission === undefined ? "Send to agent" : "Sent"}
           <ArrowIcon />
         </button>
       </form>
 
-      {state.pendingActionCount === 0 ? null : (
+      {submitting || acceptedSubmission !== undefined ? (
+        <p aria-live="polite" className="drever-studio-direction__pending" role="status">
+          {submitting ? "Sending your request…" : "Request accepted. The agent is starting…"}
+        </p>
+      ) : state.pendingActionCount === 0 ? null : (
         <p aria-live="polite" className="drever-studio-direction__pending" role="status">
           {`${String(state.pendingActionCount)} ${
             state.pendingActionCount === 1 ? "request" : "requests"
@@ -2020,6 +2039,21 @@ const FeedbackComposer = ({
     </aside>
   );
 };
+
+type StudioFeedbackSubmissionSnapshot = Readonly<{
+  latestActionRevision: number;
+}>;
+
+export const studioFeedbackSubmissionSnapshot = (
+  state: DreverStudioState,
+): StudioFeedbackSubmissionSnapshot => ({
+  latestActionRevision: state.latestActionRevision,
+});
+
+export const studioFeedbackSubmissionIsReflected = (
+  submission: StudioFeedbackSubmissionSnapshot,
+  state: DreverStudioState,
+): boolean => state.latestActionRevision > submission.latestActionRevision;
 
 type StudioDraftLifecycle = Readonly<{
   detail: string;
@@ -2041,6 +2075,11 @@ export const resolveStudioDraftLifecycle = (
   }
   const disconnectedDraftWork =
     !state.agentConnected && (state.phase === "drafting" || state.phase === "refining");
+  const pendingManagedReconnect =
+    state.agentConfigured === true &&
+    !state.agentConnected &&
+    state.pendingActionCount > 0 &&
+    state.phase === "waiting-for-agent";
   const agentWorkIsActive =
     state.agentConnected &&
     (state.pendingActionCount > 0 ||
@@ -2052,6 +2091,15 @@ export const resolveStudioDraftLifecycle = (
     agentWorkIsActive;
   const laterDraftWorkStarting =
     state.phase === "waiting-for-agent" && state.draftAvailable === true && agentWorkIsActive;
+  if (pendingManagedReconnect) {
+    return {
+      detail:
+        detail ??
+        "The request is safely queued while Drever reconnects the managed agent. The published draft remains available.",
+      status: "working",
+      title: "Reconnecting the agent",
+    };
+  }
   if (state.phase === "error" || disconnectedDraftWork) {
     return {
       detail:

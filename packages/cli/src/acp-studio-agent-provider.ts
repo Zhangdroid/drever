@@ -321,6 +321,7 @@ const safeId = (prefix: string, value: string | number): string => {
 };
 
 class AcpStudioAgentProviderImplementation implements AcpStudioAgentProvider {
+  readonly actionRecovery = "provider" as const;
   readonly #agent: AcpStdioAgentName;
   readonly #cwd: string;
   readonly #launch: LaunchAcpAgent;

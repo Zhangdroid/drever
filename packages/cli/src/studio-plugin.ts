@@ -1875,8 +1875,20 @@ export const createStudioPlugin = ({
     if (agentProvider === undefined) return;
     agentUpdates = agentUpdates
       .then(async () => {
-        if (restart) await agentProvider.start();
-        await forwardStudioAgentActions(root, agentProvider);
+        const connected = readLiveAgentSnapshot(agentProvider)?.connected === true;
+        if (restart || !connected) await agentProvider.start();
+        try {
+          await forwardStudioAgentActions(root, agentProvider);
+        } catch (error) {
+          if (
+            agentProvider.actionRecovery === "provider" ||
+            readLiveAgentSnapshot(agentProvider)?.connected === true
+          ) {
+            throw error;
+          }
+          await agentProvider.start();
+          await forwardStudioAgentActions(root, agentProvider);
+        }
       })
       .catch((error: unknown) => {
         server?.config.logger.error(`Drever could not forward a Studio action: ${String(error)}`);

@@ -1827,7 +1827,83 @@ describe("Studio action forwarding", () => {
 });
 
 describe("Studio Vite state", () => {
-  it("reconnects the managed agent and replays the same pending journal revision", async () => {
+  it("starts a disconnected managed provider before forwarding an ordinary accepted action", async () => {
+    const root = await createRoot();
+    const token = "studio-test-token";
+    const listeners = new Map<string, (payload: unknown, client: WebSocketClient) => void>();
+    let notify = (): void => undefined;
+    let connected = false;
+    let phase = "briefing" as "briefing" | "error" | "waiting-for-agent";
+    let handledActionRevision = 0;
+    const start = vi.fn(async () => {
+      connected = true;
+      phase = "waiting-for-agent";
+      notify();
+    });
+    const handleAction = vi.fn<StudioAgentProvider["handleAction"]>(async (record) => {
+      expect(connected).toBe(true);
+      handledActionRevision = record.revision;
+      phase = "waiting-for-agent";
+      notify();
+    });
+    const provider: StudioAgentProvider = {
+      approvals: () => [],
+      handleAction,
+      respondToApproval: vi.fn(async () => undefined),
+      snapshot: () => ({
+        connected,
+        state: { version: 1, phase, handledActionRevision },
+      }),
+      start,
+      stop: vi.fn(async () => undefined),
+      subscribe(listener) {
+        notify = listener;
+        return () => undefined;
+      },
+    };
+    const plugin = createStudioPlugin({ root, agentProvider: provider, token });
+    const server = {
+      config: { logger: { error: vi.fn(), info: vi.fn() } },
+      httpServer: { once: vi.fn() },
+      middlewares: { use: vi.fn() },
+      moduleGraph: { getModuleById: vi.fn() },
+      watcher: { add: vi.fn(), off: vi.fn(), on: vi.fn() },
+      ws: {
+        on(event: string, listener: (payload: unknown, client: WebSocketClient) => void) {
+          listeners.set(event, listener);
+        },
+        send: vi.fn(),
+      },
+    } as unknown as ViteDevServer;
+    const configureServer = plugin.configureServer;
+    if (typeof configureServer !== "function") throw new TypeError("Missing server hook.");
+    await configureServer.call({} as never, server);
+    await vi.waitFor(() => expect(start).toHaveBeenCalledOnce());
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    connected = false;
+    phase = "error";
+    notify();
+    const receiveAction = listeners.get(DREVER_STUDIO_ACTION_EVENT);
+    if (receiveAction === undefined) throw new TypeError("Missing action listener.");
+    receiveAction(
+      {
+        token,
+        action: action({ type: "submit-common-brief", brief: { topic: "A durable topic" } }),
+      },
+      studioClient(vi.fn()),
+    );
+
+    await vi.waitFor(() => expect(handleAction).toHaveBeenCalledOnce());
+    expect(start).toHaveBeenCalledTimes(2);
+    expect(handleAction.mock.calls[0]?.[0].revision).toBe(1);
+    for (let update = 0; update < 5; update += 1) notify();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(start).toHaveBeenCalledTimes(2);
+    expect(handleAction).toHaveBeenCalledOnce();
+  });
+
+  it("retries one disconnected delivery and leaves the same revision pending for manual resume", async () => {
     const root = await createRoot();
     const token = "studio-test-token";
     const listeners = new Map<string, (payload: unknown, client: WebSocketClient) => void>();
@@ -1837,16 +1913,14 @@ describe("Studio Vite state", () => {
     let phase = "briefing" as "briefing" | "error" | "waiting-for-agent";
     let handledActionRevision = 0;
     let deliveryAttempts = 0;
-    const reconnect = Promise.withResolvers<void>();
     const start = vi.fn(async () => {
-      if (start.mock.calls.length > 1) await reconnect.promise;
       connected = true;
       phase = "waiting-for-agent";
       notify();
     });
     const handleAction = vi.fn<StudioAgentProvider["handleAction"]>(async (record) => {
       deliveryAttempts += 1;
-      if (deliveryAttempts === 1) {
+      if (deliveryAttempts <= 2) {
         connected = false;
         phase = "error";
         notify();
@@ -1900,7 +1974,7 @@ describe("Studio Vite state", () => {
       },
       client,
     );
-    await vi.waitFor(() => expect(handleAction).toHaveBeenCalledTimes(1));
+    await vi.waitFor(() => expect(handleAction).toHaveBeenCalledTimes(2));
     await vi.waitFor(() =>
       expect(clientSend).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -1909,6 +1983,14 @@ describe("Studio Vite state", () => {
         }),
       ),
     );
+    expect(start).toHaveBeenCalledTimes(2);
+    expect(handleAction.mock.calls.map(([record]) => record.revision)).toEqual([1, 1]);
+    await expect(readStudioActionRecords(root)).resolves.toHaveLength(1);
+    for (let update = 0; update < 5; update += 1) notify();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(start).toHaveBeenCalledTimes(2);
+    expect(handleAction).toHaveBeenCalledTimes(2);
+
     const errorState = [...clientSend.mock.calls]
       .map(
         ([message]) => message as { event?: string; data?: { phase?: string; revision?: number } },
@@ -1935,10 +2017,7 @@ describe("Studio Vite state", () => {
         data: expect.objectContaining({ accepted: true, requestId: "resume-1" }),
       }),
     );
-    expect(handleAction).toHaveBeenCalledTimes(1);
-    reconnect.resolve();
-
-    await vi.waitFor(() => expect(handleAction).toHaveBeenCalledTimes(2));
+    await vi.waitFor(() => expect(handleAction).toHaveBeenCalledTimes(3));
     await vi.waitFor(() =>
       expect(clientSend).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -1947,14 +2026,85 @@ describe("Studio Vite state", () => {
         }),
       ),
     );
-    expect(start).toHaveBeenCalledTimes(2);
-    expect(handleAction.mock.calls.map(([record]) => record.revision)).toEqual([1, 1]);
+    expect(start).toHaveBeenCalledTimes(3);
+    expect(handleAction.mock.calls.map(([record]) => record.revision)).toEqual([1, 1, 1]);
     await expect(readStudioActionRecords(root)).resolves.toHaveLength(1);
 
     receiveAction(resumePayload, client);
     await new Promise((resolve) => setTimeout(resolve, 20));
-    expect(start).toHaveBeenCalledTimes(2);
-    expect(handleAction).toHaveBeenCalledTimes(2);
+    expect(start).toHaveBeenCalledTimes(3);
+    expect(handleAction).toHaveBeenCalledTimes(3);
+  });
+
+  it("does not stack a host retry over provider-owned action recovery", async () => {
+    const root = await createRoot();
+    const token = "studio-test-token";
+    const listeners = new Map<string, (payload: unknown, client: WebSocketClient) => void>();
+    let notify = (): void => undefined;
+    let connected = false;
+    const start = vi.fn(async () => {
+      connected = true;
+      notify();
+    });
+    const handleAction = vi.fn<StudioAgentProvider["handleAction"]>(async () => {
+      connected = false;
+      notify();
+      throw new Error("provider exhausted its bounded recovery");
+    });
+    const provider: StudioAgentProvider = {
+      actionRecovery: "provider",
+      approvals: () => [],
+      handleAction,
+      respondToApproval: vi.fn(async () => undefined),
+      snapshot: () => ({
+        connected,
+        state: {
+          version: 1,
+          phase: connected ? "waiting-for-agent" : "error",
+          handledActionRevision: 0,
+        },
+      }),
+      start,
+      stop: vi.fn(async () => undefined),
+      subscribe(listener) {
+        notify = listener;
+        return () => undefined;
+      },
+    };
+    const plugin = createStudioPlugin({ root, agentProvider: provider, token });
+    const server = {
+      config: { logger: { error: vi.fn(), info: vi.fn() } },
+      httpServer: { once: vi.fn() },
+      middlewares: { use: vi.fn() },
+      moduleGraph: { getModuleById: vi.fn() },
+      watcher: { add: vi.fn(), off: vi.fn(), on: vi.fn() },
+      ws: {
+        on(event: string, listener: (payload: unknown, client: WebSocketClient) => void) {
+          listeners.set(event, listener);
+        },
+        send: vi.fn(),
+      },
+    } as unknown as ViteDevServer;
+    const configureServer = plugin.configureServer;
+    if (typeof configureServer !== "function") throw new TypeError("Missing server hook.");
+    await configureServer.call({} as never, server);
+    await vi.waitFor(() => expect(start).toHaveBeenCalledOnce());
+
+    const receiveAction = listeners.get(DREVER_STUDIO_ACTION_EVENT);
+    if (receiveAction === undefined) throw new TypeError("Missing action listener.");
+    receiveAction(
+      {
+        token,
+        action: action({ type: "submit-common-brief", brief: { topic: "A durable topic" } }),
+      },
+      studioClient(vi.fn()),
+    );
+
+    await vi.waitFor(() => expect(handleAction).toHaveBeenCalledOnce());
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(start).toHaveBeenCalledOnce();
+    expect(handleAction).toHaveBeenCalledOnce();
+    await expect(readStudioActionRecords(root)).resolves.toHaveLength(1);
   });
 
   it("accepts an authenticated action without publishing state or tokens through a module", async () => {

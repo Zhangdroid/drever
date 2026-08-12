@@ -114,7 +114,12 @@ The `/studio` route coordinates the common brief, adaptive questions, plan appro
 Live Draft with speaker notes, public agent activity, tool approvals where supported, and later
 feedback. Its compact status surface follows the current public work summary. It distinguishes an
 editable first preview, active refinement, review readiness, and a paused refinement without hiding
-the last available draft.
+the last available draft. After feedback is acknowledged, that status remains visibly pending,
+reconnecting, or refining until the durable action settles. Managed adapters automatically restart
+and replay one interrupted delivery from the same journal revision before asking for manual
+recovery. Managed Codex keeps `workspace-write` and `on-request` protections while Auto-review
+handles eligible approval requests; any provider request that still surfaces a user decision keeps
+the existing Studio approval path.
 `/storyboard` reads only `drever.plan.json`, so it can open before the configured MDX entry exists or compiles; Audience and
 Speaker still require the deck. Configure `host`, `open`, `port`, and `strictPort` under `server` in
 `drever.config.ts`; `dev` deliberately exposes no raw Vite flags and there is no

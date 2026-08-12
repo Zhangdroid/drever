@@ -230,6 +230,34 @@ describe("Codex app-server protocol", () => {
 });
 
 describe("native Codex Studio agent", () => {
+  it("keeps managed Codex sandboxed while auto-reviewing eligible approvals", async () => {
+    const child = new FakeAppServerProcess();
+    const provider = createTestCodexStudioAgent({
+      root: "/workspace/deck",
+      requestTimeoutMs: 1_000,
+      spawnProcess: () => child as unknown as CodexAppServerProcess,
+    });
+
+    await provider.start();
+    const threadStart = child.messages.find(({ method }) => method === "thread/start");
+    expect(threadStart).toEqual({
+      id: 2,
+      method: "thread/start",
+      params: {
+        cwd: "/workspace/deck",
+        runtimeWorkspaceRoots: ["/workspace/deck"],
+        approvalPolicy: "on-request",
+        approvalsReviewer: "auto_review",
+        sandbox: "workspace-write",
+        serviceName: "drever_studio",
+        threadSource: "appServer",
+        ephemeral: true,
+      },
+    });
+    expect(JSON.stringify(threadStart)).not.toMatch(/dangerFullAccess|fullAccess|networkAccess/);
+    await provider.stop();
+  });
+
   it("delivers the preview-first approve-plan contract to Codex", async () => {
     const child = new FakeAppServerProcess(false, true, true);
     const provider = createTestCodexStudioAgent({

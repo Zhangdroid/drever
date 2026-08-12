@@ -79,9 +79,14 @@ The agent updates the same ordinary project files and the same live preview. `sl
 `brief.md`, `drever.plan.json`, local design files, assets, configuration, and Git remain the source
 of truth. A revision does not create a hidden Studio document.
 
-Studio keeps one current public work summary visible while the agent is active. It does not expose
-private chain-of-thought, raw commands, tool payloads, or provider transcripts. A prominent action
-appears when the connected adapter requires a decision that Studio can return.
+After **Send to agent** acknowledges a request, Studio keeps a prominent accepted, reconnecting, or
+refining state visible until that exact action settles. The latest valid draft remains available to
+inspect during the change. Studio does not expose private chain-of-thought, raw commands, tool
+payloads, or provider transcripts; it shows one bounded public work summary instead.
+
+Managed Codex keeps `workspace-write` sandboxing and `on-request` approvals. Eligible low-risk local
+checks go through [Codex Auto-review](https://learn.chatgpt.com/docs/sandboxing/auto-review),
+while provider requests that still surface a user decision keep Studio's prominent approval action.
 
 <h2 id="adapters">Connect the agent you already use</h2>
 
@@ -112,9 +117,10 @@ the workflow. Opening `/studio` alone does not launch or wake a model. If the ta
 submitted actions remain queued until it resumes, and Studio reports that the connection is absent
 instead of pretending work is active.
 
-If a managed adapter disconnects while an action is pending, Studio offers a reconnect control. It
-restarts the local provider and replays that same journal revision; it does not append duplicate
-brief or feedback instructions.
+If a managed adapter disconnects while an action is pending, Studio first restarts the local
+provider and replays that same journal revision once; it does not append duplicate brief or
+feedback instructions. A reconnect control remains available if that bounded automatic recovery
+also fails.
 
 <h2 id="ownership">Know what stays local</h2>
 

@@ -410,6 +410,37 @@ describe("native Claude Code Studio agent", () => {
     });
   });
 
+  it("accepts the same feedback revision on a new child after the completed child exits", async () => {
+    const first = new FakeClaudeProcess();
+    const second = new FakeClaudeProcess();
+    const children = [first, second];
+    const provider = createTestClaudeStudioAgent({
+      root: "/workspace/deck",
+      spawnProcess: () => children.shift() as unknown as ClaudeCodeProcess,
+    });
+
+    const firstDelivery = provider.handleAction(actionRecord(1));
+    await vi.waitFor(() => expect(first.inputs).toHaveLength(1));
+    first.send({ type: "result", subtype: "success", session_id: "claude-session-1" });
+    await firstDelivery;
+
+    const interruptedFeedback = provider.handleAction(actionRecord(2, "submit-feedback"));
+    await vi.waitFor(() => expect(first.inputs).toHaveLength(2));
+    first.emit("exit", 0, null);
+    await expect(interruptedFeedback).rejects.toThrow("disconnected");
+
+    const replayedFeedback = provider.handleAction(actionRecord(2, "submit-feedback"));
+    await vi.waitFor(() => expect(second.inputs).toHaveLength(1));
+    expect(JSON.stringify(second.inputs[0])).toContain("Make the opening clearer.");
+    second.send({ type: "result", subtype: "success", session_id: "claude-session-2" });
+    await replayedFeedback;
+    expect(provider.snapshot()).toMatchObject({
+      connected: true,
+      state: { handledActionRevision: 2, phase: "waiting-for-agent" },
+    });
+    await provider.stop();
+  });
+
   it("states the approval limitation without exposing deferred tool input", async () => {
     const child = new FakeClaudeProcess();
     const provider = createTestClaudeStudioAgent({
@@ -694,6 +725,47 @@ describe("native Claude Code Studio agent", () => {
         state: { handledActionRevision: 1, phase: "waiting-for-agent" },
       }),
     );
+  });
+
+  it("retires a completed child before delivering queued feedback to a new child", async () => {
+    const first = new FakeClaudeProcess();
+    const second = new FakeClaudeProcess();
+    const children = [first, second];
+    const verifications: Array<(handled: boolean) => void> = [];
+    const verifyActionHandled = vi.fn(
+      () =>
+        new Promise<boolean>((resolve) => {
+          verifications.push(resolve);
+        }),
+    );
+    const provider = createClaudeStudioAgent({
+      root: "/workspace/deck",
+      spawnProcess: () => children.shift() as unknown as ClaudeCodeProcess,
+      verifyActionHandled,
+    });
+
+    const firstDelivery = provider.handleAction(actionRecord(1));
+    await vi.waitFor(() => expect(first.inputs).toHaveLength(1));
+    first.send({ type: "result", subtype: "success", session_id: "claude-session-1" });
+    await vi.waitFor(() => expect(verifications).toHaveLength(1));
+    const secondDelivery = provider.handleAction(actionRecord(2, "submit-feedback"));
+    first.emit("exit", 0, null);
+    verifications[0]?.(true);
+
+    await firstDelivery;
+    await vi.waitFor(() => expect(second.inputs).toHaveLength(1));
+    expect(first.inputs).toHaveLength(1);
+    expect(JSON.stringify(second.inputs[0])).toContain("Make the opening clearer.");
+    second.send({ type: "result", subtype: "success", session_id: "claude-session-2" });
+    await vi.waitFor(() => expect(verifications).toHaveLength(2));
+    verifications[1]?.(true);
+
+    await secondDelivery;
+    expect(provider.snapshot()).toMatchObject({
+      connected: true,
+      state: { handledActionRevision: 2, phase: "waiting-for-agent" },
+    });
+    await provider.stop();
   });
 
   it("continues the queue when Claude reports a result before the write callback", async () => {

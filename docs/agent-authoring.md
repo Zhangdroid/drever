@@ -96,6 +96,14 @@ terminal. Supervising agents treat those semantic events or `drever studio statu
 completion source of truth; quiet Vite output does not mean the managed author stopped and does not
 require a chat `continue` message.
 
+Browser action acknowledgement and model completion are separate events. After acknowledging
+feedback, Studio keeps the durable action visibly pending or refining while the latest valid draft
+remains inspectable. A managed transport may restart and replay the same pending revision once; it
+must not append a duplicate action. Managed Codex retains `workspace-write` plus `on-request`
+approval boundaries and delegates eligible requests to Auto-review. A denial must lead to a safer
+path or an explicit user decision, never wider permissions; provider-surfaced approval requests
+remain explicit Studio actions.
+
 ### Adaptive briefing contract
 
 Deck creation infers facts already present in the request, attachments, and
