@@ -5,6 +5,8 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+## [0.17.4] - 2026-08-11
+
 Release impact: **patch** — this batch keeps an active local Studio easy to recover and makes
 follow-up feedback visibly progress without weakening the managed-agent sandbox.
 
@@ -888,7 +890,9 @@ capabilities.
 - Added parallel source, unit, package, browser, export, and website checks in CI.
 - Deployed the prerendered public website and per-branch previews through Cloudflare Pages.
 
-[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.17.2...HEAD
+[Unreleased]: https://github.com/Zhangdroid/drever/compare/v0.17.4...HEAD
+[0.17.4]: https://github.com/Zhangdroid/drever/compare/v0.17.3...v0.17.4
+[0.17.3]: https://github.com/Zhangdroid/drever/compare/v0.17.2...v0.17.3
 [0.17.2]: https://github.com/Zhangdroid/drever/compare/v0.17.1...v0.17.2
 [0.17.1]: https://github.com/Zhangdroid/drever/compare/v0.17.0...v0.17.1
 [0.17.0]: https://github.com/Zhangdroid/drever/compare/v0.16.0...v0.17.0
