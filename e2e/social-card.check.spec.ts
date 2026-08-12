@@ -56,11 +56,23 @@ test("the social card renders with the website brand fonts", async ({ page }) =>
   expect(png.readUInt32BE(20)).toBe(630);
 
   const svgImage = await readFile(svgImagePath, "utf8");
-  expect(svgImage).toContain('<image width="1200" height="630" href="data:image/png;base64,');
+  expect(svgImage).toContain(
+    '<image width="1200" height="630" href="../../website/public/social-card.png?v=website-hero"',
+  );
+  expect(svgImage).not.toContain("data:");
   expect(svgImage).not.toContain("url(");
   await page.goto(pathToFileURL(svgImagePath).href);
-  await expect(page.locator("image")).toHaveAttribute("href", /^data:image\/png;base64,/u);
+  await expect(page.locator("image")).toHaveAttribute(
+    "href",
+    "../../website/public/social-card.png?v=website-hero",
+  );
+  const svgCapture = await page.screenshot({
+    animations: "disabled",
+    clip: { height: 630, width: 1200, x: 0, y: 0 },
+    type: "png",
+  });
+  expect(svgCapture.equals(png)).toBe(true);
 
   const readme = await readFile(readmePath, "utf8");
-  expect(readme).toContain('src="./.github/assets/drever-social-card.svg"');
+  expect(readme).toContain('src="./.github/assets/drever-social-card.svg?v=website-hero"');
 });

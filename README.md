@@ -13,7 +13,7 @@
 <p align="center">
   <a href="https://drever.dev">
     <img
-      src="./.github/assets/drever-social-card.svg"
+      src="./.github/assets/drever-social-card.svg?v=website-hero"
       alt="Drever: Your agent drafts. You direct. An open-source presentation studio for coding agents."
     />
   </a>

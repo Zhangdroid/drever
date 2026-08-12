@@ -7,6 +7,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const sourcePath = join(root, ".github", "assets", "drever-social-card-source.svg");
 const svgOutputPath = join(root, ".github", "assets", "drever-social-card.svg");
 const outputPath = join(root, "website", "public", "social-card.png");
+const svgImageHref = "../../website/public/social-card.png?v=website-hero";
 
 export const renderSocialCard = async () => {
   const browser = await chromium.launch({ channel: "chromium", headless: true });
@@ -51,7 +52,7 @@ export const renderSocialCard = async () => {
       svgOutputPath,
       `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <title>Drever: Your agent drafts. You direct.</title>
-  <image width="1200" height="630" href="data:image/png;base64,${image.toString("base64")}" />
+  <image width="1200" height="630" href="${svgImageHref}" />
 </svg>
 `,
     );
