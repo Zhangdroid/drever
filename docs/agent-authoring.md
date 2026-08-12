@@ -495,12 +495,14 @@ For a new project:
    canvas, safe area, default content inset, and surface owner recorded in
    `brief.md`. Never substitute another resolution for convenience.
 4. Reuse the running development server as soon as that coherent end-to-end
-   Draft 1 compiles. Verify the audience route plus the first and last slides,
-   share the stable audience URL as a non-blocking progress update, and keep
-   developing the visual system through HMR.
+   Draft 1 passes its source check. Share the stable audience URL as a
+   non-blocking progress update immediately, and keep developing the visual
+   system through HMR.
 5. During authoring and design, run `npm exec -- drever context --json`, the
-   source-only `npm exec -- drever check --json`, and affected-route inspection
-   in the existing preview.
+   source-only `npm exec -- drever check --json`, and inspect the existing
+   preview only for a concrete high-risk or user-reported question that source
+   cannot answer. Keep that inspection to the smallest slide, Step route, or
+   adjacent handoff needed; do not perform a whole-deck browser tour.
    Treat each coherent preview as a last-known-good layout checkpoint. Motion
    and polish must preserve its canvas, safe area, grid, slide and panel
    padding, readable line wraps, and painted footprint. Restore that checkpoint
@@ -511,8 +513,9 @@ For a new project:
 7. After review evidence is fresh for the final authored state, use delivery for
    the one production build. Export a PDF only when requested and only from that
    latest state.
-8. For motion edits, verify forward and backward movement, persistent geometry,
-   reduced motion, and the affected continuity boundary in a real browser.
+8. For a concrete high-risk or reported motion issue, inspect the smallest
+   affected continuity boundary in both directions. The review gate owns full
+   persistent-geometry, reduced-motion, Step, and surface coverage.
 
 The active Studio server, Creation room, embedded preview, and managed agent
 transport belong to the user session and remain alive through Storyboard review,

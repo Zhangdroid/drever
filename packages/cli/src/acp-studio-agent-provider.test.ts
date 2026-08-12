@@ -125,6 +125,10 @@ describe("ACP Studio agent provider", () => {
     expect(prompt).toContain("user-owned session resources");
     expect(prompt).toContain("never use broad process cleanup");
     expect(prompt).toContain("isolated ephemeral loopback preview");
+    expect(provider.snapshot()).toMatchObject({
+      connected: true,
+      state: { handledActionRevision: 2, phase: "waiting-for-agent" },
+    });
     await provider.stop();
   });
 

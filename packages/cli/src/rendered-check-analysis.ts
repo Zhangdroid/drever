@@ -173,12 +173,13 @@ const issueDiagnostic = (
     return diagnostic(
       issueCode(issue),
       "error",
-      `Text contrast is ${issue.actual.toFixed(2)}:1 instead of at least ${issue.expected.toFixed(1)}:1 on slide ${frame.slide.index + 1}.`,
+      `${issue.context === "syntax-token" ? "Syntax token" : "Text"} contrast is ${issue.actual.toFixed(2)}:1 instead of at least ${issue.expected.toFixed(1)}:1 on slide ${frame.slide.index + 1}.`,
       frame,
       {
         details: {
           actual: issue.actual,
           background: issue.background,
+          ...(issue.context === undefined ? {} : { context: issue.context }),
           element: elementDetails(issue.element),
           expected: issue.expected,
           fontSize: issue.fontSize,
@@ -188,7 +189,10 @@ const issueDiagnostic = (
           states,
         },
         element: issue.element,
-        hint: "Increase the foreground/background contrast while preserving the intended hierarchy.",
+        hint:
+          issue.context === "syntax-token"
+            ? "Make --drever-canvas-color-scheme match the canvas, then choose syntax foregrounds that remain readable on the code surface."
+            : "Increase the foreground/background contrast while preserving the intended hierarchy.",
       },
     );
   }

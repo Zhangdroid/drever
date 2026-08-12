@@ -421,20 +421,28 @@ approval, mark both files approved and continue.
 
 ## Create the first useful preview
 
-<!-- drever-preview-contract:v7 -->
+<!-- drever-preview-contract:v8 -->
 
 <!-- drever-visual-foundation-contract:v1 -->
 
 After approval, load the project-local `drever-author-deck` skill and let `drever.plan.json` remain
 the story contract while authoring. Treat the `approve-plan` handoff as latency-sensitive:
-in one bounded semantic pass, create a content-complete Draft 1 before loading
-`drever-create-design`, reading its references, starting design research, writing
-`design/art-direction.md`, hunting for optional assets, or refining motion. Every approved slide
+in one bounded semantic pass, the primary writer must create a content-complete Draft 1 before it
+loads `drever-create-design`, reads its references, starts design research, writes
+`design/art-direction.md`, hunts for optional assets, or refines motion. Every approved slide
 must exist in order with its real readable copy, required evidence, simple focal artifact, and
 speaker notes. Use semantic MDX, the locked canvas and safe-area policy, and the current coherent
 starter or approved surface. Do not substitute placeholders, change the approved resolution,
 replace Theme or Stage configuration, finish bespoke choreography, or build a custom design system
 before exposing the first useful preview.
+
+After approval, the host may start at most one optional read-only visual-planning lane alongside the
+primary Draft 1 writer. That lane may read only the approved `brief.md`, `drever.plan.json`, and the
+project-local `drever-create-design` skill, then return a compact palette, type, Scene, and
+signature-moment proposal. It must not write any project file, browse or search for assets, or run
+project commands. The primary writer must not wait for it, and the source check and preview
+publication must not depend on it. Apply useful planning only after `preview`, through the single
+writer that owns MDX, Theme, Stage, and CSS.
 
 If the current surface cannot render the approved content safely, prepare the smallest complete
 replacement Theme CSS, Theme module, and required Stage module while they remain unreferenced, then
@@ -467,12 +475,18 @@ revert it before publishing the next preview and redesign it around the stable g
 expose a broken intermediate layout or defer recovery to a later cleanup pass.
 
 Share a non-blocking update when Draft 1 is ready, then continue in the same turn and load the
-project-local `drever-create-design` skill for refinement against the same live preview. If the host
-can run parallel workers, begin factual research and a read-only art-direction or asset lane after
-the preview publication while one primary worker remains the only writer of MDX, Theme, Stage, and
-CSS. Never wait for an optional lane before publishing preview, and never let two workers edit the
-same visual source. After design and authoring settle, let `drever-review-deck` launch the isolated
+project-local `drever-create-design` skill for refinement against the same live preview. After
+preview, factual research or optional asset work may also begin when it cannot contend with the
+single visual-source writer. Never wait for an optional lane before publishing preview, and never
+let two workers edit the same visual source. After design and authoring settle, let
+`drever-review-deck` launch the isolated
 Playwright rendered review for the final source; never duplicate that browser gate during Draft 1.
+Keep the post-preview design pass source-led. Open the existing live preview only when a concrete
+user-reported or high-risk question cannot be resolved from source, then inspect the smallest
+affected slide, exact Step route, or adjacent handoff needed to answer it. A new whole-deck design
+is not a reason to walk every slide and Step in the live browser. Do not separately repeat the
+complete `/document`, `/speaker`, or reduced-motion matrix during refinement; the final review owns
+that exhaustive rendered coverage exactly once.
 The design pass is incomplete until `design/art-direction.md` contains the complete Scene and
 Handoff maps required by that skill and their decisions are implemented in the live deck.
 
@@ -490,11 +504,13 @@ polish, and rerun only the affected fast checks after the edit. Never cite stale
 
 ## Refine and deliver
 
-Let authoring and design run source-only and affected-route checks while the preview changes. Once
-the refined preview is stable, load `drever-review-deck` as the single owner of the exhaustive
-rendered completion gate; do not run a duplicate full rendered preflight in this orchestration
-skill. Do not merely ask the model to “make it better.” Preserve sound choices and repair only
-affected slides and handoffs.
+Let authoring and design run source checks and, at most, the narrowly targeted live-route inspection
+defined above while the preview changes. Do not turn “affected routes” into another full browser
+walk, even when a new Theme or Stage reaches the whole deck. Once the refined preview is stable,
+load `drever-review-deck` as the single owner of every-slide, every-Step, document, speaker, and
+reduced-motion rendered completion gate; do not run a duplicate full rendered preflight in this
+orchestration skill. Do not merely ask the model to “make it better.” Preserve sound choices and
+repair only affected slides and handoffs.
 
 After review evidence is fresh for the final authored state, load `drever-deliver-deck` for the one
 production build and any requested PDF export. Report the project path, preview URL, requested

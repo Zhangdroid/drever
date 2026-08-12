@@ -16,10 +16,12 @@ Treat a Drever Theme as a deterministic internal contract, not the primary user 
 1. Determine the phase before reading the deck. For an existing stable deck or after the content
    Draft 1 URL is live, read the approved `drever.plan.json` when present, the complete brief, and the deck plus only the project-owned assets, local
    components, design files, `drever.config.ts`, and Stage modules that the design will use or edit.
-   Use `drever_get_context` when available; otherwise run `npm exec -- drever context --json`. When
-   running in parallel before Draft 1, read the brief and stable project configuration, own only the
-   art-direction and asset plan, and do not run context or inspect or edit the in-progress deck until
-   the primary worker transfers ownership.
+   Use `drever_get_context` when available; otherwise run `npm exec -- drever context --json`. The
+   optional pre-preview visual-planning lane is the sole exception: read only the approved brief,
+   approved plan, and this project-local skill, then return a compact palette, type, Scene, and
+   signature-moment proposal. Do not write project files or browse or search for assets.
+   Do not run context or any project command, inspect the in-progress deck, or wait for the Draft 1 writer. The
+   single visual-source writer may apply useful planning only after preview.
    Treat that context, this skill, and the scaffold's documented imports as the complete public
    contract. Do not inspect `node_modules`, declaration files, Drever package or repository source,
    schemas, internals, official design implementations, or example decks to discover how to build
@@ -175,11 +177,14 @@ TypeScript, React, and CSS directly; do not create a probe deck to confirm that 
 
 Theme tokens are metadata, not CSS paint. Map `tokens.color.canvas` and `tokens.color.ink` to
 `--drever-canvas-background`, `--drever-stage-background`, `--drever-canvas-color`, and
-`--drever-stage-color` in Theme CSS, and set the matching color scheme. Keep recurring full-canvas
-paint in `stage.background`; if the same opaque color, gradient, image, or atmosphere appears on
-two adjacent slides, Stage ownership is mandatory and the Slide plus full-canvas scene root must
-stay transparent. The runtime starts a document-level deck transition even when no `MotionGroup`
-exists, so a repeated Slide-owned background will move as a bitmap and may expose the canvas.
+`--drever-stage-color` in Theme CSS. Set `--drever-canvas-color-scheme` to the matching explicit
+`light` or `dark` value; a bare `:root { color-scheme: ... }` declaration is insufficient because
+the canvas owns its local scheme. Otherwise dual Shiki themes can select dark glyphs on a dark code
+surface or light glyphs on a light one. Keep recurring full-canvas paint in `stage.background`; if
+the same opaque color, gradient, image, or atmosphere appears on two adjacent slides, Stage
+ownership is mandatory and the Slide plus full-canvas scene root must stay transparent. The runtime
+starts a document-level deck transition even when no `MotionGroup` exists, so a repeated Slide-owned
+background will move as a bitmap and may expose the canvas.
 Default a generated custom Theme's root slide offset to `0%` or its root enter animation to `none`
 until an intentional whole-scene handoff has been authored. Use a local/direct edge for that
 exception instead of restoring spatial movement on every slide.
@@ -439,27 +444,30 @@ When a slide pairs a text-heavy narrative region with supporting content, make t
 
 ## Validate the result
 
-Treat the first applied design as Design Pass 1. Render it before polishing further, then perform a
-separate refinement pass against the actual deck. Preserve the visual premise, signature moments,
-and subject-led choices that work. Correct evidence-backed problems in hierarchy, composition
-rhythm, readability, background emphasis, motion, and consistency; do not restyle the deck
-wholesale or add decoration merely to make the second pass look different.
+Treat the first applied design as Design Pass 1, then perform a separate source-led refinement pass.
+Preserve the visual premise, signature moments, and subject-led choices that work. Correct concrete
+problems in hierarchy, composition rhythm, readability, background emphasis, motion, and
+consistency; do not restyle the deck wholesale or add decoration merely to make the second pass look
+different. Use a targeted live inspection only for a high-risk or user-reported question that
+source cannot answer. The final review skill owns exhaustive rendered evidence.
 
 Treat the last approved working preview as immutable geometry for refinement. Preserve its exact
 canvas, slide bounds, safe area, outer margins, root and panel padding, grid tracks, layout shell,
 readable line wraps, and largest painted footprint. Add motion and polish inside that shell; never
-reset or temporarily remove those foundations to make an effect easier. Compare the affected routes
-after each complete change. If an enhancement regresses the checkpoint, revert it before publishing
-the next preview and redesign it around the stable geometry—do not expose a broken intermediate
-layout or defer recovery to a later cleanup pass.
+reset or temporarily remove those foundations to make an effect easier. Compare changed layout
+rules and content geometry with that checkpoint after each complete change. When source cannot
+establish preservation and the risk is material, use only the smallest targeted live inspection
+defined below. If an enhancement regresses the checkpoint, revert it before publishing the next
+preview and redesign it around the stable geometry—do not expose a broken intermediate layout or
+defer recovery to a later cleanup pass.
 
 When this skill is part of new-deck creation, it must not delay the coherent end-to-end content
 Draft 1 or its stable development URL. Resume the design work against that same live preview without
 waiting for approval. Do not make a production build the prerequisite for the first useful preview,
-and do not run repeated production builds during visual iteration. If the host can run this work in
-parallel with narrative authoring, start early but own only the art-direction and asset plan until
-the first preview; never edit the same MDX or styles from two workers. Apply the visual system after
-the content preview is stable or after the primary worker explicitly transfers ownership.
+and do not run repeated production builds during visual iteration. At most one optional pre-preview
+visual-planning lane may run under the read-only limits above; the primary writer must not wait for
+it and the preview gate must not depend on it. Never edit the same MDX or styles from two workers.
+Apply the visual system only after the content preview is stable and one writer owns the source.
 
 Keep the active Studio server, Creation room, embedded preview, and managed transport alive. Never
 start a competing development server, attach generic browser control before preview, or use broad
@@ -468,29 +476,22 @@ loopback server and Playwright browser.
 
 1. Add tests only for meaningful contracts or component behavior; do not add snapshots that merely preserve CSS text.
 2. After the Draft 1 preview is live, run the fast design loop: regenerate
-   `npm exec -- drever context --json`, run `npm exec -- drever check --json`, and inspect affected
-   routes in the existing live preview. Fix proven source errors immediately. Do not run a production
-   build or a duplicate full rendered preflight here; the review skill owns the exhaustive rendered
-   gate and delivery owns build and export.
-3. Inspect every affected slide at Step 0 and every affected exact Step state after Design Pass 1.
-   For a new whole-deck design, that means every state; for a narrowly scoped later edit, inspect the
-   affected states and adjacent handoffs. Changing shared tokens, layouts, Stage layers, or
-   components affects the whole deck. Resolve every P0 readability defect before aesthetic polish,
-   including computed descendant spacing and foregrounds on the most disruptive background frame.
-   Check intermediate motion frames in both directions for coordinate rebasing, activation timing,
-   and paint containment, not only endpoints. Treat this live-preview pass as iteration evidence,
-   not the final rendered completion gate.
-   For every signature moment and every unfamiliar transition, inspect the initial frame, one early
-   frame, the visual midpoint, the settled frame, and the reverse path. Continue observing briefly
-   after native navigation settles: no destination content may replay a second entrance. Compare
-   the motion with its recorded acceptance chain and reject a transient cue that leaves no visible
-   result, a text swap that changes its slot geometry, or any frame that stretches glyphs, rules,
-   panels, or shadows.
-   Check safe areas, panel padding, line measure, line height, optical alignment, and contrast in
-   every inspected state. Confirm that the selected content-to-scene recipe still serves the claim
-   after rendering; replace a clever but illegible or purposeless treatment with the quieter
-   alternative.
-4. Check `/document`, reduced motion, and relevant speaker and export surfaces. Verify fonts and localized assets load without network-dependent generation.
+   `npm exec -- drever context --json`, run `npm exec -- drever check --json`, and fix proven source
+   errors immediately. Use the existing live preview only for a concrete high-risk or user-reported
+   question that source cannot answer, and inspect the smallest affected exact slide, Step route, or
+   adjacent handoff needed for that question. A new whole-deck design and a shared token, layout,
+   Stage, or component change do not justify walking every state in a generic browser. Do not run a
+   production build or a duplicate full rendered preflight here; the review skill owns the
+   exhaustive rendered gate and delivery owns build and export.
+3. For an unfamiliar signature transition or a reported motion defect, a targeted inspection may
+   sample its initial frame, one early frame, the visual midpoint, the settled frame, and the reverse
+   path, then compare relevant geometry. It must
+   not expand into a whole-deck browser tour. Resolve any P0 defect that this targeted evidence
+   proves before aesthetic polish. Do not separately repeat the complete Step matrix, `/document`,
+   reduced motion, speaker, or export surfaces; the project-local `drever-review-deck` skill owns
+   those exhaustive rendered surfaces exactly once after source stabilizes.
+4. Verify from source that fonts and localized assets do not depend on runtime generation. Leave
+   their exhaustive rendered surface validation to the final review.
 5. Review the result against `art-direction.md`: remove any prominent choice that cannot be justified as subject-led or clearly acknowledged as fallback.
 6. Append an **implementation receipt** to `art-direction.md` before review. Give every planned
    signature moment one row with its claim, exact slide route and Step, visual-story pattern role,

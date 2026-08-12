@@ -19,9 +19,14 @@ Translate the requested outcome into Drever's deterministic checks, build, and e
    input changed, run the review skill again; do not duplicate its exhaustive rendered preflight in
    this skill. Do not deliver while its blocking findings remain. A source-only report is not review
    evidence.
-4. After review is fresh, run `npm exec -- drever build --json` once for a website deliverable or
-   before final built-output inspection. Use the returned artifact receipt rather than guessing the
-   output path. Verify the built entry, exact slide routes, assets, reload behavior, and `/document`.
+4. After review is fresh, run `npm exec -- drever build --json` once for a website deliverable. Use
+   the returned artifact receipt rather than guessing the output path. When the command succeeds,
+   make only one bounded filesystem existence check for the receipt's website entry,
+   `/document/index.html`, and the slide and Step route entries declared by the final reviewed
+   manifest. Do not recursively list the output, grep or parse generated HTML or JavaScript, reopen
+   the built site in a browser, or repeat asset, font, reload, motion, speaker, and document behavior
+   already covered by fresh rendered evidence. Inspect more only when the receipt reports an anomaly
+   or the user requests a capability that exists only in built output.
 5. Run `npm exec -- drever export pdf [entry] --output <path> --json` when a PDF is requested. Add
    `--steps` only when the user wants every reveal state, and use `--slides` only for an explicit
    selection. Choose an intentional output path so the artifact is easy to find.
@@ -41,7 +46,10 @@ review evidence and every derived artifact. If feedback arrives or built-output 
 a source fix, cancel or ignore in-flight results, apply the edit, return to the review skill for
 fresh affected evidence, then rebuild or re-export. Never hand off or cite stale evidence.
 
-Before handoff, inspect the actual requested artifacts. Confirm that fonts, images, video fallbacks, Stage layers, motion end states, notes, and export-ready media behave correctly in the relevant surface. A successful command is necessary but not sufficient evidence of presentation readiness.
+For a website handoff, the fresh rendered review plus the successful build receipt and bounded route
+existence check above are sufficient when no relevant source changed. Do not perform a second visual
+review of identical built pixels. Inspect a requested PDF as an output-specific artifact because its
+pagination and media fallbacks are not proven merely by the website build.
 
 For an explicitly mechanical draft build or export, respect that narrower scope and skip the review
 gate when requested, but do not imply that the deck passed presentation-readiness review.

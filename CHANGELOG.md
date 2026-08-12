@@ -5,6 +5,28 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+## [0.17.3] - 2026-08-11
+
+Release impact: **patch** — this batch keeps Studio draft progress honest while work continues and
+shortens the final refinement path while hardening the rendered readability gate.
+
+### Changed
+
+- Kept post-preview refinement source-led and made the final rendered review the sole owner of the
+  exhaustive slide, Step, document, speaker, and reduced-motion matrix. A bounded read-only visual
+  planning lane may overlap Draft 1 without delaying its preview, while final delivery no longer
+  repeats browser review or recursively inspects generated bundles after a successful fresh build.
+
+### Fixed
+
+- Kept managed `drafting` and `refining` phases authoritative across intermediate preview and ready
+  publications, so Studio continues to show active work while leaving the latest draft available to
+  inspect, and only reports review readiness after the agent turn actually settles.
+- Made rendered preflight ruleset 6 measure the weakest individual syntax token in each code block,
+  so a mismatched canvas color scheme can no longer hide unreadable highlighted code behind an
+  indeterminate mixed-color warning. Generated custom Themes now explicitly set
+  `--drever-canvas-color-scheme` instead of relying on the document root's color scheme.
+
 ## [0.17.2] - 2026-08-11
 
 Release impact: **patch** — this batch makes managed Studio progress observable, shortens the path

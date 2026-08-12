@@ -107,12 +107,25 @@ describe("Studio action workflow instructions", () => {
     expect(instructions).toMatch(/exactly once[^.]*blocking source diagnostic/iu);
     expect(instructions).toMatch(/active Studio development server[^.]*embedded preview iframe/iu);
     expect(instructions).toMatch(/HMR reveal the draft/iu);
-    expect(instructions).toMatch(/do not load the design skill[^.]*write art-direction\.md/iu);
+    expect(instructions).toMatch(/must not load the design skill[^.]*write art-direction\.md/iu);
     expect(instructions).toMatch(/write art-direction\.md, replace Theme or Stage configuration/iu);
+    expect(instructions).toMatch(/one optional read-only visual-planning worker/iu);
+    expect(instructions).toMatch(/read only the approved brief, plan[^.]*design skill/iu);
+    expect(instructions).toMatch(
+      /must not write project files[^.]*browse or search[^.]*commands/iu,
+    );
+    expect(instructions).toMatch(/must not wait for it[^.]*preview gate must not depend on it/iu);
+    expect(instructions).toMatch(/apply any useful proposal only after preview/iu);
     expect(instructions).toMatch(/do not start or restart another development server/iu);
     expect(instructions).toMatch(/Before preview[^.]*do not[^.]*invoke Playwright/iu);
     expect(instructions).toMatch(/Publish preview in the same action immediately/iu);
     expect(instructions).toMatch(/isolated rendered review only after the final authored source/iu);
+    expect(instructions).toMatch(/post-preview design iteration source-led/iu);
+    expect(instructions).toMatch(/smallest affected slide, Step route, or adjacent handoff/iu);
+    expect(instructions).toMatch(
+      /Do not walk every slide or Step[^.]*document, speaker, and reduced-motion/iu,
+    );
+    expect(instructions).toMatch(/review skill owns[^.]*exhaustive rendered matrix exactly once/iu);
     expect(instructions).toMatch(/last-known-good canvas[^.]*safe area[^.]*immutable geometry/iu);
     expect(instructions).toMatch(/revert it before publishing[^.]*redesign it/iu);
     expect(instructions).toMatch(/slide 1[^.]*restrained cover/iu);
@@ -157,9 +170,10 @@ describe("Studio action workflow instructions", () => {
     const instructions = studioActionWorkflowInstructions(record);
     expect(instructions).toMatch(/Do not launch another `drever dev` or Vite server/iu);
     expect(instructions).toMatch(/never use broad process cleanup[^.]*`pkill`[^.]*`killall`/iu);
-    expect(instructions).toMatch(
-      /drever check --rendered --evidence \.drever\/review --json[^.]*isolated ephemeral loopback preview/iu,
-    );
+    expect(instructions).toContain("drever check --rendered --evidence .drever/review --json");
+    expect(instructions).toMatch(/isolated ephemeral loopback preview[^.]*Playwright browser/iu);
+    expect(instructions).toMatch(/single owner of final rendered evidence/iu);
+    expect(instructions).toMatch(/do not manually reproduce[^.]*complete route and surface walk/iu);
   });
 
   it.each([

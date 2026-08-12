@@ -154,6 +154,7 @@ test("rendered check catches high-confidence visual failures without writing a p
 
 <style>{\`
   [data-step-state="pending"].reflow-evidence { display: none; }
+  pre.shiki { background: #08141d !important; }
 \`}</style>
 
 # Rendered evidence
@@ -209,6 +210,10 @@ test("rendered check catches high-confidence visual failures without writing a p
   <div aria-hidden="true" style={{ position: "absolute", zIndex: 1, inset: "44px 0 auto 0", height: 32, backgroundColor: "#111111" }} />
 </div>
 
+~~~jsx
+const selectedTheme = "light syntax on a dark code surface";
+~~~
+
 ---
 
 # Required copy needs breathing room
@@ -237,7 +242,7 @@ test("rendered check catches high-confidence visual failures without writing a p
       expect.objectContaining({
         browserVersion: expect.any(String),
         engine: "chromium",
-        rulesetVersion: 5,
+        rulesetVersion: 6,
         stateCount: 5,
         status: "failed",
         version: 1,
@@ -252,7 +257,17 @@ test("rendered check catches high-confidence visual failures without writing a p
       JSON.stringify(report.diagnostics, null, 2),
     ).toEqual(expect.arrayContaining(["line-fragment", "scroll-overflow"]));
     expect(diagnosticsByCode.get("DREVER_RENDER_CONTENT_OVERLAP")).toHaveLength(1);
-    expect(diagnosticsByCode.get("DREVER_RENDER_TEXT_CONTRAST_LOW")).toHaveLength(2);
+    expect(diagnosticsByCode.get("DREVER_RENDER_TEXT_CONTRAST_LOW")).toHaveLength(3);
+    expect(diagnosticsByCode.get("DREVER_RENDER_TEXT_CONTRAST_LOW")).toContainEqual(
+      expect.objectContaining({
+        details: expect.objectContaining({
+          background: "rgb(8 20 29)",
+          context: "syntax-token",
+          element: expect.objectContaining({ tag: "span" }),
+          foreground: "rgb(36 41 46)",
+        }),
+      }),
+    );
     expect(diagnosticsByCode.get("DREVER_RENDER_TEXT_CONTRAST_INDETERMINATE")).toBeDefined();
     expect(diagnosticsByCode.get("DREVER_RENDER_TEXT_SAFE_AREA")).toHaveLength(1);
     expect(
@@ -440,7 +455,7 @@ test("rendered check blocks repeated full-canvas direct and pseudo background pa
       ({ code }) => code === "DREVER_RENDER_BACKGROUND_TRANSITIONED",
     );
 
-    expect(report.rendered).toMatchObject({ rulesetVersion: 5, stateCount: 4 });
+    expect(report.rendered).toMatchObject({ rulesetVersion: 6, stateCount: 4 });
     expect(backgroundDiagnostics).toHaveLength(2);
     expect(backgroundDiagnostics.map(({ details }) => details?.background)).toEqual(
       expect.arrayContaining([
@@ -502,7 +517,7 @@ This payload is visible in the native snapshot, then starts another entrance.
     );
 
     expect(report.rendered, JSON.stringify(report, null, 2)).toMatchObject({
-      rulesetVersion: 5,
+      rulesetVersion: 6,
       stateCount: 2,
     });
     expect(diagnostics, JSON.stringify(report, null, 2)).toHaveLength(1);

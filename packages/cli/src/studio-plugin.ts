@@ -1026,22 +1026,36 @@ const stateWithoutRevision = async (
   const publishedPlanReviewIsCurrent =
     pendingActionCount === 0 && plan?.status === "awaiting-approval" && !storyboardOutdated;
   const durableCheckpointIsCurrent = publishedArtifactIsCurrent || publishedPlanReviewIsCurrent;
-  const agentPhase = publishedPlanReviewIsCurrent
-    ? "plan-review"
-    : publishedArtifactIsCurrent
-      ? publishedArtifactPhase
-      : livePhase === "error"
-        ? livePhase
-        : liveAgentConnected
-          ? (livePhase ?? publishedPhase)
-          : (publishedPhase ?? livePhase);
+  // A preview/ready publication proves that a durable artifact exists; it does not finish the
+  // managed agent turn that produced it. Keep the live turn phase authoritative until the
+  // provider settles so intermediate preview publications cannot make Studio flicker between
+  // "ready" and "working" while the same draft is still changing.
+  const liveDraftWorkPhase =
+    plan?.status === "approved" &&
+    liveAgentConnected &&
+    (livePhase === "drafting" || livePhase === "refining")
+      ? livePhase
+      : undefined;
+  const agentPhase =
+    liveDraftWorkPhase ??
+    (publishedPlanReviewIsCurrent
+      ? "plan-review"
+      : publishedArtifactIsCurrent
+        ? publishedArtifactPhase
+        : livePhase === "error"
+          ? livePhase
+          : liveAgentConnected
+            ? (livePhase ?? publishedPhase)
+            : (publishedPhase ?? livePhase));
   const telemetryAgent =
-    durableCheckpointIsCurrent ||
-    liveSnapshot === undefined ||
-    !liveStateIsValid ||
-    liveAgent === undefined
-      ? fileAgent
-      : liveAgent;
+    liveDraftWorkPhase !== undefined
+      ? liveAgent
+      : durableCheckpointIsCurrent ||
+          liveSnapshot === undefined ||
+          !liveStateIsValid ||
+          liveAgent === undefined
+        ? fileAgent
+        : liveAgent;
   const draftReview = telemetryAgent?.draftReview;
   const latestDraftReviewRevision = latestRevisionMatching(
     records,

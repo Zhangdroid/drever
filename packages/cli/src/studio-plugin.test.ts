@@ -731,6 +731,68 @@ describe("Studio session", () => {
     }
   });
 
+  it("keeps a managed draft visibly working across intermediate preview publications", async () => {
+    const root = await createRoot();
+    await writeBriefActions(root, 1);
+    await writeFile(
+      join(root, "drever.plan.json"),
+      JSON.stringify({ ...plan, status: "approved" }),
+      "utf8",
+    );
+    let livePhase = "drafting" as "drafting" | "refining" | "waiting-for-agent";
+    let liveMessage = "Building the visual system.";
+    const session = createStudioSession(root, {
+      agentProvider: {
+        snapshot: () => ({
+          connected: true,
+          state: {
+            version: 1,
+            phase: livePhase,
+            handledActionRevision: 0,
+            message: liveMessage,
+          },
+        }),
+      },
+    });
+
+    await writeStudioAgentState(root, {
+      version: 1,
+      phase: "preview",
+      handledActionRevision: 1,
+      message: "Draft 1 is ready to review.",
+    });
+    await expect(session.read()).resolves.toMatchObject({
+      draftAvailable: true,
+      message: "Building the visual system.",
+      phase: "drafting",
+    });
+
+    livePhase = "refining";
+    liveMessage = "Checking the rendered transitions.";
+    await writeStudioAgentState(root, {
+      version: 1,
+      phase: "ready",
+      handledActionRevision: 1,
+      message: "The reviewed draft is ready.",
+    });
+    await expect(session.refresh()).resolves.toMatchObject({
+      state: {
+        draftAvailable: true,
+        message: "Checking the rendered transitions.",
+        phase: "refining",
+      },
+    });
+
+    livePhase = "waiting-for-agent";
+    await expect(session.refresh()).resolves.toMatchObject({
+      state: {
+        draftAvailable: true,
+        message: "The reviewed draft is ready.",
+        phase: "ready",
+      },
+    });
+  });
+
   it("does not infer a live draft from managed-agent telemetry alone", async () => {
     const root = await createRoot();
     await writeBriefActions(root, 1);

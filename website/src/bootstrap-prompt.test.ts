@@ -114,7 +114,7 @@ describe("public bootstrap prompt", () => {
   });
 
   it("separates first preview, deterministic checks, and human visual judgment", () => {
-    expect(createDeckSkill).toContain("<!-- drever-preview-contract:v7 -->");
+    expect(createDeckSkill).toContain("<!-- drever-preview-contract:v8 -->");
     expect(createDeckSkill).toMatch(/every approved slide[^.]*real readable copy/iu);
     expect(createDeckSkill).toMatch(/only pre-preview gate[^.]*one source check/iu);
     expect(createDeckSkill).toMatch(/publish `preview` in that same action immediately/iu);
@@ -127,7 +127,7 @@ describe("public bootstrap prompt", () => {
     expect(createDeckSkill).toMatch(/never invent or guess a preview address/iu);
     expect(createDeckSkill).not.toContain("drever check --rendered --json");
     expect(reviewDeckSkill).toContain("drever check --rendered --evidence .drever/review --json");
-    expect(createDeckSkill).toMatch(/single owner[^.]*exhaustive\s+rendered completion gate/iu);
+    expect(createDeckSkill).toMatch(/single owner[^.]*rendered completion gate/iu);
     expect(createDeckSkill).toMatch(/one\s+production build[^.]*requested PDF export/iu);
   });
 
@@ -137,7 +137,7 @@ describe("public bootstrap prompt", () => {
     );
     expect(createDeckSkill).toMatch(/do not require a\s+new-plan approval gate/iu);
     expect(createDeckSkill).toMatch(
-      /bounded semantic pass[^.]*Draft 1 before loading\s+`drever-create-design`/iu,
+      /bounded semantic pass[^.]*Draft 1 before (?:it\s+)?loads\s+`drever-create-design`/iu,
     );
 
     for (const skill of [createDeckSkill, createDesignSkill, authorDeckSkill, deliverDeckSkill]) {

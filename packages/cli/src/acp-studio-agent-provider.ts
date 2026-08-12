@@ -839,6 +839,7 @@ class AcpStudioAgentProviderImplementation implements AcpStudioAgentProvider {
 
   #markActionHandled(record: DreverStudioActionRecord): void {
     this.#handledActionRevision = record.revision;
+    this.#phase = "waiting-for-agent";
     this.#completeActivity(`studio-action-${String(record.revision)}`);
     this.#emit();
   }

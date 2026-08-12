@@ -620,8 +620,9 @@ describe("Studio", () => {
         onAction={vi.fn()}
         previewUrl="http://127.0.0.1:51999/"
         state={state({
+          agentConnected: true,
           draftAvailable: true,
-          phase: "drafting",
+          phase: "refining",
           commonBrief: { topic: plan.brief.topic },
           plan: { ...plan, status: "approved" },
         })}
@@ -629,8 +630,12 @@ describe("Studio", () => {
     );
 
     expect(markup).toContain('title="Live Drever draft"');
+    expect(markup).toContain('aria-busy="true"');
+    expect(markup).toContain("Live work in progress");
+    expect(markup).toContain("The agent is still refining this draft");
     expect(markup).toContain('aria-pressed="true" type="button">Live draft');
     expect(markup).not.toContain('disabled="" type="button">Live draft');
+    expect(markup).not.toContain("Draft 1 is ready to review");
   });
 
   it("marks outdated Storyboard and Draft surfaces as previous versions", () => {

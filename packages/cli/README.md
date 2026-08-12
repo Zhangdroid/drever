@@ -289,8 +289,9 @@ count. Once approved, the agent reuses the same development server. When the
 plan becomes a coherent end-to-end Draft 1, it shares the
 audience URL for immediate story and content
 review, and continues visual and technical refinement without another approval
-pause. Authoring and design use source-only and affected-route checks while the
-preview changes. Review owns the exhaustive rendered gate; delivery reuses its
+pause. Authoring and design stay source-led while the preview changes and use the
+live surface only for the smallest concrete high-risk or user-reported question
+that source cannot answer. Review owns the exhaustive rendered gate; delivery reuses its
 fresh evidence and runs the one production build plus requested exports. Any
 later source, configuration, or asset mutation invalidates affected evidence.
 

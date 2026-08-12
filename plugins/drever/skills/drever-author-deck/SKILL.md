@@ -33,7 +33,7 @@ Commands below use npm's project-local runner. In a pnpm, Yarn, or Bun project, 
    Plan that object's narrative lifecycle instead of assigning isolated entrances: it may begin completely off-stage, enter as evidence, dock at low contrast when it becomes context, and retire when it stops explaining the claim. When one concrete artifact keeps carrying the argument, build a short connected sequence around it: change the surrounding context or surface while the artifact remains recognizable, and give it a distinct narrative job on every slide. Show a fragment only when that fragment creates useful anticipation; never leave a meaningless clipped sliver.
    Let an initial state settle when the audience must perceive it. Choose timing from the reading job instead of applying a fixed delay, and keep quiet cues perceptible at presentation distance. Animate only properties that express the same semantic change.
 7. Keep speaker-only explanation in `Note` and preserve headings, alternatives, captions, focus behavior, and reduced-motion behavior.
-8. End public or shared decks with a clear next action. Use visible, same-tab native links with canonical absolute URLs rather than deriving them from the current host, then verify the action in the rendered audience, `/document`, and export surfaces.
+8. End public or shared decks with a clear next action. Use visible, same-tab native links with canonical absolute URLs rather than deriving them from the current host. Leave the exhaustive audience, `/document`, and export verification to the final review and delivery gates.
 9. Never edit generated files in `dist/` or `.drever/`.
 
 ## Expose an approved Draft 1 without blocking on polish
@@ -149,27 +149,24 @@ evidence. Preserve successful neighboring work, routes, Steps, and design decisi
 material narrative, visual, motion, interaction, or surface regressions. Do not broaden the edit or
 add novelty merely to prove that a second pass happened.
 
-During that refinement pass, compare the rendered scene with the content form that motivated it.
+During that refinement pass, compare the implementation with the content form that motivated it.
 Replace generic motion, insufficient safe area, edge-hugging text, cramped panel padding, awkward
-line measure, or an overactive background before polishing secondary decoration. Inspect every
-affected Step state because a pending or complete wrapper can change geometry even when Step 0 is
-correct.
+line measure, or an overactive background before polishing secondary decoration. Use source and
+known geometry first. Inspect a specific Step state in the live preview only when a concrete
+high-risk or user-reported question cannot be answered from source; leave complete Step-state
+coverage to the final review gate.
 
-During authoring, run the fast source and affected-route loop: regenerate
-`npm exec -- drever context --json`, run `npm exec -- drever check --json`, and inspect every affected
-exact slide and Step route in the existing live preview. Fix proven source errors immediately. Treat
-visual observations as iteration evidence, not the exhaustive rendered completion gate. For motion,
-inspect the initial frame, one early frame, the visual midpoint, the settled frame, and the finished
-handoff in both directions; keep observing briefly after navigation settles so destination content
-cannot replay the same entrance. Compare relevant
-`getBoundingClientRect()` values and computed spacing, foreground, and paint before, during, and
-after navigation, and verify invariant Step coordinate systems, active-state timing, full-canvas
-containment, and pointer focus. If a shared object appears to enlarge and then settle, repair or
-remove the mismatched continuity boundary before tuning duration or easing. Check reduced motion and
-`/document`; check `/speaker` when notes or presentation behavior changed. Verify reload and history
-after slide or Step topology changes. Do not run a production build or a duplicate full rendered
-preflight here; the review skill owns the exhaustive rendered gate and delivery owns build and
-export.
+During authoring, keep the fast loop source-led: regenerate
+`npm exec -- drever context --json`, run `npm exec -- drever check --json`, and fix proven source
+errors immediately. Use the existing live preview only for a concrete high-risk or user-reported
+question that source cannot answer, and inspect the smallest affected exact slide, Step route, or
+adjacent handoff needed for that question. Do not walk every affected route merely because a shared
+Theme, Stage, layout, or component has broad reach. For an unfamiliar signature transition or a
+reported motion defect, a targeted inspection may sample its initial, midpoint, settled, and reverse
+frames and compare relevant geometry; it must not expand into a deck-wide browser tour. Do not
+separately check the complete Step matrix, reduced motion, `/document`, or `/speaker` here. The
+project-local `drever-review-deck` skill owns those exhaustive rendered surfaces exactly once after
+source stabilizes, and delivery owns the production build and export.
 
 Every context report, check, browser inspection, build, and export is valid only for the exact
 source, configuration, and assets that existed when it ran. Any user or agent mutation invalidates

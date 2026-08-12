@@ -70,6 +70,7 @@ export type RenderedCheckIssue =
   | Readonly<{
       actual: number;
       background: string;
+      context?: "syntax-token";
       element: RenderedCheckElement;
       expected: number;
       fontSize: number;
@@ -683,15 +684,21 @@ export const captureRenderedCheckFrame = (route: string): RenderedCheckFrame => 
   }
 
   const recordedIndeterminateContrast = new Set<string>();
-  const contrastCandidates = candidates.filter(
-    (element) =>
-      overlapKind(element) === "text" &&
-      (directText(element).length > 0 || element.querySelector(textSelector) === null),
-  );
-  for (const element of contrastCandidates) {
-    const evidence = elements[candidates.indexOf(element)] as RenderedCheckElement;
+  type ContrastMeasurement =
+    | Readonly<{ reason: string; type: "indeterminate" }>
+    | Readonly<{
+        actual: number;
+        background: Color;
+        expected: number;
+        fontSize: number;
+        fontWeight: number;
+        foreground: Color;
+        largeText: boolean;
+        type: "resolved";
+      }>;
+  const measureTextContrast = (element: Element): ContrastMeasurement | undefined => {
     const samples = paintRects(element);
-    if (samples.length === 0) continue;
+    if (samples.length === 0) return;
     const style = getComputedStyle(element);
     const foreground = parseColor(style.color);
     let indeterminateReason: string | undefined;
@@ -704,15 +711,10 @@ export const captureRenderedCheckFrame = (route: string): RenderedCheckFrame => 
     );
     indeterminateReason ??= unresolvedBackground?.reason;
     if (indeterminateReason !== undefined || foreground === undefined) {
-      if (!recordedIndeterminateContrast.has(indeterminateReason ?? "unresolved-background")) {
-        issues.push({
-          element: evidence,
-          reason: indeterminateReason ?? "unresolved-background",
-          type: "text-contrast-indeterminate",
-        });
-        recordedIndeterminateContrast.add(indeterminateReason ?? "unresolved-background");
-      }
-      continue;
+      return {
+        reason: indeterminateReason ?? "unresolved-background",
+        type: "indeterminate",
+      };
     }
     const resolved = backgrounds
       .filter(
@@ -728,21 +730,121 @@ export const captureRenderedCheckFrame = (route: string): RenderedCheckFrame => 
         };
       })
       .toSorted((left, right) => left.actual - right.actual)[0];
-    if (resolved === undefined) continue;
+    if (resolved === undefined) return;
     const fontSize = Number.parseFloat(style.fontSize);
     const fontWeight = Number.parseInt(style.fontWeight, 10);
     const largeText = fontSize >= 24 || (fontSize >= 18.66 && fontWeight >= 700);
-    const expected = largeText ? 3 : 4.5;
-    if (resolved.actual + 0.005 >= expected) continue;
-    issues.push({
-      actual: Math.round(resolved.actual * 100) / 100,
-      background: colorText(resolved.background),
-      element: evidence,
-      expected,
-      fontSize: round(fontSize),
+    return {
+      ...resolved,
+      expected: largeText ? 3 : 4.5,
+      fontSize,
       fontWeight,
-      foreground: colorText(resolved.foreground),
       largeText,
+      type: "resolved",
+    };
+  };
+  const contrastCandidates = candidates.filter(
+    (element) =>
+      !element.matches("pre") &&
+      overlapKind(element) === "text" &&
+      (directText(element).length > 0 || element.querySelector(textSelector) === null),
+  );
+  for (const element of contrastCandidates) {
+    const evidence = elements[candidates.indexOf(element)] as RenderedCheckElement;
+    const measurement = measureTextContrast(element);
+    if (measurement === undefined) continue;
+    if (measurement.type === "indeterminate") {
+      if (!recordedIndeterminateContrast.has(measurement.reason)) {
+        issues.push({
+          element: evidence,
+          reason: measurement.reason,
+          type: "text-contrast-indeterminate",
+        });
+        recordedIndeterminateContrast.add(measurement.reason);
+      }
+      continue;
+    }
+    if (measurement.actual + 0.005 >= measurement.expected) continue;
+    issues.push({
+      actual: Math.round(measurement.actual * 100) / 100,
+      background: colorText(measurement.background),
+      element: evidence,
+      expected: measurement.expected,
+      fontSize: round(measurement.fontSize),
+      fontWeight: measurement.fontWeight,
+      foreground: colorText(measurement.foreground),
+      largeText: measurement.largeText,
+      type: "text-contrast-low",
+    });
+  }
+
+  // A highlighted code block intentionally contains mixed colors, so measuring the
+  // enclosing <pre> can only produce an indeterminate result. Measure each direct
+  // text run instead and report only the worst failing token per code block. This
+  // catches a light Shiki palette accidentally selected inside a dark canvas without
+  // flooding the report with one diagnostic per punctuation span.
+  for (const block of slide.querySelectorAll("pre")) {
+    if (!isVisible(block)) continue;
+    const owners = new Set<Element>();
+    const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node !== null; node = walker.nextNode()) {
+      const owner = node.parentElement;
+      if (owner !== null && (node.textContent ?? "").trim().length > 0 && isVisible(owner)) {
+        owners.add(owner);
+      }
+    }
+    const measurements = [...owners].map((owner) => ({
+      measurement: measureTextContrast(owner),
+      owner,
+    }));
+    const failing = measurements
+      .filter(
+        (
+          candidate,
+        ): candidate is Readonly<{
+          measurement: Extract<ContrastMeasurement, { type: "resolved" }>;
+          owner: Element;
+        }> =>
+          candidate.measurement?.type === "resolved" &&
+          candidate.measurement.actual + 0.005 < candidate.measurement.expected,
+      )
+      .toSorted(
+        (left, right) =>
+          left.measurement.actual / left.measurement.expected -
+          right.measurement.actual / right.measurement.expected,
+      )[0];
+    if (failing === undefined) {
+      const unresolved = measurements.find(
+        (
+          candidate,
+        ): candidate is Readonly<{
+          measurement: Extract<ContrastMeasurement, { type: "indeterminate" }>;
+          owner: Element;
+        }> => candidate.measurement?.type === "indeterminate",
+      );
+      if (
+        unresolved !== undefined &&
+        !recordedIndeterminateContrast.has(unresolved.measurement.reason)
+      ) {
+        issues.push({
+          element: elementEvidence(block),
+          reason: unresolved.measurement.reason,
+          type: "text-contrast-indeterminate",
+        });
+        recordedIndeterminateContrast.add(unresolved.measurement.reason);
+      }
+      continue;
+    }
+    issues.push({
+      actual: Math.round(failing.measurement.actual * 100) / 100,
+      background: colorText(failing.measurement.background),
+      context: "syntax-token",
+      element: elementEvidence(failing.owner),
+      expected: failing.measurement.expected,
+      fontSize: round(failing.measurement.fontSize),
+      fontWeight: failing.measurement.fontWeight,
+      foreground: colorText(failing.measurement.foreground),
+      largeText: failing.measurement.largeText,
       type: "text-contrast-low",
     });
   }
