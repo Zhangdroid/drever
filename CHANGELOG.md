@@ -5,6 +5,15 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+Release impact: **patch** — this batch keeps an active local Studio easy to recover after its
+browser tab is closed.
+
+### Fixed
+
+- Preserved development-terminal scrollback, printed the exact local Creation room URL when the
+  last Studio tab closes, and kept it near later semantic phase changes while no room is open, so
+  users can reopen an active session without restarting it or searching through cleared output.
+
 ## [0.17.3] - 2026-08-11
 
 Release impact: **patch** — this batch keeps Studio draft progress honest while work continues and

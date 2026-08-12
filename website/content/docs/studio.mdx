@@ -17,6 +17,9 @@ open a browser.
 The Creation room belongs to that running development command. Keep its terminal or supervised
 agent task alive while you review and revise the deck; ending the parent process also ends Studio.
 The terminal prints deduplicated Studio action and phase changes even when Vite itself is quiet.
+It preserves the exact Creation room URL in the scrollback. Closing the last Studio tab prints the
+address again immediately, and later semantic phase changes keep it near the latest output while no
+Creation room is open, so you can reopen it without restarting the development command.
 Coding-agent supervisors use those lines—or `drever studio status --json`—as the source of truth;
 they do not require a chat `continue` message to keep an already active managed agent working.
 

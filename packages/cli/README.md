@@ -51,7 +51,9 @@ respectively, plus that manager's script runner.
 
 `dev --open studio` opens the exact loopback-only Creation room in the default browser after the
 server chooses its URL. CI, explicitly disabled browser opening, and headless Linux sessions keep
-the server running and print the same URL as a manual fallback.
+the server running and print the same URL as a manual fallback. The development terminal preserves
+that address in its scrollback. Closing the last Studio tab prints the address again immediately,
+and later semantic phase changes keep it near the latest output while no Creation room is open.
 
 Add `--topic <text>` with `--open studio` to prefill the Brief without submitting it. The value
 stays out of the printed Creation room URL, and an already submitted Brief remains authoritative.

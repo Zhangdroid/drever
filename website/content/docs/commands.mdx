@@ -103,7 +103,9 @@ Gemini CLI, GitHub Copilot CLI, Goose, Cursor CLI, OpenCode, OpenHands, and Clin
 Omitting it keeps the portable journal bridge.
 The development terminal also prints deduplicated Studio action and phase changes. A quiet Vite
 terminal is not an idle-agent signal; use these semantic lines or `drever studio status --json`
-before deciding that a managed workflow stopped.
+before deciding that a managed workflow stopped. Drever keeps the exact Creation room URL in the
+terminal scrollback. Closing the last Studio tab prints the address again immediately, and later
+semantic phase changes keep it near the latest output while no Creation room is open.
 `--topic` requires `--open studio` and prefills the Brief without submitting it, so an agent can
 carry a topic from the original request into Studio without asking for it twice. The text is not
 included in the printed Creation room URL.

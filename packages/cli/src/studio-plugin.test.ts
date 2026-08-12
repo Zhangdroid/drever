@@ -2043,7 +2043,14 @@ describe("Studio Vite state", () => {
         return () => undefined;
       },
     };
-    const plugin = createStudioPlugin({ root, agentProvider: provider, token });
+    const creationRoomUrl =
+      "http://127.0.0.1:4317/studio#access=studio-test-token&preview=http%3A%2F%2F127.0.0.1%3A51999%2F";
+    const plugin = createStudioPlugin({
+      root,
+      agentProvider: provider,
+      creationRoomUrl: () => creationRoomUrl,
+      token,
+    });
     const server = {
       config: { logger: { error: vi.fn(), info } },
       httpServer: {
@@ -2070,6 +2077,8 @@ describe("Studio Vite state", () => {
         "Drever Studio state: phase=briefing handled=0 latest=0 agent=connected.",
       ),
     );
+    const creationRoomLog = `  Creation room: ${creationRoomUrl}`;
+    expect(info.mock.calls.filter(([line]) => line === creationRoomLog)).toHaveLength(1);
     const receiveAction = listeners.get(DREVER_STUDIO_ACTION_EVENT);
     if (receiveAction === undefined) throw new TypeError("Missing action listener.");
     const payload = {
@@ -2088,6 +2097,7 @@ describe("Studio Vite state", () => {
         "Drever Studio state: phase=waiting-for-agent handled=0 latest=1 agent=connected.",
       ),
     );
+    expect(info.mock.calls.filter(([line]) => line === creationRoomLog)).toHaveLength(1);
 
     phase = "drafting";
     message = "Writing a visible first draft";
@@ -2097,6 +2107,7 @@ describe("Studio Vite state", () => {
         "Drever Studio state: phase=drafting handled=0 latest=1 agent=connected.",
       ),
     );
+    expect(info.mock.calls.filter(([line]) => line === creationRoomLog)).toHaveLength(1);
     const callsBeforeTelemetryOnlyUpdate = info.mock.calls.length;
     const telemetryMessageCount = clientSend.mock.calls.filter(
       ([value]) =>
@@ -2128,6 +2139,7 @@ describe("Studio Vite state", () => {
         "Drever Studio state: phase=error handled=0 latest=1 agent=connected terminal=error.",
       ),
     );
+    expect(info.mock.calls.filter(([line]) => line === creationRoomLog)).toHaveLength(1);
 
     handledActionRevision = 1;
     phase = "ready";
@@ -2138,6 +2150,7 @@ describe("Studio Vite state", () => {
         "Drever Studio state: phase=ready handled=1 latest=1 agent=connected terminal=ready.",
       ),
     );
+    expect(info.mock.calls.filter(([line]) => line === creationRoomLog)).toHaveLength(1);
     const callsBeforeDuplicateAction = info.mock.calls.length;
     const acknowledgementsBeforeDuplicate = clientSend.mock.calls.filter(
       ([value]) => (value as { event?: string }).event === DREVER_STUDIO_ACTION_ACK_EVENT,
@@ -2340,11 +2353,18 @@ describe("Studio Vite state", () => {
     const token = "studio-test-token";
     const listeners = new Map<string, (payload: unknown, client: WebSocketClient) => void>();
     const middlewares: Array<(request: never, response: never, next: () => void) => void> = [];
-    let disconnect: (() => void) | undefined;
+    const disconnects: Array<() => void> = [];
     let close: (() => void) | undefined;
-    const plugin = createStudioPlugin({ root, token });
+    const info = vi.fn();
+    const creationRoomUrl =
+      "http://127.0.0.1:4317/studio#access=studio-test-token&preview=http%3A%2F%2F127.0.0.1%3A51999%2F";
+    const plugin = createStudioPlugin({
+      root,
+      creationRoomUrl: () => creationRoomUrl,
+      token,
+    });
     const server = {
-      config: { logger: { error: vi.fn() } },
+      config: { logger: { error: vi.fn(), info } },
       httpServer: {
         once(event: string, listener: () => void) {
           if (event === "close") close = listener;
@@ -2377,17 +2397,30 @@ describe("Studio Vite state", () => {
     const requestState = listeners.get(DREVER_STUDIO_STATE_REQUEST_EVENT);
     if (requestState === undefined) throw new TypeError("Missing state request listener.");
     const clearIntervalSpy = vi.spyOn(globalThis, "clearInterval");
-    requestState({ token }, {
-      send: vi.fn(),
-      socket: {
-        _socket: { remoteAddress: "127.0.0.1" },
-        once(event: string, listener: () => void) {
-          if (event === "close") disconnect = listener;
+    const studioClientWithDisconnect = (): WebSocketClient =>
+      ({
+        send: vi.fn(),
+        socket: {
+          _socket: { remoteAddress: "127.0.0.1" },
+          once(event: string, listener: () => void) {
+            if (event === "close") disconnects.push(listener);
+          },
         },
-      },
-    } as unknown as WebSocketClient);
-    disconnect?.();
+      }) as unknown as WebSocketClient;
+    requestState({ token }, studioClientWithDisconnect());
+    requestState({ token }, studioClientWithDisconnect());
+    const creationRoomLog = `  Creation room: ${creationRoomUrl}`;
+    const logsBeforeDisconnect = info.mock.calls.filter(
+      ([line]) => line === creationRoomLog,
+    ).length;
+    disconnects[0]?.();
+    expect(clearIntervalSpy).not.toHaveBeenCalled();
+    expect(info.mock.calls.filter(([line]) => line === creationRoomLog)).toHaveLength(
+      logsBeforeDisconnect,
+    );
+    disconnects[1]?.();
     expect(clearIntervalSpy).toHaveBeenCalledOnce();
+    expect(info).toHaveBeenLastCalledWith(creationRoomLog);
     clearIntervalSpy.mockRestore();
     close?.();
   });

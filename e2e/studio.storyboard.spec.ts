@@ -419,6 +419,14 @@ test("Studio keeps the embedded live draft navigable with real speaker notes", a
       })
       .toBe(true);
     health.expectHealthy();
+
+    const browserContext = page.context();
+    await page.close();
+    await expect.poll(() => output.split(studioUrl).length - 1).toBeGreaterThan(1);
+    const reopenedStudio = await browserContext.newPage();
+    await reopenedStudio.goto(studioUrl);
+    await expect(reopenedStudio.locator(".drever-studio-header")).toBeVisible();
+    await reopenedStudio.close();
   } catch (error) {
     throw new Error(`Studio Live Draft E2E failed.\n${output}`, { cause: error });
   } finally {

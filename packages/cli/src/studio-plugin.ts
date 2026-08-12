@@ -1727,11 +1727,13 @@ export const resolveStudioUrls = (
 export const createStudioPlugin = ({
   root,
   agentProvider,
+  creationRoomUrl,
   initialTopic,
   token,
 }: Readonly<{
   root: string;
   agentProvider?: StudioAgentProvider;
+  creationRoomUrl?: () => string | undefined;
   initialTopic?: string;
   token?: string;
 }>): Plugin => {
@@ -1776,6 +1778,11 @@ export const createStudioPlugin = ({
     server?.config.logger.info?.(
       `Drever Studio state: phase=${state.phase} handled=${String(handledActionRevision)} latest=${String(state.latestActionRevision)} agent=${state.agentConnected ? "connected" : "disconnected"}${terminal ? ` terminal=${state.phase}` : ""}.`,
     );
+    if (studioClients.size !== 0) return;
+    const currentCreationRoomUrl = creationRoomUrl?.();
+    if (currentCreationRoomUrl !== undefined) {
+      server?.config.logger.info?.(`  Creation room: ${currentCreationRoomUrl}`);
+    }
   };
 
   const logAcceptedAction = (action: DreverStudioAction, state: DreverStudioState): void => {
@@ -1803,6 +1810,11 @@ export const createStudioPlugin = ({
     client.socket.once("close", () => {
       studioClients.delete(client);
       stopRefreshPollingIfIdle();
+      if (studioClients.size !== 0) return;
+      const currentCreationRoomUrl = creationRoomUrl?.();
+      if (currentCreationRoomUrl !== undefined) {
+        server?.config.logger.info?.(`  Creation room: ${currentCreationRoomUrl}`);
+      }
     });
     return true;
   };

@@ -254,6 +254,7 @@ const inlineConfig = (
   const aliases = [...framework.aliases];
   return {
     appType: "spa",
+    ...(parentServer === undefined ? {} : { clearScreen: false }),
     configFile: false,
     optimizeDeps: { exclude: [...framework.exclude], include: [...framework.optimize] },
     plugins: [projectModuleResolver(project.root), ...plugins, ...project.plugins],
@@ -803,6 +804,14 @@ export const serveDreverProject = async (
       createStudioPlugin({
         root: activeProject.root,
         token: studioCapabilities.action,
+        creationRoomUrl: () => {
+          if (previewProxy === undefined) return undefined;
+          return resolveStudioUrls(
+            resolvedUrls ?? null,
+            studioCapabilities.action,
+            previewProxy.audienceUrl,
+          )[0];
+        },
         ...(agentProvider === undefined ? {} : { agentProvider }),
         ...(options.initialTopic === undefined ? {} : { initialTopic: options.initialTopic }),
       }),
