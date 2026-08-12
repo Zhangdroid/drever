@@ -21,6 +21,7 @@
     "deploy:website": "pnpm --dir website run deploy",
     "dev:website": "pnpm --dir website run dev",
     "preview:website": "pnpm --dir website run preview:pages",
+    "render:social-card": "node scripts/render-social-card.mjs",
     "ready": "vp check && vp exec tsc -p packages/vite/type-tests/tsconfig.json && vp run test && vp run build:packages && vp exec playwright test",
     "release:check": "node scripts/release.mjs clean && vp run build:packages && node scripts/verify-release.mjs && node scripts/verify-consumer.mjs",
     "test": "vp run test:unit && vp run test:release",
