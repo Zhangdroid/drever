@@ -6,6 +6,7 @@ import { expect, test } from "@playwright/test";
 const root = join(import.meta.dirname, "..");
 const sourcePath = join(root, ".github", "assets", "drever-social-card-source.svg");
 const svgImagePath = join(root, ".github", "assets", "drever-social-card.svg");
+const githubImagePath = join(root, ".github", "assets", "drever-social-card.png");
 const imagePath = join(root, "website", "public", "social-card.png");
 const readmePath = join(root, "README.md");
 
@@ -57,14 +58,14 @@ test("the social card renders with the website brand fonts", async ({ page }) =>
 
   const svgImage = await readFile(svgImagePath, "utf8");
   expect(svgImage).toContain(
-    '<image width="1200" height="630" href="../../website/public/social-card.png?v=website-hero"',
+    '<image width="1200" height="630" href="drever-social-card.png?v=website-hero"',
   );
   expect(svgImage).not.toContain("data:");
   expect(svgImage).not.toContain("url(");
   await page.goto(pathToFileURL(svgImagePath).href);
   await expect(page.locator("image")).toHaveAttribute(
     "href",
-    "../../website/public/social-card.png?v=website-hero",
+    "drever-social-card.png?v=website-hero",
   );
   const svgCapture = await page.screenshot({
     animations: "disabled",
@@ -72,7 +73,8 @@ test("the social card renders with the website brand fonts", async ({ page }) =>
     type: "png",
   });
   expect(svgCapture.equals(png)).toBe(true);
+  expect((await readFile(githubImagePath)).equals(png)).toBe(true);
 
   const readme = await readFile(readmePath, "utf8");
-  expect(readme).toContain('src="./.github/assets/drever-social-card.svg?v=website-hero"');
+  expect(readme).toContain('src="./website/public/social-card.png?v=website-hero"');
 });

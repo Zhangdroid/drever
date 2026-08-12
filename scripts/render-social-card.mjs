@@ -5,9 +5,10 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const sourcePath = join(root, ".github", "assets", "drever-social-card-source.svg");
+const githubImageOutputPath = join(root, ".github", "assets", "drever-social-card.png");
 const svgOutputPath = join(root, ".github", "assets", "drever-social-card.svg");
 const outputPath = join(root, "website", "public", "social-card.png");
-const svgImageHref = "../../website/public/social-card.png?v=website-hero";
+const svgImageHref = "drever-social-card.png?v=website-hero";
 
 export const renderSocialCard = async () => {
   const browser = await chromium.launch({ channel: "chromium", headless: true });
@@ -48,6 +49,7 @@ export const renderSocialCard = async () => {
       type: "png",
     });
     await writeFile(outputPath, image);
+    await writeFile(githubImageOutputPath, image);
     await writeFile(
       svgOutputPath,
       `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
