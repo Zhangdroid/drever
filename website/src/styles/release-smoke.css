@@ -254,13 +254,12 @@
   transition:
     background var(--drever-brand-motion-duration-quick),
     border-color var(--drever-brand-motion-duration-quick),
-    transform var(--drever-brand-motion-duration-quick) var(--drever-brand-motion-easing-standard);
+    color var(--drever-brand-motion-duration-quick);
 }
 
 .release-smoke__cases button:is(:hover, :focus-visible) {
   border-color: color-mix(in srgb, var(--site-continuity), transparent 70%);
   background: var(--site-paper-raised);
-  transform: translateY(-2px);
 }
 
 .release-smoke__cases button[aria-pressed="true"] {
@@ -641,9 +640,13 @@
   background: transparent;
   text-align: left;
   cursor: pointer;
+  transition:
+    background var(--drever-brand-motion-duration-quick),
+    color var(--drever-brand-motion-duration-quick);
 }
 
 .release-smoke__archive-list > button:is(:hover, :focus-visible, [aria-pressed="true"]) {
+  background: color-mix(in srgb, var(--site-continuity-soft) 28%, transparent);
   color: var(--site-accent);
 }
 

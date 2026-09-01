@@ -1451,7 +1451,8 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   display: block;
   margin-block-start: 5rem;
   padding: 1.8rem 2rem;
-  border-top: 1px solid var(--site-line);
+  border: 1px solid var(--site-line);
+  border-radius: var(--drever-brand-radius-medium);
   background: var(--site-paper-raised);
   color: var(--site-ink);
   text-decoration: none;
@@ -1534,6 +1535,7 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   min-height: 9.5rem;
   padding: clamp(1.4rem, 3vw, 2rem);
   overflow: hidden;
+  border-radius: var(--drever-brand-radius-medium);
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: end;
   gap: 2rem;
@@ -1615,6 +1617,7 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   display: inline-flex;
   min-height: 3rem;
   padding: 0.75rem 1rem;
+  border-radius: var(--drever-brand-radius-small);
   align-items: center;
   justify-content: center;
   gap: 0.55rem;
@@ -1646,7 +1649,9 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   position: relative;
   min-width: 0;
   padding: 0.65rem 0.65rem 1.2rem;
+  overflow: hidden;
   border: 1px solid var(--site-line);
+  border-radius: var(--drever-brand-radius-medium);
   background: var(--site-paper-raised);
   color: var(--site-ink);
   text-decoration: none;
@@ -1683,6 +1688,7 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   display: flex;
   aspect-ratio: 16 / 9;
   overflow: hidden;
+  border-radius: var(--drever-brand-radius-small);
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
@@ -1792,7 +1798,9 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
 .plugin-gallery > a {
   min-width: 0;
   padding: 0.65rem 0.65rem 1.4rem;
+  overflow: hidden;
   border: 1px solid var(--site-line);
+  border-radius: var(--drever-brand-radius-medium);
   background: var(--site-paper-raised);
   color: var(--site-ink);
   text-decoration: none;
@@ -1803,6 +1811,7 @@ html:active-view-transition-type(docs-page)::view-transition-new(docs-content) {
   display: flex;
   aspect-ratio: 16 / 7;
   overflow: hidden;
+  border-radius: var(--drever-brand-radius-small);
   align-items: center;
   justify-content: center;
   background: var(--site-night);

@@ -177,6 +177,9 @@ body {
 .browser-support-notice button span {
   font-size: 1.18rem;
   line-height: 1;
+  transform-origin: center;
+  transition: transform var(--drever-brand-motion-duration-quick)
+    var(--drever-brand-motion-easing-standard);
 }
 
 body,
@@ -197,6 +200,20 @@ a {
 
 button {
   color: inherit;
+}
+
+button:not(:disabled),
+a.button {
+  cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+.browser-support-notice button:is(:hover, :focus-visible) > span {
+  transform: rotate(8deg);
 }
 
 img,
@@ -434,14 +451,18 @@ main[tabindex="-1"]:focus {
   font-weight: 680;
   transition:
     background var(--drever-brand-motion-duration-quick),
+    border-color var(--drever-brand-motion-duration-quick),
     color var(--drever-brand-motion-duration-quick),
-    transform var(--drever-brand-motion-duration-quick) var(--drever-brand-motion-easing-standard);
+    box-shadow var(--drever-brand-motion-duration-quick);
 }
 
 .site-header__ai:is(:hover, :focus-visible) {
+  border-color: color-mix(in srgb, var(--site-continuity), transparent 68%);
   background: color-mix(in srgb, var(--site-continuity-soft) 78%, transparent);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 28%),
+    0 0 0 3px color-mix(in srgb, var(--site-continuity), transparent 92%);
   color: var(--site-ink);
-  transform: translateY(-1px);
 }
 
 .site-header__ai .copy-button__icon {
@@ -468,10 +489,15 @@ main[tabindex="-1"]:focus {
   font-size: 0.78rem;
   font-weight: 620;
   text-decoration: none;
-  transition: color var(--drever-brand-motion-duration-quick);
+  transition:
+    background var(--drever-brand-motion-duration-quick),
+    border-color var(--drever-brand-motion-duration-quick),
+    color var(--drever-brand-motion-duration-quick);
 }
 
 .site-header__github:is(:hover, :focus-visible) {
+  border-color: color-mix(in srgb, var(--site-line), transparent 34%);
+  background: color-mix(in srgb, var(--site-paper-raised), transparent 42%);
   color: var(--site-ink);
 }
 
@@ -489,6 +515,8 @@ main[tabindex="-1"]:focus {
 }
 
 .site-header[data-tone="dark"] .site-header__github:is(:hover, :focus-visible) {
+  border-color: rgb(255 255 255 / 12%);
+  background: rgb(255 255 255 / 8%);
   color: var(--site-night-text);
 }
 
@@ -513,6 +541,7 @@ main[tabindex="-1"]:focus {
   display: inline-flex;
   min-height: 3.2rem;
   padding: 0.8rem 1.1rem;
+  border: 1px solid transparent;
   border-radius: 0.72rem;
   align-items: center;
   justify-content: center;
@@ -523,8 +552,9 @@ main[tabindex="-1"]:focus {
   text-decoration: none;
   transition:
     background var(--drever-brand-motion-duration-quick),
-    color var(--drever-brand-motion-duration-quick),
-    transform var(--drever-brand-motion-duration-quick) var(--drever-brand-motion-easing-standard);
+    border-color var(--drever-brand-motion-duration-quick),
+    box-shadow var(--drever-brand-motion-duration-quick),
+    color var(--drever-brand-motion-duration-quick);
 }
 
 :where(a, button) [data-link-icon] {
@@ -533,16 +563,37 @@ main[tabindex="-1"]:focus {
     var(--drever-brand-motion-easing-standard);
 }
 
-.button:is(:hover, :focus-visible) {
-  transform: translateY(-2px);
-}
-
-:where(a, button):is(:hover, :focus-visible) [data-link-icon="forward"] {
+:where(a:not([aria-disabled="true"]), button:not(:disabled, [aria-disabled="true"])):is(
+    :hover,
+    :focus-visible
+  )
+  [data-link-icon="forward"] {
   translate: 0.2rem 0;
 }
 
-:where(a, button):is(:hover, :focus-visible) [data-link-icon="external"] {
+:where(a:not([aria-disabled="true"]), button:not(:disabled, [aria-disabled="true"])):is(
+    :hover,
+    :focus-visible
+  )
+  [data-link-icon="external"] {
   translate: 0.16rem -0.16rem;
+}
+
+[data-button-icon] {
+  flex: none;
+  transform-origin: center;
+  transition: transform var(--drever-brand-motion-duration-quick)
+    var(--drever-brand-motion-easing-standard);
+}
+
+:where(a, button):not(:disabled, [aria-disabled="true"]):is(:hover, :focus-visible)
+  [data-button-icon="play"] {
+  transform: translateX(0.12rem) scale(1.035);
+}
+
+:where(a, button):not(:disabled, [aria-disabled="true"]):is(:hover, :focus-visible)
+  [data-button-icon="github"] {
+  transform: rotate(-5deg) scale(1.045);
 }
 
 .button--primary {
@@ -550,17 +601,37 @@ main[tabindex="-1"]:focus {
   color: var(--site-night-text);
 }
 
+.button--primary:not(:disabled, [aria-disabled="true"]):is(:hover, :focus-visible) {
+  border-color: color-mix(in srgb, var(--site-continuity), transparent 66%);
+  background: color-mix(in srgb, var(--site-ink) 94%, var(--site-continuity));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 11%),
+    0 0 0 3px color-mix(in srgb, var(--site-continuity), transparent 91%);
+}
+
 .button--quiet {
   color: var(--site-ink);
 }
 
-.button--quiet:is(:hover, :focus-visible) {
-  background: rgb(255 255 255 / 42%);
+.button--quiet:not(:disabled, [aria-disabled="true"]):is(:hover, :focus-visible) {
+  border-color: color-mix(in srgb, var(--site-line), transparent 36%);
+  background: color-mix(in srgb, var(--site-paper-raised), var(--site-continuity-soft) 9%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 52%),
+    0 0 0 3px color-mix(in srgb, var(--site-continuity), transparent 94%);
 }
 
 .button--light {
   background: var(--site-signal);
   color: var(--site-ink);
+}
+
+.button--light:not(:disabled, [aria-disabled="true"]):is(:hover, :focus-visible) {
+  border-color: color-mix(in srgb, var(--site-ink), transparent 84%);
+  background: color-mix(in srgb, var(--site-signal) 94%, var(--site-continuity));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 46%),
+    0 0 0 3px color-mix(in srgb, var(--site-signal), transparent 84%);
 }
 
 .copy-button__icon {
@@ -569,6 +640,25 @@ main[tabindex="-1"]:focus {
   width: 1em;
   height: 1em;
   flex: none;
+}
+
+.copy-button__glyph--copy [data-copy-layer] {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform var(--drever-brand-motion-duration-quick)
+    var(--drever-brand-motion-easing-standard);
+}
+
+button:not(:disabled, [aria-disabled="true"]):is(:hover, :focus-visible)
+  .copy-button__glyph--copy
+  [data-copy-layer="front"] {
+  transform: translate(0.7px, -0.7px);
+}
+
+button:not(:disabled, [aria-disabled="true"]):is(:hover, :focus-visible)
+  .copy-button__glyph--copy
+  [data-copy-layer="back"] {
+  transform: translate(-0.45px, 0.45px);
 }
 
 .copy-button__glyph {
@@ -719,6 +809,15 @@ main[tabindex="-1"]:focus {
   cursor: pointer;
   font-size: 0.72rem;
   font-weight: 650;
+  transition:
+    background var(--drever-brand-motion-duration-quick),
+    color var(--drever-brand-motion-duration-quick);
+}
+
+.copy-command button:is(:hover, :focus-visible),
+.code-block__bar button:is(:hover, :focus-visible) {
+  background: color-mix(in srgb, var(--site-continuity-soft) 46%, var(--site-paper-raised));
+  color: var(--site-continuity);
 }
 
 .copy-command button svg,
@@ -850,6 +949,14 @@ main[tabindex="-1"]:focus {
   cursor: pointer;
   font-size: 0.74rem;
   font-weight: 650;
+  transition:
+    background var(--drever-brand-motion-duration-quick),
+    color var(--drever-brand-motion-duration-quick);
+}
+
+.ai-handoff footer button:is(:hover, :focus-visible) {
+  background: color-mix(in srgb, var(--site-ink) 89%, var(--site-continuity));
+  color: white;
 }
 
 .ai-handoff footer button svg {
@@ -1118,6 +1225,12 @@ main[tabindex="-1"]:focus {
 
   :where(a, button):is(:hover, :focus-visible) [data-link-icon] {
     translate: 0 0;
+  }
+
+  :where(a, button):is(:hover, :focus-visible) [data-button-icon],
+  button:is(:hover, :focus-visible) .copy-button__glyph--copy [data-copy-layer],
+  .browser-support-notice button:is(:hover, :focus-visible) > span {
+    transform: none;
   }
 }
 

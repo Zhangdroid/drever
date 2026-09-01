@@ -5,6 +5,12 @@ section, while commit snapshots use the current Unreleased section.
 
 ## [Unreleased]
 
+### Changed
+
+- Unified website button feedback around stable, non-lifting surfaces and intent-specific icon
+  motion, and aligned standalone documentation action cards to the shared compact and medium
+  corner-radius scale.
+
 ## [0.17.4] - 2026-08-11
 
 Release impact: **patch** — this batch keeps an active local Studio easy to recover and makes
