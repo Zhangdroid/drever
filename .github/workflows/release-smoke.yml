@@ -140,7 +140,7 @@ jobs:
           "$ARTIFACT_ROOT"
 
       - name: Upload the inert authoring context
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-smoke-prepared-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
           path: ${{ env.PREPARED_ROOT }}
@@ -254,7 +254,7 @@ jobs:
           "$ARTIFACT_ROOT"
 
       - name: Upload allowlisted source and sanitized conversation
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-smoke-generated-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
           path: ${{ env.ARTIFACT_ROOT }}
@@ -326,7 +326,7 @@ jobs:
           "$VALIDATION_ROOT"
 
       - name: Upload validation evidence and any passing build
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-smoke-validation-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
           path: ${{ env.VALIDATION_ROOT }}
@@ -468,7 +468,7 @@ jobs:
           "$VALIDATION_ROOT/validation.json"
 
       - name: Upload the initially refined candidate
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-smoke-candidate-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
           path: ${{ env.ARTIFACT_ROOT }}
@@ -554,7 +554,7 @@ jobs:
           echo "Rendered review stage: $stage"
 
       - name: Upload rendered evidence for final visual review
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-smoke-review-validation-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
           path: ${{ env.VALIDATION_ROOT }}
@@ -704,7 +704,7 @@ jobs:
 
       - name: Retain the already visually reviewed candidate
         if: steps.stage.outputs.stage == 'complete'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-smoke-reviewed-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
           path: ${{ env.ORIGINAL_ROOT }}
@@ -714,7 +714,7 @@ jobs:
 
       - name: Retain the newly visually reviewed candidate
         if: steps.stage.outputs.stage == 'required'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-smoke-reviewed-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
           path: ${{ env.ARTIFACT_ROOT }}
@@ -786,7 +786,7 @@ jobs:
           "$BUILT_ROOT"
 
       - name: Upload the final interactive result
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-smoke-built-${{ matrix.provider }}-${{ matrix.case }}-${{ github.run_id }}
           path: ${{ env.BUILT_ROOT }}
@@ -919,7 +919,7 @@ jobs:
           "${{ steps.report.outputs.origin }}"
 
       - name: Retain a downloadable site bundle
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-smoke-site-${{ github.run_id }}
           path: ${{ env.AUTOMATION_ROOT }}/website/dist/client
